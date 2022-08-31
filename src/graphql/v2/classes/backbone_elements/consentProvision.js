@@ -44,7 +44,7 @@ class ConsentProvision {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ConsentProvision {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -121,7 +121,7 @@ class ConsentProvision {
                     return;
                 }
                 let ConsentActor = require('../backbone_elements/consentActor.js');
-                this.__data.actor = new ConsentActor(value);
+                this.__data.actor = Array.isArray(value) ? value.map(v => new ConsentActor(v)) : [new ConsentActor(value)];
             }
         });
 
@@ -137,7 +137,7 @@ class ConsentProvision {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.action = new CodeableConcept(value);
+                this.__data.action = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -154,7 +154,7 @@ class ConsentProvision {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.securityLabel = new Coding(value);
+                this.__data.securityLabel = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -171,7 +171,7 @@ class ConsentProvision {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.purpose = new Coding(value);
+                this.__data.purpose = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -189,7 +189,7 @@ class ConsentProvision {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.class = new Coding(value);
+                this.__data.class = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -205,7 +205,7 @@ class ConsentProvision {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -238,7 +238,7 @@ class ConsentProvision {
                     return;
                 }
                 let ConsentData = require('../backbone_elements/consentData.js');
-                this.__data.data = new ConsentData(value);
+                this.__data.data = Array.isArray(value) ? value.map(v => new ConsentData(v)) : [new ConsentData(value)];
             }
         });
 
@@ -253,7 +253,7 @@ class ConsentProvision {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.provision = new ConsentProvision(value);
+                this.__data.provision = Array.isArray(value) ? value.map(v => new ConsentProvision(v)) : [new ConsentProvision(value)];
             }
         });
 
@@ -273,19 +273,19 @@ class ConsentProvision {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            type: this.type && this.type.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            type: this.type,
             period: this.period && this.period.toJSON(),
-            actor: this.actor && this.actor.toJSON(),
-            action: this.action && this.action.toJSON(),
-            securityLabel: this.securityLabel && this.securityLabel.toJSON(),
-            purpose: this.purpose && this.purpose.toJSON(),
-            class: this.class && this.class.toJSON(),
-            code: this.code && this.code.toJSON(),
+            actor: this.actor && this.actor.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON()),
+            securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSON()),
+            purpose: this.purpose && this.purpose.map(v => v.toJSON()),
+            class: this.class && this.class.map(v => v.toJSON()),
+            code: this.code && this.code.map(v => v.toJSON()),
             dataPeriod: this.dataPeriod && this.dataPeriod.toJSON(),
-            data: this.data && this.data.toJSON(),
-            provision: this.provision && this.provision.toJSON(),
+            data: this.data && this.data.map(v => v.toJSON()),
+            provision: this.provision && this.provision.map(v => v.toJSON()),
         };
     }
 }

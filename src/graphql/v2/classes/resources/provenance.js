@@ -32,9 +32,7 @@ class Provenance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -70,9 +68,7 @@ class Provenance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -125,9 +121,7 @@ class Provenance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -147,7 +141,7 @@ class Provenance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -175,7 +169,7 @@ class Provenance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -193,7 +187,7 @@ class Provenance {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.target = new Reference(value);
+                this.__data.target = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -224,9 +218,7 @@ class Provenance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.occurredDateTime = new dateTime(value);
+                this.__data.occurredDateTime = value;
             }
         });
 
@@ -241,9 +233,7 @@ class Provenance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.recorded = new instant(value);
+                this.__data.recorded = value;
             }
         });
 
@@ -260,9 +250,7 @@ class Provenance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.policy = new uri(value);
+                this.__data.policy = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -294,7 +282,7 @@ class Provenance {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reason = new CodeableConcept(value);
+                this.__data.reason = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -329,7 +317,7 @@ class Provenance {
                     return;
                 }
                 let ProvenanceAgent = require('../backbone_elements/provenanceAgent.js');
-                this.__data.agent = new ProvenanceAgent(value);
+                this.__data.agent = Array.isArray(value) ? value.map(v => new ProvenanceAgent(v)) : [new ProvenanceAgent(value)];
             }
         });
 
@@ -345,7 +333,7 @@ class Provenance {
                     return;
                 }
                 let ProvenanceEntity = require('../backbone_elements/provenanceEntity.js');
-                this.__data.entity = new ProvenanceEntity(value);
+                this.__data.entity = Array.isArray(value) ? value.map(v => new ProvenanceEntity(v)) : [new ProvenanceEntity(value)];
             }
         });
 
@@ -362,7 +350,7 @@ class Provenance {
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');
-                this.__data.signature = new Signature(value);
+                this.__data.signature = Array.isArray(value) ? value.map(v => new Signature(v)) : [new Signature(value)];
             }
         });
 
@@ -382,25 +370,25 @@ class Provenance {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            target: this.target && this.target.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON()),
             occurredPeriod: this.occurredPeriod && this.occurredPeriod.toJSON(),
-            occurredDateTime: this.occurredDateTime && this.occurredDateTime.toJSON(),
-            recorded: this.recorded && this.recorded.toJSON(),
-            policy: this.policy && this.policy.toJSON(),
+            occurredDateTime: this.occurredDateTime,
+            recorded: this.recorded,
+            policy: this.policy,
             location: this.location && this.location.toJSON(),
-            reason: this.reason && this.reason.toJSON(),
+            reason: this.reason && this.reason.map(v => v.toJSON()),
             activity: this.activity && this.activity.toJSON(),
-            agent: this.agent && this.agent.toJSON(),
-            entity: this.entity && this.entity.toJSON(),
-            signature: this.signature && this.signature.toJSON(),
+            agent: this.agent && this.agent.map(v => v.toJSON()),
+            entity: this.entity && this.entity.map(v => v.toJSON()),
+            signature: this.signature && this.signature.map(v => v.toJSON()),
         };
     }
 }

@@ -25,9 +25,7 @@ class Patient {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class Patient {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class Patient {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class Patient {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class Patient {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class Patient {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -223,7 +217,7 @@ class Patient {
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
-                this.__data.name = new HumanName(value);
+                this.__data.name = Array.isArray(value) ? value.map(v => new HumanName(v)) : [new HumanName(value)];
             }
         });
 
@@ -240,7 +234,7 @@ class Patient {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = new ContactPoint(value);
+                this.__data.telecom = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -271,9 +265,7 @@ class Patient {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.birthDate = new date(value);
+                this.__data.birthDate = value;
             }
         });
 
@@ -303,9 +295,7 @@ class Patient {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.deceasedDateTime = new dateTime(value);
+                this.__data.deceasedDateTime = value;
             }
         });
 
@@ -321,7 +311,7 @@ class Patient {
                     return;
                 }
                 let Address = require('../complex_types/address.js');
-                this.__data.address = new Address(value);
+                this.__data.address = Array.isArray(value) ? value.map(v => new Address(v)) : [new Address(value)];
             }
         });
 
@@ -383,7 +373,7 @@ class Patient {
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
-                this.__data.photo = new Attachment(value);
+                this.__data.photo = Array.isArray(value) ? value.map(v => new Attachment(v)) : [new Attachment(value)];
             }
         });
 
@@ -399,7 +389,7 @@ class Patient {
                     return;
                 }
                 let PatientContact = require('../backbone_elements/patientContact.js');
-                this.__data.contact = new PatientContact(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new PatientContact(v)) : [new PatientContact(value)];
             }
         });
 
@@ -416,7 +406,7 @@ class Patient {
                     return;
                 }
                 let PatientCommunication = require('../backbone_elements/patientCommunication.js');
-                this.__data.communication = new PatientCommunication(value);
+                this.__data.communication = Array.isArray(value) ? value.map(v => new PatientCommunication(v)) : [new PatientCommunication(value)];
             }
         });
 
@@ -432,7 +422,7 @@ class Patient {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.generalPractitioner = new Reference(value);
+                this.__data.generalPractitioner = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -464,7 +454,7 @@ class Patient {
                     return;
                 }
                 let PatientLink = require('../backbone_elements/patientLink.js');
-                this.__data.link = new PatientLink(value);
+                this.__data.link = Array.isArray(value) ? value.map(v => new PatientLink(v)) : [new PatientLink(value)];
             }
         });
 
@@ -484,32 +474,32 @@ class Patient {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             active: this.active,
-            name: this.name && this.name.toJSON(),
-            telecom: this.telecom && this.telecom.toJSON(),
-            gender: this.gender && this.gender.toJSON(),
-            birthDate: this.birthDate && this.birthDate.toJSON(),
+            name: this.name && this.name.map(v => v.toJSON()),
+            telecom: this.telecom && this.telecom.map(v => v.toJSON()),
+            gender: this.gender,
+            birthDate: this.birthDate,
             deceasedBoolean: this.deceasedBoolean,
-            deceasedDateTime: this.deceasedDateTime && this.deceasedDateTime.toJSON(),
-            address: this.address && this.address.toJSON(),
+            deceasedDateTime: this.deceasedDateTime,
+            address: this.address && this.address.map(v => v.toJSON()),
             maritalStatus: this.maritalStatus && this.maritalStatus.toJSON(),
             multipleBirthBoolean: this.multipleBirthBoolean,
             multipleBirthInteger: this.multipleBirthInteger,
-            photo: this.photo && this.photo.toJSON(),
-            contact: this.contact && this.contact.toJSON(),
-            communication: this.communication && this.communication.toJSON(),
-            generalPractitioner: this.generalPractitioner && this.generalPractitioner.toJSON(),
+            photo: this.photo && this.photo.map(v => v.toJSON()),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
+            communication: this.communication && this.communication.map(v => v.toJSON()),
+            generalPractitioner: this.generalPractitioner && this.generalPractitioner.map(v => v.toJSON()),
             managingOrganization: this.managingOrganization && this.managingOrganization.toJSON(),
-            link: this.link && this.link.toJSON(),
+            link: this.link && this.link.map(v => v.toJSON()),
         };
     }
 }

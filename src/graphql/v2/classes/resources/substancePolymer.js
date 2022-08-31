@@ -24,9 +24,7 @@ class SubstancePolymer {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class SubstancePolymer {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -117,9 +113,7 @@ class SubstancePolymer {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,7 +133,7 @@ class SubstancePolymer {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +161,7 @@ class SubstancePolymer {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -215,7 +209,7 @@ class SubstancePolymer {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.copolymerConnectivity = new CodeableConcept(value);
+                this.__data.copolymerConnectivity = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -230,7 +224,7 @@ class SubstancePolymer {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.modification = value;
+                this.__data.modification = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -246,7 +240,7 @@ class SubstancePolymer {
                     return;
                 }
                 let SubstancePolymerMonomerSet = require('../backbone_elements/substancePolymerMonomerSet.js');
-                this.__data.monomerSet = new SubstancePolymerMonomerSet(value);
+                this.__data.monomerSet = Array.isArray(value) ? value.map(v => new SubstancePolymerMonomerSet(v)) : [new SubstancePolymerMonomerSet(value)];
             }
         });
 
@@ -262,7 +256,7 @@ class SubstancePolymer {
                     return;
                 }
                 let SubstancePolymerRepeat = require('../backbone_elements/substancePolymerRepeat.js');
-                this.__data.repeat = new SubstancePolymerRepeat(value);
+                this.__data.repeat = Array.isArray(value) ? value.map(v => new SubstancePolymerRepeat(v)) : [new SubstancePolymerRepeat(value)];
             }
         });
 
@@ -282,20 +276,20 @@ class SubstancePolymer {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             class: this.class && this.class.toJSON(),
             geometry: this.geometry && this.geometry.toJSON(),
-            copolymerConnectivity: this.copolymerConnectivity && this.copolymerConnectivity.toJSON(),
+            copolymerConnectivity: this.copolymerConnectivity && this.copolymerConnectivity.map(v => v.toJSON()),
             modification: this.modification,
-            monomerSet: this.monomerSet && this.monomerSet.toJSON(),
-            repeat: this.repeat && this.repeat.toJSON(),
+            monomerSet: this.monomerSet && this.monomerSet.map(v => v.toJSON()),
+            repeat: this.repeat && this.repeat.map(v => v.toJSON()),
         };
     }
 }

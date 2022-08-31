@@ -48,7 +48,7 @@ class Address {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -112,7 +112,7 @@ class Address {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.line = value;
+                this.__data.line = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -226,9 +226,9 @@ class Address {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            use: this.use && this.use.toJSON(),
-            type: this.type && this.type.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            use: this.use,
+            type: this.type,
             text: this.text,
             line: this.line,
             city: this.city,

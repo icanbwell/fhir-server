@@ -25,9 +25,7 @@ class DocumentManifest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class DocumentManifest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class DocumentManifest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class DocumentManifest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class DocumentManifest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -202,7 +196,7 @@ class DocumentManifest {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -271,9 +265,7 @@ class DocumentManifest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.created = new dateTime(value);
+                this.__data.created = value;
             }
         });
 
@@ -290,7 +282,7 @@ class DocumentManifest {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.author = new Reference(value);
+                this.__data.author = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -307,7 +299,7 @@ class DocumentManifest {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.recipient = new Reference(value);
+                this.__data.recipient = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -323,9 +315,7 @@ class DocumentManifest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.source = new uri(value);
+                this.__data.source = value;
             }
         });
 
@@ -357,7 +347,7 @@ class DocumentManifest {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.content = new Reference(value);
+                this.__data.content = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -373,7 +363,7 @@ class DocumentManifest {
                     return;
                 }
                 let DocumentManifestRelated = require('../backbone_elements/documentManifestRelated.js');
-                this.__data.related = new DocumentManifestRelated(value);
+                this.__data.related = Array.isArray(value) ? value.map(v => new DocumentManifestRelated(v)) : [new DocumentManifestRelated(value)];
             }
         });
 
@@ -393,26 +383,26 @@ class DocumentManifest {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             masterIdentifier: this.masterIdentifier && this.masterIdentifier.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
             type: this.type && this.type.toJSON(),
             subject: this.subject && this.subject.toJSON(),
-            created: this.created && this.created.toJSON(),
-            author: this.author && this.author.toJSON(),
-            recipient: this.recipient && this.recipient.toJSON(),
-            source: this.source && this.source.toJSON(),
+            created: this.created,
+            author: this.author && this.author.map(v => v.toJSON()),
+            recipient: this.recipient && this.recipient.map(v => v.toJSON()),
+            source: this.source,
             description: this.description,
-            content: this.content && this.content.toJSON(),
-            related: this.related && this.related.toJSON(),
+            content: this.content && this.content.map(v => v.toJSON()),
+            related: this.related && this.related.map(v => v.toJSON()),
         };
     }
 }

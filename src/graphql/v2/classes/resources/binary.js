@@ -26,9 +26,7 @@ class Binary {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class Binary {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -136,9 +132,7 @@ class Binary {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.data = new base64Binary(value);
+                this.__data.data = value;
             }
         });
 
@@ -158,13 +152,13 @@ class Binary {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
-            contentType: this.contentType && this.contentType.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            contentType: this.contentType,
             securityContext: this.securityContext && this.securityContext.toJSON(),
-            data: this.data && this.data.toJSON(),
+            data: this.data,
         };
     }
 }

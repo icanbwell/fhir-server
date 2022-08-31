@@ -45,7 +45,7 @@ class Annotation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -91,9 +91,7 @@ class Annotation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.time = new dateTime(value);
+                this.__data.time = value;
             }
         });
 
@@ -108,9 +106,7 @@ class Annotation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.text = new markdown(value);
+                this.__data.text = value;
             }
         });
 
@@ -130,11 +126,11 @@ class Annotation {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
             authorReference: this.authorReference && this.authorReference.toJSON(),
             authorString: this.authorString,
-            time: this.time && this.time.toJSON(),
-            text: this.text && this.text.toJSON(),
+            time: this.time,
+            text: this.text,
         };
     }
 }

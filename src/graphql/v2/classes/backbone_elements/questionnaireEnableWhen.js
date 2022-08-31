@@ -44,7 +44,7 @@ class QuestionnaireEnableWhen {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class QuestionnaireEnableWhen {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -133,9 +133,7 @@ class QuestionnaireEnableWhen {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.answerDecimal = new decimal(value);
+                this.__data.answerDecimal = value;
             }
         });
 
@@ -165,9 +163,7 @@ class QuestionnaireEnableWhen {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.answerDate = new date(value);
+                this.__data.answerDate = value;
             }
         });
 
@@ -182,9 +178,7 @@ class QuestionnaireEnableWhen {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.answerDateTime = new dateTime(value);
+                this.__data.answerDateTime = value;
             }
         });
 
@@ -199,9 +193,7 @@ class QuestionnaireEnableWhen {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.answerTime = new time(value);
+                this.__data.answerTime = value;
             }
         });
 
@@ -284,16 +276,16 @@ class QuestionnaireEnableWhen {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             question: this.question,
-            operator: this.operator && this.operator.toJSON(),
+            operator: this.operator,
             answerBoolean: this.answerBoolean,
-            answerDecimal: this.answerDecimal && this.answerDecimal.toJSON(),
+            answerDecimal: this.answerDecimal,
             answerInteger: this.answerInteger,
-            answerDate: this.answerDate && this.answerDate.toJSON(),
-            answerDateTime: this.answerDateTime && this.answerDateTime.toJSON(),
-            answerTime: this.answerTime && this.answerTime.toJSON(),
+            answerDate: this.answerDate,
+            answerDateTime: this.answerDateTime,
+            answerTime: this.answerTime,
             answerString: this.answerString,
             answerCoding: this.answerCoding && this.answerCoding.toJSON(),
             answerQuantity: this.answerQuantity && this.answerQuantity.toJSON(),

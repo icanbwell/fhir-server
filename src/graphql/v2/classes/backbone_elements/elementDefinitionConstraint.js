@@ -45,7 +45,7 @@ class ElementDefinitionConstraint {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ElementDefinitionConstraint {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -90,9 +90,7 @@ class ElementDefinitionConstraint {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.key = new id(value);
+                this.__data.key = value;
             }
         });
 
@@ -187,9 +185,7 @@ class ElementDefinitionConstraint {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.source = new canonical(value);
+                this.__data.source = value;
             }
         });
 
@@ -209,15 +205,15 @@ class ElementDefinitionConstraint {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            key: this.key && this.key.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            key: this.key,
             requirements: this.requirements,
-            severity: this.severity && this.severity.toJSON(),
+            severity: this.severity,
             human: this.human,
             expression: this.expression,
             xpath: this.xpath,
-            source: this.source && this.source.toJSON(),
+            source: this.source,
         };
     }
 }

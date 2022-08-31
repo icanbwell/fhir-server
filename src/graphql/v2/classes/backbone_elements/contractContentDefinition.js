@@ -43,7 +43,7 @@ class ContractContentDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ContractContentDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -139,9 +139,7 @@ class ContractContentDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.publicationDate = new dateTime(value);
+                this.__data.publicationDate = value;
             }
         });
 
@@ -175,9 +173,7 @@ class ContractContentDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.copyright = new markdown(value);
+                this.__data.copyright = value;
             }
         });
 
@@ -197,14 +193,14 @@ class ContractContentDefinition {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             subType: this.subType && this.subType.toJSON(),
             publisher: this.publisher && this.publisher.toJSON(),
-            publicationDate: this.publicationDate && this.publicationDate.toJSON(),
-            publicationStatus: this.publicationStatus && this.publicationStatus.toJSON(),
-            copyright: this.copyright && this.copyright.toJSON(),
+            publicationDate: this.publicationDate,
+            publicationStatus: this.publicationStatus,
+            copyright: this.copyright,
         };
     }
 }

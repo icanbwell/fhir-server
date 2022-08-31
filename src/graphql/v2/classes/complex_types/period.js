@@ -44,7 +44,7 @@ class Period {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -59,9 +59,7 @@ class Period {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.start = new dateTime(value);
+                this.__data.start = value;
             }
         });
 
@@ -79,9 +77,7 @@ class Period {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.end = new dateTime(value);
+                this.__data.end = value;
             }
         });
 
@@ -101,9 +97,9 @@ class Period {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            start: this.start && this.start.toJSON(),
-            end: this.end && this.end.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            start: this.start,
+            end: this.end,
         };
     }
 }

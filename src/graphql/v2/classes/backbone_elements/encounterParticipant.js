@@ -43,7 +43,7 @@ class EncounterParticipant {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class EncounterParticipant {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -87,7 +87,7 @@ class EncounterParticipant {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -140,9 +140,9 @@ class EncounterParticipant {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            type: this.type && this.type.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            type: this.type && this.type.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
             individual: this.individual && this.individual.toJSON(),
         };

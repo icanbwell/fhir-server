@@ -24,9 +24,7 @@ class MedicinalProductPharmaceutical {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class MedicinalProductPharmaceutical {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -117,9 +113,7 @@ class MedicinalProductPharmaceutical {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,7 +133,7 @@ class MedicinalProductPharmaceutical {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +161,7 @@ class MedicinalProductPharmaceutical {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -183,7 +177,7 @@ class MedicinalProductPharmaceutical {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -231,7 +225,7 @@ class MedicinalProductPharmaceutical {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.ingredient = new Reference(value);
+                this.__data.ingredient = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -247,7 +241,7 @@ class MedicinalProductPharmaceutical {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.device = new Reference(value);
+                this.__data.device = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -263,7 +257,7 @@ class MedicinalProductPharmaceutical {
                     return;
                 }
                 let MedicinalProductPharmaceuticalCharacteristics = require('../backbone_elements/medicinalProductPharmaceuticalCharacteristics.js');
-                this.__data.characteristics = new MedicinalProductPharmaceuticalCharacteristics(value);
+                this.__data.characteristics = Array.isArray(value) ? value.map(v => new MedicinalProductPharmaceuticalCharacteristics(v)) : [new MedicinalProductPharmaceuticalCharacteristics(value)];
             }
         });
 
@@ -280,7 +274,7 @@ class MedicinalProductPharmaceutical {
                     return;
                 }
                 let MedicinalProductPharmaceuticalRouteOfAdministration = require('../backbone_elements/medicinalProductPharmaceuticalRouteOfAdministration.js');
-                this.__data.routeOfAdministration = new MedicinalProductPharmaceuticalRouteOfAdministration(value);
+                this.__data.routeOfAdministration = Array.isArray(value) ? value.map(v => new MedicinalProductPharmaceuticalRouteOfAdministration(v)) : [new MedicinalProductPharmaceuticalRouteOfAdministration(value)];
             }
         });
 
@@ -300,21 +294,21 @@ class MedicinalProductPharmaceutical {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             administrableDoseForm: this.administrableDoseForm && this.administrableDoseForm.toJSON(),
             unitOfPresentation: this.unitOfPresentation && this.unitOfPresentation.toJSON(),
-            ingredient: this.ingredient && this.ingredient.toJSON(),
-            device: this.device && this.device.toJSON(),
-            characteristics: this.characteristics && this.characteristics.toJSON(),
-            routeOfAdministration: this.routeOfAdministration && this.routeOfAdministration.toJSON(),
+            ingredient: this.ingredient && this.ingredient.map(v => v.toJSON()),
+            device: this.device && this.device.map(v => v.toJSON()),
+            characteristics: this.characteristics && this.characteristics.map(v => v.toJSON()),
+            routeOfAdministration: this.routeOfAdministration && this.routeOfAdministration.map(v => v.toJSON()),
         };
     }
 }

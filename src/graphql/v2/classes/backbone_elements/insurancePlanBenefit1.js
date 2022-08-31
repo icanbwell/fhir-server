@@ -42,7 +42,7 @@ class InsurancePlanBenefit1 {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class InsurancePlanBenefit1 {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,7 +103,7 @@ class InsurancePlanBenefit1 {
                     return;
                 }
                 let InsurancePlanCost = require('../backbone_elements/insurancePlanCost.js');
-                this.__data.cost = new InsurancePlanCost(value);
+                this.__data.cost = Array.isArray(value) ? value.map(v => new InsurancePlanCost(v)) : [new InsurancePlanCost(value)];
             }
         });
 
@@ -123,10 +123,10 @@ class InsurancePlanBenefit1 {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            cost: this.cost && this.cost.toJSON(),
+            cost: this.cost && this.cost.map(v => v.toJSON()),
         };
     }
 }

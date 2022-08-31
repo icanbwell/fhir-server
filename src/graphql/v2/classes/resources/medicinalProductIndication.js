@@ -24,9 +24,7 @@ class MedicinalProductIndication {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class MedicinalProductIndication {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -117,9 +113,7 @@ class MedicinalProductIndication {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,7 +133,7 @@ class MedicinalProductIndication {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +161,7 @@ class MedicinalProductIndication {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -183,7 +177,7 @@ class MedicinalProductIndication {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(value);
+                this.__data.subject = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -231,7 +225,7 @@ class MedicinalProductIndication {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.comorbidity = new CodeableConcept(value);
+                this.__data.comorbidity = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -280,7 +274,7 @@ class MedicinalProductIndication {
                     return;
                 }
                 let MedicinalProductIndicationOtherTherapy = require('../backbone_elements/medicinalProductIndicationOtherTherapy.js');
-                this.__data.otherTherapy = new MedicinalProductIndicationOtherTherapy(value);
+                this.__data.otherTherapy = Array.isArray(value) ? value.map(v => new MedicinalProductIndicationOtherTherapy(v)) : [new MedicinalProductIndicationOtherTherapy(value)];
             }
         });
 
@@ -296,7 +290,7 @@ class MedicinalProductIndication {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.undesirableEffect = new Reference(value);
+                this.__data.undesirableEffect = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -312,7 +306,7 @@ class MedicinalProductIndication {
                     return;
                 }
                 let Population = require('../backbone_elements/population.js');
-                this.__data.population = new Population(value);
+                this.__data.population = Array.isArray(value) ? value.map(v => new Population(v)) : [new Population(value)];
             }
         });
 
@@ -332,23 +326,23 @@ class MedicinalProductIndication {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            subject: this.subject && this.subject.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            subject: this.subject && this.subject.map(v => v.toJSON()),
             diseaseSymptomProcedure: this.diseaseSymptomProcedure && this.diseaseSymptomProcedure.toJSON(),
             diseaseStatus: this.diseaseStatus && this.diseaseStatus.toJSON(),
-            comorbidity: this.comorbidity && this.comorbidity.toJSON(),
+            comorbidity: this.comorbidity && this.comorbidity.map(v => v.toJSON()),
             intendedEffect: this.intendedEffect && this.intendedEffect.toJSON(),
             duration: this.duration && this.duration.toJSON(),
-            otherTherapy: this.otherTherapy && this.otherTherapy.toJSON(),
-            undesirableEffect: this.undesirableEffect && this.undesirableEffect.toJSON(),
-            population: this.population && this.population.toJSON(),
+            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSON()),
+            undesirableEffect: this.undesirableEffect && this.undesirableEffect.map(v => v.toJSON()),
+            population: this.population && this.population.map(v => v.toJSON()),
         };
     }
 }

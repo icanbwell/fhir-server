@@ -42,7 +42,7 @@ class SubstancePolymerRepeat {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class SubstancePolymerRepeat {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -132,7 +132,7 @@ class SubstancePolymerRepeat {
                     return;
                 }
                 let SubstancePolymerRepeatUnit = require('../backbone_elements/substancePolymerRepeatUnit.js');
-                this.__data.repeatUnit = new SubstancePolymerRepeatUnit(value);
+                this.__data.repeatUnit = Array.isArray(value) ? value.map(v => new SubstancePolymerRepeatUnit(v)) : [new SubstancePolymerRepeatUnit(value)];
             }
         });
 
@@ -152,12 +152,12 @@ class SubstancePolymerRepeat {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             numberOfUnits: this.numberOfUnits,
             averageMolecularFormula: this.averageMolecularFormula,
             repeatUnitAmountType: this.repeatUnitAmountType && this.repeatUnitAmountType.toJSON(),
-            repeatUnit: this.repeatUnit && this.repeatUnit.toJSON(),
+            repeatUnit: this.repeatUnit && this.repeatUnit.map(v => v.toJSON()),
         };
     }
 }

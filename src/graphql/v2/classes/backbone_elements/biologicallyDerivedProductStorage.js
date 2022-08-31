@@ -44,7 +44,7 @@ class BiologicallyDerivedProductStorage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class BiologicallyDerivedProductStorage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class BiologicallyDerivedProductStorage {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.temperature = new decimal(value);
+                this.__data.temperature = value;
             }
         });
 
@@ -155,11 +153,11 @@ class BiologicallyDerivedProductStorage {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
-            temperature: this.temperature && this.temperature.toJSON(),
-            scale: this.scale && this.scale.toJSON(),
+            temperature: this.temperature,
+            scale: this.scale,
             duration: this.duration && this.duration.toJSON(),
         };
     }

@@ -25,9 +25,7 @@ class Condition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class Condition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class Condition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class Condition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class Condition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -186,7 +180,7 @@ class Condition {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -234,7 +228,7 @@ class Condition {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -283,7 +277,7 @@ class Condition {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.bodySite = new CodeableConcept(value);
+                this.__data.bodySite = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -331,9 +325,7 @@ class Condition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.onsetDateTime = new dateTime(value);
+                this.__data.onsetDateTime = value;
             }
         });
 
@@ -411,9 +403,7 @@ class Condition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.abatementDateTime = new dateTime(value);
+                this.__data.abatementDateTime = value;
             }
         });
 
@@ -492,9 +482,7 @@ class Condition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.recordedDate = new dateTime(value);
+                this.__data.recordedDate = value;
             }
         });
 
@@ -543,7 +531,7 @@ class Condition {
                     return;
                 }
                 let ConditionStage = require('../backbone_elements/conditionStage.js');
-                this.__data.stage = new ConditionStage(value);
+                this.__data.stage = Array.isArray(value) ? value.map(v => new ConditionStage(v)) : [new ConditionStage(value)];
             }
         });
 
@@ -560,7 +548,7 @@ class Condition {
                     return;
                 }
                 let ConditionEvidence = require('../backbone_elements/conditionEvidence.js');
-                this.__data.evidence = new ConditionEvidence(value);
+                this.__data.evidence = Array.isArray(value) ? value.map(v => new ConditionEvidence(v)) : [new ConditionEvidence(value)];
             }
         });
 
@@ -577,7 +565,7 @@ class Condition {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -597,39 +585,39 @@ class Condition {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             clinicalStatus: this.clinicalStatus && this.clinicalStatus.toJSON(),
             verificationStatus: this.verificationStatus && this.verificationStatus.toJSON(),
-            category: this.category && this.category.toJSON(),
+            category: this.category && this.category.map(v => v.toJSON()),
             severity: this.severity && this.severity.toJSON(),
             code: this.code && this.code.toJSON(),
-            bodySite: this.bodySite && this.bodySite.toJSON(),
+            bodySite: this.bodySite && this.bodySite.map(v => v.toJSON()),
             subject: this.subject && this.subject.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            onsetDateTime: this.onsetDateTime && this.onsetDateTime.toJSON(),
+            onsetDateTime: this.onsetDateTime,
             onsetAge: this.onsetAge && this.onsetAge.toJSON(),
             onsetPeriod: this.onsetPeriod && this.onsetPeriod.toJSON(),
             onsetRange: this.onsetRange && this.onsetRange.toJSON(),
             onsetString: this.onsetString,
-            abatementDateTime: this.abatementDateTime && this.abatementDateTime.toJSON(),
+            abatementDateTime: this.abatementDateTime,
             abatementAge: this.abatementAge && this.abatementAge.toJSON(),
             abatementPeriod: this.abatementPeriod && this.abatementPeriod.toJSON(),
             abatementRange: this.abatementRange && this.abatementRange.toJSON(),
             abatementString: this.abatementString,
-            recordedDate: this.recordedDate && this.recordedDate.toJSON(),
+            recordedDate: this.recordedDate,
             recorder: this.recorder && this.recorder.toJSON(),
             asserter: this.asserter && this.asserter.toJSON(),
-            stage: this.stage && this.stage.toJSON(),
-            evidence: this.evidence && this.evidence.toJSON(),
-            note: this.note && this.note.toJSON(),
+            stage: this.stage && this.stage.map(v => v.toJSON()),
+            evidence: this.evidence && this.evidence.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
         };
     }
 }

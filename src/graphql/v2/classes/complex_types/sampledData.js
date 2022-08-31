@@ -45,7 +45,7 @@ class SampledData {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -77,9 +77,7 @@ class SampledData {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.period = new decimal(value);
+                this.__data.period = value;
             }
         });
 
@@ -95,9 +93,7 @@ class SampledData {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.factor = new decimal(value);
+                this.__data.factor = value;
             }
         });
 
@@ -113,9 +109,7 @@ class SampledData {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.lowerLimit = new decimal(value);
+                this.__data.lowerLimit = value;
             }
         });
 
@@ -131,9 +125,7 @@ class SampledData {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.upperLimit = new decimal(value);
+                this.__data.upperLimit = value;
             }
         });
 
@@ -187,12 +179,12 @@ class SampledData {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
             origin: this.origin && this.origin.toJSON(),
-            period: this.period && this.period.toJSON(),
-            factor: this.factor && this.factor.toJSON(),
-            lowerLimit: this.lowerLimit && this.lowerLimit.toJSON(),
-            upperLimit: this.upperLimit && this.upperLimit.toJSON(),
+            period: this.period,
+            factor: this.factor,
+            lowerLimit: this.lowerLimit,
+            upperLimit: this.upperLimit,
             dimensions: this.dimensions,
             data: this.data,
         };

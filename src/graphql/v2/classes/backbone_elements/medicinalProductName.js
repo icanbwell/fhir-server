@@ -43,7 +43,7 @@ class MedicinalProductName {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class MedicinalProductName {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,7 +102,7 @@ class MedicinalProductName {
                     return;
                 }
                 let MedicinalProductNamePart = require('../backbone_elements/medicinalProductNamePart.js');
-                this.__data.namePart = new MedicinalProductNamePart(value);
+                this.__data.namePart = Array.isArray(value) ? value.map(v => new MedicinalProductNamePart(v)) : [new MedicinalProductNamePart(value)];
             }
         });
 
@@ -118,7 +118,7 @@ class MedicinalProductName {
                     return;
                 }
                 let MedicinalProductCountryLanguage = require('../backbone_elements/medicinalProductCountryLanguage.js');
-                this.__data.countryLanguage = new MedicinalProductCountryLanguage(value);
+                this.__data.countryLanguage = Array.isArray(value) ? value.map(v => new MedicinalProductCountryLanguage(v)) : [new MedicinalProductCountryLanguage(value)];
             }
         });
 
@@ -138,11 +138,11 @@ class MedicinalProductName {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             productName: this.productName,
-            namePart: this.namePart && this.namePart.toJSON(),
-            countryLanguage: this.countryLanguage && this.countryLanguage.toJSON(),
+            namePart: this.namePart && this.namePart.map(v => v.toJSON()),
+            countryLanguage: this.countryLanguage && this.countryLanguage.map(v => v.toJSON()),
         };
     }
 }

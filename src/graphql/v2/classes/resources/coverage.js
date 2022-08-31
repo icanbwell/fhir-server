@@ -25,9 +25,7 @@ class Coverage {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class Coverage {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class Coverage {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class Coverage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class Coverage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class Coverage {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -348,7 +342,7 @@ class Coverage {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.payor = new Reference(value);
+                this.__data.payor = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -364,7 +358,7 @@ class Coverage {
                     return;
                 }
                 let CoverageClass = require('../backbone_elements/coverageClass.js');
-                this.__data.class = new CoverageClass(value);
+                this.__data.class = Array.isArray(value) ? value.map(v => new CoverageClass(v)) : [new CoverageClass(value)];
             }
         });
 
@@ -416,7 +410,7 @@ class Coverage {
                     return;
                 }
                 let CoverageCostToBeneficiary = require('../backbone_elements/coverageCostToBeneficiary.js');
-                this.__data.costToBeneficiary = new CoverageCostToBeneficiary(value);
+                this.__data.costToBeneficiary = Array.isArray(value) ? value.map(v => new CoverageCostToBeneficiary(v)) : [new CoverageCostToBeneficiary(value)];
             }
         });
 
@@ -448,7 +442,7 @@ class Coverage {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.contract = new Reference(value);
+                this.__data.contract = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -468,16 +462,16 @@ class Coverage {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
             type: this.type && this.type.toJSON(),
             policyHolder: this.policyHolder && this.policyHolder.toJSON(),
             subscriber: this.subscriber && this.subscriber.toJSON(),
@@ -486,13 +480,13 @@ class Coverage {
             dependent: this.dependent,
             relationship: this.relationship && this.relationship.toJSON(),
             period: this.period && this.period.toJSON(),
-            payor: this.payor && this.payor.toJSON(),
-            class: this.class && this.class.toJSON(),
+            payor: this.payor && this.payor.map(v => v.toJSON()),
+            class: this.class && this.class.map(v => v.toJSON()),
             order: this.order,
             network: this.network,
-            costToBeneficiary: this.costToBeneficiary && this.costToBeneficiary.toJSON(),
+            costToBeneficiary: this.costToBeneficiary && this.costToBeneficiary.map(v => v.toJSON()),
             subrogation: this.subrogation,
-            contract: this.contract && this.contract.toJSON(),
+            contract: this.contract && this.contract.map(v => v.toJSON()),
         };
     }
 }

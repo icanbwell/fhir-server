@@ -44,7 +44,7 @@ class TerminologyCapabilitiesExpansion {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class TerminologyCapabilitiesExpansion {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -133,7 +133,7 @@ class TerminologyCapabilitiesExpansion {
                     return;
                 }
                 let TerminologyCapabilitiesParameter = require('../backbone_elements/terminologyCapabilitiesParameter.js');
-                this.__data.parameter = new TerminologyCapabilitiesParameter(value);
+                this.__data.parameter = Array.isArray(value) ? value.map(v => new TerminologyCapabilitiesParameter(v)) : [new TerminologyCapabilitiesParameter(value)];
             }
         });
 
@@ -148,9 +148,7 @@ class TerminologyCapabilitiesExpansion {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.textFilter = new markdown(value);
+                this.__data.textFilter = value;
             }
         });
 
@@ -170,13 +168,13 @@ class TerminologyCapabilitiesExpansion {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             hierarchical: this.hierarchical,
             paging: this.paging,
             incomplete: this.incomplete,
-            parameter: this.parameter && this.parameter.toJSON(),
-            textFilter: this.textFilter && this.textFilter.toJSON(),
+            parameter: this.parameter && this.parameter.map(v => v.toJSON()),
+            textFilter: this.textFilter,
         };
     }
 }

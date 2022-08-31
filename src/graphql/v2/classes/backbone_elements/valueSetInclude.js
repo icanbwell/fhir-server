@@ -45,7 +45,7 @@ class ValueSetInclude {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ValueSetInclude {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -89,9 +89,7 @@ class ValueSetInclude {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.system = new uri(value);
+                this.__data.system = value;
             }
         });
 
@@ -123,7 +121,7 @@ class ValueSetInclude {
                     return;
                 }
                 let ValueSetConcept = require('../backbone_elements/valueSetConcept.js');
-                this.__data.concept = new ValueSetConcept(value);
+                this.__data.concept = Array.isArray(value) ? value.map(v => new ValueSetConcept(v)) : [new ValueSetConcept(value)];
             }
         });
 
@@ -141,7 +139,7 @@ class ValueSetInclude {
                     return;
                 }
                 let ValueSetFilter = require('../backbone_elements/valueSetFilter.js');
-                this.__data.filter = new ValueSetFilter(value);
+                this.__data.filter = Array.isArray(value) ? value.map(v => new ValueSetFilter(v)) : [new ValueSetFilter(value)];
             }
         });
 
@@ -159,9 +157,7 @@ class ValueSetInclude {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueSet = new canonical(value);
+                this.__data.valueSet = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -181,13 +177,13 @@ class ValueSetInclude {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            system: this.system && this.system.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            system: this.system,
             version: this.version,
-            concept: this.concept && this.concept.toJSON(),
-            filter: this.filter && this.filter.toJSON(),
-            valueSet: this.valueSet && this.valueSet.toJSON(),
+            concept: this.concept && this.concept.map(v => v.toJSON()),
+            filter: this.filter && this.filter.map(v => v.toJSON()),
+            valueSet: this.valueSet,
         };
     }
 }

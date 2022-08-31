@@ -42,7 +42,7 @@ class SpecimenCollection {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class SpecimenCollection {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -101,9 +101,7 @@ class SpecimenCollection {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.collectedDateTime = new dateTime(value);
+                this.__data.collectedDateTime = value;
             }
         });
 
@@ -238,10 +236,10 @@ class SpecimenCollection {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             collector: this.collector && this.collector.toJSON(),
-            collectedDateTime: this.collectedDateTime && this.collectedDateTime.toJSON(),
+            collectedDateTime: this.collectedDateTime,
             collectedPeriod: this.collectedPeriod && this.collectedPeriod.toJSON(),
             duration: this.duration && this.duration.toJSON(),
             quantity: this.quantity && this.quantity.toJSON(),

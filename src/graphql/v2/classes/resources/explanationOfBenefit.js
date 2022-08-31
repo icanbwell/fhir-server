@@ -26,9 +26,7 @@ class ExplanationOfBenefit {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class ExplanationOfBenefit {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class ExplanationOfBenefit {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,7 +179,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -302,9 +296,7 @@ class ExplanationOfBenefit {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.created = new dateTime(value);
+                this.__data.created = value;
             }
         });
 
@@ -421,7 +413,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitRelated = require('../backbone_elements/explanationOfBenefitRelated.js');
-                this.__data.related = new ExplanationOfBenefitRelated(value);
+                this.__data.related = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitRelated(v)) : [new ExplanationOfBenefitRelated(value)];
             }
         });
 
@@ -583,7 +575,7 @@ class ExplanationOfBenefit {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.preAuthRef = value;
+                this.__data.preAuthRef = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -600,7 +592,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let Period = require('../complex_types/period.js');
-                this.__data.preAuthRefPeriod = new Period(value);
+                this.__data.preAuthRefPeriod = Array.isArray(value) ? value.map(v => new Period(v)) : [new Period(value)];
             }
         });
 
@@ -616,7 +608,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitCareTeam = require('../backbone_elements/explanationOfBenefitCareTeam.js');
-                this.__data.careTeam = new ExplanationOfBenefitCareTeam(value);
+                this.__data.careTeam = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitCareTeam(v)) : [new ExplanationOfBenefitCareTeam(value)];
             }
         });
 
@@ -633,7 +625,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitSupportingInfo = require('../backbone_elements/explanationOfBenefitSupportingInfo.js');
-                this.__data.supportingInfo = new ExplanationOfBenefitSupportingInfo(value);
+                this.__data.supportingInfo = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitSupportingInfo(v)) : [new ExplanationOfBenefitSupportingInfo(value)];
             }
         });
 
@@ -649,7 +641,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitDiagnosis = require('../backbone_elements/explanationOfBenefitDiagnosis.js');
-                this.__data.diagnosis = new ExplanationOfBenefitDiagnosis(value);
+                this.__data.diagnosis = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitDiagnosis(v)) : [new ExplanationOfBenefitDiagnosis(value)];
             }
         });
 
@@ -666,7 +658,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitProcedure = require('../backbone_elements/explanationOfBenefitProcedure.js');
-                this.__data.procedure = new ExplanationOfBenefitProcedure(value);
+                this.__data.procedure = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitProcedure(v)) : [new ExplanationOfBenefitProcedure(value)];
             }
         });
 
@@ -699,7 +691,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitInsurance = require('../backbone_elements/explanationOfBenefitInsurance.js');
-                this.__data.insurance = new ExplanationOfBenefitInsurance(value);
+                this.__data.insurance = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitInsurance(v)) : [new ExplanationOfBenefitInsurance(value)];
             }
         });
 
@@ -733,7 +725,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitItem = require('../backbone_elements/explanationOfBenefitItem.js');
-                this.__data.item = new ExplanationOfBenefitItem(value);
+                this.__data.item = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitItem(v)) : [new ExplanationOfBenefitItem(value)];
             }
         });
 
@@ -749,7 +741,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitAddItem = require('../backbone_elements/explanationOfBenefitAddItem.js');
-                this.__data.addItem = new ExplanationOfBenefitAddItem(value);
+                this.__data.addItem = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitAddItem(v)) : [new ExplanationOfBenefitAddItem(value)];
             }
         });
 
@@ -766,7 +758,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
-                this.__data.adjudication = new ExplanationOfBenefitAdjudication(value);
+                this.__data.adjudication = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(value)];
             }
         });
 
@@ -782,7 +774,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitTotal = require('../backbone_elements/explanationOfBenefitTotal.js');
-                this.__data.total = new ExplanationOfBenefitTotal(value);
+                this.__data.total = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitTotal(v)) : [new ExplanationOfBenefitTotal(value)];
             }
         });
 
@@ -848,7 +840,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitProcessNote = require('../backbone_elements/explanationOfBenefitProcessNote.js');
-                this.__data.processNote = new ExplanationOfBenefitProcessNote(value);
+                this.__data.processNote = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitProcessNote(v)) : [new ExplanationOfBenefitProcessNote(value)];
             }
         });
 
@@ -880,7 +872,7 @@ class ExplanationOfBenefit {
                     return;
                 }
                 let ExplanationOfBenefitBenefitBalance = require('../backbone_elements/explanationOfBenefitBenefitBalance.js');
-                this.__data.benefitBalance = new ExplanationOfBenefitBenefitBalance(value);
+                this.__data.benefitBalance = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitBenefitBalance(v)) : [new ExplanationOfBenefitBenefitBalance(value)];
             }
         });
 
@@ -900,29 +892,29 @@ class ExplanationOfBenefit {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
             type: this.type && this.type.toJSON(),
             subType: this.subType && this.subType.toJSON(),
-            use: this.use && this.use.toJSON(),
+            use: this.use,
             patient: this.patient && this.patient.toJSON(),
             billablePeriod: this.billablePeriod && this.billablePeriod.toJSON(),
-            created: this.created && this.created.toJSON(),
+            created: this.created,
             enterer: this.enterer && this.enterer.toJSON(),
             insurer: this.insurer && this.insurer.toJSON(),
             provider: this.provider && this.provider.toJSON(),
             priority: this.priority && this.priority.toJSON(),
             fundsReserveRequested: this.fundsReserveRequested && this.fundsReserveRequested.toJSON(),
             fundsReserve: this.fundsReserve && this.fundsReserve.toJSON(),
-            related: this.related && this.related.toJSON(),
+            related: this.related && this.related.map(v => v.toJSON()),
             prescription: this.prescription && this.prescription.toJSON(),
             originalPrescription: this.originalPrescription && this.originalPrescription.toJSON(),
             payee: this.payee && this.payee.toJSON(),
@@ -930,27 +922,27 @@ class ExplanationOfBenefit {
             facility: this.facility && this.facility.toJSON(),
             claim: this.claim && this.claim.toJSON(),
             claimResponse: this.claimResponse && this.claimResponse.toJSON(),
-            outcome: this.outcome && this.outcome.toJSON(),
+            outcome: this.outcome,
             disposition: this.disposition,
             preAuthRef: this.preAuthRef,
-            preAuthRefPeriod: this.preAuthRefPeriod && this.preAuthRefPeriod.toJSON(),
-            careTeam: this.careTeam && this.careTeam.toJSON(),
-            supportingInfo: this.supportingInfo && this.supportingInfo.toJSON(),
-            diagnosis: this.diagnosis && this.diagnosis.toJSON(),
-            procedure: this.procedure && this.procedure.toJSON(),
+            preAuthRefPeriod: this.preAuthRefPeriod && this.preAuthRefPeriod.map(v => v.toJSON()),
+            careTeam: this.careTeam && this.careTeam.map(v => v.toJSON()),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
+            diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSON()),
+            procedure: this.procedure && this.procedure.map(v => v.toJSON()),
             precedence: this.precedence,
-            insurance: this.insurance && this.insurance.toJSON(),
+            insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             accident: this.accident && this.accident.toJSON(),
-            item: this.item && this.item.toJSON(),
-            addItem: this.addItem && this.addItem.toJSON(),
-            adjudication: this.adjudication && this.adjudication.toJSON(),
-            total: this.total && this.total.toJSON(),
+            item: this.item && this.item.map(v => v.toJSON()),
+            addItem: this.addItem && this.addItem.map(v => v.toJSON()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            total: this.total && this.total.map(v => v.toJSON()),
             payment: this.payment && this.payment.toJSON(),
             formCode: this.formCode && this.formCode.toJSON(),
             form: this.form && this.form.toJSON(),
-            processNote: this.processNote && this.processNote.toJSON(),
+            processNote: this.processNote && this.processNote.map(v => v.toJSON()),
             benefitPeriod: this.benefitPeriod && this.benefitPeriod.toJSON(),
-            benefitBalance: this.benefitBalance && this.benefitBalance.toJSON(),
+            benefitBalance: this.benefitBalance && this.benefitBalance.map(v => v.toJSON()),
         };
     }
 }

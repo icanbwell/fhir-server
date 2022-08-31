@@ -42,7 +42,7 @@ class MedicinalProductIngredientReferenceStrength {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicinalProductIngredientReferenceStrength {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -149,7 +149,7 @@ class MedicinalProductIngredientReferenceStrength {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.country = new CodeableConcept(value);
+                this.__data.country = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -169,13 +169,13 @@ class MedicinalProductIngredientReferenceStrength {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             substance: this.substance && this.substance.toJSON(),
             strength: this.strength && this.strength.toJSON(),
             strengthLowLimit: this.strengthLowLimit && this.strengthLowLimit.toJSON(),
             measurementPoint: this.measurementPoint,
-            country: this.country && this.country.toJSON(),
+            country: this.country && this.country.map(v => v.toJSON()),
         };
     }
 }

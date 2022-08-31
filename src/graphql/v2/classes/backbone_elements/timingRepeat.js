@@ -48,7 +48,7 @@ class TimingRepeat {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -76,7 +76,7 @@ class TimingRepeat {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -173,9 +173,7 @@ class TimingRepeat {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.duration = new decimal(value);
+                this.__data.duration = value;
             }
         });
 
@@ -191,9 +189,7 @@ class TimingRepeat {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.durationMax = new decimal(value);
+                this.__data.durationMax = value;
             }
         });
 
@@ -259,9 +255,7 @@ class TimingRepeat {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.period = new decimal(value);
+                this.__data.period = value;
             }
         });
 
@@ -277,9 +271,7 @@ class TimingRepeat {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.periodMax = new decimal(value);
+                this.__data.periodMax = value;
             }
         });
 
@@ -310,7 +302,7 @@ class TimingRepeat {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.dayOfWeek = value;
+                this.__data.dayOfWeek = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -325,9 +317,7 @@ class TimingRepeat {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.timeOfDay = new time(value);
+                this.__data.timeOfDay = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -343,7 +333,7 @@ class TimingRepeat {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.when = value;
+                this.__data.when = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -360,9 +350,7 @@ class TimingRepeat {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.offset = new unsignedInt(value);
+                this.__data.offset = value;
             }
         });
 
@@ -382,25 +370,25 @@ class TimingRepeat {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             boundsDuration: this.boundsDuration && this.boundsDuration.toJSON(),
             boundsRange: this.boundsRange && this.boundsRange.toJSON(),
             boundsPeriod: this.boundsPeriod && this.boundsPeriod.toJSON(),
             count: this.count,
             countMax: this.countMax,
-            duration: this.duration && this.duration.toJSON(),
-            durationMax: this.durationMax && this.durationMax.toJSON(),
-            durationUnit: this.durationUnit && this.durationUnit.toJSON(),
+            duration: this.duration,
+            durationMax: this.durationMax,
+            durationUnit: this.durationUnit,
             frequency: this.frequency,
             frequencyMax: this.frequencyMax,
-            period: this.period && this.period.toJSON(),
-            periodMax: this.periodMax && this.periodMax.toJSON(),
-            periodUnit: this.periodUnit && this.periodUnit.toJSON(),
-            dayOfWeek: this.dayOfWeek && this.dayOfWeek.toJSON(),
-            timeOfDay: this.timeOfDay && this.timeOfDay.toJSON(),
-            when: this.when && this.when.toJSON(),
-            offset: this.offset && this.offset.toJSON(),
+            period: this.period,
+            periodMax: this.periodMax,
+            periodUnit: this.periodUnit,
+            dayOfWeek: this.dayOfWeek,
+            timeOfDay: this.timeOfDay,
+            when: this.when,
+            offset: this.offset,
         };
     }
 }

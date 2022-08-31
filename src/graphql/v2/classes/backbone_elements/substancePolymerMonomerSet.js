@@ -42,7 +42,7 @@ class SubstancePolymerMonomerSet {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class SubstancePolymerMonomerSet {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,7 +102,7 @@ class SubstancePolymerMonomerSet {
                     return;
                 }
                 let SubstancePolymerStartingMaterial = require('../backbone_elements/substancePolymerStartingMaterial.js');
-                this.__data.startingMaterial = new SubstancePolymerStartingMaterial(value);
+                this.__data.startingMaterial = Array.isArray(value) ? value.map(v => new SubstancePolymerStartingMaterial(v)) : [new SubstancePolymerStartingMaterial(value)];
             }
         });
 
@@ -122,10 +122,10 @@ class SubstancePolymerMonomerSet {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             ratioType: this.ratioType && this.ratioType.toJSON(),
-            startingMaterial: this.startingMaterial && this.startingMaterial.toJSON(),
+            startingMaterial: this.startingMaterial && this.startingMaterial.map(v => v.toJSON()),
         };
     }
 }

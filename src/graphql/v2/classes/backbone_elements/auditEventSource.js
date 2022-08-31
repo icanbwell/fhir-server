@@ -44,7 +44,7 @@ class AuditEventSource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class AuditEventSource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -121,7 +121,7 @@ class AuditEventSource {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.type = new Coding(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -141,11 +141,11 @@ class AuditEventSource {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             site: this.site,
             observer: this.observer && this.observer.toJSON(),
-            type: this.type && this.type.toJSON(),
+            type: this.type && this.type.map(v => v.toJSON()),
         };
     }
 }

@@ -46,7 +46,7 @@ class ImagingStudySeries {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -74,7 +74,7 @@ class ImagingStudySeries {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -89,9 +89,7 @@ class ImagingStudySeries {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.uid = new id(value);
+                this.__data.uid = value;
             }
         });
 
@@ -106,9 +104,7 @@ class ImagingStudySeries {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.number = new unsignedInt(value);
+                this.__data.number = value;
             }
         });
 
@@ -157,9 +153,7 @@ class ImagingStudySeries {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.numberOfInstances = new unsignedInt(value);
+                this.__data.numberOfInstances = value;
             }
         });
 
@@ -178,7 +172,7 @@ class ImagingStudySeries {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = new Reference(value);
+                this.__data.endpoint = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -233,7 +227,7 @@ class ImagingStudySeries {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.specimen = new Reference(value);
+                this.__data.specimen = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -248,9 +242,7 @@ class ImagingStudySeries {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.started = new dateTime(value);
+                this.__data.started = value;
             }
         });
 
@@ -266,7 +258,7 @@ class ImagingStudySeries {
                     return;
                 }
                 let ImagingStudyPerformer = require('../backbone_elements/imagingStudyPerformer.js');
-                this.__data.performer = new ImagingStudyPerformer(value);
+                this.__data.performer = Array.isArray(value) ? value.map(v => new ImagingStudyPerformer(v)) : [new ImagingStudyPerformer(value)];
             }
         });
 
@@ -282,7 +274,7 @@ class ImagingStudySeries {
                     return;
                 }
                 let ImagingStudyInstance = require('../backbone_elements/imagingStudyInstance.js');
-                this.__data.instance = new ImagingStudyInstance(value);
+                this.__data.instance = Array.isArray(value) ? value.map(v => new ImagingStudyInstance(v)) : [new ImagingStudyInstance(value)];
             }
         });
 
@@ -302,20 +294,20 @@ class ImagingStudySeries {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            uid: this.uid && this.uid.toJSON(),
-            number: this.number && this.number.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            uid: this.uid,
+            number: this.number,
             modality: this.modality && this.modality.toJSON(),
             description: this.description,
-            numberOfInstances: this.numberOfInstances && this.numberOfInstances.toJSON(),
-            endpoint: this.endpoint && this.endpoint.toJSON(),
+            numberOfInstances: this.numberOfInstances,
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
             bodySite: this.bodySite && this.bodySite.toJSON(),
             laterality: this.laterality && this.laterality.toJSON(),
-            specimen: this.specimen && this.specimen.toJSON(),
-            started: this.started && this.started.toJSON(),
-            performer: this.performer && this.performer.toJSON(),
-            instance: this.instance && this.instance.toJSON(),
+            specimen: this.specimen && this.specimen.map(v => v.toJSON()),
+            started: this.started,
+            performer: this.performer && this.performer.map(v => v.toJSON()),
+            instance: this.instance && this.instance.map(v => v.toJSON()),
         };
     }
 }

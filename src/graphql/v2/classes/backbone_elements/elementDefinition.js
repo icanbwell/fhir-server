@@ -45,7 +45,7 @@ class ElementDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ElementDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -105,7 +105,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.representation = value;
+                this.__data.representation = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -175,7 +175,7 @@ class ElementDefinition {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.code = new Coding(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -233,9 +233,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definition = new markdown(value);
+                this.__data.definition = value;
             }
         });
 
@@ -253,9 +251,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.comment = new markdown(value);
+                this.__data.comment = value;
             }
         });
 
@@ -272,9 +268,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.requirements = new markdown(value);
+                this.__data.requirements = value;
             }
         });
 
@@ -289,7 +283,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.alias = value;
+                this.__data.alias = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -304,9 +298,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.min = new unsignedInt(value);
+                this.__data.min = value;
             }
         });
 
@@ -362,9 +354,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contentReference = new uri(value);
+                this.__data.contentReference = value;
             }
         });
 
@@ -380,7 +370,7 @@ class ElementDefinition {
                     return;
                 }
                 let ElementDefinitionType = require('../backbone_elements/elementDefinitionType.js');
-                this.__data.type = new ElementDefinitionType(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new ElementDefinitionType(v)) : [new ElementDefinitionType(value)];
             }
         });
 
@@ -395,9 +385,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueBase64Binary = new base64Binary(value);
+                this.__data.defaultValueBase64Binary = value;
             }
         });
 
@@ -427,9 +415,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueCanonical = new canonical(value);
+                this.__data.defaultValueCanonical = value;
             }
         });
 
@@ -459,9 +445,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueDate = new date(value);
+                this.__data.defaultValueDate = value;
             }
         });
 
@@ -476,9 +460,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueDateTime = new dateTime(value);
+                this.__data.defaultValueDateTime = value;
             }
         });
 
@@ -493,9 +475,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueDecimal = new decimal(value);
+                this.__data.defaultValueDecimal = value;
             }
         });
 
@@ -510,9 +490,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueId = new id(value);
+                this.__data.defaultValueId = value;
             }
         });
 
@@ -527,9 +505,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueInstant = new instant(value);
+                this.__data.defaultValueInstant = value;
             }
         });
 
@@ -559,9 +535,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueMarkdown = new markdown(value);
+                this.__data.defaultValueMarkdown = value;
             }
         });
 
@@ -576,9 +550,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let oid = require('../simple_types/oid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueOid = new oid(value);
+                this.__data.defaultValueOid = value;
             }
         });
 
@@ -623,9 +595,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueTime = new time(value);
+                this.__data.defaultValueTime = value;
             }
         });
 
@@ -640,9 +610,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueUnsignedInt = new unsignedInt(value);
+                this.__data.defaultValueUnsignedInt = value;
             }
         });
 
@@ -657,9 +625,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueUri = new uri(value);
+                this.__data.defaultValueUri = value;
             }
         });
 
@@ -674,9 +640,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueUrl = new url(value);
+                this.__data.defaultValueUrl = value;
             }
         });
 
@@ -691,9 +655,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uuid = require('../simple_types/uuid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueUuid = new uuid(value);
+                this.__data.defaultValueUuid = value;
             }
         });
 
@@ -1205,9 +1167,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.meaningWhenMissing = new markdown(value);
+                this.__data.meaningWhenMissing = value;
             }
         });
 
@@ -1239,9 +1199,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedBase64Binary = new base64Binary(value);
+                this.__data.fixedBase64Binary = value;
             }
         });
 
@@ -1271,9 +1229,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedCanonical = new canonical(value);
+                this.__data.fixedCanonical = value;
             }
         });
 
@@ -1303,9 +1259,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedDate = new date(value);
+                this.__data.fixedDate = value;
             }
         });
 
@@ -1320,9 +1274,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedDateTime = new dateTime(value);
+                this.__data.fixedDateTime = value;
             }
         });
 
@@ -1337,9 +1289,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedDecimal = new decimal(value);
+                this.__data.fixedDecimal = value;
             }
         });
 
@@ -1354,9 +1304,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedId = new id(value);
+                this.__data.fixedId = value;
             }
         });
 
@@ -1371,9 +1319,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedInstant = new instant(value);
+                this.__data.fixedInstant = value;
             }
         });
 
@@ -1403,9 +1349,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedMarkdown = new markdown(value);
+                this.__data.fixedMarkdown = value;
             }
         });
 
@@ -1420,9 +1364,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let oid = require('../simple_types/oid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedOid = new oid(value);
+                this.__data.fixedOid = value;
             }
         });
 
@@ -1467,9 +1409,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedTime = new time(value);
+                this.__data.fixedTime = value;
             }
         });
 
@@ -1484,9 +1424,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedUnsignedInt = new unsignedInt(value);
+                this.__data.fixedUnsignedInt = value;
             }
         });
 
@@ -1501,9 +1439,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedUri = new uri(value);
+                this.__data.fixedUri = value;
             }
         });
 
@@ -1518,9 +1454,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedUrl = new url(value);
+                this.__data.fixedUrl = value;
             }
         });
 
@@ -1535,9 +1469,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uuid = require('../simple_types/uuid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fixedUuid = new uuid(value);
+                this.__data.fixedUuid = value;
             }
         });
 
@@ -2048,9 +1980,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternBase64Binary = new base64Binary(value);
+                this.__data.patternBase64Binary = value;
             }
         });
 
@@ -2080,9 +2010,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternCanonical = new canonical(value);
+                this.__data.patternCanonical = value;
             }
         });
 
@@ -2112,9 +2040,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternDate = new date(value);
+                this.__data.patternDate = value;
             }
         });
 
@@ -2129,9 +2055,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternDateTime = new dateTime(value);
+                this.__data.patternDateTime = value;
             }
         });
 
@@ -2146,9 +2070,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternDecimal = new decimal(value);
+                this.__data.patternDecimal = value;
             }
         });
 
@@ -2163,9 +2085,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternId = new id(value);
+                this.__data.patternId = value;
             }
         });
 
@@ -2180,9 +2100,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternInstant = new instant(value);
+                this.__data.patternInstant = value;
             }
         });
 
@@ -2212,9 +2130,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternMarkdown = new markdown(value);
+                this.__data.patternMarkdown = value;
             }
         });
 
@@ -2229,9 +2145,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let oid = require('../simple_types/oid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternOid = new oid(value);
+                this.__data.patternOid = value;
             }
         });
 
@@ -2276,9 +2190,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternTime = new time(value);
+                this.__data.patternTime = value;
             }
         });
 
@@ -2293,9 +2205,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternUnsignedInt = new unsignedInt(value);
+                this.__data.patternUnsignedInt = value;
             }
         });
 
@@ -2310,9 +2220,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternUri = new uri(value);
+                this.__data.patternUri = value;
             }
         });
 
@@ -2327,9 +2235,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternUrl = new url(value);
+                this.__data.patternUrl = value;
             }
         });
 
@@ -2344,9 +2250,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uuid = require('../simple_types/uuid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.patternUuid = new uuid(value);
+                this.__data.patternUuid = value;
             }
         });
 
@@ -2859,7 +2763,7 @@ class ElementDefinition {
                     return;
                 }
                 let ElementDefinitionExample = require('../backbone_elements/elementDefinitionExample.js');
-                this.__data.example = new ElementDefinitionExample(value);
+                this.__data.example = Array.isArray(value) ? value.map(v => new ElementDefinitionExample(v)) : [new ElementDefinitionExample(value)];
             }
         });
 
@@ -2874,9 +2778,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.minValueDate = new date(value);
+                this.__data.minValueDate = value;
             }
         });
 
@@ -2891,9 +2793,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.minValueDateTime = new dateTime(value);
+                this.__data.minValueDateTime = value;
             }
         });
 
@@ -2908,9 +2808,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.minValueInstant = new instant(value);
+                this.__data.minValueInstant = value;
             }
         });
 
@@ -2925,9 +2823,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.minValueTime = new time(value);
+                this.__data.minValueTime = value;
             }
         });
 
@@ -2942,9 +2838,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.minValueDecimal = new decimal(value);
+                this.__data.minValueDecimal = value;
             }
         });
 
@@ -2989,9 +2883,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.minValueUnsignedInt = new unsignedInt(value);
+                this.__data.minValueUnsignedInt = value;
             }
         });
 
@@ -3022,9 +2914,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.maxValueDate = new date(value);
+                this.__data.maxValueDate = value;
             }
         });
 
@@ -3039,9 +2929,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.maxValueDateTime = new dateTime(value);
+                this.__data.maxValueDateTime = value;
             }
         });
 
@@ -3056,9 +2944,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.maxValueInstant = new instant(value);
+                this.__data.maxValueInstant = value;
             }
         });
 
@@ -3073,9 +2959,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.maxValueTime = new time(value);
+                this.__data.maxValueTime = value;
             }
         });
 
@@ -3090,9 +2974,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.maxValueDecimal = new decimal(value);
+                this.__data.maxValueDecimal = value;
             }
         });
 
@@ -3137,9 +3019,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.maxValueUnsignedInt = new unsignedInt(value);
+                this.__data.maxValueUnsignedInt = value;
             }
         });
 
@@ -3188,9 +3068,7 @@ class ElementDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.condition = new id(value);
+                this.__data.condition = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -3207,7 +3085,7 @@ class ElementDefinition {
                     return;
                 }
                 let ElementDefinitionConstraint = require('../backbone_elements/elementDefinitionConstraint.js');
-                this.__data.constraint = new ElementDefinitionConstraint(value);
+                this.__data.constraint = Array.isArray(value) ? value.map(v => new ElementDefinitionConstraint(v)) : [new ElementDefinitionConstraint(value)];
             }
         });
 
@@ -3311,7 +3189,7 @@ class ElementDefinition {
                     return;
                 }
                 let ElementDefinitionMapping = require('../backbone_elements/elementDefinitionMapping.js');
-                this.__data.mapping = new ElementDefinitionMapping(value);
+                this.__data.mapping = Array.isArray(value) ? value.map(v => new ElementDefinitionMapping(v)) : [new ElementDefinitionMapping(value)];
             }
         });
 
@@ -3331,44 +3209,44 @@ class ElementDefinition {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             path: this.path,
-            representation: this.representation && this.representation.toJSON(),
+            representation: this.representation,
             sliceName: this.sliceName,
             sliceIsConstraining: this.sliceIsConstraining,
             label: this.label,
-            code: this.code && this.code.toJSON(),
+            code: this.code && this.code.map(v => v.toJSON()),
             slicing: this.slicing && this.slicing.toJSON(),
             short: this.short,
-            definition: this.definition && this.definition.toJSON(),
-            comment: this.comment && this.comment.toJSON(),
-            requirements: this.requirements && this.requirements.toJSON(),
+            definition: this.definition,
+            comment: this.comment,
+            requirements: this.requirements,
             alias: this.alias,
-            min: this.min && this.min.toJSON(),
+            min: this.min,
             max: this.max,
             base: this.base && this.base.toJSON(),
-            contentReference: this.contentReference && this.contentReference.toJSON(),
-            type: this.type && this.type.toJSON(),
-            defaultValueBase64Binary: this.defaultValueBase64Binary && this.defaultValueBase64Binary.toJSON(),
+            contentReference: this.contentReference,
+            type: this.type && this.type.map(v => v.toJSON()),
+            defaultValueBase64Binary: this.defaultValueBase64Binary,
             defaultValueBoolean: this.defaultValueBoolean,
-            defaultValueCanonical: this.defaultValueCanonical && this.defaultValueCanonical.toJSON(),
-            defaultValueCode: this.defaultValueCode && this.defaultValueCode.toJSON(),
-            defaultValueDate: this.defaultValueDate && this.defaultValueDate.toJSON(),
-            defaultValueDateTime: this.defaultValueDateTime && this.defaultValueDateTime.toJSON(),
-            defaultValueDecimal: this.defaultValueDecimal && this.defaultValueDecimal.toJSON(),
-            defaultValueId: this.defaultValueId && this.defaultValueId.toJSON(),
-            defaultValueInstant: this.defaultValueInstant && this.defaultValueInstant.toJSON(),
+            defaultValueCanonical: this.defaultValueCanonical,
+            defaultValueCode: this.defaultValueCode,
+            defaultValueDate: this.defaultValueDate,
+            defaultValueDateTime: this.defaultValueDateTime,
+            defaultValueDecimal: this.defaultValueDecimal,
+            defaultValueId: this.defaultValueId,
+            defaultValueInstant: this.defaultValueInstant,
             defaultValueInteger: this.defaultValueInteger,
-            defaultValueMarkdown: this.defaultValueMarkdown && this.defaultValueMarkdown.toJSON(),
-            defaultValueOid: this.defaultValueOid && this.defaultValueOid.toJSON(),
+            defaultValueMarkdown: this.defaultValueMarkdown,
+            defaultValueOid: this.defaultValueOid,
             defaultValuePositiveInt: this.defaultValuePositiveInt,
             defaultValueString: this.defaultValueString,
-            defaultValueTime: this.defaultValueTime && this.defaultValueTime.toJSON(),
-            defaultValueUnsignedInt: this.defaultValueUnsignedInt && this.defaultValueUnsignedInt.toJSON(),
-            defaultValueUri: this.defaultValueUri && this.defaultValueUri.toJSON(),
-            defaultValueUrl: this.defaultValueUrl && this.defaultValueUrl.toJSON(),
-            defaultValueUuid: this.defaultValueUuid && this.defaultValueUuid.toJSON(),
+            defaultValueTime: this.defaultValueTime,
+            defaultValueUnsignedInt: this.defaultValueUnsignedInt,
+            defaultValueUri: this.defaultValueUri,
+            defaultValueUrl: this.defaultValueUrl,
+            defaultValueUuid: this.defaultValueUuid,
             defaultValueAddress: this.defaultValueAddress && this.defaultValueAddress.toJSON(),
             defaultValueAge: this.defaultValueAge && this.defaultValueAge.toJSON(),
             defaultValueAnnotation: this.defaultValueAnnotation && this.defaultValueAnnotation.toJSON(),
@@ -3400,27 +3278,27 @@ class ElementDefinition {
             defaultValueUsageContext: this.defaultValueUsageContext && this.defaultValueUsageContext.toJSON(),
             defaultValueDosage: this.defaultValueDosage && this.defaultValueDosage.toJSON(),
             defaultValueMeta: this.defaultValueMeta && this.defaultValueMeta.toJSON(),
-            meaningWhenMissing: this.meaningWhenMissing && this.meaningWhenMissing.toJSON(),
+            meaningWhenMissing: this.meaningWhenMissing,
             orderMeaning: this.orderMeaning,
-            fixedBase64Binary: this.fixedBase64Binary && this.fixedBase64Binary.toJSON(),
+            fixedBase64Binary: this.fixedBase64Binary,
             fixedBoolean: this.fixedBoolean,
-            fixedCanonical: this.fixedCanonical && this.fixedCanonical.toJSON(),
-            fixedCode: this.fixedCode && this.fixedCode.toJSON(),
-            fixedDate: this.fixedDate && this.fixedDate.toJSON(),
-            fixedDateTime: this.fixedDateTime && this.fixedDateTime.toJSON(),
-            fixedDecimal: this.fixedDecimal && this.fixedDecimal.toJSON(),
-            fixedId: this.fixedId && this.fixedId.toJSON(),
-            fixedInstant: this.fixedInstant && this.fixedInstant.toJSON(),
+            fixedCanonical: this.fixedCanonical,
+            fixedCode: this.fixedCode,
+            fixedDate: this.fixedDate,
+            fixedDateTime: this.fixedDateTime,
+            fixedDecimal: this.fixedDecimal,
+            fixedId: this.fixedId,
+            fixedInstant: this.fixedInstant,
             fixedInteger: this.fixedInteger,
-            fixedMarkdown: this.fixedMarkdown && this.fixedMarkdown.toJSON(),
-            fixedOid: this.fixedOid && this.fixedOid.toJSON(),
+            fixedMarkdown: this.fixedMarkdown,
+            fixedOid: this.fixedOid,
             fixedPositiveInt: this.fixedPositiveInt,
             fixedString: this.fixedString,
-            fixedTime: this.fixedTime && this.fixedTime.toJSON(),
-            fixedUnsignedInt: this.fixedUnsignedInt && this.fixedUnsignedInt.toJSON(),
-            fixedUri: this.fixedUri && this.fixedUri.toJSON(),
-            fixedUrl: this.fixedUrl && this.fixedUrl.toJSON(),
-            fixedUuid: this.fixedUuid && this.fixedUuid.toJSON(),
+            fixedTime: this.fixedTime,
+            fixedUnsignedInt: this.fixedUnsignedInt,
+            fixedUri: this.fixedUri,
+            fixedUrl: this.fixedUrl,
+            fixedUuid: this.fixedUuid,
             fixedAddress: this.fixedAddress && this.fixedAddress.toJSON(),
             fixedAge: this.fixedAge && this.fixedAge.toJSON(),
             fixedAnnotation: this.fixedAnnotation && this.fixedAnnotation.toJSON(),
@@ -3452,25 +3330,25 @@ class ElementDefinition {
             fixedUsageContext: this.fixedUsageContext && this.fixedUsageContext.toJSON(),
             fixedDosage: this.fixedDosage && this.fixedDosage.toJSON(),
             fixedMeta: this.fixedMeta && this.fixedMeta.toJSON(),
-            patternBase64Binary: this.patternBase64Binary && this.patternBase64Binary.toJSON(),
+            patternBase64Binary: this.patternBase64Binary,
             patternBoolean: this.patternBoolean,
-            patternCanonical: this.patternCanonical && this.patternCanonical.toJSON(),
-            patternCode: this.patternCode && this.patternCode.toJSON(),
-            patternDate: this.patternDate && this.patternDate.toJSON(),
-            patternDateTime: this.patternDateTime && this.patternDateTime.toJSON(),
-            patternDecimal: this.patternDecimal && this.patternDecimal.toJSON(),
-            patternId: this.patternId && this.patternId.toJSON(),
-            patternInstant: this.patternInstant && this.patternInstant.toJSON(),
+            patternCanonical: this.patternCanonical,
+            patternCode: this.patternCode,
+            patternDate: this.patternDate,
+            patternDateTime: this.patternDateTime,
+            patternDecimal: this.patternDecimal,
+            patternId: this.patternId,
+            patternInstant: this.patternInstant,
             patternInteger: this.patternInteger,
-            patternMarkdown: this.patternMarkdown && this.patternMarkdown.toJSON(),
-            patternOid: this.patternOid && this.patternOid.toJSON(),
+            patternMarkdown: this.patternMarkdown,
+            patternOid: this.patternOid,
             patternPositiveInt: this.patternPositiveInt,
             patternString: this.patternString,
-            patternTime: this.patternTime && this.patternTime.toJSON(),
-            patternUnsignedInt: this.patternUnsignedInt && this.patternUnsignedInt.toJSON(),
-            patternUri: this.patternUri && this.patternUri.toJSON(),
-            patternUrl: this.patternUrl && this.patternUrl.toJSON(),
-            patternUuid: this.patternUuid && this.patternUuid.toJSON(),
+            patternTime: this.patternTime,
+            patternUnsignedInt: this.patternUnsignedInt,
+            patternUri: this.patternUri,
+            patternUrl: this.patternUrl,
+            patternUuid: this.patternUuid,
             patternAddress: this.patternAddress && this.patternAddress.toJSON(),
             patternAge: this.patternAge && this.patternAge.toJSON(),
             patternAnnotation: this.patternAnnotation && this.patternAnnotation.toJSON(),
@@ -3502,34 +3380,34 @@ class ElementDefinition {
             patternUsageContext: this.patternUsageContext && this.patternUsageContext.toJSON(),
             patternDosage: this.patternDosage && this.patternDosage.toJSON(),
             patternMeta: this.patternMeta && this.patternMeta.toJSON(),
-            example: this.example && this.example.toJSON(),
-            minValueDate: this.minValueDate && this.minValueDate.toJSON(),
-            minValueDateTime: this.minValueDateTime && this.minValueDateTime.toJSON(),
-            minValueInstant: this.minValueInstant && this.minValueInstant.toJSON(),
-            minValueTime: this.minValueTime && this.minValueTime.toJSON(),
-            minValueDecimal: this.minValueDecimal && this.minValueDecimal.toJSON(),
+            example: this.example && this.example.map(v => v.toJSON()),
+            minValueDate: this.minValueDate,
+            minValueDateTime: this.minValueDateTime,
+            minValueInstant: this.minValueInstant,
+            minValueTime: this.minValueTime,
+            minValueDecimal: this.minValueDecimal,
             minValueInteger: this.minValueInteger,
             minValuePositiveInt: this.minValuePositiveInt,
-            minValueUnsignedInt: this.minValueUnsignedInt && this.minValueUnsignedInt.toJSON(),
+            minValueUnsignedInt: this.minValueUnsignedInt,
             minValueQuantity: this.minValueQuantity && this.minValueQuantity.toJSON(),
-            maxValueDate: this.maxValueDate && this.maxValueDate.toJSON(),
-            maxValueDateTime: this.maxValueDateTime && this.maxValueDateTime.toJSON(),
-            maxValueInstant: this.maxValueInstant && this.maxValueInstant.toJSON(),
-            maxValueTime: this.maxValueTime && this.maxValueTime.toJSON(),
-            maxValueDecimal: this.maxValueDecimal && this.maxValueDecimal.toJSON(),
+            maxValueDate: this.maxValueDate,
+            maxValueDateTime: this.maxValueDateTime,
+            maxValueInstant: this.maxValueInstant,
+            maxValueTime: this.maxValueTime,
+            maxValueDecimal: this.maxValueDecimal,
             maxValueInteger: this.maxValueInteger,
             maxValuePositiveInt: this.maxValuePositiveInt,
-            maxValueUnsignedInt: this.maxValueUnsignedInt && this.maxValueUnsignedInt.toJSON(),
+            maxValueUnsignedInt: this.maxValueUnsignedInt,
             maxValueQuantity: this.maxValueQuantity && this.maxValueQuantity.toJSON(),
             maxLength: this.maxLength,
-            condition: this.condition && this.condition.toJSON(),
-            constraint: this.constraint && this.constraint.toJSON(),
+            condition: this.condition,
+            constraint: this.constraint && this.constraint.map(v => v.toJSON()),
             mustSupport: this.mustSupport,
             isModifier: this.isModifier,
             isModifierReason: this.isModifierReason,
             isSummary: this.isSummary,
             binding: this.binding && this.binding.toJSON(),
-            mapping: this.mapping && this.mapping.toJSON(),
+            mapping: this.mapping && this.mapping.map(v => v.toJSON()),
         };
     }
 }

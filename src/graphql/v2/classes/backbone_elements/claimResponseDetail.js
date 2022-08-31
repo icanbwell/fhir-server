@@ -43,7 +43,7 @@ class ClaimResponseDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ClaimResponseDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,7 +102,7 @@ class ClaimResponseDetail {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.noteNumber = value;
+                this.__data.noteNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -118,7 +118,7 @@ class ClaimResponseDetail {
                     return;
                 }
                 let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                this.__data.adjudication = new ClaimResponseAdjudication(value);
+                this.__data.adjudication = Array.isArray(value) ? value.map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(value)];
             }
         });
 
@@ -134,7 +134,7 @@ class ClaimResponseDetail {
                     return;
                 }
                 let ClaimResponseSubDetail = require('../backbone_elements/claimResponseSubDetail.js');
-                this.__data.subDetail = new ClaimResponseSubDetail(value);
+                this.__data.subDetail = Array.isArray(value) ? value.map(v => new ClaimResponseSubDetail(v)) : [new ClaimResponseSubDetail(value)];
             }
         });
 
@@ -154,12 +154,12 @@ class ClaimResponseDetail {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             detailSequence: this.detailSequence,
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.toJSON(),
-            subDetail: this.subDetail && this.subDetail.toJSON(),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            subDetail: this.subDetail && this.subDetail.map(v => v.toJSON()),
         };
     }
 }

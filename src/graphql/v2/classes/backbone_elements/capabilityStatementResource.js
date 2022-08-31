@@ -45,7 +45,7 @@ class CapabilityStatementResource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class CapabilityStatementResource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -106,9 +106,7 @@ class CapabilityStatementResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.profile = new canonical(value);
+                this.__data.profile = value;
             }
         });
 
@@ -129,9 +127,7 @@ class CapabilityStatementResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.supportedProfile = new canonical(value);
+                this.__data.supportedProfile = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -146,9 +142,7 @@ class CapabilityStatementResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.documentation = new markdown(value);
+                this.__data.documentation = value;
             }
         });
 
@@ -164,7 +158,7 @@ class CapabilityStatementResource {
                     return;
                 }
                 let CapabilityStatementInteraction = require('../backbone_elements/capabilityStatementInteraction.js');
-                this.__data.interaction = new CapabilityStatementInteraction(value);
+                this.__data.interaction = Array.isArray(value) ? value.map(v => new CapabilityStatementInteraction(v)) : [new CapabilityStatementInteraction(value)];
             }
         });
 
@@ -293,7 +287,7 @@ class CapabilityStatementResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.referencePolicy = value;
+                this.__data.referencePolicy = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -308,7 +302,7 @@ class CapabilityStatementResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.searchInclude = value;
+                this.__data.searchInclude = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -323,7 +317,7 @@ class CapabilityStatementResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.searchRevInclude = value;
+                this.__data.searchRevInclude = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -341,7 +335,7 @@ class CapabilityStatementResource {
                     return;
                 }
                 let CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
-                this.__data.searchParam = new CapabilityStatementSearchParam(value);
+                this.__data.searchParam = Array.isArray(value) ? value.map(v => new CapabilityStatementSearchParam(v)) : [new CapabilityStatementSearchParam(value)];
             }
         });
 
@@ -359,7 +353,7 @@ class CapabilityStatementResource {
                     return;
                 }
                 let CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');
-                this.__data.operation = new CapabilityStatementOperation(value);
+                this.__data.operation = Array.isArray(value) ? value.map(v => new CapabilityStatementOperation(v)) : [new CapabilityStatementOperation(value)];
             }
         });
 
@@ -379,25 +373,25 @@ class CapabilityStatementResource {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            type: this.type && this.type.toJSON(),
-            profile: this.profile && this.profile.toJSON(),
-            supportedProfile: this.supportedProfile && this.supportedProfile.toJSON(),
-            documentation: this.documentation && this.documentation.toJSON(),
-            interaction: this.interaction && this.interaction.toJSON(),
-            versioning: this.versioning && this.versioning.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            type: this.type,
+            profile: this.profile,
+            supportedProfile: this.supportedProfile,
+            documentation: this.documentation,
+            interaction: this.interaction && this.interaction.map(v => v.toJSON()),
+            versioning: this.versioning,
             readHistory: this.readHistory,
             updateCreate: this.updateCreate,
             conditionalCreate: this.conditionalCreate,
-            conditionalRead: this.conditionalRead && this.conditionalRead.toJSON(),
+            conditionalRead: this.conditionalRead,
             conditionalUpdate: this.conditionalUpdate,
-            conditionalDelete: this.conditionalDelete && this.conditionalDelete.toJSON(),
-            referencePolicy: this.referencePolicy && this.referencePolicy.toJSON(),
+            conditionalDelete: this.conditionalDelete,
+            referencePolicy: this.referencePolicy,
             searchInclude: this.searchInclude,
             searchRevInclude: this.searchRevInclude,
-            searchParam: this.searchParam && this.searchParam.toJSON(),
-            operation: this.operation && this.operation.toJSON(),
+            searchParam: this.searchParam && this.searchParam.map(v => v.toJSON()),
+            operation: this.operation && this.operation.map(v => v.toJSON()),
         };
     }
 }

@@ -29,9 +29,7 @@ class ResearchStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -67,9 +65,7 @@ class ResearchStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -122,9 +118,7 @@ class ResearchStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -144,7 +138,7 @@ class ResearchStudy {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -172,7 +166,7 @@ class ResearchStudy {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -188,7 +182,7 @@ class ResearchStudy {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -220,7 +214,7 @@ class ResearchStudy {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.protocol = new Reference(value);
+                this.__data.protocol = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -236,7 +230,7 @@ class ResearchStudy {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.partOf = new Reference(value);
+                this.__data.partOf = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -303,7 +297,7 @@ class ResearchStudy {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -320,7 +314,7 @@ class ResearchStudy {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.focus = new CodeableConcept(value);
+                this.__data.focus = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -338,7 +332,7 @@ class ResearchStudy {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.condition = new CodeableConcept(value);
+                this.__data.condition = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -355,7 +349,7 @@ class ResearchStudy {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = new ContactDetail(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new ContactDetail(v)) : [new ContactDetail(value)];
             }
         });
 
@@ -371,7 +365,7 @@ class ResearchStudy {
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.relatedArtifact = new RelatedArtifact(value);
+                this.__data.relatedArtifact = Array.isArray(value) ? value.map(v => new RelatedArtifact(v)) : [new RelatedArtifact(value)];
             }
         });
 
@@ -387,7 +381,7 @@ class ResearchStudy {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.keyword = new CodeableConcept(value);
+                this.__data.keyword = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -403,7 +397,7 @@ class ResearchStudy {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.location = new CodeableConcept(value);
+                this.__data.location = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -418,9 +412,7 @@ class ResearchStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.description = new markdown(value);
+                this.__data.description = value;
             }
         });
 
@@ -438,7 +430,7 @@ class ResearchStudy {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.enrollment = new Reference(value);
+                this.__data.enrollment = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -507,7 +499,7 @@ class ResearchStudy {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.site = new Reference(value);
+                this.__data.site = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -539,7 +531,7 @@ class ResearchStudy {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -557,7 +549,7 @@ class ResearchStudy {
                     return;
                 }
                 let ResearchStudyArm = require('../backbone_elements/researchStudyArm.js');
-                this.__data.arm = new ResearchStudyArm(value);
+                this.__data.arm = Array.isArray(value) ? value.map(v => new ResearchStudyArm(v)) : [new ResearchStudyArm(value)];
             }
         });
 
@@ -574,7 +566,7 @@ class ResearchStudy {
                     return;
                 }
                 let ResearchStudyObjective = require('../backbone_elements/researchStudyObjective.js');
-                this.__data.objective = new ResearchStudyObjective(value);
+                this.__data.objective = Array.isArray(value) ? value.map(v => new ResearchStudyObjective(v)) : [new ResearchStudyObjective(value)];
             }
         });
 
@@ -594,38 +586,38 @@ class ResearchStudy {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             title: this.title,
-            protocol: this.protocol && this.protocol.toJSON(),
-            partOf: this.partOf && this.partOf.toJSON(),
-            status: this.status && this.status.toJSON(),
+            protocol: this.protocol && this.protocol.map(v => v.toJSON()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSON()),
+            status: this.status,
             primaryPurposeType: this.primaryPurposeType && this.primaryPurposeType.toJSON(),
             phase: this.phase && this.phase.toJSON(),
-            category: this.category && this.category.toJSON(),
-            focus: this.focus && this.focus.toJSON(),
-            condition: this.condition && this.condition.toJSON(),
-            contact: this.contact && this.contact.toJSON(),
-            relatedArtifact: this.relatedArtifact && this.relatedArtifact.toJSON(),
-            keyword: this.keyword && this.keyword.toJSON(),
-            location: this.location && this.location.toJSON(),
-            description: this.description && this.description.toJSON(),
-            enrollment: this.enrollment && this.enrollment.toJSON(),
+            category: this.category && this.category.map(v => v.toJSON()),
+            focus: this.focus && this.focus.map(v => v.toJSON()),
+            condition: this.condition && this.condition.map(v => v.toJSON()),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
+            relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSON()),
+            keyword: this.keyword && this.keyword.map(v => v.toJSON()),
+            location: this.location && this.location.map(v => v.toJSON()),
+            description: this.description,
+            enrollment: this.enrollment && this.enrollment.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
             sponsor: this.sponsor && this.sponsor.toJSON(),
             principalInvestigator: this.principalInvestigator && this.principalInvestigator.toJSON(),
-            site: this.site && this.site.toJSON(),
+            site: this.site && this.site.map(v => v.toJSON()),
             reasonStopped: this.reasonStopped && this.reasonStopped.toJSON(),
-            note: this.note && this.note.toJSON(),
-            arm: this.arm && this.arm.toJSON(),
-            objective: this.objective && this.objective.toJSON(),
+            note: this.note && this.note.map(v => v.toJSON()),
+            arm: this.arm && this.arm.map(v => v.toJSON()),
+            objective: this.objective && this.objective.map(v => v.toJSON()),
         };
     }
 }

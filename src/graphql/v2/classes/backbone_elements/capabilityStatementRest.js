@@ -45,7 +45,7 @@ class CapabilityStatementRest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class CapabilityStatementRest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -105,9 +105,7 @@ class CapabilityStatementRest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.documentation = new markdown(value);
+                this.__data.documentation = value;
             }
         });
 
@@ -141,7 +139,7 @@ class CapabilityStatementRest {
                     return;
                 }
                 let CapabilityStatementResource = require('../backbone_elements/capabilityStatementResource.js');
-                this.__data.resource = new CapabilityStatementResource(value);
+                this.__data.resource = Array.isArray(value) ? value.map(v => new CapabilityStatementResource(v)) : [new CapabilityStatementResource(value)];
             }
         });
 
@@ -157,7 +155,7 @@ class CapabilityStatementRest {
                     return;
                 }
                 let CapabilityStatementInteraction1 = require('../backbone_elements/capabilityStatementInteraction1.js');
-                this.__data.interaction = new CapabilityStatementInteraction1(value);
+                this.__data.interaction = Array.isArray(value) ? value.map(v => new CapabilityStatementInteraction1(v)) : [new CapabilityStatementInteraction1(value)];
             }
         });
 
@@ -176,7 +174,7 @@ class CapabilityStatementRest {
                     return;
                 }
                 let CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
-                this.__data.searchParam = new CapabilityStatementSearchParam(value);
+                this.__data.searchParam = Array.isArray(value) ? value.map(v => new CapabilityStatementSearchParam(v)) : [new CapabilityStatementSearchParam(value)];
             }
         });
 
@@ -193,7 +191,7 @@ class CapabilityStatementRest {
                     return;
                 }
                 let CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');
-                this.__data.operation = new CapabilityStatementOperation(value);
+                this.__data.operation = Array.isArray(value) ? value.map(v => new CapabilityStatementOperation(v)) : [new CapabilityStatementOperation(value)];
             }
         });
 
@@ -210,9 +208,7 @@ class CapabilityStatementRest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.compartment = new canonical(value);
+                this.__data.compartment = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -232,16 +228,16 @@ class CapabilityStatementRest {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            mode: this.mode && this.mode.toJSON(),
-            documentation: this.documentation && this.documentation.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            mode: this.mode,
+            documentation: this.documentation,
             security: this.security && this.security.toJSON(),
-            resource: this.resource && this.resource.toJSON(),
-            interaction: this.interaction && this.interaction.toJSON(),
-            searchParam: this.searchParam && this.searchParam.toJSON(),
-            operation: this.operation && this.operation.toJSON(),
-            compartment: this.compartment && this.compartment.toJSON(),
+            resource: this.resource && this.resource.map(v => v.toJSON()),
+            interaction: this.interaction && this.interaction.map(v => v.toJSON()),
+            searchParam: this.searchParam && this.searchParam.map(v => v.toJSON()),
+            operation: this.operation && this.operation.map(v => v.toJSON()),
+            compartment: this.compartment,
         };
     }
 }

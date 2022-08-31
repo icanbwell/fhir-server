@@ -42,7 +42,7 @@ class BundleEntry {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class BundleEntry {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,7 +86,7 @@ class BundleEntry {
                     return;
                 }
                 let BundleLink = require('../backbone_elements/bundleLink.js');
-                this.__data.link = new BundleLink(value);
+                this.__data.link = Array.isArray(value) ? value.map(v => new BundleLink(v)) : [new BundleLink(value)];
             }
         });
 
@@ -108,9 +108,7 @@ class BundleEntry {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fullUrl = new uri(value);
+                this.__data.fullUrl = value;
             }
         });
 
@@ -126,9 +124,7 @@ class BundleEntry {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.resource = new ResourceContainer(value);
+                this.__data.resource = value;
             }
         });
 
@@ -200,11 +196,11 @@ class BundleEntry {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            link: this.link && this.link.toJSON(),
-            fullUrl: this.fullUrl && this.fullUrl.toJSON(),
-            resource: this.resource && this.resource.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON()),
+            fullUrl: this.fullUrl,
+            resource: this.resource,
             search: this.search && this.search.toJSON(),
             request: this.request && this.request.toJSON(),
             response: this.response && this.response.toJSON(),

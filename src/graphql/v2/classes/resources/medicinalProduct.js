@@ -25,9 +25,7 @@ class MedicinalProduct {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class MedicinalProduct {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class MedicinalProduct {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -283,7 +277,7 @@ class MedicinalProduct {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.specialMeasures = value;
+                this.__data.specialMeasures = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -315,7 +309,7 @@ class MedicinalProduct {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.productClassification = new CodeableConcept(value);
+                this.__data.productClassification = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -332,7 +326,7 @@ class MedicinalProduct {
                     return;
                 }
                 let MarketingStatus = require('../backbone_elements/marketingStatus.js');
-                this.__data.marketingStatus = new MarketingStatus(value);
+                this.__data.marketingStatus = Array.isArray(value) ? value.map(v => new MarketingStatus(v)) : [new MarketingStatus(value)];
             }
         });
 
@@ -348,7 +342,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.pharmaceuticalProduct = new Reference(value);
+                this.__data.pharmaceuticalProduct = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -364,7 +358,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.packagedMedicinalProduct = new Reference(value);
+                this.__data.packagedMedicinalProduct = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -380,7 +374,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.attachedDocument = new Reference(value);
+                this.__data.attachedDocument = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -397,7 +391,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.masterFile = new Reference(value);
+                this.__data.masterFile = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -413,7 +407,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.contact = new Reference(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -429,7 +423,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.clinicalTrial = new Reference(value);
+                this.__data.clinicalTrial = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -445,7 +439,7 @@ class MedicinalProduct {
                     return;
                 }
                 let MedicinalProductName = require('../backbone_elements/medicinalProductName.js');
-                this.__data.name = new MedicinalProductName(value);
+                this.__data.name = Array.isArray(value) ? value.map(v => new MedicinalProductName(v)) : [new MedicinalProductName(value)];
             }
         });
 
@@ -462,7 +456,7 @@ class MedicinalProduct {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.crossReference = new Identifier(value);
+                this.__data.crossReference = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -479,7 +473,7 @@ class MedicinalProduct {
                     return;
                 }
                 let MedicinalProductManufacturingBusinessOperation = require('../backbone_elements/medicinalProductManufacturingBusinessOperation.js');
-                this.__data.manufacturingBusinessOperation = new MedicinalProductManufacturingBusinessOperation(value);
+                this.__data.manufacturingBusinessOperation = Array.isArray(value) ? value.map(v => new MedicinalProductManufacturingBusinessOperation(v)) : [new MedicinalProductManufacturingBusinessOperation(value)];
             }
         });
 
@@ -496,7 +490,7 @@ class MedicinalProduct {
                     return;
                 }
                 let MedicinalProductSpecialDesignation = require('../backbone_elements/medicinalProductSpecialDesignation.js');
-                this.__data.specialDesignation = new MedicinalProductSpecialDesignation(value);
+                this.__data.specialDesignation = Array.isArray(value) ? value.map(v => new MedicinalProductSpecialDesignation(v)) : [new MedicinalProductSpecialDesignation(value)];
             }
         });
 
@@ -516,15 +510,15 @@ class MedicinalProduct {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             domain: this.domain && this.domain.toJSON(),
             combinedPharmaceuticalDoseForm: this.combinedPharmaceuticalDoseForm && this.combinedPharmaceuticalDoseForm.toJSON(),
@@ -532,18 +526,18 @@ class MedicinalProduct {
             additionalMonitoringIndicator: this.additionalMonitoringIndicator && this.additionalMonitoringIndicator.toJSON(),
             specialMeasures: this.specialMeasures,
             paediatricUseIndicator: this.paediatricUseIndicator && this.paediatricUseIndicator.toJSON(),
-            productClassification: this.productClassification && this.productClassification.toJSON(),
-            marketingStatus: this.marketingStatus && this.marketingStatus.toJSON(),
-            pharmaceuticalProduct: this.pharmaceuticalProduct && this.pharmaceuticalProduct.toJSON(),
-            packagedMedicinalProduct: this.packagedMedicinalProduct && this.packagedMedicinalProduct.toJSON(),
-            attachedDocument: this.attachedDocument && this.attachedDocument.toJSON(),
-            masterFile: this.masterFile && this.masterFile.toJSON(),
-            contact: this.contact && this.contact.toJSON(),
-            clinicalTrial: this.clinicalTrial && this.clinicalTrial.toJSON(),
-            name: this.name && this.name.toJSON(),
-            crossReference: this.crossReference && this.crossReference.toJSON(),
-            manufacturingBusinessOperation: this.manufacturingBusinessOperation && this.manufacturingBusinessOperation.toJSON(),
-            specialDesignation: this.specialDesignation && this.specialDesignation.toJSON(),
+            productClassification: this.productClassification && this.productClassification.map(v => v.toJSON()),
+            marketingStatus: this.marketingStatus && this.marketingStatus.map(v => v.toJSON()),
+            pharmaceuticalProduct: this.pharmaceuticalProduct && this.pharmaceuticalProduct.map(v => v.toJSON()),
+            packagedMedicinalProduct: this.packagedMedicinalProduct && this.packagedMedicinalProduct.map(v => v.toJSON()),
+            attachedDocument: this.attachedDocument && this.attachedDocument.map(v => v.toJSON()),
+            masterFile: this.masterFile && this.masterFile.map(v => v.toJSON()),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
+            clinicalTrial: this.clinicalTrial && this.clinicalTrial.map(v => v.toJSON()),
+            name: this.name && this.name.map(v => v.toJSON()),
+            crossReference: this.crossReference && this.crossReference.map(v => v.toJSON()),
+            manufacturingBusinessOperation: this.manufacturingBusinessOperation && this.manufacturingBusinessOperation.map(v => v.toJSON()),
+            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSON()),
         };
     }
 }

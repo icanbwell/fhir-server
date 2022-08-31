@@ -44,7 +44,7 @@ class ClaimDiagnosis {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ClaimDiagnosis {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -135,7 +135,7 @@ class ClaimDiagnosis {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -189,12 +189,12 @@ class ClaimDiagnosis {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             sequence: this.sequence,
             diagnosisCodeableConcept: this.diagnosisCodeableConcept && this.diagnosisCodeableConcept.toJSON(),
             diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSON(),
-            type: this.type && this.type.toJSON(),
+            type: this.type && this.type.map(v => v.toJSON()),
             onAdmission: this.onAdmission && this.onAdmission.toJSON(),
             packageCode: this.packageCode && this.packageCode.toJSON(),
         };

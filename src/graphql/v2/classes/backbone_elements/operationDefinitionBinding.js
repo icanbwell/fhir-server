@@ -43,7 +43,7 @@ class OperationDefinitionBinding {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class OperationDefinitionBinding {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -104,9 +104,7 @@ class OperationDefinitionBinding {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueSet = new canonical(value);
+                this.__data.valueSet = value;
             }
         });
 
@@ -126,10 +124,10 @@ class OperationDefinitionBinding {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            strength: this.strength && this.strength.toJSON(),
-            valueSet: this.valueSet && this.valueSet.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            strength: this.strength,
+            valueSet: this.valueSet,
         };
     }
 }

@@ -44,7 +44,7 @@ class QuestionnaireAnswerOption {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class QuestionnaireAnswerOption {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class QuestionnaireAnswerOption {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDate = new date(value);
+                this.__data.valueDate = value;
             }
         });
 
@@ -119,9 +117,7 @@ class QuestionnaireAnswerOption {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueTime = new time(value);
+                this.__data.valueTime = value;
             }
         });
 
@@ -204,11 +200,11 @@ class QuestionnaireAnswerOption {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             valueInteger: this.valueInteger,
-            valueDate: this.valueDate && this.valueDate.toJSON(),
-            valueTime: this.valueTime && this.valueTime.toJSON(),
+            valueDate: this.valueDate,
+            valueTime: this.valueTime,
             valueString: this.valueString,
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),

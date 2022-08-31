@@ -46,7 +46,7 @@ class Quantity {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -62,9 +62,7 @@ class Quantity {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.value = new decimal(value);
+                this.__data.value = value;
             }
         });
 
@@ -111,9 +109,7 @@ class Quantity {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.system = new uri(value);
+                this.__data.system = value;
             }
         });
 
@@ -148,12 +144,12 @@ class Quantity {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            value: this.value && this.value.toJSON(),
-            comparator: this.comparator && this.comparator.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            value: this.value,
+            comparator: this.comparator,
             unit: this.unit,
-            system: this.system && this.system.toJSON(),
-            code: this.code && this.code.toJSON(),
+            system: this.system,
+            code: this.code,
         };
     }
 }

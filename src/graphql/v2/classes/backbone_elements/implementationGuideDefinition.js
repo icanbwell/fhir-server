@@ -45,7 +45,7 @@ class ImplementationGuideDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ImplementationGuideDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -89,7 +89,7 @@ class ImplementationGuideDefinition {
                     return;
                 }
                 let ImplementationGuideGrouping = require('../backbone_elements/implementationGuideGrouping.js');
-                this.__data.grouping = new ImplementationGuideGrouping(value);
+                this.__data.grouping = Array.isArray(value) ? value.map(v => new ImplementationGuideGrouping(v)) : [new ImplementationGuideGrouping(value)];
             }
         });
 
@@ -108,7 +108,7 @@ class ImplementationGuideDefinition {
                     return;
                 }
                 let ImplementationGuideResource = require('../backbone_elements/implementationGuideResource.js');
-                this.__data.resource = new ImplementationGuideResource(value);
+                this.__data.resource = Array.isArray(value) ? value.map(v => new ImplementationGuideResource(v)) : [new ImplementationGuideResource(value)];
             }
         });
 
@@ -141,7 +141,7 @@ class ImplementationGuideDefinition {
                     return;
                 }
                 let ImplementationGuideParameter = require('../backbone_elements/implementationGuideParameter.js');
-                this.__data.parameter = new ImplementationGuideParameter(value);
+                this.__data.parameter = Array.isArray(value) ? value.map(v => new ImplementationGuideParameter(v)) : [new ImplementationGuideParameter(value)];
             }
         });
 
@@ -157,7 +157,7 @@ class ImplementationGuideDefinition {
                     return;
                 }
                 let ImplementationGuideTemplate = require('../backbone_elements/implementationGuideTemplate.js');
-                this.__data.template = new ImplementationGuideTemplate(value);
+                this.__data.template = Array.isArray(value) ? value.map(v => new ImplementationGuideTemplate(v)) : [new ImplementationGuideTemplate(value)];
             }
         });
 
@@ -177,13 +177,13 @@ class ImplementationGuideDefinition {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            grouping: this.grouping && this.grouping.toJSON(),
-            resource: this.resource && this.resource.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            grouping: this.grouping && this.grouping.map(v => v.toJSON()),
+            resource: this.resource && this.resource.map(v => v.toJSON()),
             page: this.page && this.page.toJSON(),
-            parameter: this.parameter && this.parameter.toJSON(),
-            template: this.template && this.template.toJSON(),
+            parameter: this.parameter && this.parameter.map(v => v.toJSON()),
+            template: this.template && this.template.map(v => v.toJSON()),
         };
     }
 }

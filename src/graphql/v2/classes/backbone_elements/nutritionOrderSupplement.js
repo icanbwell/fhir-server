@@ -43,7 +43,7 @@ class NutritionOrderSupplement {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class NutritionOrderSupplement {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -122,7 +122,7 @@ class NutritionOrderSupplement {
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
-                this.__data.schedule = new Timing(value);
+                this.__data.schedule = Array.isArray(value) ? value.map(v => new Timing(v)) : [new Timing(value)];
             }
         });
 
@@ -174,11 +174,11 @@ class NutritionOrderSupplement {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             productName: this.productName,
-            schedule: this.schedule && this.schedule.toJSON(),
+            schedule: this.schedule && this.schedule.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             instruction: this.instruction,
         };

@@ -45,7 +45,7 @@ class PlanDefinitionRelatedAction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class PlanDefinitionRelatedAction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,9 +88,7 @@ class PlanDefinitionRelatedAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.actionId = new id(value);
+                this.__data.actionId = value;
             }
         });
 
@@ -157,10 +155,10 @@ class PlanDefinitionRelatedAction {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            actionId: this.actionId && this.actionId.toJSON(),
-            relationship: this.relationship && this.relationship.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            actionId: this.actionId,
+            relationship: this.relationship,
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSON(),
             offsetRange: this.offsetRange && this.offsetRange.toJSON(),
         };

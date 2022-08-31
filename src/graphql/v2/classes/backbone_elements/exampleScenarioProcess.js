@@ -42,7 +42,7 @@ class ExampleScenarioProcess {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class ExampleScenarioProcess {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -100,9 +100,7 @@ class ExampleScenarioProcess {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.description = new markdown(value);
+                this.__data.description = value;
             }
         });
 
@@ -117,9 +115,7 @@ class ExampleScenarioProcess {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.preConditions = new markdown(value);
+                this.__data.preConditions = value;
             }
         });
 
@@ -134,9 +130,7 @@ class ExampleScenarioProcess {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.postConditions = new markdown(value);
+                this.__data.postConditions = value;
             }
         });
 
@@ -152,7 +146,7 @@ class ExampleScenarioProcess {
                     return;
                 }
                 let ExampleScenarioStep = require('../backbone_elements/exampleScenarioStep.js');
-                this.__data.step = new ExampleScenarioStep(value);
+                this.__data.step = Array.isArray(value) ? value.map(v => new ExampleScenarioStep(v)) : [new ExampleScenarioStep(value)];
             }
         });
 
@@ -172,13 +166,13 @@ class ExampleScenarioProcess {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             title: this.title,
-            description: this.description && this.description.toJSON(),
-            preConditions: this.preConditions && this.preConditions.toJSON(),
-            postConditions: this.postConditions && this.postConditions.toJSON(),
-            step: this.step && this.step.toJSON(),
+            description: this.description,
+            preConditions: this.preConditions,
+            postConditions: this.postConditions,
+            step: this.step && this.step.map(v => v.toJSON()),
         };
     }
 }

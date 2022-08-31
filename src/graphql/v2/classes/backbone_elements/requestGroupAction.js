@@ -43,7 +43,7 @@ class RequestGroupAction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class RequestGroupAction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +167,7 @@ class RequestGroupAction {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -185,7 +185,7 @@ class RequestGroupAction {
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.documentation = new RelatedArtifact(value);
+                this.__data.documentation = Array.isArray(value) ? value.map(v => new RelatedArtifact(v)) : [new RelatedArtifact(value)];
             }
         });
 
@@ -202,7 +202,7 @@ class RequestGroupAction {
                     return;
                 }
                 let RequestGroupCondition = require('../backbone_elements/requestGroupCondition.js');
-                this.__data.condition = new RequestGroupCondition(value);
+                this.__data.condition = Array.isArray(value) ? value.map(v => new RequestGroupCondition(v)) : [new RequestGroupCondition(value)];
             }
         });
 
@@ -219,7 +219,7 @@ class RequestGroupAction {
                     return;
                 }
                 let RequestGroupRelatedAction = require('../backbone_elements/requestGroupRelatedAction.js');
-                this.__data.relatedAction = new RequestGroupRelatedAction(value);
+                this.__data.relatedAction = Array.isArray(value) ? value.map(v => new RequestGroupRelatedAction(v)) : [new RequestGroupRelatedAction(value)];
             }
         });
 
@@ -234,9 +234,7 @@ class RequestGroupAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.timingDateTime = new dateTime(value);
+                this.__data.timingDateTime = value;
             }
         });
 
@@ -332,7 +330,7 @@ class RequestGroupAction {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.participant = new Reference(value);
+                this.__data.participant = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -454,7 +452,7 @@ class RequestGroupAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.action = new RequestGroupAction(value);
+                this.__data.action = Array.isArray(value) ? value.map(v => new RequestGroupAction(v)) : [new RequestGroupAction(value)];
             }
         });
 
@@ -474,32 +472,32 @@ class RequestGroupAction {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             prefix: this.prefix,
             title: this.title,
             description: this.description,
             textEquivalent: this.textEquivalent,
-            priority: this.priority && this.priority.toJSON(),
-            code: this.code && this.code.toJSON(),
-            documentation: this.documentation && this.documentation.toJSON(),
-            condition: this.condition && this.condition.toJSON(),
-            relatedAction: this.relatedAction && this.relatedAction.toJSON(),
-            timingDateTime: this.timingDateTime && this.timingDateTime.toJSON(),
+            priority: this.priority,
+            code: this.code && this.code.map(v => v.toJSON()),
+            documentation: this.documentation && this.documentation.map(v => v.toJSON()),
+            condition: this.condition && this.condition.map(v => v.toJSON()),
+            relatedAction: this.relatedAction && this.relatedAction.map(v => v.toJSON()),
+            timingDateTime: this.timingDateTime,
             timingAge: this.timingAge && this.timingAge.toJSON(),
             timingPeriod: this.timingPeriod && this.timingPeriod.toJSON(),
             timingDuration: this.timingDuration && this.timingDuration.toJSON(),
             timingRange: this.timingRange && this.timingRange.toJSON(),
             timingTiming: this.timingTiming && this.timingTiming.toJSON(),
-            participant: this.participant && this.participant.toJSON(),
+            participant: this.participant && this.participant.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            groupingBehavior: this.groupingBehavior && this.groupingBehavior.toJSON(),
-            selectionBehavior: this.selectionBehavior && this.selectionBehavior.toJSON(),
-            requiredBehavior: this.requiredBehavior && this.requiredBehavior.toJSON(),
-            precheckBehavior: this.precheckBehavior && this.precheckBehavior.toJSON(),
-            cardinalityBehavior: this.cardinalityBehavior && this.cardinalityBehavior.toJSON(),
+            groupingBehavior: this.groupingBehavior,
+            selectionBehavior: this.selectionBehavior,
+            requiredBehavior: this.requiredBehavior,
+            precheckBehavior: this.precheckBehavior,
+            cardinalityBehavior: this.cardinalityBehavior,
             resource: this.resource && this.resource.toJSON(),
-            action: this.action && this.action.toJSON(),
+            action: this.action && this.action.map(v => v.toJSON()),
         };
     }
 }

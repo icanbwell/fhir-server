@@ -43,7 +43,7 @@ class ContractValuedItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ContractValuedItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -135,9 +135,7 @@ class ContractValuedItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.effectiveTime = new dateTime(value);
+                this.__data.effectiveTime = value;
             }
         });
 
@@ -187,9 +185,7 @@ class ContractValuedItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.factor = new decimal(value);
+                this.__data.factor = value;
             }
         });
 
@@ -207,9 +203,7 @@ class ContractValuedItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.points = new decimal(value);
+                this.__data.points = value;
             }
         });
 
@@ -258,9 +252,7 @@ class ContractValuedItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.paymentDate = new dateTime(value);
+                this.__data.paymentDate = value;
             }
         });
 
@@ -308,7 +300,7 @@ class ContractValuedItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.linkId = value;
+                this.__data.linkId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -324,9 +316,7 @@ class ContractValuedItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.securityLabelNumber = new unsignedInt(value);
+                this.__data.securityLabelNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -346,23 +336,23 @@ class ContractValuedItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             entityCodeableConcept: this.entityCodeableConcept && this.entityCodeableConcept.toJSON(),
             entityReference: this.entityReference && this.entityReference.toJSON(),
             identifier: this.identifier && this.identifier.toJSON(),
-            effectiveTime: this.effectiveTime && this.effectiveTime.toJSON(),
+            effectiveTime: this.effectiveTime,
             quantity: this.quantity && this.quantity.toJSON(),
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
-            factor: this.factor && this.factor.toJSON(),
-            points: this.points && this.points.toJSON(),
+            factor: this.factor,
+            points: this.points,
             net: this.net && this.net.toJSON(),
             payment: this.payment,
-            paymentDate: this.paymentDate && this.paymentDate.toJSON(),
+            paymentDate: this.paymentDate,
             responsible: this.responsible && this.responsible.toJSON(),
             recipient: this.recipient && this.recipient.toJSON(),
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber && this.securityLabelNumber.toJSON(),
+            securityLabelNumber: this.securityLabelNumber,
         };
     }
 }

@@ -25,9 +25,7 @@ class OrganizationAffiliation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class OrganizationAffiliation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class OrganizationAffiliation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -267,7 +261,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.network = new Reference(value);
+                this.__data.network = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -283,7 +277,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -300,7 +294,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.specialty = new CodeableConcept(value);
+                this.__data.specialty = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -316,7 +310,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(value);
+                this.__data.location = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -332,7 +326,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.healthcareService = new Reference(value);
+                this.__data.healthcareService = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -348,7 +342,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = new ContactPoint(value);
+                this.__data.telecom = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -364,7 +358,7 @@ class OrganizationAffiliation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = new Reference(value);
+                this.__data.endpoint = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -384,26 +378,26 @@ class OrganizationAffiliation {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             active: this.active,
             period: this.period && this.period.toJSON(),
             organization: this.organization && this.organization.toJSON(),
             participatingOrganization: this.participatingOrganization && this.participatingOrganization.toJSON(),
-            network: this.network && this.network.toJSON(),
-            code: this.code && this.code.toJSON(),
-            specialty: this.specialty && this.specialty.toJSON(),
-            location: this.location && this.location.toJSON(),
-            healthcareService: this.healthcareService && this.healthcareService.toJSON(),
-            telecom: this.telecom && this.telecom.toJSON(),
-            endpoint: this.endpoint && this.endpoint.toJSON(),
+            network: this.network && this.network.map(v => v.toJSON()),
+            code: this.code && this.code.map(v => v.toJSON()),
+            specialty: this.specialty && this.specialty.map(v => v.toJSON()),
+            location: this.location && this.location.map(v => v.toJSON()),
+            healthcareService: this.healthcareService && this.healthcareService.map(v => v.toJSON()),
+            telecom: this.telecom && this.telecom.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
         };
     }
 }

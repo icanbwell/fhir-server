@@ -45,7 +45,7 @@ class ValueSetConcept {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ValueSetConcept {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -123,7 +123,7 @@ class ValueSetConcept {
                     return;
                 }
                 let ValueSetDesignation = require('../backbone_elements/valueSetDesignation.js');
-                this.__data.designation = new ValueSetDesignation(value);
+                this.__data.designation = Array.isArray(value) ? value.map(v => new ValueSetDesignation(v)) : [new ValueSetDesignation(value)];
             }
         });
 
@@ -143,11 +143,11 @@ class ValueSetConcept {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            code: this.code && this.code.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            code: this.code,
             display: this.display,
-            designation: this.designation && this.designation.toJSON(),
+            designation: this.designation && this.designation.map(v => v.toJSON()),
         };
     }
 }

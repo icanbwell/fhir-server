@@ -25,9 +25,7 @@ class Encounter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class Encounter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class Encounter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class Encounter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class Encounter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class Encounter {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -217,7 +211,7 @@ class Encounter {
                     return;
                 }
                 let EncounterStatusHistory = require('../backbone_elements/encounterStatusHistory.js');
-                this.__data.statusHistory = new EncounterStatusHistory(value);
+                this.__data.statusHistory = Array.isArray(value) ? value.map(v => new EncounterStatusHistory(v)) : [new EncounterStatusHistory(value)];
             }
         });
 
@@ -257,7 +251,7 @@ class Encounter {
                     return;
                 }
                 let EncounterClassHistory = require('../backbone_elements/encounterClassHistory.js');
-                this.__data.classHistory = new EncounterClassHistory(value);
+                this.__data.classHistory = Array.isArray(value) ? value.map(v => new EncounterClassHistory(v)) : [new EncounterClassHistory(value)];
             }
         });
 
@@ -274,7 +268,7 @@ class Encounter {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -344,7 +338,7 @@ class Encounter {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.episodeOfCare = new Reference(value);
+                this.__data.episodeOfCare = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -361,7 +355,7 @@ class Encounter {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = new Reference(value);
+                this.__data.basedOn = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -377,7 +371,7 @@ class Encounter {
                     return;
                 }
                 let EncounterParticipant = require('../backbone_elements/encounterParticipant.js');
-                this.__data.participant = new EncounterParticipant(value);
+                this.__data.participant = Array.isArray(value) ? value.map(v => new EncounterParticipant(v)) : [new EncounterParticipant(value)];
             }
         });
 
@@ -393,7 +387,7 @@ class Encounter {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.appointment = new Reference(value);
+                this.__data.appointment = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -443,7 +437,7 @@ class Encounter {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -460,7 +454,7 @@ class Encounter {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -476,7 +470,7 @@ class Encounter {
                     return;
                 }
                 let EncounterDiagnosis = require('../backbone_elements/encounterDiagnosis.js');
-                this.__data.diagnosis = new EncounterDiagnosis(value);
+                this.__data.diagnosis = Array.isArray(value) ? value.map(v => new EncounterDiagnosis(v)) : [new EncounterDiagnosis(value)];
             }
         });
 
@@ -492,7 +486,7 @@ class Encounter {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.account = new Reference(value);
+                this.__data.account = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -524,7 +518,7 @@ class Encounter {
                     return;
                 }
                 let EncounterLocation = require('../backbone_elements/encounterLocation.js');
-                this.__data.location = new EncounterLocation(value);
+                this.__data.location = Array.isArray(value) ? value.map(v => new EncounterLocation(v)) : [new EncounterLocation(value)];
             }
         });
 
@@ -582,35 +576,35 @@ class Encounter {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
-            statusHistory: this.statusHistory && this.statusHistory.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
+            statusHistory: this.statusHistory && this.statusHistory.map(v => v.toJSON()),
             class: this.class && this.class.toJSON(),
-            classHistory: this.classHistory && this.classHistory.toJSON(),
-            type: this.type && this.type.toJSON(),
+            classHistory: this.classHistory && this.classHistory.map(v => v.toJSON()),
+            type: this.type && this.type.map(v => v.toJSON()),
             serviceType: this.serviceType && this.serviceType.toJSON(),
             priority: this.priority && this.priority.toJSON(),
             subject: this.subject && this.subject.toJSON(),
-            episodeOfCare: this.episodeOfCare && this.episodeOfCare.toJSON(),
-            basedOn: this.basedOn && this.basedOn.toJSON(),
-            participant: this.participant && this.participant.toJSON(),
-            appointment: this.appointment && this.appointment.toJSON(),
+            episodeOfCare: this.episodeOfCare && this.episodeOfCare.map(v => v.toJSON()),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
+            participant: this.participant && this.participant.map(v => v.toJSON()),
+            appointment: this.appointment && this.appointment.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
             length: this.length && this.length.toJSON(),
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
-            diagnosis: this.diagnosis && this.diagnosis.toJSON(),
-            account: this.account && this.account.toJSON(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
+            diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSON()),
+            account: this.account && this.account.map(v => v.toJSON()),
             hospitalization: this.hospitalization && this.hospitalization.toJSON(),
-            location: this.location && this.location.toJSON(),
+            location: this.location && this.location.map(v => v.toJSON()),
             serviceProvider: this.serviceProvider && this.serviceProvider.toJSON(),
             partOf: this.partOf && this.partOf.toJSON(),
         };

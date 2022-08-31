@@ -43,7 +43,7 @@ class ContractTerm {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ContractTerm {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class ContractTerm {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.issued = new dateTime(value);
+                this.__data.issued = value;
             }
         });
 
@@ -219,7 +217,7 @@ class ContractTerm {
                     return;
                 }
                 let ContractSecurityLabel = require('../backbone_elements/contractSecurityLabel.js');
-                this.__data.securityLabel = new ContractSecurityLabel(value);
+                this.__data.securityLabel = Array.isArray(value) ? value.map(v => new ContractSecurityLabel(v)) : [new ContractSecurityLabel(value)];
             }
         });
 
@@ -251,7 +249,7 @@ class ContractTerm {
                     return;
                 }
                 let ContractAsset = require('../backbone_elements/contractAsset.js');
-                this.__data.asset = new ContractAsset(value);
+                this.__data.asset = Array.isArray(value) ? value.map(v => new ContractAsset(v)) : [new ContractAsset(value)];
             }
         });
 
@@ -268,7 +266,7 @@ class ContractTerm {
                     return;
                 }
                 let ContractAction = require('../backbone_elements/contractAction.js');
-                this.__data.action = new ContractAction(value);
+                this.__data.action = Array.isArray(value) ? value.map(v => new ContractAction(v)) : [new ContractAction(value)];
             }
         });
 
@@ -283,7 +281,7 @@ class ContractTerm {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.group = new ContractTerm(value);
+                this.__data.group = Array.isArray(value) ? value.map(v => new ContractTerm(v)) : [new ContractTerm(value)];
             }
         });
 
@@ -303,21 +301,21 @@ class ContractTerm {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
-            issued: this.issued && this.issued.toJSON(),
+            issued: this.issued,
             applies: this.applies && this.applies.toJSON(),
             topicCodeableConcept: this.topicCodeableConcept && this.topicCodeableConcept.toJSON(),
             topicReference: this.topicReference && this.topicReference.toJSON(),
             type: this.type && this.type.toJSON(),
             subType: this.subType && this.subType.toJSON(),
             text: this.text,
-            securityLabel: this.securityLabel && this.securityLabel.toJSON(),
+            securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSON()),
             offer: this.offer && this.offer.toJSON(),
-            asset: this.asset && this.asset.toJSON(),
-            action: this.action && this.action.toJSON(),
-            group: this.group && this.group.toJSON(),
+            asset: this.asset && this.asset.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON()),
+            group: this.group && this.group.map(v => v.toJSON()),
         };
     }
 }

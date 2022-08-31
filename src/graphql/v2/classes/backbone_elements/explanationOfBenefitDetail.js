@@ -44,7 +44,7 @@ class ExplanationOfBenefitDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ExplanationOfBenefitDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -156,7 +156,7 @@ class ExplanationOfBenefitDetail {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.modifier = new CodeableConcept(value);
+                this.__data.modifier = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -172,7 +172,7 @@ class ExplanationOfBenefitDetail {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.programCode = new CodeableConcept(value);
+                this.__data.programCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -223,9 +223,7 @@ class ExplanationOfBenefitDetail {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.factor = new decimal(value);
+                this.__data.factor = value;
             }
         });
 
@@ -258,7 +256,7 @@ class ExplanationOfBenefitDetail {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.udi = new Reference(value);
+                this.__data.udi = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -274,7 +272,7 @@ class ExplanationOfBenefitDetail {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.noteNumber = value;
+                this.__data.noteNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -290,7 +288,7 @@ class ExplanationOfBenefitDetail {
                     return;
                 }
                 let ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
-                this.__data.adjudication = new ExplanationOfBenefitAdjudication(value);
+                this.__data.adjudication = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(value)];
             }
         });
 
@@ -306,7 +304,7 @@ class ExplanationOfBenefitDetail {
                     return;
                 }
                 let ExplanationOfBenefitSubDetail = require('../backbone_elements/explanationOfBenefitSubDetail.js');
-                this.__data.subDetail = new ExplanationOfBenefitSubDetail(value);
+                this.__data.subDetail = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitSubDetail(v)) : [new ExplanationOfBenefitSubDetail(value)];
             }
         });
 
@@ -326,22 +324,22 @@ class ExplanationOfBenefitDetail {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             sequence: this.sequence,
             revenue: this.revenue && this.revenue.toJSON(),
             category: this.category && this.category.toJSON(),
             productOrService: this.productOrService && this.productOrService.toJSON(),
-            modifier: this.modifier && this.modifier.toJSON(),
-            programCode: this.programCode && this.programCode.toJSON(),
+            modifier: this.modifier && this.modifier.map(v => v.toJSON()),
+            programCode: this.programCode && this.programCode.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
-            factor: this.factor && this.factor.toJSON(),
+            factor: this.factor,
             net: this.net && this.net.toJSON(),
-            udi: this.udi && this.udi.toJSON(),
+            udi: this.udi && this.udi.map(v => v.toJSON()),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.toJSON(),
-            subDetail: this.subDetail && this.subDetail.toJSON(),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            subDetail: this.subDetail && this.subDetail.map(v => v.toJSON()),
         };
     }
 }

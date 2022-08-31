@@ -26,9 +26,7 @@ class Parameters {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class Parameters {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -97,7 +93,7 @@ class Parameters {
                     return;
                 }
                 let ParametersParameter = require('../backbone_elements/parametersParameter.js');
-                this.__data.parameter = new ParametersParameter(value);
+                this.__data.parameter = Array.isArray(value) ? value.map(v => new ParametersParameter(v)) : [new ParametersParameter(value)];
             }
         });
 
@@ -117,11 +113,11 @@ class Parameters {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
-            parameter: this.parameter && this.parameter.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            parameter: this.parameter && this.parameter.map(v => v.toJSON()),
         };
     }
 }

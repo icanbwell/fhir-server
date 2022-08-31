@@ -43,7 +43,7 @@ class VisionPrescriptionLensSpecification {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class VisionPrescriptionLensSpecification {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -118,9 +118,7 @@ class VisionPrescriptionLensSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.sphere = new decimal(value);
+                this.__data.sphere = value;
             }
         });
 
@@ -135,9 +133,7 @@ class VisionPrescriptionLensSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.cylinder = new decimal(value);
+                this.__data.cylinder = value;
             }
         });
 
@@ -168,7 +164,7 @@ class VisionPrescriptionLensSpecification {
                     return;
                 }
                 let VisionPrescriptionPrism = require('../backbone_elements/visionPrescriptionPrism.js');
-                this.__data.prism = new VisionPrescriptionPrism(value);
+                this.__data.prism = Array.isArray(value) ? value.map(v => new VisionPrescriptionPrism(v)) : [new VisionPrescriptionPrism(value)];
             }
         });
 
@@ -183,9 +179,7 @@ class VisionPrescriptionLensSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.add = new decimal(value);
+                this.__data.add = value;
             }
         });
 
@@ -200,9 +194,7 @@ class VisionPrescriptionLensSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.power = new decimal(value);
+                this.__data.power = value;
             }
         });
 
@@ -217,9 +209,7 @@ class VisionPrescriptionLensSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.backCurve = new decimal(value);
+                this.__data.backCurve = value;
             }
         });
 
@@ -234,9 +224,7 @@ class VisionPrescriptionLensSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.diameter = new decimal(value);
+                this.__data.diameter = value;
             }
         });
 
@@ -298,7 +286,7 @@ class VisionPrescriptionLensSpecification {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -318,22 +306,22 @@ class VisionPrescriptionLensSpecification {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             product: this.product && this.product.toJSON(),
-            eye: this.eye && this.eye.toJSON(),
-            sphere: this.sphere && this.sphere.toJSON(),
-            cylinder: this.cylinder && this.cylinder.toJSON(),
+            eye: this.eye,
+            sphere: this.sphere,
+            cylinder: this.cylinder,
             axis: this.axis,
-            prism: this.prism && this.prism.toJSON(),
-            add: this.add && this.add.toJSON(),
-            power: this.power && this.power.toJSON(),
-            backCurve: this.backCurve && this.backCurve.toJSON(),
-            diameter: this.diameter && this.diameter.toJSON(),
+            prism: this.prism && this.prism.map(v => v.toJSON()),
+            add: this.add,
+            power: this.power,
+            backCurve: this.backCurve,
+            diameter: this.diameter,
             duration: this.duration && this.duration.toJSON(),
             color: this.color,
             brand: this.brand,
-            note: this.note && this.note.toJSON(),
+            note: this.note && this.note.map(v => v.toJSON()),
         };
     }
 }

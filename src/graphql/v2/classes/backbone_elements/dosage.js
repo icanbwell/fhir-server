@@ -44,7 +44,7 @@ class Dosage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class Dosage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -122,7 +122,7 @@ class Dosage {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.additionalInstruction = new CodeableConcept(value);
+                this.__data.additionalInstruction = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -248,7 +248,7 @@ class Dosage {
                     return;
                 }
                 let DosageDoseAndRate = require('../backbone_elements/dosageDoseAndRate.js');
-                this.__data.doseAndRate = new DosageDoseAndRate(value);
+                this.__data.doseAndRate = Array.isArray(value) ? value.map(v => new DosageDoseAndRate(v)) : [new DosageDoseAndRate(value)];
             }
         });
 
@@ -316,11 +316,11 @@ class Dosage {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             sequence: this.sequence,
             text: this.text,
-            additionalInstruction: this.additionalInstruction && this.additionalInstruction.toJSON(),
+            additionalInstruction: this.additionalInstruction && this.additionalInstruction.map(v => v.toJSON()),
             patientInstruction: this.patientInstruction,
             timing: this.timing && this.timing.toJSON(),
             asNeededBoolean: this.asNeededBoolean,
@@ -328,7 +328,7 @@ class Dosage {
             site: this.site && this.site.toJSON(),
             route: this.route && this.route.toJSON(),
             method: this.method && this.method.toJSON(),
-            doseAndRate: this.doseAndRate && this.doseAndRate.toJSON(),
+            doseAndRate: this.doseAndRate && this.doseAndRate.map(v => v.toJSON()),
             maxDosePerPeriod: this.maxDosePerPeriod && this.maxDosePerPeriod.toJSON(),
             maxDosePerAdministration: this.maxDosePerAdministration && this.maxDosePerAdministration.toJSON(),
             maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSON(),

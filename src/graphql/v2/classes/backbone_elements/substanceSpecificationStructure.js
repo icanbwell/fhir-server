@@ -43,7 +43,7 @@ class SubstanceSpecificationStructure {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class SubstanceSpecificationStructure {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -151,7 +151,7 @@ class SubstanceSpecificationStructure {
                     return;
                 }
                 let SubstanceSpecificationIsotope = require('../backbone_elements/substanceSpecificationIsotope.js');
-                this.__data.isotope = new SubstanceSpecificationIsotope(value);
+                this.__data.isotope = Array.isArray(value) ? value.map(v => new SubstanceSpecificationIsotope(v)) : [new SubstanceSpecificationIsotope(value)];
             }
         });
 
@@ -184,7 +184,7 @@ class SubstanceSpecificationStructure {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.source = new Reference(value);
+                this.__data.source = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -200,7 +200,7 @@ class SubstanceSpecificationStructure {
                     return;
                 }
                 let SubstanceSpecificationRepresentation = require('../backbone_elements/substanceSpecificationRepresentation.js');
-                this.__data.representation = new SubstanceSpecificationRepresentation(value);
+                this.__data.representation = Array.isArray(value) ? value.map(v => new SubstanceSpecificationRepresentation(v)) : [new SubstanceSpecificationRepresentation(value)];
             }
         });
 
@@ -220,16 +220,16 @@ class SubstanceSpecificationStructure {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             stereochemistry: this.stereochemistry && this.stereochemistry.toJSON(),
             opticalActivity: this.opticalActivity && this.opticalActivity.toJSON(),
             molecularFormula: this.molecularFormula,
             molecularFormulaByMoiety: this.molecularFormulaByMoiety,
-            isotope: this.isotope && this.isotope.toJSON(),
+            isotope: this.isotope && this.isotope.map(v => v.toJSON()),
             molecularWeight: this.molecularWeight && this.molecularWeight.toJSON(),
-            source: this.source && this.source.toJSON(),
-            representation: this.representation && this.representation.toJSON(),
+            source: this.source && this.source.map(v => v.toJSON()),
+            representation: this.representation && this.representation.map(v => v.toJSON()),
         };
     }
 }

@@ -44,7 +44,7 @@ class AuditEventEntity {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class AuditEventEntity {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -153,7 +153,7 @@ class AuditEventEntity {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.securityLabel = new Coding(value);
+                this.__data.securityLabel = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -198,9 +198,7 @@ class AuditEventEntity {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.query = new base64Binary(value);
+                this.__data.query = value;
             }
         });
 
@@ -216,7 +214,7 @@ class AuditEventEntity {
                     return;
                 }
                 let AuditEventDetail = require('../backbone_elements/auditEventDetail.js');
-                this.__data.detail = new AuditEventDetail(value);
+                this.__data.detail = Array.isArray(value) ? value.map(v => new AuditEventDetail(v)) : [new AuditEventDetail(value)];
             }
         });
 
@@ -236,17 +234,17 @@ class AuditEventEntity {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             what: this.what && this.what.toJSON(),
             type: this.type && this.type.toJSON(),
             role: this.role && this.role.toJSON(),
             lifecycle: this.lifecycle && this.lifecycle.toJSON(),
-            securityLabel: this.securityLabel && this.securityLabel.toJSON(),
+            securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSON()),
             name: this.name,
             description: this.description,
-            query: this.query && this.query.toJSON(),
-            detail: this.detail && this.detail.toJSON(),
+            query: this.query,
+            detail: this.detail && this.detail.map(v => v.toJSON()),
         };
     }
 }

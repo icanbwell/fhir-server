@@ -43,7 +43,7 @@ class CoverageEligibilityResponseItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class CoverageEligibilityResponseItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -121,7 +121,7 @@ class CoverageEligibilityResponseItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.modifier = new CodeableConcept(value);
+                this.__data.modifier = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -249,7 +249,7 @@ class CoverageEligibilityResponseItem {
                     return;
                 }
                 let CoverageEligibilityResponseBenefit = require('../backbone_elements/coverageEligibilityResponseBenefit.js');
-                this.__data.benefit = new CoverageEligibilityResponseBenefit(value);
+                this.__data.benefit = Array.isArray(value) ? value.map(v => new CoverageEligibilityResponseBenefit(v)) : [new CoverageEligibilityResponseBenefit(value)];
             }
         });
 
@@ -282,7 +282,7 @@ class CoverageEligibilityResponseItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.authorizationSupporting = new CodeableConcept(value);
+                this.__data.authorizationSupporting = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -298,9 +298,7 @@ class CoverageEligibilityResponseItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.authorizationUrl = new uri(value);
+                this.__data.authorizationUrl = value;
             }
         });
 
@@ -320,11 +318,11 @@ class CoverageEligibilityResponseItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             category: this.category && this.category.toJSON(),
             productOrService: this.productOrService && this.productOrService.toJSON(),
-            modifier: this.modifier && this.modifier.toJSON(),
+            modifier: this.modifier && this.modifier.map(v => v.toJSON()),
             provider: this.provider && this.provider.toJSON(),
             excluded: this.excluded,
             name: this.name,
@@ -332,10 +330,10 @@ class CoverageEligibilityResponseItem {
             network: this.network && this.network.toJSON(),
             unit: this.unit && this.unit.toJSON(),
             term: this.term && this.term.toJSON(),
-            benefit: this.benefit && this.benefit.toJSON(),
+            benefit: this.benefit && this.benefit.map(v => v.toJSON()),
             authorizationRequired: this.authorizationRequired,
-            authorizationSupporting: this.authorizationSupporting && this.authorizationSupporting.toJSON(),
-            authorizationUrl: this.authorizationUrl && this.authorizationUrl.toJSON(),
+            authorizationSupporting: this.authorizationSupporting && this.authorizationSupporting.map(v => v.toJSON()),
+            authorizationUrl: this.authorizationUrl,
         };
     }
 }

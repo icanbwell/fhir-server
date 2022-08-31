@@ -43,7 +43,7 @@ class ImmunizationEducation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ImmunizationEducation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class ImmunizationEducation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.reference = new uri(value);
+                this.__data.reference = value;
             }
         });
 
@@ -119,9 +117,7 @@ class ImmunizationEducation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.publicationDate = new dateTime(value);
+                this.__data.publicationDate = value;
             }
         });
 
@@ -136,9 +132,7 @@ class ImmunizationEducation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.presentationDate = new dateTime(value);
+                this.__data.presentationDate = value;
             }
         });
 
@@ -158,12 +152,12 @@ class ImmunizationEducation {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             documentType: this.documentType,
-            reference: this.reference && this.reference.toJSON(),
-            publicationDate: this.publicationDate && this.publicationDate.toJSON(),
-            presentationDate: this.presentationDate && this.presentationDate.toJSON(),
+            reference: this.reference,
+            publicationDate: this.publicationDate,
+            presentationDate: this.presentationDate,
         };
     }
 }

@@ -46,7 +46,7 @@ class DocumentReferenceContext {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -74,7 +74,7 @@ class DocumentReferenceContext {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -91,7 +91,7 @@ class DocumentReferenceContext {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.encounter = new Reference(value);
+                this.__data.encounter = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -110,7 +110,7 @@ class DocumentReferenceContext {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.event = new CodeableConcept(value);
+                this.__data.event = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -193,7 +193,7 @@ class DocumentReferenceContext {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.related = new Reference(value);
+                this.__data.related = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -213,15 +213,15 @@ class DocumentReferenceContext {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            encounter: this.encounter && this.encounter.toJSON(),
-            event: this.event && this.event.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            encounter: this.encounter && this.encounter.map(v => v.toJSON()),
+            event: this.event && this.event.map(v => v.toJSON()),
             period: this.period && this.period.toJSON(),
             facilityType: this.facilityType && this.facilityType.toJSON(),
             practiceSetting: this.practiceSetting && this.practiceSetting.toJSON(),
             sourcePatientInfo: this.sourcePatientInfo && this.sourcePatientInfo.toJSON(),
-            related: this.related && this.related.toJSON(),
+            related: this.related && this.related.map(v => v.toJSON()),
         };
     }
 }

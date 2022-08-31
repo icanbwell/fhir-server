@@ -51,39 +51,39 @@ class {{ fhir_entity.cleaned_name }} {
                 if (value === undefined || value === null) {
                     return;
                 }
-    {% if property.is_basic_type %}
-                this.__data.{{ property.name }} = value;
-    {%  else %}
-        {% if property.is_resource %}
+    {% if property.is_resource %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
                 let {{ property.cleaned_type | replace(".","") }} = require('../resources/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
-                this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(value);
-        {% elif property.is_code %}
-                this.__data.{{ property.name }} = value;
-        {% elif property.is_extension %}
+    {% elif property.is_code %}
+    {% elif property.is_extension %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
                 let {{ property.cleaned_type | replace(".","") }} = require('../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
-                this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(value);
-        {% elif property.fhir_type == "BackboneElement" %}
+    {% elif property.fhir_type == "BackboneElement" %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
                 let {{ property.cleaned_type | replace(".","") }} = require('../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
-                this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(value);
-        {% elif property.is_complex or property.fhir_type == "Element" %}
+    {% elif property.is_complex or property.fhir_type == "Element" %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
                 let {{ property.cleaned_type | replace(".","") }} = require('../complex_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
+{#        {% elif property.type_snake_case in ["string", "boolean", "integer", "positiveInt"] %}#}
+{#                this.__data.{{ property.name }} = value;#}
+    {% endif %}
+    {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+            {% if property.is_list %}
+                this.__data.{{ property.name }} = Array.isArray(value) ? value.map(v => new {{ property.cleaned_type | replace(".","") }}(v)) : [new {{ property.cleaned_type | replace(".","") }}(value)];;
+            {%  else %}
                 this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(value);
-        {% elif property.type_snake_case in ["string", "boolean", "integer", "positiveInt"] %}
+            {% endif %}
+    {%  else %}
+            {% if property.is_list %}
+                this.__data.{{ property.name }} = Array.isArray(value) ? value.map(v => v) : [value];
+            {%  else %}
                 this.__data.{{ property.name }} = value;
-        {%  else %}
-                let {{ property.cleaned_type | replace(".","") }} = require('../simple_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
-                // eslint-disable-next-line new-cap
-                this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(value);
-    {% endif %}
-    {% endif %}
+            {% endif %}
+    {%  endif %}
             }
         });
 
@@ -107,10 +107,14 @@ class {{ fhir_entity.cleaned_name }} {
             resourceType: this.resourceType,
         {%  endif %}
 {% for property in fhir_entity.properties %}
-    {% if property.is_basic_type %}
-            {{ property.name -}}: this.{{ property.name -}},
-    {%  else %}
+    {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+        {% if property.is_list %}
+            {{ property.name -}}: this.{{ property.name -}} && this.{{ property.name -}}.map(v => v.toJSON()),
+        {%  else %}
             {{ property.name -}}: this.{{ property.name }} && this.{{ property.name -}}.toJSON(),
+        {% endif %}
+    {%  else %}
+            {{ property.name -}}: this.{{ property.name -}},
     {% endif %}
 {% endfor %}
         };

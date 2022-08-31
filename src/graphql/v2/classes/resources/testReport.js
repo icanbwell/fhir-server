@@ -24,9 +24,7 @@ class TestReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class TestReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -117,9 +113,7 @@ class TestReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,7 +133,7 @@ class TestReport {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +161,7 @@ class TestReport {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -262,9 +256,7 @@ class TestReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.score = new decimal(value);
+                this.__data.score = value;
             }
         });
 
@@ -294,9 +286,7 @@ class TestReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.issued = new dateTime(value);
+                this.__data.issued = value;
             }
         });
 
@@ -313,7 +303,7 @@ class TestReport {
                     return;
                 }
                 let TestReportParticipant = require('../backbone_elements/testReportParticipant.js');
-                this.__data.participant = new TestReportParticipant(value);
+                this.__data.participant = Array.isArray(value) ? value.map(v => new TestReportParticipant(v)) : [new TestReportParticipant(value)];
             }
         });
 
@@ -346,7 +336,7 @@ class TestReport {
                     return;
                 }
                 let TestReportTest = require('../backbone_elements/testReportTest.js');
-                this.__data.test = new TestReportTest(value);
+                this.__data.test = Array.isArray(value) ? value.map(v => new TestReportTest(v)) : [new TestReportTest(value)];
             }
         });
 
@@ -383,25 +373,25 @@ class TestReport {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
             name: this.name,
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             testScript: this.testScript && this.testScript.toJSON(),
-            result: this.result && this.result.toJSON(),
-            score: this.score && this.score.toJSON(),
+            result: this.result,
+            score: this.score,
             tester: this.tester,
-            issued: this.issued && this.issued.toJSON(),
-            participant: this.participant && this.participant.toJSON(),
+            issued: this.issued,
+            participant: this.participant && this.participant.map(v => v.toJSON()),
             setup: this.setup && this.setup.toJSON(),
-            test: this.test && this.test.toJSON(),
+            test: this.test && this.test.map(v => v.toJSON()),
             teardown: this.teardown && this.teardown.toJSON(),
         };
     }

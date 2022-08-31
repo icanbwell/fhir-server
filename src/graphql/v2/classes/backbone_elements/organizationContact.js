@@ -45,7 +45,7 @@ class OrganizationContact {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class OrganizationContact {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -122,7 +122,7 @@ class OrganizationContact {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = new ContactPoint(value);
+                this.__data.telecom = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -158,11 +158,11 @@ class OrganizationContact {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             purpose: this.purpose && this.purpose.toJSON(),
             name: this.name && this.name.toJSON(),
-            telecom: this.telecom && this.telecom.toJSON(),
+            telecom: this.telecom && this.telecom.map(v => v.toJSON()),
             address: this.address && this.address.toJSON(),
         };
     }

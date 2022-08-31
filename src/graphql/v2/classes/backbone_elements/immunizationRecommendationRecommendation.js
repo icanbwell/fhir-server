@@ -43,7 +43,7 @@ class ImmunizationRecommendationRecommendation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ImmunizationRecommendationRecommendation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -87,7 +87,7 @@ class ImmunizationRecommendationRecommendation {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.vaccineCode = new CodeableConcept(value);
+                this.__data.vaccineCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class ImmunizationRecommendationRecommendation {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.contraindicatedVaccineCode = new CodeableConcept(value);
+                this.__data.contraindicatedVaccineCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -152,7 +152,7 @@ class ImmunizationRecommendationRecommendation {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.forecastReason = new CodeableConcept(value);
+                this.__data.forecastReason = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -169,7 +169,7 @@ class ImmunizationRecommendationRecommendation {
                     return;
                 }
                 let ImmunizationRecommendationDateCriterion = require('../backbone_elements/immunizationRecommendationDateCriterion.js');
-                this.__data.dateCriterion = new ImmunizationRecommendationDateCriterion(value);
+                this.__data.dateCriterion = Array.isArray(value) ? value.map(v => new ImmunizationRecommendationDateCriterion(v)) : [new ImmunizationRecommendationDateCriterion(value)];
             }
         });
 
@@ -278,7 +278,7 @@ class ImmunizationRecommendationRecommendation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingImmunization = new Reference(value);
+                this.__data.supportingImmunization = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -296,7 +296,7 @@ class ImmunizationRecommendationRecommendation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingPatientInformation = new Reference(value);
+                this.__data.supportingPatientInformation = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -316,22 +316,22 @@ class ImmunizationRecommendationRecommendation {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            vaccineCode: this.vaccineCode && this.vaccineCode.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            vaccineCode: this.vaccineCode && this.vaccineCode.map(v => v.toJSON()),
             targetDisease: this.targetDisease && this.targetDisease.toJSON(),
-            contraindicatedVaccineCode: this.contraindicatedVaccineCode && this.contraindicatedVaccineCode.toJSON(),
+            contraindicatedVaccineCode: this.contraindicatedVaccineCode && this.contraindicatedVaccineCode.map(v => v.toJSON()),
             forecastStatus: this.forecastStatus && this.forecastStatus.toJSON(),
-            forecastReason: this.forecastReason && this.forecastReason.toJSON(),
-            dateCriterion: this.dateCriterion && this.dateCriterion.toJSON(),
+            forecastReason: this.forecastReason && this.forecastReason.map(v => v.toJSON()),
+            dateCriterion: this.dateCriterion && this.dateCriterion.map(v => v.toJSON()),
             description: this.description,
             series: this.series,
             doseNumberPositiveInt: this.doseNumberPositiveInt,
             doseNumberString: this.doseNumberString,
             seriesDosesPositiveInt: this.seriesDosesPositiveInt,
             seriesDosesString: this.seriesDosesString,
-            supportingImmunization: this.supportingImmunization && this.supportingImmunization.toJSON(),
-            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.toJSON(),
+            supportingImmunization: this.supportingImmunization && this.supportingImmunization.map(v => v.toJSON()),
+            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSON()),
         };
     }
 }

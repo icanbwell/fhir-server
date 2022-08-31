@@ -44,7 +44,7 @@ class StructureDefinitionMapping {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class StructureDefinitionMapping {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,9 +88,7 @@ class StructureDefinitionMapping {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.identity = new id(value);
+                this.__data.identity = value;
             }
         });
 
@@ -106,9 +104,7 @@ class StructureDefinitionMapping {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.uri = new uri(value);
+                this.__data.uri = value;
             }
         });
 
@@ -159,10 +155,10 @@ class StructureDefinitionMapping {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identity: this.identity && this.identity.toJSON(),
-            uri: this.uri && this.uri.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identity: this.identity,
+            uri: this.uri,
             name: this.name,
             comment: this.comment,
         };

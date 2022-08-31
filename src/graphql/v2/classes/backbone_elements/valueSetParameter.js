@@ -45,7 +45,7 @@ class ValueSetParameter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ValueSetParameter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -150,9 +150,7 @@ class ValueSetParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDecimal = new decimal(value);
+                this.__data.valueDecimal = value;
             }
         });
 
@@ -167,9 +165,7 @@ class ValueSetParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueUri = new uri(value);
+                this.__data.valueUri = value;
             }
         });
 
@@ -199,9 +195,7 @@ class ValueSetParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDateTime = new dateTime(value);
+                this.__data.valueDateTime = value;
             }
         });
 
@@ -221,16 +215,16 @@ class ValueSetParameter {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             valueString: this.valueString,
             valueBoolean: this.valueBoolean,
             valueInteger: this.valueInteger,
-            valueDecimal: this.valueDecimal && this.valueDecimal.toJSON(),
-            valueUri: this.valueUri && this.valueUri.toJSON(),
-            valueCode: this.valueCode && this.valueCode.toJSON(),
-            valueDateTime: this.valueDateTime && this.valueDateTime.toJSON(),
+            valueDecimal: this.valueDecimal,
+            valueUri: this.valueUri,
+            valueCode: this.valueCode,
+            valueDateTime: this.valueDateTime,
         };
     }
 }

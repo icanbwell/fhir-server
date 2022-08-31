@@ -50,7 +50,7 @@ class CompositionSection {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -78,7 +78,7 @@ class CompositionSection {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -128,7 +128,7 @@ class CompositionSection {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.author = new Reference(value);
+                this.__data.author = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -221,7 +221,7 @@ class CompositionSection {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.entry = new Reference(value);
+                this.__data.entry = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -253,7 +253,7 @@ class CompositionSection {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.section = new CompositionSection(value);
+                this.__data.section = Array.isArray(value) ? value.map(v => new CompositionSection(v)) : [new CompositionSection(value)];
             }
         });
 
@@ -273,18 +273,18 @@ class CompositionSection {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             title: this.title,
             code: this.code && this.code.toJSON(),
-            author: this.author && this.author.toJSON(),
+            author: this.author && this.author.map(v => v.toJSON()),
             focus: this.focus && this.focus.toJSON(),
             text: this.text && this.text.toJSON(),
-            mode: this.mode && this.mode.toJSON(),
+            mode: this.mode,
             orderedBy: this.orderedBy && this.orderedBy.toJSON(),
-            entry: this.entry && this.entry.toJSON(),
+            entry: this.entry && this.entry.map(v => v.toJSON()),
             emptyReason: this.emptyReason && this.emptyReason.toJSON(),
-            section: this.section && this.section.toJSON(),
+            section: this.section && this.section.map(v => v.toJSON()),
         };
     }
 }

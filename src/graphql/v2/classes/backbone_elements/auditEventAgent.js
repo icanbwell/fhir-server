@@ -44,7 +44,7 @@ class AuditEventAgent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class AuditEventAgent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -107,7 +107,7 @@ class AuditEventAgent {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.role = new CodeableConcept(value);
+                this.__data.role = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -205,9 +205,7 @@ class AuditEventAgent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.policy = new uri(value);
+                this.__data.policy = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -258,7 +256,7 @@ class AuditEventAgent {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.purposeOfUse = new CodeableConcept(value);
+                this.__data.purposeOfUse = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -278,19 +276,19 @@ class AuditEventAgent {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            role: this.role && this.role.toJSON(),
+            role: this.role && this.role.map(v => v.toJSON()),
             who: this.who && this.who.toJSON(),
             altId: this.altId,
             name: this.name,
             requestor: this.requestor,
             location: this.location && this.location.toJSON(),
-            policy: this.policy && this.policy.toJSON(),
+            policy: this.policy,
             media: this.media && this.media.toJSON(),
             network: this.network && this.network.toJSON(),
-            purposeOfUse: this.purposeOfUse && this.purposeOfUse.toJSON(),
+            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSON()),
         };
     }
 }

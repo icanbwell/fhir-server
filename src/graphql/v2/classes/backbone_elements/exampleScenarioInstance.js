@@ -42,7 +42,7 @@ class ExampleScenarioInstance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class ExampleScenarioInstance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -130,9 +130,7 @@ class ExampleScenarioInstance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.description = new markdown(value);
+                this.__data.description = value;
             }
         });
 
@@ -148,7 +146,7 @@ class ExampleScenarioInstance {
                     return;
                 }
                 let ExampleScenarioVersion = require('../backbone_elements/exampleScenarioVersion.js');
-                this.__data.version = new ExampleScenarioVersion(value);
+                this.__data.version = Array.isArray(value) ? value.map(v => new ExampleScenarioVersion(v)) : [new ExampleScenarioVersion(value)];
             }
         });
 
@@ -165,7 +163,7 @@ class ExampleScenarioInstance {
                     return;
                 }
                 let ExampleScenarioContainedInstance = require('../backbone_elements/exampleScenarioContainedInstance.js');
-                this.__data.containedInstance = new ExampleScenarioContainedInstance(value);
+                this.__data.containedInstance = Array.isArray(value) ? value.map(v => new ExampleScenarioContainedInstance(v)) : [new ExampleScenarioContainedInstance(value)];
             }
         });
 
@@ -185,14 +183,14 @@ class ExampleScenarioInstance {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             resourceId: this.resourceId,
-            resourceType: this.resourceType && this.resourceType.toJSON(),
+            resourceType: this.resourceType,
             name: this.name,
-            description: this.description && this.description.toJSON(),
-            version: this.version && this.version.toJSON(),
-            containedInstance: this.containedInstance && this.containedInstance.toJSON(),
+            description: this.description,
+            version: this.version && this.version.map(v => v.toJSON()),
+            containedInstance: this.containedInstance && this.containedInstance.map(v => v.toJSON()),
         };
     }
 }

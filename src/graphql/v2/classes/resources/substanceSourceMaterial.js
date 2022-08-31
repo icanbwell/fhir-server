@@ -37,9 +37,7 @@ class SubstanceSourceMaterial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -75,9 +73,7 @@ class SubstanceSourceMaterial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -130,9 +126,7 @@ class SubstanceSourceMaterial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -152,7 +146,7 @@ class SubstanceSourceMaterial {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -180,7 +174,7 @@ class SubstanceSourceMaterial {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -281,7 +275,7 @@ class SubstanceSourceMaterial {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.parentSubstanceId = new Identifier(value);
+                this.__data.parentSubstanceId = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -296,7 +290,7 @@ class SubstanceSourceMaterial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.parentSubstanceName = value;
+                this.__data.parentSubstanceName = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -316,7 +310,7 @@ class SubstanceSourceMaterial {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.countryOfOrigin = new CodeableConcept(value);
+                this.__data.countryOfOrigin = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -332,7 +326,7 @@ class SubstanceSourceMaterial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.geographicalLocation = value;
+                this.__data.geographicalLocation = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -373,7 +367,7 @@ class SubstanceSourceMaterial {
                     return;
                 }
                 let SubstanceSourceMaterialFractionDescription = require('../backbone_elements/substanceSourceMaterialFractionDescription.js');
-                this.__data.fractionDescription = new SubstanceSourceMaterialFractionDescription(value);
+                this.__data.fractionDescription = Array.isArray(value) ? value.map(v => new SubstanceSourceMaterialFractionDescription(v)) : [new SubstanceSourceMaterialFractionDescription(value)];
             }
         });
 
@@ -408,7 +402,7 @@ class SubstanceSourceMaterial {
                     return;
                 }
                 let SubstanceSourceMaterialPartDescription = require('../backbone_elements/substanceSourceMaterialPartDescription.js');
-                this.__data.partDescription = new SubstanceSourceMaterialPartDescription(value);
+                this.__data.partDescription = Array.isArray(value) ? value.map(v => new SubstanceSourceMaterialPartDescription(v)) : [new SubstanceSourceMaterialPartDescription(value)];
             }
         });
 
@@ -428,27 +422,27 @@ class SubstanceSourceMaterial {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             sourceMaterialClass: this.sourceMaterialClass && this.sourceMaterialClass.toJSON(),
             sourceMaterialType: this.sourceMaterialType && this.sourceMaterialType.toJSON(),
             sourceMaterialState: this.sourceMaterialState && this.sourceMaterialState.toJSON(),
             organismId: this.organismId && this.organismId.toJSON(),
             organismName: this.organismName,
-            parentSubstanceId: this.parentSubstanceId && this.parentSubstanceId.toJSON(),
+            parentSubstanceId: this.parentSubstanceId && this.parentSubstanceId.map(v => v.toJSON()),
             parentSubstanceName: this.parentSubstanceName,
-            countryOfOrigin: this.countryOfOrigin && this.countryOfOrigin.toJSON(),
+            countryOfOrigin: this.countryOfOrigin && this.countryOfOrigin.map(v => v.toJSON()),
             geographicalLocation: this.geographicalLocation,
             developmentStage: this.developmentStage && this.developmentStage.toJSON(),
-            fractionDescription: this.fractionDescription && this.fractionDescription.toJSON(),
+            fractionDescription: this.fractionDescription && this.fractionDescription.map(v => v.toJSON()),
             organism: this.organism && this.organism.toJSON(),
-            partDescription: this.partDescription && this.partDescription.toJSON(),
+            partDescription: this.partDescription && this.partDescription.map(v => v.toJSON()),
         };
     }
 }

@@ -45,7 +45,7 @@ class Identifier {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -93,9 +93,7 @@ class Identifier {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.system = new uri(value);
+                this.__data.system = value;
             }
         });
 
@@ -163,10 +161,10 @@ class Identifier {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            use: this.use && this.use.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            use: this.use,
             type: this.type && this.type.toJSON(),
-            system: this.system && this.system.toJSON(),
+            system: this.system,
             value: this.value,
             period: this.period && this.period.toJSON(),
             assigner: this.assigner && this.assigner.toJSON(),

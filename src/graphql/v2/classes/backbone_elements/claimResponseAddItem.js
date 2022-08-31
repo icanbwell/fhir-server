@@ -43,7 +43,7 @@ class ClaimResponseAddItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ClaimResponseAddItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,7 +86,7 @@ class ClaimResponseAddItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.itemSequence = value;
+                this.__data.itemSequence = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -102,7 +102,7 @@ class ClaimResponseAddItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.detailSequence = value;
+                this.__data.detailSequence = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -118,7 +118,7 @@ class ClaimResponseAddItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.subdetailSequence = value;
+                this.__data.subdetailSequence = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -134,7 +134,7 @@ class ClaimResponseAddItem {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.provider = new Reference(value);
+                this.__data.provider = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -169,7 +169,7 @@ class ClaimResponseAddItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.modifier = new CodeableConcept(value);
+                this.__data.modifier = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -185,7 +185,7 @@ class ClaimResponseAddItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.programCode = new CodeableConcept(value);
+                this.__data.programCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -200,9 +200,7 @@ class ClaimResponseAddItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.servicedDate = new date(value);
+                this.__data.servicedDate = value;
             }
         });
 
@@ -317,9 +315,7 @@ class ClaimResponseAddItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.factor = new decimal(value);
+                this.__data.factor = value;
             }
         });
 
@@ -368,7 +364,7 @@ class ClaimResponseAddItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subSite = new CodeableConcept(value);
+                this.__data.subSite = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -384,7 +380,7 @@ class ClaimResponseAddItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.noteNumber = value;
+                this.__data.noteNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -400,7 +396,7 @@ class ClaimResponseAddItem {
                     return;
                 }
                 let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                this.__data.adjudication = new ClaimResponseAdjudication(value);
+                this.__data.adjudication = Array.isArray(value) ? value.map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(value)];
             }
         });
 
@@ -416,7 +412,7 @@ class ClaimResponseAddItem {
                     return;
                 }
                 let ClaimResponseDetail1 = require('../backbone_elements/claimResponseDetail1.js');
-                this.__data.detail = new ClaimResponseDetail1(value);
+                this.__data.detail = Array.isArray(value) ? value.map(v => new ClaimResponseDetail1(v)) : [new ClaimResponseDetail1(value)];
             }
         });
 
@@ -436,29 +432,29 @@ class ClaimResponseAddItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             itemSequence: this.itemSequence,
             detailSequence: this.detailSequence,
             subdetailSequence: this.subdetailSequence,
-            provider: this.provider && this.provider.toJSON(),
+            provider: this.provider && this.provider.map(v => v.toJSON()),
             productOrService: this.productOrService && this.productOrService.toJSON(),
-            modifier: this.modifier && this.modifier.toJSON(),
-            programCode: this.programCode && this.programCode.toJSON(),
-            servicedDate: this.servicedDate && this.servicedDate.toJSON(),
+            modifier: this.modifier && this.modifier.map(v => v.toJSON()),
+            programCode: this.programCode && this.programCode.map(v => v.toJSON()),
+            servicedDate: this.servicedDate,
             servicedPeriod: this.servicedPeriod && this.servicedPeriod.toJSON(),
             locationCodeableConcept: this.locationCodeableConcept && this.locationCodeableConcept.toJSON(),
             locationAddress: this.locationAddress && this.locationAddress.toJSON(),
             locationReference: this.locationReference && this.locationReference.toJSON(),
             quantity: this.quantity && this.quantity.toJSON(),
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
-            factor: this.factor && this.factor.toJSON(),
+            factor: this.factor,
             net: this.net && this.net.toJSON(),
             bodySite: this.bodySite && this.bodySite.toJSON(),
-            subSite: this.subSite && this.subSite.toJSON(),
+            subSite: this.subSite && this.subSite.map(v => v.toJSON()),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.toJSON(),
-            detail: this.detail && this.detail.toJSON(),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON()),
         };
     }
 }

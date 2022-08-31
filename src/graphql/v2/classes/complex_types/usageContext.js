@@ -47,7 +47,7 @@ class UsageContext {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -148,7 +148,7 @@ class UsageContext {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),

@@ -44,7 +44,7 @@ class MeasureReportStratum {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class MeasureReportStratum {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -106,7 +106,7 @@ class MeasureReportStratum {
                     return;
                 }
                 let MeasureReportComponent = require('../backbone_elements/measureReportComponent.js');
-                this.__data.component = new MeasureReportComponent(value);
+                this.__data.component = Array.isArray(value) ? value.map(v => new MeasureReportComponent(v)) : [new MeasureReportComponent(value)];
             }
         });
 
@@ -123,7 +123,7 @@ class MeasureReportStratum {
                     return;
                 }
                 let MeasureReportPopulation1 = require('../backbone_elements/measureReportPopulation1.js');
-                this.__data.population = new MeasureReportPopulation1(value);
+                this.__data.population = Array.isArray(value) ? value.map(v => new MeasureReportPopulation1(v)) : [new MeasureReportPopulation1(value)];
             }
         });
 
@@ -160,11 +160,11 @@ class MeasureReportStratum {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             value: this.value && this.value.toJSON(),
-            component: this.component && this.component.toJSON(),
-            population: this.population && this.population.toJSON(),
+            component: this.component && this.component.map(v => v.toJSON()),
+            population: this.population && this.population.map(v => v.toJSON()),
             measureScore: this.measureScore && this.measureScore.toJSON(),
         };
     }

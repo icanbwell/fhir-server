@@ -43,7 +43,7 @@ class TestScriptOperation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class TestScriptOperation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -260,7 +260,7 @@ class TestScriptOperation {
                     return;
                 }
                 let TestScriptRequestHeader = require('../backbone_elements/testScriptRequestHeader.js');
-                this.__data.requestHeader = new TestScriptRequestHeader(value);
+                this.__data.requestHeader = Array.isArray(value) ? value.map(v => new TestScriptRequestHeader(v)) : [new TestScriptRequestHeader(value)];
             }
         });
 
@@ -275,9 +275,7 @@ class TestScriptOperation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.requestId = new id(value);
+                this.__data.requestId = value;
             }
         });
 
@@ -292,9 +290,7 @@ class TestScriptOperation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.responseId = new id(value);
+                this.__data.responseId = value;
             }
         });
 
@@ -309,9 +305,7 @@ class TestScriptOperation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.sourceId = new id(value);
+                this.__data.sourceId = value;
             }
         });
 
@@ -327,9 +321,7 @@ class TestScriptOperation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.targetId = new id(value);
+                this.__data.targetId = value;
             }
         });
 
@@ -364,24 +356,24 @@ class TestScriptOperation {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            resource: this.resource && this.resource.toJSON(),
+            resource: this.resource,
             label: this.label,
             description: this.description,
-            accept: this.accept && this.accept.toJSON(),
-            contentType: this.contentType && this.contentType.toJSON(),
+            accept: this.accept,
+            contentType: this.contentType,
             destination: this.destination,
             encodeRequestUrl: this.encodeRequestUrl,
-            method: this.method && this.method.toJSON(),
+            method: this.method,
             origin: this.origin,
             params: this.params,
-            requestHeader: this.requestHeader && this.requestHeader.toJSON(),
-            requestId: this.requestId && this.requestId.toJSON(),
-            responseId: this.responseId && this.responseId.toJSON(),
-            sourceId: this.sourceId && this.sourceId.toJSON(),
-            targetId: this.targetId && this.targetId.toJSON(),
+            requestHeader: this.requestHeader && this.requestHeader.map(v => v.toJSON()),
+            requestId: this.requestId,
+            responseId: this.responseId,
+            sourceId: this.sourceId,
+            targetId: this.targetId,
             url: this.url,
         };
     }

@@ -44,7 +44,7 @@ class ExplanationOfBenefitProcedure {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ExplanationOfBenefitProcedure {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,7 +103,7 @@ class ExplanationOfBenefitProcedure {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -118,9 +118,7 @@ class ExplanationOfBenefitProcedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.date = new dateTime(value);
+                this.__data.date = value;
             }
         });
 
@@ -168,7 +166,7 @@ class ExplanationOfBenefitProcedure {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.udi = new Reference(value);
+                this.__data.udi = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -188,14 +186,14 @@ class ExplanationOfBenefitProcedure {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             sequence: this.sequence,
-            type: this.type && this.type.toJSON(),
-            date: this.date && this.date.toJSON(),
+            type: this.type && this.type.map(v => v.toJSON()),
+            date: this.date,
             procedureCodeableConcept: this.procedureCodeableConcept && this.procedureCodeableConcept.toJSON(),
             procedureReference: this.procedureReference && this.procedureReference.toJSON(),
-            udi: this.udi && this.udi.toJSON(),
+            udi: this.udi && this.udi.map(v => v.toJSON()),
         };
     }
 }

@@ -43,7 +43,7 @@ class CoverageCostToBeneficiary {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class CoverageCostToBeneficiary {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -136,7 +136,7 @@ class CoverageCostToBeneficiary {
                     return;
                 }
                 let CoverageException = require('../backbone_elements/coverageException.js');
-                this.__data.exception = new CoverageException(value);
+                this.__data.exception = Array.isArray(value) ? value.map(v => new CoverageException(v)) : [new CoverageException(value)];
             }
         });
 
@@ -156,12 +156,12 @@ class CoverageCostToBeneficiary {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueMoney: this.valueMoney && this.valueMoney.toJSON(),
-            exception: this.exception && this.exception.toJSON(),
+            exception: this.exception && this.exception.map(v => v.toJSON()),
         };
     }
 }

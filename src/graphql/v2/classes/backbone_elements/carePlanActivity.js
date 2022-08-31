@@ -44,7 +44,7 @@ class CarePlanActivity {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class CarePlanActivity {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -90,7 +90,7 @@ class CarePlanActivity {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.outcomeCodeableConcept = new CodeableConcept(value);
+                this.__data.outcomeCodeableConcept = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -110,7 +110,7 @@ class CarePlanActivity {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.outcomeReference = new Reference(value);
+                this.__data.outcomeReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -126,7 +126,7 @@ class CarePlanActivity {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.progress = new Annotation(value);
+                this.__data.progress = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -180,11 +180,11 @@ class CarePlanActivity {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            outcomeCodeableConcept: this.outcomeCodeableConcept && this.outcomeCodeableConcept.toJSON(),
-            outcomeReference: this.outcomeReference && this.outcomeReference.toJSON(),
-            progress: this.progress && this.progress.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            outcomeCodeableConcept: this.outcomeCodeableConcept && this.outcomeCodeableConcept.map(v => v.toJSON()),
+            outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSON()),
+            progress: this.progress && this.progress.map(v => v.toJSON()),
             reference: this.reference && this.reference.toJSON(),
             detail: this.detail && this.detail.toJSON(),
         };

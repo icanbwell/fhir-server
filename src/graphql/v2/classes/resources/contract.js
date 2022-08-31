@@ -25,9 +25,7 @@ class Contract {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class Contract {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class Contract {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class Contract {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class Contract {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,7 +179,7 @@ class Contract {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -201,9 +195,7 @@ class Contract {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.url = new uri(value);
+                this.__data.url = value;
             }
         });
 
@@ -287,9 +279,7 @@ class Contract {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiatesUri = new uri(value);
+                this.__data.instantiatesUri = value;
             }
         });
 
@@ -321,9 +311,7 @@ class Contract {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.issued = new dateTime(value);
+                this.__data.issued = value;
             }
         });
 
@@ -372,7 +360,7 @@ class Contract {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(value);
+                this.__data.subject = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -391,7 +379,7 @@ class Contract {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.authority = new Reference(value);
+                this.__data.authority = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -410,7 +398,7 @@ class Contract {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.domain = new Reference(value);
+                this.__data.domain = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -426,7 +414,7 @@ class Contract {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.site = new Reference(value);
+                this.__data.site = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -495,7 +483,7 @@ class Contract {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.alias = value;
+                this.__data.alias = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -599,7 +587,7 @@ class Contract {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subType = new CodeableConcept(value);
+                this.__data.subType = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -634,7 +622,7 @@ class Contract {
                     return;
                 }
                 let ContractTerm = require('../backbone_elements/contractTerm.js');
-                this.__data.term = new ContractTerm(value);
+                this.__data.term = Array.isArray(value) ? value.map(v => new ContractTerm(v)) : [new ContractTerm(value)];
             }
         });
 
@@ -651,7 +639,7 @@ class Contract {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingInfo = new Reference(value);
+                this.__data.supportingInfo = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -671,7 +659,7 @@ class Contract {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.relevantHistory = new Reference(value);
+                this.__data.relevantHistory = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -690,7 +678,7 @@ class Contract {
                     return;
                 }
                 let ContractSigner = require('../backbone_elements/contractSigner.js');
-                this.__data.signer = new ContractSigner(value);
+                this.__data.signer = Array.isArray(value) ? value.map(v => new ContractSigner(v)) : [new ContractSigner(value)];
             }
         });
 
@@ -711,7 +699,7 @@ class Contract {
                     return;
                 }
                 let ContractFriendly = require('../backbone_elements/contractFriendly.js');
-                this.__data.friendly = new ContractFriendly(value);
+                this.__data.friendly = Array.isArray(value) ? value.map(v => new ContractFriendly(v)) : [new ContractFriendly(value)];
             }
         });
 
@@ -727,7 +715,7 @@ class Contract {
                     return;
                 }
                 let ContractLegal = require('../backbone_elements/contractLegal.js');
-                this.__data.legal = new ContractLegal(value);
+                this.__data.legal = Array.isArray(value) ? value.map(v => new ContractLegal(v)) : [new ContractLegal(value)];
             }
         });
 
@@ -743,7 +731,7 @@ class Contract {
                     return;
                 }
                 let ContractRule = require('../backbone_elements/contractRule.js');
-                this.__data.rule = new ContractRule(value);
+                this.__data.rule = Array.isArray(value) ? value.map(v => new ContractRule(v)) : [new ContractRule(value)];
             }
         });
 
@@ -795,29 +783,29 @@ class Contract {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            url: this.url && this.url.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            url: this.url,
             version: this.version,
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             legalState: this.legalState && this.legalState.toJSON(),
             instantiatesCanonical: this.instantiatesCanonical && this.instantiatesCanonical.toJSON(),
-            instantiatesUri: this.instantiatesUri && this.instantiatesUri.toJSON(),
+            instantiatesUri: this.instantiatesUri,
             contentDerivative: this.contentDerivative && this.contentDerivative.toJSON(),
-            issued: this.issued && this.issued.toJSON(),
+            issued: this.issued,
             applies: this.applies && this.applies.toJSON(),
             expirationType: this.expirationType && this.expirationType.toJSON(),
-            subject: this.subject && this.subject.toJSON(),
-            authority: this.authority && this.authority.toJSON(),
-            domain: this.domain && this.domain.toJSON(),
-            site: this.site && this.site.toJSON(),
+            subject: this.subject && this.subject.map(v => v.toJSON()),
+            authority: this.authority && this.authority.map(v => v.toJSON()),
+            domain: this.domain && this.domain.map(v => v.toJSON()),
+            site: this.site && this.site.map(v => v.toJSON()),
             name: this.name,
             title: this.title,
             subtitle: this.subtitle,
@@ -827,15 +815,15 @@ class Contract {
             topicCodeableConcept: this.topicCodeableConcept && this.topicCodeableConcept.toJSON(),
             topicReference: this.topicReference && this.topicReference.toJSON(),
             type: this.type && this.type.toJSON(),
-            subType: this.subType && this.subType.toJSON(),
+            subType: this.subType && this.subType.map(v => v.toJSON()),
             contentDefinition: this.contentDefinition && this.contentDefinition.toJSON(),
-            term: this.term && this.term.toJSON(),
-            supportingInfo: this.supportingInfo && this.supportingInfo.toJSON(),
-            relevantHistory: this.relevantHistory && this.relevantHistory.toJSON(),
-            signer: this.signer && this.signer.toJSON(),
-            friendly: this.friendly && this.friendly.toJSON(),
-            legal: this.legal && this.legal.toJSON(),
-            rule: this.rule && this.rule.toJSON(),
+            term: this.term && this.term.map(v => v.toJSON()),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
+            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSON()),
+            signer: this.signer && this.signer.map(v => v.toJSON()),
+            friendly: this.friendly && this.friendly.map(v => v.toJSON()),
+            legal: this.legal && this.legal.map(v => v.toJSON()),
+            rule: this.rule && this.rule.map(v => v.toJSON()),
             legallyBindingAttachment: this.legallyBindingAttachment && this.legallyBindingAttachment.toJSON(),
             legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSON(),
         };

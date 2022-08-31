@@ -44,7 +44,7 @@ class ExplanationOfBenefitInsurance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ExplanationOfBenefitInsurance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -123,7 +123,7 @@ class ExplanationOfBenefitInsurance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.preAuthRef = value;
+                this.__data.preAuthRef = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -143,8 +143,8 @@ class ExplanationOfBenefitInsurance {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             focal: this.focal,
             coverage: this.coverage && this.coverage.toJSON(),
             preAuthRef: this.preAuthRef,

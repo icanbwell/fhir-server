@@ -43,7 +43,7 @@ class ClaimResponseItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ClaimResponseItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,7 +102,7 @@ class ClaimResponseItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.noteNumber = value;
+                this.__data.noteNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -120,7 +120,7 @@ class ClaimResponseItem {
                     return;
                 }
                 let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                this.__data.adjudication = new ClaimResponseAdjudication(value);
+                this.__data.adjudication = Array.isArray(value) ? value.map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(value)];
             }
         });
 
@@ -137,7 +137,7 @@ class ClaimResponseItem {
                     return;
                 }
                 let ClaimResponseDetail = require('../backbone_elements/claimResponseDetail.js');
-                this.__data.detail = new ClaimResponseDetail(value);
+                this.__data.detail = Array.isArray(value) ? value.map(v => new ClaimResponseDetail(v)) : [new ClaimResponseDetail(value)];
             }
         });
 
@@ -157,12 +157,12 @@ class ClaimResponseItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             itemSequence: this.itemSequence,
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.toJSON(),
-            detail: this.detail && this.detail.toJSON(),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON()),
         };
     }
 }

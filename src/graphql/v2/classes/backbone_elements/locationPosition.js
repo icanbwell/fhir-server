@@ -44,7 +44,7 @@ class LocationPosition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class LocationPosition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,9 +88,7 @@ class LocationPosition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.longitude = new decimal(value);
+                this.__data.longitude = value;
             }
         });
 
@@ -106,9 +104,7 @@ class LocationPosition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.latitude = new decimal(value);
+                this.__data.latitude = value;
             }
         });
 
@@ -124,9 +120,7 @@ class LocationPosition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.altitude = new decimal(value);
+                this.__data.altitude = value;
             }
         });
 
@@ -146,11 +140,11 @@ class LocationPosition {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            longitude: this.longitude && this.longitude.toJSON(),
-            latitude: this.latitude && this.latitude.toJSON(),
-            altitude: this.altitude && this.altitude.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            longitude: this.longitude,
+            latitude: this.latitude,
+            altitude: this.altitude,
         };
     }
 }

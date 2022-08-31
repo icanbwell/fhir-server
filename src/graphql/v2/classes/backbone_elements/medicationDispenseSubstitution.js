@@ -46,7 +46,7 @@ class MedicationDispenseSubstitution {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -74,7 +74,7 @@ class MedicationDispenseSubstitution {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -124,7 +124,7 @@ class MedicationDispenseSubstitution {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reason = new CodeableConcept(value);
+                this.__data.reason = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -141,7 +141,7 @@ class MedicationDispenseSubstitution {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.responsibleParty = new Reference(value);
+                this.__data.responsibleParty = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -161,12 +161,12 @@ class MedicationDispenseSubstitution {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             wasSubstituted: this.wasSubstituted,
             type: this.type && this.type.toJSON(),
-            reason: this.reason && this.reason.toJSON(),
-            responsibleParty: this.responsibleParty && this.responsibleParty.toJSON(),
+            reason: this.reason && this.reason.map(v => v.toJSON()),
+            responsibleParty: this.responsibleParty && this.responsibleParty.map(v => v.toJSON()),
         };
     }
 }

@@ -43,7 +43,7 @@ class ContractOffer {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ContractOffer {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -87,7 +87,7 @@ class ContractOffer {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -103,7 +103,7 @@ class ContractOffer {
                     return;
                 }
                 let ContractParty = require('../backbone_elements/contractParty.js');
-                this.__data.party = new ContractParty(value);
+                this.__data.party = Array.isArray(value) ? value.map(v => new ContractParty(v)) : [new ContractParty(value)];
             }
         });
 
@@ -171,7 +171,7 @@ class ContractOffer {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.decisionMode = new CodeableConcept(value);
+                this.__data.decisionMode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -187,7 +187,7 @@ class ContractOffer {
                     return;
                 }
                 let ContractAnswer = require('../backbone_elements/contractAnswer.js');
-                this.__data.answer = new ContractAnswer(value);
+                this.__data.answer = Array.isArray(value) ? value.map(v => new ContractAnswer(v)) : [new ContractAnswer(value)];
             }
         });
 
@@ -218,7 +218,7 @@ class ContractOffer {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.linkId = value;
+                this.__data.linkId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -233,9 +233,7 @@ class ContractOffer {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.securityLabelNumber = new unsignedInt(value);
+                this.__data.securityLabelNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -255,18 +253,18 @@ class ContractOffer {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            party: this.party && this.party.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            party: this.party && this.party.map(v => v.toJSON()),
             topic: this.topic && this.topic.toJSON(),
             type: this.type && this.type.toJSON(),
             decision: this.decision && this.decision.toJSON(),
-            decisionMode: this.decisionMode && this.decisionMode.toJSON(),
-            answer: this.answer && this.answer.toJSON(),
+            decisionMode: this.decisionMode && this.decisionMode.map(v => v.toJSON()),
+            answer: this.answer && this.answer.map(v => v.toJSON()),
             text: this.text,
             linkId: this.linkId,
-            securityLabelNumber: this.securityLabelNumber && this.securityLabelNumber.toJSON(),
+            securityLabelNumber: this.securityLabelNumber,
         };
     }
 }

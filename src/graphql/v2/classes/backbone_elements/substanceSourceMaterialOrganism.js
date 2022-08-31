@@ -55,7 +55,7 @@ class SubstanceSourceMaterialOrganism {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -83,7 +83,7 @@ class SubstanceSourceMaterialOrganism {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +184,7 @@ class SubstanceSourceMaterialOrganism {
                     return;
                 }
                 let SubstanceSourceMaterialAuthor = require('../backbone_elements/substanceSourceMaterialAuthor.js');
-                this.__data.author = new SubstanceSourceMaterialAuthor(value);
+                this.__data.author = Array.isArray(value) ? value.map(v => new SubstanceSourceMaterialAuthor(v)) : [new SubstanceSourceMaterialAuthor(value)];
             }
         });
 
@@ -236,14 +236,14 @@ class SubstanceSourceMaterialOrganism {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             family: this.family && this.family.toJSON(),
             genus: this.genus && this.genus.toJSON(),
             species: this.species && this.species.toJSON(),
             intraspecificType: this.intraspecificType && this.intraspecificType.toJSON(),
             intraspecificDescription: this.intraspecificDescription,
-            author: this.author && this.author.toJSON(),
+            author: this.author && this.author.map(v => v.toJSON()),
             hybrid: this.hybrid && this.hybrid.toJSON(),
             organismGeneral: this.organismGeneral && this.organismGeneral.toJSON(),
         };

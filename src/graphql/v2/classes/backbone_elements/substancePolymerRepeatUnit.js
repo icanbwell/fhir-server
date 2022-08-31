@@ -42,7 +42,7 @@ class SubstancePolymerRepeatUnit {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class SubstancePolymerRepeatUnit {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -133,7 +133,7 @@ class SubstancePolymerRepeatUnit {
                     return;
                 }
                 let SubstancePolymerDegreeOfPolymerisation = require('../backbone_elements/substancePolymerDegreeOfPolymerisation.js');
-                this.__data.degreeOfPolymerisation = new SubstancePolymerDegreeOfPolymerisation(value);
+                this.__data.degreeOfPolymerisation = Array.isArray(value) ? value.map(v => new SubstancePolymerDegreeOfPolymerisation(v)) : [new SubstancePolymerDegreeOfPolymerisation(value)];
             }
         });
 
@@ -149,7 +149,7 @@ class SubstancePolymerRepeatUnit {
                     return;
                 }
                 let SubstancePolymerStructuralRepresentation = require('../backbone_elements/substancePolymerStructuralRepresentation.js');
-                this.__data.structuralRepresentation = new SubstancePolymerStructuralRepresentation(value);
+                this.__data.structuralRepresentation = Array.isArray(value) ? value.map(v => new SubstancePolymerStructuralRepresentation(v)) : [new SubstancePolymerStructuralRepresentation(value)];
             }
         });
 
@@ -169,13 +169,13 @@ class SubstancePolymerRepeatUnit {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             orientationOfPolymerisation: this.orientationOfPolymerisation && this.orientationOfPolymerisation.toJSON(),
             repeatUnit: this.repeatUnit,
             amount: this.amount && this.amount.toJSON(),
-            degreeOfPolymerisation: this.degreeOfPolymerisation && this.degreeOfPolymerisation.toJSON(),
-            structuralRepresentation: this.structuralRepresentation && this.structuralRepresentation.toJSON(),
+            degreeOfPolymerisation: this.degreeOfPolymerisation && this.degreeOfPolymerisation.map(v => v.toJSON()),
+            structuralRepresentation: this.structuralRepresentation && this.structuralRepresentation.map(v => v.toJSON()),
         };
     }
 }

@@ -44,7 +44,7 @@ class ConceptMapDependsOn {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ConceptMapDependsOn {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -89,9 +89,7 @@ class ConceptMapDependsOn {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.property = new uri(value);
+                this.__data.property = value;
             }
         });
 
@@ -107,9 +105,7 @@ class ConceptMapDependsOn {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.system = new canonical(value);
+                this.__data.system = value;
             }
         });
 
@@ -161,10 +157,10 @@ class ConceptMapDependsOn {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            property: this.property && this.property.toJSON(),
-            system: this.system && this.system.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            property: this.property,
+            system: this.system,
             value: this.value,
             display: this.display,
         };

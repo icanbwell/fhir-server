@@ -27,9 +27,7 @@ class Group {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -65,9 +63,7 @@ class Group {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -120,9 +116,7 @@ class Group {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -142,7 +136,7 @@ class Group {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -170,7 +164,7 @@ class Group {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -186,7 +180,7 @@ class Group {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -281,9 +275,7 @@ class Group {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.quantity = new unsignedInt(value);
+                this.__data.quantity = value;
             }
         });
 
@@ -316,7 +308,7 @@ class Group {
                     return;
                 }
                 let GroupCharacteristic = require('../backbone_elements/groupCharacteristic.js');
-                this.__data.characteristic = new GroupCharacteristic(value);
+                this.__data.characteristic = Array.isArray(value) ? value.map(v => new GroupCharacteristic(v)) : [new GroupCharacteristic(value)];
             }
         });
 
@@ -332,7 +324,7 @@ class Group {
                     return;
                 }
                 let GroupMember = require('../backbone_elements/groupMember.js');
-                this.__data.member = new GroupMember(value);
+                this.__data.member = Array.isArray(value) ? value.map(v => new GroupMember(v)) : [new GroupMember(value)];
             }
         });
 
@@ -352,24 +344,24 @@ class Group {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             active: this.active,
-            type: this.type && this.type.toJSON(),
+            type: this.type,
             actual: this.actual,
             code: this.code && this.code.toJSON(),
             name: this.name,
-            quantity: this.quantity && this.quantity.toJSON(),
+            quantity: this.quantity,
             managingEntity: this.managingEntity && this.managingEntity.toJSON(),
-            characteristic: this.characteristic && this.characteristic.toJSON(),
-            member: this.member && this.member.toJSON(),
+            characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
+            member: this.member && this.member.map(v => v.toJSON()),
         };
     }
 }

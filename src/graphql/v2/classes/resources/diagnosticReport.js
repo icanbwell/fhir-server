@@ -28,9 +28,7 @@ class DiagnosticReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -66,9 +64,7 @@ class DiagnosticReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -121,9 +117,7 @@ class DiagnosticReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -143,7 +137,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -171,7 +165,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -187,7 +181,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -203,7 +197,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = new Reference(value);
+                this.__data.basedOn = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -236,7 +230,7 @@ class DiagnosticReport {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -302,9 +296,7 @@ class DiagnosticReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.effectiveDateTime = new dateTime(value);
+                this.__data.effectiveDateTime = value;
             }
         });
 
@@ -336,9 +328,7 @@ class DiagnosticReport {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.issued = new instant(value);
+                this.__data.issued = value;
             }
         });
 
@@ -354,7 +344,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.performer = new Reference(value);
+                this.__data.performer = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -371,7 +361,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.resultsInterpreter = new Reference(value);
+                this.__data.resultsInterpreter = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -387,7 +377,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.specimen = new Reference(value);
+                this.__data.specimen = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -403,7 +393,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.result = new Reference(value);
+                this.__data.result = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -422,7 +412,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.imagingStudy = new Reference(value);
+                this.__data.imagingStudy = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -440,7 +430,7 @@ class DiagnosticReport {
                     return;
                 }
                 let DiagnosticReportMedia = require('../backbone_elements/diagnosticReportMedia.js');
-                this.__data.media = new DiagnosticReportMedia(value);
+                this.__data.media = Array.isArray(value) ? value.map(v => new DiagnosticReportMedia(v)) : [new DiagnosticReportMedia(value)];
             }
         });
 
@@ -473,7 +463,7 @@ class DiagnosticReport {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.conclusionCode = new CodeableConcept(value);
+                this.__data.conclusionCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -491,7 +481,7 @@ class DiagnosticReport {
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
-                this.__data.presentedForm = new Attachment(value);
+                this.__data.presentedForm = Array.isArray(value) ? value.map(v => new Attachment(v)) : [new Attachment(value)];
             }
         });
 
@@ -511,33 +501,33 @@ class DiagnosticReport {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            basedOn: this.basedOn && this.basedOn.toJSON(),
-            status: this.status && this.status.toJSON(),
-            category: this.category && this.category.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
+            status: this.status,
+            category: this.category && this.category.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             subject: this.subject && this.subject.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            effectiveDateTime: this.effectiveDateTime && this.effectiveDateTime.toJSON(),
+            effectiveDateTime: this.effectiveDateTime,
             effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSON(),
-            issued: this.issued && this.issued.toJSON(),
-            performer: this.performer && this.performer.toJSON(),
-            resultsInterpreter: this.resultsInterpreter && this.resultsInterpreter.toJSON(),
-            specimen: this.specimen && this.specimen.toJSON(),
-            result: this.result && this.result.toJSON(),
-            imagingStudy: this.imagingStudy && this.imagingStudy.toJSON(),
-            media: this.media && this.media.toJSON(),
+            issued: this.issued,
+            performer: this.performer && this.performer.map(v => v.toJSON()),
+            resultsInterpreter: this.resultsInterpreter && this.resultsInterpreter.map(v => v.toJSON()),
+            specimen: this.specimen && this.specimen.map(v => v.toJSON()),
+            result: this.result && this.result.map(v => v.toJSON()),
+            imagingStudy: this.imagingStudy && this.imagingStudy.map(v => v.toJSON()),
+            media: this.media && this.media.map(v => v.toJSON()),
             conclusion: this.conclusion,
-            conclusionCode: this.conclusionCode && this.conclusionCode.toJSON(),
-            presentedForm: this.presentedForm && this.presentedForm.toJSON(),
+            conclusionCode: this.conclusionCode && this.conclusionCode.map(v => v.toJSON()),
+            presentedForm: this.presentedForm && this.presentedForm.map(v => v.toJSON()),
         };
     }
 }

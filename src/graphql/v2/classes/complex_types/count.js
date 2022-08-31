@@ -27,9 +27,7 @@ class Count {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.value = new decimal(value);
+                this.__data.value = value;
             }
         });
 
@@ -76,9 +74,7 @@ class Count {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.system = new uri(value);
+                this.__data.system = value;
             }
         });
 
@@ -112,11 +108,11 @@ class Count {
 
     toJSON() {
         return {
-            value: this.value && this.value.toJSON(),
-            comparator: this.comparator && this.comparator.toJSON(),
+            value: this.value,
+            comparator: this.comparator,
             unit: this.unit,
-            system: this.system && this.system.toJSON(),
-            code: this.code && this.code.toJSON(),
+            system: this.system,
+            code: this.code,
         };
     }
 }

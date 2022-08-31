@@ -45,7 +45,7 @@ class ValueSetExpansion {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ValueSetExpansion {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -93,9 +93,7 @@ class ValueSetExpansion {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.identifier = new uri(value);
+                this.__data.identifier = value;
             }
         });
 
@@ -110,9 +108,7 @@ class ValueSetExpansion {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.timestamp = new dateTime(value);
+                this.__data.timestamp = value;
             }
         });
 
@@ -164,7 +160,7 @@ class ValueSetExpansion {
                     return;
                 }
                 let ValueSetParameter = require('../backbone_elements/valueSetParameter.js');
-                this.__data.parameter = new ValueSetParameter(value);
+                this.__data.parameter = Array.isArray(value) ? value.map(v => new ValueSetParameter(v)) : [new ValueSetParameter(value)];
             }
         });
 
@@ -180,7 +176,7 @@ class ValueSetExpansion {
                     return;
                 }
                 let ValueSetContains = require('../backbone_elements/valueSetContains.js');
-                this.__data.contains = new ValueSetContains(value);
+                this.__data.contains = Array.isArray(value) ? value.map(v => new ValueSetContains(v)) : [new ValueSetContains(value)];
             }
         });
 
@@ -200,14 +196,14 @@ class ValueSetExpansion {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            timestamp: this.timestamp && this.timestamp.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier,
+            timestamp: this.timestamp,
             total: this.total,
             offset: this.offset,
-            parameter: this.parameter && this.parameter.toJSON(),
-            contains: this.contains && this.contains.toJSON(),
+            parameter: this.parameter && this.parameter.map(v => v.toJSON()),
+            contains: this.contains && this.contains.map(v => v.toJSON()),
         };
     }
 }

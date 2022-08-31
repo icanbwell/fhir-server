@@ -24,9 +24,7 @@ class Bundle {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class Bundle {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -127,9 +123,7 @@ class Bundle {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.timestamp = new instant(value);
+                this.__data.timestamp = value;
             }
         });
 
@@ -147,9 +141,7 @@ class Bundle {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.total = new unsignedInt(value);
+                this.__data.total = value;
             }
         });
 
@@ -165,7 +157,7 @@ class Bundle {
                     return;
                 }
                 let BundleLink = require('../backbone_elements/bundleLink.js');
-                this.__data.link = new BundleLink(value);
+                this.__data.link = Array.isArray(value) ? value.map(v => new BundleLink(v)) : [new BundleLink(value)];
             }
         });
 
@@ -182,7 +174,7 @@ class Bundle {
                     return;
                 }
                 let BundleEntry = require('../backbone_elements/bundleEntry.js');
-                this.__data.entry = new BundleEntry(value);
+                this.__data.entry = Array.isArray(value) ? value.map(v => new BundleEntry(v)) : [new BundleEntry(value)];
             }
         });
 
@@ -218,16 +210,16 @@ class Bundle {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             identifier: this.identifier && this.identifier.toJSON(),
-            type: this.type && this.type.toJSON(),
-            timestamp: this.timestamp && this.timestamp.toJSON(),
-            total: this.total && this.total.toJSON(),
-            link: this.link && this.link.toJSON(),
-            entry: this.entry && this.entry.toJSON(),
+            type: this.type,
+            timestamp: this.timestamp,
+            total: this.total,
+            link: this.link && this.link.map(v => v.toJSON()),
+            entry: this.entry && this.entry.map(v => v.toJSON()),
             signature: this.signature && this.signature.toJSON(),
         };
     }

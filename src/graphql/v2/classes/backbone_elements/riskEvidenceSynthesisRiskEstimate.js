@@ -44,7 +44,7 @@ class RiskEvidenceSynthesisRiskEstimate {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class RiskEvidenceSynthesisRiskEstimate {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -118,9 +118,7 @@ class RiskEvidenceSynthesisRiskEstimate {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.value = new decimal(value);
+                this.__data.value = value;
             }
         });
 
@@ -182,7 +180,7 @@ class RiskEvidenceSynthesisRiskEstimate {
                     return;
                 }
                 let RiskEvidenceSynthesisPrecisionEstimate = require('../backbone_elements/riskEvidenceSynthesisPrecisionEstimate.js');
-                this.__data.precisionEstimate = new RiskEvidenceSynthesisPrecisionEstimate(value);
+                this.__data.precisionEstimate = Array.isArray(value) ? value.map(v => new RiskEvidenceSynthesisPrecisionEstimate(v)) : [new RiskEvidenceSynthesisPrecisionEstimate(value)];
             }
         });
 
@@ -202,15 +200,15 @@ class RiskEvidenceSynthesisRiskEstimate {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             type: this.type && this.type.toJSON(),
-            value: this.value && this.value.toJSON(),
+            value: this.value,
             unitOfMeasure: this.unitOfMeasure && this.unitOfMeasure.toJSON(),
             denominatorCount: this.denominatorCount,
             numeratorCount: this.numeratorCount,
-            precisionEstimate: this.precisionEstimate && this.precisionEstimate.toJSON(),
+            precisionEstimate: this.precisionEstimate && this.precisionEstimate.map(v => v.toJSON()),
         };
     }
 }

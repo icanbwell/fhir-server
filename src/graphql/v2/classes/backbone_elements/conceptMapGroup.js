@@ -44,7 +44,7 @@ class ConceptMapGroup {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ConceptMapGroup {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,9 +88,7 @@ class ConceptMapGroup {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.source = new uri(value);
+                this.__data.source = value;
             }
         });
 
@@ -122,9 +120,7 @@ class ConceptMapGroup {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.target = new uri(value);
+                this.__data.target = value;
             }
         });
 
@@ -157,7 +153,7 @@ class ConceptMapGroup {
                     return;
                 }
                 let ConceptMapElement = require('../backbone_elements/conceptMapElement.js');
-                this.__data.element = new ConceptMapElement(value);
+                this.__data.element = Array.isArray(value) ? value.map(v => new ConceptMapElement(v)) : [new ConceptMapElement(value)];
             }
         });
 
@@ -195,13 +191,13 @@ class ConceptMapGroup {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            source: this.source && this.source.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            source: this.source,
             sourceVersion: this.sourceVersion,
-            target: this.target && this.target.toJSON(),
+            target: this.target,
             targetVersion: this.targetVersion,
-            element: this.element && this.element.toJSON(),
+            element: this.element && this.element.map(v => v.toJSON()),
             unmapped: this.unmapped && this.unmapped.toJSON(),
         };
     }

@@ -45,7 +45,7 @@ class ChargeItemDefinitionPropertyGroup {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ChargeItemDefinitionPropertyGroup {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -89,7 +89,7 @@ class ChargeItemDefinitionPropertyGroup {
                     return;
                 }
                 let ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
-                this.__data.applicability = new ChargeItemDefinitionApplicability(value);
+                this.__data.applicability = Array.isArray(value) ? value.map(v => new ChargeItemDefinitionApplicability(v)) : [new ChargeItemDefinitionApplicability(value)];
             }
         });
 
@@ -110,7 +110,7 @@ class ChargeItemDefinitionPropertyGroup {
                     return;
                 }
                 let ChargeItemDefinitionPriceComponent = require('../backbone_elements/chargeItemDefinitionPriceComponent.js');
-                this.__data.priceComponent = new ChargeItemDefinitionPriceComponent(value);
+                this.__data.priceComponent = Array.isArray(value) ? value.map(v => new ChargeItemDefinitionPriceComponent(v)) : [new ChargeItemDefinitionPriceComponent(value)];
             }
         });
 
@@ -130,10 +130,10 @@ class ChargeItemDefinitionPropertyGroup {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            applicability: this.applicability && this.applicability.toJSON(),
-            priceComponent: this.priceComponent && this.priceComponent.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            applicability: this.applicability && this.applicability.map(v => v.toJSON()),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON()),
         };
     }
 }

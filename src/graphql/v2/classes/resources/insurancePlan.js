@@ -24,9 +24,7 @@ class InsurancePlan {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class InsurancePlan {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -117,9 +113,7 @@ class InsurancePlan {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,7 +133,7 @@ class InsurancePlan {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +161,7 @@ class InsurancePlan {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class InsurancePlan {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -215,7 +209,7 @@ class InsurancePlan {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -246,7 +240,7 @@ class InsurancePlan {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.alias = value;
+                this.__data.alias = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -314,7 +308,7 @@ class InsurancePlan {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.coverageArea = new Reference(value);
+                this.__data.coverageArea = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -330,7 +324,7 @@ class InsurancePlan {
                     return;
                 }
                 let InsurancePlanContact = require('../backbone_elements/insurancePlanContact.js');
-                this.__data.contact = new InsurancePlanContact(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new InsurancePlanContact(v)) : [new InsurancePlanContact(value)];
             }
         });
 
@@ -347,7 +341,7 @@ class InsurancePlan {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = new Reference(value);
+                this.__data.endpoint = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -363,7 +357,7 @@ class InsurancePlan {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.network = new Reference(value);
+                this.__data.network = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -379,7 +373,7 @@ class InsurancePlan {
                     return;
                 }
                 let InsurancePlanCoverage = require('../backbone_elements/insurancePlanCoverage.js');
-                this.__data.coverage = new InsurancePlanCoverage(value);
+                this.__data.coverage = Array.isArray(value) ? value.map(v => new InsurancePlanCoverage(v)) : [new InsurancePlanCoverage(value)];
             }
         });
 
@@ -395,7 +389,7 @@ class InsurancePlan {
                     return;
                 }
                 let InsurancePlanPlan = require('../backbone_elements/insurancePlanPlan.js');
-                this.__data.plan = new InsurancePlanPlan(value);
+                this.__data.plan = Array.isArray(value) ? value.map(v => new InsurancePlanPlan(v)) : [new InsurancePlanPlan(value)];
             }
         });
 
@@ -415,28 +409,28 @@ class InsurancePlan {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
-            type: this.type && this.type.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
+            type: this.type && this.type.map(v => v.toJSON()),
             name: this.name,
             alias: this.alias,
             period: this.period && this.period.toJSON(),
             ownedBy: this.ownedBy && this.ownedBy.toJSON(),
             administeredBy: this.administeredBy && this.administeredBy.toJSON(),
-            coverageArea: this.coverageArea && this.coverageArea.toJSON(),
-            contact: this.contact && this.contact.toJSON(),
-            endpoint: this.endpoint && this.endpoint.toJSON(),
-            network: this.network && this.network.toJSON(),
-            coverage: this.coverage && this.coverage.toJSON(),
-            plan: this.plan && this.plan.toJSON(),
+            coverageArea: this.coverageArea && this.coverageArea.map(v => v.toJSON()),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
+            network: this.network && this.network.map(v => v.toJSON()),
+            coverage: this.coverage && this.coverage.map(v => v.toJSON()),
+            plan: this.plan && this.plan.map(v => v.toJSON()),
         };
     }
 }

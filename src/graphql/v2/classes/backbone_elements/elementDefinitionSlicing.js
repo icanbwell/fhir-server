@@ -45,7 +45,7 @@ class ElementDefinitionSlicing {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ElementDefinitionSlicing {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -93,7 +93,7 @@ class ElementDefinitionSlicing {
                     return;
                 }
                 let ElementDefinitionDiscriminator = require('../backbone_elements/elementDefinitionDiscriminator.js');
-                this.__data.discriminator = new ElementDefinitionDiscriminator(value);
+                this.__data.discriminator = Array.isArray(value) ? value.map(v => new ElementDefinitionDiscriminator(v)) : [new ElementDefinitionDiscriminator(value)];
             }
         });
 
@@ -163,12 +163,12 @@ class ElementDefinitionSlicing {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            discriminator: this.discriminator && this.discriminator.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            discriminator: this.discriminator && this.discriminator.map(v => v.toJSON()),
             description: this.description,
             ordered: this.ordered,
-            rules: this.rules && this.rules.toJSON(),
+            rules: this.rules,
         };
     }
 }

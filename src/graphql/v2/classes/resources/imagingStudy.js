@@ -28,9 +28,7 @@ class ImagingStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -66,9 +64,7 @@ class ImagingStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -121,9 +117,7 @@ class ImagingStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -143,7 +137,7 @@ class ImagingStudy {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -171,7 +165,7 @@ class ImagingStudy {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -188,7 +182,7 @@ class ImagingStudy {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -221,7 +215,7 @@ class ImagingStudy {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.modality = new Coding(value);
+                this.__data.modality = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -269,9 +263,7 @@ class ImagingStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.started = new dateTime(value);
+                this.__data.started = value;
             }
         });
 
@@ -288,7 +280,7 @@ class ImagingStudy {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = new Reference(value);
+                this.__data.basedOn = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -320,7 +312,7 @@ class ImagingStudy {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.interpreter = new Reference(value);
+                this.__data.interpreter = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -339,7 +331,7 @@ class ImagingStudy {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = new Reference(value);
+                this.__data.endpoint = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -357,9 +349,7 @@ class ImagingStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.numberOfSeries = new unsignedInt(value);
+                this.__data.numberOfSeries = value;
             }
         });
 
@@ -377,9 +367,7 @@ class ImagingStudy {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.numberOfInstances = new unsignedInt(value);
+                this.__data.numberOfInstances = value;
             }
         });
 
@@ -411,7 +399,7 @@ class ImagingStudy {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.procedureCode = new CodeableConcept(value);
+                this.__data.procedureCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -444,7 +432,7 @@ class ImagingStudy {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -460,7 +448,7 @@ class ImagingStudy {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -479,7 +467,7 @@ class ImagingStudy {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -511,7 +499,7 @@ class ImagingStudy {
                     return;
                 }
                 let ImagingStudySeries = require('../backbone_elements/imagingStudySeries.js');
-                this.__data.series = new ImagingStudySeries(value);
+                this.__data.series = Array.isArray(value) ? value.map(v => new ImagingStudySeries(v)) : [new ImagingStudySeries(value)];
             }
         });
 
@@ -531,34 +519,34 @@ class ImagingStudy {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
-            modality: this.modality && this.modality.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
+            modality: this.modality && this.modality.map(v => v.toJSON()),
             subject: this.subject && this.subject.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            started: this.started && this.started.toJSON(),
-            basedOn: this.basedOn && this.basedOn.toJSON(),
+            started: this.started,
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
             referrer: this.referrer && this.referrer.toJSON(),
-            interpreter: this.interpreter && this.interpreter.toJSON(),
-            endpoint: this.endpoint && this.endpoint.toJSON(),
-            numberOfSeries: this.numberOfSeries && this.numberOfSeries.toJSON(),
-            numberOfInstances: this.numberOfInstances && this.numberOfInstances.toJSON(),
+            interpreter: this.interpreter && this.interpreter.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
+            numberOfSeries: this.numberOfSeries,
+            numberOfInstances: this.numberOfInstances,
             procedureReference: this.procedureReference && this.procedureReference.toJSON(),
-            procedureCode: this.procedureCode && this.procedureCode.toJSON(),
+            procedureCode: this.procedureCode && this.procedureCode.map(v => v.toJSON()),
             location: this.location && this.location.toJSON(),
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
-            note: this.note && this.note.toJSON(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
             description: this.description,
-            series: this.series && this.series.toJSON(),
+            series: this.series && this.series.map(v => v.toJSON()),
         };
     }
 }

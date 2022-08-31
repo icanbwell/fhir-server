@@ -32,9 +32,7 @@ class Composition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -70,9 +68,7 @@ class Composition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -125,9 +121,7 @@ class Composition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -147,7 +141,7 @@ class Composition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -175,7 +169,7 @@ class Composition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -244,7 +238,7 @@ class Composition {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -296,9 +290,7 @@ class Composition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.date = new dateTime(value);
+                this.__data.date = value;
             }
         });
 
@@ -315,7 +307,7 @@ class Composition {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.author = new Reference(value);
+                this.__data.author = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -361,7 +353,7 @@ class Composition {
                     return;
                 }
                 let CompositionAttester = require('../backbone_elements/compositionAttester.js');
-                this.__data.attester = new CompositionAttester(value);
+                this.__data.attester = Array.isArray(value) ? value.map(v => new CompositionAttester(v)) : [new CompositionAttester(value)];
             }
         });
 
@@ -395,7 +387,7 @@ class Composition {
                     return;
                 }
                 let CompositionRelatesTo = require('../backbone_elements/compositionRelatesTo.js');
-                this.__data.relatesTo = new CompositionRelatesTo(value);
+                this.__data.relatesTo = Array.isArray(value) ? value.map(v => new CompositionRelatesTo(v)) : [new CompositionRelatesTo(value)];
             }
         });
 
@@ -412,7 +404,7 @@ class Composition {
                     return;
                 }
                 let CompositionEvent = require('../backbone_elements/compositionEvent.js');
-                this.__data.event = new CompositionEvent(value);
+                this.__data.event = Array.isArray(value) ? value.map(v => new CompositionEvent(v)) : [new CompositionEvent(value)];
             }
         });
 
@@ -428,7 +420,7 @@ class Composition {
                     return;
                 }
                 let CompositionSection = require('../backbone_elements/compositionSection.js');
-                this.__data.section = new CompositionSection(value);
+                this.__data.section = Array.isArray(value) ? value.map(v => new CompositionSection(v)) : [new CompositionSection(value)];
             }
         });
 
@@ -448,29 +440,29 @@ class Composition {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             type: this.type && this.type.toJSON(),
-            category: this.category && this.category.toJSON(),
+            category: this.category && this.category.map(v => v.toJSON()),
             subject: this.subject && this.subject.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            date: this.date && this.date.toJSON(),
-            author: this.author && this.author.toJSON(),
+            date: this.date,
+            author: this.author && this.author.map(v => v.toJSON()),
             title: this.title,
-            confidentiality: this.confidentiality && this.confidentiality.toJSON(),
-            attester: this.attester && this.attester.toJSON(),
+            confidentiality: this.confidentiality,
+            attester: this.attester && this.attester.map(v => v.toJSON()),
             custodian: this.custodian && this.custodian.toJSON(),
-            relatesTo: this.relatesTo && this.relatesTo.toJSON(),
-            event: this.event && this.event.toJSON(),
-            section: this.section && this.section.toJSON(),
+            relatesTo: this.relatesTo && this.relatesTo.map(v => v.toJSON()),
+            event: this.event && this.event.map(v => v.toJSON()),
+            section: this.section && this.section.map(v => v.toJSON()),
         };
     }
 }

@@ -43,7 +43,7 @@ class TestScriptCapability {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class TestScriptCapability {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -134,7 +134,7 @@ class TestScriptCapability {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.origin = value;
+                this.__data.origin = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -165,9 +165,7 @@ class TestScriptCapability {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.link = new uri(value);
+                this.__data.link = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -184,9 +182,7 @@ class TestScriptCapability {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.capabilities = new canonical(value);
+                this.__data.capabilities = value;
             }
         });
 
@@ -206,15 +202,15 @@ class TestScriptCapability {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             required: this.required,
             validated: this.validated,
             description: this.description,
             origin: this.origin,
             destination: this.destination,
-            link: this.link && this.link.toJSON(),
-            capabilities: this.capabilities && this.capabilities.toJSON(),
+            link: this.link,
+            capabilities: this.capabilities,
         };
     }
 }

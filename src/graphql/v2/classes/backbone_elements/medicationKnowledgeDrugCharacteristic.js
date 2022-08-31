@@ -42,7 +42,7 @@ class MedicationKnowledgeDrugCharacteristic {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicationKnowledgeDrugCharacteristic {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -149,9 +149,7 @@ class MedicationKnowledgeDrugCharacteristic {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueBase64Binary = new base64Binary(value);
+                this.__data.valueBase64Binary = value;
             }
         });
 
@@ -171,13 +169,13 @@ class MedicationKnowledgeDrugCharacteristic {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueString: this.valueString,
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueBase64Binary: this.valueBase64Binary && this.valueBase64Binary.toJSON(),
+            valueBase64Binary: this.valueBase64Binary,
         };
     }
 }

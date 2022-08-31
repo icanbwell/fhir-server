@@ -43,7 +43,7 @@ class DeviceMetricCalibration {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class DeviceMetricCalibration {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -116,9 +116,7 @@ class DeviceMetricCalibration {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.time = new instant(value);
+                this.__data.time = value;
             }
         });
 
@@ -138,11 +136,11 @@ class DeviceMetricCalibration {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            type: this.type && this.type.toJSON(),
-            state: this.state && this.state.toJSON(),
-            time: this.time && this.time.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            type: this.type,
+            state: this.state,
+            time: this.time,
         };
     }
 }

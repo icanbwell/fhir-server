@@ -46,7 +46,7 @@ class MessageHeaderSource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -74,7 +74,7 @@ class MessageHeaderSource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -152,9 +152,7 @@ class MessageHeaderSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.endpoint = new url(value);
+                this.__data.endpoint = value;
             }
         });
 
@@ -174,13 +172,13 @@ class MessageHeaderSource {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             software: this.software,
             version: this.version,
             contact: this.contact && this.contact.toJSON(),
-            endpoint: this.endpoint && this.endpoint.toJSON(),
+            endpoint: this.endpoint,
         };
     }
 }

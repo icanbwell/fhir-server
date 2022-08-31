@@ -45,7 +45,7 @@ class DataRequirement {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -77,9 +77,7 @@ class DataRequirement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.profile = new canonical(value);
+                this.__data.profile = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -135,7 +133,7 @@ class DataRequirement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.mustSupport = value;
+                this.__data.mustSupport = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -153,7 +151,7 @@ class DataRequirement {
                     return;
                 }
                 let DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter.js');
-                this.__data.codeFilter = new DataRequirementCodeFilter(value);
+                this.__data.codeFilter = Array.isArray(value) ? value.map(v => new DataRequirementCodeFilter(v)) : [new DataRequirementCodeFilter(value)];
             }
         });
 
@@ -171,7 +169,7 @@ class DataRequirement {
                     return;
                 }
                 let DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter.js');
-                this.__data.dateFilter = new DataRequirementDateFilter(value);
+                this.__data.dateFilter = Array.isArray(value) ? value.map(v => new DataRequirementDateFilter(v)) : [new DataRequirementDateFilter(value)];
             }
         });
 
@@ -203,7 +201,7 @@ class DataRequirement {
                     return;
                 }
                 let DataRequirementSort = require('../complex_types/dataRequirementSort.js');
-                this.__data.sort = new DataRequirementSort(value);
+                this.__data.sort = Array.isArray(value) ? value.map(v => new DataRequirementSort(v)) : [new DataRequirementSort(value)];
             }
         });
 
@@ -223,16 +221,16 @@ class DataRequirement {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            type: this.type && this.type.toJSON(),
-            profile: this.profile && this.profile.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            type: this.type,
+            profile: this.profile,
             subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSON(),
             subjectReference: this.subjectReference && this.subjectReference.toJSON(),
             mustSupport: this.mustSupport,
-            codeFilter: this.codeFilter && this.codeFilter.toJSON(),
-            dateFilter: this.dateFilter && this.dateFilter.toJSON(),
+            codeFilter: this.codeFilter && this.codeFilter.map(v => v.toJSON()),
+            dateFilter: this.dateFilter && this.dateFilter.map(v => v.toJSON()),
             limit: this.limit,
-            sort: this.sort && this.sort.toJSON(),
+            sort: this.sort && this.sort.map(v => v.toJSON()),
         };
     }
 }

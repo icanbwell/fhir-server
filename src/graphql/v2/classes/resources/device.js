@@ -26,9 +26,7 @@ class Device {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class Device {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class Device {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class Device {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class Device {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -186,7 +180,7 @@ class Device {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -221,7 +215,7 @@ class Device {
                     return;
                 }
                 let DeviceUdiCarrier = require('../backbone_elements/deviceUdiCarrier.js');
-                this.__data.udiCarrier = new DeviceUdiCarrier(value);
+                this.__data.udiCarrier = Array.isArray(value) ? value.map(v => new DeviceUdiCarrier(v)) : [new DeviceUdiCarrier(value)];
             }
         });
 
@@ -252,7 +246,7 @@ class Device {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.statusReason = new CodeableConcept(value);
+                this.__data.statusReason = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -298,9 +292,7 @@ class Device {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.manufactureDate = new dateTime(value);
+                this.__data.manufactureDate = value;
             }
         });
 
@@ -316,9 +308,7 @@ class Device {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.expirationDate = new dateTime(value);
+                this.__data.expirationDate = value;
             }
         });
 
@@ -368,7 +358,7 @@ class Device {
                     return;
                 }
                 let DeviceDeviceName = require('../backbone_elements/deviceDeviceName.js');
-                this.__data.deviceName = new DeviceDeviceName(value);
+                this.__data.deviceName = Array.isArray(value) ? value.map(v => new DeviceDeviceName(v)) : [new DeviceDeviceName(value)];
             }
         });
 
@@ -431,7 +421,7 @@ class Device {
                     return;
                 }
                 let DeviceSpecialization = require('../backbone_elements/deviceSpecialization.js');
-                this.__data.specialization = new DeviceSpecialization(value);
+                this.__data.specialization = Array.isArray(value) ? value.map(v => new DeviceSpecialization(v)) : [new DeviceSpecialization(value)];
             }
         });
 
@@ -447,7 +437,7 @@ class Device {
                     return;
                 }
                 let DeviceVersion = require('../backbone_elements/deviceVersion.js');
-                this.__data.version = new DeviceVersion(value);
+                this.__data.version = Array.isArray(value) ? value.map(v => new DeviceVersion(v)) : [new DeviceVersion(value)];
             }
         });
 
@@ -464,7 +454,7 @@ class Device {
                     return;
                 }
                 let DeviceProperty = require('../backbone_elements/deviceProperty.js');
-                this.__data.property = new DeviceProperty(value);
+                this.__data.property = Array.isArray(value) ? value.map(v => new DeviceProperty(v)) : [new DeviceProperty(value)];
             }
         });
 
@@ -514,7 +504,7 @@ class Device {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.contact = new ContactPoint(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -545,9 +535,7 @@ class Device {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.url = new uri(value);
+                this.__data.url = value;
             }
         });
 
@@ -564,7 +552,7 @@ class Device {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -581,7 +569,7 @@ class Device {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.safety = new CodeableConcept(value);
+                this.__data.safety = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -617,39 +605,39 @@ class Device {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             definition: this.definition && this.definition.toJSON(),
-            udiCarrier: this.udiCarrier && this.udiCarrier.toJSON(),
-            status: this.status && this.status.toJSON(),
-            statusReason: this.statusReason && this.statusReason.toJSON(),
+            udiCarrier: this.udiCarrier && this.udiCarrier.map(v => v.toJSON()),
+            status: this.status,
+            statusReason: this.statusReason && this.statusReason.map(v => v.toJSON()),
             distinctIdentifier: this.distinctIdentifier,
             manufacturer: this.manufacturer,
-            manufactureDate: this.manufactureDate && this.manufactureDate.toJSON(),
-            expirationDate: this.expirationDate && this.expirationDate.toJSON(),
+            manufactureDate: this.manufactureDate,
+            expirationDate: this.expirationDate,
             lotNumber: this.lotNumber,
             serialNumber: this.serialNumber,
-            deviceName: this.deviceName && this.deviceName.toJSON(),
+            deviceName: this.deviceName && this.deviceName.map(v => v.toJSON()),
             modelNumber: this.modelNumber,
             partNumber: this.partNumber,
             type: this.type && this.type.toJSON(),
-            specialization: this.specialization && this.specialization.toJSON(),
-            version: this.version && this.version.toJSON(),
-            property: this.property && this.property.toJSON(),
+            specialization: this.specialization && this.specialization.map(v => v.toJSON()),
+            version: this.version && this.version.map(v => v.toJSON()),
+            property: this.property && this.property.map(v => v.toJSON()),
             patient: this.patient && this.patient.toJSON(),
             owner: this.owner && this.owner.toJSON(),
-            contact: this.contact && this.contact.toJSON(),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
             location: this.location && this.location.toJSON(),
-            url: this.url && this.url.toJSON(),
-            note: this.note && this.note.toJSON(),
-            safety: this.safety && this.safety.toJSON(),
+            url: this.url,
+            note: this.note && this.note.map(v => v.toJSON()),
+            safety: this.safety && this.safety.map(v => v.toJSON()),
             parent: this.parent && this.parent.toJSON(),
         };
     }

@@ -45,7 +45,7 @@ class DataRequirementDateFilter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -99,9 +99,7 @@ class DataRequirementDateFilter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDateTime = new dateTime(value);
+                this.__data.valueDateTime = value;
             }
         });
 
@@ -153,10 +151,10 @@ class DataRequirementDateFilter {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
             path: this.path,
             searchParam: this.searchParam,
-            valueDateTime: this.valueDateTime && this.valueDateTime.toJSON(),
+            valueDateTime: this.valueDateTime,
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSON(),
             valueDuration: this.valueDuration && this.valueDuration.toJSON(),
         };

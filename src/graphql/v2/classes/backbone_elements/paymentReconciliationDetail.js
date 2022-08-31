@@ -43,7 +43,7 @@ class PaymentReconciliationDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class PaymentReconciliationDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -182,9 +182,7 @@ class PaymentReconciliationDetail {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.date = new date(value);
+                this.__data.date = value;
             }
         });
 
@@ -253,15 +251,15 @@ class PaymentReconciliationDetail {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
             predecessor: this.predecessor && this.predecessor.toJSON(),
             type: this.type && this.type.toJSON(),
             request: this.request && this.request.toJSON(),
             submitter: this.submitter && this.submitter.toJSON(),
             response: this.response && this.response.toJSON(),
-            date: this.date && this.date.toJSON(),
+            date: this.date,
             responsible: this.responsible && this.responsible.toJSON(),
             payee: this.payee && this.payee.toJSON(),
             amount: this.amount && this.amount.toJSON(),

@@ -43,7 +43,7 @@ class CoverageEligibilityResponseInsurance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class CoverageEligibilityResponseInsurance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -138,7 +138,7 @@ class CoverageEligibilityResponseInsurance {
                     return;
                 }
                 let CoverageEligibilityResponseItem = require('../backbone_elements/coverageEligibilityResponseItem.js');
-                this.__data.item = new CoverageEligibilityResponseItem(value);
+                this.__data.item = Array.isArray(value) ? value.map(v => new CoverageEligibilityResponseItem(v)) : [new CoverageEligibilityResponseItem(value)];
             }
         });
 
@@ -158,12 +158,12 @@ class CoverageEligibilityResponseInsurance {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             coverage: this.coverage && this.coverage.toJSON(),
             inforce: this.inforce,
             benefitPeriod: this.benefitPeriod && this.benefitPeriod.toJSON(),
-            item: this.item && this.item.toJSON(),
+            item: this.item && this.item.map(v => v.toJSON()),
         };
     }
 }

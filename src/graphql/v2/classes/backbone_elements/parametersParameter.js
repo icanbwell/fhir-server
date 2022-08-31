@@ -44,7 +44,7 @@ class ParametersParameter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ParametersParameter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueBase64Binary = new base64Binary(value);
+                this.__data.valueBase64Binary = value;
             }
         });
 
@@ -134,9 +132,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueCanonical = new canonical(value);
+                this.__data.valueCanonical = value;
             }
         });
 
@@ -166,9 +162,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDate = new date(value);
+                this.__data.valueDate = value;
             }
         });
 
@@ -183,9 +177,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDateTime = new dateTime(value);
+                this.__data.valueDateTime = value;
             }
         });
 
@@ -200,9 +192,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDecimal = new decimal(value);
+                this.__data.valueDecimal = value;
             }
         });
 
@@ -217,9 +207,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueId = new id(value);
+                this.__data.valueId = value;
             }
         });
 
@@ -234,9 +222,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueInstant = new instant(value);
+                this.__data.valueInstant = value;
             }
         });
 
@@ -266,9 +252,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueMarkdown = new markdown(value);
+                this.__data.valueMarkdown = value;
             }
         });
 
@@ -283,9 +267,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let oid = require('../simple_types/oid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueOid = new oid(value);
+                this.__data.valueOid = value;
             }
         });
 
@@ -330,9 +312,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueTime = new time(value);
+                this.__data.valueTime = value;
             }
         });
 
@@ -347,9 +327,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueUnsignedInt = new unsignedInt(value);
+                this.__data.valueUnsignedInt = value;
             }
         });
 
@@ -364,9 +342,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueUri = new uri(value);
+                this.__data.valueUri = value;
             }
         });
 
@@ -381,9 +357,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueUrl = new url(value);
+                this.__data.valueUrl = value;
             }
         });
 
@@ -398,9 +372,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uuid = require('../simple_types/uuid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueUuid = new uuid(value);
+                this.__data.valueUuid = value;
             }
         });
 
@@ -911,9 +883,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.resource = new ResourceContainer(value);
+                this.__data.resource = value;
             }
         });
 
@@ -928,7 +898,7 @@ class ParametersParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.part = new ParametersParameter(value);
+                this.__data.part = Array.isArray(value) ? value.map(v => new ParametersParameter(v)) : [new ParametersParameter(value)];
             }
         });
 
@@ -948,28 +918,28 @@ class ParametersParameter {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
-            valueBase64Binary: this.valueBase64Binary && this.valueBase64Binary.toJSON(),
+            valueBase64Binary: this.valueBase64Binary,
             valueBoolean: this.valueBoolean,
-            valueCanonical: this.valueCanonical && this.valueCanonical.toJSON(),
-            valueCode: this.valueCode && this.valueCode.toJSON(),
-            valueDate: this.valueDate && this.valueDate.toJSON(),
-            valueDateTime: this.valueDateTime && this.valueDateTime.toJSON(),
-            valueDecimal: this.valueDecimal && this.valueDecimal.toJSON(),
-            valueId: this.valueId && this.valueId.toJSON(),
-            valueInstant: this.valueInstant && this.valueInstant.toJSON(),
+            valueCanonical: this.valueCanonical,
+            valueCode: this.valueCode,
+            valueDate: this.valueDate,
+            valueDateTime: this.valueDateTime,
+            valueDecimal: this.valueDecimal,
+            valueId: this.valueId,
+            valueInstant: this.valueInstant,
             valueInteger: this.valueInteger,
-            valueMarkdown: this.valueMarkdown && this.valueMarkdown.toJSON(),
-            valueOid: this.valueOid && this.valueOid.toJSON(),
+            valueMarkdown: this.valueMarkdown,
+            valueOid: this.valueOid,
             valuePositiveInt: this.valuePositiveInt,
             valueString: this.valueString,
-            valueTime: this.valueTime && this.valueTime.toJSON(),
-            valueUnsignedInt: this.valueUnsignedInt && this.valueUnsignedInt.toJSON(),
-            valueUri: this.valueUri && this.valueUri.toJSON(),
-            valueUrl: this.valueUrl && this.valueUrl.toJSON(),
-            valueUuid: this.valueUuid && this.valueUuid.toJSON(),
+            valueTime: this.valueTime,
+            valueUnsignedInt: this.valueUnsignedInt,
+            valueUri: this.valueUri,
+            valueUrl: this.valueUrl,
+            valueUuid: this.valueUuid,
             valueAddress: this.valueAddress && this.valueAddress.toJSON(),
             valueAge: this.valueAge && this.valueAge.toJSON(),
             valueAnnotation: this.valueAnnotation && this.valueAnnotation.toJSON(),
@@ -1001,8 +971,8 @@ class ParametersParameter {
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSON(),
             valueDosage: this.valueDosage && this.valueDosage.toJSON(),
             valueMeta: this.valueMeta && this.valueMeta.toJSON(),
-            resource: this.resource && this.resource.toJSON(),
-            part: this.part && this.part.toJSON(),
+            resource: this.resource,
+            part: this.part && this.part.map(v => v.toJSON()),
         };
     }
 }

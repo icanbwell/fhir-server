@@ -42,7 +42,7 @@ class InsurancePlanCoverage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class InsurancePlanCoverage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,7 +103,7 @@ class InsurancePlanCoverage {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.network = new Reference(value);
+                this.__data.network = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class InsurancePlanCoverage {
                     return;
                 }
                 let InsurancePlanBenefit = require('../backbone_elements/insurancePlanBenefit.js');
-                this.__data.benefit = new InsurancePlanBenefit(value);
+                this.__data.benefit = Array.isArray(value) ? value.map(v => new InsurancePlanBenefit(v)) : [new InsurancePlanBenefit(value)];
             }
         });
 
@@ -139,11 +139,11 @@ class InsurancePlanCoverage {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            network: this.network && this.network.toJSON(),
-            benefit: this.benefit && this.benefit.toJSON(),
+            network: this.network && this.network.map(v => v.toJSON()),
+            benefit: this.benefit && this.benefit.map(v => v.toJSON()),
         };
     }
 }

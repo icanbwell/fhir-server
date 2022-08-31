@@ -45,7 +45,7 @@ class MarketingStatus {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class MarketingStatus {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,9 +167,7 @@ class MarketingStatus {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.restoreDate = new dateTime(value);
+                this.__data.restoreDate = value;
             }
         });
 
@@ -189,13 +187,13 @@ class MarketingStatus {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             country: this.country && this.country.toJSON(),
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
             status: this.status && this.status.toJSON(),
             dateRange: this.dateRange && this.dateRange.toJSON(),
-            restoreDate: this.restoreDate && this.restoreDate.toJSON(),
+            restoreDate: this.restoreDate,
         };
     }
 }

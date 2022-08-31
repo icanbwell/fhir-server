@@ -44,7 +44,7 @@ class ContactDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -76,7 +76,7 @@ class ContactDetail {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = new ContactPoint(value);
+                this.__data.telecom = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -96,9 +96,9 @@ class ContactDetail {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
             name: this.name,
-            telecom: this.telecom && this.telecom.toJSON(),
+            telecom: this.telecom && this.telecom.map(v => v.toJSON()),
         };
     }
 }

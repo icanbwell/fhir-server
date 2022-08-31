@@ -45,7 +45,7 @@ class ValueSetCompose {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ValueSetCompose {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -90,9 +90,7 @@ class ValueSetCompose {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.lockedDate = new date(value);
+                this.__data.lockedDate = value;
             }
         });
 
@@ -128,7 +126,7 @@ class ValueSetCompose {
                     return;
                 }
                 let ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
-                this.__data.include = new ValueSetInclude(value);
+                this.__data.include = Array.isArray(value) ? value.map(v => new ValueSetInclude(v)) : [new ValueSetInclude(value)];
             }
         });
 
@@ -145,7 +143,7 @@ class ValueSetCompose {
                     return;
                 }
                 let ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
-                this.__data.exclude = new ValueSetInclude(value);
+                this.__data.exclude = Array.isArray(value) ? value.map(v => new ValueSetInclude(v)) : [new ValueSetInclude(value)];
             }
         });
 
@@ -165,12 +163,12 @@ class ValueSetCompose {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            lockedDate: this.lockedDate && this.lockedDate.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            lockedDate: this.lockedDate,
             inactive: this.inactive,
-            include: this.include && this.include.toJSON(),
-            exclude: this.exclude && this.exclude.toJSON(),
+            include: this.include && this.include.map(v => v.toJSON()),
+            exclude: this.exclude && this.exclude.map(v => v.toJSON()),
         };
     }
 }

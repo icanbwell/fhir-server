@@ -42,7 +42,7 @@ class MedicationKnowledgePatientCharacteristics {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicationKnowledgePatientCharacteristics {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -117,7 +117,7 @@ class MedicationKnowledgePatientCharacteristics {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.value = value;
+                this.__data.value = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -137,8 +137,8 @@ class MedicationKnowledgePatientCharacteristics {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             characteristicCodeableConcept: this.characteristicCodeableConcept && this.characteristicCodeableConcept.toJSON(),
             characteristicQuantity: this.characteristicQuantity && this.characteristicQuantity.toJSON(),
             value: this.value,

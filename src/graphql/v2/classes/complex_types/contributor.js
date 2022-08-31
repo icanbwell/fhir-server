@@ -45,7 +45,7 @@ class Contributor {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -92,7 +92,7 @@ class Contributor {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = new ContactDetail(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new ContactDetail(v)) : [new ContactDetail(value)];
             }
         });
 
@@ -112,10 +112,10 @@ class Contributor {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            type: this.type && this.type.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            type: this.type,
             name: this.name,
-            contact: this.contact && this.contact.toJSON(),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
         };
     }
 }

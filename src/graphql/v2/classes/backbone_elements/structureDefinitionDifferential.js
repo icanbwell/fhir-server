@@ -44,7 +44,7 @@ class StructureDefinitionDifferential {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class StructureDefinitionDifferential {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,7 +88,7 @@ class StructureDefinitionDifferential {
                     return;
                 }
                 let ElementDefinition = require('../backbone_elements/elementDefinition.js');
-                this.__data.element = new ElementDefinition(value);
+                this.__data.element = Array.isArray(value) ? value.map(v => new ElementDefinition(v)) : [new ElementDefinition(value)];
             }
         });
 
@@ -108,9 +108,9 @@ class StructureDefinitionDifferential {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            element: this.element && this.element.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            element: this.element && this.element.map(v => v.toJSON()),
         };
     }
 }

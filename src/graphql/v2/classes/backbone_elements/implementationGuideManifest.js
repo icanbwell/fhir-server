@@ -45,7 +45,7 @@ class ImplementationGuideManifest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ImplementationGuideManifest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -89,9 +89,7 @@ class ImplementationGuideManifest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.rendering = new url(value);
+                this.__data.rendering = value;
             }
         });
 
@@ -110,7 +108,7 @@ class ImplementationGuideManifest {
                     return;
                 }
                 let ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
-                this.__data.resource = new ImplementationGuideResource1(value);
+                this.__data.resource = Array.isArray(value) ? value.map(v => new ImplementationGuideResource1(v)) : [new ImplementationGuideResource1(value)];
             }
         });
 
@@ -126,7 +124,7 @@ class ImplementationGuideManifest {
                     return;
                 }
                 let ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
-                this.__data.page = new ImplementationGuidePage1(value);
+                this.__data.page = Array.isArray(value) ? value.map(v => new ImplementationGuidePage1(v)) : [new ImplementationGuidePage1(value)];
             }
         });
 
@@ -141,7 +139,7 @@ class ImplementationGuideManifest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.image = value;
+                this.__data.image = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -158,7 +156,7 @@ class ImplementationGuideManifest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.other = value;
+                this.__data.other = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -178,11 +176,11 @@ class ImplementationGuideManifest {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            rendering: this.rendering && this.rendering.toJSON(),
-            resource: this.resource && this.resource.toJSON(),
-            page: this.page && this.page.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            rendering: this.rendering,
+            resource: this.resource && this.resource.map(v => v.toJSON()),
+            page: this.page && this.page.map(v => v.toJSON()),
             image: this.image,
             other: this.other,
         };

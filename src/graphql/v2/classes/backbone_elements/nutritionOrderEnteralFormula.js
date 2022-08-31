@@ -43,7 +43,7 @@ class NutritionOrderEnteralFormula {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class NutritionOrderEnteralFormula {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -193,7 +193,7 @@ class NutritionOrderEnteralFormula {
                     return;
                 }
                 let NutritionOrderAdministration = require('../backbone_elements/nutritionOrderAdministration.js');
-                this.__data.administration = new NutritionOrderAdministration(value);
+                this.__data.administration = Array.isArray(value) ? value.map(v => new NutritionOrderAdministration(v)) : [new NutritionOrderAdministration(value)];
             }
         });
 
@@ -246,15 +246,15 @@ class NutritionOrderEnteralFormula {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             baseFormulaType: this.baseFormulaType && this.baseFormulaType.toJSON(),
             baseFormulaProductName: this.baseFormulaProductName,
             additiveType: this.additiveType && this.additiveType.toJSON(),
             additiveProductName: this.additiveProductName,
             caloricDensity: this.caloricDensity && this.caloricDensity.toJSON(),
             routeofAdministration: this.routeofAdministration && this.routeofAdministration.toJSON(),
-            administration: this.administration && this.administration.toJSON(),
+            administration: this.administration && this.administration.map(v => v.toJSON()),
             maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSON(),
             administrationInstruction: this.administrationInstruction,
         };

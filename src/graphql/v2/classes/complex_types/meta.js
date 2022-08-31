@@ -46,7 +46,7 @@ class Meta {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -62,9 +62,7 @@ class Meta {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.versionId = new id(value);
+                this.__data.versionId = value;
             }
         });
 
@@ -79,9 +77,7 @@ class Meta {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.lastUpdated = new instant(value);
+                this.__data.lastUpdated = value;
             }
         });
 
@@ -99,9 +95,7 @@ class Meta {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.source = new uri(value);
+                this.__data.source = value;
             }
         });
 
@@ -118,9 +112,7 @@ class Meta {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.profile = new canonical(value);
+                this.__data.profile = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -137,7 +129,7 @@ class Meta {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.security = new Coding(value);
+                this.__data.security = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -155,7 +147,7 @@ class Meta {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.tag = new Coding(value);
+                this.__data.tag = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -175,13 +167,13 @@ class Meta {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            versionId: this.versionId && this.versionId.toJSON(),
-            lastUpdated: this.lastUpdated && this.lastUpdated.toJSON(),
-            source: this.source && this.source.toJSON(),
-            profile: this.profile && this.profile.toJSON(),
-            security: this.security && this.security.toJSON(),
-            tag: this.tag && this.tag.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            versionId: this.versionId,
+            lastUpdated: this.lastUpdated,
+            source: this.source,
+            profile: this.profile,
+            security: this.security && this.security.map(v => v.toJSON()),
+            tag: this.tag && this.tag.map(v => v.toJSON()),
         };
     }
 }

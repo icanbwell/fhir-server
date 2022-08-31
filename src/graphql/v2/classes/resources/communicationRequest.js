@@ -26,9 +26,7 @@ class CommunicationRequest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class CommunicationRequest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class CommunicationRequest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -187,7 +181,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -203,7 +197,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = new Reference(value);
+                this.__data.basedOn = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -220,7 +214,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.replaces = new Reference(value);
+                this.__data.replaces = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -286,7 +280,7 @@ class CommunicationRequest {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -334,7 +328,7 @@ class CommunicationRequest {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.medium = new CodeableConcept(value);
+                this.__data.medium = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -367,7 +361,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.about = new Reference(value);
+                this.__data.about = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -400,7 +394,7 @@ class CommunicationRequest {
                     return;
                 }
                 let CommunicationRequestPayload = require('../backbone_elements/communicationRequestPayload.js');
-                this.__data.payload = new CommunicationRequestPayload(value);
+                this.__data.payload = Array.isArray(value) ? value.map(v => new CommunicationRequestPayload(v)) : [new CommunicationRequestPayload(value)];
             }
         });
 
@@ -415,9 +409,7 @@ class CommunicationRequest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.occurrenceDateTime = new dateTime(value);
+                this.__data.occurrenceDateTime = value;
             }
         });
 
@@ -449,9 +441,7 @@ class CommunicationRequest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.authoredOn = new dateTime(value);
+                this.__data.authoredOn = value;
             }
         });
 
@@ -485,7 +475,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.recipient = new Reference(value);
+                this.__data.recipient = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -518,7 +508,7 @@ class CommunicationRequest {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -534,7 +524,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -551,7 +541,7 @@ class CommunicationRequest {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -571,37 +561,37 @@ class CommunicationRequest {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            basedOn: this.basedOn && this.basedOn.toJSON(),
-            replaces: this.replaces && this.replaces.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
+            replaces: this.replaces && this.replaces.map(v => v.toJSON()),
             groupIdentifier: this.groupIdentifier && this.groupIdentifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             statusReason: this.statusReason && this.statusReason.toJSON(),
-            category: this.category && this.category.toJSON(),
-            priority: this.priority && this.priority.toJSON(),
+            category: this.category && this.category.map(v => v.toJSON()),
+            priority: this.priority,
             doNotPerform: this.doNotPerform,
-            medium: this.medium && this.medium.toJSON(),
+            medium: this.medium && this.medium.map(v => v.toJSON()),
             subject: this.subject && this.subject.toJSON(),
-            about: this.about && this.about.toJSON(),
+            about: this.about && this.about.map(v => v.toJSON()),
             encounter: this.encounter && this.encounter.toJSON(),
-            payload: this.payload && this.payload.toJSON(),
-            occurrenceDateTime: this.occurrenceDateTime && this.occurrenceDateTime.toJSON(),
+            payload: this.payload && this.payload.map(v => v.toJSON()),
+            occurrenceDateTime: this.occurrenceDateTime,
             occurrencePeriod: this.occurrencePeriod && this.occurrencePeriod.toJSON(),
-            authoredOn: this.authoredOn && this.authoredOn.toJSON(),
+            authoredOn: this.authoredOn,
             requester: this.requester && this.requester.toJSON(),
-            recipient: this.recipient && this.recipient.toJSON(),
+            recipient: this.recipient && this.recipient.map(v => v.toJSON()),
             sender: this.sender && this.sender.toJSON(),
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
-            note: this.note && this.note.toJSON(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
         };
     }
 }

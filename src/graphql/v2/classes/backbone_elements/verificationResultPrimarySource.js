@@ -43,7 +43,7 @@ class VerificationResultPrimarySource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class VerificationResultPrimarySource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -105,7 +105,7 @@ class VerificationResultPrimarySource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -121,7 +121,7 @@ class VerificationResultPrimarySource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.communicationMethod = new CodeableConcept(value);
+                this.__data.communicationMethod = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -153,9 +153,7 @@ class VerificationResultPrimarySource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.validationDate = new dateTime(value);
+                this.__data.validationDate = value;
             }
         });
 
@@ -188,7 +186,7 @@ class VerificationResultPrimarySource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.pushTypeAvailable = new CodeableConcept(value);
+                this.__data.pushTypeAvailable = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -208,15 +206,15 @@ class VerificationResultPrimarySource {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             who: this.who && this.who.toJSON(),
-            type: this.type && this.type.toJSON(),
-            communicationMethod: this.communicationMethod && this.communicationMethod.toJSON(),
+            type: this.type && this.type.map(v => v.toJSON()),
+            communicationMethod: this.communicationMethod && this.communicationMethod.map(v => v.toJSON()),
             validationStatus: this.validationStatus && this.validationStatus.toJSON(),
-            validationDate: this.validationDate && this.validationDate.toJSON(),
+            validationDate: this.validationDate,
             canPushUpdates: this.canPushUpdates && this.canPushUpdates.toJSON(),
-            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.toJSON(),
+            pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSON()),
         };
     }
 }

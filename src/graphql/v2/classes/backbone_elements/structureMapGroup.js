@@ -43,7 +43,7 @@ class StructureMapGroup {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class StructureMapGroup {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,9 +86,7 @@ class StructureMapGroup {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.name = new id(value);
+                this.__data.name = value;
             }
         });
 
@@ -103,9 +101,7 @@ class StructureMapGroup {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.extends = new id(value);
+                this.__data.extends = value;
             }
         });
 
@@ -154,7 +150,7 @@ class StructureMapGroup {
                     return;
                 }
                 let StructureMapInput = require('../backbone_elements/structureMapInput.js');
-                this.__data.input = new StructureMapInput(value);
+                this.__data.input = Array.isArray(value) ? value.map(v => new StructureMapInput(v)) : [new StructureMapInput(value)];
             }
         });
 
@@ -170,7 +166,7 @@ class StructureMapGroup {
                     return;
                 }
                 let StructureMapRule = require('../backbone_elements/structureMapRule.js');
-                this.__data.rule = new StructureMapRule(value);
+                this.__data.rule = Array.isArray(value) ? value.map(v => new StructureMapRule(v)) : [new StructureMapRule(value)];
             }
         });
 
@@ -190,14 +186,14 @@ class StructureMapGroup {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            name: this.name && this.name.toJSON(),
-            extends: this.extends && this.extends.toJSON(),
-            typeMode: this.typeMode && this.typeMode.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            name: this.name,
+            extends: this.extends,
+            typeMode: this.typeMode,
             documentation: this.documentation,
-            input: this.input && this.input.toJSON(),
-            rule: this.rule && this.rule.toJSON(),
+            input: this.input && this.input.map(v => v.toJSON()),
+            rule: this.rule && this.rule.map(v => v.toJSON()),
         };
     }
 }

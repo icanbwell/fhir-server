@@ -44,7 +44,7 @@ class GraphDefinitionLink {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class GraphDefinitionLink {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -163,7 +163,7 @@ class GraphDefinitionLink {
                     return;
                 }
                 let GraphDefinitionTarget = require('../backbone_elements/graphDefinitionTarget.js');
-                this.__data.target = new GraphDefinitionTarget(value);
+                this.__data.target = Array.isArray(value) ? value.map(v => new GraphDefinitionTarget(v)) : [new GraphDefinitionTarget(value)];
             }
         });
 
@@ -183,14 +183,14 @@ class GraphDefinitionLink {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             path: this.path,
             sliceName: this.sliceName,
             min: this.min,
             max: this.max,
             description: this.description,
-            target: this.target && this.target.toJSON(),
+            target: this.target && this.target.map(v => v.toJSON()),
         };
     }
 }

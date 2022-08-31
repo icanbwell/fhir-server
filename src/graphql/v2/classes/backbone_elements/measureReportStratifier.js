@@ -44,7 +44,7 @@ class MeasureReportStratifier {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class MeasureReportStratifier {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,7 +88,7 @@ class MeasureReportStratifier {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -106,7 +106,7 @@ class MeasureReportStratifier {
                     return;
                 }
                 let MeasureReportStratum = require('../backbone_elements/measureReportStratum.js');
-                this.__data.stratum = new MeasureReportStratum(value);
+                this.__data.stratum = Array.isArray(value) ? value.map(v => new MeasureReportStratum(v)) : [new MeasureReportStratum(value)];
             }
         });
 
@@ -126,10 +126,10 @@ class MeasureReportStratifier {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            code: this.code && this.code.toJSON(),
-            stratum: this.stratum && this.stratum.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            code: this.code && this.code.map(v => v.toJSON()),
+            stratum: this.stratum && this.stratum.map(v => v.toJSON()),
         };
     }
 }

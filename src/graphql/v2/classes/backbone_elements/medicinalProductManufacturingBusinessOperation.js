@@ -43,7 +43,7 @@ class MedicinalProductManufacturingBusinessOperation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class MedicinalProductManufacturingBusinessOperation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -118,9 +118,7 @@ class MedicinalProductManufacturingBusinessOperation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.effectiveDate = new dateTime(value);
+                this.__data.effectiveDate = value;
             }
         });
 
@@ -152,7 +150,7 @@ class MedicinalProductManufacturingBusinessOperation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.manufacturer = new Reference(value);
+                this.__data.manufacturer = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -188,13 +186,13 @@ class MedicinalProductManufacturingBusinessOperation {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             operationType: this.operationType && this.operationType.toJSON(),
             authorisationReferenceNumber: this.authorisationReferenceNumber && this.authorisationReferenceNumber.toJSON(),
-            effectiveDate: this.effectiveDate && this.effectiveDate.toJSON(),
+            effectiveDate: this.effectiveDate,
             confidentialityIndicator: this.confidentialityIndicator && this.confidentialityIndicator.toJSON(),
-            manufacturer: this.manufacturer && this.manufacturer.toJSON(),
+            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
             regulator: this.regulator && this.regulator.toJSON(),
         };
     }

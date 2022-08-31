@@ -27,9 +27,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -65,9 +63,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -120,9 +116,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -142,7 +136,7 @@ class CapabilityStatement {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -170,7 +164,7 @@ class CapabilityStatement {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -191,9 +185,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.url = new uri(value);
+                this.__data.url = value;
             }
         });
 
@@ -296,9 +288,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.date = new dateTime(value);
+                this.__data.date = value;
             }
         });
 
@@ -331,7 +321,7 @@ class CapabilityStatement {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = new ContactDetail(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new ContactDetail(v)) : [new ContactDetail(value)];
             }
         });
 
@@ -349,9 +339,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.description = new markdown(value);
+                this.__data.description = value;
             }
         });
 
@@ -371,7 +359,7 @@ class CapabilityStatement {
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = new UsageContext(value);
+                this.__data.useContext = Array.isArray(value) ? value.map(v => new UsageContext(v)) : [new UsageContext(value)];
             }
         });
 
@@ -388,7 +376,7 @@ class CapabilityStatement {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = new CodeableConcept(value);
+                this.__data.jurisdiction = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -404,9 +392,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.purpose = new markdown(value);
+                this.__data.purpose = value;
             }
         });
 
@@ -423,9 +409,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.copyright = new markdown(value);
+                this.__data.copyright = value;
             }
         });
 
@@ -461,9 +445,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiates = new canonical(value);
+                this.__data.instantiates = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -481,9 +463,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.imports = new canonical(value);
+                this.__data.imports = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -552,7 +532,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.format = value;
+                this.__data.format = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -568,7 +548,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.patchFormat = value;
+                this.__data.patchFormat = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -584,9 +564,7 @@ class CapabilityStatement {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implementationGuide = new canonical(value);
+                this.__data.implementationGuide = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -602,7 +580,7 @@ class CapabilityStatement {
                     return;
                 }
                 let CapabilityStatementRest = require('../backbone_elements/capabilityStatementRest.js');
-                this.__data.rest = new CapabilityStatementRest(value);
+                this.__data.rest = Array.isArray(value) ? value.map(v => new CapabilityStatementRest(v)) : [new CapabilityStatementRest(value)];
             }
         });
 
@@ -618,7 +596,7 @@ class CapabilityStatement {
                     return;
                 }
                 let CapabilityStatementMessaging = require('../backbone_elements/capabilityStatementMessaging.js');
-                this.__data.messaging = new CapabilityStatementMessaging(value);
+                this.__data.messaging = Array.isArray(value) ? value.map(v => new CapabilityStatementMessaging(v)) : [new CapabilityStatementMessaging(value)];
             }
         });
 
@@ -634,7 +612,7 @@ class CapabilityStatement {
                     return;
                 }
                 let CapabilityStatementDocument = require('../backbone_elements/capabilityStatementDocument.js');
-                this.__data.document = new CapabilityStatementDocument(value);
+                this.__data.document = Array.isArray(value) ? value.map(v => new CapabilityStatementDocument(v)) : [new CapabilityStatementDocument(value)];
             }
         });
 
@@ -654,40 +632,40 @@ class CapabilityStatement {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            url: this.url && this.url.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            url: this.url,
             version: this.version,
             name: this.name,
             title: this.title,
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             experimental: this.experimental,
-            date: this.date && this.date.toJSON(),
+            date: this.date,
             publisher: this.publisher,
-            contact: this.contact && this.contact.toJSON(),
-            description: this.description && this.description.toJSON(),
-            useContext: this.useContext && this.useContext.toJSON(),
-            jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
-            purpose: this.purpose && this.purpose.toJSON(),
-            copyright: this.copyright && this.copyright.toJSON(),
-            kind: this.kind && this.kind.toJSON(),
-            instantiates: this.instantiates && this.instantiates.toJSON(),
-            imports: this.imports && this.imports.toJSON(),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
+            description: this.description,
+            useContext: this.useContext && this.useContext.map(v => v.toJSON()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
+            purpose: this.purpose,
+            copyright: this.copyright,
+            kind: this.kind,
+            instantiates: this.instantiates,
+            imports: this.imports,
             software: this.software && this.software.toJSON(),
             implementation: this.implementation && this.implementation.toJSON(),
-            fhirVersion: this.fhirVersion && this.fhirVersion.toJSON(),
-            format: this.format && this.format.toJSON(),
-            patchFormat: this.patchFormat && this.patchFormat.toJSON(),
-            implementationGuide: this.implementationGuide && this.implementationGuide.toJSON(),
-            rest: this.rest && this.rest.toJSON(),
-            messaging: this.messaging && this.messaging.toJSON(),
-            document: this.document && this.document.toJSON(),
+            fhirVersion: this.fhirVersion,
+            format: this.format,
+            patchFormat: this.patchFormat,
+            implementationGuide: this.implementationGuide,
+            rest: this.rest && this.rest.map(v => v.toJSON()),
+            messaging: this.messaging && this.messaging.map(v => v.toJSON()),
+            document: this.document && this.document.map(v => v.toJSON()),
         };
     }
 }

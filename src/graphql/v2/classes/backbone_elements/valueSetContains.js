@@ -45,7 +45,7 @@ class ValueSetContains {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ValueSetContains {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -89,9 +89,7 @@ class ValueSetContains {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.system = new uri(value);
+                this.__data.system = value;
             }
         });
 
@@ -195,7 +193,7 @@ class ValueSetContains {
                     return;
                 }
                 let ValueSetDesignation = require('../backbone_elements/valueSetDesignation.js');
-                this.__data.designation = new ValueSetDesignation(value);
+                this.__data.designation = Array.isArray(value) ? value.map(v => new ValueSetDesignation(v)) : [new ValueSetDesignation(value)];
             }
         });
 
@@ -210,7 +208,7 @@ class ValueSetContains {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.contains = new ValueSetContains(value);
+                this.__data.contains = Array.isArray(value) ? value.map(v => new ValueSetContains(v)) : [new ValueSetContains(value)];
             }
         });
 
@@ -230,16 +228,16 @@ class ValueSetContains {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            system: this.system && this.system.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            system: this.system,
             abstract: this.abstract,
             inactive: this.inactive,
             version: this.version,
-            code: this.code && this.code.toJSON(),
+            code: this.code,
             display: this.display,
-            designation: this.designation && this.designation.toJSON(),
-            contains: this.contains && this.contains.toJSON(),
+            designation: this.designation && this.designation.map(v => v.toJSON()),
+            contains: this.contains && this.contains.map(v => v.toJSON()),
         };
     }
 }

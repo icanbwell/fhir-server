@@ -25,9 +25,7 @@ class NutritionOrder {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class NutritionOrder {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class NutritionOrder {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class NutritionOrder {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class NutritionOrder {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,7 +179,7 @@ class NutritionOrder {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -201,9 +195,7 @@ class NutritionOrder {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiatesCanonical = new canonical(value);
+                this.__data.instantiatesCanonical = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -220,9 +212,7 @@ class NutritionOrder {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiatesUri = new uri(value);
+                this.__data.instantiatesUri = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -238,9 +228,7 @@ class NutritionOrder {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiates = new uri(value);
+                this.__data.instantiates = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -320,9 +308,7 @@ class NutritionOrder {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.dateTime = new dateTime(value);
+                this.__data.dateTime = value;
             }
         });
 
@@ -356,7 +342,7 @@ class NutritionOrder {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.allergyIntolerance = new Reference(value);
+                this.__data.allergyIntolerance = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -376,7 +362,7 @@ class NutritionOrder {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.foodPreferenceModifier = new CodeableConcept(value);
+                this.__data.foodPreferenceModifier = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -401,7 +387,7 @@ class NutritionOrder {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.excludeFoodModifier = new CodeableConcept(value);
+                this.__data.excludeFoodModifier = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -434,7 +420,7 @@ class NutritionOrder {
                     return;
                 }
                 let NutritionOrderSupplement = require('../backbone_elements/nutritionOrderSupplement.js');
-                this.__data.supplement = new NutritionOrderSupplement(value);
+                this.__data.supplement = Array.isArray(value) ? value.map(v => new NutritionOrderSupplement(v)) : [new NutritionOrderSupplement(value)];
             }
         });
 
@@ -468,7 +454,7 @@ class NutritionOrder {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -488,31 +474,31 @@ class NutritionOrder {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            instantiatesCanonical: this.instantiatesCanonical && this.instantiatesCanonical.toJSON(),
-            instantiatesUri: this.instantiatesUri && this.instantiatesUri.toJSON(),
-            instantiates: this.instantiates && this.instantiates.toJSON(),
-            status: this.status && this.status.toJSON(),
-            intent: this.intent && this.intent.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
+            instantiates: this.instantiates,
+            status: this.status,
+            intent: this.intent,
             patient: this.patient && this.patient.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            dateTime: this.dateTime && this.dateTime.toJSON(),
+            dateTime: this.dateTime,
             orderer: this.orderer && this.orderer.toJSON(),
-            allergyIntolerance: this.allergyIntolerance && this.allergyIntolerance.toJSON(),
-            foodPreferenceModifier: this.foodPreferenceModifier && this.foodPreferenceModifier.toJSON(),
-            excludeFoodModifier: this.excludeFoodModifier && this.excludeFoodModifier.toJSON(),
+            allergyIntolerance: this.allergyIntolerance && this.allergyIntolerance.map(v => v.toJSON()),
+            foodPreferenceModifier: this.foodPreferenceModifier && this.foodPreferenceModifier.map(v => v.toJSON()),
+            excludeFoodModifier: this.excludeFoodModifier && this.excludeFoodModifier.map(v => v.toJSON()),
             oralDiet: this.oralDiet && this.oralDiet.toJSON(),
-            supplement: this.supplement && this.supplement.toJSON(),
+            supplement: this.supplement && this.supplement.map(v => v.toJSON()),
             enteralFormula: this.enteralFormula && this.enteralFormula.toJSON(),
-            note: this.note && this.note.toJSON(),
+            note: this.note && this.note.map(v => v.toJSON()),
         };
     }
 }

@@ -45,7 +45,7 @@ class ImplementationGuideDependsOn {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ImplementationGuideDependsOn {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,9 +88,7 @@ class ImplementationGuideDependsOn {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.uri = new canonical(value);
+                this.__data.uri = value;
             }
         });
 
@@ -105,9 +103,7 @@ class ImplementationGuideDependsOn {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.packageId = new id(value);
+                this.__data.packageId = value;
             }
         });
 
@@ -143,10 +139,10 @@ class ImplementationGuideDependsOn {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            uri: this.uri && this.uri.toJSON(),
-            packageId: this.packageId && this.packageId.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            uri: this.uri,
+            packageId: this.packageId,
             version: this.version,
         };
     }

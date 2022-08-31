@@ -24,9 +24,7 @@ class MedicationKnowledge {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class MedicationKnowledge {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -117,9 +113,7 @@ class MedicationKnowledge {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,7 +133,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +161,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -272,7 +266,7 @@ class MedicationKnowledge {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.synonym = value;
+                this.__data.synonym = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -288,7 +282,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeRelatedMedicationKnowledge = require('../backbone_elements/medicationKnowledgeRelatedMedicationKnowledge.js');
-                this.__data.relatedMedicationKnowledge = new MedicationKnowledgeRelatedMedicationKnowledge(value);
+                this.__data.relatedMedicationKnowledge = Array.isArray(value) ? value.map(v => new MedicationKnowledgeRelatedMedicationKnowledge(v)) : [new MedicationKnowledgeRelatedMedicationKnowledge(value)];
             }
         });
 
@@ -307,7 +301,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.associatedMedication = new Reference(value);
+                this.__data.associatedMedication = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -324,7 +318,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.productType = new CodeableConcept(value);
+                this.__data.productType = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -340,7 +334,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeMonograph = require('../backbone_elements/medicationKnowledgeMonograph.js');
-                this.__data.monograph = new MedicationKnowledgeMonograph(value);
+                this.__data.monograph = Array.isArray(value) ? value.map(v => new MedicationKnowledgeMonograph(v)) : [new MedicationKnowledgeMonograph(value)];
             }
         });
 
@@ -356,7 +350,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeIngredient = require('../backbone_elements/medicationKnowledgeIngredient.js');
-                this.__data.ingredient = new MedicationKnowledgeIngredient(value);
+                this.__data.ingredient = Array.isArray(value) ? value.map(v => new MedicationKnowledgeIngredient(v)) : [new MedicationKnowledgeIngredient(value)];
             }
         });
 
@@ -371,9 +365,7 @@ class MedicationKnowledge {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.preparationInstruction = new markdown(value);
+                this.__data.preparationInstruction = value;
             }
         });
 
@@ -389,7 +381,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.intendedRoute = new CodeableConcept(value);
+                this.__data.intendedRoute = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -405,7 +397,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeCost = require('../backbone_elements/medicationKnowledgeCost.js');
-                this.__data.cost = new MedicationKnowledgeCost(value);
+                this.__data.cost = Array.isArray(value) ? value.map(v => new MedicationKnowledgeCost(v)) : [new MedicationKnowledgeCost(value)];
             }
         });
 
@@ -421,7 +413,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeMonitoringProgram = require('../backbone_elements/medicationKnowledgeMonitoringProgram.js');
-                this.__data.monitoringProgram = new MedicationKnowledgeMonitoringProgram(value);
+                this.__data.monitoringProgram = Array.isArray(value) ? value.map(v => new MedicationKnowledgeMonitoringProgram(v)) : [new MedicationKnowledgeMonitoringProgram(value)];
             }
         });
 
@@ -437,7 +429,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeAdministrationGuidelines = require('../backbone_elements/medicationKnowledgeAdministrationGuidelines.js');
-                this.__data.administrationGuidelines = new MedicationKnowledgeAdministrationGuidelines(value);
+                this.__data.administrationGuidelines = Array.isArray(value) ? value.map(v => new MedicationKnowledgeAdministrationGuidelines(v)) : [new MedicationKnowledgeAdministrationGuidelines(value)];
             }
         });
 
@@ -453,7 +445,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeMedicineClassification = require('../backbone_elements/medicationKnowledgeMedicineClassification.js');
-                this.__data.medicineClassification = new MedicationKnowledgeMedicineClassification(value);
+                this.__data.medicineClassification = Array.isArray(value) ? value.map(v => new MedicationKnowledgeMedicineClassification(v)) : [new MedicationKnowledgeMedicineClassification(value)];
             }
         });
 
@@ -486,7 +478,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeDrugCharacteristic = require('../backbone_elements/medicationKnowledgeDrugCharacteristic.js');
-                this.__data.drugCharacteristic = new MedicationKnowledgeDrugCharacteristic(value);
+                this.__data.drugCharacteristic = Array.isArray(value) ? value.map(v => new MedicationKnowledgeDrugCharacteristic(v)) : [new MedicationKnowledgeDrugCharacteristic(value)];
             }
         });
 
@@ -503,7 +495,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.contraindication = new Reference(value);
+                this.__data.contraindication = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -519,7 +511,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeRegulatory = require('../backbone_elements/medicationKnowledgeRegulatory.js');
-                this.__data.regulatory = new MedicationKnowledgeRegulatory(value);
+                this.__data.regulatory = Array.isArray(value) ? value.map(v => new MedicationKnowledgeRegulatory(v)) : [new MedicationKnowledgeRegulatory(value)];
             }
         });
 
@@ -536,7 +528,7 @@ class MedicationKnowledge {
                     return;
                 }
                 let MedicationKnowledgeKinetics = require('../backbone_elements/medicationKnowledgeKinetics.js');
-                this.__data.kinetics = new MedicationKnowledgeKinetics(value);
+                this.__data.kinetics = Array.isArray(value) ? value.map(v => new MedicationKnowledgeKinetics(v)) : [new MedicationKnowledgeKinetics(value)];
             }
         });
 
@@ -556,36 +548,36 @@ class MedicationKnowledge {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             manufacturer: this.manufacturer && this.manufacturer.toJSON(),
             doseForm: this.doseForm && this.doseForm.toJSON(),
             amount: this.amount && this.amount.toJSON(),
             synonym: this.synonym,
-            relatedMedicationKnowledge: this.relatedMedicationKnowledge && this.relatedMedicationKnowledge.toJSON(),
-            associatedMedication: this.associatedMedication && this.associatedMedication.toJSON(),
-            productType: this.productType && this.productType.toJSON(),
-            monograph: this.monograph && this.monograph.toJSON(),
-            ingredient: this.ingredient && this.ingredient.toJSON(),
-            preparationInstruction: this.preparationInstruction && this.preparationInstruction.toJSON(),
-            intendedRoute: this.intendedRoute && this.intendedRoute.toJSON(),
-            cost: this.cost && this.cost.toJSON(),
-            monitoringProgram: this.monitoringProgram && this.monitoringProgram.toJSON(),
-            administrationGuidelines: this.administrationGuidelines && this.administrationGuidelines.toJSON(),
-            medicineClassification: this.medicineClassification && this.medicineClassification.toJSON(),
+            relatedMedicationKnowledge: this.relatedMedicationKnowledge && this.relatedMedicationKnowledge.map(v => v.toJSON()),
+            associatedMedication: this.associatedMedication && this.associatedMedication.map(v => v.toJSON()),
+            productType: this.productType && this.productType.map(v => v.toJSON()),
+            monograph: this.monograph && this.monograph.map(v => v.toJSON()),
+            ingredient: this.ingredient && this.ingredient.map(v => v.toJSON()),
+            preparationInstruction: this.preparationInstruction,
+            intendedRoute: this.intendedRoute && this.intendedRoute.map(v => v.toJSON()),
+            cost: this.cost && this.cost.map(v => v.toJSON()),
+            monitoringProgram: this.monitoringProgram && this.monitoringProgram.map(v => v.toJSON()),
+            administrationGuidelines: this.administrationGuidelines && this.administrationGuidelines.map(v => v.toJSON()),
+            medicineClassification: this.medicineClassification && this.medicineClassification.map(v => v.toJSON()),
             packaging: this.packaging && this.packaging.toJSON(),
-            drugCharacteristic: this.drugCharacteristic && this.drugCharacteristic.toJSON(),
-            contraindication: this.contraindication && this.contraindication.toJSON(),
-            regulatory: this.regulatory && this.regulatory.toJSON(),
-            kinetics: this.kinetics && this.kinetics.toJSON(),
+            drugCharacteristic: this.drugCharacteristic && this.drugCharacteristic.map(v => v.toJSON()),
+            contraindication: this.contraindication && this.contraindication.map(v => v.toJSON()),
+            regulatory: this.regulatory && this.regulatory.map(v => v.toJSON()),
+            kinetics: this.kinetics && this.kinetics.map(v => v.toJSON()),
         };
     }
 }

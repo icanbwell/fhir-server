@@ -42,7 +42,7 @@ class InsurancePlanPlan {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class InsurancePlanPlan {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -87,7 +87,7 @@ class InsurancePlanPlan {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class InsurancePlanPlan {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.coverageArea = new Reference(value);
+                this.__data.coverageArea = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -135,7 +135,7 @@ class InsurancePlanPlan {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.network = new Reference(value);
+                this.__data.network = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -151,7 +151,7 @@ class InsurancePlanPlan {
                     return;
                 }
                 let InsurancePlanGeneralCost = require('../backbone_elements/insurancePlanGeneralCost.js');
-                this.__data.generalCost = new InsurancePlanGeneralCost(value);
+                this.__data.generalCost = Array.isArray(value) ? value.map(v => new InsurancePlanGeneralCost(v)) : [new InsurancePlanGeneralCost(value)];
             }
         });
 
@@ -167,7 +167,7 @@ class InsurancePlanPlan {
                     return;
                 }
                 let InsurancePlanSpecificCost = require('../backbone_elements/insurancePlanSpecificCost.js');
-                this.__data.specificCost = new InsurancePlanSpecificCost(value);
+                this.__data.specificCost = Array.isArray(value) ? value.map(v => new InsurancePlanSpecificCost(v)) : [new InsurancePlanSpecificCost(value)];
             }
         });
 
@@ -187,14 +187,14 @@ class InsurancePlanPlan {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            coverageArea: this.coverageArea && this.coverageArea.toJSON(),
-            network: this.network && this.network.toJSON(),
-            generalCost: this.generalCost && this.generalCost.toJSON(),
-            specificCost: this.specificCost && this.specificCost.toJSON(),
+            coverageArea: this.coverageArea && this.coverageArea.map(v => v.toJSON()),
+            network: this.network && this.network.map(v => v.toJSON()),
+            generalCost: this.generalCost && this.generalCost.map(v => v.toJSON()),
+            specificCost: this.specificCost && this.specificCost.map(v => v.toJSON()),
         };
     }
 }

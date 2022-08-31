@@ -45,7 +45,7 @@ class CodeableConcept {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -61,7 +61,7 @@ class CodeableConcept {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.coding = new Coding(value);
+                this.__data.coding = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -98,8 +98,8 @@ class CodeableConcept {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            coding: this.coding && this.coding.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            coding: this.coding && this.coding.map(v => v.toJSON()),
             text: this.text,
         };
     }

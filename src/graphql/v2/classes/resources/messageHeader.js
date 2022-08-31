@@ -28,9 +28,7 @@ class MessageHeader {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -66,9 +64,7 @@ class MessageHeader {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -121,9 +117,7 @@ class MessageHeader {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -143,7 +137,7 @@ class MessageHeader {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -171,7 +165,7 @@ class MessageHeader {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -202,9 +196,7 @@ class MessageHeader {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.eventUri = new uri(value);
+                this.__data.eventUri = value;
             }
         });
 
@@ -220,7 +212,7 @@ class MessageHeader {
                     return;
                 }
                 let MessageHeaderDestination = require('../backbone_elements/messageHeaderDestination.js');
-                this.__data.destination = new MessageHeaderDestination(value);
+                this.__data.destination = Array.isArray(value) ? value.map(v => new MessageHeaderDestination(v)) : [new MessageHeaderDestination(value)];
             }
         });
 
@@ -357,7 +349,7 @@ class MessageHeader {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.focus = new Reference(value);
+                this.__data.focus = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -372,9 +364,7 @@ class MessageHeader {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definition = new canonical(value);
+                this.__data.definition = value;
             }
         });
 
@@ -394,17 +384,17 @@ class MessageHeader {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             eventCoding: this.eventCoding && this.eventCoding.toJSON(),
-            eventUri: this.eventUri && this.eventUri.toJSON(),
-            destination: this.destination && this.destination.toJSON(),
+            eventUri: this.eventUri,
+            destination: this.destination && this.destination.map(v => v.toJSON()),
             sender: this.sender && this.sender.toJSON(),
             enterer: this.enterer && this.enterer.toJSON(),
             author: this.author && this.author.toJSON(),
@@ -412,8 +402,8 @@ class MessageHeader {
             responsible: this.responsible && this.responsible.toJSON(),
             reason: this.reason && this.reason.toJSON(),
             response: this.response && this.response.toJSON(),
-            focus: this.focus && this.focus.toJSON(),
-            definition: this.definition && this.definition.toJSON(),
+            focus: this.focus && this.focus.map(v => v.toJSON()),
+            definition: this.definition,
         };
     }
 }

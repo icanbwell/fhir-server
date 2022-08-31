@@ -44,7 +44,7 @@ class ConceptMapTarget {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ConceptMapTarget {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -154,7 +154,7 @@ class ConceptMapTarget {
                     return;
                 }
                 let ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
-                this.__data.dependsOn = new ConceptMapDependsOn(value);
+                this.__data.dependsOn = Array.isArray(value) ? value.map(v => new ConceptMapDependsOn(v)) : [new ConceptMapDependsOn(value)];
             }
         });
 
@@ -174,7 +174,7 @@ class ConceptMapTarget {
                     return;
                 }
                 let ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
-                this.__data.product = new ConceptMapDependsOn(value);
+                this.__data.product = Array.isArray(value) ? value.map(v => new ConceptMapDependsOn(v)) : [new ConceptMapDependsOn(value)];
             }
         });
 
@@ -194,14 +194,14 @@ class ConceptMapTarget {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            code: this.code && this.code.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            code: this.code,
             display: this.display,
-            equivalence: this.equivalence && this.equivalence.toJSON(),
+            equivalence: this.equivalence,
             comment: this.comment,
-            dependsOn: this.dependsOn && this.dependsOn.toJSON(),
-            product: this.product && this.product.toJSON(),
+            dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSON()),
+            product: this.product && this.product.map(v => v.toJSON()),
         };
     }
 }

@@ -45,7 +45,7 @@ class CapabilityStatementSecurity {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class CapabilityStatementSecurity {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -105,7 +105,7 @@ class CapabilityStatementSecurity {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.service = new CodeableConcept(value);
+                this.__data.service = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -120,9 +120,7 @@ class CapabilityStatementSecurity {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.description = new markdown(value);
+                this.__data.description = value;
             }
         });
 
@@ -142,11 +140,11 @@ class CapabilityStatementSecurity {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             cors: this.cors,
-            service: this.service && this.service.toJSON(),
-            description: this.description && this.description.toJSON(),
+            service: this.service && this.service.map(v => v.toJSON()),
+            description: this.description,
         };
     }
 }

@@ -45,7 +45,7 @@ class CapabilityStatementDocument {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class CapabilityStatementDocument {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -106,9 +106,7 @@ class CapabilityStatementDocument {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.documentation = new markdown(value);
+                this.__data.documentation = value;
             }
         });
 
@@ -124,9 +122,7 @@ class CapabilityStatementDocument {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.profile = new canonical(value);
+                this.__data.profile = value;
             }
         });
 
@@ -146,11 +142,11 @@ class CapabilityStatementDocument {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            mode: this.mode && this.mode.toJSON(),
-            documentation: this.documentation && this.documentation.toJSON(),
-            profile: this.profile && this.profile.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            mode: this.mode,
+            documentation: this.documentation,
+            profile: this.profile,
         };
     }
 }

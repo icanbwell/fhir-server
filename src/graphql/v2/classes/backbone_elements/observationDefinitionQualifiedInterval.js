@@ -43,7 +43,7 @@ class ObservationDefinitionQualifiedInterval {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ObservationDefinitionQualifiedInterval {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -137,7 +137,7 @@ class ObservationDefinitionQualifiedInterval {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.appliesTo = new CodeableConcept(value);
+                this.__data.appliesTo = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -221,13 +221,13 @@ class ObservationDefinitionQualifiedInterval {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            category: this.category && this.category.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            category: this.category,
             range: this.range && this.range.toJSON(),
             context: this.context && this.context.toJSON(),
-            appliesTo: this.appliesTo && this.appliesTo.toJSON(),
-            gender: this.gender && this.gender.toJSON(),
+            appliesTo: this.appliesTo && this.appliesTo.map(v => v.toJSON()),
+            gender: this.gender,
             age: this.age && this.age.toJSON(),
             gestationalAge: this.gestationalAge && this.gestationalAge.toJSON(),
             condition: this.condition,

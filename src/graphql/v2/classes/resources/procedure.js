@@ -26,9 +26,7 @@ class Procedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class Procedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class Procedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class Procedure {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class Procedure {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -187,7 +181,7 @@ class Procedure {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -203,9 +197,7 @@ class Procedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiatesCanonical = new canonical(value);
+                this.__data.instantiatesCanonical = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -221,9 +213,7 @@ class Procedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiatesUri = new uri(value);
+                this.__data.instantiatesUri = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -240,7 +230,7 @@ class Procedure {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = new Reference(value);
+                this.__data.basedOn = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -256,7 +246,7 @@ class Procedure {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.partOf = new Reference(value);
+                this.__data.partOf = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -370,9 +360,7 @@ class Procedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.performedDateTime = new dateTime(value);
+                this.__data.performedDateTime = value;
             }
         });
 
@@ -483,7 +471,7 @@ class Procedure {
                     return;
                 }
                 let ProcedurePerformer = require('../backbone_elements/procedurePerformer.js');
-                this.__data.performer = new ProcedurePerformer(value);
+                this.__data.performer = Array.isArray(value) ? value.map(v => new ProcedurePerformer(v)) : [new ProcedurePerformer(value)];
             }
         });
 
@@ -517,7 +505,7 @@ class Procedure {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -533,7 +521,7 @@ class Procedure {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -550,7 +538,7 @@ class Procedure {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.bodySite = new CodeableConcept(value);
+                this.__data.bodySite = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -583,7 +571,7 @@ class Procedure {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.report = new Reference(value);
+                this.__data.report = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -602,7 +590,7 @@ class Procedure {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.complication = new CodeableConcept(value);
+                this.__data.complication = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -619,7 +607,7 @@ class Procedure {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.complicationDetail = new Reference(value);
+                this.__data.complicationDetail = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -637,7 +625,7 @@ class Procedure {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.followUp = new CodeableConcept(value);
+                this.__data.followUp = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -653,7 +641,7 @@ class Procedure {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -671,7 +659,7 @@ class Procedure {
                     return;
                 }
                 let ProcedureFocalDevice = require('../backbone_elements/procedureFocalDevice.js');
-                this.__data.focalDevice = new ProcedureFocalDevice(value);
+                this.__data.focalDevice = Array.isArray(value) ? value.map(v => new ProcedureFocalDevice(v)) : [new ProcedureFocalDevice(value)];
             }
         });
 
@@ -688,7 +676,7 @@ class Procedure {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.usedReference = new Reference(value);
+                this.__data.usedReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -704,7 +692,7 @@ class Procedure {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.usedCode = new CodeableConcept(value);
+                this.__data.usedCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -724,46 +712,46 @@ class Procedure {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            instantiatesCanonical: this.instantiatesCanonical && this.instantiatesCanonical.toJSON(),
-            instantiatesUri: this.instantiatesUri && this.instantiatesUri.toJSON(),
-            basedOn: this.basedOn && this.basedOn.toJSON(),
-            partOf: this.partOf && this.partOf.toJSON(),
-            status: this.status && this.status.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSON()),
+            status: this.status,
             statusReason: this.statusReason && this.statusReason.toJSON(),
             category: this.category && this.category.toJSON(),
             code: this.code && this.code.toJSON(),
             subject: this.subject && this.subject.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            performedDateTime: this.performedDateTime && this.performedDateTime.toJSON(),
+            performedDateTime: this.performedDateTime,
             performedPeriod: this.performedPeriod && this.performedPeriod.toJSON(),
             performedString: this.performedString,
             performedAge: this.performedAge && this.performedAge.toJSON(),
             performedRange: this.performedRange && this.performedRange.toJSON(),
             recorder: this.recorder && this.recorder.toJSON(),
             asserter: this.asserter && this.asserter.toJSON(),
-            performer: this.performer && this.performer.toJSON(),
+            performer: this.performer && this.performer.map(v => v.toJSON()),
             location: this.location && this.location.toJSON(),
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
-            bodySite: this.bodySite && this.bodySite.toJSON(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
+            bodySite: this.bodySite && this.bodySite.map(v => v.toJSON()),
             outcome: this.outcome && this.outcome.toJSON(),
-            report: this.report && this.report.toJSON(),
-            complication: this.complication && this.complication.toJSON(),
-            complicationDetail: this.complicationDetail && this.complicationDetail.toJSON(),
-            followUp: this.followUp && this.followUp.toJSON(),
-            note: this.note && this.note.toJSON(),
-            focalDevice: this.focalDevice && this.focalDevice.toJSON(),
-            usedReference: this.usedReference && this.usedReference.toJSON(),
-            usedCode: this.usedCode && this.usedCode.toJSON(),
+            report: this.report && this.report.map(v => v.toJSON()),
+            complication: this.complication && this.complication.map(v => v.toJSON()),
+            complicationDetail: this.complicationDetail && this.complicationDetail.map(v => v.toJSON()),
+            followUp: this.followUp && this.followUp.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
+            focalDevice: this.focalDevice && this.focalDevice.map(v => v.toJSON()),
+            usedReference: this.usedReference && this.usedReference.map(v => v.toJSON()),
+            usedCode: this.usedCode && this.usedCode.map(v => v.toJSON()),
         };
     }
 }

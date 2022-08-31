@@ -42,7 +42,7 @@ class HealthcareServiceAvailableTime {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class HealthcareServiceAvailableTime {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,7 +86,7 @@ class HealthcareServiceAvailableTime {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.daysOfWeek = value;
+                this.__data.daysOfWeek = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -117,9 +117,7 @@ class HealthcareServiceAvailableTime {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.availableStartTime = new time(value);
+                this.__data.availableStartTime = value;
             }
         });
 
@@ -135,9 +133,7 @@ class HealthcareServiceAvailableTime {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.availableEndTime = new time(value);
+                this.__data.availableEndTime = value;
             }
         });
 
@@ -157,12 +153,12 @@ class HealthcareServiceAvailableTime {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            daysOfWeek: this.daysOfWeek && this.daysOfWeek.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
-            availableStartTime: this.availableStartTime && this.availableStartTime.toJSON(),
-            availableEndTime: this.availableEndTime && this.availableEndTime.toJSON(),
+            availableStartTime: this.availableStartTime,
+            availableEndTime: this.availableEndTime,
         };
     }
 }

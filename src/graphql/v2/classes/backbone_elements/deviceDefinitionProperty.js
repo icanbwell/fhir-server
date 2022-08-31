@@ -43,7 +43,7 @@ class DeviceDefinitionProperty {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class DeviceDefinitionProperty {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,7 +103,7 @@ class DeviceDefinitionProperty {
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
-                this.__data.valueQuantity = new Quantity(value);
+                this.__data.valueQuantity = Array.isArray(value) ? value.map(v => new Quantity(v)) : [new Quantity(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class DeviceDefinitionProperty {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.valueCode = new CodeableConcept(value);
+                this.__data.valueCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -139,11 +139,11 @@ class DeviceDefinitionProperty {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
-            valueCode: this.valueCode && this.valueCode.toJSON(),
+            valueQuantity: this.valueQuantity && this.valueQuantity.map(v => v.toJSON()),
+            valueCode: this.valueCode && this.valueCode.map(v => v.toJSON()),
         };
     }
 }

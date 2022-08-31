@@ -25,9 +25,7 @@ class ClaimResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class ClaimResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class ClaimResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class ClaimResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class ClaimResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class ClaimResponse {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -285,9 +279,7 @@ class ClaimResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.created = new dateTime(value);
+                this.__data.created = value;
             }
         });
 
@@ -431,7 +423,7 @@ class ClaimResponse {
                     return;
                 }
                 let ClaimResponseItem = require('../backbone_elements/claimResponseItem.js');
-                this.__data.item = new ClaimResponseItem(value);
+                this.__data.item = Array.isArray(value) ? value.map(v => new ClaimResponseItem(v)) : [new ClaimResponseItem(value)];
             }
         });
 
@@ -447,7 +439,7 @@ class ClaimResponse {
                     return;
                 }
                 let ClaimResponseAddItem = require('../backbone_elements/claimResponseAddItem.js');
-                this.__data.addItem = new ClaimResponseAddItem(value);
+                this.__data.addItem = Array.isArray(value) ? value.map(v => new ClaimResponseAddItem(v)) : [new ClaimResponseAddItem(value)];
             }
         });
 
@@ -464,7 +456,7 @@ class ClaimResponse {
                     return;
                 }
                 let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                this.__data.adjudication = new ClaimResponseAdjudication(value);
+                this.__data.adjudication = Array.isArray(value) ? value.map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(value)];
             }
         });
 
@@ -480,7 +472,7 @@ class ClaimResponse {
                     return;
                 }
                 let ClaimResponseTotal = require('../backbone_elements/claimResponseTotal.js');
-                this.__data.total = new ClaimResponseTotal(value);
+                this.__data.total = Array.isArray(value) ? value.map(v => new ClaimResponseTotal(v)) : [new ClaimResponseTotal(value)];
             }
         });
 
@@ -563,7 +555,7 @@ class ClaimResponse {
                     return;
                 }
                 let ClaimResponseProcessNote = require('../backbone_elements/claimResponseProcessNote.js');
-                this.__data.processNote = new ClaimResponseProcessNote(value);
+                this.__data.processNote = Array.isArray(value) ? value.map(v => new ClaimResponseProcessNote(v)) : [new ClaimResponseProcessNote(value)];
             }
         });
 
@@ -579,7 +571,7 @@ class ClaimResponse {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.communicationRequest = new Reference(value);
+                this.__data.communicationRequest = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -596,7 +588,7 @@ class ClaimResponse {
                     return;
                 }
                 let ClaimResponseInsurance = require('../backbone_elements/claimResponseInsurance.js');
-                this.__data.insurance = new ClaimResponseInsurance(value);
+                this.__data.insurance = Array.isArray(value) ? value.map(v => new ClaimResponseInsurance(v)) : [new ClaimResponseInsurance(value)];
             }
         });
 
@@ -612,7 +604,7 @@ class ClaimResponse {
                     return;
                 }
                 let ClaimResponseError = require('../backbone_elements/claimResponseError.js');
-                this.__data.error = new ClaimResponseError(value);
+                this.__data.error = Array.isArray(value) ? value.map(v => new ClaimResponseError(v)) : [new ClaimResponseError(value)];
             }
         });
 
@@ -632,41 +624,41 @@ class ClaimResponse {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
             type: this.type && this.type.toJSON(),
             subType: this.subType && this.subType.toJSON(),
-            use: this.use && this.use.toJSON(),
+            use: this.use,
             patient: this.patient && this.patient.toJSON(),
-            created: this.created && this.created.toJSON(),
+            created: this.created,
             insurer: this.insurer && this.insurer.toJSON(),
             requestor: this.requestor && this.requestor.toJSON(),
             request: this.request && this.request.toJSON(),
-            outcome: this.outcome && this.outcome.toJSON(),
+            outcome: this.outcome,
             disposition: this.disposition,
             preAuthRef: this.preAuthRef,
             preAuthPeriod: this.preAuthPeriod && this.preAuthPeriod.toJSON(),
             payeeType: this.payeeType && this.payeeType.toJSON(),
-            item: this.item && this.item.toJSON(),
-            addItem: this.addItem && this.addItem.toJSON(),
-            adjudication: this.adjudication && this.adjudication.toJSON(),
-            total: this.total && this.total.toJSON(),
+            item: this.item && this.item.map(v => v.toJSON()),
+            addItem: this.addItem && this.addItem.map(v => v.toJSON()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            total: this.total && this.total.map(v => v.toJSON()),
             payment: this.payment && this.payment.toJSON(),
             fundsReserve: this.fundsReserve && this.fundsReserve.toJSON(),
             formCode: this.formCode && this.formCode.toJSON(),
             form: this.form && this.form.toJSON(),
-            processNote: this.processNote && this.processNote.toJSON(),
-            communicationRequest: this.communicationRequest && this.communicationRequest.toJSON(),
-            insurance: this.insurance && this.insurance.toJSON(),
-            error: this.error && this.error.toJSON(),
+            processNote: this.processNote && this.processNote.map(v => v.toJSON()),
+            communicationRequest: this.communicationRequest && this.communicationRequest.map(v => v.toJSON()),
+            insurance: this.insurance && this.insurance.map(v => v.toJSON()),
+            error: this.error && this.error.map(v => v.toJSON()),
         };
     }
 }

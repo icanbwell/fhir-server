@@ -42,7 +42,7 @@ class MedicationKnowledgeRegulatory {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicationKnowledgeRegulatory {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,7 +103,7 @@ class MedicationKnowledgeRegulatory {
                     return;
                 }
                 let MedicationKnowledgeSubstitution = require('../backbone_elements/medicationKnowledgeSubstitution.js');
-                this.__data.substitution = new MedicationKnowledgeSubstitution(value);
+                this.__data.substitution = Array.isArray(value) ? value.map(v => new MedicationKnowledgeSubstitution(v)) : [new MedicationKnowledgeSubstitution(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class MedicationKnowledgeRegulatory {
                     return;
                 }
                 let MedicationKnowledgeSchedule = require('../backbone_elements/medicationKnowledgeSchedule.js');
-                this.__data.schedule = new MedicationKnowledgeSchedule(value);
+                this.__data.schedule = Array.isArray(value) ? value.map(v => new MedicationKnowledgeSchedule(v)) : [new MedicationKnowledgeSchedule(value)];
             }
         });
 
@@ -156,11 +156,11 @@ class MedicationKnowledgeRegulatory {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             regulatoryAuthority: this.regulatoryAuthority && this.regulatoryAuthority.toJSON(),
-            substitution: this.substitution && this.substitution.toJSON(),
-            schedule: this.schedule && this.schedule.toJSON(),
+            substitution: this.substitution && this.substitution.map(v => v.toJSON()),
+            schedule: this.schedule && this.schedule.map(v => v.toJSON()),
             maxDispense: this.maxDispense && this.maxDispense.toJSON(),
         };
     }

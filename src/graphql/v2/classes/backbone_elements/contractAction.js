@@ -43,7 +43,7 @@ class ContractAction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ContractAction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class ContractAction {
                     return;
                 }
                 let ContractSubject = require('../backbone_elements/contractSubject.js');
-                this.__data.subject = new ContractSubject(value);
+                this.__data.subject = Array.isArray(value) ? value.map(v => new ContractSubject(v)) : [new ContractSubject(value)];
             }
         });
 
@@ -151,7 +151,7 @@ class ContractAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.linkId = value;
+                this.__data.linkId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -199,7 +199,7 @@ class ContractAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.contextLinkId = value;
+                this.__data.contextLinkId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -214,9 +214,7 @@ class ContractAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.occurrenceDateTime = new dateTime(value);
+                this.__data.occurrenceDateTime = value;
             }
         });
 
@@ -264,7 +262,7 @@ class ContractAction {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.requester = new Reference(value);
+                this.__data.requester = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -280,7 +278,7 @@ class ContractAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.requesterLinkId = value;
+                this.__data.requesterLinkId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -297,7 +295,7 @@ class ContractAction {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.performerType = new CodeableConcept(value);
+                this.__data.performerType = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -346,7 +344,7 @@ class ContractAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.performerLinkId = value;
+                this.__data.performerLinkId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -363,7 +361,7 @@ class ContractAction {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -380,7 +378,7 @@ class ContractAction {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -395,7 +393,7 @@ class ContractAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.reason = value;
+                this.__data.reason = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -411,7 +409,7 @@ class ContractAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.reasonLinkId = value;
+                this.__data.reasonLinkId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -428,7 +426,7 @@ class ContractAction {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -443,9 +441,7 @@ class ContractAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.securityLabelNumber = new unsignedInt(value);
+                this.__data.securityLabelNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -465,31 +461,31 @@ class ContractAction {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             doNotPerform: this.doNotPerform,
             type: this.type && this.type.toJSON(),
-            subject: this.subject && this.subject.toJSON(),
+            subject: this.subject && this.subject.map(v => v.toJSON()),
             intent: this.intent && this.intent.toJSON(),
             linkId: this.linkId,
             status: this.status && this.status.toJSON(),
             context: this.context && this.context.toJSON(),
             contextLinkId: this.contextLinkId,
-            occurrenceDateTime: this.occurrenceDateTime && this.occurrenceDateTime.toJSON(),
+            occurrenceDateTime: this.occurrenceDateTime,
             occurrencePeriod: this.occurrencePeriod && this.occurrencePeriod.toJSON(),
             occurrenceTiming: this.occurrenceTiming && this.occurrenceTiming.toJSON(),
-            requester: this.requester && this.requester.toJSON(),
+            requester: this.requester && this.requester.map(v => v.toJSON()),
             requesterLinkId: this.requesterLinkId,
-            performerType: this.performerType && this.performerType.toJSON(),
+            performerType: this.performerType && this.performerType.map(v => v.toJSON()),
             performerRole: this.performerRole && this.performerRole.toJSON(),
             performer: this.performer && this.performer.toJSON(),
             performerLinkId: this.performerLinkId,
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
             reason: this.reason,
             reasonLinkId: this.reasonLinkId,
-            note: this.note && this.note.toJSON(),
-            securityLabelNumber: this.securityLabelNumber && this.securityLabelNumber.toJSON(),
+            note: this.note && this.note.map(v => v.toJSON()),
+            securityLabelNumber: this.securityLabelNumber,
         };
     }
 }

@@ -43,7 +43,7 @@ class NutritionOrderOralDiet {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class NutritionOrderOralDiet {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,7 +88,7 @@ class NutritionOrderOralDiet {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -106,7 +106,7 @@ class NutritionOrderOralDiet {
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
-                this.__data.schedule = new Timing(value);
+                this.__data.schedule = Array.isArray(value) ? value.map(v => new Timing(v)) : [new Timing(value)];
             }
         });
 
@@ -123,7 +123,7 @@ class NutritionOrderOralDiet {
                     return;
                 }
                 let NutritionOrderNutrient = require('../backbone_elements/nutritionOrderNutrient.js');
-                this.__data.nutrient = new NutritionOrderNutrient(value);
+                this.__data.nutrient = Array.isArray(value) ? value.map(v => new NutritionOrderNutrient(v)) : [new NutritionOrderNutrient(value)];
             }
         });
 
@@ -140,7 +140,7 @@ class NutritionOrderOralDiet {
                     return;
                 }
                 let NutritionOrderTexture = require('../backbone_elements/nutritionOrderTexture.js');
-                this.__data.texture = new NutritionOrderTexture(value);
+                this.__data.texture = Array.isArray(value) ? value.map(v => new NutritionOrderTexture(v)) : [new NutritionOrderTexture(value)];
             }
         });
 
@@ -157,7 +157,7 @@ class NutritionOrderOralDiet {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.fluidConsistencyType = new CodeableConcept(value);
+                this.__data.fluidConsistencyType = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -193,13 +193,13 @@ class NutritionOrderOralDiet {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            type: this.type && this.type.toJSON(),
-            schedule: this.schedule && this.schedule.toJSON(),
-            nutrient: this.nutrient && this.nutrient.toJSON(),
-            texture: this.texture && this.texture.toJSON(),
-            fluidConsistencyType: this.fluidConsistencyType && this.fluidConsistencyType.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            type: this.type && this.type.map(v => v.toJSON()),
+            schedule: this.schedule && this.schedule.map(v => v.toJSON()),
+            nutrient: this.nutrient && this.nutrient.map(v => v.toJSON()),
+            texture: this.texture && this.texture.map(v => v.toJSON()),
+            fluidConsistencyType: this.fluidConsistencyType && this.fluidConsistencyType.map(v => v.toJSON()),
             instruction: this.instruction,
         };
     }

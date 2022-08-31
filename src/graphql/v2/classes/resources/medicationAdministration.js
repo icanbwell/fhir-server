@@ -28,9 +28,7 @@ class MedicationAdministration {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -66,9 +64,7 @@ class MedicationAdministration {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -121,9 +117,7 @@ class MedicationAdministration {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -143,7 +137,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -171,7 +165,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -191,7 +185,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -207,9 +201,7 @@ class MedicationAdministration {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiates = new uri(value);
+                this.__data.instantiates = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -225,7 +217,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.partOf = new Reference(value);
+                this.__data.partOf = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -259,7 +251,7 @@ class MedicationAdministration {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.statusReason = new CodeableConcept(value);
+                this.__data.statusReason = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -357,7 +349,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingInformation = new Reference(value);
+                this.__data.supportingInformation = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -372,9 +364,7 @@ class MedicationAdministration {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.effectiveDateTime = new dateTime(value);
+                this.__data.effectiveDateTime = value;
             }
         });
 
@@ -407,7 +397,7 @@ class MedicationAdministration {
                     return;
                 }
                 let MedicationAdministrationPerformer = require('../backbone_elements/medicationAdministrationPerformer.js');
-                this.__data.performer = new MedicationAdministrationPerformer(value);
+                this.__data.performer = Array.isArray(value) ? value.map(v => new MedicationAdministrationPerformer(v)) : [new MedicationAdministrationPerformer(value)];
             }
         });
 
@@ -423,7 +413,7 @@ class MedicationAdministration {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -439,7 +429,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -472,7 +462,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.device = new Reference(value);
+                this.__data.device = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -489,7 +479,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -523,7 +513,7 @@ class MedicationAdministration {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.eventHistory = new Reference(value);
+                this.__data.eventHistory = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -543,35 +533,35 @@ class MedicationAdministration {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            instantiates: this.instantiates && this.instantiates.toJSON(),
-            partOf: this.partOf && this.partOf.toJSON(),
-            status: this.status && this.status.toJSON(),
-            statusReason: this.statusReason && this.statusReason.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            instantiates: this.instantiates,
+            partOf: this.partOf && this.partOf.map(v => v.toJSON()),
+            status: this.status,
+            statusReason: this.statusReason && this.statusReason.map(v => v.toJSON()),
             category: this.category && this.category.toJSON(),
             medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSON(),
             medicationReference: this.medicationReference && this.medicationReference.toJSON(),
             subject: this.subject && this.subject.toJSON(),
             context: this.context && this.context.toJSON(),
-            supportingInformation: this.supportingInformation && this.supportingInformation.toJSON(),
-            effectiveDateTime: this.effectiveDateTime && this.effectiveDateTime.toJSON(),
+            supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSON()),
+            effectiveDateTime: this.effectiveDateTime,
             effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSON(),
-            performer: this.performer && this.performer.toJSON(),
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
+            performer: this.performer && this.performer.map(v => v.toJSON()),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
             request: this.request && this.request.toJSON(),
-            device: this.device && this.device.toJSON(),
-            note: this.note && this.note.toJSON(),
+            device: this.device && this.device.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
             dosage: this.dosage && this.dosage.toJSON(),
-            eventHistory: this.eventHistory && this.eventHistory.toJSON(),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSON()),
         };
     }
 }

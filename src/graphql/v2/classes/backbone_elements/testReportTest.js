@@ -42,7 +42,7 @@ class TestReportTest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class TestReportTest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -117,7 +117,7 @@ class TestReportTest {
                     return;
                 }
                 let TestReportAction1 = require('../backbone_elements/testReportAction1.js');
-                this.__data.action = new TestReportAction1(value);
+                this.__data.action = Array.isArray(value) ? value.map(v => new TestReportAction1(v)) : [new TestReportAction1(value)];
             }
         });
 
@@ -137,11 +137,11 @@ class TestReportTest {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             description: this.description,
-            action: this.action && this.action.toJSON(),
+            action: this.action && this.action.map(v => v.toJSON()),
         };
     }
 }

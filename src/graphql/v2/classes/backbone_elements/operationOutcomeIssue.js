@@ -43,7 +43,7 @@ class OperationOutcomeIssue {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class OperationOutcomeIssue {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -156,7 +156,7 @@ class OperationOutcomeIssue {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.location = value;
+                this.__data.location = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -173,7 +173,7 @@ class OperationOutcomeIssue {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.expression = value;
+                this.__data.expression = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -193,10 +193,10 @@ class OperationOutcomeIssue {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            severity: this.severity && this.severity.toJSON(),
-            code: this.code && this.code.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            severity: this.severity,
+            code: this.code,
             details: this.details && this.details.toJSON(),
             diagnostics: this.diagnostics,
             location: this.location,

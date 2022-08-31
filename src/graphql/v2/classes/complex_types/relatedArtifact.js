@@ -45,7 +45,7 @@ class RelatedArtifact {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -108,9 +108,7 @@ class RelatedArtifact {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.citation = new markdown(value);
+                this.__data.citation = value;
             }
         });
 
@@ -125,9 +123,7 @@ class RelatedArtifact {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.url = new url(value);
+                this.__data.url = value;
             }
         });
 
@@ -160,9 +156,7 @@ class RelatedArtifact {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.resource = new canonical(value);
+                this.__data.resource = value;
             }
         });
 
@@ -182,14 +176,14 @@ class RelatedArtifact {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            type: this.type && this.type.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            type: this.type,
             label: this.label,
             display: this.display,
-            citation: this.citation && this.citation.toJSON(),
-            url: this.url && this.url.toJSON(),
+            citation: this.citation,
+            url: this.url,
             document: this.document && this.document.toJSON(),
-            resource: this.resource && this.resource.toJSON(),
+            resource: this.resource,
         };
     }
 }

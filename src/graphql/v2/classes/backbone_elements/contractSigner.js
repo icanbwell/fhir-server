@@ -43,7 +43,7 @@ class ContractSigner {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ContractSigner {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class ContractSigner {
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');
-                this.__data.signature = new Signature(value);
+                this.__data.signature = Array.isArray(value) ? value.map(v => new Signature(v)) : [new Signature(value)];
             }
         });
 
@@ -139,11 +139,11 @@ class ContractSigner {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             party: this.party && this.party.toJSON(),
-            signature: this.signature && this.signature.toJSON(),
+            signature: this.signature && this.signature.map(v => v.toJSON()),
         };
     }
 }

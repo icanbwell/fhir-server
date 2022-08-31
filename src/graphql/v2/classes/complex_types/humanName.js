@@ -44,7 +44,7 @@ class HumanName {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -106,7 +106,7 @@ class HumanName {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.given = value;
+                this.__data.given = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -122,7 +122,7 @@ class HumanName {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.prefix = value;
+                this.__data.prefix = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -138,7 +138,7 @@ class HumanName {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.suffix = value;
+                this.__data.suffix = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -174,8 +174,8 @@ class HumanName {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            use: this.use && this.use.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            use: this.use,
             text: this.text,
             family: this.family,
             given: this.given,

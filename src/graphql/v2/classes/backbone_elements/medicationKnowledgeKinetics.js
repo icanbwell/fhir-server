@@ -42,7 +42,7 @@ class MedicationKnowledgeKinetics {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicationKnowledgeKinetics {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,7 +86,7 @@ class MedicationKnowledgeKinetics {
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
-                this.__data.areaUnderCurve = new Quantity(value);
+                this.__data.areaUnderCurve = Array.isArray(value) ? value.map(v => new Quantity(v)) : [new Quantity(value)];
             }
         });
 
@@ -102,7 +102,7 @@ class MedicationKnowledgeKinetics {
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
-                this.__data.lethalDose50 = new Quantity(value);
+                this.__data.lethalDose50 = Array.isArray(value) ? value.map(v => new Quantity(v)) : [new Quantity(value)];
             }
         });
 
@@ -139,10 +139,10 @@ class MedicationKnowledgeKinetics {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            areaUnderCurve: this.areaUnderCurve && this.areaUnderCurve.toJSON(),
-            lethalDose50: this.lethalDose50 && this.lethalDose50.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            areaUnderCurve: this.areaUnderCurve && this.areaUnderCurve.map(v => v.toJSON()),
+            lethalDose50: this.lethalDose50 && this.lethalDose50.map(v => v.toJSON()),
             halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSON(),
         };
     }

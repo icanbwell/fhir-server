@@ -42,7 +42,7 @@ class MeasureStratifier {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MeasureStratifier {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -139,7 +139,7 @@ class MeasureStratifier {
                     return;
                 }
                 let MeasureComponent = require('../backbone_elements/measureComponent.js');
-                this.__data.component = new MeasureComponent(value);
+                this.__data.component = Array.isArray(value) ? value.map(v => new MeasureComponent(v)) : [new MeasureComponent(value)];
             }
         });
 
@@ -159,12 +159,12 @@ class MeasureStratifier {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             description: this.description,
             criteria: this.criteria && this.criteria.toJSON(),
-            component: this.component && this.component.toJSON(),
+            component: this.component && this.component.map(v => v.toJSON()),
         };
     }
 }

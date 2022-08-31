@@ -26,9 +26,7 @@ class DetectedIssue {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class DetectedIssue {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class DetectedIssue {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class DetectedIssue {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class DetectedIssue {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,7 +179,7 @@ class DetectedIssue {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -263,9 +257,7 @@ class DetectedIssue {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.identifiedDateTime = new dateTime(value);
+                this.__data.identifiedDateTime = value;
             }
         });
 
@@ -315,7 +307,7 @@ class DetectedIssue {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.implicated = new Reference(value);
+                this.__data.implicated = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -332,7 +324,7 @@ class DetectedIssue {
                     return;
                 }
                 let DetectedIssueEvidence = require('../backbone_elements/detectedIssueEvidence.js');
-                this.__data.evidence = new DetectedIssueEvidence(value);
+                this.__data.evidence = Array.isArray(value) ? value.map(v => new DetectedIssueEvidence(v)) : [new DetectedIssueEvidence(value)];
             }
         });
 
@@ -363,9 +355,7 @@ class DetectedIssue {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.reference = new uri(value);
+                this.__data.reference = value;
             }
         });
 
@@ -384,7 +374,7 @@ class DetectedIssue {
                     return;
                 }
                 let DetectedIssueMitigation = require('../backbone_elements/detectedIssueMitigation.js');
-                this.__data.mitigation = new DetectedIssueMitigation(value);
+                this.__data.mitigation = Array.isArray(value) ? value.map(v => new DetectedIssueMitigation(v)) : [new DetectedIssueMitigation(value)];
             }
         });
 
@@ -404,27 +394,27 @@ class DetectedIssue {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
             code: this.code && this.code.toJSON(),
-            severity: this.severity && this.severity.toJSON(),
+            severity: this.severity,
             patient: this.patient && this.patient.toJSON(),
-            identifiedDateTime: this.identifiedDateTime && this.identifiedDateTime.toJSON(),
+            identifiedDateTime: this.identifiedDateTime,
             identifiedPeriod: this.identifiedPeriod && this.identifiedPeriod.toJSON(),
             author: this.author && this.author.toJSON(),
-            implicated: this.implicated && this.implicated.toJSON(),
-            evidence: this.evidence && this.evidence.toJSON(),
+            implicated: this.implicated && this.implicated.map(v => v.toJSON()),
+            evidence: this.evidence && this.evidence.map(v => v.toJSON()),
             detail: this.detail,
-            reference: this.reference && this.reference.toJSON(),
-            mitigation: this.mitigation && this.mitigation.toJSON(),
+            reference: this.reference,
+            mitigation: this.mitigation && this.mitigation.map(v => v.toJSON()),
         };
     }
 }

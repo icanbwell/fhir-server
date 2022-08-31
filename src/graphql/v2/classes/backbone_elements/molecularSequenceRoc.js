@@ -42,7 +42,7 @@ class MolecularSequenceRoc {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MolecularSequenceRoc {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -85,7 +85,7 @@ class MolecularSequenceRoc {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.score = value;
+                this.__data.score = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -101,7 +101,7 @@ class MolecularSequenceRoc {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.numTP = value;
+                this.__data.numTP = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -117,7 +117,7 @@ class MolecularSequenceRoc {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.numFP = value;
+                this.__data.numFP = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -133,7 +133,7 @@ class MolecularSequenceRoc {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.numFN = value;
+                this.__data.numFN = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -148,9 +148,7 @@ class MolecularSequenceRoc {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.precision = new decimal(value);
+                this.__data.precision = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -166,9 +164,7 @@ class MolecularSequenceRoc {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.sensitivity = new decimal(value);
+                this.__data.sensitivity = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -183,9 +179,7 @@ class MolecularSequenceRoc {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fMeasure = new decimal(value);
+                this.__data.fMeasure = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -205,15 +199,15 @@ class MolecularSequenceRoc {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             score: this.score,
             numTP: this.numTP,
             numFP: this.numFP,
             numFN: this.numFN,
-            precision: this.precision && this.precision.toJSON(),
-            sensitivity: this.sensitivity && this.sensitivity.toJSON(),
-            fMeasure: this.fMeasure && this.fMeasure.toJSON(),
+            precision: this.precision,
+            sensitivity: this.sensitivity,
+            fMeasure: this.fMeasure,
         };
     }
 }

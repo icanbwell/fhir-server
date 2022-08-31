@@ -26,9 +26,7 @@ class QuestionnaireResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class QuestionnaireResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class QuestionnaireResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class QuestionnaireResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class QuestionnaireResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -205,7 +199,7 @@ class QuestionnaireResponse {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = new Reference(value);
+                this.__data.basedOn = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -223,7 +217,7 @@ class QuestionnaireResponse {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.partOf = new Reference(value);
+                this.__data.partOf = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -239,9 +233,7 @@ class QuestionnaireResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.questionnaire = new canonical(value);
+                this.__data.questionnaire = value;
             }
         });
 
@@ -306,9 +298,7 @@ class QuestionnaireResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.authored = new dateTime(value);
+                this.__data.authored = value;
             }
         });
 
@@ -358,7 +348,7 @@ class QuestionnaireResponse {
                     return;
                 }
                 let QuestionnaireResponseItem = require('../backbone_elements/questionnaireResponseItem.js');
-                this.__data.item = new QuestionnaireResponseItem(value);
+                this.__data.item = Array.isArray(value) ? value.map(v => new QuestionnaireResponseItem(v)) : [new QuestionnaireResponseItem(value)];
             }
         });
 
@@ -378,25 +368,25 @@ class QuestionnaireResponse {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
-            basedOn: this.basedOn && this.basedOn.toJSON(),
-            partOf: this.partOf && this.partOf.toJSON(),
-            questionnaire: this.questionnaire && this.questionnaire.toJSON(),
-            status: this.status && this.status.toJSON(),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSON()),
+            questionnaire: this.questionnaire,
+            status: this.status,
             subject: this.subject && this.subject.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            authored: this.authored && this.authored.toJSON(),
+            authored: this.authored,
             author: this.author && this.author.toJSON(),
             source: this.source && this.source.toJSON(),
-            item: this.item && this.item.toJSON(),
+            item: this.item && this.item.map(v => v.toJSON()),
         };
     }
 }

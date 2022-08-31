@@ -42,7 +42,7 @@ class MedicinalProductIngredientStrength {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicinalProductIngredientStrength {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +169,7 @@ class MedicinalProductIngredientStrength {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.country = new CodeableConcept(value);
+                this.__data.country = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -185,7 +185,7 @@ class MedicinalProductIngredientStrength {
                     return;
                 }
                 let MedicinalProductIngredientReferenceStrength = require('../backbone_elements/medicinalProductIngredientReferenceStrength.js');
-                this.__data.referenceStrength = new MedicinalProductIngredientReferenceStrength(value);
+                this.__data.referenceStrength = Array.isArray(value) ? value.map(v => new MedicinalProductIngredientReferenceStrength(v)) : [new MedicinalProductIngredientReferenceStrength(value)];
             }
         });
 
@@ -205,15 +205,15 @@ class MedicinalProductIngredientStrength {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             presentation: this.presentation && this.presentation.toJSON(),
             presentationLowLimit: this.presentationLowLimit && this.presentationLowLimit.toJSON(),
             concentration: this.concentration && this.concentration.toJSON(),
             concentrationLowLimit: this.concentrationLowLimit && this.concentrationLowLimit.toJSON(),
             measurementPoint: this.measurementPoint,
-            country: this.country && this.country.toJSON(),
-            referenceStrength: this.referenceStrength && this.referenceStrength.toJSON(),
+            country: this.country && this.country.map(v => v.toJSON()),
+            referenceStrength: this.referenceStrength && this.referenceStrength.map(v => v.toJSON()),
         };
     }
 }

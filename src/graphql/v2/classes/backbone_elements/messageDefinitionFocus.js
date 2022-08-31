@@ -44,7 +44,7 @@ class MessageDefinitionFocus {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class MessageDefinitionFocus {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,9 +103,7 @@ class MessageDefinitionFocus {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.profile = new canonical(value);
+                this.__data.profile = value;
             }
         });
 
@@ -121,9 +119,7 @@ class MessageDefinitionFocus {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.min = new unsignedInt(value);
+                this.__data.min = value;
             }
         });
 
@@ -159,11 +155,11 @@ class MessageDefinitionFocus {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            code: this.code && this.code.toJSON(),
-            profile: this.profile && this.profile.toJSON(),
-            min: this.min && this.min.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            code: this.code,
+            profile: this.profile,
+            min: this.min,
             max: this.max,
         };
     }

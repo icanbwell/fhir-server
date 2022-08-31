@@ -44,7 +44,7 @@ class ExplanationOfBenefitBenefitBalance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ExplanationOfBenefitBenefitBalance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -201,7 +201,7 @@ class ExplanationOfBenefitBenefitBalance {
                     return;
                 }
                 let ExplanationOfBenefitFinancial = require('../backbone_elements/explanationOfBenefitFinancial.js');
-                this.__data.financial = new ExplanationOfBenefitFinancial(value);
+                this.__data.financial = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitFinancial(v)) : [new ExplanationOfBenefitFinancial(value)];
             }
         });
 
@@ -221,8 +221,8 @@ class ExplanationOfBenefitBenefitBalance {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             category: this.category && this.category.toJSON(),
             excluded: this.excluded,
             name: this.name,
@@ -230,7 +230,7 @@ class ExplanationOfBenefitBenefitBalance {
             network: this.network && this.network.toJSON(),
             unit: this.unit && this.unit.toJSON(),
             term: this.term && this.term.toJSON(),
-            financial: this.financial && this.financial.toJSON(),
+            financial: this.financial && this.financial.map(v => v.toJSON()),
         };
     }
 }

@@ -42,7 +42,7 @@ class MedicinalProductPharmaceuticalTargetSpecies {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicinalProductPharmaceuticalTargetSpecies {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,7 +103,7 @@ class MedicinalProductPharmaceuticalTargetSpecies {
                     return;
                 }
                 let MedicinalProductPharmaceuticalWithdrawalPeriod = require('../backbone_elements/medicinalProductPharmaceuticalWithdrawalPeriod.js');
-                this.__data.withdrawalPeriod = new MedicinalProductPharmaceuticalWithdrawalPeriod(value);
+                this.__data.withdrawalPeriod = Array.isArray(value) ? value.map(v => new MedicinalProductPharmaceuticalWithdrawalPeriod(v)) : [new MedicinalProductPharmaceuticalWithdrawalPeriod(value)];
             }
         });
 
@@ -123,10 +123,10 @@ class MedicinalProductPharmaceuticalTargetSpecies {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
-            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.toJSON(),
+            withdrawalPeriod: this.withdrawalPeriod && this.withdrawalPeriod.map(v => v.toJSON()),
         };
     }
 }

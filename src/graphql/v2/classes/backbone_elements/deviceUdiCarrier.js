@@ -44,7 +44,7 @@ class DeviceUdiCarrier {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class DeviceUdiCarrier {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -112,9 +112,7 @@ class DeviceUdiCarrier {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.issuer = new uri(value);
+                this.__data.issuer = value;
             }
         });
 
@@ -133,9 +131,7 @@ class DeviceUdiCarrier {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.jurisdiction = new uri(value);
+                this.__data.jurisdiction = value;
             }
         });
 
@@ -154,9 +150,7 @@ class DeviceUdiCarrier {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.carrierAIDC = new base64Binary(value);
+                this.__data.carrierAIDC = value;
             }
         });
 
@@ -207,14 +201,14 @@ class DeviceUdiCarrier {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             deviceIdentifier: this.deviceIdentifier,
-            issuer: this.issuer && this.issuer.toJSON(),
-            jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
-            carrierAIDC: this.carrierAIDC && this.carrierAIDC.toJSON(),
+            issuer: this.issuer,
+            jurisdiction: this.jurisdiction,
+            carrierAIDC: this.carrierAIDC,
             carrierHRF: this.carrierHRF,
-            entryType: this.entryType && this.entryType.toJSON(),
+            entryType: this.entryType,
         };
     }
 }

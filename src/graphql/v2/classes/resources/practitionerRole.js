@@ -25,9 +25,7 @@ class PractitionerRole {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class PractitionerRole {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class PractitionerRole {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class PractitionerRole {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class PractitionerRole {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class PractitionerRole {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -265,7 +259,7 @@ class PractitionerRole {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -281,7 +275,7 @@ class PractitionerRole {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.specialty = new CodeableConcept(value);
+                this.__data.specialty = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -297,7 +291,7 @@ class PractitionerRole {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(value);
+                this.__data.location = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -314,7 +308,7 @@ class PractitionerRole {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.healthcareService = new Reference(value);
+                this.__data.healthcareService = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -330,7 +324,7 @@ class PractitionerRole {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = new ContactPoint(value);
+                this.__data.telecom = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -347,7 +341,7 @@ class PractitionerRole {
                     return;
                 }
                 let PractitionerRoleAvailableTime = require('../backbone_elements/practitionerRoleAvailableTime.js');
-                this.__data.availableTime = new PractitionerRoleAvailableTime(value);
+                this.__data.availableTime = Array.isArray(value) ? value.map(v => new PractitionerRoleAvailableTime(v)) : [new PractitionerRoleAvailableTime(value)];
             }
         });
 
@@ -364,7 +358,7 @@ class PractitionerRole {
                     return;
                 }
                 let PractitionerRoleNotAvailable = require('../backbone_elements/practitionerRoleNotAvailable.js');
-                this.__data.notAvailable = new PractitionerRoleNotAvailable(value);
+                this.__data.notAvailable = Array.isArray(value) ? value.map(v => new PractitionerRoleNotAvailable(v)) : [new PractitionerRoleNotAvailable(value)];
             }
         });
 
@@ -398,7 +392,7 @@ class PractitionerRole {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = new Reference(value);
+                this.__data.endpoint = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -418,28 +412,28 @@ class PractitionerRole {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             active: this.active,
             period: this.period && this.period.toJSON(),
             practitioner: this.practitioner && this.practitioner.toJSON(),
             organization: this.organization && this.organization.toJSON(),
-            code: this.code && this.code.toJSON(),
-            specialty: this.specialty && this.specialty.toJSON(),
-            location: this.location && this.location.toJSON(),
-            healthcareService: this.healthcareService && this.healthcareService.toJSON(),
-            telecom: this.telecom && this.telecom.toJSON(),
-            availableTime: this.availableTime && this.availableTime.toJSON(),
-            notAvailable: this.notAvailable && this.notAvailable.toJSON(),
+            code: this.code && this.code.map(v => v.toJSON()),
+            specialty: this.specialty && this.specialty.map(v => v.toJSON()),
+            location: this.location && this.location.map(v => v.toJSON()),
+            healthcareService: this.healthcareService && this.healthcareService.map(v => v.toJSON()),
+            telecom: this.telecom && this.telecom.map(v => v.toJSON()),
+            availableTime: this.availableTime && this.availableTime.map(v => v.toJSON()),
+            notAvailable: this.notAvailable && this.notAvailable.map(v => v.toJSON()),
             availabilityExceptions: this.availabilityExceptions,
-            endpoint: this.endpoint && this.endpoint.toJSON(),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
         };
     }
 }

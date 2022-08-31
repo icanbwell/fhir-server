@@ -44,7 +44,7 @@ class GraphDefinitionTarget {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class GraphDefinitionTarget {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -117,9 +117,7 @@ class GraphDefinitionTarget {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.profile = new canonical(value);
+                this.__data.profile = value;
             }
         });
 
@@ -135,7 +133,7 @@ class GraphDefinitionTarget {
                     return;
                 }
                 let GraphDefinitionCompartment = require('../backbone_elements/graphDefinitionCompartment.js');
-                this.__data.compartment = new GraphDefinitionCompartment(value);
+                this.__data.compartment = Array.isArray(value) ? value.map(v => new GraphDefinitionCompartment(v)) : [new GraphDefinitionCompartment(value)];
             }
         });
 
@@ -151,7 +149,7 @@ class GraphDefinitionTarget {
                     return;
                 }
                 let GraphDefinitionLink = require('../backbone_elements/graphDefinitionLink.js');
-                this.__data.link = new GraphDefinitionLink(value);
+                this.__data.link = Array.isArray(value) ? value.map(v => new GraphDefinitionLink(v)) : [new GraphDefinitionLink(value)];
             }
         });
 
@@ -171,13 +169,13 @@ class GraphDefinitionTarget {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            type: this.type && this.type.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            type: this.type,
             params: this.params,
-            profile: this.profile && this.profile.toJSON(),
-            compartment: this.compartment && this.compartment.toJSON(),
-            link: this.link && this.link.toJSON(),
+            profile: this.profile,
+            compartment: this.compartment && this.compartment.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON()),
         };
     }
 }

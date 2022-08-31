@@ -43,7 +43,7 @@ class EvidenceVariableCharacteristic {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class EvidenceVariableCharacteristic {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -118,9 +118,7 @@ class EvidenceVariableCharacteristic {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definitionCanonical = new canonical(value);
+                this.__data.definitionCanonical = value;
             }
         });
 
@@ -201,7 +199,7 @@ class EvidenceVariableCharacteristic {
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
-                this.__data.usageContext = new UsageContext(value);
+                this.__data.usageContext = Array.isArray(value) ? value.map(v => new UsageContext(v)) : [new UsageContext(value)];
             }
         });
 
@@ -231,9 +229,7 @@ class EvidenceVariableCharacteristic {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.participantEffectiveDateTime = new dateTime(value);
+                this.__data.participantEffectiveDateTime = value;
             }
         });
 
@@ -332,23 +328,23 @@ class EvidenceVariableCharacteristic {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             description: this.description,
             definitionReference: this.definitionReference && this.definitionReference.toJSON(),
-            definitionCanonical: this.definitionCanonical && this.definitionCanonical.toJSON(),
+            definitionCanonical: this.definitionCanonical,
             definitionCodeableConcept: this.definitionCodeableConcept && this.definitionCodeableConcept.toJSON(),
             definitionExpression: this.definitionExpression && this.definitionExpression.toJSON(),
             definitionDataRequirement: this.definitionDataRequirement && this.definitionDataRequirement.toJSON(),
             definitionTriggerDefinition: this.definitionTriggerDefinition && this.definitionTriggerDefinition.toJSON(),
-            usageContext: this.usageContext && this.usageContext.toJSON(),
+            usageContext: this.usageContext && this.usageContext.map(v => v.toJSON()),
             exclude: this.exclude,
-            participantEffectiveDateTime: this.participantEffectiveDateTime && this.participantEffectiveDateTime.toJSON(),
+            participantEffectiveDateTime: this.participantEffectiveDateTime,
             participantEffectivePeriod: this.participantEffectivePeriod && this.participantEffectivePeriod.toJSON(),
             participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSON(),
             participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSON(),
             timeFromStart: this.timeFromStart && this.timeFromStart.toJSON(),
-            groupMeasure: this.groupMeasure && this.groupMeasure.toJSON(),
+            groupMeasure: this.groupMeasure,
         };
     }
 }

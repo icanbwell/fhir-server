@@ -43,7 +43,7 @@ class ContractSecurityLabel {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ContractSecurityLabel {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -87,9 +87,7 @@ class ContractSecurityLabel {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.number = new unsignedInt(value);
+                this.__data.number = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -123,7 +121,7 @@ class ContractSecurityLabel {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.category = new Coding(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -140,7 +138,7 @@ class ContractSecurityLabel {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.control = new Coding(value);
+                this.__data.control = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -160,12 +158,12 @@ class ContractSecurityLabel {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            number: this.number && this.number.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            number: this.number,
             classification: this.classification && this.classification.toJSON(),
-            category: this.category && this.category.toJSON(),
-            control: this.control && this.control.toJSON(),
+            category: this.category && this.category.map(v => v.toJSON()),
+            control: this.control && this.control.map(v => v.toJSON()),
         };
     }
 }

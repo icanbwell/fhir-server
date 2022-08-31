@@ -43,7 +43,7 @@ class TestScriptAssert {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class TestScriptAssert {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -370,9 +370,7 @@ class TestScriptAssert {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.sourceId = new id(value);
+                this.__data.sourceId = value;
             }
         });
 
@@ -387,9 +385,7 @@ class TestScriptAssert {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.validateProfileId = new id(value);
+                this.__data.validateProfileId = value;
             }
         });
 
@@ -440,28 +436,28 @@ class TestScriptAssert {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             label: this.label,
             description: this.description,
-            direction: this.direction && this.direction.toJSON(),
+            direction: this.direction,
             compareToSourceId: this.compareToSourceId,
             compareToSourceExpression: this.compareToSourceExpression,
             compareToSourcePath: this.compareToSourcePath,
-            contentType: this.contentType && this.contentType.toJSON(),
+            contentType: this.contentType,
             expression: this.expression,
             headerField: this.headerField,
             minimumId: this.minimumId,
             navigationLinks: this.navigationLinks,
-            operator: this.operator && this.operator.toJSON(),
+            operator: this.operator,
             path: this.path,
-            requestMethod: this.requestMethod && this.requestMethod.toJSON(),
+            requestMethod: this.requestMethod,
             requestURL: this.requestURL,
-            resource: this.resource && this.resource.toJSON(),
-            response: this.response && this.response.toJSON(),
+            resource: this.resource,
+            response: this.response,
             responseCode: this.responseCode,
-            sourceId: this.sourceId && this.sourceId.toJSON(),
-            validateProfileId: this.validateProfileId && this.validateProfileId.toJSON(),
+            sourceId: this.sourceId,
+            validateProfileId: this.validateProfileId,
             value: this.value,
             warningOnly: this.warningOnly,
         };

@@ -44,7 +44,7 @@ class QuestionnaireInitial {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class QuestionnaireInitial {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class QuestionnaireInitial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDecimal = new decimal(value);
+                this.__data.valueDecimal = value;
             }
         });
 
@@ -134,9 +132,7 @@ class QuestionnaireInitial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDate = new date(value);
+                this.__data.valueDate = value;
             }
         });
 
@@ -151,9 +147,7 @@ class QuestionnaireInitial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDateTime = new dateTime(value);
+                this.__data.valueDateTime = value;
             }
         });
 
@@ -168,9 +162,7 @@ class QuestionnaireInitial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueTime = new time(value);
+                this.__data.valueTime = value;
             }
         });
 
@@ -200,9 +192,7 @@ class QuestionnaireInitial {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueUri = new uri(value);
+                this.__data.valueUri = value;
             }
         });
 
@@ -286,16 +276,16 @@ class QuestionnaireInitial {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             valueBoolean: this.valueBoolean,
-            valueDecimal: this.valueDecimal && this.valueDecimal.toJSON(),
+            valueDecimal: this.valueDecimal,
             valueInteger: this.valueInteger,
-            valueDate: this.valueDate && this.valueDate.toJSON(),
-            valueDateTime: this.valueDateTime && this.valueDateTime.toJSON(),
-            valueTime: this.valueTime && this.valueTime.toJSON(),
+            valueDate: this.valueDate,
+            valueDateTime: this.valueDateTime,
+            valueTime: this.valueTime,
             valueString: this.valueString,
-            valueUri: this.valueUri && this.valueUri.toJSON(),
+            valueUri: this.valueUri,
             valueAttachment: this.valueAttachment && this.valueAttachment.toJSON(),
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),

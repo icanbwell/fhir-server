@@ -44,7 +44,7 @@ class EffectEvidenceSynthesisPrecisionEstimate {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class EffectEvidenceSynthesisPrecisionEstimate {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,9 +103,7 @@ class EffectEvidenceSynthesisPrecisionEstimate {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.level = new decimal(value);
+                this.__data.level = value;
             }
         });
 
@@ -120,9 +118,7 @@ class EffectEvidenceSynthesisPrecisionEstimate {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.from = new decimal(value);
+                this.__data.from = value;
             }
         });
 
@@ -137,9 +133,7 @@ class EffectEvidenceSynthesisPrecisionEstimate {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.to = new decimal(value);
+                this.__data.to = value;
             }
         });
 
@@ -159,12 +153,12 @@ class EffectEvidenceSynthesisPrecisionEstimate {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            level: this.level && this.level.toJSON(),
-            from: this.from && this.from.toJSON(),
-            to: this.to && this.to.toJSON(),
+            level: this.level,
+            from: this.from,
+            to: this.to,
         };
     }
 }

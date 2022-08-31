@@ -42,7 +42,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,7 +86,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -135,7 +135,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.material = new CodeableConcept(value);
+                this.__data.material = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -151,7 +151,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.alternateMaterial = new CodeableConcept(value);
+                this.__data.alternateMaterial = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -167,7 +167,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.device = new Reference(value);
+                this.__data.device = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -183,7 +183,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.manufacturedItem = new Reference(value);
+                this.__data.manufacturedItem = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -198,7 +198,7 @@ class MedicinalProductPackagedPackageItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.packageItem = new MedicinalProductPackagedPackageItem(value);
+                this.__data.packageItem = Array.isArray(value) ? value.map(v => new MedicinalProductPackagedPackageItem(v)) : [new MedicinalProductPackagedPackageItem(value)];
             }
         });
 
@@ -230,7 +230,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.otherCharacteristics = new CodeableConcept(value);
+                this.__data.otherCharacteristics = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -246,7 +246,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let ProductShelfLife = require('../backbone_elements/productShelfLife.js');
-                this.__data.shelfLifeStorage = new ProductShelfLife(value);
+                this.__data.shelfLifeStorage = Array.isArray(value) ? value.map(v => new ProductShelfLife(v)) : [new ProductShelfLife(value)];
             }
         });
 
@@ -262,7 +262,7 @@ class MedicinalProductPackagedPackageItem {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.manufacturer = new Reference(value);
+                this.__data.manufacturer = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -282,20 +282,20 @@ class MedicinalProductPackagedPackageItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
             quantity: this.quantity && this.quantity.toJSON(),
-            material: this.material && this.material.toJSON(),
-            alternateMaterial: this.alternateMaterial && this.alternateMaterial.toJSON(),
-            device: this.device && this.device.toJSON(),
-            manufacturedItem: this.manufacturedItem && this.manufacturedItem.toJSON(),
-            packageItem: this.packageItem && this.packageItem.toJSON(),
+            material: this.material && this.material.map(v => v.toJSON()),
+            alternateMaterial: this.alternateMaterial && this.alternateMaterial.map(v => v.toJSON()),
+            device: this.device && this.device.map(v => v.toJSON()),
+            manufacturedItem: this.manufacturedItem && this.manufacturedItem.map(v => v.toJSON()),
+            packageItem: this.packageItem && this.packageItem.map(v => v.toJSON()),
             physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSON(),
-            otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.toJSON(),
-            shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.toJSON(),
-            manufacturer: this.manufacturer && this.manufacturer.toJSON(),
+            otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSON()),
+            shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.map(v => v.toJSON()),
+            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
         };
     }
 }

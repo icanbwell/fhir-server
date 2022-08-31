@@ -44,7 +44,7 @@ class CarePlanDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class CarePlanDetail {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -107,9 +107,7 @@ class CarePlanDetail {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiatesCanonical = new canonical(value);
+                this.__data.instantiatesCanonical = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -126,9 +124,7 @@ class CarePlanDetail {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.instantiatesUri = new uri(value);
+                this.__data.instantiatesUri = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -162,7 +158,7 @@ class CarePlanDetail {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -180,7 +176,7 @@ class CarePlanDetail {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -197,7 +193,7 @@ class CarePlanDetail {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.goal = new Reference(value);
+                this.__data.goal = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -326,7 +322,7 @@ class CarePlanDetail {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.performer = new Reference(value);
+                this.__data.performer = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -429,23 +425,23 @@ class CarePlanDetail {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            kind: this.kind && this.kind.toJSON(),
-            instantiatesCanonical: this.instantiatesCanonical && this.instantiatesCanonical.toJSON(),
-            instantiatesUri: this.instantiatesUri && this.instantiatesUri.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            kind: this.kind,
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
             code: this.code && this.code.toJSON(),
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
-            goal: this.goal && this.goal.toJSON(),
-            status: this.status && this.status.toJSON(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
+            goal: this.goal && this.goal.map(v => v.toJSON()),
+            status: this.status,
             statusReason: this.statusReason && this.statusReason.toJSON(),
             doNotPerform: this.doNotPerform,
             scheduledTiming: this.scheduledTiming && this.scheduledTiming.toJSON(),
             scheduledPeriod: this.scheduledPeriod && this.scheduledPeriod.toJSON(),
             scheduledString: this.scheduledString,
             location: this.location && this.location.toJSON(),
-            performer: this.performer && this.performer.toJSON(),
+            performer: this.performer && this.performer.map(v => v.toJSON()),
             productCodeableConcept: this.productCodeableConcept && this.productCodeableConcept.toJSON(),
             productReference: this.productReference && this.productReference.toJSON(),
             dailyAmount: this.dailyAmount && this.dailyAmount.toJSON(),

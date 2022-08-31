@@ -25,9 +25,7 @@ class Observation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class Observation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class Observation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class Observation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class Observation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class Observation {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -202,7 +196,7 @@ class Observation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = new Reference(value);
+                this.__data.basedOn = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -219,7 +213,7 @@ class Observation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.partOf = new Reference(value);
+                this.__data.partOf = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -250,7 +244,7 @@ class Observation {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -310,7 +304,7 @@ class Observation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.focus = new Reference(value);
+                this.__data.focus = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -342,9 +336,7 @@ class Observation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.effectiveDateTime = new dateTime(value);
+                this.__data.effectiveDateTime = value;
             }
         });
 
@@ -391,9 +383,7 @@ class Observation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.effectiveInstant = new instant(value);
+                this.__data.effectiveInstant = value;
             }
         });
 
@@ -409,9 +399,7 @@ class Observation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.issued = new instant(value);
+                this.__data.issued = value;
             }
         });
 
@@ -427,7 +415,7 @@ class Observation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.performer = new Reference(value);
+                this.__data.performer = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -567,9 +555,7 @@ class Observation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueTime = new time(value);
+                this.__data.valueTime = value;
             }
         });
 
@@ -584,9 +570,7 @@ class Observation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDateTime = new dateTime(value);
+                this.__data.valueDateTime = value;
             }
         });
 
@@ -636,7 +620,7 @@ class Observation {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.interpretation = new CodeableConcept(value);
+                this.__data.interpretation = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -652,7 +636,7 @@ class Observation {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -736,7 +720,7 @@ class Observation {
                     return;
                 }
                 let ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
-                this.__data.referenceRange = new ObservationReferenceRange(value);
+                this.__data.referenceRange = Array.isArray(value) ? value.map(v => new ObservationReferenceRange(v)) : [new ObservationReferenceRange(value)];
             }
         });
 
@@ -754,7 +738,7 @@ class Observation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.hasMember = new Reference(value);
+                this.__data.hasMember = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -772,7 +756,7 @@ class Observation {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.derivedFrom = new Reference(value);
+                this.__data.derivedFrom = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -792,7 +776,7 @@ class Observation {
                     return;
                 }
                 let ObservationComponent = require('../backbone_elements/observationComponent.js');
-                this.__data.component = new ObservationComponent(value);
+                this.__data.component = Array.isArray(value) ? value.map(v => new ObservationComponent(v)) : [new ObservationComponent(value)];
             }
         });
 
@@ -812,29 +796,29 @@ class Observation {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            basedOn: this.basedOn && this.basedOn.toJSON(),
-            partOf: this.partOf && this.partOf.toJSON(),
-            status: this.status && this.status.toJSON(),
-            category: this.category && this.category.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSON()),
+            status: this.status,
+            category: this.category && this.category.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             subject: this.subject && this.subject.toJSON(),
-            focus: this.focus && this.focus.toJSON(),
+            focus: this.focus && this.focus.map(v => v.toJSON()),
             encounter: this.encounter && this.encounter.toJSON(),
-            effectiveDateTime: this.effectiveDateTime && this.effectiveDateTime.toJSON(),
+            effectiveDateTime: this.effectiveDateTime,
             effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSON(),
             effectiveTiming: this.effectiveTiming && this.effectiveTiming.toJSON(),
-            effectiveInstant: this.effectiveInstant && this.effectiveInstant.toJSON(),
-            issued: this.issued && this.issued.toJSON(),
-            performer: this.performer && this.performer.toJSON(),
+            effectiveInstant: this.effectiveInstant,
+            issued: this.issued,
+            performer: this.performer && this.performer.map(v => v.toJSON()),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
             valueString: this.valueString,
@@ -843,20 +827,20 @@ class Observation {
             valueRange: this.valueRange && this.valueRange.toJSON(),
             valueRatio: this.valueRatio && this.valueRatio.toJSON(),
             valueSampledData: this.valueSampledData && this.valueSampledData.toJSON(),
-            valueTime: this.valueTime && this.valueTime.toJSON(),
-            valueDateTime: this.valueDateTime && this.valueDateTime.toJSON(),
+            valueTime: this.valueTime,
+            valueDateTime: this.valueDateTime,
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSON(),
             dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSON(),
-            interpretation: this.interpretation && this.interpretation.toJSON(),
-            note: this.note && this.note.toJSON(),
+            interpretation: this.interpretation && this.interpretation.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
             bodySite: this.bodySite && this.bodySite.toJSON(),
             method: this.method && this.method.toJSON(),
             specimen: this.specimen && this.specimen.toJSON(),
             device: this.device && this.device.toJSON(),
-            referenceRange: this.referenceRange && this.referenceRange.toJSON(),
-            hasMember: this.hasMember && this.hasMember.toJSON(),
-            derivedFrom: this.derivedFrom && this.derivedFrom.toJSON(),
-            component: this.component && this.component.toJSON(),
+            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSON()),
+            hasMember: this.hasMember && this.hasMember.map(v => v.toJSON()),
+            derivedFrom: this.derivedFrom && this.derivedFrom.map(v => v.toJSON()),
+            component: this.component && this.component.map(v => v.toJSON()),
         };
     }
 }

@@ -45,7 +45,7 @@ class ContactPoint {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -144,10 +144,10 @@ class ContactPoint {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            system: this.system && this.system.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            system: this.system,
             value: this.value,
-            use: this.use && this.use.toJSON(),
+            use: this.use,
             rank: this.rank,
             period: this.period && this.period.toJSON(),
         };

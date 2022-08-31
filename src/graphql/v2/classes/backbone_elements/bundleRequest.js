@@ -42,7 +42,7 @@ class BundleRequest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class BundleRequest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class BundleRequest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.url = new uri(value);
+                this.__data.url = value;
             }
         });
 
@@ -136,9 +134,7 @@ class BundleRequest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.ifModifiedSince = new instant(value);
+                this.__data.ifModifiedSince = value;
             }
         });
 
@@ -192,12 +188,12 @@ class BundleRequest {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            method: this.method && this.method.toJSON(),
-            url: this.url && this.url.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            method: this.method,
+            url: this.url,
             ifNoneMatch: this.ifNoneMatch,
-            ifModifiedSince: this.ifModifiedSince && this.ifModifiedSince.toJSON(),
+            ifModifiedSince: this.ifModifiedSince,
             ifMatch: this.ifMatch,
             ifNoneExist: this.ifNoneExist,
         };

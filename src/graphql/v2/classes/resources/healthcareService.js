@@ -24,9 +24,7 @@ class HealthcareService {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class HealthcareService {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -117,9 +113,7 @@ class HealthcareService {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,7 +133,7 @@ class HealthcareService {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +161,7 @@ class HealthcareService {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -183,7 +177,7 @@ class HealthcareService {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -232,7 +226,7 @@ class HealthcareService {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -248,7 +242,7 @@ class HealthcareService {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -265,7 +259,7 @@ class HealthcareService {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.specialty = new CodeableConcept(value);
+                this.__data.specialty = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -281,7 +275,7 @@ class HealthcareService {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(value);
+                this.__data.location = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -329,9 +323,7 @@ class HealthcareService {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.extraDetails = new markdown(value);
+                this.__data.extraDetails = value;
             }
         });
 
@@ -364,7 +356,7 @@ class HealthcareService {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = new ContactPoint(value);
+                this.__data.telecom = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -381,7 +373,7 @@ class HealthcareService {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.coverageArea = new Reference(value);
+                this.__data.coverageArea = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -398,7 +390,7 @@ class HealthcareService {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.serviceProvisionCode = new CodeableConcept(value);
+                this.__data.serviceProvisionCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -415,7 +407,7 @@ class HealthcareService {
                     return;
                 }
                 let HealthcareServiceEligibility = require('../backbone_elements/healthcareServiceEligibility.js');
-                this.__data.eligibility = new HealthcareServiceEligibility(value);
+                this.__data.eligibility = Array.isArray(value) ? value.map(v => new HealthcareServiceEligibility(v)) : [new HealthcareServiceEligibility(value)];
             }
         });
 
@@ -431,7 +423,7 @@ class HealthcareService {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.program = new CodeableConcept(value);
+                this.__data.program = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -447,7 +439,7 @@ class HealthcareService {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.characteristic = new CodeableConcept(value);
+                this.__data.characteristic = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -466,7 +458,7 @@ class HealthcareService {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.communication = new CodeableConcept(value);
+                this.__data.communication = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -483,7 +475,7 @@ class HealthcareService {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.referralMethod = new CodeableConcept(value);
+                this.__data.referralMethod = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -516,7 +508,7 @@ class HealthcareService {
                     return;
                 }
                 let HealthcareServiceAvailableTime = require('../backbone_elements/healthcareServiceAvailableTime.js');
-                this.__data.availableTime = new HealthcareServiceAvailableTime(value);
+                this.__data.availableTime = Array.isArray(value) ? value.map(v => new HealthcareServiceAvailableTime(v)) : [new HealthcareServiceAvailableTime(value)];
             }
         });
 
@@ -533,7 +525,7 @@ class HealthcareService {
                     return;
                 }
                 let HealthcareServiceNotAvailable = require('../backbone_elements/healthcareServiceNotAvailable.js');
-                this.__data.notAvailable = new HealthcareServiceNotAvailable(value);
+                this.__data.notAvailable = Array.isArray(value) ? value.map(v => new HealthcareServiceNotAvailable(v)) : [new HealthcareServiceNotAvailable(value)];
             }
         });
 
@@ -567,7 +559,7 @@ class HealthcareService {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = new Reference(value);
+                this.__data.endpoint = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -587,38 +579,38 @@ class HealthcareService {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             active: this.active,
             providedBy: this.providedBy && this.providedBy.toJSON(),
-            category: this.category && this.category.toJSON(),
-            type: this.type && this.type.toJSON(),
-            specialty: this.specialty && this.specialty.toJSON(),
-            location: this.location && this.location.toJSON(),
+            category: this.category && this.category.map(v => v.toJSON()),
+            type: this.type && this.type.map(v => v.toJSON()),
+            specialty: this.specialty && this.specialty.map(v => v.toJSON()),
+            location: this.location && this.location.map(v => v.toJSON()),
             name: this.name,
             comment: this.comment,
-            extraDetails: this.extraDetails && this.extraDetails.toJSON(),
+            extraDetails: this.extraDetails,
             photo: this.photo && this.photo.toJSON(),
-            telecom: this.telecom && this.telecom.toJSON(),
-            coverageArea: this.coverageArea && this.coverageArea.toJSON(),
-            serviceProvisionCode: this.serviceProvisionCode && this.serviceProvisionCode.toJSON(),
-            eligibility: this.eligibility && this.eligibility.toJSON(),
-            program: this.program && this.program.toJSON(),
-            characteristic: this.characteristic && this.characteristic.toJSON(),
-            communication: this.communication && this.communication.toJSON(),
-            referralMethod: this.referralMethod && this.referralMethod.toJSON(),
+            telecom: this.telecom && this.telecom.map(v => v.toJSON()),
+            coverageArea: this.coverageArea && this.coverageArea.map(v => v.toJSON()),
+            serviceProvisionCode: this.serviceProvisionCode && this.serviceProvisionCode.map(v => v.toJSON()),
+            eligibility: this.eligibility && this.eligibility.map(v => v.toJSON()),
+            program: this.program && this.program.map(v => v.toJSON()),
+            characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
+            communication: this.communication && this.communication.map(v => v.toJSON()),
+            referralMethod: this.referralMethod && this.referralMethod.map(v => v.toJSON()),
             appointmentRequired: this.appointmentRequired,
-            availableTime: this.availableTime && this.availableTime.toJSON(),
-            notAvailable: this.notAvailable && this.notAvailable.toJSON(),
+            availableTime: this.availableTime && this.availableTime.map(v => v.toJSON()),
+            notAvailable: this.notAvailable && this.notAvailable.map(v => v.toJSON()),
             availabilityExceptions: this.availabilityExceptions,
-            endpoint: this.endpoint && this.endpoint.toJSON(),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
         };
     }
 }

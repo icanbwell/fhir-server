@@ -48,7 +48,7 @@ class Signature {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -66,7 +66,7 @@ class Signature {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.type = new Coding(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -81,9 +81,7 @@ class Signature {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.when = new instant(value);
+                this.__data.when = value;
             }
         });
 
@@ -166,9 +164,7 @@ class Signature {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.data = new base64Binary(value);
+                this.__data.data = value;
             }
         });
 
@@ -188,14 +184,14 @@ class Signature {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            type: this.type && this.type.toJSON(),
-            when: this.when && this.when.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            type: this.type && this.type.map(v => v.toJSON()),
+            when: this.when,
             who: this.who && this.who.toJSON(),
             onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSON(),
-            targetFormat: this.targetFormat && this.targetFormat.toJSON(),
-            sigFormat: this.sigFormat && this.sigFormat.toJSON(),
-            data: this.data && this.data.toJSON(),
+            targetFormat: this.targetFormat,
+            sigFormat: this.sigFormat,
+            data: this.data,
         };
     }
 }

@@ -44,7 +44,7 @@ class ExplanationOfBenefitDetail1 {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ExplanationOfBenefitDetail1 {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -107,7 +107,7 @@ class ExplanationOfBenefitDetail1 {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.modifier = new CodeableConcept(value);
+                this.__data.modifier = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -158,9 +158,7 @@ class ExplanationOfBenefitDetail1 {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.factor = new decimal(value);
+                this.__data.factor = value;
             }
         });
 
@@ -193,7 +191,7 @@ class ExplanationOfBenefitDetail1 {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.noteNumber = value;
+                this.__data.noteNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -209,7 +207,7 @@ class ExplanationOfBenefitDetail1 {
                     return;
                 }
                 let ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
-                this.__data.adjudication = new ExplanationOfBenefitAdjudication(value);
+                this.__data.adjudication = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(value)];
             }
         });
 
@@ -225,7 +223,7 @@ class ExplanationOfBenefitDetail1 {
                     return;
                 }
                 let ExplanationOfBenefitSubDetail1 = require('../backbone_elements/explanationOfBenefitSubDetail1.js');
-                this.__data.subDetail = new ExplanationOfBenefitSubDetail1(value);
+                this.__data.subDetail = Array.isArray(value) ? value.map(v => new ExplanationOfBenefitSubDetail1(v)) : [new ExplanationOfBenefitSubDetail1(value)];
             }
         });
 
@@ -245,17 +243,17 @@ class ExplanationOfBenefitDetail1 {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             productOrService: this.productOrService && this.productOrService.toJSON(),
-            modifier: this.modifier && this.modifier.toJSON(),
+            modifier: this.modifier && this.modifier.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
-            factor: this.factor && this.factor.toJSON(),
+            factor: this.factor,
             net: this.net && this.net.toJSON(),
             noteNumber: this.noteNumber,
-            adjudication: this.adjudication && this.adjudication.toJSON(),
-            subDetail: this.subDetail && this.subDetail.toJSON(),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
+            subDetail: this.subDetail && this.subDetail.map(v => v.toJSON()),
         };
     }
 }

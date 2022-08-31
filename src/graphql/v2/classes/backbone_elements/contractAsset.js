@@ -43,7 +43,7 @@ class ContractAsset {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ContractAsset {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,7 +103,7 @@ class ContractAsset {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(value);
+                this.__data.type = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class ContractAsset {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.typeReference = new Reference(value);
+                this.__data.typeReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -135,7 +135,7 @@ class ContractAsset {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subtype = new CodeableConcept(value);
+                this.__data.subtype = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -169,7 +169,7 @@ class ContractAsset {
                     return;
                 }
                 let ContractContext = require('../backbone_elements/contractContext.js');
-                this.__data.context = new ContractContext(value);
+                this.__data.context = Array.isArray(value) ? value.map(v => new ContractContext(v)) : [new ContractContext(value)];
             }
         });
 
@@ -201,7 +201,7 @@ class ContractAsset {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.periodType = new CodeableConcept(value);
+                this.__data.periodType = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -217,7 +217,7 @@ class ContractAsset {
                     return;
                 }
                 let Period = require('../complex_types/period.js');
-                this.__data.period = new Period(value);
+                this.__data.period = Array.isArray(value) ? value.map(v => new Period(v)) : [new Period(value)];
             }
         });
 
@@ -233,7 +233,7 @@ class ContractAsset {
                     return;
                 }
                 let Period = require('../complex_types/period.js');
-                this.__data.usePeriod = new Period(value);
+                this.__data.usePeriod = Array.isArray(value) ? value.map(v => new Period(v)) : [new Period(value)];
             }
         });
 
@@ -265,7 +265,7 @@ class ContractAsset {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.linkId = value;
+                this.__data.linkId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -281,7 +281,7 @@ class ContractAsset {
                     return;
                 }
                 let ContractAnswer = require('../backbone_elements/contractAnswer.js');
-                this.__data.answer = new ContractAnswer(value);
+                this.__data.answer = Array.isArray(value) ? value.map(v => new ContractAnswer(v)) : [new ContractAnswer(value)];
             }
         });
 
@@ -296,9 +296,7 @@ class ContractAsset {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.securityLabelNumber = new unsignedInt(value);
+                this.__data.securityLabelNumber = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -314,7 +312,7 @@ class ContractAsset {
                     return;
                 }
                 let ContractValuedItem = require('../backbone_elements/contractValuedItem.js');
-                this.__data.valuedItem = new ContractValuedItem(value);
+                this.__data.valuedItem = Array.isArray(value) ? value.map(v => new ContractValuedItem(v)) : [new ContractValuedItem(value)];
             }
         });
 
@@ -334,23 +332,23 @@ class ContractAsset {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             scope: this.scope && this.scope.toJSON(),
-            type: this.type && this.type.toJSON(),
-            typeReference: this.typeReference && this.typeReference.toJSON(),
-            subtype: this.subtype && this.subtype.toJSON(),
+            type: this.type && this.type.map(v => v.toJSON()),
+            typeReference: this.typeReference && this.typeReference.map(v => v.toJSON()),
+            subtype: this.subtype && this.subtype.map(v => v.toJSON()),
             relationship: this.relationship && this.relationship.toJSON(),
-            context: this.context && this.context.toJSON(),
+            context: this.context && this.context.map(v => v.toJSON()),
             condition: this.condition,
-            periodType: this.periodType && this.periodType.toJSON(),
-            period: this.period && this.period.toJSON(),
-            usePeriod: this.usePeriod && this.usePeriod.toJSON(),
+            periodType: this.periodType && this.periodType.map(v => v.toJSON()),
+            period: this.period && this.period.map(v => v.toJSON()),
+            usePeriod: this.usePeriod && this.usePeriod.map(v => v.toJSON()),
             text: this.text,
             linkId: this.linkId,
-            answer: this.answer && this.answer.toJSON(),
-            securityLabelNumber: this.securityLabelNumber && this.securityLabelNumber.toJSON(),
-            valuedItem: this.valuedItem && this.valuedItem.toJSON(),
+            answer: this.answer && this.answer.map(v => v.toJSON()),
+            securityLabelNumber: this.securityLabelNumber,
+            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSON()),
         };
     }
 }

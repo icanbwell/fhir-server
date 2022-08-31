@@ -46,7 +46,7 @@ class MedicationRequestDispenseRequest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -74,7 +74,7 @@ class MedicationRequestDispenseRequest {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -145,9 +145,7 @@ class MedicationRequestDispenseRequest {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.numberOfRepeatsAllowed = new unsignedInt(value);
+                this.__data.numberOfRepeatsAllowed = value;
             }
         });
 
@@ -216,12 +214,12 @@ class MedicationRequestDispenseRequest {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             initialFill: this.initialFill && this.initialFill.toJSON(),
             dispenseInterval: this.dispenseInterval && this.dispenseInterval.toJSON(),
             validityPeriod: this.validityPeriod && this.validityPeriod.toJSON(),
-            numberOfRepeatsAllowed: this.numberOfRepeatsAllowed && this.numberOfRepeatsAllowed.toJSON(),
+            numberOfRepeatsAllowed: this.numberOfRepeatsAllowed,
             quantity: this.quantity && this.quantity.toJSON(),
             expectedSupplyDuration: this.expectedSupplyDuration && this.expectedSupplyDuration.toJSON(),
             performer: this.performer && this.performer.toJSON(),

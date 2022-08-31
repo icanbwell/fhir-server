@@ -25,9 +25,7 @@ class DeviceDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class DeviceDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class DeviceDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class DeviceDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class DeviceDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,7 +179,7 @@ class DeviceDefinition {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -204,7 +198,7 @@ class DeviceDefinition {
                     return;
                 }
                 let DeviceDefinitionUdiDeviceIdentifier = require('../backbone_elements/deviceDefinitionUdiDeviceIdentifier.js');
-                this.__data.udiDeviceIdentifier = new DeviceDefinitionUdiDeviceIdentifier(value);
+                this.__data.udiDeviceIdentifier = Array.isArray(value) ? value.map(v => new DeviceDefinitionUdiDeviceIdentifier(v)) : [new DeviceDefinitionUdiDeviceIdentifier(value)];
             }
         });
 
@@ -251,7 +245,7 @@ class DeviceDefinition {
                     return;
                 }
                 let DeviceDefinitionDeviceName = require('../backbone_elements/deviceDefinitionDeviceName.js');
-                this.__data.deviceName = new DeviceDefinitionDeviceName(value);
+                this.__data.deviceName = Array.isArray(value) ? value.map(v => new DeviceDefinitionDeviceName(v)) : [new DeviceDefinitionDeviceName(value)];
             }
         });
 
@@ -299,7 +293,7 @@ class DeviceDefinition {
                     return;
                 }
                 let DeviceDefinitionSpecialization = require('../backbone_elements/deviceDefinitionSpecialization.js');
-                this.__data.specialization = new DeviceDefinitionSpecialization(value);
+                this.__data.specialization = Array.isArray(value) ? value.map(v => new DeviceDefinitionSpecialization(v)) : [new DeviceDefinitionSpecialization(value)];
             }
         });
 
@@ -314,7 +308,7 @@ class DeviceDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.version = value;
+                this.__data.version = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -330,7 +324,7 @@ class DeviceDefinition {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.safety = new CodeableConcept(value);
+                this.__data.safety = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -346,7 +340,7 @@ class DeviceDefinition {
                     return;
                 }
                 let ProductShelfLife = require('../backbone_elements/productShelfLife.js');
-                this.__data.shelfLifeStorage = new ProductShelfLife(value);
+                this.__data.shelfLifeStorage = Array.isArray(value) ? value.map(v => new ProductShelfLife(v)) : [new ProductShelfLife(value)];
             }
         });
 
@@ -379,7 +373,7 @@ class DeviceDefinition {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.languageCode = new CodeableConcept(value);
+                this.__data.languageCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -395,7 +389,7 @@ class DeviceDefinition {
                     return;
                 }
                 let DeviceDefinitionCapability = require('../backbone_elements/deviceDefinitionCapability.js');
-                this.__data.capability = new DeviceDefinitionCapability(value);
+                this.__data.capability = Array.isArray(value) ? value.map(v => new DeviceDefinitionCapability(v)) : [new DeviceDefinitionCapability(value)];
             }
         });
 
@@ -412,7 +406,7 @@ class DeviceDefinition {
                     return;
                 }
                 let DeviceDefinitionProperty = require('../backbone_elements/deviceDefinitionProperty.js');
-                this.__data.property = new DeviceDefinitionProperty(value);
+                this.__data.property = Array.isArray(value) ? value.map(v => new DeviceDefinitionProperty(v)) : [new DeviceDefinitionProperty(value)];
             }
         });
 
@@ -446,7 +440,7 @@ class DeviceDefinition {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.contact = new ContactPoint(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -461,9 +455,7 @@ class DeviceDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.url = new uri(value);
+                this.__data.url = value;
             }
         });
 
@@ -478,9 +470,7 @@ class DeviceDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.onlineInformation = new uri(value);
+                this.__data.onlineInformation = value;
             }
         });
 
@@ -497,7 +487,7 @@ class DeviceDefinition {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -547,7 +537,7 @@ class DeviceDefinition {
                     return;
                 }
                 let DeviceDefinitionMaterial = require('../backbone_elements/deviceDefinitionMaterial.js');
-                this.__data.material = new DeviceDefinitionMaterial(value);
+                this.__data.material = Array.isArray(value) ? value.map(v => new DeviceDefinitionMaterial(v)) : [new DeviceDefinitionMaterial(value)];
             }
         });
 
@@ -567,37 +557,37 @@ class DeviceDefinition {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            udiDeviceIdentifier: this.udiDeviceIdentifier && this.udiDeviceIdentifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            udiDeviceIdentifier: this.udiDeviceIdentifier && this.udiDeviceIdentifier.map(v => v.toJSON()),
             manufacturerString: this.manufacturerString,
             manufacturerReference: this.manufacturerReference && this.manufacturerReference.toJSON(),
-            deviceName: this.deviceName && this.deviceName.toJSON(),
+            deviceName: this.deviceName && this.deviceName.map(v => v.toJSON()),
             modelNumber: this.modelNumber,
             type: this.type && this.type.toJSON(),
-            specialization: this.specialization && this.specialization.toJSON(),
+            specialization: this.specialization && this.specialization.map(v => v.toJSON()),
             version: this.version,
-            safety: this.safety && this.safety.toJSON(),
-            shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.toJSON(),
+            safety: this.safety && this.safety.map(v => v.toJSON()),
+            shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.map(v => v.toJSON()),
             physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSON(),
-            languageCode: this.languageCode && this.languageCode.toJSON(),
-            capability: this.capability && this.capability.toJSON(),
-            property: this.property && this.property.toJSON(),
+            languageCode: this.languageCode && this.languageCode.map(v => v.toJSON()),
+            capability: this.capability && this.capability.map(v => v.toJSON()),
+            property: this.property && this.property.map(v => v.toJSON()),
             owner: this.owner && this.owner.toJSON(),
-            contact: this.contact && this.contact.toJSON(),
-            url: this.url && this.url.toJSON(),
-            onlineInformation: this.onlineInformation && this.onlineInformation.toJSON(),
-            note: this.note && this.note.toJSON(),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
+            url: this.url,
+            onlineInformation: this.onlineInformation,
+            note: this.note && this.note.map(v => v.toJSON()),
             quantity: this.quantity && this.quantity.toJSON(),
             parentDevice: this.parentDevice && this.parentDevice.toJSON(),
-            material: this.material && this.material.toJSON(),
+            material: this.material && this.material.map(v => v.toJSON()),
         };
     }
 }

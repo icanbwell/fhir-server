@@ -45,7 +45,7 @@ class ElementDefinitionType {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ElementDefinitionType {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -92,9 +92,7 @@ class ElementDefinitionType {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.code = new uri(value);
+                this.__data.code = value;
             }
         });
 
@@ -115,9 +113,7 @@ class ElementDefinitionType {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.profile = new canonical(value);
+                this.__data.profile = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,9 +135,7 @@ class ElementDefinitionType {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.targetProfile = new canonical(value);
+                this.__data.targetProfile = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -158,7 +152,7 @@ class ElementDefinitionType {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.aggregation = value;
+                this.__data.aggregation = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -194,13 +188,13 @@ class ElementDefinitionType {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            code: this.code && this.code.toJSON(),
-            profile: this.profile && this.profile.toJSON(),
-            targetProfile: this.targetProfile && this.targetProfile.toJSON(),
-            aggregation: this.aggregation && this.aggregation.toJSON(),
-            versioning: this.versioning && this.versioning.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            code: this.code,
+            profile: this.profile,
+            targetProfile: this.targetProfile,
+            aggregation: this.aggregation,
+            versioning: this.versioning,
         };
     }
 }

@@ -42,7 +42,7 @@ class MedicationKnowledgeAdministrationGuidelines {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicationKnowledgeAdministrationGuidelines {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,7 +86,7 @@ class MedicationKnowledgeAdministrationGuidelines {
                     return;
                 }
                 let MedicationKnowledgeDosage = require('../backbone_elements/medicationKnowledgeDosage.js');
-                this.__data.dosage = new MedicationKnowledgeDosage(value);
+                this.__data.dosage = Array.isArray(value) ? value.map(v => new MedicationKnowledgeDosage(v)) : [new MedicationKnowledgeDosage(value)];
             }
         });
 
@@ -135,7 +135,7 @@ class MedicationKnowledgeAdministrationGuidelines {
                     return;
                 }
                 let MedicationKnowledgePatientCharacteristics = require('../backbone_elements/medicationKnowledgePatientCharacteristics.js');
-                this.__data.patientCharacteristics = new MedicationKnowledgePatientCharacteristics(value);
+                this.__data.patientCharacteristics = Array.isArray(value) ? value.map(v => new MedicationKnowledgePatientCharacteristics(v)) : [new MedicationKnowledgePatientCharacteristics(value)];
             }
         });
 
@@ -155,12 +155,12 @@ class MedicationKnowledgeAdministrationGuidelines {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            dosage: this.dosage && this.dosage.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            dosage: this.dosage && this.dosage.map(v => v.toJSON()),
             indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSON(),
             indicationReference: this.indicationReference && this.indicationReference.toJSON(),
-            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.toJSON(),
+            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSON()),
         };
     }
 }

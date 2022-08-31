@@ -43,7 +43,7 @@ class ObservationComponent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ObservationComponent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -227,9 +227,7 @@ class ObservationComponent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueTime = new time(value);
+                this.__data.valueTime = value;
             }
         });
 
@@ -244,9 +242,7 @@ class ObservationComponent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDateTime = new dateTime(value);
+                this.__data.valueDateTime = value;
             }
         });
 
@@ -296,7 +292,7 @@ class ObservationComponent {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.interpretation = new CodeableConcept(value);
+                this.__data.interpretation = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -313,7 +309,7 @@ class ObservationComponent {
                     return;
                 }
                 let ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
-                this.__data.referenceRange = new ObservationReferenceRange(value);
+                this.__data.referenceRange = Array.isArray(value) ? value.map(v => new ObservationReferenceRange(v)) : [new ObservationReferenceRange(value)];
             }
         });
 
@@ -333,8 +329,8 @@ class ObservationComponent {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             valueQuantity: this.valueQuantity && this.valueQuantity.toJSON(),
             valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSON(),
@@ -344,12 +340,12 @@ class ObservationComponent {
             valueRange: this.valueRange && this.valueRange.toJSON(),
             valueRatio: this.valueRatio && this.valueRatio.toJSON(),
             valueSampledData: this.valueSampledData && this.valueSampledData.toJSON(),
-            valueTime: this.valueTime && this.valueTime.toJSON(),
-            valueDateTime: this.valueDateTime && this.valueDateTime.toJSON(),
+            valueTime: this.valueTime,
+            valueDateTime: this.valueDateTime,
             valuePeriod: this.valuePeriod && this.valuePeriod.toJSON(),
             dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSON(),
-            interpretation: this.interpretation && this.interpretation.toJSON(),
-            referenceRange: this.referenceRange && this.referenceRange.toJSON(),
+            interpretation: this.interpretation && this.interpretation.map(v => v.toJSON()),
+            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSON()),
         };
     }
 }

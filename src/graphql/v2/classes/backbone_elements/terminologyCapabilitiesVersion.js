@@ -44,7 +44,7 @@ class TerminologyCapabilitiesVersion {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class TerminologyCapabilitiesVersion {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -133,7 +133,7 @@ class TerminologyCapabilitiesVersion {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.language = value;
+                this.__data.language = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -149,7 +149,7 @@ class TerminologyCapabilitiesVersion {
                     return;
                 }
                 let TerminologyCapabilitiesFilter = require('../backbone_elements/terminologyCapabilitiesFilter.js');
-                this.__data.filter = new TerminologyCapabilitiesFilter(value);
+                this.__data.filter = Array.isArray(value) ? value.map(v => new TerminologyCapabilitiesFilter(v)) : [new TerminologyCapabilitiesFilter(value)];
             }
         });
 
@@ -164,7 +164,7 @@ class TerminologyCapabilitiesVersion {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.property = value;
+                this.__data.property = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -184,14 +184,14 @@ class TerminologyCapabilitiesVersion {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code,
             isDefault: this.isDefault,
             compositional: this.compositional,
-            language: this.language && this.language.toJSON(),
-            filter: this.filter && this.filter.toJSON(),
-            property: this.property && this.property.toJSON(),
+            language: this.language,
+            filter: this.filter && this.filter.map(v => v.toJSON()),
+            property: this.property,
         };
     }
 }

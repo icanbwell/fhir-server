@@ -24,9 +24,7 @@ class Specimen {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -62,9 +60,7 @@ class Specimen {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -117,9 +113,7 @@ class Specimen {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -139,7 +133,7 @@ class Specimen {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -167,7 +161,7 @@ class Specimen {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -183,7 +177,7 @@ class Specimen {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -265,9 +259,7 @@ class Specimen {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.receivedTime = new dateTime(value);
+                this.__data.receivedTime = value;
             }
         });
 
@@ -284,7 +276,7 @@ class Specimen {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.parent = new Reference(value);
+                this.__data.parent = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -300,7 +292,7 @@ class Specimen {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.request = new Reference(value);
+                this.__data.request = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -332,7 +324,7 @@ class Specimen {
                     return;
                 }
                 let SpecimenProcessing = require('../backbone_elements/specimenProcessing.js');
-                this.__data.processing = new SpecimenProcessing(value);
+                this.__data.processing = Array.isArray(value) ? value.map(v => new SpecimenProcessing(v)) : [new SpecimenProcessing(value)];
             }
         });
 
@@ -349,7 +341,7 @@ class Specimen {
                     return;
                 }
                 let SpecimenContainer = require('../backbone_elements/specimenContainer.js');
-                this.__data.container = new SpecimenContainer(value);
+                this.__data.container = Array.isArray(value) ? value.map(v => new SpecimenContainer(v)) : [new SpecimenContainer(value)];
             }
         });
 
@@ -365,7 +357,7 @@ class Specimen {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.condition = new CodeableConcept(value);
+                this.__data.condition = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -382,7 +374,7 @@ class Specimen {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -402,27 +394,27 @@ class Specimen {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
             accessionIdentifier: this.accessionIdentifier && this.accessionIdentifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             type: this.type && this.type.toJSON(),
             subject: this.subject && this.subject.toJSON(),
-            receivedTime: this.receivedTime && this.receivedTime.toJSON(),
-            parent: this.parent && this.parent.toJSON(),
-            request: this.request && this.request.toJSON(),
+            receivedTime: this.receivedTime,
+            parent: this.parent && this.parent.map(v => v.toJSON()),
+            request: this.request && this.request.map(v => v.toJSON()),
             collection: this.collection && this.collection.toJSON(),
-            processing: this.processing && this.processing.toJSON(),
-            container: this.container && this.container.toJSON(),
-            condition: this.condition && this.condition.toJSON(),
-            note: this.note && this.note.toJSON(),
+            processing: this.processing && this.processing.map(v => v.toJSON()),
+            container: this.container && this.container.map(v => v.toJSON()),
+            condition: this.condition && this.condition.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
         };
     }
 }

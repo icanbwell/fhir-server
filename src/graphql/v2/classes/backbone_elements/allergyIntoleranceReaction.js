@@ -43,7 +43,7 @@ class AllergyIntoleranceReaction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class AllergyIntoleranceReaction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -114,7 +114,7 @@ class AllergyIntoleranceReaction {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.manifestation = new CodeableConcept(value);
+                this.__data.manifestation = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -145,9 +145,7 @@ class AllergyIntoleranceReaction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.onset = new dateTime(value);
+                this.__data.onset = value;
             }
         });
 
@@ -195,7 +193,7 @@ class AllergyIntoleranceReaction {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -215,15 +213,15 @@ class AllergyIntoleranceReaction {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             substance: this.substance && this.substance.toJSON(),
-            manifestation: this.manifestation && this.manifestation.toJSON(),
+            manifestation: this.manifestation && this.manifestation.map(v => v.toJSON()),
             description: this.description,
-            onset: this.onset && this.onset.toJSON(),
-            severity: this.severity && this.severity.toJSON(),
+            onset: this.onset,
+            severity: this.severity,
             exposureRoute: this.exposureRoute && this.exposureRoute.toJSON(),
-            note: this.note && this.note.toJSON(),
+            note: this.note && this.note.map(v => v.toJSON()),
         };
     }
 }

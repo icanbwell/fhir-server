@@ -44,7 +44,7 @@ class LocationHoursOfOperation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class LocationHoursOfOperation {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,7 +88,7 @@ class LocationHoursOfOperation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.daysOfWeek = value;
+                this.__data.daysOfWeek = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -118,9 +118,7 @@ class LocationHoursOfOperation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.openingTime = new time(value);
+                this.__data.openingTime = value;
             }
         });
 
@@ -135,9 +133,7 @@ class LocationHoursOfOperation {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.closingTime = new time(value);
+                this.__data.closingTime = value;
             }
         });
 
@@ -157,12 +153,12 @@ class LocationHoursOfOperation {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            daysOfWeek: this.daysOfWeek && this.daysOfWeek.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            daysOfWeek: this.daysOfWeek,
             allDay: this.allDay,
-            openingTime: this.openingTime && this.openingTime.toJSON(),
-            closingTime: this.closingTime && this.closingTime.toJSON(),
+            openingTime: this.openingTime,
+            closingTime: this.closingTime,
         };
     }
 }

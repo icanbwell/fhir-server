@@ -26,9 +26,7 @@ class GuidanceResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class GuidanceResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class GuidanceResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class GuidanceResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class GuidanceResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -203,7 +197,7 @@ class GuidanceResponse {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -218,9 +212,7 @@ class GuidanceResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.moduleUri = new uri(value);
+                this.__data.moduleUri = value;
             }
         });
 
@@ -235,9 +227,7 @@ class GuidanceResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.moduleCanonical = new canonical(value);
+                this.__data.moduleCanonical = value;
             }
         });
 
@@ -323,9 +313,7 @@ class GuidanceResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.occurrenceDateTime = new dateTime(value);
+                this.__data.occurrenceDateTime = value;
             }
         });
 
@@ -357,7 +345,7 @@ class GuidanceResponse {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -376,7 +364,7 @@ class GuidanceResponse {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -392,7 +380,7 @@ class GuidanceResponse {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -410,7 +398,7 @@ class GuidanceResponse {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.evaluationMessage = new Reference(value);
+                this.__data.evaluationMessage = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -465,7 +453,7 @@ class GuidanceResponse {
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
-                this.__data.dataRequirement = new DataRequirement(value);
+                this.__data.dataRequirement = Array.isArray(value) ? value.map(v => new DataRequirement(v)) : [new DataRequirement(value)];
             }
         });
 
@@ -485,31 +473,31 @@ class GuidanceResponse {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             requestIdentifier: this.requestIdentifier && this.requestIdentifier.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            moduleUri: this.moduleUri && this.moduleUri.toJSON(),
-            moduleCanonical: this.moduleCanonical && this.moduleCanonical.toJSON(),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            moduleUri: this.moduleUri,
+            moduleCanonical: this.moduleCanonical,
             moduleCodeableConcept: this.moduleCodeableConcept && this.moduleCodeableConcept.toJSON(),
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             subject: this.subject && this.subject.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            occurrenceDateTime: this.occurrenceDateTime && this.occurrenceDateTime.toJSON(),
+            occurrenceDateTime: this.occurrenceDateTime,
             performer: this.performer && this.performer.toJSON(),
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
-            note: this.note && this.note.toJSON(),
-            evaluationMessage: this.evaluationMessage && this.evaluationMessage.toJSON(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
+            evaluationMessage: this.evaluationMessage && this.evaluationMessage.map(v => v.toJSON()),
             outputParameters: this.outputParameters && this.outputParameters.toJSON(),
             result: this.result && this.result.toJSON(),
-            dataRequirement: this.dataRequirement && this.dataRequirement.toJSON(),
+            dataRequirement: this.dataRequirement && this.dataRequirement.map(v => v.toJSON()),
         };
     }
 }

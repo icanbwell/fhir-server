@@ -25,9 +25,7 @@ class CoverageEligibilityResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class CoverageEligibilityResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class CoverageEligibilityResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class CoverageEligibilityResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class CoverageEligibilityResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -184,7 +178,7 @@ class CoverageEligibilityResponse {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -218,7 +212,7 @@ class CoverageEligibilityResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.purpose = value;
+                this.__data.purpose = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -250,9 +244,7 @@ class CoverageEligibilityResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.servicedDate = new date(value);
+                this.__data.servicedDate = value;
             }
         });
 
@@ -283,9 +275,7 @@ class CoverageEligibilityResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.created = new dateTime(value);
+                this.__data.created = value;
             }
         });
 
@@ -381,7 +371,7 @@ class CoverageEligibilityResponse {
                     return;
                 }
                 let CoverageEligibilityResponseInsurance = require('../backbone_elements/coverageEligibilityResponseInsurance.js');
-                this.__data.insurance = new CoverageEligibilityResponseInsurance(value);
+                this.__data.insurance = Array.isArray(value) ? value.map(v => new CoverageEligibilityResponseInsurance(v)) : [new CoverageEligibilityResponseInsurance(value)];
             }
         });
 
@@ -429,7 +419,7 @@ class CoverageEligibilityResponse {
                     return;
                 }
                 let CoverageEligibilityResponseError = require('../backbone_elements/coverageEligibilityResponseError.js');
-                this.__data.error = new CoverageEligibilityResponseError(value);
+                this.__data.error = Array.isArray(value) ? value.map(v => new CoverageEligibilityResponseError(v)) : [new CoverageEligibilityResponseError(value)];
             }
         });
 
@@ -449,30 +439,30 @@ class CoverageEligibilityResponse {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
-            purpose: this.purpose && this.purpose.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
+            purpose: this.purpose,
             patient: this.patient && this.patient.toJSON(),
-            servicedDate: this.servicedDate && this.servicedDate.toJSON(),
+            servicedDate: this.servicedDate,
             servicedPeriod: this.servicedPeriod && this.servicedPeriod.toJSON(),
-            created: this.created && this.created.toJSON(),
+            created: this.created,
             requestor: this.requestor && this.requestor.toJSON(),
             request: this.request && this.request.toJSON(),
-            outcome: this.outcome && this.outcome.toJSON(),
+            outcome: this.outcome,
             disposition: this.disposition,
             insurer: this.insurer && this.insurer.toJSON(),
-            insurance: this.insurance && this.insurance.toJSON(),
+            insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             preAuthRef: this.preAuthRef,
             form: this.form && this.form.toJSON(),
-            error: this.error && this.error.toJSON(),
+            error: this.error && this.error.map(v => v.toJSON()),
         };
     }
 }

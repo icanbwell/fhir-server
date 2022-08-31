@@ -43,7 +43,7 @@ class RiskAssessmentPrediction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class RiskAssessmentPrediction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,9 +103,7 @@ class RiskAssessmentPrediction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.probabilityDecimal = new decimal(value);
+                this.__data.probabilityDecimal = value;
             }
         });
 
@@ -156,9 +154,7 @@ class RiskAssessmentPrediction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.relativeRisk = new decimal(value);
+                this.__data.relativeRisk = value;
             }
         });
 
@@ -225,13 +221,13 @@ class RiskAssessmentPrediction {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             outcome: this.outcome && this.outcome.toJSON(),
-            probabilityDecimal: this.probabilityDecimal && this.probabilityDecimal.toJSON(),
+            probabilityDecimal: this.probabilityDecimal,
             probabilityRange: this.probabilityRange && this.probabilityRange.toJSON(),
             qualitativeRisk: this.qualitativeRisk && this.qualitativeRisk.toJSON(),
-            relativeRisk: this.relativeRisk && this.relativeRisk.toJSON(),
+            relativeRisk: this.relativeRisk,
             whenPeriod: this.whenPeriod && this.whenPeriod.toJSON(),
             whenRange: this.whenRange && this.whenRange.toJSON(),
             rationale: this.rationale,

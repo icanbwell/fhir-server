@@ -43,7 +43,7 @@ class PatientContact {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class PatientContact {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -87,7 +87,7 @@ class PatientContact {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.relationship = new CodeableConcept(value);
+                this.__data.relationship = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class PatientContact {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = new ContactPoint(value);
+                this.__data.telecom = Array.isArray(value) ? value.map(v => new ContactPoint(v)) : [new ContactPoint(value)];
             }
         });
 
@@ -205,13 +205,13 @@ class PatientContact {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            relationship: this.relationship && this.relationship.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            relationship: this.relationship && this.relationship.map(v => v.toJSON()),
             name: this.name && this.name.toJSON(),
-            telecom: this.telecom && this.telecom.toJSON(),
+            telecom: this.telecom && this.telecom.map(v => v.toJSON()),
             address: this.address && this.address.toJSON(),
-            gender: this.gender && this.gender.toJSON(),
+            gender: this.gender,
             organization: this.organization && this.organization.toJSON(),
             period: this.period && this.period.toJSON(),
         };

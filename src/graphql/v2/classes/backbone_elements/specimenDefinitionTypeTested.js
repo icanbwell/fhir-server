@@ -42,7 +42,7 @@ class SpecimenDefinitionTypeTested {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class SpecimenDefinitionTypeTested {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -181,7 +181,7 @@ class SpecimenDefinitionTypeTested {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.rejectionCriterion = new CodeableConcept(value);
+                this.__data.rejectionCriterion = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -198,7 +198,7 @@ class SpecimenDefinitionTypeTested {
                     return;
                 }
                 let SpecimenDefinitionHandling = require('../backbone_elements/specimenDefinitionHandling.js');
-                this.__data.handling = new SpecimenDefinitionHandling(value);
+                this.__data.handling = Array.isArray(value) ? value.map(v => new SpecimenDefinitionHandling(v)) : [new SpecimenDefinitionHandling(value)];
             }
         });
 
@@ -218,16 +218,16 @@ class SpecimenDefinitionTypeTested {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             isDerived: this.isDerived,
             type: this.type && this.type.toJSON(),
-            preference: this.preference && this.preference.toJSON(),
+            preference: this.preference,
             container: this.container && this.container.toJSON(),
             requirement: this.requirement,
             retentionTime: this.retentionTime && this.retentionTime.toJSON(),
-            rejectionCriterion: this.rejectionCriterion && this.rejectionCriterion.toJSON(),
-            handling: this.handling && this.handling.toJSON(),
+            rejectionCriterion: this.rejectionCriterion && this.rejectionCriterion.map(v => v.toJSON()),
+            handling: this.handling && this.handling.map(v => v.toJSON()),
         };
     }
 }

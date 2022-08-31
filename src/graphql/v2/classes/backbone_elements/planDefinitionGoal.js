@@ -45,7 +45,7 @@ class PlanDefinitionGoal {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class PlanDefinitionGoal {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -157,7 +157,7 @@ class PlanDefinitionGoal {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.addresses = new CodeableConcept(value);
+                this.__data.addresses = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -175,7 +175,7 @@ class PlanDefinitionGoal {
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.documentation = new RelatedArtifact(value);
+                this.__data.documentation = Array.isArray(value) ? value.map(v => new RelatedArtifact(v)) : [new RelatedArtifact(value)];
             }
         });
 
@@ -191,7 +191,7 @@ class PlanDefinitionGoal {
                     return;
                 }
                 let PlanDefinitionTarget = require('../backbone_elements/planDefinitionTarget.js');
-                this.__data.target = new PlanDefinitionTarget(value);
+                this.__data.target = Array.isArray(value) ? value.map(v => new PlanDefinitionTarget(v)) : [new PlanDefinitionTarget(value)];
             }
         });
 
@@ -211,15 +211,15 @@ class PlanDefinitionGoal {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             category: this.category && this.category.toJSON(),
             description: this.description && this.description.toJSON(),
             priority: this.priority && this.priority.toJSON(),
             start: this.start && this.start.toJSON(),
-            addresses: this.addresses && this.addresses.toJSON(),
-            documentation: this.documentation && this.documentation.toJSON(),
-            target: this.target && this.target.toJSON(),
+            addresses: this.addresses && this.addresses.map(v => v.toJSON()),
+            documentation: this.documentation && this.documentation.map(v => v.toJSON()),
+            target: this.target && this.target.map(v => v.toJSON()),
         };
     }
 }

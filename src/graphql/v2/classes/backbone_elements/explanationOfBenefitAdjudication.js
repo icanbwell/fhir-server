@@ -44,7 +44,7 @@ class ExplanationOfBenefitAdjudication {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ExplanationOfBenefitAdjudication {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -141,9 +141,7 @@ class ExplanationOfBenefitAdjudication {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.value = new decimal(value);
+                this.__data.value = value;
             }
         });
 
@@ -163,12 +161,12 @@ class ExplanationOfBenefitAdjudication {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             category: this.category && this.category.toJSON(),
             reason: this.reason && this.reason.toJSON(),
             amount: this.amount && this.amount.toJSON(),
-            value: this.value && this.value.toJSON(),
+            value: this.value,
         };
     }
 }

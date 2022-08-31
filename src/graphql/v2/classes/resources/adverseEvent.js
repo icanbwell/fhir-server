@@ -27,9 +27,7 @@ class AdverseEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -65,9 +63,7 @@ class AdverseEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -120,9 +116,7 @@ class AdverseEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -142,7 +136,7 @@ class AdverseEvent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -170,7 +164,7 @@ class AdverseEvent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -220,7 +214,7 @@ class AdverseEvent {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -285,9 +279,7 @@ class AdverseEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.date = new dateTime(value);
+                this.__data.date = value;
             }
         });
 
@@ -303,9 +295,7 @@ class AdverseEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.detected = new dateTime(value);
+                this.__data.detected = value;
             }
         });
 
@@ -320,9 +310,7 @@ class AdverseEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.recordedDate = new dateTime(value);
+                this.__data.recordedDate = value;
             }
         });
 
@@ -339,7 +327,7 @@ class AdverseEvent {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.resultingCondition = new Reference(value);
+                this.__data.resultingCondition = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -443,7 +431,7 @@ class AdverseEvent {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.contributor = new Reference(value);
+                this.__data.contributor = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -459,7 +447,7 @@ class AdverseEvent {
                     return;
                 }
                 let AdverseEventSuspectEntity = require('../backbone_elements/adverseEventSuspectEntity.js');
-                this.__data.suspectEntity = new AdverseEventSuspectEntity(value);
+                this.__data.suspectEntity = Array.isArray(value) ? value.map(v => new AdverseEventSuspectEntity(v)) : [new AdverseEventSuspectEntity(value)];
             }
         });
 
@@ -475,7 +463,7 @@ class AdverseEvent {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.subjectMedicalHistory = new Reference(value);
+                this.__data.subjectMedicalHistory = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -491,7 +479,7 @@ class AdverseEvent {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.referenceDocument = new Reference(value);
+                this.__data.referenceDocument = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -507,7 +495,7 @@ class AdverseEvent {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.study = new Reference(value);
+                this.__data.study = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -527,34 +515,34 @@ class AdverseEvent {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
-            actuality: this.actuality && this.actuality.toJSON(),
-            category: this.category && this.category.toJSON(),
+            actuality: this.actuality,
+            category: this.category && this.category.map(v => v.toJSON()),
             event: this.event && this.event.toJSON(),
             subject: this.subject && this.subject.toJSON(),
             encounter: this.encounter && this.encounter.toJSON(),
-            date: this.date && this.date.toJSON(),
-            detected: this.detected && this.detected.toJSON(),
-            recordedDate: this.recordedDate && this.recordedDate.toJSON(),
-            resultingCondition: this.resultingCondition && this.resultingCondition.toJSON(),
+            date: this.date,
+            detected: this.detected,
+            recordedDate: this.recordedDate,
+            resultingCondition: this.resultingCondition && this.resultingCondition.map(v => v.toJSON()),
             location: this.location && this.location.toJSON(),
             seriousness: this.seriousness && this.seriousness.toJSON(),
             severity: this.severity && this.severity.toJSON(),
             outcome: this.outcome && this.outcome.toJSON(),
             recorder: this.recorder && this.recorder.toJSON(),
-            contributor: this.contributor && this.contributor.toJSON(),
-            suspectEntity: this.suspectEntity && this.suspectEntity.toJSON(),
-            subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.toJSON(),
-            referenceDocument: this.referenceDocument && this.referenceDocument.toJSON(),
-            study: this.study && this.study.toJSON(),
+            contributor: this.contributor && this.contributor.map(v => v.toJSON()),
+            suspectEntity: this.suspectEntity && this.suspectEntity.map(v => v.toJSON()),
+            subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.map(v => v.toJSON()),
+            referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSON()),
+            study: this.study && this.study.map(v => v.toJSON()),
         };
     }
 }

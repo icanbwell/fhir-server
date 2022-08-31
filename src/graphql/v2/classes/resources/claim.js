@@ -26,9 +26,7 @@ class Claim {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class Claim {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class Claim {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class Claim {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class Claim {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,7 +179,7 @@ class Claim {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -302,9 +296,7 @@ class Claim {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.created = new dateTime(value);
+                this.__data.created = value;
             }
         });
 
@@ -404,7 +396,7 @@ class Claim {
                     return;
                 }
                 let ClaimRelated = require('../backbone_elements/claimRelated.js');
-                this.__data.related = new ClaimRelated(value);
+                this.__data.related = Array.isArray(value) ? value.map(v => new ClaimRelated(v)) : [new ClaimRelated(value)];
             }
         });
 
@@ -502,7 +494,7 @@ class Claim {
                     return;
                 }
                 let ClaimCareTeam = require('../backbone_elements/claimCareTeam.js');
-                this.__data.careTeam = new ClaimCareTeam(value);
+                this.__data.careTeam = Array.isArray(value) ? value.map(v => new ClaimCareTeam(v)) : [new ClaimCareTeam(value)];
             }
         });
 
@@ -519,7 +511,7 @@ class Claim {
                     return;
                 }
                 let ClaimSupportingInfo = require('../backbone_elements/claimSupportingInfo.js');
-                this.__data.supportingInfo = new ClaimSupportingInfo(value);
+                this.__data.supportingInfo = Array.isArray(value) ? value.map(v => new ClaimSupportingInfo(v)) : [new ClaimSupportingInfo(value)];
             }
         });
 
@@ -535,7 +527,7 @@ class Claim {
                     return;
                 }
                 let ClaimDiagnosis = require('../backbone_elements/claimDiagnosis.js');
-                this.__data.diagnosis = new ClaimDiagnosis(value);
+                this.__data.diagnosis = Array.isArray(value) ? value.map(v => new ClaimDiagnosis(v)) : [new ClaimDiagnosis(value)];
             }
         });
 
@@ -552,7 +544,7 @@ class Claim {
                     return;
                 }
                 let ClaimProcedure = require('../backbone_elements/claimProcedure.js');
-                this.__data.procedure = new ClaimProcedure(value);
+                this.__data.procedure = Array.isArray(value) ? value.map(v => new ClaimProcedure(v)) : [new ClaimProcedure(value)];
             }
         });
 
@@ -569,7 +561,7 @@ class Claim {
                     return;
                 }
                 let ClaimInsurance = require('../backbone_elements/claimInsurance.js');
-                this.__data.insurance = new ClaimInsurance(value);
+                this.__data.insurance = Array.isArray(value) ? value.map(v => new ClaimInsurance(v)) : [new ClaimInsurance(value)];
             }
         });
 
@@ -603,7 +595,7 @@ class Claim {
                     return;
                 }
                 let ClaimItem = require('../backbone_elements/claimItem.js');
-                this.__data.item = new ClaimItem(value);
+                this.__data.item = Array.isArray(value) ? value.map(v => new ClaimItem(v)) : [new ClaimItem(value)];
             }
         });
 
@@ -639,40 +631,40 @@ class Claim {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
             type: this.type && this.type.toJSON(),
             subType: this.subType && this.subType.toJSON(),
-            use: this.use && this.use.toJSON(),
+            use: this.use,
             patient: this.patient && this.patient.toJSON(),
             billablePeriod: this.billablePeriod && this.billablePeriod.toJSON(),
-            created: this.created && this.created.toJSON(),
+            created: this.created,
             enterer: this.enterer && this.enterer.toJSON(),
             insurer: this.insurer && this.insurer.toJSON(),
             provider: this.provider && this.provider.toJSON(),
             priority: this.priority && this.priority.toJSON(),
             fundsReserve: this.fundsReserve && this.fundsReserve.toJSON(),
-            related: this.related && this.related.toJSON(),
+            related: this.related && this.related.map(v => v.toJSON()),
             prescription: this.prescription && this.prescription.toJSON(),
             originalPrescription: this.originalPrescription && this.originalPrescription.toJSON(),
             payee: this.payee && this.payee.toJSON(),
             referral: this.referral && this.referral.toJSON(),
             facility: this.facility && this.facility.toJSON(),
-            careTeam: this.careTeam && this.careTeam.toJSON(),
-            supportingInfo: this.supportingInfo && this.supportingInfo.toJSON(),
-            diagnosis: this.diagnosis && this.diagnosis.toJSON(),
-            procedure: this.procedure && this.procedure.toJSON(),
-            insurance: this.insurance && this.insurance.toJSON(),
+            careTeam: this.careTeam && this.careTeam.map(v => v.toJSON()),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
+            diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSON()),
+            procedure: this.procedure && this.procedure.map(v => v.toJSON()),
+            insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             accident: this.accident && this.accident.toJSON(),
-            item: this.item && this.item.toJSON(),
+            item: this.item && this.item.map(v => v.toJSON()),
             total: this.total && this.total.toJSON(),
         };
     }

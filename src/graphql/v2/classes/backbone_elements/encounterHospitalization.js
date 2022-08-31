@@ -43,7 +43,7 @@ class EncounterHospitalization {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class EncounterHospitalization {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -151,7 +151,7 @@ class EncounterHospitalization {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.dietPreference = new CodeableConcept(value);
+                this.__data.dietPreference = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -167,7 +167,7 @@ class EncounterHospitalization {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.specialCourtesy = new CodeableConcept(value);
+                this.__data.specialCourtesy = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -184,7 +184,7 @@ class EncounterHospitalization {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.specialArrangement = new CodeableConcept(value);
+                this.__data.specialArrangement = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -236,15 +236,15 @@ class EncounterHospitalization {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             preAdmissionIdentifier: this.preAdmissionIdentifier && this.preAdmissionIdentifier.toJSON(),
             origin: this.origin && this.origin.toJSON(),
             admitSource: this.admitSource && this.admitSource.toJSON(),
             reAdmission: this.reAdmission && this.reAdmission.toJSON(),
-            dietPreference: this.dietPreference && this.dietPreference.toJSON(),
-            specialCourtesy: this.specialCourtesy && this.specialCourtesy.toJSON(),
-            specialArrangement: this.specialArrangement && this.specialArrangement.toJSON(),
+            dietPreference: this.dietPreference && this.dietPreference.map(v => v.toJSON()),
+            specialCourtesy: this.specialCourtesy && this.specialCourtesy.map(v => v.toJSON()),
+            specialArrangement: this.specialArrangement && this.specialArrangement.map(v => v.toJSON()),
             destination: this.destination && this.destination.toJSON(),
             dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSON(),
         };

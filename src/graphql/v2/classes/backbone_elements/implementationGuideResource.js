@@ -45,7 +45,7 @@ class ImplementationGuideResource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ImplementationGuideResource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -106,7 +106,7 @@ class ImplementationGuideResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.fhirVersion = value;
+                this.__data.fhirVersion = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -168,9 +168,7 @@ class ImplementationGuideResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.exampleCanonical = new canonical(value);
+                this.__data.exampleCanonical = value;
             }
         });
 
@@ -185,9 +183,7 @@ class ImplementationGuideResource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.groupingId = new id(value);
+                this.__data.groupingId = value;
             }
         });
 
@@ -207,15 +203,15 @@ class ImplementationGuideResource {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             reference: this.reference && this.reference.toJSON(),
-            fhirVersion: this.fhirVersion && this.fhirVersion.toJSON(),
+            fhirVersion: this.fhirVersion,
             name: this.name,
             description: this.description,
             exampleBoolean: this.exampleBoolean,
-            exampleCanonical: this.exampleCanonical && this.exampleCanonical.toJSON(),
-            groupingId: this.groupingId && this.groupingId.toJSON(),
+            exampleCanonical: this.exampleCanonical,
+            groupingId: this.groupingId,
         };
     }
 }

@@ -45,7 +45,7 @@ class ImplementationGuidePage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ImplementationGuidePage {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -88,9 +88,7 @@ class ImplementationGuidePage {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.nameUrl = new url(value);
+                this.__data.nameUrl = value;
             }
         });
 
@@ -152,7 +150,7 @@ class ImplementationGuidePage {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.page = new ImplementationGuidePage(value);
+                this.__data.page = Array.isArray(value) ? value.map(v => new ImplementationGuidePage(v)) : [new ImplementationGuidePage(value)];
             }
         });
 
@@ -172,13 +170,13 @@ class ImplementationGuidePage {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            nameUrl: this.nameUrl && this.nameUrl.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            nameUrl: this.nameUrl,
             nameReference: this.nameReference && this.nameReference.toJSON(),
             title: this.title,
-            generation: this.generation && this.generation.toJSON(),
-            page: this.page && this.page.toJSON(),
+            generation: this.generation,
+            page: this.page && this.page.map(v => v.toJSON()),
         };
     }
 }

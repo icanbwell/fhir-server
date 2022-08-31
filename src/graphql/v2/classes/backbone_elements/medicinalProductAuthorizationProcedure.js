@@ -42,7 +42,7 @@ class MedicinalProductAuthorizationProcedure {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicinalProductAuthorizationProcedure {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -133,9 +133,7 @@ class MedicinalProductAuthorizationProcedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.dateDateTime = new dateTime(value);
+                this.__data.dateDateTime = value;
             }
         });
 
@@ -150,7 +148,7 @@ class MedicinalProductAuthorizationProcedure {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.application = new MedicinalProductAuthorizationProcedure(value);
+                this.__data.application = Array.isArray(value) ? value.map(v => new MedicinalProductAuthorizationProcedure(v)) : [new MedicinalProductAuthorizationProcedure(value)];
             }
         });
 
@@ -170,13 +168,13 @@ class MedicinalProductAuthorizationProcedure {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
             type: this.type && this.type.toJSON(),
             datePeriod: this.datePeriod && this.datePeriod.toJSON(),
-            dateDateTime: this.dateDateTime && this.dateDateTime.toJSON(),
-            application: this.application && this.application.toJSON(),
+            dateDateTime: this.dateDateTime,
+            application: this.application && this.application.map(v => v.toJSON()),
         };
     }
 }

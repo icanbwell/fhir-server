@@ -45,7 +45,7 @@ class ImplementationGuidePage1 {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ImplementationGuidePage1 {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -118,7 +118,7 @@ class ImplementationGuidePage1 {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.anchor = value;
+                this.__data.anchor = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -138,8 +138,8 @@ class ImplementationGuidePage1 {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             title: this.title,
             anchor: this.anchor,

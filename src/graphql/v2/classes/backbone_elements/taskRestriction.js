@@ -42,7 +42,7 @@ class TaskRestriction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class TaskRestriction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -118,7 +118,7 @@ class TaskRestriction {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.recipient = new Reference(value);
+                this.__data.recipient = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -138,11 +138,11 @@ class TaskRestriction {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             repetitions: this.repetitions,
             period: this.period && this.period.toJSON(),
-            recipient: this.recipient && this.recipient.toJSON(),
+            recipient: this.recipient && this.recipient.map(v => v.toJSON()),
         };
     }
 }

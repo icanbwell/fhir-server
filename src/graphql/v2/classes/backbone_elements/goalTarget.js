@@ -44,7 +44,7 @@ class GoalTarget {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class GoalTarget {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -213,9 +213,7 @@ class GoalTarget {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.dueDate = new date(value);
+                this.__data.dueDate = value;
             }
         });
 
@@ -251,8 +249,8 @@ class GoalTarget {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             measure: this.measure && this.measure.toJSON(),
             detailQuantity: this.detailQuantity && this.detailQuantity.toJSON(),
             detailRange: this.detailRange && this.detailRange.toJSON(),
@@ -261,7 +259,7 @@ class GoalTarget {
             detailBoolean: this.detailBoolean,
             detailInteger: this.detailInteger,
             detailRatio: this.detailRatio && this.detailRatio.toJSON(),
-            dueDate: this.dueDate && this.dueDate.toJSON(),
+            dueDate: this.dueDate,
             dueDuration: this.dueDuration && this.dueDuration.toJSON(),
         };
     }

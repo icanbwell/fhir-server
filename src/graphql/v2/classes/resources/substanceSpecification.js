@@ -25,9 +25,7 @@ class SubstanceSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class SubstanceSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class SubstanceSpecification {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -263,7 +257,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.source = new Reference(value);
+                this.__data.source = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -294,7 +288,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let SubstanceSpecificationMoiety = require('../backbone_elements/substanceSpecificationMoiety.js');
-                this.__data.moiety = new SubstanceSpecificationMoiety(value);
+                this.__data.moiety = Array.isArray(value) ? value.map(v => new SubstanceSpecificationMoiety(v)) : [new SubstanceSpecificationMoiety(value)];
             }
         });
 
@@ -311,7 +305,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let SubstanceSpecificationProperty = require('../backbone_elements/substanceSpecificationProperty.js');
-                this.__data.property = new SubstanceSpecificationProperty(value);
+                this.__data.property = Array.isArray(value) ? value.map(v => new SubstanceSpecificationProperty(v)) : [new SubstanceSpecificationProperty(value)];
             }
         });
 
@@ -359,7 +353,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let SubstanceSpecificationCode = require('../backbone_elements/substanceSpecificationCode.js');
-                this.__data.code = new SubstanceSpecificationCode(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new SubstanceSpecificationCode(v)) : [new SubstanceSpecificationCode(value)];
             }
         });
 
@@ -375,7 +369,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let SubstanceSpecificationName = require('../backbone_elements/substanceSpecificationName.js');
-                this.__data.name = new SubstanceSpecificationName(value);
+                this.__data.name = Array.isArray(value) ? value.map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(value)];
             }
         });
 
@@ -392,7 +386,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
-                this.__data.molecularWeight = new SubstanceSpecificationMolecularWeight(value);
+                this.__data.molecularWeight = Array.isArray(value) ? value.map(v => new SubstanceSpecificationMolecularWeight(v)) : [new SubstanceSpecificationMolecularWeight(value)];
             }
         });
 
@@ -408,7 +402,7 @@ class SubstanceSpecification {
                     return;
                 }
                 let SubstanceSpecificationRelationship = require('../backbone_elements/substanceSpecificationRelationship.js');
-                this.__data.relationship = new SubstanceSpecificationRelationship(value);
+                this.__data.relationship = Array.isArray(value) ? value.map(v => new SubstanceSpecificationRelationship(v)) : [new SubstanceSpecificationRelationship(value)];
             }
         });
 
@@ -492,29 +486,29 @@ class SubstanceSpecification {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             identifier: this.identifier && this.identifier.toJSON(),
             type: this.type && this.type.toJSON(),
             status: this.status && this.status.toJSON(),
             domain: this.domain && this.domain.toJSON(),
             description: this.description,
-            source: this.source && this.source.toJSON(),
+            source: this.source && this.source.map(v => v.toJSON()),
             comment: this.comment,
-            moiety: this.moiety && this.moiety.toJSON(),
-            property: this.property && this.property.toJSON(),
+            moiety: this.moiety && this.moiety.map(v => v.toJSON()),
+            property: this.property && this.property.map(v => v.toJSON()),
             referenceInformation: this.referenceInformation && this.referenceInformation.toJSON(),
             structure: this.structure && this.structure.toJSON(),
-            code: this.code && this.code.toJSON(),
-            name: this.name && this.name.toJSON(),
-            molecularWeight: this.molecularWeight && this.molecularWeight.toJSON(),
-            relationship: this.relationship && this.relationship.toJSON(),
+            code: this.code && this.code.map(v => v.toJSON()),
+            name: this.name && this.name.map(v => v.toJSON()),
+            molecularWeight: this.molecularWeight && this.molecularWeight.map(v => v.toJSON()),
+            relationship: this.relationship && this.relationship.map(v => v.toJSON()),
             nucleicAcid: this.nucleicAcid && this.nucleicAcid.toJSON(),
             polymer: this.polymer && this.polymer.toJSON(),
             protein: this.protein && this.protein.toJSON(),

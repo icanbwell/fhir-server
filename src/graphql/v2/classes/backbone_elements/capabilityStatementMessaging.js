@@ -45,7 +45,7 @@ class CapabilityStatementMessaging {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class CapabilityStatementMessaging {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -90,7 +90,7 @@ class CapabilityStatementMessaging {
                     return;
                 }
                 let CapabilityStatementEndpoint = require('../backbone_elements/capabilityStatementEndpoint.js');
-                this.__data.endpoint = new CapabilityStatementEndpoint(value);
+                this.__data.endpoint = Array.isArray(value) ? value.map(v => new CapabilityStatementEndpoint(v)) : [new CapabilityStatementEndpoint(value)];
             }
         });
 
@@ -106,9 +106,7 @@ class CapabilityStatementMessaging {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.reliableCache = new unsignedInt(value);
+                this.__data.reliableCache = value;
             }
         });
 
@@ -125,9 +123,7 @@ class CapabilityStatementMessaging {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.documentation = new markdown(value);
+                this.__data.documentation = value;
             }
         });
 
@@ -144,7 +140,7 @@ class CapabilityStatementMessaging {
                     return;
                 }
                 let CapabilityStatementSupportedMessage = require('../backbone_elements/capabilityStatementSupportedMessage.js');
-                this.__data.supportedMessage = new CapabilityStatementSupportedMessage(value);
+                this.__data.supportedMessage = Array.isArray(value) ? value.map(v => new CapabilityStatementSupportedMessage(v)) : [new CapabilityStatementSupportedMessage(value)];
             }
         });
 
@@ -164,12 +160,12 @@ class CapabilityStatementMessaging {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            endpoint: this.endpoint && this.endpoint.toJSON(),
-            reliableCache: this.reliableCache && this.reliableCache.toJSON(),
-            documentation: this.documentation && this.documentation.toJSON(),
-            supportedMessage: this.supportedMessage && this.supportedMessage.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
+            reliableCache: this.reliableCache,
+            documentation: this.documentation,
+            supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSON()),
         };
     }
 }

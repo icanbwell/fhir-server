@@ -44,7 +44,7 @@ class RiskEvidenceSynthesisCertaintySubcomponent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class RiskEvidenceSynthesisCertaintySubcomponent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -104,7 +104,7 @@ class RiskEvidenceSynthesisCertaintySubcomponent {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.rating = new CodeableConcept(value);
+                this.__data.rating = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -120,7 +120,7 @@ class RiskEvidenceSynthesisCertaintySubcomponent {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = new Annotation(value);
+                this.__data.note = Array.isArray(value) ? value.map(v => new Annotation(v)) : [new Annotation(value)];
             }
         });
 
@@ -140,11 +140,11 @@ class RiskEvidenceSynthesisCertaintySubcomponent {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            rating: this.rating && this.rating.toJSON(),
-            note: this.note && this.note.toJSON(),
+            rating: this.rating && this.rating.map(v => v.toJSON()),
+            note: this.note && this.note.map(v => v.toJSON()),
         };
     }
 }

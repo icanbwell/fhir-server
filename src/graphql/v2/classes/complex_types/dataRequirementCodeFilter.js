@@ -45,7 +45,7 @@ class DataRequirementCodeFilter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class DataRequirementCodeFilter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueSet = new canonical(value);
+                this.__data.valueSet = value;
             }
         });
 
@@ -124,7 +122,7 @@ class DataRequirementCodeFilter {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.code = new Coding(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -144,11 +142,11 @@ class DataRequirementCodeFilter {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
             path: this.path,
             searchParam: this.searchParam,
-            valueSet: this.valueSet && this.valueSet.toJSON(),
-            code: this.code && this.code.toJSON(),
+            valueSet: this.valueSet,
+            code: this.code && this.code.map(v => v.toJSON()),
         };
     }
 }

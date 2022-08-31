@@ -42,7 +42,7 @@ class MolecularSequenceQuality {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MolecularSequenceQuality {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,9 +185,7 @@ class MolecularSequenceQuality {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.truthTP = new decimal(value);
+                this.__data.truthTP = value;
             }
         });
 
@@ -205,9 +203,7 @@ class MolecularSequenceQuality {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.queryTP = new decimal(value);
+                this.__data.queryTP = value;
             }
         });
 
@@ -226,9 +222,7 @@ class MolecularSequenceQuality {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.truthFN = new decimal(value);
+                this.__data.truthFN = value;
             }
         });
 
@@ -245,9 +239,7 @@ class MolecularSequenceQuality {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.queryFP = new decimal(value);
+                this.__data.queryFP = value;
             }
         });
 
@@ -264,9 +256,7 @@ class MolecularSequenceQuality {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.gtFP = new decimal(value);
+                this.__data.gtFP = value;
             }
         });
 
@@ -281,9 +271,7 @@ class MolecularSequenceQuality {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.precision = new decimal(value);
+                this.__data.precision = value;
             }
         });
 
@@ -298,9 +286,7 @@ class MolecularSequenceQuality {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.recall = new decimal(value);
+                this.__data.recall = value;
             }
         });
 
@@ -316,9 +302,7 @@ class MolecularSequenceQuality {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.fScore = new decimal(value);
+                this.__data.fScore = value;
             }
         });
 
@@ -355,22 +339,22 @@ class MolecularSequenceQuality {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            type: this.type && this.type.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            type: this.type,
             standardSequence: this.standardSequence && this.standardSequence.toJSON(),
             start: this.start,
             end: this.end,
             score: this.score && this.score.toJSON(),
             method: this.method && this.method.toJSON(),
-            truthTP: this.truthTP && this.truthTP.toJSON(),
-            queryTP: this.queryTP && this.queryTP.toJSON(),
-            truthFN: this.truthFN && this.truthFN.toJSON(),
-            queryFP: this.queryFP && this.queryFP.toJSON(),
-            gtFP: this.gtFP && this.gtFP.toJSON(),
-            precision: this.precision && this.precision.toJSON(),
-            recall: this.recall && this.recall.toJSON(),
-            fScore: this.fScore && this.fScore.toJSON(),
+            truthTP: this.truthTP,
+            queryTP: this.queryTP,
+            truthFN: this.truthFN,
+            queryFP: this.queryFP,
+            gtFP: this.gtFP,
+            precision: this.precision,
+            recall: this.recall,
+            fScore: this.fScore,
             roc: this.roc && this.roc.toJSON(),
         };
     }

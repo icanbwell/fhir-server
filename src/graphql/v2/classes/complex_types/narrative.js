@@ -45,7 +45,7 @@ class Narrative {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -77,9 +77,7 @@ class Narrative {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let xhtml = require('../simple_types/xhtml.js');
-                // eslint-disable-next-line new-cap
-                this.__data.div = new xhtml(value);
+                this.__data.div = value;
             }
         });
 
@@ -99,9 +97,9 @@ class Narrative {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            status: this.status && this.status.toJSON(),
-            div: this.div && this.div.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            status: this.status,
+            div: this.div,
         };
     }
 }

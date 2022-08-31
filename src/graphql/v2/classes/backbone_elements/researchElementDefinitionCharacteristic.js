@@ -43,7 +43,7 @@ class ResearchElementDefinitionCharacteristic {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class ResearchElementDefinitionCharacteristic {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class ResearchElementDefinitionCharacteristic {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definitionCanonical = new canonical(value);
+                this.__data.definitionCanonical = value;
             }
         });
 
@@ -153,7 +151,7 @@ class ResearchElementDefinitionCharacteristic {
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
-                this.__data.usageContext = new UsageContext(value);
+                this.__data.usageContext = Array.isArray(value) ? value.map(v => new UsageContext(v)) : [new UsageContext(value)];
             }
         });
 
@@ -214,9 +212,7 @@ class ResearchElementDefinitionCharacteristic {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.studyEffectiveDateTime = new dateTime(value);
+                this.__data.studyEffectiveDateTime = value;
             }
         });
 
@@ -325,9 +321,7 @@ class ResearchElementDefinitionCharacteristic {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.participantEffectiveDateTime = new dateTime(value);
+                this.__data.participantEffectiveDateTime = value;
             }
         });
 
@@ -426,29 +420,29 @@ class ResearchElementDefinitionCharacteristic {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             definitionCodeableConcept: this.definitionCodeableConcept && this.definitionCodeableConcept.toJSON(),
-            definitionCanonical: this.definitionCanonical && this.definitionCanonical.toJSON(),
+            definitionCanonical: this.definitionCanonical,
             definitionExpression: this.definitionExpression && this.definitionExpression.toJSON(),
             definitionDataRequirement: this.definitionDataRequirement && this.definitionDataRequirement.toJSON(),
-            usageContext: this.usageContext && this.usageContext.toJSON(),
+            usageContext: this.usageContext && this.usageContext.map(v => v.toJSON()),
             exclude: this.exclude,
             unitOfMeasure: this.unitOfMeasure && this.unitOfMeasure.toJSON(),
             studyEffectiveDescription: this.studyEffectiveDescription,
-            studyEffectiveDateTime: this.studyEffectiveDateTime && this.studyEffectiveDateTime.toJSON(),
+            studyEffectiveDateTime: this.studyEffectiveDateTime,
             studyEffectivePeriod: this.studyEffectivePeriod && this.studyEffectivePeriod.toJSON(),
             studyEffectiveDuration: this.studyEffectiveDuration && this.studyEffectiveDuration.toJSON(),
             studyEffectiveTiming: this.studyEffectiveTiming && this.studyEffectiveTiming.toJSON(),
             studyEffectiveTimeFromStart: this.studyEffectiveTimeFromStart && this.studyEffectiveTimeFromStart.toJSON(),
-            studyEffectiveGroupMeasure: this.studyEffectiveGroupMeasure && this.studyEffectiveGroupMeasure.toJSON(),
+            studyEffectiveGroupMeasure: this.studyEffectiveGroupMeasure,
             participantEffectiveDescription: this.participantEffectiveDescription,
-            participantEffectiveDateTime: this.participantEffectiveDateTime && this.participantEffectiveDateTime.toJSON(),
+            participantEffectiveDateTime: this.participantEffectiveDateTime,
             participantEffectivePeriod: this.participantEffectivePeriod && this.participantEffectivePeriod.toJSON(),
             participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSON(),
             participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSON(),
             participantEffectiveTimeFromStart: this.participantEffectiveTimeFromStart && this.participantEffectiveTimeFromStart.toJSON(),
-            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure && this.participantEffectiveGroupMeasure.toJSON(),
+            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure,
         };
     }
 }

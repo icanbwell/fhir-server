@@ -42,7 +42,7 @@ class BundleResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class BundleResponse {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -103,9 +103,7 @@ class BundleResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.location = new uri(value);
+                this.__data.location = value;
             }
         });
 
@@ -137,9 +135,7 @@ class BundleResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.lastModified = new instant(value);
+                this.__data.lastModified = value;
             }
         });
 
@@ -155,9 +151,7 @@ class BundleResponse {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.outcome = new ResourceContainer(value);
+                this.__data.outcome = value;
             }
         });
 
@@ -177,13 +171,13 @@ class BundleResponse {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             status: this.status,
-            location: this.location && this.location.toJSON(),
+            location: this.location,
             etag: this.etag,
-            lastModified: this.lastModified && this.lastModified.toJSON(),
-            outcome: this.outcome && this.outcome.toJSON(),
+            lastModified: this.lastModified,
+            outcome: this.outcome,
         };
     }
 }

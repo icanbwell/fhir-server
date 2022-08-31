@@ -44,7 +44,7 @@ class TerminologyCapabilitiesCodeSystem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class TerminologyCapabilitiesCodeSystem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -87,9 +87,7 @@ class TerminologyCapabilitiesCodeSystem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.uri = new canonical(value);
+                this.__data.uri = value;
             }
         });
 
@@ -105,7 +103,7 @@ class TerminologyCapabilitiesCodeSystem {
                     return;
                 }
                 let TerminologyCapabilitiesVersion = require('../backbone_elements/terminologyCapabilitiesVersion.js');
-                this.__data.version = new TerminologyCapabilitiesVersion(value);
+                this.__data.version = Array.isArray(value) ? value.map(v => new TerminologyCapabilitiesVersion(v)) : [new TerminologyCapabilitiesVersion(value)];
             }
         });
 
@@ -140,10 +138,10 @@ class TerminologyCapabilitiesCodeSystem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            uri: this.uri && this.uri.toJSON(),
-            version: this.version && this.version.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            uri: this.uri,
+            version: this.version && this.version.map(v => v.toJSON()),
             subsumption: this.subsumption,
         };
     }

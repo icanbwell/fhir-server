@@ -42,7 +42,7 @@ class MeasureGroup {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MeasureGroup {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -119,7 +119,7 @@ class MeasureGroup {
                     return;
                 }
                 let MeasurePopulation = require('../backbone_elements/measurePopulation.js');
-                this.__data.population = new MeasurePopulation(value);
+                this.__data.population = Array.isArray(value) ? value.map(v => new MeasurePopulation(v)) : [new MeasurePopulation(value)];
             }
         });
 
@@ -137,7 +137,7 @@ class MeasureGroup {
                     return;
                 }
                 let MeasureStratifier = require('../backbone_elements/measureStratifier.js');
-                this.__data.stratifier = new MeasureStratifier(value);
+                this.__data.stratifier = Array.isArray(value) ? value.map(v => new MeasureStratifier(v)) : [new MeasureStratifier(value)];
             }
         });
 
@@ -157,12 +157,12 @@ class MeasureGroup {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             description: this.description,
-            population: this.population && this.population.toJSON(),
-            stratifier: this.stratifier && this.stratifier.toJSON(),
+            population: this.population && this.population.map(v => v.toJSON()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSON()),
         };
     }
 }

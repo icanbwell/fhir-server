@@ -26,9 +26,7 @@ class AuditEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class AuditEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class AuditEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class AuditEvent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class AuditEvent {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -203,7 +197,7 @@ class AuditEvent {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.subtype = new Coding(value);
+                this.__data.subtype = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -250,9 +244,7 @@ class AuditEvent {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.recorded = new instant(value);
+                this.__data.recorded = value;
             }
         });
 
@@ -298,7 +290,7 @@ class AuditEvent {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.purposeOfEvent = new CodeableConcept(value);
+                this.__data.purposeOfEvent = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -314,7 +306,7 @@ class AuditEvent {
                     return;
                 }
                 let AuditEventAgent = require('../backbone_elements/auditEventAgent.js');
-                this.__data.agent = new AuditEventAgent(value);
+                this.__data.agent = Array.isArray(value) ? value.map(v => new AuditEventAgent(v)) : [new AuditEventAgent(value)];
             }
         });
 
@@ -346,7 +338,7 @@ class AuditEvent {
                     return;
                 }
                 let AuditEventEntity = require('../backbone_elements/auditEventEntity.js');
-                this.__data.entity = new AuditEventEntity(value);
+                this.__data.entity = Array.isArray(value) ? value.map(v => new AuditEventEntity(v)) : [new AuditEventEntity(value)];
             }
         });
 
@@ -366,25 +358,25 @@ class AuditEvent {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            subtype: this.subtype && this.subtype.toJSON(),
-            action: this.action && this.action.toJSON(),
+            subtype: this.subtype && this.subtype.map(v => v.toJSON()),
+            action: this.action,
             period: this.period && this.period.toJSON(),
-            recorded: this.recorded && this.recorded.toJSON(),
-            outcome: this.outcome && this.outcome.toJSON(),
+            recorded: this.recorded,
+            outcome: this.outcome,
             outcomeDesc: this.outcomeDesc,
-            purposeOfEvent: this.purposeOfEvent && this.purposeOfEvent.toJSON(),
-            agent: this.agent && this.agent.toJSON(),
+            purposeOfEvent: this.purposeOfEvent && this.purposeOfEvent.map(v => v.toJSON()),
+            agent: this.agent && this.agent.map(v => v.toJSON()),
             source: this.source && this.source.toJSON(),
-            entity: this.entity && this.entity.toJSON(),
+            entity: this.entity && this.entity.map(v => v.toJSON()),
         };
     }
 }

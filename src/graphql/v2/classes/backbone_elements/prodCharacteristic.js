@@ -45,7 +45,7 @@ class ProdCharacteristic {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class ProdCharacteristic {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -219,7 +219,7 @@ class ProdCharacteristic {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.color = value;
+                this.__data.color = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -234,7 +234,7 @@ class ProdCharacteristic {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.imprint = value;
+                this.__data.imprint = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -251,7 +251,7 @@ class ProdCharacteristic {
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
-                this.__data.image = new Attachment(value);
+                this.__data.image = Array.isArray(value) ? value.map(v => new Attachment(v)) : [new Attachment(value)];
             }
         });
 
@@ -288,8 +288,8 @@ class ProdCharacteristic {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             height: this.height && this.height.toJSON(),
             width: this.width && this.width.toJSON(),
             depth: this.depth && this.depth.toJSON(),
@@ -299,7 +299,7 @@ class ProdCharacteristic {
             shape: this.shape,
             color: this.color,
             imprint: this.imprint,
-            image: this.image && this.image.toJSON(),
+            image: this.image && this.image.map(v => v.toJSON()),
             scoring: this.scoring && this.scoring.toJSON(),
         };
     }

@@ -43,7 +43,7 @@ class StructureMapTarget {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class StructureMapTarget {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,9 +86,7 @@ class StructureMapTarget {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.context = new id(value);
+                this.__data.context = value;
             }
         });
 
@@ -133,9 +131,7 @@ class StructureMapTarget {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.variable = new id(value);
+                this.__data.variable = value;
             }
         });
 
@@ -150,7 +146,7 @@ class StructureMapTarget {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.listMode = value;
+                this.__data.listMode = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -165,9 +161,7 @@ class StructureMapTarget {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.listRuleId = new id(value);
+                this.__data.listRuleId = value;
             }
         });
 
@@ -198,7 +192,7 @@ class StructureMapTarget {
                     return;
                 }
                 let StructureMapParameter = require('../backbone_elements/structureMapParameter.js');
-                this.__data.parameter = new StructureMapParameter(value);
+                this.__data.parameter = Array.isArray(value) ? value.map(v => new StructureMapParameter(v)) : [new StructureMapParameter(value)];
             }
         });
 
@@ -218,16 +212,16 @@ class StructureMapTarget {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            context: this.context && this.context.toJSON(),
-            contextType: this.contextType && this.contextType.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            context: this.context,
+            contextType: this.contextType,
             element: this.element,
-            variable: this.variable && this.variable.toJSON(),
-            listMode: this.listMode && this.listMode.toJSON(),
-            listRuleId: this.listRuleId && this.listRuleId.toJSON(),
-            transform: this.transform && this.transform.toJSON(),
-            parameter: this.parameter && this.parameter.toJSON(),
+            variable: this.variable,
+            listMode: this.listMode,
+            listRuleId: this.listRuleId,
+            transform: this.transform,
+            parameter: this.parameter && this.parameter.map(v => v.toJSON()),
         };
     }
 }

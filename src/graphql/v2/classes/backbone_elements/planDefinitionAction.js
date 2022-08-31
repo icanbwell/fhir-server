@@ -45,7 +45,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +169,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -185,7 +185,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reason = new CodeableConcept(value);
+                this.__data.reason = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -203,7 +203,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.documentation = new RelatedArtifact(value);
+                this.__data.documentation = Array.isArray(value) ? value.map(v => new RelatedArtifact(v)) : [new RelatedArtifact(value)];
             }
         });
 
@@ -219,9 +219,7 @@ class PlanDefinitionAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.goalId = new id(value);
+                this.__data.goalId = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -269,7 +267,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                this.__data.trigger = new TriggerDefinition(value);
+                this.__data.trigger = Array.isArray(value) ? value.map(v => new TriggerDefinition(v)) : [new TriggerDefinition(value)];
             }
         });
 
@@ -286,7 +284,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let PlanDefinitionCondition = require('../backbone_elements/planDefinitionCondition.js');
-                this.__data.condition = new PlanDefinitionCondition(value);
+                this.__data.condition = Array.isArray(value) ? value.map(v => new PlanDefinitionCondition(v)) : [new PlanDefinitionCondition(value)];
             }
         });
 
@@ -302,7 +300,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
-                this.__data.input = new DataRequirement(value);
+                this.__data.input = Array.isArray(value) ? value.map(v => new DataRequirement(v)) : [new DataRequirement(value)];
             }
         });
 
@@ -318,7 +316,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
-                this.__data.output = new DataRequirement(value);
+                this.__data.output = Array.isArray(value) ? value.map(v => new DataRequirement(v)) : [new DataRequirement(value)];
             }
         });
 
@@ -335,7 +333,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let PlanDefinitionRelatedAction = require('../backbone_elements/planDefinitionRelatedAction.js');
-                this.__data.relatedAction = new PlanDefinitionRelatedAction(value);
+                this.__data.relatedAction = Array.isArray(value) ? value.map(v => new PlanDefinitionRelatedAction(v)) : [new PlanDefinitionRelatedAction(value)];
             }
         });
 
@@ -350,9 +348,7 @@ class PlanDefinitionAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.timingDateTime = new dateTime(value);
+                this.__data.timingDateTime = value;
             }
         });
 
@@ -448,7 +444,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let PlanDefinitionParticipant = require('../backbone_elements/planDefinitionParticipant.js');
-                this.__data.participant = new PlanDefinitionParticipant(value);
+                this.__data.participant = Array.isArray(value) ? value.map(v => new PlanDefinitionParticipant(v)) : [new PlanDefinitionParticipant(value)];
             }
         });
 
@@ -554,9 +550,7 @@ class PlanDefinitionAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definitionCanonical = new canonical(value);
+                this.__data.definitionCanonical = value;
             }
         });
 
@@ -571,9 +565,7 @@ class PlanDefinitionAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definitionUri = new uri(value);
+                this.__data.definitionUri = value;
             }
         });
 
@@ -590,9 +582,7 @@ class PlanDefinitionAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.transform = new canonical(value);
+                this.__data.transform = value;
             }
         });
 
@@ -611,7 +601,7 @@ class PlanDefinitionAction {
                     return;
                 }
                 let PlanDefinitionDynamicValue = require('../backbone_elements/planDefinitionDynamicValue.js');
-                this.__data.dynamicValue = new PlanDefinitionDynamicValue(value);
+                this.__data.dynamicValue = Array.isArray(value) ? value.map(v => new PlanDefinitionDynamicValue(v)) : [new PlanDefinitionDynamicValue(value)];
             }
         });
 
@@ -629,7 +619,7 @@ class PlanDefinitionAction {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.action = new PlanDefinitionAction(value);
+                this.__data.action = Array.isArray(value) ? value.map(v => new PlanDefinitionAction(v)) : [new PlanDefinitionAction(value)];
             }
         });
 
@@ -649,42 +639,42 @@ class PlanDefinitionAction {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             prefix: this.prefix,
             title: this.title,
             description: this.description,
             textEquivalent: this.textEquivalent,
-            priority: this.priority && this.priority.toJSON(),
-            code: this.code && this.code.toJSON(),
-            reason: this.reason && this.reason.toJSON(),
-            documentation: this.documentation && this.documentation.toJSON(),
-            goalId: this.goalId && this.goalId.toJSON(),
+            priority: this.priority,
+            code: this.code && this.code.map(v => v.toJSON()),
+            reason: this.reason && this.reason.map(v => v.toJSON()),
+            documentation: this.documentation && this.documentation.map(v => v.toJSON()),
+            goalId: this.goalId,
             subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSON(),
             subjectReference: this.subjectReference && this.subjectReference.toJSON(),
-            trigger: this.trigger && this.trigger.toJSON(),
-            condition: this.condition && this.condition.toJSON(),
-            input: this.input && this.input.toJSON(),
-            output: this.output && this.output.toJSON(),
-            relatedAction: this.relatedAction && this.relatedAction.toJSON(),
-            timingDateTime: this.timingDateTime && this.timingDateTime.toJSON(),
+            trigger: this.trigger && this.trigger.map(v => v.toJSON()),
+            condition: this.condition && this.condition.map(v => v.toJSON()),
+            input: this.input && this.input.map(v => v.toJSON()),
+            output: this.output && this.output.map(v => v.toJSON()),
+            relatedAction: this.relatedAction && this.relatedAction.map(v => v.toJSON()),
+            timingDateTime: this.timingDateTime,
             timingAge: this.timingAge && this.timingAge.toJSON(),
             timingPeriod: this.timingPeriod && this.timingPeriod.toJSON(),
             timingDuration: this.timingDuration && this.timingDuration.toJSON(),
             timingRange: this.timingRange && this.timingRange.toJSON(),
             timingTiming: this.timingTiming && this.timingTiming.toJSON(),
-            participant: this.participant && this.participant.toJSON(),
+            participant: this.participant && this.participant.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            groupingBehavior: this.groupingBehavior && this.groupingBehavior.toJSON(),
-            selectionBehavior: this.selectionBehavior && this.selectionBehavior.toJSON(),
-            requiredBehavior: this.requiredBehavior && this.requiredBehavior.toJSON(),
-            precheckBehavior: this.precheckBehavior && this.precheckBehavior.toJSON(),
-            cardinalityBehavior: this.cardinalityBehavior && this.cardinalityBehavior.toJSON(),
-            definitionCanonical: this.definitionCanonical && this.definitionCanonical.toJSON(),
-            definitionUri: this.definitionUri && this.definitionUri.toJSON(),
-            transform: this.transform && this.transform.toJSON(),
-            dynamicValue: this.dynamicValue && this.dynamicValue.toJSON(),
-            action: this.action && this.action.toJSON(),
+            groupingBehavior: this.groupingBehavior,
+            selectionBehavior: this.selectionBehavior,
+            requiredBehavior: this.requiredBehavior,
+            precheckBehavior: this.precheckBehavior,
+            cardinalityBehavior: this.cardinalityBehavior,
+            definitionCanonical: this.definitionCanonical,
+            definitionUri: this.definitionUri,
+            transform: this.transform,
+            dynamicValue: this.dynamicValue && this.dynamicValue.map(v => v.toJSON()),
+            action: this.action && this.action.map(v => v.toJSON()),
         };
     }
 }

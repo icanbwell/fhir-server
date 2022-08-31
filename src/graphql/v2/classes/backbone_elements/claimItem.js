@@ -44,7 +44,7 @@ class ClaimItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class ClaimItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,7 +102,7 @@ class ClaimItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.careTeamSequence = value;
+                this.__data.careTeamSequence = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -117,7 +117,7 @@ class ClaimItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.diagnosisSequence = value;
+                this.__data.diagnosisSequence = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -132,7 +132,7 @@ class ClaimItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.procedureSequence = value;
+                this.__data.procedureSequence = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -148,7 +148,7 @@ class ClaimItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.informationSequence = value;
+                this.__data.informationSequence = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -216,7 +216,7 @@ class ClaimItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.modifier = new CodeableConcept(value);
+                this.__data.modifier = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -232,7 +232,7 @@ class ClaimItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.programCode = new CodeableConcept(value);
+                this.__data.programCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -247,9 +247,7 @@ class ClaimItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.servicedDate = new date(value);
+                this.__data.servicedDate = value;
             }
         });
 
@@ -364,9 +362,7 @@ class ClaimItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.factor = new decimal(value);
+                this.__data.factor = value;
             }
         });
 
@@ -399,7 +395,7 @@ class ClaimItem {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.udi = new Reference(value);
+                this.__data.udi = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -431,7 +427,7 @@ class ClaimItem {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subSite = new CodeableConcept(value);
+                this.__data.subSite = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -448,7 +444,7 @@ class ClaimItem {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.encounter = new Reference(value);
+                this.__data.encounter = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -465,7 +461,7 @@ class ClaimItem {
                     return;
                 }
                 let ClaimDetail = require('../backbone_elements/claimDetail.js');
-                this.__data.detail = new ClaimDetail(value);
+                this.__data.detail = Array.isArray(value) ? value.map(v => new ClaimDetail(v)) : [new ClaimDetail(value)];
             }
         });
 
@@ -485,8 +481,8 @@ class ClaimItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             sequence: this.sequence,
             careTeamSequence: this.careTeamSequence,
             diagnosisSequence: this.diagnosisSequence,
@@ -495,22 +491,22 @@ class ClaimItem {
             revenue: this.revenue && this.revenue.toJSON(),
             category: this.category && this.category.toJSON(),
             productOrService: this.productOrService && this.productOrService.toJSON(),
-            modifier: this.modifier && this.modifier.toJSON(),
-            programCode: this.programCode && this.programCode.toJSON(),
-            servicedDate: this.servicedDate && this.servicedDate.toJSON(),
+            modifier: this.modifier && this.modifier.map(v => v.toJSON()),
+            programCode: this.programCode && this.programCode.map(v => v.toJSON()),
+            servicedDate: this.servicedDate,
             servicedPeriod: this.servicedPeriod && this.servicedPeriod.toJSON(),
             locationCodeableConcept: this.locationCodeableConcept && this.locationCodeableConcept.toJSON(),
             locationAddress: this.locationAddress && this.locationAddress.toJSON(),
             locationReference: this.locationReference && this.locationReference.toJSON(),
             quantity: this.quantity && this.quantity.toJSON(),
             unitPrice: this.unitPrice && this.unitPrice.toJSON(),
-            factor: this.factor && this.factor.toJSON(),
+            factor: this.factor,
             net: this.net && this.net.toJSON(),
-            udi: this.udi && this.udi.toJSON(),
+            udi: this.udi && this.udi.map(v => v.toJSON()),
             bodySite: this.bodySite && this.bodySite.toJSON(),
-            subSite: this.subSite && this.subSite.toJSON(),
-            encounter: this.encounter && this.encounter.toJSON(),
-            detail: this.detail && this.detail.toJSON(),
+            subSite: this.subSite && this.subSite.map(v => v.toJSON()),
+            encounter: this.encounter && this.encounter.map(v => v.toJSON()),
+            detail: this.detail && this.detail.map(v => v.toJSON()),
         };
     }
 }

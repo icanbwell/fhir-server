@@ -44,7 +44,7 @@ class CodeSystemConcept {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class CodeSystemConcept {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -139,7 +139,7 @@ class CodeSystemConcept {
                     return;
                 }
                 let CodeSystemDesignation = require('../backbone_elements/codeSystemDesignation.js');
-                this.__data.designation = new CodeSystemDesignation(value);
+                this.__data.designation = Array.isArray(value) ? value.map(v => new CodeSystemDesignation(v)) : [new CodeSystemDesignation(value)];
             }
         });
 
@@ -155,7 +155,7 @@ class CodeSystemConcept {
                     return;
                 }
                 let CodeSystemProperty1 = require('../backbone_elements/codeSystemProperty1.js');
-                this.__data.property = new CodeSystemProperty1(value);
+                this.__data.property = Array.isArray(value) ? value.map(v => new CodeSystemProperty1(v)) : [new CodeSystemProperty1(value)];
             }
         });
 
@@ -172,7 +172,7 @@ class CodeSystemConcept {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.concept = new CodeSystemConcept(value);
+                this.__data.concept = Array.isArray(value) ? value.map(v => new CodeSystemConcept(v)) : [new CodeSystemConcept(value)];
             }
         });
 
@@ -192,14 +192,14 @@ class CodeSystemConcept {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            code: this.code && this.code.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            code: this.code,
             display: this.display,
             definition: this.definition,
-            designation: this.designation && this.designation.toJSON(),
-            property: this.property && this.property.toJSON(),
-            concept: this.concept && this.concept.toJSON(),
+            designation: this.designation && this.designation.map(v => v.toJSON()),
+            property: this.property && this.property.map(v => v.toJSON()),
+            concept: this.concept && this.concept.map(v => v.toJSON()),
         };
     }
 }

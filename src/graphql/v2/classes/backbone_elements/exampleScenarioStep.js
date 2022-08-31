@@ -42,7 +42,7 @@ class ExampleScenarioStep {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class ExampleScenarioStep {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,7 +86,7 @@ class ExampleScenarioStep {
                     return;
                 }
                 let ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
-                this.__data.process = new ExampleScenarioProcess(value);
+                this.__data.process = Array.isArray(value) ? value.map(v => new ExampleScenarioProcess(v)) : [new ExampleScenarioProcess(value)];
             }
         });
 
@@ -134,7 +134,7 @@ class ExampleScenarioStep {
                     return;
                 }
                 let ExampleScenarioAlternative = require('../backbone_elements/exampleScenarioAlternative.js');
-                this.__data.alternative = new ExampleScenarioAlternative(value);
+                this.__data.alternative = Array.isArray(value) ? value.map(v => new ExampleScenarioAlternative(v)) : [new ExampleScenarioAlternative(value)];
             }
         });
 
@@ -154,12 +154,12 @@ class ExampleScenarioStep {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            process: this.process && this.process.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            process: this.process && this.process.map(v => v.toJSON()),
             pause: this.pause,
             operation: this.operation && this.operation.toJSON(),
-            alternative: this.alternative && this.alternative.toJSON(),
+            alternative: this.alternative && this.alternative.map(v => v.toJSON()),
         };
     }
 }

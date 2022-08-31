@@ -45,7 +45,7 @@ class SubstanceNucleicAcidSubunit {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class SubstanceNucleicAcidSubunit {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -192,7 +192,7 @@ class SubstanceNucleicAcidSubunit {
                     return;
                 }
                 let SubstanceNucleicAcidLinkage = require('../backbone_elements/substanceNucleicAcidLinkage.js');
-                this.__data.linkage = new SubstanceNucleicAcidLinkage(value);
+                this.__data.linkage = Array.isArray(value) ? value.map(v => new SubstanceNucleicAcidLinkage(v)) : [new SubstanceNucleicAcidLinkage(value)];
             }
         });
 
@@ -208,7 +208,7 @@ class SubstanceNucleicAcidSubunit {
                     return;
                 }
                 let SubstanceNucleicAcidSugar = require('../backbone_elements/substanceNucleicAcidSugar.js');
-                this.__data.sugar = new SubstanceNucleicAcidSugar(value);
+                this.__data.sugar = Array.isArray(value) ? value.map(v => new SubstanceNucleicAcidSugar(v)) : [new SubstanceNucleicAcidSugar(value)];
             }
         });
 
@@ -228,16 +228,16 @@ class SubstanceNucleicAcidSubunit {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             subunit: this.subunit,
             sequence: this.sequence,
             length: this.length,
             sequenceAttachment: this.sequenceAttachment && this.sequenceAttachment.toJSON(),
             fivePrime: this.fivePrime && this.fivePrime.toJSON(),
             threePrime: this.threePrime && this.threePrime.toJSON(),
-            linkage: this.linkage && this.linkage.toJSON(),
-            sugar: this.sugar && this.sugar.toJSON(),
+            linkage: this.linkage && this.linkage.map(v => v.toJSON()),
+            sugar: this.sugar && this.sugar.map(v => v.toJSON()),
         };
     }
 }

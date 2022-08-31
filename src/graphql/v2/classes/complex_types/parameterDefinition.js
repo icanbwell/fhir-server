@@ -46,7 +46,7 @@ class ParameterDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -156,9 +156,7 @@ class ParameterDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.profile = new canonical(value);
+                this.__data.profile = value;
             }
         });
 
@@ -178,14 +176,14 @@ class ParameterDefinition {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            name: this.name && this.name.toJSON(),
-            use: this.use && this.use.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            name: this.name,
+            use: this.use,
             min: this.min,
             max: this.max,
             documentation: this.documentation,
-            type: this.type && this.type.toJSON(),
-            profile: this.profile && this.profile.toJSON(),
+            type: this.type,
+            profile: this.profile,
         };
     }
 }

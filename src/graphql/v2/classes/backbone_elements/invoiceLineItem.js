@@ -43,7 +43,7 @@ class InvoiceLineItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class InvoiceLineItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -139,7 +139,7 @@ class InvoiceLineItem {
                     return;
                 }
                 let InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
-                this.__data.priceComponent = new InvoicePriceComponent(value);
+                this.__data.priceComponent = Array.isArray(value) ? value.map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(value)];
             }
         });
 
@@ -159,12 +159,12 @@ class InvoiceLineItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             sequence: this.sequence,
             chargeItemReference: this.chargeItemReference && this.chargeItemReference.toJSON(),
             chargeItemCodeableConcept: this.chargeItemCodeableConcept && this.chargeItemCodeableConcept.toJSON(),
-            priceComponent: this.priceComponent && this.priceComponent.toJSON(),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON()),
         };
     }
 }

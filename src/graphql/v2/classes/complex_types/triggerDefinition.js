@@ -45,7 +45,7 @@ class TriggerDefinition {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -124,9 +124,7 @@ class TriggerDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.timingDate = new date(value);
+                this.__data.timingDate = value;
             }
         });
 
@@ -141,9 +139,7 @@ class TriggerDefinition {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.timingDateTime = new dateTime(value);
+                this.__data.timingDateTime = value;
             }
         });
 
@@ -160,7 +156,7 @@ class TriggerDefinition {
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
-                this.__data.data = new DataRequirement(value);
+                this.__data.data = Array.isArray(value) ? value.map(v => new DataRequirement(v)) : [new DataRequirement(value)];
             }
         });
 
@@ -197,14 +193,14 @@ class TriggerDefinition {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            type: this.type && this.type.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            type: this.type,
             name: this.name,
             timingTiming: this.timingTiming && this.timingTiming.toJSON(),
             timingReference: this.timingReference && this.timingReference.toJSON(),
-            timingDate: this.timingDate && this.timingDate.toJSON(),
-            timingDateTime: this.timingDateTime && this.timingDateTime.toJSON(),
-            data: this.data && this.data.toJSON(),
+            timingDate: this.timingDate,
+            timingDateTime: this.timingDateTime,
+            data: this.data && this.data.map(v => v.toJSON()),
             condition: this.condition && this.condition.toJSON(),
         };
     }

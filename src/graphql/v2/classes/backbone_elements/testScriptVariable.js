@@ -43,7 +43,7 @@ class TestScriptVariable {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class TestScriptVariable {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -197,9 +197,7 @@ class TestScriptVariable {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.sourceId = new id(value);
+                this.__data.sourceId = value;
             }
         });
 
@@ -219,8 +217,8 @@ class TestScriptVariable {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             defaultValue: this.defaultValue,
             description: this.description,
@@ -228,7 +226,7 @@ class TestScriptVariable {
             headerField: this.headerField,
             hint: this.hint,
             path: this.path,
-            sourceId: this.sourceId && this.sourceId.toJSON(),
+            sourceId: this.sourceId,
         };
     }
 }

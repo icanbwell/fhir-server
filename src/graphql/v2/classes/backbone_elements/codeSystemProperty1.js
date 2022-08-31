@@ -44,7 +44,7 @@ class CodeSystemProperty1 {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class CodeSystemProperty1 {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -178,9 +178,7 @@ class CodeSystemProperty1 {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDateTime = new dateTime(value);
+                this.__data.valueDateTime = value;
             }
         });
 
@@ -195,9 +193,7 @@ class CodeSystemProperty1 {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDecimal = new decimal(value);
+                this.__data.valueDecimal = value;
             }
         });
 
@@ -217,16 +213,16 @@ class CodeSystemProperty1 {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            code: this.code && this.code.toJSON(),
-            valueCode: this.valueCode && this.valueCode.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            code: this.code,
+            valueCode: this.valueCode,
             valueCoding: this.valueCoding && this.valueCoding.toJSON(),
             valueString: this.valueString,
             valueInteger: this.valueInteger,
             valueBoolean: this.valueBoolean,
-            valueDateTime: this.valueDateTime && this.valueDateTime.toJSON(),
-            valueDecimal: this.valueDecimal && this.valueDecimal.toJSON(),
+            valueDateTime: this.valueDateTime,
+            valueDecimal: this.valueDecimal,
         };
     }
 }

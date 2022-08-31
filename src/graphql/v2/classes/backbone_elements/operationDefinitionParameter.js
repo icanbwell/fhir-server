@@ -43,7 +43,7 @@ class OperationDefinitionParameter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class OperationDefinitionParameter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,9 +185,7 @@ class OperationDefinitionParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.targetProfile = new canonical(value);
+                this.__data.targetProfile = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -237,7 +235,7 @@ class OperationDefinitionParameter {
                     return;
                 }
                 let OperationDefinitionReferencedFrom = require('../backbone_elements/operationDefinitionReferencedFrom.js');
-                this.__data.referencedFrom = new OperationDefinitionReferencedFrom(value);
+                this.__data.referencedFrom = Array.isArray(value) ? value.map(v => new OperationDefinitionReferencedFrom(v)) : [new OperationDefinitionReferencedFrom(value)];
             }
         });
 
@@ -252,7 +250,7 @@ class OperationDefinitionParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.part = new OperationDefinitionParameter(value);
+                this.__data.part = Array.isArray(value) ? value.map(v => new OperationDefinitionParameter(v)) : [new OperationDefinitionParameter(value)];
             }
         });
 
@@ -272,19 +270,19 @@ class OperationDefinitionParameter {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            name: this.name && this.name.toJSON(),
-            use: this.use && this.use.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            name: this.name,
+            use: this.use,
             min: this.min,
             max: this.max,
             documentation: this.documentation,
-            type: this.type && this.type.toJSON(),
-            targetProfile: this.targetProfile && this.targetProfile.toJSON(),
-            searchType: this.searchType && this.searchType.toJSON(),
+            type: this.type,
+            targetProfile: this.targetProfile,
+            searchType: this.searchType,
             binding: this.binding && this.binding.toJSON(),
-            referencedFrom: this.referencedFrom && this.referencedFrom.toJSON(),
-            part: this.part && this.part.toJSON(),
+            referencedFrom: this.referencedFrom && this.referencedFrom.map(v => v.toJSON()),
+            part: this.part && this.part.map(v => v.toJSON()),
         };
     }
 }

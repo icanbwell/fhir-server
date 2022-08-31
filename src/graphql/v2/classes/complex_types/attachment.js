@@ -44,7 +44,7 @@ class Attachment {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -92,9 +92,7 @@ class Attachment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.data = new base64Binary(value);
+                this.__data.data = value;
             }
         });
 
@@ -109,9 +107,7 @@ class Attachment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.url = new url(value);
+                this.__data.url = value;
             }
         });
 
@@ -127,9 +123,7 @@ class Attachment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.size = new unsignedInt(value);
+                this.__data.size = value;
             }
         });
 
@@ -144,9 +138,7 @@ class Attachment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.hash = new base64Binary(value);
+                this.__data.hash = value;
             }
         });
 
@@ -176,9 +168,7 @@ class Attachment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.creation = new dateTime(value);
+                this.__data.creation = value;
             }
         });
 
@@ -198,15 +188,15 @@ class Attachment {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            contentType: this.contentType && this.contentType.toJSON(),
-            language: this.language && this.language.toJSON(),
-            data: this.data && this.data.toJSON(),
-            url: this.url && this.url.toJSON(),
-            size: this.size && this.size.toJSON(),
-            hash: this.hash && this.hash.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            contentType: this.contentType,
+            language: this.language,
+            data: this.data,
+            url: this.url,
+            size: this.size,
+            hash: this.hash,
             title: this.title,
-            creation: this.creation && this.creation.toJSON(),
+            creation: this.creation,
         };
     }
 }

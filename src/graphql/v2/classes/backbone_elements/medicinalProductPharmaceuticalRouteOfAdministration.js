@@ -42,7 +42,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -191,7 +191,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration {
                     return;
                 }
                 let MedicinalProductPharmaceuticalTargetSpecies = require('../backbone_elements/medicinalProductPharmaceuticalTargetSpecies.js');
-                this.__data.targetSpecies = new MedicinalProductPharmaceuticalTargetSpecies(value);
+                this.__data.targetSpecies = Array.isArray(value) ? value.map(v => new MedicinalProductPharmaceuticalTargetSpecies(v)) : [new MedicinalProductPharmaceuticalTargetSpecies(value)];
             }
         });
 
@@ -211,15 +211,15 @@ class MedicinalProductPharmaceuticalRouteOfAdministration {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             code: this.code && this.code.toJSON(),
             firstDose: this.firstDose && this.firstDose.toJSON(),
             maxSingleDose: this.maxSingleDose && this.maxSingleDose.toJSON(),
             maxDosePerDay: this.maxDosePerDay && this.maxDosePerDay.toJSON(),
             maxDosePerTreatmentPeriod: this.maxDosePerTreatmentPeriod && this.maxDosePerTreatmentPeriod.toJSON(),
             maxTreatmentPeriod: this.maxTreatmentPeriod && this.maxTreatmentPeriod.toJSON(),
-            targetSpecies: this.targetSpecies && this.targetSpecies.toJSON(),
+            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSON()),
         };
     }
 }

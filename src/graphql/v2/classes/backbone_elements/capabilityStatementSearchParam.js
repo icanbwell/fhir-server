@@ -45,7 +45,7 @@ class CapabilityStatementSearchParam {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -73,7 +73,7 @@ class CapabilityStatementSearchParam {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -107,9 +107,7 @@ class CapabilityStatementSearchParam {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definition = new canonical(value);
+                this.__data.definition = value;
             }
         });
 
@@ -141,9 +139,7 @@ class CapabilityStatementSearchParam {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.documentation = new markdown(value);
+                this.__data.documentation = value;
             }
         });
 
@@ -163,12 +159,12 @@ class CapabilityStatementSearchParam {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
-            definition: this.definition && this.definition.toJSON(),
-            type: this.type && this.type.toJSON(),
-            documentation: this.documentation && this.documentation.toJSON(),
+            definition: this.definition,
+            type: this.type,
+            documentation: this.documentation,
         };
     }
 }

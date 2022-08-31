@@ -28,9 +28,7 @@ class DocumentReference {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -66,9 +64,7 @@ class DocumentReference {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -121,9 +117,7 @@ class DocumentReference {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -143,7 +137,7 @@ class DocumentReference {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -171,7 +165,7 @@ class DocumentReference {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -206,7 +200,7 @@ class DocumentReference {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -272,7 +266,7 @@ class DocumentReference {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(value);
+                this.__data.category = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -306,9 +300,7 @@ class DocumentReference {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.date = new instant(value);
+                this.__data.date = value;
             }
         });
 
@@ -324,7 +316,7 @@ class DocumentReference {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.author = new Reference(value);
+                this.__data.author = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -374,7 +366,7 @@ class DocumentReference {
                     return;
                 }
                 let DocumentReferenceRelatesTo = require('../backbone_elements/documentReferenceRelatesTo.js');
-                this.__data.relatesTo = new DocumentReferenceRelatesTo(value);
+                this.__data.relatesTo = Array.isArray(value) ? value.map(v => new DocumentReferenceRelatesTo(v)) : [new DocumentReferenceRelatesTo(value)];
             }
         });
 
@@ -409,7 +401,7 @@ class DocumentReference {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.securityLabel = new CodeableConcept(value);
+                this.__data.securityLabel = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -426,7 +418,7 @@ class DocumentReference {
                     return;
                 }
                 let DocumentReferenceContent = require('../backbone_elements/documentReferenceContent.js');
-                this.__data.content = new DocumentReferenceContent(value);
+                this.__data.content = Array.isArray(value) ? value.map(v => new DocumentReferenceContent(v)) : [new DocumentReferenceContent(value)];
             }
         });
 
@@ -462,29 +454,29 @@ class DocumentReference {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             masterIdentifier: this.masterIdentifier && this.masterIdentifier.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
-            docStatus: this.docStatus && this.docStatus.toJSON(),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
+            docStatus: this.docStatus,
             type: this.type && this.type.toJSON(),
-            category: this.category && this.category.toJSON(),
+            category: this.category && this.category.map(v => v.toJSON()),
             subject: this.subject && this.subject.toJSON(),
-            date: this.date && this.date.toJSON(),
-            author: this.author && this.author.toJSON(),
+            date: this.date,
+            author: this.author && this.author.map(v => v.toJSON()),
             authenticator: this.authenticator && this.authenticator.toJSON(),
             custodian: this.custodian && this.custodian.toJSON(),
-            relatesTo: this.relatesTo && this.relatesTo.toJSON(),
+            relatesTo: this.relatesTo && this.relatesTo.map(v => v.toJSON()),
             description: this.description,
-            securityLabel: this.securityLabel && this.securityLabel.toJSON(),
-            content: this.content && this.content.toJSON(),
+            securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSON()),
+            content: this.content && this.content.map(v => v.toJSON()),
             context: this.context && this.context.toJSON(),
         };
     }

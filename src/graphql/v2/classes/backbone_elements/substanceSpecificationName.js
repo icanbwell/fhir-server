@@ -43,7 +43,7 @@ class SubstanceSpecificationName {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class SubstanceSpecificationName {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -149,7 +149,7 @@ class SubstanceSpecificationName {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.language = new CodeableConcept(value);
+                this.__data.language = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -166,7 +166,7 @@ class SubstanceSpecificationName {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.domain = new CodeableConcept(value);
+                this.__data.domain = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -182,7 +182,7 @@ class SubstanceSpecificationName {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = new CodeableConcept(value);
+                this.__data.jurisdiction = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -197,7 +197,7 @@ class SubstanceSpecificationName {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.synonym = new SubstanceSpecificationName(value);
+                this.__data.synonym = Array.isArray(value) ? value.map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(value)];
             }
         });
 
@@ -212,7 +212,7 @@ class SubstanceSpecificationName {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.translation = new SubstanceSpecificationName(value);
+                this.__data.translation = Array.isArray(value) ? value.map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(value)];
             }
         });
 
@@ -228,7 +228,7 @@ class SubstanceSpecificationName {
                     return;
                 }
                 let SubstanceSpecificationOfficial = require('../backbone_elements/substanceSpecificationOfficial.js');
-                this.__data.official = new SubstanceSpecificationOfficial(value);
+                this.__data.official = Array.isArray(value) ? value.map(v => new SubstanceSpecificationOfficial(v)) : [new SubstanceSpecificationOfficial(value)];
             }
         });
 
@@ -244,7 +244,7 @@ class SubstanceSpecificationName {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.source = new Reference(value);
+                this.__data.source = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -264,19 +264,19 @@ class SubstanceSpecificationName {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             name: this.name,
             type: this.type && this.type.toJSON(),
             status: this.status && this.status.toJSON(),
             preferred: this.preferred,
-            language: this.language && this.language.toJSON(),
-            domain: this.domain && this.domain.toJSON(),
-            jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
-            synonym: this.synonym && this.synonym.toJSON(),
-            translation: this.translation && this.translation.toJSON(),
-            official: this.official && this.official.toJSON(),
-            source: this.source && this.source.toJSON(),
+            language: this.language && this.language.map(v => v.toJSON()),
+            domain: this.domain && this.domain.map(v => v.toJSON()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
+            synonym: this.synonym && this.synonym.map(v => v.toJSON()),
+            translation: this.translation && this.translation.map(v => v.toJSON()),
+            official: this.official && this.official.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON()),
         };
     }
 }

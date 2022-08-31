@@ -42,7 +42,7 @@ class SubstanceReferenceInformationClassification {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class SubstanceReferenceInformationClassification {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -118,7 +118,7 @@ class SubstanceReferenceInformationClassification {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subtype = new CodeableConcept(value);
+                this.__data.subtype = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -134,7 +134,7 @@ class SubstanceReferenceInformationClassification {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.source = new Reference(value);
+                this.__data.source = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -154,12 +154,12 @@ class SubstanceReferenceInformationClassification {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             domain: this.domain && this.domain.toJSON(),
             classification: this.classification && this.classification.toJSON(),
-            subtype: this.subtype && this.subtype.toJSON(),
-            source: this.source && this.source.toJSON(),
+            subtype: this.subtype && this.subtype.map(v => v.toJSON()),
+            source: this.source && this.source.map(v => v.toJSON()),
         };
     }
 }

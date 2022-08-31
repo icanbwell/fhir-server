@@ -26,9 +26,7 @@ class Appointment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -64,9 +62,7 @@ class Appointment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -119,9 +115,7 @@ class Appointment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -141,7 +135,7 @@ class Appointment {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -169,7 +163,7 @@ class Appointment {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -188,7 +182,7 @@ class Appointment {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -240,7 +234,7 @@ class Appointment {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.serviceCategory = new CodeableConcept(value);
+                this.__data.serviceCategory = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -256,7 +250,7 @@ class Appointment {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.serviceType = new CodeableConcept(value);
+                this.__data.serviceType = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -273,7 +267,7 @@ class Appointment {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.specialty = new CodeableConcept(value);
+                this.__data.specialty = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -307,7 +301,7 @@ class Appointment {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = new CodeableConcept(value);
+                this.__data.reasonCode = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -327,7 +321,7 @@ class Appointment {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = new Reference(value);
+                this.__data.reasonReference = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -344,9 +338,7 @@ class Appointment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.priority = new unsignedInt(value);
+                this.__data.priority = value;
             }
         });
 
@@ -380,7 +372,7 @@ class Appointment {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingInformation = new Reference(value);
+                this.__data.supportingInformation = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -395,9 +387,7 @@ class Appointment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.start = new instant(value);
+                this.__data.start = value;
             }
         });
 
@@ -412,9 +402,7 @@ class Appointment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.end = new instant(value);
+                this.__data.end = value;
             }
         });
 
@@ -451,7 +439,7 @@ class Appointment {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.slot = new Reference(value);
+                this.__data.slot = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -469,9 +457,7 @@ class Appointment {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.created = new dateTime(value);
+                this.__data.created = value;
             }
         });
 
@@ -521,7 +507,7 @@ class Appointment {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = new Reference(value);
+                this.__data.basedOn = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -537,7 +523,7 @@ class Appointment {
                     return;
                 }
                 let AppointmentParticipant = require('../backbone_elements/appointmentParticipant.js');
-                this.__data.participant = new AppointmentParticipant(value);
+                this.__data.participant = Array.isArray(value) ? value.map(v => new AppointmentParticipant(v)) : [new AppointmentParticipant(value)];
             }
         });
 
@@ -559,7 +545,7 @@ class Appointment {
                     return;
                 }
                 let Period = require('../complex_types/period.js');
-                this.__data.requestedPeriod = new Period(value);
+                this.__data.requestedPeriod = Array.isArray(value) ? value.map(v => new Period(v)) : [new Period(value)];
             }
         });
 
@@ -579,36 +565,36 @@ class Appointment {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
             cancelationReason: this.cancelationReason && this.cancelationReason.toJSON(),
-            serviceCategory: this.serviceCategory && this.serviceCategory.toJSON(),
-            serviceType: this.serviceType && this.serviceType.toJSON(),
-            specialty: this.specialty && this.specialty.toJSON(),
+            serviceCategory: this.serviceCategory && this.serviceCategory.map(v => v.toJSON()),
+            serviceType: this.serviceType && this.serviceType.map(v => v.toJSON()),
+            specialty: this.specialty && this.specialty.map(v => v.toJSON()),
             appointmentType: this.appointmentType && this.appointmentType.toJSON(),
-            reasonCode: this.reasonCode && this.reasonCode.toJSON(),
-            reasonReference: this.reasonReference && this.reasonReference.toJSON(),
-            priority: this.priority && this.priority.toJSON(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSON()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSON()),
+            priority: this.priority,
             description: this.description,
-            supportingInformation: this.supportingInformation && this.supportingInformation.toJSON(),
-            start: this.start && this.start.toJSON(),
-            end: this.end && this.end.toJSON(),
+            supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSON()),
+            start: this.start,
+            end: this.end,
             minutesDuration: this.minutesDuration,
-            slot: this.slot && this.slot.toJSON(),
-            created: this.created && this.created.toJSON(),
+            slot: this.slot && this.slot.map(v => v.toJSON()),
+            created: this.created,
             comment: this.comment,
             patientInstruction: this.patientInstruction,
-            basedOn: this.basedOn && this.basedOn.toJSON(),
-            participant: this.participant && this.participant.toJSON(),
-            requestedPeriod: this.requestedPeriod && this.requestedPeriod.toJSON(),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSON()),
+            participant: this.participant && this.participant.map(v => v.toJSON()),
+            requestedPeriod: this.requestedPeriod && this.requestedPeriod.map(v => v.toJSON()),
         };
     }
 }

@@ -44,7 +44,7 @@ class QuestionnaireResponseItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class QuestionnaireResponseItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -104,9 +104,7 @@ class QuestionnaireResponseItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definition = new uri(value);
+                this.__data.definition = value;
             }
         });
 
@@ -138,7 +136,7 @@ class QuestionnaireResponseItem {
                     return;
                 }
                 let QuestionnaireResponseAnswer = require('../backbone_elements/questionnaireResponseAnswer.js');
-                this.__data.answer = new QuestionnaireResponseAnswer(value);
+                this.__data.answer = Array.isArray(value) ? value.map(v => new QuestionnaireResponseAnswer(v)) : [new QuestionnaireResponseAnswer(value)];
             }
         });
 
@@ -153,7 +151,7 @@ class QuestionnaireResponseItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.item = new QuestionnaireResponseItem(value);
+                this.__data.item = Array.isArray(value) ? value.map(v => new QuestionnaireResponseItem(v)) : [new QuestionnaireResponseItem(value)];
             }
         });
 
@@ -173,13 +171,13 @@ class QuestionnaireResponseItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             linkId: this.linkId,
-            definition: this.definition && this.definition.toJSON(),
+            definition: this.definition,
             text: this.text,
-            answer: this.answer && this.answer.toJSON(),
-            item: this.item && this.item.toJSON(),
+            answer: this.answer && this.answer.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON()),
         };
     }
 }

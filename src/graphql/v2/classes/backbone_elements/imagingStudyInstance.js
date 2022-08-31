@@ -46,7 +46,7 @@ class ImagingStudyInstance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -74,7 +74,7 @@ class ImagingStudyInstance {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -89,9 +89,7 @@ class ImagingStudyInstance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.uid = new id(value);
+                this.__data.uid = value;
             }
         });
 
@@ -122,9 +120,7 @@ class ImagingStudyInstance {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.number = new unsignedInt(value);
+                this.__data.number = value;
             }
         });
 
@@ -159,11 +155,11 @@ class ImagingStudyInstance {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            uid: this.uid && this.uid.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            uid: this.uid,
             sopClass: this.sopClass && this.sopClass.toJSON(),
-            number: this.number && this.number.toJSON(),
+            number: this.number,
             title: this.title,
         };
     }

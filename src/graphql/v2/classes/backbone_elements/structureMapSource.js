@@ -43,7 +43,7 @@ class StructureMapSource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class StructureMapSource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,9 +86,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.context = new id(value);
+                this.__data.context = value;
             }
         });
 
@@ -152,9 +150,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let base64Binary = require('../simple_types/base64Binary.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueBase64Binary = new base64Binary(value);
+                this.__data.defaultValueBase64Binary = value;
             }
         });
 
@@ -184,9 +180,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueCanonical = new canonical(value);
+                this.__data.defaultValueCanonical = value;
             }
         });
 
@@ -216,9 +210,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let date = require('../simple_types/date.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueDate = new date(value);
+                this.__data.defaultValueDate = value;
             }
         });
 
@@ -233,9 +225,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueDateTime = new dateTime(value);
+                this.__data.defaultValueDateTime = value;
             }
         });
 
@@ -250,9 +240,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueDecimal = new decimal(value);
+                this.__data.defaultValueDecimal = value;
             }
         });
 
@@ -267,9 +255,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueId = new id(value);
+                this.__data.defaultValueId = value;
             }
         });
 
@@ -284,9 +270,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let instant = require('../simple_types/instant.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueInstant = new instant(value);
+                this.__data.defaultValueInstant = value;
             }
         });
 
@@ -316,9 +300,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueMarkdown = new markdown(value);
+                this.__data.defaultValueMarkdown = value;
             }
         });
 
@@ -333,9 +315,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let oid = require('../simple_types/oid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueOid = new oid(value);
+                this.__data.defaultValueOid = value;
             }
         });
 
@@ -380,9 +360,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let time = require('../simple_types/time.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueTime = new time(value);
+                this.__data.defaultValueTime = value;
             }
         });
 
@@ -397,9 +375,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueUnsignedInt = new unsignedInt(value);
+                this.__data.defaultValueUnsignedInt = value;
             }
         });
 
@@ -414,9 +390,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueUri = new uri(value);
+                this.__data.defaultValueUri = value;
             }
         });
 
@@ -431,9 +405,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let url = require('../simple_types/url.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueUrl = new url(value);
+                this.__data.defaultValueUrl = value;
             }
         });
 
@@ -448,9 +420,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uuid = require('../simple_types/uuid.js');
-                // eslint-disable-next-line new-cap
-                this.__data.defaultValueUuid = new uuid(value);
+                this.__data.defaultValueUuid = value;
             }
         });
 
@@ -991,9 +961,7 @@ class StructureMapSource {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.variable = new id(value);
+                this.__data.variable = value;
             }
         });
 
@@ -1060,31 +1028,31 @@ class StructureMapSource {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            context: this.context && this.context.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            context: this.context,
             min: this.min,
             max: this.max,
             type: this.type,
-            defaultValueBase64Binary: this.defaultValueBase64Binary && this.defaultValueBase64Binary.toJSON(),
+            defaultValueBase64Binary: this.defaultValueBase64Binary,
             defaultValueBoolean: this.defaultValueBoolean,
-            defaultValueCanonical: this.defaultValueCanonical && this.defaultValueCanonical.toJSON(),
-            defaultValueCode: this.defaultValueCode && this.defaultValueCode.toJSON(),
-            defaultValueDate: this.defaultValueDate && this.defaultValueDate.toJSON(),
-            defaultValueDateTime: this.defaultValueDateTime && this.defaultValueDateTime.toJSON(),
-            defaultValueDecimal: this.defaultValueDecimal && this.defaultValueDecimal.toJSON(),
-            defaultValueId: this.defaultValueId && this.defaultValueId.toJSON(),
-            defaultValueInstant: this.defaultValueInstant && this.defaultValueInstant.toJSON(),
+            defaultValueCanonical: this.defaultValueCanonical,
+            defaultValueCode: this.defaultValueCode,
+            defaultValueDate: this.defaultValueDate,
+            defaultValueDateTime: this.defaultValueDateTime,
+            defaultValueDecimal: this.defaultValueDecimal,
+            defaultValueId: this.defaultValueId,
+            defaultValueInstant: this.defaultValueInstant,
             defaultValueInteger: this.defaultValueInteger,
-            defaultValueMarkdown: this.defaultValueMarkdown && this.defaultValueMarkdown.toJSON(),
-            defaultValueOid: this.defaultValueOid && this.defaultValueOid.toJSON(),
+            defaultValueMarkdown: this.defaultValueMarkdown,
+            defaultValueOid: this.defaultValueOid,
             defaultValuePositiveInt: this.defaultValuePositiveInt,
             defaultValueString: this.defaultValueString,
-            defaultValueTime: this.defaultValueTime && this.defaultValueTime.toJSON(),
-            defaultValueUnsignedInt: this.defaultValueUnsignedInt && this.defaultValueUnsignedInt.toJSON(),
-            defaultValueUri: this.defaultValueUri && this.defaultValueUri.toJSON(),
-            defaultValueUrl: this.defaultValueUrl && this.defaultValueUrl.toJSON(),
-            defaultValueUuid: this.defaultValueUuid && this.defaultValueUuid.toJSON(),
+            defaultValueTime: this.defaultValueTime,
+            defaultValueUnsignedInt: this.defaultValueUnsignedInt,
+            defaultValueUri: this.defaultValueUri,
+            defaultValueUrl: this.defaultValueUrl,
+            defaultValueUuid: this.defaultValueUuid,
             defaultValueAddress: this.defaultValueAddress && this.defaultValueAddress.toJSON(),
             defaultValueAge: this.defaultValueAge && this.defaultValueAge.toJSON(),
             defaultValueAnnotation: this.defaultValueAnnotation && this.defaultValueAnnotation.toJSON(),
@@ -1117,8 +1085,8 @@ class StructureMapSource {
             defaultValueDosage: this.defaultValueDosage && this.defaultValueDosage.toJSON(),
             defaultValueMeta: this.defaultValueMeta && this.defaultValueMeta.toJSON(),
             element: this.element,
-            listMode: this.listMode && this.listMode.toJSON(),
-            variable: this.variable && this.variable.toJSON(),
+            listMode: this.listMode,
+            variable: this.variable,
             condition: this.condition,
             check: this.check,
             logMessage: this.logMessage,

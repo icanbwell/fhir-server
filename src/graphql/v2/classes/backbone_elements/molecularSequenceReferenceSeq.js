@@ -42,7 +42,7 @@ class MolecularSequenceReferenceSeq {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -70,7 +70,7 @@ class MolecularSequenceReferenceSeq {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -244,15 +244,15 @@ class MolecularSequenceReferenceSeq {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             chromosome: this.chromosome && this.chromosome.toJSON(),
             genomeBuild: this.genomeBuild,
-            orientation: this.orientation && this.orientation.toJSON(),
+            orientation: this.orientation,
             referenceSeqId: this.referenceSeqId && this.referenceSeqId.toJSON(),
             referenceSeqPointer: this.referenceSeqPointer && this.referenceSeqPointer.toJSON(),
             referenceSeqString: this.referenceSeqString,
-            strand: this.strand && this.strand.toJSON(),
+            strand: this.strand,
             windowStart: this.windowStart,
             windowEnd: this.windowEnd,
         };

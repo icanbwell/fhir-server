@@ -44,7 +44,7 @@ class QuestionnaireItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -72,7 +72,7 @@ class QuestionnaireItem {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -117,9 +117,7 @@ class QuestionnaireItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.definition = new uri(value);
+                this.__data.definition = value;
             }
         });
 
@@ -136,7 +134,7 @@ class QuestionnaireItem {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.code = new Coding(value);
+                this.__data.code = Array.isArray(value) ? value.map(v => new Coding(v)) : [new Coding(value)];
             }
         });
 
@@ -203,7 +201,7 @@ class QuestionnaireItem {
                     return;
                 }
                 let QuestionnaireEnableWhen = require('../backbone_elements/questionnaireEnableWhen.js');
-                this.__data.enableWhen = new QuestionnaireEnableWhen(value);
+                this.__data.enableWhen = Array.isArray(value) ? value.map(v => new QuestionnaireEnableWhen(v)) : [new QuestionnaireEnableWhen(value)];
             }
         });
 
@@ -301,9 +299,7 @@ class QuestionnaireItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let canonical = require('../simple_types/canonical.js');
-                // eslint-disable-next-line new-cap
-                this.__data.answerValueSet = new canonical(value);
+                this.__data.answerValueSet = value;
             }
         });
 
@@ -319,7 +315,7 @@ class QuestionnaireItem {
                     return;
                 }
                 let QuestionnaireAnswerOption = require('../backbone_elements/questionnaireAnswerOption.js');
-                this.__data.answerOption = new QuestionnaireAnswerOption(value);
+                this.__data.answerOption = Array.isArray(value) ? value.map(v => new QuestionnaireAnswerOption(v)) : [new QuestionnaireAnswerOption(value)];
             }
         });
 
@@ -336,7 +332,7 @@ class QuestionnaireItem {
                     return;
                 }
                 let QuestionnaireInitial = require('../backbone_elements/questionnaireInitial.js');
-                this.__data.initial = new QuestionnaireInitial(value);
+                this.__data.initial = Array.isArray(value) ? value.map(v => new QuestionnaireInitial(v)) : [new QuestionnaireInitial(value)];
             }
         });
 
@@ -351,7 +347,7 @@ class QuestionnaireItem {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.item = new QuestionnaireItem(value);
+                this.__data.item = Array.isArray(value) ? value.map(v => new QuestionnaireItem(v)) : [new QuestionnaireItem(value)];
             }
         });
 
@@ -371,24 +367,24 @@ class QuestionnaireItem {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             linkId: this.linkId,
-            definition: this.definition && this.definition.toJSON(),
-            code: this.code && this.code.toJSON(),
+            definition: this.definition,
+            code: this.code && this.code.map(v => v.toJSON()),
             prefix: this.prefix,
             text: this.text,
-            type: this.type && this.type.toJSON(),
-            enableWhen: this.enableWhen && this.enableWhen.toJSON(),
-            enableBehavior: this.enableBehavior && this.enableBehavior.toJSON(),
+            type: this.type,
+            enableWhen: this.enableWhen && this.enableWhen.map(v => v.toJSON()),
+            enableBehavior: this.enableBehavior,
             required: this.required,
             repeats: this.repeats,
             readOnly: this.readOnly,
             maxLength: this.maxLength,
-            answerValueSet: this.answerValueSet && this.answerValueSet.toJSON(),
-            answerOption: this.answerOption && this.answerOption.toJSON(),
-            initial: this.initial && this.initial.toJSON(),
-            item: this.item && this.item.toJSON(),
+            answerValueSet: this.answerValueSet,
+            answerOption: this.answerOption && this.answerOption.map(v => v.toJSON()),
+            initial: this.initial && this.initial.map(v => v.toJSON()),
+            item: this.item && this.item.map(v => v.toJSON()),
         };
     }
 }

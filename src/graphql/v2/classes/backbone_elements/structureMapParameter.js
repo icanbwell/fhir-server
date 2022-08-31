@@ -43,7 +43,7 @@ class StructureMapParameter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class StructureMapParameter {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -86,9 +86,7 @@ class StructureMapParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueId = new id(value);
+                this.__data.valueId = value;
             }
         });
 
@@ -148,9 +146,7 @@ class StructureMapParameter {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let decimal = require('../simple_types/decimal.js');
-                // eslint-disable-next-line new-cap
-                this.__data.valueDecimal = new decimal(value);
+                this.__data.valueDecimal = value;
             }
         });
 
@@ -170,13 +166,13 @@ class StructureMapParameter {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            valueId: this.valueId && this.valueId.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            valueId: this.valueId,
             valueString: this.valueString,
             valueBoolean: this.valueBoolean,
             valueInteger: this.valueInteger,
-            valueDecimal: this.valueDecimal && this.valueDecimal.toJSON(),
+            valueDecimal: this.valueDecimal,
         };
     }
 }

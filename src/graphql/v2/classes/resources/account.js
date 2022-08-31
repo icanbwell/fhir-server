@@ -25,9 +25,7 @@ class Account {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -63,9 +61,7 @@ class Account {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -118,9 +114,7 @@ class Account {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -140,7 +134,7 @@ class Account {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -168,7 +162,7 @@ class Account {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -185,7 +179,7 @@ class Account {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(value);
+                this.__data.identifier = Array.isArray(value) ? value.map(v => new Identifier(v)) : [new Identifier(value)];
             }
         });
 
@@ -249,7 +243,7 @@ class Account {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(value);
+                this.__data.subject = Array.isArray(value) ? value.map(v => new Reference(v)) : [new Reference(value)];
             }
         });
 
@@ -282,7 +276,7 @@ class Account {
                     return;
                 }
                 let AccountCoverage = require('../backbone_elements/accountCoverage.js');
-                this.__data.coverage = new AccountCoverage(value);
+                this.__data.coverage = Array.isArray(value) ? value.map(v => new AccountCoverage(v)) : [new AccountCoverage(value)];
             }
         });
 
@@ -332,7 +326,7 @@ class Account {
                     return;
                 }
                 let AccountGuarantor = require('../backbone_elements/accountGuarantor.js');
-                this.__data.guarantor = new AccountGuarantor(value);
+                this.__data.guarantor = Array.isArray(value) ? value.map(v => new AccountGuarantor(v)) : [new AccountGuarantor(value)];
             }
         });
 
@@ -368,24 +362,24 @@ class Account {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            identifier: this.identifier && this.identifier.toJSON(),
-            status: this.status && this.status.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSON()),
+            status: this.status,
             type: this.type && this.type.toJSON(),
             name: this.name,
-            subject: this.subject && this.subject.toJSON(),
+            subject: this.subject && this.subject.map(v => v.toJSON()),
             servicePeriod: this.servicePeriod && this.servicePeriod.toJSON(),
-            coverage: this.coverage && this.coverage.toJSON(),
+            coverage: this.coverage && this.coverage.map(v => v.toJSON()),
             owner: this.owner && this.owner.toJSON(),
             description: this.description,
-            guarantor: this.guarantor && this.guarantor.toJSON(),
+            guarantor: this.guarantor && this.guarantor.map(v => v.toJSON()),
             partOf: this.partOf && this.partOf.toJSON(),
         };
     }

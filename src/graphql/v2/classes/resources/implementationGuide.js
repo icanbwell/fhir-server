@@ -27,9 +27,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.id = new id(value);
+                this.__data.id = value;
             }
         });
 
@@ -65,9 +63,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.implicitRules = new uri(value);
+                this.__data.implicitRules = value;
             }
         });
 
@@ -120,9 +116,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
-                // eslint-disable-next-line new-cap
-                this.__data.contained = new ResourceContainer(value);
+                this.__data.contained = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -142,7 +136,7 @@ class ImplementationGuide {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -170,7 +164,7 @@ class ImplementationGuide {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -191,9 +185,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let uri = require('../simple_types/uri.js');
-                // eslint-disable-next-line new-cap
-                this.__data.url = new uri(value);
+                this.__data.url = value;
             }
         });
 
@@ -296,9 +288,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let dateTime = require('../simple_types/dateTime.js');
-                // eslint-disable-next-line new-cap
-                this.__data.date = new dateTime(value);
+                this.__data.date = value;
             }
         });
 
@@ -331,7 +321,7 @@ class ImplementationGuide {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = new ContactDetail(value);
+                this.__data.contact = Array.isArray(value) ? value.map(v => new ContactDetail(v)) : [new ContactDetail(value)];
             }
         });
 
@@ -347,9 +337,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.description = new markdown(value);
+                this.__data.description = value;
             }
         });
 
@@ -369,7 +357,7 @@ class ImplementationGuide {
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = new UsageContext(value);
+                this.__data.useContext = Array.isArray(value) ? value.map(v => new UsageContext(v)) : [new UsageContext(value)];
             }
         });
 
@@ -386,7 +374,7 @@ class ImplementationGuide {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = new CodeableConcept(value);
+                this.__data.jurisdiction = Array.isArray(value) ? value.map(v => new CodeableConcept(v)) : [new CodeableConcept(value)];
             }
         });
 
@@ -403,9 +391,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let markdown = require('../simple_types/markdown.js');
-                // eslint-disable-next-line new-cap
-                this.__data.copyright = new markdown(value);
+                this.__data.copyright = value;
             }
         });
 
@@ -423,9 +409,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let id = require('../simple_types/id.js');
-                // eslint-disable-next-line new-cap
-                this.__data.packageId = new id(value);
+                this.__data.packageId = value;
             }
         });
 
@@ -459,7 +443,7 @@ class ImplementationGuide {
                 if (value === undefined || value === null) {
                     return;
                 }
-                this.__data.fhirVersion = value;
+                this.__data.fhirVersion = Array.isArray(value) ? value.map(v => v) : [value];
             }
         });
 
@@ -477,7 +461,7 @@ class ImplementationGuide {
                     return;
                 }
                 let ImplementationGuideDependsOn = require('../backbone_elements/implementationGuideDependsOn.js');
-                this.__data.dependsOn = new ImplementationGuideDependsOn(value);
+                this.__data.dependsOn = Array.isArray(value) ? value.map(v => new ImplementationGuideDependsOn(v)) : [new ImplementationGuideDependsOn(value)];
             }
         });
 
@@ -494,7 +478,7 @@ class ImplementationGuide {
                     return;
                 }
                 let ImplementationGuideGlobal = require('../backbone_elements/implementationGuideGlobal.js');
-                this.__data.global = new ImplementationGuideGlobal(value);
+                this.__data.global = Array.isArray(value) ? value.map(v => new ImplementationGuideGlobal(v)) : [new ImplementationGuideGlobal(value)];
             }
         });
 
@@ -548,32 +532,32 @@ class ImplementationGuide {
     toJSON() {
         return {
             resourceType: this.resourceType,
-            id: this.id && this.id.toJSON(),
+            id: this.id,
             meta: this.meta && this.meta.toJSON(),
-            implicitRules: this.implicitRules && this.implicitRules.toJSON(),
-            language: this.language && this.language.toJSON(),
+            implicitRules: this.implicitRules,
+            language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained && this.contained.toJSON(),
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            url: this.url && this.url.toJSON(),
+            contained: this.contained,
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            url: this.url,
             version: this.version,
             name: this.name,
             title: this.title,
-            status: this.status && this.status.toJSON(),
+            status: this.status,
             experimental: this.experimental,
-            date: this.date && this.date.toJSON(),
+            date: this.date,
             publisher: this.publisher,
-            contact: this.contact && this.contact.toJSON(),
-            description: this.description && this.description.toJSON(),
-            useContext: this.useContext && this.useContext.toJSON(),
-            jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
-            copyright: this.copyright && this.copyright.toJSON(),
-            packageId: this.packageId && this.packageId.toJSON(),
-            license: this.license && this.license.toJSON(),
-            fhirVersion: this.fhirVersion && this.fhirVersion.toJSON(),
-            dependsOn: this.dependsOn && this.dependsOn.toJSON(),
-            global: this.global && this.global.toJSON(),
+            contact: this.contact && this.contact.map(v => v.toJSON()),
+            description: this.description,
+            useContext: this.useContext && this.useContext.map(v => v.toJSON()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSON()),
+            copyright: this.copyright,
+            packageId: this.packageId,
+            license: this.license,
+            fhirVersion: this.fhirVersion,
+            dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSON()),
+            global: this.global && this.global.map(v => v.toJSON()),
             definition: this.definition && this.definition.toJSON(),
             manifest: this.manifest && this.manifest.toJSON(),
         };

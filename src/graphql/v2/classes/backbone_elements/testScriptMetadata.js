@@ -43,7 +43,7 @@ class TestScriptMetadata {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class TestScriptMetadata {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -87,7 +87,7 @@ class TestScriptMetadata {
                     return;
                 }
                 let TestScriptLink = require('../backbone_elements/testScriptLink.js');
-                this.__data.link = new TestScriptLink(value);
+                this.__data.link = Array.isArray(value) ? value.map(v => new TestScriptLink(v)) : [new TestScriptLink(value)];
             }
         });
 
@@ -104,7 +104,7 @@ class TestScriptMetadata {
                     return;
                 }
                 let TestScriptCapability = require('../backbone_elements/testScriptCapability.js');
-                this.__data.capability = new TestScriptCapability(value);
+                this.__data.capability = Array.isArray(value) ? value.map(v => new TestScriptCapability(v)) : [new TestScriptCapability(value)];
             }
         });
 
@@ -124,10 +124,10 @@ class TestScriptMetadata {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
-            link: this.link && this.link.toJSON(),
-            capability: this.capability && this.capability.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
+            link: this.link && this.link.map(v => v.toJSON()),
+            capability: this.capability && this.capability.map(v => v.toJSON()),
         };
     }
 }

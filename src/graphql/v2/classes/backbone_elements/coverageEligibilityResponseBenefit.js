@@ -43,7 +43,7 @@ class CoverageEligibilityResponseBenefit {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = new Extension(value);
+                this.__data.extension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -71,7 +71,7 @@ class CoverageEligibilityResponseBenefit {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = new Extension(value);
+                this.__data.modifierExtension = Array.isArray(value) ? value.map(v => new Extension(v)) : [new Extension(value)];
             }
         });
 
@@ -102,9 +102,7 @@ class CoverageEligibilityResponseBenefit {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.allowedUnsignedInt = new unsignedInt(value);
+                this.__data.allowedUnsignedInt = value;
             }
         });
 
@@ -150,9 +148,7 @@ class CoverageEligibilityResponseBenefit {
                 if (value === undefined || value === null) {
                     return;
                 }
-                let unsignedInt = require('../simple_types/unsignedInt.js');
-                // eslint-disable-next-line new-cap
-                this.__data.usedUnsignedInt = new unsignedInt(value);
+                this.__data.usedUnsignedInt = value;
             }
         });
 
@@ -203,13 +199,13 @@ class CoverageEligibilityResponseBenefit {
     toJSON() {
         return {
             id: this.id,
-            extension: this.extension && this.extension.toJSON(),
-            modifierExtension: this.modifierExtension && this.modifierExtension.toJSON(),
+            extension: this.extension && this.extension.map(v => v.toJSON()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             type: this.type && this.type.toJSON(),
-            allowedUnsignedInt: this.allowedUnsignedInt && this.allowedUnsignedInt.toJSON(),
+            allowedUnsignedInt: this.allowedUnsignedInt,
             allowedString: this.allowedString,
             allowedMoney: this.allowedMoney && this.allowedMoney.toJSON(),
-            usedUnsignedInt: this.usedUnsignedInt && this.usedUnsignedInt.toJSON(),
+            usedUnsignedInt: this.usedUnsignedInt,
             usedString: this.usedString,
             usedMoney: this.usedMoney && this.usedMoney.toJSON(),
         };
