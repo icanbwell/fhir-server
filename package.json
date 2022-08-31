@@ -128,7 +128,7 @@
     "jwks-rsa": "^2.1.4",
     "kafkajs": "^2.2.0",
     "moment": "^2.29.4",
-    "moment-timezone": "^0.5.34",
+    "moment-timezone": "^0.5.35",
     "mongodb": "^4.9.0",
     "object-hash": "^2.2.0, <3",
     "passport": "^0.6.0",
