@@ -35,7 +35,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const { assertMergeIsSuccessful } = require('../../fhirAsserts');
+const { assertMergeIsSuccessful, assertMergeResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Complex Merge Tests', () => {
     beforeEach(async () => {
@@ -146,10 +146,7 @@ describe('Practitioner Complex Merge Tests', () => {
                 .send(insurancePractitionerRoleResource)
                 .set(getHeaders());
 
-            console.log('------- response insurancePractitionerRoleResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            assertMergeResponse({resp, checks: {created: true}});
 
             resp = await request
                 .post('/4_0_0/Organization/MWHC/$merge')

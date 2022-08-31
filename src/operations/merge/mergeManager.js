@@ -571,7 +571,7 @@ class MergeManager {
         //----- validate schema ----
         // The FHIR validator wants meta.lastUpdated to be string instead of data
         // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
-        const resourceToValidate = deepcopy(resourceToMerge);
+        const resourceToValidate = deepcopy(resourceToMerge.toJSON());
         if (resourceToValidate.meta && resourceToValidate.meta.lastUpdated) {
             // noinspection JSValidateTypes
             resourceToValidate.meta.lastUpdated = new Date(resourceToValidate.meta.lastUpdated).toISOString();

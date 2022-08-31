@@ -1,6 +1,6 @@
-const { expect } = require('@jest/globals');
-const { assertFail } = require('../utils/assertType');
-const { validateResource } = require('../utils/validator.util');
+const {expect} = require('@jest/globals');
+const {assertFail} = require('../utils/assertType');
+const {validateResource} = require('../utils/validator.util');
 
 /**
  * confirms that object was created
@@ -38,7 +38,7 @@ function assertMergeIsSuccessful(body, expectCreate = true) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @param {Boolean} ignoreMetaTags
  */
-function assertCompareBundles({ body, expected, fnCleanResource, ignoreMetaTags = false }) {
+function assertCompareBundles({body, expected, fnCleanResource, ignoreMetaTags = false}) {
     // console.log(JSON.stringify(body, null, 2));
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
@@ -195,46 +195,56 @@ function assertResourceCount(count) {
 }
 
 /**
+ * asserts
+ * @param resp
+ * @param {Object[]|Object} checks
+ * @returns {void}
+ */
+function assertMergeResponse({resp, checks}) {
+    try {
+        expect(resp.status).toBe(200);
+        const body = resp.body;
+        if (Array.isArray(body)) {
+            if (!Array.isArray(checks)) {
+                checks = [checks];
+            }
+            for (const bodyItemIndex in body) {
+                const bodyItem = body[`${bodyItemIndex}`];
+                const expectedItem = checks[`${bodyItemIndex}`];
+                if (expectedItem) {
+                    expect(bodyItem).toEqual(expect.objectContaining(expectedItem));
+                }
+            }
+        } else {
+            const firstCheck = Array.isArray(checks) ? checks[0] : checks;
+            if (firstCheck) {
+                expect(body).toEqual(expect.objectContaining(firstCheck));
+            }
+        }
+        // assertMergeIsSuccessful(resp.body);
+    } catch (e) {
+        assertFail({
+            source: 'assertMerge',
+            message: `Merge failed: Expected: ${JSON.stringify(
+                checks
+            )}.  Actual: ${JSON.stringify(resp.body)}`,
+            args: {
+                expected: checks,
+                actual: resp.body,
+            },
+            error: e,
+        });
+    }
+}
+
+/**
  * Asserts that merge is successfull
  * @param {Object[]|Object} checks
  * @return {(function(*): void)|*}
  */
 function assertMerge(checks) {
     return (resp) => {
-        try {
-            expect(resp.status).toBe(200);
-            const body = resp.body;
-            if (Array.isArray(body)) {
-                if (!Array.isArray(checks)) {
-                    checks = [checks];
-                }
-                for (const bodyItemIndex in body) {
-                    const bodyItem = body[`${bodyItemIndex}`];
-                    const expectedItem = checks[`${bodyItemIndex}`];
-                    if (expectedItem) {
-                        expect(bodyItem).toEqual(expect.objectContaining(expectedItem));
-                    }
-                }
-            } else {
-                const firstCheck = Array.isArray(checks) ? checks[0] : checks;
-                if (firstCheck) {
-                    expect(body).toEqual(expect.objectContaining(firstCheck));
-                }
-            }
-            // assertMergeIsSuccessful(resp.body);
-        } catch (e) {
-            assertFail({
-                source: 'assertMerge',
-                message: `Merge failed: Expected: ${JSON.stringify(
-                    checks
-                )}.  Actual: ${JSON.stringify(resp.body)}`,
-                args: {
-                    expected: checks,
-                    actual: resp.body,
-                },
-                error: e,
-            });
-        }
+        checks = assertMergeResponse({resp, checks});
     };
 }
 
@@ -244,7 +254,7 @@ function assertMerge(checks) {
  * @param {(Resource) => Resource} [fnCleanResource]
  * @return {(function(*): void)|*}
  */
-function assertResponse({ expected, fnCleanResource }) {
+function assertResponse({expected, fnCleanResource}) {
     // store the stack here since the function below is async
     // const stack = new Error().stack;
     expect(expected).not.toBeUndefined();
@@ -262,11 +272,11 @@ function assertResponse({ expected, fnCleanResource }) {
                     resourceType: 'Bundle',
                     type: 'searchset',
                     entry: expected.map((e) => {
-                        return { resource: e };
+                        return {resource: e};
                     }),
                 };
             }
-            assertCompareBundles({ body: resp.body, expected, fnCleanResource });
+            assertCompareBundles({body: resp.body, expected, fnCleanResource});
             return;
         } else {
             if (Array.isArray(resp.body)) {
@@ -324,4 +334,5 @@ module.exports = {
     assertResponse,
     assertMerge,
     assertStatusOk,
+    assertMergeResponse
 };
