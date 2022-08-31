@@ -135,10 +135,12 @@ class MergeManager {
                 id,
                 'merge_' + currentResource.meta.versionId + '_' + requestId);
         }
-        await this.performMergeDbUpdateAsync({
-                resourceToMerge: patched_resource_incoming
-            }
-        );
+        if (patched_resource_incoming) {
+            await this.performMergeDbUpdateAsync({
+                    resourceToMerge: patched_resource_incoming
+                }
+            );
+        }
     }
 
     /**
