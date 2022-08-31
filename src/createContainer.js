@@ -47,6 +47,7 @@ const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {isTrue} = require('./utils/isTrue');
 const {BundleManager} = require('./operations/common/bundleManager');
 const {getImageVersion} = require('./utils/getImageVersion');
+const {ResourceMerger} = require('./operations/common/resourceMerger');
 
 /**
  * Creates a container and sets up all the services
@@ -62,6 +63,7 @@ const createContainer = function () {
             scopesManager: c.scopesManager
         }
     ));
+    container.register('resourceMerger', () => new ResourceMerger());
     container.register('scopesValidator', c => new ScopesValidator({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager
@@ -146,7 +148,8 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 databaseBulkInserter: c.databaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                resourceMerger: c.resourceMerger
             }
         )
     );

@@ -11,10 +11,10 @@ const {ErrorReporter} = require('../utils/slack.logger');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {omitProperty} = require('../utils/omitProperties');
 const {ChangeEventProducer} = require('../utils/changeEventProducer');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -154,6 +154,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneAsync({resourceType, doc}) {
+        assertTypeEquals(doc, Resource);
         // check to see if we already have this insert and if so use replace
         if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
             this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
@@ -200,6 +201,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneHistoryAsync({resourceType, doc}) {
+        assertTypeEquals(doc, Resource);
         this.addHistoryOperationForResourceType({
                 resourceType,
                 operation: {
@@ -219,8 +221,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async replaceOneAsync({resourceType, id, doc}) {
-        // remove _id to prevent duplicate keys in mongo
-        doc = omitProperty(doc, '_id');
+        assertTypeEquals(doc, Resource);
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         // noinspection JSCheckFunctionSignatures
         this.addOperationForResourceType({

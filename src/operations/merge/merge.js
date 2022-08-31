@@ -19,6 +19,7 @@ const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOu
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const {getResource} = require('../common/getResource');
 
 class MergeOperation {
     /**
@@ -202,16 +203,16 @@ class MergeOperation {
             const scopes = this.scopesManager.parseScopes(scope);
             // read the incoming resource from request body
             /**
-             * @type {Resource|Resource[]|undefined}
+             * @type {Object|Object[]|undefined}
              */
-            let resourcesIncoming = args.resource ? args.resource : body;
+            let incomingObjects = args.resource ? args.resource : body;
 
             // see if the resources were passed as parameters
-            if (resourcesIncoming.resourceType === 'Parameters') {
+            if (incomingObjects.resourceType === 'Parameters') {
                 // Unfortunately our FHIR schema resource creator does not support Parameters
                 // const ParametersResourceCreator = getResource(base_version, 'Parameters');
                 // const parametersResource = new ParametersResourceCreator(resource_incoming);
-                const parametersResource = resourcesIncoming;
+                const parametersResource = incomingObjects;
                 if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                     /**
                      * @type {OperationOutcome}
@@ -253,18 +254,18 @@ class MergeOperation {
                     });
                     return operationOutcome;
                 }
-                resourcesIncoming = resourceParameters.map(r => r.resource);
+                incomingObjects = resourceParameters.map(r => r.resource);
             }
 
             // if the incoming request is a bundle then unwrap the bundle
-            if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
-                const operationOutcome = validateResource(resourcesIncoming, 'Bundle', path);
+            if ((!(Array.isArray(incomingObjects))) && incomingObjects['resourceType'] === 'Bundle') {
+                const operationOutcome = validateResource(incomingObjects, 'Bundle', path);
                 if (operationOutcome && operationOutcome.statusCode === 400) {
                     validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
                     return operationOutcome;
                 }
                 // unwrap the resources
-                resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
+                incomingObjects = incomingObjects.entry.map(e => e.resource);
             }
 
             /**
@@ -274,12 +275,16 @@ class MergeOperation {
             /**
              * @type {boolean}
              */
-            const wasIncomingAList = Array.isArray(resourcesIncoming);
+            const wasIncomingAList = Array.isArray(incomingObjects);
 
             /**
              * @type {Resource[]}
              */
-            let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
+            let resourcesIncomingArray = (wasIncomingAList ? incomingObjects : [incomingObjects])
+                .map(o => {
+                    const ResourceCreator = getResource(base_version, o.resourceType);
+                    return new ResourceCreator(o);
+                });
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,

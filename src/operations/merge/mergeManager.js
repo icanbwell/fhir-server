@@ -1,9 +1,6 @@
 const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
 const {preSaveAsync} = require('../common/preSave');
-const deepEqual = require('fast-deep-equal');
-const {mergeObject} = require('../../utils/mergeHelper');
-const {compare, applyPatch} = require('fast-json-patch');
 const {ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const env = require('var');
@@ -24,6 +21,8 @@ const {ScopesManager} = require('../security/scopesManager');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const {ResourceMerger} = require('../common/resourceMerger');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -36,6 +35,7 @@ class MergeManager {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {ScopesManager} scopesManager
+     * @param {ResourceMerger} resourceMerger
      */
     constructor(
         {
@@ -44,6 +44,7 @@ class MergeManager {
             databaseBulkInserter,
             databaseBulkLoader,
             scopesManager,
+            resourceMerger
         }
     ) {
         /**
@@ -71,6 +72,12 @@ class MergeManager {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     /**
@@ -102,91 +109,31 @@ class MergeManager {
          * @type {Resource}
          */
         let foundResource = currentResource;
-        // use metadata of existing resource (overwrite any passed in metadata)
-        if (!resourceToMerge.meta) {
-            resourceToMerge.meta = {};
-        }
-        // compare without checking source, so we don't create a new version just because of a difference in source
-        /**
-         * @type {string}
-         */
-        const original_source = resourceToMerge.meta.source;
-        resourceToMerge.meta.versionId = foundResource.meta.versionId;
-        resourceToMerge.meta.lastUpdated = foundResource.meta.lastUpdated;
-        resourceToMerge.meta.source = foundResource.meta.source;
-
-        await preSaveAsync(currentResource);
-
-        // for speed, first check if the incoming resource is exactly the same
-        if (deepEqual(currentResource, resourceToMerge) === true) {
-            return;
-        }
-
-        // data seems to get updated below
-        /**
-         * @type {Object}
-         */
-        let resource_merged = mergeObject(currentResource.toJSON(), resourceToMerge.toJSON());
-
-        // now create a patch between the document in db and the incoming document
-        //  this returns an array of patches
-        /**
-         * @type {Operation[]}
-         */
-        let patchContent = compare(currentResource.toJSON(), resource_merged);
-        // ignore any changes to _id since that's an internal field
-        patchContent = patchContent.filter(item => item.path !== '/_id');
-        // see if there are any changes
-        if (patchContent.length === 0) {
-            return;
-        }
         if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 foundResource.resourceType + ' with id ' + id);
         }
-        // now apply the patches to the found resource
-        // noinspection JSCheckFunctionSignatures
+
+        await preSaveAsync(currentResource);
+
         /**
-         * @type {Object}
+         * @type {Resource|null}
          */
-        let patched_incoming_data = applyPatch(currentResource, patchContent).newDocument;
-        /**
-         * @type {Resource}
-         */
-        let patched_resource_incoming = currentResource.create(patched_incoming_data);
-        // update the metadata to increment versionId
-        /**
-         * @type {Meta}
-         */
-        let meta = foundResource.meta;
-        meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
-        meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        // set the source from the incoming resource
-        meta.source = original_source;
-        // These properties are set automatically
-        patched_resource_incoming.meta.versionId = meta.versionId;
-        patched_resource_incoming.meta.lastUpdated = meta.lastUpdated;
-        // If not source is provided then use the source of the previous entity
-        if (!(patched_resource_incoming.meta.source)) {
-            patched_resource_incoming.meta.source = meta.source;
-        }
-        // If no security tags are provided then use the source of the previous entity
-        if (!(patched_resource_incoming.meta.security)) {
-            patched_resource_incoming.meta.security = meta.security;
-        }
+        const patched_resource_incoming = await this.resourceMerger.mergeResourceAsync(
+            {currentResource, resourceToMerge});
+
         if (env.LOG_ALL_MERGES) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 {
                     'old': currentResource,
                     'new': resourceToMerge,
-                    'patch': patchContent,
                     'after': patched_resource_incoming
                 },
                 currentDate,
                 id,
-                'merge_' + meta.versionId + '_' + requestId);
+                'merge_' + currentResource.meta.versionId + '_' + requestId);
         }
         await this.performMergeDbUpdateAsync({
                 resourceToMerge: patched_resource_incoming
@@ -207,6 +154,7 @@ class MergeManager {
             user
         }
     ) {
+        assertTypeEquals(resourceToMerge, Resource);
         // not found so insert
         logDebug({
             user,
@@ -260,6 +208,7 @@ class MergeManager {
             scope
         }
     ) {
+        assertTypeEquals(resourceToMerge, Resource);
         /**
          * @type {string}
          */
@@ -458,6 +407,7 @@ class MergeManager {
             scope
         }
     ) {
+        assertTypeEquals(resourceToMerge, Resource);
         await this.mergeResourceAsync(
             {
                 resourceToMerge,
@@ -480,16 +430,12 @@ class MergeManager {
             resourceToMerge
         }
     ) {
+        assertTypeEquals(resourceToMerge, Resource);
         let id = resourceToMerge.id;
 
         await preSaveAsync(resourceToMerge);
 
         // Insert/update our resource record
-        // When using the $set operator, only the specified fields are updated
-        // /**
-        //  * @type {import('mongodb').FindAndModifyWriteOpResultObject<DefaultSchema>}
-        //  */
-        //let res = await collection.findOneAndUpdate({id: id.toString()}, {$set: doc}, {upsert: true});
         await this.databaseBulkInserter.replaceOneAsync(
             {
                 resourceType: resourceToMerge.resourceType,
@@ -518,6 +464,7 @@ class MergeManager {
         {
             resourceToMerge
         }) {
+        assertTypeEquals(resourceToMerge, Resource);
         await preSaveAsync(resourceToMerge);
 
         // Insert/update our resource record

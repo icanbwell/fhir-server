@@ -13,7 +13,7 @@
         {
             "resource": {
                 "id": "WPS-Claim-20A078097100",
-                "resourceType": "ExplanationOfBenefit",
+                "resourceType": "OperationOutcome",
                 "issue": [
                     {
                         "severity": "information",
@@ -35,7 +35,7 @@
         {
             "resource": {
                 "id": "WPS-Claim-20A078097100",
-                "resourceType": "ExplanationOfBenefit",
+                "resourceType": "OperationOutcome",
                 "issue": [
                     {
                         "severity": "information",
