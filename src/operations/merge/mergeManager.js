@@ -1,8 +1,6 @@
-const {getResource} = require('../common/getResource');
 const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
 const {preSaveAsync} = require('../common/preSave');
-const {removeNull} = require('../../utils/nullRemover');
 const deepEqual = require('fast-deep-equal');
 const {mergeObject} = require('../../utils/mergeHelper');
 const {compare, applyPatch} = require('fast-json-patch');
@@ -23,7 +21,6 @@ const {assertTypeEquals, assertIsValid, assertFail} = require('../../utils/asser
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {ScopesManager} = require('../security/scopesManager');
-const {omitProperty} = require('../../utils/omitProperties');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
@@ -80,7 +77,6 @@ class MergeManager {
      * resource to merge
      * @param {Resource} resourceToMerge
      * @param {Resource} currentResource
-     * @param {string} base_version
      * @param {string|null} user
      * @param {string} scope
      * @param {string} currentDate
@@ -91,7 +87,6 @@ class MergeManager {
         {
             resourceToMerge,
             currentResource,
-            base_version,
             user,
             scope,
             currentDate,
@@ -101,11 +96,6 @@ class MergeManager {
          * @type {string}
          */
         let id = resourceToMerge.id;
-        // create a resource with incoming data
-        /**
-         * @type {function({Object}):Resource}
-         */
-        let ResourceCreator = getResource(base_version, resourceToMerge.resourceType);
 
         // found an existing resource
         /**
@@ -127,16 +117,8 @@ class MergeManager {
 
         await preSaveAsync(currentResource);
 
-        /**
-         * @type {Object}
-         */
-        let my_data = deepcopy(currentResource);
-        my_data = omitProperty(my_data, '_id'); // remove _id since that is an internal
-        // remove any null properties so deepEqual does not consider objects as different because of that
-        my_data = removeNull(my_data);
-
         // for speed, first check if the incoming resource is exactly the same
-        if (deepEqual(my_data, resourceToMerge) === true) {
+        if (deepEqual(currentResource, resourceToMerge) === true) {
             return;
         }
 
@@ -144,14 +126,14 @@ class MergeManager {
         /**
          * @type {Object}
          */
-        let resource_merged = mergeObject(my_data, resourceToMerge);
+        let resource_merged = mergeObject(currentResource.toJSON(), resourceToMerge.toJSON());
 
         // now create a patch between the document in db and the incoming document
         //  this returns an array of patches
         /**
          * @type {Operation[]}
          */
-        let patchContent = compare(my_data, resource_merged);
+        let patchContent = compare(currentResource.toJSON(), resource_merged);
         // ignore any changes to _id since that's an internal field
         patchContent = patchContent.filter(item => item.path !== '/_id');
         // see if there are any changes
@@ -172,7 +154,7 @@ class MergeManager {
         /**
          * @type {Resource}
          */
-        let patched_resource_incoming = new ResourceCreator(patched_incoming_data);
+        let patched_resource_incoming = currentResource.create(patched_incoming_data);
         // update the metadata to increment versionId
         /**
          * @type {Meta}
@@ -324,7 +306,7 @@ class MergeManager {
                     this.databaseBulkLoader.updateResourceInExistingList({resource: resourceToMerge});
                     await this.mergeExistingAsync(
                         {
-                            resourceToMerge, currentResource, base_version, user, scope, currentDate, requestId
+                            resourceToMerge, currentResource, user, scope, currentDate, requestId
                         }
                     );
                 } else {

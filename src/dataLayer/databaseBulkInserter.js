@@ -154,8 +154,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneAsync({resourceType, doc}) {
-        // remove _id to prevent duplicate keys in mongo
-        doc = omitProperty(doc, '_id');
         // check to see if we already have this insert and if so use replace
         if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
             this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
@@ -202,30 +200,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneHistoryAsync({resourceType, doc}) {
-        // Update version number if something with same version exists
-        /**
-         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
-         */
-        const existingHistoryOperationsForResourceType = this.historyOperationsByResourceTypeMap.get(resourceType);
-        /**
-         * @type {string[]}
-         */
-        const existingHistoryResourcesForId = existingHistoryOperationsForResourceType
-            .filter(o => o.insertOne.document.id === doc.id)
-            .map(o => o.insertOne.document.meta.versionId);
-        /**
-         * @type {string|null}
-         */
-        const latestVersionId = existingHistoryResourcesForId.length > 0 ?
-            existingHistoryResourcesForId[existingHistoryResourcesForId.length - 1] :
-            null;
-        if (latestVersionId) {
-            /**
-             * @type {string}
-             */
-            const newVersionId = String(parseInt(latestVersionId) + 1);
-            doc.meta.versionId = newVersionId;
-        }
         this.addHistoryOperationForResourceType({
                 resourceType,
                 operation: {

@@ -15,7 +15,6 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ResourceCleaner} = require('../common/resourceCleaner');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
@@ -34,7 +33,6 @@ class MergeOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
-     * @param {ResourceCleaner} resourceCleaner
      */
     constructor(
         {
@@ -49,7 +47,6 @@ class MergeOperation {
             scopesValidator,
             bundleManager,
             resourceLocatorFactory,
-            resourceCleaner
         }
     ) {
         /**
@@ -109,12 +106,6 @@ class MergeOperation {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
-
-        /**
-         * @type {ResourceCleaner}
-         */
-        this.resourceCleaner = resourceCleaner;
-        assertTypeEquals(resourceCleaner, ResourceCleaner);
     }
 
     /**
@@ -289,8 +280,6 @@ class MergeOperation {
              * @type {Resource[]}
              */
             let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
-
-            resourcesIncomingArray = resourcesIncomingArray.map(r => this.resourceCleaner.clean(base_version, r));
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
