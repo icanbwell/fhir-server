@@ -39,5 +39,5 @@ const removeNull = (obj) => {
 };
 
 module.exports = {
-    removeNull: removeNull
+    removeNull
 };
