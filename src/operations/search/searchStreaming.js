@@ -1,6 +1,5 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
-const {getResource} = require('../common/getResource');
 const {isTrue} = require('../../utils/isTrue');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {fhirRequestTimer} = require('../../utils/prometheus.utils');
@@ -177,12 +176,6 @@ class SearchStreamingOperation {
                 });
             throw e;
         }
-
-        /**
-         * @type {function(?Object): Resource}
-         */
-        let ResourceCreator = getResource(base_version, resourceType);
-
         /**
          * @type {import('mongodb').FindOneOptions}
          */
@@ -275,7 +268,6 @@ class SearchStreamingOperation {
                             user,
                             scope,
                             args,
-                            ResourceCreator,
                             resourceType,
                             useAccessIndex,
                             contentType: fhirContentTypes.ndJson,
@@ -332,7 +324,6 @@ class SearchStreamingOperation {
                                 user,
                                 scope,
                                 args,
-                                ResourceCreator,
                                 resourceType,
                                 useAccessIndex,
                                 batchObjectCount
@@ -342,7 +333,7 @@ class SearchStreamingOperation {
                             {
                                 requestId,
                                 cursor, res, user, scope, args,
-                                ResourceCreator, resourceType,
+                                resourceType,
                                 useAccessIndex,
                                 contentType: fhirContentTypes.fhirJson,
                                 batchObjectCount

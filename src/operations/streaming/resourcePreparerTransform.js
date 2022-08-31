@@ -8,7 +8,6 @@ class ResourcePreparerTransform extends Transform {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object} args
-     * @param {(Object) => Resource} ResourceCreator
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
@@ -19,7 +18,6 @@ class ResourcePreparerTransform extends Transform {
             user,
             scope,
             args,
-            ResourceCreator,
             resourceType,
             useAccessIndex,
             signal,
@@ -39,10 +37,6 @@ class ResourcePreparerTransform extends Transform {
          * @type {Object}
          */
         this.args = args;
-        /**
-         * @type {function(?Object): Resource}
-         */
-        this.Resource = ResourceCreator;
         /**
          * @type {string}
          */

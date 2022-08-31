@@ -1,6 +1,5 @@
 const {buildStu3SearchQuery} = require('../../operations/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/query/dstu2');
-const {getResource} = require('../common/getResource');
 const {NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
@@ -120,8 +119,6 @@ class HistoryOperation {
          */
         const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-        let Resource = getResource(base_version, resourceType);
-
         // noinspection JSValidateTypes
         /**
          * @type {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>>}
@@ -162,8 +159,10 @@ class HistoryOperation {
          */
         const resources = [];
         while (await cursor.hasNext()) {
-            const element = await cursor.next();
-            const resource = new Resource(element);
+            const resource = await cursor.next();
+            if (!resource) {
+                throw new NotFoundError();
+            }
             if (this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
                 resources.push(resource);
             }

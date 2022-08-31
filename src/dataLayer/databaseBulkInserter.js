@@ -150,7 +150,7 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Inserts item into collection
      * @param {string} resourceType
-     * @param {Object} doc
+     * @param {Resource} doc
      * @returns {Promise<void>}
      */
     async insertOneAsync({resourceType, doc}) {
@@ -198,7 +198,7 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Inserts item into history collection
      * @param {string} resourceType
-     * @param {Object} doc
+     * @param {Resource} doc
      * @returns {Promise<void>}
      */
     async insertOneHistoryAsync({resourceType, doc}) {
@@ -206,7 +206,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 resourceType,
                 operation: {
                     insertOne: {
-                        document: doc
+                        document: doc.toJSON()
                     }
                 }
             }
@@ -217,7 +217,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * Replaces a document in Mongo with this one
      * @param {string} resourceType
      * @param {string} id
-     * @param {Object} doc
+     * @param {Resource} doc
      * @returns {Promise<void>}
      */
     async replaceOneAsync({resourceType, id, doc}) {
@@ -231,7 +231,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     replaceOne: {
                         filter: {id: id.toString()},
                         // upsert: true,
-                        replacement: doc
+                        replacement: doc.toJSON()
                     }
                 }
             }

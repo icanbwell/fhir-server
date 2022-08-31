@@ -8,7 +8,6 @@ const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../util
 const {getResource} = require('../common/getResource');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
-const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
@@ -196,7 +195,7 @@ class UpdateOperation {
                 /**
                  * @type {Resource}
                  */
-                let foundResource = new ResourceCreator(data);
+                let foundResource = data;
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new ForbiddenError(
@@ -210,8 +209,8 @@ class UpdateOperation {
 
                 await preSaveAsync(resource_incoming);
 
-                const foundResourceObject = removeNull(foundResource.toJSON());
-                const resourceIncomingObject = removeNull(resource_incoming.toJSON());
+                const foundResourceObject = foundResource.toJSON();
+                const resourceIncomingObject = resource_incoming.toJSON();
                 // now create a patch between the document in db and the incoming document
                 //  this returns an array of patches
                 /**

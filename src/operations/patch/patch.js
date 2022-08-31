@@ -125,11 +125,11 @@ class PatchOperation {
             // Make the changes indicated in the patch
             let resource_incoming = applyPatch(data, patchContent).newDocument;
 
-            let Resource = getResource(base_version, resourceType);
-            let resource = new Resource(resource_incoming);
+            let ResourceCreator = getResource(base_version, resourceType);
+            let resource = new ResourceCreator(resource_incoming);
 
             if (data && data.meta) {
-                let foundResource = new Resource(data);
+                let foundResource = new ResourceCreator(data);
                 let meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;

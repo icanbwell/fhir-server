@@ -1,17 +1,24 @@
 /**
  * This class provides a cursor that can span multiple partitioned collections
  */
+const {assertIsValid} = require('../utils/assertType');
+const {getResource} = require('../operations/common/getResource');
+
 class DatabasePartitionedCursor {
     /**
      * Constructor
+     * @param {string} base_version
      * @param {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]} cursors
      */
-    constructor({cursors}) {
+    constructor({base_version, cursors}) {
         /**
          * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
          * @private
          */
         this._cursors = cursors;
+        assertIsValid(cursors);
+        this.base_version = base_version;
+        assertIsValid(base_version);
     }
 
     /**
@@ -50,8 +57,9 @@ class DatabasePartitionedCursor {
         while (this._cursors.length > 0) {
             // check if the first cursor has next.  If not, remove that cursor from the list
             const result = await this._cursors[0].next();
-            if (result !== null) {
-                return result;
+            if (result !== null && result.resourceType) {
+                const ResourceCreator = getResource(this.base_version, result.resourceType);
+                return new ResourceCreator(result);
             }
             this._cursors.shift();
         }

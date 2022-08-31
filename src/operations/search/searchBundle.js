@@ -1,6 +1,5 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
-const {getResource} = require('../common/getResource');
 const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
@@ -165,12 +164,6 @@ class SearchBundleOperation {
                 });
             throw e;
         }
-
-        /**
-         * @type {function(?Object): Resource}
-         */
-        let ResourceCreator = getResource(base_version, resourceType);
-
         /**
          * @type {import('mongodb').FindOneOptions}
          */
@@ -244,7 +237,7 @@ class SearchBundleOperation {
                 resources = await this.searchManager.readResourcesFromCursorAsync(
                     {
                         cursor, user, scope, args,
-                        ResourceCreator, resourceType,
+                        resourceType,
                         useAccessIndex
                     }
                 );

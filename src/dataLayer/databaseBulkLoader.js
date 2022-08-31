@@ -1,6 +1,5 @@
 const {groupByLambda, getFirstResourceOrNull} = require('../utils/list.util');
 const async = require('async');
-const {getResource} = require('../operations/common/getResource');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {assertTypeEquals} = require('../utils/assertType');
 
@@ -84,18 +83,16 @@ class DatabaseBulkLoader {
         /**
          * @type {Resource[]}
          */
-        const resources = await this.cursorToResourcesAsync({base_version, resourceType, cursor});
+        const resources = await this.cursorToResourcesAsync({cursor});
         return {resourceType, resources: resources};
     }
 
     /**
      * Reads resources from cursor
-     * @param {string} base_version
-     * @param {string} resourceType
      * @param {DatabasePartitionedCursor} cursor
      * @returns {Promise<Resource[]>}
      */
-    async cursorToResourcesAsync({base_version, resourceType, cursor}) {
+    async cursorToResourcesAsync({cursor}) {
         /**
          * @type {Resource[]}
          */
@@ -103,15 +100,10 @@ class DatabaseBulkLoader {
         while (await cursor.hasNext()) {
             /**
              * element
-             * @type {Object}
+             * @type {Resource|null}
              */
-            const document = await cursor.next();
-            /**
-             * @type {function(?Object): Resource}
-             */
-            const ResourceCreator = getResource(base_version, resourceType);
-            const resource = new ResourceCreator(document);
-            result.push(resource.toJSON());
+            const resource = await cursor.next();
+            result.push(resource);
         }
         return result;
     }

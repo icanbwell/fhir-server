@@ -13,7 +13,6 @@ const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const {getResource} = require('../common/getResource');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {ResourceCleaner} = require('../common/resourceCleaner');
@@ -210,11 +209,6 @@ class MergeOperation {
              * @type {string[]}
              */
             const scopes = this.scopesManager.parseScopes(scope);
-            /**
-             * @type {function(Object): Resource}
-             */
-            const OperationOutcomeResourceCreator = getResource(base_version, 'OperationOutcome');
-
             // read the incoming resource from request body
             /**
              * @type {Resource|Resource[]|undefined}
@@ -245,7 +239,7 @@ class MergeOperation {
                             )
                         ]
                     });
-                    return new OperationOutcomeResourceCreator(operationOutcome);
+                    return operationOutcome;
                 }
                 // find the actual resource in the parameter called resource
                 const resourceParameters = parametersResource.parameter.filter(p => p.resource);
@@ -266,7 +260,7 @@ class MergeOperation {
                             })
                         ]
                     });
-                    return new OperationOutcomeResourceCreator(operationOutcome);
+                    return operationOutcome;
                 }
                 resourcesIncoming = resourceParameters.map(r => r.resource);
             }
