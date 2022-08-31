@@ -3,6 +3,7 @@ const moment = require('moment-timezone');
 const env = require('var');
 const {mongoQueryAndOptionsStringify, mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {logDebug} = require('./logging');
+const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 /**
  * This class creates a Bundle resource out of a list of resources
@@ -104,7 +105,7 @@ class BundleManager {
          * @type {BundleEntry[]}
          */
         const entries = resources.map((resource) => {
-            return {resource: resource};
+            return new BundleEntry({resource: resource});
         });
         // noinspection JSValidateTypes
         /**

@@ -13,6 +13,7 @@ const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFa
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {omitProperty} = require('../utils/omitProperties');
 const {ChangeEventProducer} = require('../utils/changeEventProducer');
+const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -334,7 +335,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         resourceType: resourceType
                     };
                     if (mergeResultForResourceType.error) {
-                        mergeResultEntry.issue = {
+                        mergeResultEntry.issue = new OperationOutcomeIssue({
                             severity: 'error',
                             code: 'exception',
                             details: {text: mergeResultForResourceType.error.message},
@@ -342,7 +343,7 @@ class DatabaseBulkInserter extends EventEmitter {
                             expression: [
                                 resourceType + '/' + id
                             ]
-                        };
+                        });
                     }
                     mergeResultEntries.push(
                         mergeResultEntry
@@ -382,7 +383,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         resourceType: resourceType
                     };
                     if (mergeResultForResourceType.error) {
-                        mergeResultEntry.issue = {
+                        mergeResultEntry.issue = new OperationOutcomeIssue({
                             severity: 'error',
                             code: 'exception',
                             details: {text: mergeResultForResourceType.error.message},
@@ -390,7 +391,7 @@ class DatabaseBulkInserter extends EventEmitter {
                             expression: [
                                 resourceType + '/' + id
                             ]
-                        };
+                        });
                     }
                     mergeResultEntries.push(
                         mergeResultEntry
@@ -506,8 +507,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }
                 // remove _id if present so mongo can insert properly
-                if (!useHistoryCollection && operation.insertOne)
-                {
+                if (!useHistoryCollection && operation.insertOne) {
                     delete operation.insertOne.document['_id'];
                 }
                 if (!useHistoryCollection && resource._id) {

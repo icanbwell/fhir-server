@@ -15,6 +15,8 @@ const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
 const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained');
 const {ScopesManager} = require('../security/scopesManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 
 /**
  * This class helps with creating graph responses
@@ -883,13 +885,13 @@ class GraphHelper {
             /**
              * @type {BundleEntry}
              */
-            let current_entity = {
+            let current_entity = new BundleEntry({
                 fullUrl: this.getFullUrlForResource(
                     {
                         requestInfo, base_version, parentEntity: startResource
                     }),
                 resource: removeNull(startResource.toJSON())
-            };
+            });
             entries = entries.concat([current_entity]);
             topLevelBundleEntries.push(current_entity);
         }
@@ -1031,13 +1033,13 @@ class GraphHelper {
             )
         );
         // create a bundle
-        return {
+        return new Bundle({
             resourceType: 'Bundle',
             id: 'bundle-example',
             type: 'collection',
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             entry: uniqueEntries
-        };
+        });
     }
 }
 

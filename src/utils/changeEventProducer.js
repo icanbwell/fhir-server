@@ -5,6 +5,7 @@ const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {KafkaClient} = require('./kafkaClient');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {logSystemEventAsync} = require('../operations/common/logging');
+const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -78,7 +79,7 @@ class ChangeEventProducer {
      * @param {boolean} isCreate
      * @param {string} resourceType
      * @param {string} eventName
-     * @return {{period: {start, end}, agent: [{who: {reference: string}}], action: (string), id: string, purposeOfEvent: [{coding: Coding[]}], resourceType: string}}
+     * @return {AuditEvent}
      * @private
      */
     _createMessage({
@@ -90,7 +91,7 @@ class ChangeEventProducer {
                        eventName
                    }
     ) {
-        return {
+        return new AuditEvent({
             'resourceType': 'AuditEvent',
             'id': generateUUID(),
             'action': isCreate ? 'C' : 'U',
@@ -123,7 +124,7 @@ class ChangeEventProducer {
             'source': {
                 'site': requestId
             }
-        };
+        });
     }
 
     /**
