@@ -89,6 +89,7 @@ extend type Query {
         questionnaire (FHIR type: canonical)
         The questionnaire the answers are provided for
         """
+        questionnaire: SearchString
         """
         source (FHIR type: reference)
         The individual providing the information reflected in the questionnaire respose

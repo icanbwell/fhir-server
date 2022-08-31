@@ -42,12 +42,16 @@ extend type Query {
         {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "reference" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchReference
+        {% elif search_parameter.type == "canonical" %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "quantity" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchQuantity
         {% elif search_parameter.type == "special" %}
         {{ search_parameter_name.replace("-", "_") }}: String
         {% elif search_parameter.type == "number" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchNumber
+        {% else %}
+        ERROR: {{ search_parameter_name.replace("-", "_") }} has invalid type {{ search_parameter.type }}
         {% endif %}
     {%  endfor %}
 
@@ -71,12 +75,16 @@ extend type Query {
         {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "reference" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchReference
+        {% elif search_parameter.type == "canonical" %}
+        {{ search_parameter_name.replace("-", "_") }}: SearchString
         {% elif search_parameter.type == "quantity" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchQuantity
         {% elif search_parameter.type == "special" %}
         {{ search_parameter_name.replace("-", "_") }}: String
         {% elif search_parameter.type == "number" %}
         {{ search_parameter_name.replace("-", "_") }}: SearchNumber
+        {% else %}
+        ERROR: {{ search_parameter_name.replace("-", "_") }} has invalid type {{ search_parameter.type }}
         {% endif %}
     {%  endfor %}
 
