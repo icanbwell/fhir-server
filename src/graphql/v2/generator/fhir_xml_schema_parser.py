@@ -966,7 +966,7 @@ class FhirXmlSchemaParser:
                 if hasattr(snapshot_element, "binding"):
                     types: ObjectifiedElement = snapshot_element["type"]
                     type_: ObjectifiedElement
-                    if types:
+                    if types is not None:
                         type_ = types
                         if type_["code"].get("value") in [
                             "Coding",
