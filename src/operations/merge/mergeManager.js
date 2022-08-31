@@ -79,7 +79,7 @@ class MergeManager {
     /**
      * resource to merge
      * @param {Resource} resourceToMerge
-     * @param {Resource} data
+     * @param {Resource} currentResource
      * @param {string} base_version
      * @param {string|null} user
      * @param {string} scope
@@ -90,7 +90,7 @@ class MergeManager {
     async mergeExistingAsync(
         {
             resourceToMerge,
-            data,
+            currentResource,
             base_version,
             user,
             scope,
@@ -111,7 +111,7 @@ class MergeManager {
         /**
          * @type {Resource}
          */
-        let foundResource = data;
+        let foundResource = currentResource;
         // use metadata of existing resource (overwrite any passed in metadata)
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -125,12 +125,12 @@ class MergeManager {
         resourceToMerge.meta.lastUpdated = foundResource.meta.lastUpdated;
         resourceToMerge.meta.source = foundResource.meta.source;
 
-        await preSaveAsync(data);
+        await preSaveAsync(currentResource);
 
         /**
          * @type {Object}
          */
-        let my_data = deepcopy(data);
+        let my_data = deepcopy(currentResource);
         my_data = omitProperty(my_data, '_id'); // remove _id since that is an internal
         // remove any null properties so deepEqual does not consider objects as different because of that
         my_data = removeNull(my_data);
@@ -168,7 +168,7 @@ class MergeManager {
         /**
          * @type {Object}
          */
-        let patched_incoming_data = applyPatch(data, patchContent).newDocument;
+        let patched_incoming_data = applyPatch(currentResource, patchContent).newDocument;
         /**
          * @type {Resource}
          */
@@ -193,29 +193,20 @@ class MergeManager {
         if (!(patched_resource_incoming.meta.security)) {
             patched_resource_incoming.meta.security = meta.security;
         }
-        // Same as update from this point on
-        // const cleaned = JSON.parse(JSON.stringify(patched_resource_incoming));
-        // check_fhir_mismatch(cleaned, patched_incoming_data);
-        // const cleaned = patched_resource_incoming;
-
-        /**
-         * @type {Resource}
-         */
-        const doc = Object.assign(patched_resource_incoming, {_id: id});
         if (env.LOG_ALL_MERGES) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 {
-                    'old': data,
+                    'old': currentResource,
                     'new': resourceToMerge,
                     'patch': patchContent,
-                    'after': doc
+                    'after': patched_resource_incoming
                 },
                 currentDate,
                 id,
                 'merge_' + meta.versionId + '_' + requestId);
         }
-        await this.performMergeDbUpdateAsync({resourceToMerge, doc});
+        await this.performMergeDbUpdateAsync({resourceToMerge: patched_resource_incoming});
     }
 
     /**
@@ -231,7 +222,6 @@ class MergeManager {
             user
         }
     ) {
-        let id = resourceToMerge.id;
         // not found so insert
         logDebug({
             user,
@@ -258,9 +248,7 @@ class MergeManager {
             resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         }
 
-        const doc = Object.assign(resourceToMerge, {_id: id});
-
-        await this.performMergeDbInsertAsync({resourceToMerge, doc});
+        await this.performMergeDbInsertAsync({resourceToMerge});
     }
 
     /**
@@ -315,7 +303,7 @@ class MergeManager {
                 /**
                  * @type {Resource|null}
                  */
-                let data = this.databaseBulkLoader ?
+                let currentResource = this.databaseBulkLoader ?
                     this.databaseBulkLoader.getResourceFromExistingList(
                         {
                             resourceType: resourceToMerge.resourceType,
@@ -327,11 +315,11 @@ class MergeManager {
                     ).findOneAsync({query: {id: id.toString()}});
 
                 // check if resource was found in database or not
-                if (data && data.meta) {
+                if (currentResource && currentResource.meta) {
                     this.databaseBulkLoader.updateResourceInExistingList({resource: resourceToMerge});
                     await this.mergeExistingAsync(
                         {
-                            resourceToMerge, data, base_version, user, scope, currentDate, requestId
+                            resourceToMerge, currentResource, base_version, user, scope, currentDate, requestId
                         }
                     );
                 } else {
@@ -498,18 +486,16 @@ class MergeManager {
     /**
      * performs the db update
      * @param {Resource} resourceToMerge
-     * @param {Resource} doc
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync(
         {
-            resourceToMerge,
-            doc
+            resourceToMerge
         }
     ) {
         let id = resourceToMerge.id;
 
-        await preSaveAsync(doc);
+        await preSaveAsync(resourceToMerge);
 
         // delete doc['_id'];
 
@@ -523,52 +509,39 @@ class MergeManager {
             {
                 resourceType: resourceToMerge.resourceType,
                 id: id.toString(),
-                doc
+                doc: resourceToMerge
             }
         );
 
-        /**
-         * @type {import('mongodb').Document}
-         */
-        let history_resource = Object.assign(doc, {_id: id + doc.meta.versionId});
         // await history_collection.insertOne(history_resource);
-        await this.databaseBulkInserter.insertOneHistoryAsync(
+        await this.databaseBulkInserter.insertOneHistoryForResourceAsync(
             {
-                resourceType: resourceToMerge.resourceType, doc: history_resource
+                resourceType: resourceToMerge.resourceType, doc: resourceToMerge
             });
     }
 
     /**
      * performs the db insert
      * @param {Resource} resourceToMerge
-     * @param {Resource} doc
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync(
         {
-            resourceToMerge, doc
+            resourceToMerge
         }) {
-        let id = resourceToMerge.id;
-
-        await preSaveAsync(doc);
-
-        doc = omitProperty(doc, '_id');
+        await preSaveAsync(resourceToMerge);
 
         // Insert/update our resource record
         await this.databaseBulkInserter.insertOneAsync({
                 resourceType: resourceToMerge.resourceType,
-                doc
+                doc: resourceToMerge
             }
         );
 
-        /**
-         * @type {import('mongodb').Document}
-         */
-        let history_resource = Object.assign(resourceToMerge, {_id: id + resourceToMerge.meta.versionId});
         // await history_collection.insertOne(history_resource);
-        await this.databaseBulkInserter.insertOneHistoryAsync({
+        await this.databaseBulkInserter.insertOneHistoryForResourceAsync({
                 resourceType: resourceToMerge.resourceType,
-                doc: history_resource
+                doc: resourceToMerge
             }
         );
     }

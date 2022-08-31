@@ -302,19 +302,12 @@ class UpdateOperation {
                 {query: {id: id}, update: {$set: doc}, options: {upsert: true}});
             // save to history
 
-            // let history_resource = Object.assign(cleaned, {id: id});
-            /**
-             * @type {Resource}
-             */
-            let history_resource = Object.assign(resource_incoming, {_id: id + resource_incoming.meta.versionId});
-            // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
-
             // Insert our resource record to history but don't assign _id
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {
                     resourceType, base_version, useAtlas
                 }
-            ).insertOneAsync({doc: history_resource});
+            ).insertHistoryForResourceAsync({doc: doc});
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs

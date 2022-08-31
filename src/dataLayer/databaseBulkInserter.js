@@ -201,7 +201,8 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync({resourceType, doc}) {
+    async insertOneHistoryForResourceAsync({resourceType, doc}) {
+        // do a deep copy and change id to guid
         this.addHistoryOperationForResourceType({
                 resourceType,
                 operation: {

@@ -242,12 +242,6 @@ class CreateOperation {
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
             // noinspection JSValidateTypes
-            /**
-             * @type {Resource}
-             */
-            let history_doc = Object.assign({}, doc);
-            Object.assign(doc, {_id: id});
-
             logDebug({user, args: {message: 'Inserting', doc: doc}});
 
             // Insert our resource record
@@ -264,7 +258,7 @@ class CreateOperation {
             // Insert our resource record to history but don't assign _id
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {resourceType, base_version, useAtlas}
-            ).insertOneAsync({doc: history_doc});
+            ).insertHistoryForResourceAsync({doc: doc});
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,

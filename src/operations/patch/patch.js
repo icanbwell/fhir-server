@@ -161,18 +161,13 @@ class PatchOperation {
             }
             // Save to history
 
-            /**
-             * @type {Resource}
-             */
-            let history_resource = Object.assign(resource, {_id: id + resource.meta.versionId});
-
             // Insert our resource record to history but don't assign _id
             try {
                 await this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
                         resourceType, base_version, useAtlas
                     }
-                ).insertOneAsync({doc: history_resource});
+                ).insertHistoryForResourceAsync({doc: resource});
             } catch (e) {
                 throw new BadRequestError(e);
             }
