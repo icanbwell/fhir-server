@@ -60,7 +60,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -93,7 +93,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -139,7 +139,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -188,7 +188,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -237,7 +237,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -285,7 +285,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -343,7 +343,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
@@ -395,7 +395,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -453,7 +453,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -538,7 +538,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -650,7 +650,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -770,7 +770,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
@@ -928,7 +928,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
@@ -1138,7 +1138,7 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
-            expect(result).toStrictEqual({
+            expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
                         fullUrl: 'https://host/4_0_0/Practitioner/1',

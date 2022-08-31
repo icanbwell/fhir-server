@@ -7,7 +7,6 @@
     {{- text[0]|upper }}{{ text[1:] -}}
 {% endmacro %}
 
-const {removeNull} = require('../../../../utils/nullRemover');
 {% if fhir_entity.cleaned_name == 'Resource' %}
 const ResourceContainer = require('../simple_types/resourceContainer');
 {%  elif fhir_entity.is_resource %}
@@ -106,7 +105,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             configurable: true,
             get: () => this.__data.{{ property.name -}},
             set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null) {
+                if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
     {% if property.is_resource %}
@@ -133,11 +132,27 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {#        {% elif property.type_snake_case in ["string", "boolean", "integer", "positiveInt"] %}#}
 {#                this.__data.{{ property.name }} = value;#}
     {% endif %}
-    {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+    {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
             {% if property.is_list %}
                 this.__data.{{ property.name }} = Array.isArray(valueProvided) ? valueProvided.map(v => new {{ property.cleaned_type | replace(".","") }}(v)) : [new {{ property.cleaned_type | replace(".","") }}(valueProvided)];
             {%  else %}
                 this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(valueProvided);
+            {% endif %}
+    {%  elif property.cleaned_type == "ResourceContainer" %}
+                const {getResource} = require('../../../../operations/common/getResource');
+            {% if property.is_list %}
+                if (Array.isArray(valueProvided)) {
+                    this.__data.{{ property.name }} = valueProvided.map(v => {
+                        const ResourceCreator = getResource('4_0_0', v.resourceType);
+                        return new ResourceCreator(v);
+                    })
+                } else {
+                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                this.__data.{{ property.name }} = [new ResourceCreator(valueProvided)];
+                }
+            {%  else %}
+                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                this.__data.{{ property.name }} = new ResourceCreator(valueProvided);
             {% endif %}
     {%  else %}
             {% if property.is_list %}
@@ -245,6 +260,8 @@ class {{ fhir_entity.cleaned_name }} extends Element {
      * @return {Object}
      */
     toJSON() {
+        const {removeNull} = require('../../../../utils/nullRemover');
+
         return removeNull({
         {% if fhir_entity.is_resource %}
             resourceType: this.resourceType,
