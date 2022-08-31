@@ -9,9 +9,9 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-} = require('../../common');
+} = require('../common');
 const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertStatusCode, assertResponse } = require('../../fhirAsserts');
+const { assertStatusCode, assertResponse } = require('../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {

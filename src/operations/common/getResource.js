@@ -1,4 +1,5 @@
-const {resolveSchema} = require('@asymmetrik/node-fhir-server-core');
+const {resolveSchema} = require('../../fhir/schema.utils');
+
 /**
  * Gets class for the given resource_name and version
  * @param {string} base_version
