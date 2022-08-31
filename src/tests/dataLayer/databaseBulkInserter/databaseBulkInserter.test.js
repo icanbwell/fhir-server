@@ -1,13 +1,15 @@
 const patient = require('./fixtures/patient.json');
 const observation = require('./fixtures/observation.json');
-const { describe, expect, beforeEach, afterEach } = require('@jest/globals');
+const {describe, expect, beforeEach, afterEach} = require('@jest/globals');
 const moment = require('moment-timezone');
-const { commonBeforeEach, commonAfterEach } = require('../../common');
+const {commonBeforeEach, commonAfterEach} = require('../../common');
 const globals = require('../../../globals');
-const { CLIENT_DB } = require('../../../constants');
-const { createTestContainer } = require('../../createTestContainer');
-const { ChangeEventProducer } = require('../../../utils/changeEventProducer');
+const {CLIENT_DB} = require('../../../constants');
+const {createTestContainer} = require('../../createTestContainer');
+const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
 const env = require('var');
+const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
+const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -19,12 +21,12 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {string} observationChangeTopic
      */
     constructor({
-        kafkaClient,
-        resourceManager,
-        patientChangeTopic,
-        taskChangeTopic,
-        observationChangeTopic,
-    }) {
+                    kafkaClient,
+                    resourceManager,
+                    patientChangeTopic,
+                    taskChangeTopic,
+                    observationChangeTopic,
+                }) {
         super({
             kafkaClient,
             resourceManager,
@@ -68,32 +70,36 @@ describe('databaseBulkInserter Tests', () => {
 
             const onPatientCreateAsyncMock = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
-                .mockImplementation(() => {});
+                .mockImplementation(() => {
+                });
             const onPatientChangeAsyncMock = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
-                .mockImplementation(() => {});
+                .mockImplementation(() => {
+                });
             const onObservationCreateAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onObservationCreateAsync')
-                .mockImplementation(() => {});
+                .mockImplementation(() => {
+                });
             const onObservationChangeAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onObservationChangeAsync')
-                .mockImplementation(() => {});
+                .mockImplementation(() => {
+                });
             /**
              * @type {DatabaseBulkInserter}
              */
             const databaseBulkInserter = container.databaseBulkInserter;
 
-            await databaseBulkInserter.insertOneAsync({ resourceType: 'Patient', doc: patient });
+            await databaseBulkInserter.insertOneAsync({resourceType: 'Patient', doc: new Patient(patient)});
             await databaseBulkInserter.insertOneAsync({
                 resourceType: 'Observation',
-                doc: observation,
+                doc: new Observation(observation),
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.replaceOneAsync({
                 resourceType: 'Patient',
                 id: patient.id,
-                doc: patient,
+                doc: new Patient(patient),
             });
 
             // now execute the bulk inserts
