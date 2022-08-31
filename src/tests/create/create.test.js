@@ -33,9 +33,10 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders())
                 .expect(assertStatusCode(201));
 
-            practitioner1Resource['active'] = false;
             const id1 = resp.headers['content-location'].split('/').splice(5, 1)[0];
             expectedPractitionerResources.entry[0].resource.id = id1;
+            practitioner1Resource.id = id1;
+            practitioner1Resource.meta.versionId = '1';
 
             await request
                 .get('/4_0_0/Practitioner')
@@ -44,6 +45,8 @@ describe('Practitioner Tests', () => {
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));
+            practitioner1Resource['active'] = false;
+
             resp = await request
                 .post('/4_0_0/Practitioner')
                 .send(practitioner1Resource)

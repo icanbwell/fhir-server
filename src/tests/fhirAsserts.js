@@ -245,6 +245,8 @@ function assertMerge(checks) {
  * @return {(function(*): void)|*}
  */
 function assertResponse({ expected, fnCleanResource }) {
+    // store the stack here since the function below is async
+    // const stack = new Error().stack;
     expect(expected).not.toBeUndefined();
     return (/** @type {import('http').ServerResponse} */ resp) => {
         if (Array.isArray(resp.body) && !Array.isArray(expected)) {
