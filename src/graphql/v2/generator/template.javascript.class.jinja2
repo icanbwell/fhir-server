@@ -122,6 +122,10 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
                 let {{ property.cleaned_type | replace(".","") }} = require('../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
+    {% elif property.cleaned_type == "ResourceContainer" %}
+            {%  if property.cleaned_type != fhir_entity.cleaned_name %}
+                let {{ property.cleaned_type | replace(".","") }} = require('../simple_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
+            {%  endif %}
     {% elif property.is_complex or property.fhir_type == "Element" %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
                 let {{ property.cleaned_type | replace(".","") }} = require('../complex_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
@@ -129,7 +133,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {#        {% elif property.type_snake_case in ["string", "boolean", "integer", "positiveInt"] %}#}
 {#                this.__data.{{ property.name }} = value;#}
     {% endif %}
-    {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+    {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
             {% if property.is_list %}
                 this.__data.{{ property.name }} = Array.isArray(valueProvided) ? valueProvided.map(v => new {{ property.cleaned_type | replace(".","") }}(v)) : [new {{ property.cleaned_type | replace(".","") }}(valueProvided)];
             {%  else %}
@@ -246,7 +250,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             resourceType: this.resourceType,
         {%  endif %}
 {% for property in fhir_entity.properties %}
-    {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+    {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
         {% if property.is_list %}
             {{ property.name -}}: this.{{ property.name }} && this.{{ property.name -}}.map(v => v.toJSON()),
         {%  else %}

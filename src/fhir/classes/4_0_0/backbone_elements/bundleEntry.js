@@ -163,7 +163,8 @@ class BundleEntry extends Element {
                 if (valueProvided === undefined || valueProvided === null) {
                     return;
                 }
-                this.__data.resource = valueProvided;
+                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                this.__data.resource = new ResourceContainer(valueProvided);
             }
         });
 
@@ -253,7 +254,7 @@ class BundleEntry extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             link: this.link && this.link.map(v => v.toJSON()),
             fullUrl: this.fullUrl,
-            resource: this.resource,
+            resource: this.resource && this.resource.toJSON(),
             search: this.search && this.search.toJSON(),
             request: this.request && this.request.toJSON(),
             response: this.response && this.response.toJSON(),

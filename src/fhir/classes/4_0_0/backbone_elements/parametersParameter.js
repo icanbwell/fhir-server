@@ -1114,7 +1114,8 @@ class ParametersParameter extends Element {
                 if (valueProvided === undefined || valueProvided === null) {
                     return;
                 }
-                this.__data.resource = valueProvided;
+                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                this.__data.resource = new ResourceContainer(valueProvided);
             }
         });
 
@@ -1259,7 +1260,7 @@ class ParametersParameter extends Element {
             valueUsageContext: this.valueUsageContext && this.valueUsageContext.toJSON(),
             valueDosage: this.valueDosage && this.valueDosage.toJSON(),
             valueMeta: this.valueMeta && this.valueMeta.toJSON(),
-            resource: this.resource,
+            resource: this.resource && this.resource.toJSON(),
             part: this.part && this.part.map(v => v.toJSON()),
         });
     }

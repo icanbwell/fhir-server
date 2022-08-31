@@ -192,7 +192,8 @@ class BundleResponse extends Element {
                 if (valueProvided === undefined || valueProvided === null) {
                     return;
                 }
-                this.__data.outcome = valueProvided;
+                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                this.__data.outcome = new ResourceContainer(valueProvided);
             }
         });
 
@@ -225,7 +226,7 @@ class BundleResponse extends Element {
             location: this.location,
             etag: this.etag,
             lastModified: this.lastModified,
-            outcome: this.outcome,
+            outcome: this.outcome && this.outcome.toJSON(),
         });
     }
 }

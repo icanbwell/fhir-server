@@ -186,7 +186,8 @@ class DocumentReference extends Resource {
                 if (valueProvided === undefined || valueProvided === null) {
                     return;
                 }
-                this.__data.contained = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                this.__data.contained = Array.isArray(valueProvided) ? valueProvided.map(v => new ResourceContainer(v)) : [new ResourceContainer(valueProvided)];
             }
         });
 
@@ -690,7 +691,7 @@ class DocumentReference extends Resource {
             implicitRules: this.implicitRules,
             language: this.language,
             text: this.text && this.text.toJSON(),
-            contained: this.contained,
+            contained: this.contained && this.contained.map(v => v.toJSON()),
             extension: this.extension && this.extension.map(v => v.toJSON()),
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             masterIdentifier: this.masterIdentifier && this.masterIdentifier.toJSON(),
