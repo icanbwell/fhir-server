@@ -73,7 +73,7 @@ class {{ fhir_entity.cleaned_name }} {
     {% endif %}
     {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
             {% if property.is_list %}
-                this.__data.{{ property.name }} = Array.isArray(value) ? value.map(v => new {{ property.cleaned_type | replace(".","") }}(v)) : [new {{ property.cleaned_type | replace(".","") }}(value)];;
+                this.__data.{{ property.name }} = Array.isArray(value) ? value.map(v => new {{ property.cleaned_type | replace(".","") }}(v)) : [new {{ property.cleaned_type | replace(".","") }}(value)];
             {%  else %}
                 this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(value);
             {% endif %}

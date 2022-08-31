@@ -9,19 +9,6 @@ class Extension {
             value: {},
         }); // Define getters and setters as enumerable
 
-        Object.defineProperty(this, '_id', {
-            enumerable: true,
-            get: () => this.__data._id,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._id = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'id', {
             enumerable: true,
             get: () => this.__data.id,
@@ -45,19 +32,6 @@ class Extension {
                     value.map((v) => new Extension(v)) : [new Extension(value)];
             },
         });
-        Object.defineProperty(this, '_url', {
-            enumerable: true,
-            get: () => this.__data._url,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._url = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'url', {
             enumerable: true,
             get: () => this.__data.url,
@@ -67,19 +41,6 @@ class Extension {
                 }
 
                 this.__data.url = value;
-            },
-        });
-        Object.defineProperty(this, '_valueBase64Binary', {
-            enumerable: true,
-            get: () => this.__data._valueBase64Binary,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueBase64Binary = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueBase64Binary', {
@@ -93,19 +54,6 @@ class Extension {
                 this.__data.valueBase64Binary = value;
             },
         });
-        Object.defineProperty(this, '_valueBoolean', {
-            enumerable: true,
-            get: () => this.__data._valueBoolean,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueBoolean = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueBoolean', {
             enumerable: true,
             get: () => this.__data.valueBoolean,
@@ -115,19 +63,6 @@ class Extension {
                 }
 
                 this.__data.valueBoolean = value;
-            },
-        });
-        Object.defineProperty(this, '_valueCanonical', {
-            enumerable: true,
-            get: () => this.__data._valueCanonical,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueCanonical = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueCanonical', {
@@ -141,19 +76,6 @@ class Extension {
                 this.__data.valueCanonical = value;
             },
         });
-        Object.defineProperty(this, '_valueCode', {
-            enumerable: true,
-            get: () => this.__data._valueCode,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueCode = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueCode', {
             enumerable: true,
             get: () => this.__data.valueCode,
@@ -163,19 +85,6 @@ class Extension {
                 }
 
                 this.__data.valueCode = value;
-            },
-        });
-        Object.defineProperty(this, '_valueDate', {
-            enumerable: true,
-            get: () => this.__data._valueDate,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueDate = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueDate', {
@@ -189,19 +98,6 @@ class Extension {
                 this.__data.valueDate = value;
             },
         });
-        Object.defineProperty(this, '_valueDateTime', {
-            enumerable: true,
-            get: () => this.__data._valueDateTime,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueDateTime = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueDateTime', {
             enumerable: true,
             get: () => this.__data.valueDateTime,
@@ -211,19 +107,6 @@ class Extension {
                 }
 
                 this.__data.valueDateTime = value;
-            },
-        });
-        Object.defineProperty(this, '_valueDecimal', {
-            enumerable: true,
-            get: () => this.__data._valueDecimal,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueDecimal = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueDecimal', {
@@ -237,19 +120,6 @@ class Extension {
                 this.__data.valueDecimal = value;
             },
         });
-        Object.defineProperty(this, '_valueId', {
-            enumerable: true,
-            get: () => this.__data._valueId,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueId = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueId', {
             enumerable: true,
             get: () => this.__data.valueId,
@@ -259,19 +129,6 @@ class Extension {
                 }
 
                 this.__data.valueId = value;
-            },
-        });
-        Object.defineProperty(this, '_valueInstant', {
-            enumerable: true,
-            get: () => this.__data._valueInstant,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueInstant = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueInstant', {
@@ -285,19 +142,6 @@ class Extension {
                 this.__data.valueInstant = value;
             },
         });
-        Object.defineProperty(this, '_valueInteger', {
-            enumerable: true,
-            get: () => this.__data._valueInteger,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueInteger = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueInteger', {
             enumerable: true,
             get: () => this.__data.valueInteger,
@@ -307,19 +151,6 @@ class Extension {
                 }
 
                 this.__data.valueInteger = value;
-            },
-        });
-        Object.defineProperty(this, '_valueMarkdown', {
-            enumerable: true,
-            get: () => this.__data._valueMarkdown,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueMarkdown = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueMarkdown', {
@@ -333,19 +164,6 @@ class Extension {
                 this.__data.valueMarkdown = value;
             },
         });
-        Object.defineProperty(this, '_valueOid', {
-            enumerable: true,
-            get: () => this.__data._valueOid,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueOid = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueOid', {
             enumerable: true,
             get: () => this.__data.valueOid,
@@ -355,19 +173,6 @@ class Extension {
                 }
 
                 this.__data.valueOid = value;
-            },
-        });
-        Object.defineProperty(this, '_valuePositiveInt', {
-            enumerable: true,
-            get: () => this.__data._valuePositiveInt,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valuePositiveInt = new Element(value);
             },
         });
         Object.defineProperty(this, 'valuePositiveInt', {
@@ -381,19 +186,6 @@ class Extension {
                 this.__data.valuePositiveInt = value;
             },
         });
-        Object.defineProperty(this, '_valueString', {
-            enumerable: true,
-            get: () => this.__data._valueString,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueString = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueString', {
             enumerable: true,
             get: () => this.__data.valueString,
@@ -403,19 +195,6 @@ class Extension {
                 }
 
                 this.__data.valueString = value;
-            },
-        });
-        Object.defineProperty(this, '_valueTime', {
-            enumerable: true,
-            get: () => this.__data._valueTime,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueTime = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueTime', {
@@ -429,19 +208,6 @@ class Extension {
                 this.__data.valueTime = value;
             },
         });
-        Object.defineProperty(this, '_valueUnsignedInt', {
-            enumerable: true,
-            get: () => this.__data._valueUnsignedInt,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueUnsignedInt = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueUnsignedInt', {
             enumerable: true,
             get: () => this.__data.valueUnsignedInt,
@@ -451,19 +217,6 @@ class Extension {
                 }
 
                 this.__data.valueUnsignedInt = value;
-            },
-        });
-        Object.defineProperty(this, '_valueUri', {
-            enumerable: true,
-            get: () => this.__data._valueUri,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueUri = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueUri', {
@@ -477,19 +230,6 @@ class Extension {
                 this.__data.valueUri = value;
             },
         });
-        Object.defineProperty(this, '_valueUrl', {
-            enumerable: true,
-            get: () => this.__data._valueUrl,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueUrl = new Element(value);
-            },
-        });
         Object.defineProperty(this, 'valueUrl', {
             enumerable: true,
             get: () => this.__data.valueUrl,
@@ -499,19 +239,6 @@ class Extension {
                 }
 
                 this.__data.valueUrl = value;
-            },
-        });
-        Object.defineProperty(this, '_valueUuid', {
-            enumerable: true,
-            get: () => this.__data._valueUuid,
-            set: (value) => {
-                if (value === undefined || value === null) {
-                    return;
-                }
-
-                let Element = require('../complex_types/element.js');
-
-                this.__data._valueUuid = new Element(value);
             },
         });
         Object.defineProperty(this, 'valueUuid', {
@@ -946,45 +673,25 @@ class Extension {
         return {
             id: this.id,
             extension: this.extension && this.extension.map((v) => v.toJSON()),
-            _url: this._url && this._url.toJSON(),
             url: this.url,
-            _valueBase64Binary: this._valueBase64Binary && this._valueBase64Binary.toJSON(),
             valueBase64Binary: this.valueBase64Binary,
-            _valueBoolean: this._valueBoolean && this._valueBoolean.toJSON(),
             valueBoolean: this.valueBoolean,
-            _valueCanonical: this._valueCanonical && this._valueCanonical.toJSON(),
             valueCanonical: this.valueCanonical,
-            _valueCode: this._valueCode && this._valueCode.toJSON(),
             valueCode: this.valueCode,
-            _valueDate: this._valueDate && this._valueDate.toJSON(),
             valueDate: this.valueDate,
-            _valueDateTime: this._valueDateTime && this._valueDateTime.toJSON(),
             valueDateTime: this.valueDateTime,
-            _valueDecimal: this._valueDecimal && this._valueDecimal.toJSON(),
             valueDecimal: this.valueDecimal,
-            _valueId: this._valueId && this._valueId.toJSON(),
             valueId: this.valueId,
-            _valueInstant: this._valueInstant && this._valueInstant.toJSON(),
             valueInstant: this.valueInstant,
-            _valueInteger: this._valueInteger && this._valueInteger.toJSON(),
             valueInteger: this.valueInteger,
-            _valueMarkdown: this._valueMarkdown && this._valueMarkdown.toJSON(),
             valueMarkdown: this.valueMarkdown,
-            _valueOid: this._valueOid && this._valueOid.toJSON(),
             valueOid: this.valueOid,
-            _valuePositiveInt: this._valuePositiveInt && this._valuePositiveInt.toJSON(),
             valuePositiveInt: this.valuePositiveInt,
-            _valueString: this._valueString && this._valueString.toJSON(),
             valueString: this.valueString,
-            _valueTime: this._valueTime && this._valueTime.toJSON(),
             valueTime: this.valueTime,
-            _valueUnsignedInt: this._valueUnsignedInt && this._valueUnsignedInt.toJSON(),
             valueUnsignedInt: this.valueUnsignedInt,
-            _valueUri: this._valueUri && this._valueUri.toJSON(),
             valueUri: this.valueUri,
-            _valueUrl: this._valueUrl && this._valueUrl.toJSON(),
             valueUrl: this.valueUrl,
-            _valueUuid: this._valueUuid && this._valueUuid.toJSON(),
             valueUuid: this.valueUuid,
             valueAddress: this.valueAddress && this.valueAddress.toJSON(),
             valueAge: this.valueAge && this.valueAge.toJSON(),

@@ -39,7 +39,7 @@ class Element {
                     return;
                 }
 
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../../../../fhir/classes/4_0_0/extensions/extension.js');
 
                 this.__data.extension = Array.isArray(value) ? value.map((v) => new Extension(v)) : [new Extension(value)];
             },
