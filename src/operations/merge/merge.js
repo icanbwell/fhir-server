@@ -1,5 +1,4 @@
 const moment = require('moment-timezone');
-const {validateResource} = require('../../utils/validator.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
@@ -22,6 +21,7 @@ const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 const {getResource} = require('../common/getResource');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
+const {ResourceValidator} = require('../common/resourceValidator');
 
 class MergeOperation {
     /**
@@ -36,6 +36,7 @@ class MergeOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {ResourceValidator} resourceValidator
      */
     constructor(
         {
@@ -50,6 +51,7 @@ class MergeOperation {
             scopesValidator,
             bundleManager,
             resourceLocatorFactory,
+            resourceValidator
         }
     ) {
         /**
@@ -109,6 +111,11 @@ class MergeOperation {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -277,10 +284,19 @@ class MergeOperation {
                  */
                 const incomingObject = incomingObjects;
                 const bundle1 = new Bundle(incomingObject);
-                const operationOutcome = validateResource(bundle1, 'Bundle', path);
-                if (operationOutcome && operationOutcome.statusCode === 400) {
+                /**
+                 * @type {OperationOutcome|null}
+                 */
+                const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync({
+                    id: bundle1.id,
+                    resourceType: 'Bundle',
+                    resourceToValidate: bundle1,
+                    path: path,
+                    currentDate: currentDate
+                });
+                if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
                     validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                    return operationOutcome;
+                    return validationOperationOutcome;
                 }
                 // unwrap the resources
                 incomingObjects = incomingObjects.entry.map(e => e.resource);

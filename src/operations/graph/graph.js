@@ -2,7 +2,6 @@
 
 const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const {validateResource} = require('../../utils/validator.util');
 const {BadRequestError, NotValidatedError} = require('../../utils/httpErrors');
 const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
@@ -11,18 +10,22 @@ const {GraphHelper} = require('./graphHelpers');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {getFirstElementOrNull} = require('../../utils/list.util');
+const {ResourceValidator} = require('../common/resourceValidator');
+const moment = require('moment-timezone');
 
 class GraphOperation {
     /**
      * @param {GraphHelper} graphHelper
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ResourceValidator} resourceValidator
      */
     constructor(
         {
             graphHelper,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            resourceValidator
         }
     ) {
         /**
@@ -41,6 +44,11 @@ class GraphOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -91,6 +99,10 @@ class GraphOperation {
              */
             const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
+            /**
+             * @type {string}
+             */
+            const currentDate = moment.utc().format('YYYY-MM-DD');
             // We accept the resource in the two forms allowed in FHIR:
             // https://www.hl7.org/fhir/operation-resource-graph.json.html
             // 1. Resource is sent in the body
@@ -118,15 +130,24 @@ class GraphOperation {
                 graphDefinitionRaw = resourceParameter.resource;
             }
 
-            const operationOutcome = validateResource(graphDefinitionRaw, 'GraphDefinition', path);
-            if (operationOutcome && operationOutcome.statusCode === 400) {
+            /**
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync({
+                id: graphDefinitionRaw.id,
+                resourceType: 'GraphDefinition',
+                resourceToValidate: graphDefinitionRaw,
+                path: path,
+                currentDate: currentDate
+            });
+            if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
                 logDebug({user, args: {message: 'GraphDefinition schema failed validation'}});
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
                  */
-                const notValidatedError = new NotValidatedError(operationOutcome);
+                const notValidatedError = new NotValidatedError(validationOperationOutcome);
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args,
@@ -152,10 +173,7 @@ class GraphOperation {
                     hash_references
                 }
             );
-            // const operationOutcomeResult = validateResource(resultBundle, 'Bundle', req.path);
-            // if (operationOutcomeResult && operationOutcomeResult.statusCode === 400) {
-            //     return operationOutcomeResult;
-            // }
+
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,

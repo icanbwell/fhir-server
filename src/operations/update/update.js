@@ -2,8 +2,6 @@ const {logDebug} = require('../common/logging');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {validateResource} = require('../../utils/validator.util');
-const {getUuid} = require('../../utils/uid.util');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {compare} = require('fast-json-patch');
@@ -120,12 +118,16 @@ class UpdateOperation {
             }
         );
 
+        const currentDate = moment.utc().format('YYYY-MM-DD');
+
         // read the incoming resource from request body
+        /**
+         * @type {Object}
+         */
         let resource_incoming_json = body;
         let {base_version, id} = args;
 
         if (env.LOG_ALL_SAVES) {
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             await sendToS3('logs',
                 resourceType,
                 resource_incoming_json,
@@ -135,27 +137,32 @@ class UpdateOperation {
         }
 
         if (env.VALIDATE_SCHEMA || args['_validate']) {
-            const operationOutcome = validateResource(resource_incoming_json, resourceType, path);
-            if (operationOutcome && operationOutcome.statusCode === 400) {
+            /**
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync(
+                {
+                    id: resource_incoming_json.id,
+                    resourceType,
+                    resourceToValidate: resource_incoming_json,
+                    path: path,
+                    currentDate: currentDate
+                });
+            if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                const currentDate = moment.utc().format('YYYY-MM-DD');
-                const uuid = getUuid(resource_incoming_json);
-                operationOutcome.expression = [
-                    resourceType + '/' + uuid
-                ];
                 await sendToS3('validation_failures',
                     resourceType,
                     resource_incoming_json,
                     currentDate,
-                    uuid,
+                    resource_incoming_json.id,
                     currentOperationName);
                 await sendToS3('validation_failures',
                     resourceType,
-                    operationOutcome,
+                    validationOperationOutcome,
                     currentDate,
-                    uuid,
+                    resource_incoming_json.id,
                     'update_failure');
-                throw new NotValidatedError(operationOutcome);
+                throw new NotValidatedError(validationOperationOutcome);
             }
         }
 
@@ -235,7 +242,6 @@ class UpdateOperation {
                     };
                 }
                 if (env.LOG_ALL_SAVES) {
-                    const currentDate = moment.utc().format('YYYY-MM-DD');
                     await sendToS3('logs',
                         resourceType,
                         patchContent,
@@ -318,7 +324,6 @@ class UpdateOperation {
                         operation: currentOperationName, args, ids: [resource_incoming['id']]
                     }
                 );
-                const currentDate = moment.utc().format('YYYY-MM-DD');
                 await this.auditLogger.flushAsync({requestId, currentDate});
             }
 
@@ -343,7 +348,6 @@ class UpdateOperation {
 
             return result;
         } catch (e) {
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             await sendToS3('errors',
                 resourceType,
                 resource_incoming_json,

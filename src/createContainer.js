@@ -48,6 +48,7 @@ const {isTrue} = require('./utils/isTrue');
 const {BundleManager} = require('./operations/common/bundleManager');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ResourceMerger} = require('./operations/common/resourceMerger');
+const {ResourceValidator} = require('./operations/common/resourceValidator');
 
 /**
  * Creates a container and sets up all the services
@@ -68,7 +69,7 @@ const createContainer = function () {
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager
     }));
-
+    container.register('resourceValidator', () => new ResourceValidator());
     container.register('fhirLoggingManager', c => new FhirLoggingManager({
         scopesManager: c.scopesManager,
         imageVersion: getImageVersion()
@@ -149,7 +150,8 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
                 scopesManager: c.scopesManager,
-                resourceMerger: c.resourceMerger
+                resourceMerger: c.resourceMerger,
+                resourceValidator: c.resourceValidator
             }
         )
     );
@@ -236,7 +238,8 @@ const createContainer = function () {
                 databaseHistoryFactory: c.databaseHistoryFactory,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
-                scopesValidator: c.scopesValidator
+                scopesValidator: c.scopesValidator,
+                resourceValidator: c.resourceValidator
             }
         )
     );
@@ -266,6 +269,7 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
+            resourceValidator: c.resourceValidator
         }
     ));
     container.register('everythingOperation', c => new EverythingOperation({
@@ -324,14 +328,16 @@ const createContainer = function () {
     container.register('validateOperation', c => new ValidateOperation(
         {
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            resourceValidator: c.resourceValidator
         }
     ));
     container.register('graphOperation', c => new GraphOperation(
         {
             graphHelper: c.graphHelper,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            resourceValidator: c.resourceValidator
         }
     ));
     container.register('expandOperation', c => new ExpandOperation(

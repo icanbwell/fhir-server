@@ -1,4 +1,3 @@
-const {validateResource} = require('../../utils/validator.util');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {getResource} = require('../common/getResource');
@@ -8,14 +7,22 @@ const {getFirstElementOrNull} = require('../../utils/list.util');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const {ResourceValidator} = require('../common/resourceValidator');
+const moment = require('moment-timezone');
 
 class ValidateOperation {
     /**
      * constructor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ResourceValidator} resourceValidator
      */
-    constructor({scopesManager, fhirLoggingManager}) {
+    constructor(
+        {
+            scopesManager, fhirLoggingManager,
+            resourceValidator
+        }
+    ) {
         /**
          * @type {ScopesManager}
          */
@@ -26,6 +33,11 @@ class ValidateOperation {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -39,6 +51,8 @@ class ValidateOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        const currentOperationName = 'validate';
+
         /**
          * @type {number}
          */
@@ -49,6 +63,10 @@ class ValidateOperation {
          */
         let {base_version} = args;
 
+        /**
+         * @type {string}
+         */
+        const currentDate = moment.utc().format('YYYY-MM-DD');
         // Note: no auth check needed to call validate
 
         // We accept the resource in the two forms allowed in FHIR:
@@ -60,11 +78,6 @@ class ValidateOperation {
          * @type {Object|null}
          */
         let resource_incoming = args.resource ? args.resource : requestInfo.body;
-
-        /**
-         * @type {function(Object): Resource}
-         */
-        const OperationOutcomeResourceCreator = getResource(base_version, 'OperationOutcome');
 
         // check if this is a Parameters resourceType
         if (resource_incoming.resourceType === 'Parameters') {
@@ -89,7 +102,7 @@ class ValidateOperation {
                         })
                     ]
                 });
-                return new OperationOutcomeResourceCreator(operationOutcome);
+                return operationOutcome;
             }
             // find the actual resource in the parameter called resource
             const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
@@ -110,14 +123,23 @@ class ValidateOperation {
                         })
                     ]
                 });
-                return new OperationOutcomeResourceCreator(operationOutcome);
+                return operationOutcome;
             }
             resource_incoming = resourceParameter.resource;
         }
 
-        const operationOutcome = validateResource(resource_incoming, resourceType, path);
-        const currentOperationName = 'validate';
-        if (operationOutcome && operationOutcome.statusCode === 400) {
+        /**
+         * @type {OperationOutcome|null}
+         */
+        const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync(
+            {
+                id: resource_incoming.id,
+                resourceType,
+                resourceToValidate: resource_incoming,
+                path: path,
+                currentDate: currentDate
+            });
+        if (validationOperationOutcome) {
             validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
@@ -127,24 +149,24 @@ class ValidateOperation {
                     startTime,
                     action: currentOperationName
                 });
-            return new OperationOutcomeResourceCreator(operationOutcome);
+            return validationOperationOutcome;
         }
 
         const ResourceCreator = getResource(base_version, resourceType);
         if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
-            return new OperationOutcomeResourceCreator({
+            return new OperationOutcome({
                 resourceType: 'OperationOutcome',
                 issue: [
-                    {
+                    new OperationOutcomeIssue({
                         severity: 'error',
                         code: 'invalid',
-                        details: {
+                        details: new CodeableConcept({
                             text: 'Resource is missing a security access tag with system: https://www.icanbwell.com/access'
-                        },
+                        }),
                         expression: [
                             resourceType
                         ]
-                    }
+                    })
                 ]
             });
         }
@@ -160,19 +182,19 @@ class ValidateOperation {
         // Per FHIR: https://www.hl7.org/fhir/resource-operation-validate.html
         // Note: as this is the only out parameter, it is a resource, and it has the name 'return',
         // the result of this operation is returned directly as a resource
-        return new OperationOutcomeResourceCreator({
+        return new OperationOutcome({
             resourceType: 'OperationOutcome',
             issue: [
-                {
+                new OperationOutcomeIssue({
                     severity: 'information',
                     code: 'informational',
-                    details: {
+                    details: new CodeableConcept({
                         text: 'OK'
-                    },
+                    }),
                     expression: [
                         resourceType
                     ]
-                }
+                })
             ]
         });
     }

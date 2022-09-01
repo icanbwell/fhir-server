@@ -21,9 +21,9 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
-const { assertCompareBundles } = require('../../fhirAsserts');
+const {assertCompareBundles, assertMergeResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Graph PSS Contained Tests', () => {
     beforeEach(async () => {
@@ -79,11 +79,8 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body[0]['created']).toBe(true);
-            expect(resp.body[1]['created']).toBe(true);
+
+            assertMergeResponse({resp, checks: [{created: true}, {created: true}]});
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')

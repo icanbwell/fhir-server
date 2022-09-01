@@ -10,8 +10,6 @@ const {isTrue} = require('../../utils/isTrue');
 const {findDuplicateResources, findUniqueResources, groupByLambda} = require('../../utils/list.util');
 const async = require('async');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
-const {validateResource} = require('../../utils/validator.util');
-const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {assertTypeEquals, assertIsValid, assertFail} = require('../../utils/assertType');
@@ -23,6 +21,7 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {ResourceMerger} = require('../common/resourceMerger');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
+const {ResourceValidator} = require('../common/resourceValidator');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -36,6 +35,7 @@ class MergeManager {
      * @param {DatabaseBulkLoader} databaseBulkLoader
      * @param {ScopesManager} scopesManager
      * @param {ResourceMerger} resourceMerger
+     * @param {ResourceValidator} resourceValidator
      */
     constructor(
         {
@@ -44,7 +44,8 @@ class MergeManager {
             databaseBulkInserter,
             databaseBulkLoader,
             scopesManager,
-            resourceMerger
+            resourceMerger,
+            resourceValidator
         }
     ) {
         /**
@@ -78,6 +79,12 @@ class MergeManager {
          */
         this.resourceMerger = resourceMerger;
         assertTypeEquals(resourceMerger, ResourceMerger);
+
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -571,44 +578,29 @@ class MergeManager {
         //----- validate schema ----
         // The FHIR validator wants meta.lastUpdated to be string instead of data
         // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
-        const resourceToValidate = deepcopy(resourceToMerge.toJSON());
-        if (resourceToValidate.meta && resourceToValidate.meta.lastUpdated) {
+        const resourceObjectToValidate = deepcopy(resourceToMerge.toJSON());
+        if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
             // noinspection JSValidateTypes
-            resourceToValidate.meta.lastUpdated = new Date(resourceToValidate.meta.lastUpdated).toISOString();
+            resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
         }
-        /**
-         * @type {OperationOutcome | null}
-         */
-        const validationOperationOutcome = validateResource(resourceToValidate, resourceToValidate.resourceType, path);
-        if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
-            validationsFailedCounter.inc({action: 'merge', resourceType: resourceToValidate.resourceType}, 1);
-            validationOperationOutcome['expression'] = [
-                resourceToMerge.resourceType + '/' + id
-            ];
-            if (!(validationOperationOutcome['details']) || !(validationOperationOutcome['details']['text'])) {
-                validationOperationOutcome['details'] = {
-                    text: ''
-                };
-            }
-            validationOperationOutcome['details']['text'] = validationOperationOutcome['details']['text'] + ',' + JSON.stringify(resourceToMerge);
 
-            await sendToS3('validation_failures',
-                resourceToMerge.resourceType,
-                resourceToMerge,
-                currentDate,
-                id,
-                'merge');
-            await sendToS3('validation_failures',
-                resourceToMerge.resourceType,
-                validationOperationOutcome,
-                currentDate,
-                id,
-                'merge_failure');
+        /**
+         * @type {OperationOutcome|null}
+         */
+        const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync({
+            id: id,
+            resourceType: resourceObjectToValidate.resourceType,
+            resourceToValidate: resourceObjectToValidate,
+            path: path,
+            currentDate: currentDate
+        });
+        if (validationOperationOutcome) {
             return {
                 id: id,
                 created: false,
                 updated: false,
-                issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0) ? validationOperationOutcome.issue[0] : null,
+                issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0) ?
+                    validationOperationOutcome.issue[0] : null,
                 operationOutcome: validationOperationOutcome,
                 resourceType: resourceToMerge.resourceType
             };

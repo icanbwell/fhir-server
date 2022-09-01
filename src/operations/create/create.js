@@ -3,7 +3,6 @@ const {generateUUID} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {validateResource} = require('../../utils/validator.util');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
@@ -19,6 +18,7 @@ const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {ResourceValidator} = require('../common/resourceValidator');
 
 class CreateOperation {
     /**
@@ -31,6 +31,7 @@ class CreateOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ResourceValidator} resourceValidator
      */
     constructor(
         {
@@ -41,7 +42,8 @@ class CreateOperation {
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            resourceValidator
         }
     ) {
         /**
@@ -85,6 +87,11 @@ class CreateOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -121,10 +128,17 @@ class CreateOperation {
 
         let {base_version} = args;
 
+        /**
+         * @type {string}
+         */
         const uuid = generateUUID();
 
+        /**
+         * @type {string}
+         */
+        const currentDate = moment.utc().format('YYYY-MM-DD');
+
         if (env.LOG_ALL_SAVES) {
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             await sendToS3('logs',
                 resourceType,
                 resource_incoming,
@@ -135,30 +149,24 @@ class CreateOperation {
         }
 
         if (env.VALIDATE_SCHEMA || args['_validate']) {
-            const operationOutcome = validateResource(resource_incoming, resourceType, path);
-            if (operationOutcome && operationOutcome.statusCode === 400) {
-                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                const currentDate = moment.utc().format('YYYY-MM-DD');
-                operationOutcome.expression = [
-                    resourceType + '/' + uuid
-                ];
-                await sendToS3('validation_failures',
+            /**
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync(
+                {
+                    id: resource_incoming.id,
                     resourceType,
-                    resource_incoming,
-                    currentDate,
-                    uuid,
-                    currentOperationName);
-                await sendToS3('validation_failures',
-                    'OperationOutcome',
-                    operationOutcome,
-                    currentDate,
-                    uuid,
-                    'create_failure');
+                    resourceToValidate: resource_incoming,
+                    path,
+                    currentDate
+                });
+            if (validationOperationOutcome) {
+                validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}
                  */
-                const notValidatedError = new NotValidatedError(operationOutcome);
+                const notValidatedError = new NotValidatedError(validationOperationOutcome);
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
                     args,
@@ -236,7 +244,6 @@ class CreateOperation {
                         operation: currentOperationName, args, ids: [resource['id']]
                     }
                 );
-                const currentDate = moment.utc().format('YYYY-MM-DD');
                 await this.auditLogger.flushAsync({requestId, currentDate});
             }
             // Create a clone of the object without the _id parameter before assigning a value to
@@ -275,7 +282,6 @@ class CreateOperation {
 
             return doc;
         } catch (/** @type {Error} */ e) {
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             await sendToS3('errors',
                 resourceType,
                 resource_incoming,
