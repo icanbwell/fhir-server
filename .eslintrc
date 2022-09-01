@@ -10,7 +10,8 @@
     "ecmaVersion": 2021
   },
   "plugins": [
-    "security"
+    "security",
+    "jest"
   ],
   "extends": [
     "eslint:recommended",
