@@ -10,8 +10,8 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertStatusOk, assertStatusCode, assertResponse } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {assertStatusOk, assertStatusCode, expectResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -27,7 +27,7 @@ describe('Practitioner Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            const resp = await request
+            let resp = await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
                 .set(getHeaders())
@@ -40,7 +40,7 @@ describe('Practitioner Tests', () => {
             practitioner1Resource['id'] = id;
             practitioner1Resource['active'] = false;
 
-            await request
+            resp = await request
                 .put(`/4_0_0/Practitioner/${id}`)
                 .send(practitioner1Resource)
                 .set(getHeaders())
@@ -49,10 +49,10 @@ describe('Practitioner Tests', () => {
             expectedPractitionerResources.entry[0].resource.id = id;
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
-            await request
+            resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
-                .set(getHeaders())
-                .expect(assertResponse({ expected: expectedPractitionerResources }));
+                .set(getHeaders());
+            expectResponse({resp, expected: expectedPractitionerResources});
         });
     });
 });

@@ -14,7 +14,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertStatusCode, assertResourceCount, assertResponse, expectResponse} = require('../../fhirAsserts');
+const {assertStatusCode, assertResourceCount, expectResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Update Tests', () => {
     beforeEach(async () => {
@@ -28,22 +28,22 @@ describe('Practitioner Update Tests', () => {
     describe('Practitioner Validate', () => {
         test('Valid resource', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
                 .expect(assertResourceCount(0));
 
-            await request
+            resp = await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(validPractitionerResource)
                 .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(assertResponse({expected: expectedValidPractitionerResponse}));
+                .expect(assertStatusCode(200));
+            expectResponse({resp, expected: expectedValidPractitionerResponse});
         });
         test('Valid resource with resource parameter', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
@@ -57,31 +57,31 @@ describe('Practitioner Update Tests', () => {
                 resourceType: 'Parameters',
                 parameter: [{name: 'resource', resource: validPractitionerResource}],
             };
-            await request
+            resp = await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(parametersResource)
                 .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(assertResponse({expected: expectedValidPractitionerResponse}));
+                .expect(assertStatusCode(200));
+            expectResponse({resp, expected: expectedValidPractitionerResponse});
         });
         test('Valid resource but no security code', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
                 .expect(assertResourceCount(0));
 
-            await request
+            resp = await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(validPractitionerNoSecurityCodeResource)
                 .set(getHeaders())
-                .expect(200)
-                .expect(
-                    assertResponse({
-                        expected: expectedValidPractitionerNoSecurityCodeResponse,
-                    })
-                );
+                .expect(200);
+            expectResponse({
+                    resp,
+                    expected: expectedValidPractitionerNoSecurityCodeResponse,
+                }
+            );
         });
         test('Invalid resource', async () => {
             const request = await createTestRequest();
@@ -101,7 +101,7 @@ describe('Practitioner Update Tests', () => {
         });
         test('Invalid resource with resource parameter', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
@@ -114,14 +114,13 @@ describe('Practitioner Update Tests', () => {
                 resourceType: 'Parameters',
                 parameterBad: [{name: 'resource', resource: validPractitionerResource}],
             };
-            await request
+            resp = await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(parametersResource)
                 .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(
-                    assertResponse({expected: expectedInvalidPractitionerNoParametersResponse})
-                );
+                .expect(assertStatusCode(200));
+            expectResponse({resp, expected: expectedInvalidPractitionerNoParametersResponse}
+            );
         });
     });
 });

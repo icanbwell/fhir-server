@@ -10,12 +10,11 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {
     assertStatusCode,
     assertResourceCount,
-    assertMerge,
-    assertResponse,
+    assertMerge, expectResponse,
 } = require('../../fhirAsserts');
 
 describe('Merge By Parameters Tests', () => {
@@ -30,7 +29,7 @@ describe('Merge By Parameters Tests', () => {
     describe('Merge By Parameters Tests', () => {
         test('merge by parameters works', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
@@ -42,27 +41,27 @@ describe('Merge By Parameters Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{ name: 'resource', resource: patient1Resource }],
+                parameter: [{name: 'resource', resource: patient1Resource}],
             };
 
-            await request
+            resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge')
                 .send(parametersResource)
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
-                .expect(assertMerge([{ created: true }]));
+                .expect(assertMerge([{created: true}]));
 
-            await request
+            resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders())
                 .expect(assertStatusCode(200))
                 .expect(assertResourceCount(1));
 
-            await request
+            resp = await request
                 .get('/4_0_0/Patient/00100000000')
                 .set(getHeaders())
-                .expect(200)
-                .expect(assertResponse({ expected: expectedSinglePatientResource }));
+                .expect(200);
+            expectResponse({resp, expected: expectedSinglePatientResource});
         });
     });
 });

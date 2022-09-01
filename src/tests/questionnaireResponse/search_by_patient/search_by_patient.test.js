@@ -7,8 +7,8 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertResourceCount, assertMerge, assertResponse } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {assertResourceCount, assertMerge, expectResponse} = require('../../fhirAsserts');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -22,21 +22,21 @@ describe('Questionnaire Response Tests', () => {
     describe('QuestionnaireResponse Bundles', () => {
         test('QuestionnaireResponse can search by patient', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/QuestionnaireResponse')
                 .set(getHeaders())
                 .expect(assertResourceCount(0));
 
-            await request
+            resp = await request
                 .post('/4_0_0/QuestionnaireResponse/1/$merge')
                 .send(questionnaireResponseBundle)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient=029260322')
-                .set(getHeaders())
-                .expect(assertResponse({ expected: expectedQuestionnaireResponseBundle }));
+                .set(getHeaders());
+            expectResponse({resp, expected: expectedQuestionnaireResponseBundle});
         });
     });
 });

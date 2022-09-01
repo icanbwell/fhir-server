@@ -7,8 +7,8 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertResourceCount, assertMerge, assertResponse } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {assertResourceCount, assertMerge, expectResponse} = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -22,22 +22,22 @@ describe('Claim Merge Tests', () => {
     describe('Claim Merge Bundles', () => {
         test('Claims with missing items merge properly', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
                 .expect(assertResourceCount(0));
 
-            await request
+            resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
-                .expect(assertResourceCount(1))
-                .expect(assertResponse({ expected: expectedExplanationOfBenefitBundleResource }));
+                .expect(assertResourceCount(1));
+            expectResponse({resp, expected: expectedExplanationOfBenefitBundleResource});
         });
     });
 });

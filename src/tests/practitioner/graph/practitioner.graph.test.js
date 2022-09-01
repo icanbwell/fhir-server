@@ -18,15 +18,15 @@ const {
     createTestRequest,
 } = require('../../common');
 
-const { findDuplicateResources } = require('../../../utils/list.util');
+const {findDuplicateResources} = require('../../../utils/list.util');
 const {
     assertCompareBundles,
     assertStatusOk,
     assertResourceCount,
     assertMerge,
-    assertResponse,
+    expectResponse,
 } = require('../../fhirAsserts');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Graph Contained Tests', () => {
     beforeEach(async () => {
@@ -40,51 +40,51 @@ describe('Practitioner Graph Contained Tests', () => {
     describe('Graph Contained Tests', () => {
         test('Graph contained works properly', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
                 .expect(assertStatusOk())
                 .expect(assertResourceCount(0));
 
-            await request
+            resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleDifferentSecurityTagResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true')
                 .send(graphDefinitionResource)
                 .set(getHeaders())
-                .expect(assertStatusOk())
-                .expect(assertResponse({ expected: expectedResource }));
+                .expect(assertStatusOk());
+            expectResponse({resp, expected: expectedResource});
 
-            const resp = await request
+            resp = await request
                 .post(
                     '/4_0_0/Practitioner/$graph?id=1679033641&contained=true&_hash_references=true'
                 )
                 .send(graphDefinitionResource)
                 .set(getHeaders())
-                .expect(assertStatusOk())
-                .expect(assertResponse({ expected: expectedHashReferencesResource }));
+                .expect(assertStatusOk());
+            expectResponse({resp, expected: expectedHashReferencesResource});
 
             const body = resp.body;
             const expected = expectedHashReferencesResource;
@@ -96,39 +96,39 @@ describe('Practitioner Graph Contained Tests', () => {
             // verify there are no duplicate ids
             const duplicates = findDuplicateResources(body.entry.map((e) => e.resource));
             expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
-            assertCompareBundles({ body: body, expected });
+            assertCompareBundles({body: body, expected});
         });
         test('Graph contained works properly with parameters', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders())
                 .expect(assertStatusOk())
                 .expect(assertResourceCount(0));
 
-            await request
+            resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleDifferentSecurityTagResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
-            await request
+            resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .expect(assertMerge({created: true}));
 
             /**
              * http://www.hl7.org/fhir/parameters-example.json.html
@@ -136,24 +136,24 @@ describe('Practitioner Graph Contained Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{ name: 'resource', resource: graphDefinitionResource }],
+                parameter: [{name: 'resource', resource: graphDefinitionResource}],
             };
 
-            await request
+            resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true')
                 .send(parametersResource)
                 .set(getHeaders())
-                .expect(assertStatusOk())
-                .expect(assertResponse({ expected: expectedResource }));
+                .expect(assertStatusOk());
+            expectResponse({resp, expected: expectedResource});
 
-            const resp = await request
+            resp = await request
                 .post(
                     '/4_0_0/Practitioner/$graph?id=1679033641&contained=true&_hash_references=true'
                 )
                 .send(parametersResource)
                 .set(getHeaders())
-                .expect(assertStatusOk())
-                .expect(assertResponse({ expected: expectedHashReferencesResource }));
+                .expect(assertStatusOk());
+            expectResponse({resp, expected: expectedHashReferencesResource});
 
             const body = resp.body;
             const expected = expectedHashReferencesResource;
@@ -165,7 +165,7 @@ describe('Practitioner Graph Contained Tests', () => {
             // verify there are no duplicate ids
             const duplicates = findDuplicateResources(body.entry.map((e) => e.resource));
             expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
-            assertCompareBundles({ body, expected });
+            assertCompareBundles({body, expected});
         });
     });
 });

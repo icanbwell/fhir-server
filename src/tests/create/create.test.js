@@ -11,7 +11,7 @@ const {
     createTestRequest,
 } = require('../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertStatusCode, assertResponse} = require('../fhirAsserts');
+const {assertStatusCode, expectResponse} = require('../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -38,10 +38,10 @@ describe('Practitioner Tests', () => {
             practitioner1Resource.id = id1;
             practitioner1Resource.meta.versionId = '1';
 
-            await request
+            resp = await request
                 .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(assertResponse({expected: practitioner1Resource}));
+                .set(getHeaders());
+            expectResponse({resp, expected: practitioner1Resource});
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -58,14 +58,14 @@ describe('Practitioner Tests', () => {
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
-            await request
+            resp = await request
                 .get('/4_0_0/Practitioner?_bundle=1&_sort=meta.lastUpdated')
-                .set(getHeaders())
-                .expect(
-                    assertResponse({
-                        expected: expectedPractitionerResources,
-                    })
-                );
+                .set(getHeaders());
+            expectResponse({
+                    resp,
+                    expected: expectedPractitionerResources,
+                }
+            );
         });
     });
 });
