@@ -283,7 +283,7 @@ class MergeOperation {
                     return operationOutcome;
                 }
                 // unwrap the resources
-                incomingObjects = incomingObjects.entry.map(e => e.resource.toJSON());
+                incomingObjects = incomingObjects.entry.map(e => e.resource);
             }
 
             /**
