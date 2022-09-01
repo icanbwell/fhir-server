@@ -23,7 +23,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
-const {assertCompareBundles, expectMergeResponse} = require('../../fhirAsserts');
+const {expectMergeResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Graph PSS Contained Tests', () => {
     beforeEach(async () => {
@@ -48,31 +48,21 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .send(groupResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response groupResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expectMergeResponse({resp, checks: {created: true}});
 
             resp = await request
                 .post('/4_0_0/InsurancePlan/1/$merge')
                 .send(insurancePlanResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response insurancePlanResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body[0]['created']).toBe(true);
-            expect(resp.body[1]['created']).toBe(true);
+            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
 
             resp = await request
                 .post('/4_0_0/Location/1/$merge')
                 .send(locationResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response locationResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expectMergeResponse({resp, checks: {created: true}});
 
             resp = await request
                 .post('/4_0_0/Practitioner/1003059437/$merge')
@@ -87,57 +77,34 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .send(practitionerRoleResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body[0]['created']).toBe(true);
-            expect(resp.body[1]['created']).toBe(true);
+            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge')
                 .send(scheduleResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response scheduleResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expectMergeResponse({resp, checks: [{created: true}]});
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response organizationResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
-            expect(resp.body['created']).toBe(true);
+            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
 
             resp = await request
                 .post('/4_0_0/HealthcareService/123456/$merge')
                 .send(healthcareServiceResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response healthcareServiceResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body[0]['created']).toBe(true);
-            expect(resp.body[1]['created']).toBe(true);
+            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
 
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true')
                 .send(graphDefinitionResource)
                 .set(getHeaders());
-            console.log('------- response Practitioner 1003059437 $graph ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.statusCode).toStrictEqual(200);
-            let body = resp.body;
-            assertCompareBundles({
-                body: body,
-                expected: expectedResource,
-            });
+            expect(resp).toHaveResponse(expectedResource);
 
             resp = await request
                 .post(
@@ -147,16 +114,9 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log(
-                '------- response Practitioner 1003059437 $graph hashed_references ------------'
-            );
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            body = resp.body;
-            assertCompareBundles({
-                body: body,
-                expected: expectedHashReferencesResource,
-            });
-        });
+            expect(resp).toHaveResponse(expectedHashReferencesResource);
+
+        })
+        ;
     });
 });

@@ -171,7 +171,7 @@ function toHaveResponse(resp, expected, fnCleanResource) {
                         `Received: ${this.utils.printReceived(resp.body)}`)
                 );
             };
-        return {actual: resp.body, message, pass};
+        return {actual: resp.body, expected: expected, message, pass};
     } else {
         if (Array.isArray(resp.body)) {
             resp.body.forEach((element) => {
@@ -237,7 +237,7 @@ function toHaveResponse(resp, expected, fnCleanResource) {
                     `Received: ${this.utils.printReceived(resp.body)}`)
             );
         };
-    return {actual: resp.body, message, pass};
+    return {actual: resp.body, expected: expected, message, pass};
 }
 
 
