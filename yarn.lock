@@ -3145,6 +3145,16 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@typescript-eslint/parser@^5.36.1":
+  "integrity" "sha512-/IsgNGOkBi7CuDfUbwt1eOqUXF9WGVBW9dwEe1pi+L32XrTsZIgmDFIi2RxjzsvB/8i+MIf5JIoTEH8LOZ368A=="
+  "resolved" "https://registry.npmjs.org/@typescript-eslint/parser/-/parser-5.36.1.tgz"
+  "version" "5.36.1"
+  dependencies:
+    "@typescript-eslint/scope-manager" "5.36.1"
+    "@typescript-eslint/types" "5.36.1"
+    "@typescript-eslint/typescript-estree" "5.36.1"
+    "debug" "^4.3.4"
+
 "@typescript-eslint/scope-manager@5.36.1":
   "integrity" "sha512-pGC2SH3/tXdu9IH3ItoqciD3f3RRGCh7hb9zPdN2Drsr341zgd6VbhP5OHQO/reUqihNltfPpMpTNihFMarP2w=="
   "resolved" "https://registry.npmjs.org/@typescript-eslint/scope-manager/-/scope-manager-5.36.1.tgz"
