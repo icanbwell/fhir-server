@@ -287,7 +287,7 @@ class MergeOperation {
                 /**
                  * @type {OperationOutcome|null}
                  */
-                const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync({
+                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                     id: bundle1.id,
                     resourceType: 'Bundle',
                     resourceToValidate: bundle1,

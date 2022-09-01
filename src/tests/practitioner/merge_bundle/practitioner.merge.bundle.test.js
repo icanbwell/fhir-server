@@ -8,7 +8,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertMergeResponse} = require('../../fhirAsserts');
+const {expectMergeResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Merge Bundle Tests', () => {
     beforeEach(async () => {
@@ -34,7 +34,7 @@ describe('Practitioner Merge Bundle Tests', () => {
                 .send(practitionerBundleResource)
                 .set(getHeaders());
 
-            assertMergeResponse({resp, checks: [{created: true}, {created: true}]});
+            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');

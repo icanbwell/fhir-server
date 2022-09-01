@@ -152,7 +152,7 @@ class CreateOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync(
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
                 {
                     id: resource_incoming.id,
                     resourceType,

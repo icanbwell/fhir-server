@@ -12,7 +12,8 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {expectResourceCount, expectMergeResponse, expectResponse} = require('../../fhirAsserts');
 
 describe('search_by_source', () => {
     beforeEach(async () => {
@@ -27,47 +28,31 @@ describe('search_by_source', () => {
         test('search by source works', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expectMergeResponse({resp, checks: {created: true}});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body.issue).toBeUndefined();
-            expect(resp.body['created']).toBe(true);
+            expectMergeResponse({resp, checks: {created: true}});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expectMergeResponse({resp, checks: {created: true}});
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
-            expect(resp.body.length).toBe(3);
+            expectResourceCount(resp, 3);
 
             resp = await request
                 .get(
@@ -76,22 +61,7 @@ describe('search_by_source', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response Practitioner sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(2);
-            body.forEach((element) => {
-                delete element['meta']['lastUpdated'];
-            });
-            let expected = expectedPractitionerResource;
-            expected.forEach((element) => {
-                delete element['meta']['lastUpdated'];
-                delete element['$schema'];
-            });
-            // expected[0]['meta'] = { 'versionId': '2' };
-            expect(body).toStrictEqual(expected);
+            expectResponse({resp, expected: expectedPractitionerResource});
         }, 30000);
     });
 });

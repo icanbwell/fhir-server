@@ -38,7 +38,6 @@ const fhirValidator = new JSONValidator(schema, validatorConfig);
 function validateResource(resourceBody, resourceName, path) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
-            statusCode: 400,
             issue: [
                 new OperationOutcomeIssue({
                     severity: 'error',
@@ -67,7 +66,6 @@ function validateResource(resourceBody, resourceName, path) {
         });
 
         return new OperationOutcome({
-            statusCode: 400,
             issue: issue,
         });
     }

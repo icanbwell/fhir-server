@@ -23,7 +23,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
-const {assertCompareBundles, assertMergeResponse} = require('../../fhirAsserts');
+const {assertCompareBundles, expectMergeResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Graph PSS Contained Tests', () => {
     beforeEach(async () => {
@@ -80,7 +80,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            assertMergeResponse({resp, checks: [{created: true}, {created: true}]});
+            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')

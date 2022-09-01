@@ -587,7 +587,7 @@ class MergeManager {
         /**
          * @type {OperationOutcome|null}
          */
-        const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync({
+        const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
             id: id,
             resourceType: resourceObjectToValidate.resourceType,
             resourceToValidate: resourceObjectToValidate,

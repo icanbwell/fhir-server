@@ -133,7 +133,7 @@ class GraphOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceObjectAsync({
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
                 id: graphDefinitionRaw.id,
                 resourceType: 'GraphDefinition',
                 resourceToValidate: graphDefinitionRaw,

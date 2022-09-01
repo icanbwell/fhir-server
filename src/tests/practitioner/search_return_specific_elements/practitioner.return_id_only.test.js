@@ -13,7 +13,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const {assertMergeResponse} = require('../../fhirAsserts');
+const {expectMergeResponse} = require('../../fhirAsserts');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -39,7 +39,7 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            assertMergeResponse({resp, checks: {created: true}});
+            expectMergeResponse({resp, checks: {created: true}});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id')
