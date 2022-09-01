@@ -11,11 +11,11 @@ const { assertTypeEquals } = require('../../utils/assertType');
 const { SimpleContainer } = require('../../utils/simpleContainer');
 /**
  * This functions takes a FHIR Bundle and returns the resources in it
- * @param {{entry:{resource: Resource}[]}} bundle
+ * @param {Bundle} bundle
  * @return {Resource[]}
  */
 module.exports.unBundle = (bundle) => {
-    return bundle.entry.map((e) => e.resource);
+    return bundle.entry ? bundle.entry.map((e) => e.resource) : [];
 };
 
 // noinspection JSUnusedLocalSymbols
