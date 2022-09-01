@@ -104,14 +104,14 @@ class FhirDataSource extends DataSource {
 
     /**
      * This function takes a FHIR Bundle and returns the resources in it
-     * @param {{entry: {resource: Resource}[]}} bundle
+     * @param {Bundle} bundle
      * @return {Resource[]}
      */
     unBundle(bundle) {
         if (bundle.meta) {
             this.metaList.push(bundle.meta);
         }
-        return bundle.entry.map((e) => e.resource);
+        return bundle.entry ? bundle.entry.map((e) => e.resource) : [];
     }
 
     /**
@@ -318,7 +318,7 @@ class FhirDataSource extends DataSource {
      * @param {GraphQLContext} context
      * @param {Object} info
      * @param {string} resourceType
-     * @return {Promise<{entry:{resource: Resource}[]}>}
+     * @return {Promise<Bundle>}
      */
     async getResourcesBundle(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
