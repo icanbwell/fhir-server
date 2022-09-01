@@ -18,6 +18,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {ResourceValidator} = require('../common/resourceValidator');
 
 /**
  * Update Operation
@@ -33,6 +34,7 @@ class UpdateOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ResourceValidator} resourceValidator
      */
     constructor(
         {
@@ -43,7 +45,8 @@ class UpdateOperation {
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            resourceValidator
         }
     ) {
         /**
@@ -86,7 +89,11 @@ class UpdateOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**

@@ -252,7 +252,8 @@ const createContainer = function () {
                 databaseQueryFactory: c.databaseQueryFactory,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
-                scopesValidator: c.scopesValidator
+                scopesValidator: c.scopesValidator,
+                resourceValidator: c.resourceValidator
             }
         )
     );
