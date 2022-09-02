@@ -12,10 +12,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {
-    expectResponse,
-    expectMergeResponse
-} = require('../../fhirAsserts');
 
 describe('Schedule Tests', () => {
     beforeEach(async () => {
@@ -35,18 +31,21 @@ describe('Schedule Tests', () => {
                 .post('/4_0_0/Schedule/1/$merge?validate=true')
                 .send(schedule1Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge?validate=true')
                 .send(schedule2Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Schedule back
             resp = await request.get('/4_0_0/Schedule/?_bundle=1').set(getHeaders());
-            expectResponse(resp, expectedScheduleResources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedScheduleResources);
         });
     });
 });

@@ -11,11 +11,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {
-    expectResponse,
-    expectStatusCode,
-    expectStatusOk
-} = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -35,7 +30,8 @@ describe('Practitioner Tests', () => {
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
                 .set(getHeaders());
-            expectStatusCode(resp, 201);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(201);
 
             // get generated id from response
             const location = resp.headers['content-location'];
@@ -48,14 +44,16 @@ describe('Practitioner Tests', () => {
                 .put(`/4_0_0/Practitioner/${id}`)
                 .send(practitioner1Resource)
                 .set(getHeaders());
-            expectStatusOk(resp);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
             expectedPractitionerResources.entry[0].resource.id = id;
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
                 .set(getHeaders());
-            expectResponse(resp, expectedPractitionerResources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResources);
         });
     });
 });

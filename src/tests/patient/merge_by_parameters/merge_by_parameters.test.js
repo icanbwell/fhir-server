@@ -11,9 +11,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {
-    expectResponse, expectMergeResponse, expectResourceCount,
-} = require('../../fhirAsserts');
 
 describe('Merge By Parameters Tests', () => {
     beforeEach(async () => {
@@ -30,7 +27,8 @@ describe('Merge By Parameters Tests', () => {
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             /**
              * http://www.hl7.org/fhir/parameters-example.json.html
@@ -45,17 +43,20 @@ describe('Merge By Parameters Tests', () => {
                 .post('/4_0_0/Patient/1679033641/$merge')
                 .send(parametersResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, [{created: true}]);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}]);
 
             resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders());
-            expectResourceCount(resp, 1);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
                 .set(getHeaders());
-            expectResponse(resp, expectedSinglePatientResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedSinglePatientResource);
         });
     });
 });

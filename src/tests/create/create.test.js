@@ -11,7 +11,6 @@ const {
     createTestRequest,
 } = require('../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectResponse, expectStatusCode} = require('../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -31,7 +30,8 @@ describe('Practitioner Tests', () => {
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
                 .set(getHeaders());
-            expectStatusCode(resp, 201);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(201);
 
             const id1 = resp.headers['content-location'].split('/').splice(5, 1)[0];
             expectedPractitionerResources.entry[0].resource.id = id1;
@@ -41,7 +41,8 @@ describe('Practitioner Tests', () => {
             resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResponse(resp, practitioner1Resource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(practitioner1Resource);
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -51,7 +52,8 @@ describe('Practitioner Tests', () => {
                 .post('/4_0_0/Practitioner')
                 .send(practitioner1Resource)
                 .set(getHeaders());
-            expectStatusCode(resp, 201);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(201);
 
             const id2 = resp.headers['content-location'].split('/').splice(5, 1)[0];
             expectedPractitionerResources.entry[1].resource.id = id2;
@@ -61,10 +63,8 @@ describe('Practitioner Tests', () => {
             resp = await request
                 .get('/4_0_0/Practitioner?_bundle=1&_sort=meta.lastUpdated')
                 .set(getHeaders());
-            expectResponse(
-                resp,
-                expectedPractitionerResources
-            );
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResources);
         });
     });
 });

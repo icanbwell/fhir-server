@@ -11,7 +11,6 @@ const {
     getTestContainer,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {expectMergeResponse, expectResourceCount} = require('../../fhirAsserts');
 
 describe('Patient Change Event Tests', () => {
     beforeEach(async () => {
@@ -35,13 +34,15 @@ describe('Patient Change Event Tests', () => {
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -69,13 +70,15 @@ describe('Patient Change Event Tests', () => {
             let resp = await request
                 .get('/4_0_0/Observation')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -105,13 +108,15 @@ describe('Patient Change Event Tests', () => {
             let resp = await request
                 .get('/4_0_0/Observation')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();

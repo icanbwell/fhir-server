@@ -11,7 +11,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectResponse, expectResourceCount, expectMergeResponse} = require('../../fhirAsserts');
 
 describe('AuditEventLastUpdatedTests', () => {
     beforeEach(async () => {
@@ -27,14 +26,16 @@ describe('AuditEventLastUpdatedTests', () => {
             const request = await createTestRequest();
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             // now add a record
             resp = await request
                 .post('/4_0_0/AuditEvent/1/$merge?validate=true')
                 .send(auditEventResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // now check that we get the right record back
             resp = await request
@@ -43,7 +44,8 @@ describe('AuditEventLastUpdatedTests', () => {
                 )
                 .set(getHeaders());
 
-            expectResponse(resp, expectedAuditEventResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedAuditEventResource);
         });
     });
 });

@@ -14,7 +14,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectMergeResponse, expectResponse} = require('../../fhirAsserts');
 
 describe('ValueSet Multiple Tests', () => {
     beforeEach(async () => {
@@ -34,32 +33,37 @@ describe('ValueSet Multiple Tests', () => {
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset1Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset2Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset3Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset4Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right ValueSet back
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1106.45/$expand?_bundle=1')
                 .set(getHeaders());
-            expectResponse(resp, expectedValueSetResources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValueSetResources);
         });
     });
 });

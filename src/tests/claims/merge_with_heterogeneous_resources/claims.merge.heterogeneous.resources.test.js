@@ -10,7 +10,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectResponse, expectResourceCount} = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -28,23 +27,27 @@ describe('Claim Merge Tests', () => {
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders());
 
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedMergeResponse);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMergeResponse);
 
             resp = await request
                 .get('/4_0_0/ExplanationOfBenefit?_bundle=1')
                 .set(getHeaders())
                 .expect(200);
-            expectResponse(resp, expectedExplanationOfBenefitBundleResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedExplanationOfBenefitBundleResource);
 
             resp = await request.get('/4_0_0/Patient?_bundle=1').set(getHeaders()).expect(200);
-            expectResponse(resp, expectedPatientBundleResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientBundleResource);
         });
     });
 });

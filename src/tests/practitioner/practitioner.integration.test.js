@@ -5,7 +5,6 @@ const expectedPractitionerResource = require('./fixtures/providers/expected_prac
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {expectStatusCode, expectResponse} = require('../fhirAsserts');
 
 describe('Practitioner Integration Tests', () => {
     beforeEach(async () => {
@@ -38,15 +37,18 @@ describe('Practitioner Integration Tests', () => {
                 .send(practitionerRoleResource)
                 .set(getHeaders());
 
-            expectStatusCode(resp, 201);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(201);
 
             resp = await request
                 .post('/4_0_0/Location')
                 .send(locationResource)
                 .set(getHeaders());
-            expectStatusCode(resp, 201);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(201);
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
-            expectResponse(resp, expectedPractitionerResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         });
     });
 });

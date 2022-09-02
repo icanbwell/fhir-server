@@ -22,7 +22,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectResponse, expectResourceCount, expectMergeResponse} = require('../../fhirAsserts');
 
 describe('GraphQL ExplanationOfBenefit Tests', () => {
     beforeEach(async () => {
@@ -40,37 +39,44 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Coverage/1/$merge')
                 .send(coverageBundleResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request.get('/4_0_0/Patient/').set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
@@ -83,7 +89,8 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                 })
                 .set(getGraphQLHeaders());
 
-            expectResponse(resp, expectedGraphQLResponse[0], (r) => {
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQLResponse[0], (r) => {
                 delete r['meta'];
                 return r;
             });

@@ -9,7 +9,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const { expectResponse} = require('../../fhirAsserts');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -44,12 +43,14 @@ describe('Questionnaire Response Tests', () => {
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient:missing=true')
                 .set(getHeaders());
-            expectResponse(resp, expectedQuestionnaireResponseBundle);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedQuestionnaireResponseBundle);
 
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient:missing=false')
                 .set(getHeaders());
-            expectResponse(resp, expectedQuestionnaireResponseBundle2);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedQuestionnaireResponseBundle2);
         });
     });
 });

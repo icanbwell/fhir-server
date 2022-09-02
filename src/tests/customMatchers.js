@@ -2,6 +2,7 @@ const {validateResource} = require('../utils/validator.util');
 const {assertFail} = require('../utils/assertType');
 const {diff} = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
+const {expect} = require('@jest/globals');
 
 
 /**
@@ -240,7 +241,87 @@ function toHaveResponse(resp, expected, fnCleanResource) {
     return {actual: resp.body, expected: expected, message, pass};
 }
 
+/**
+ *
+ * @param {import('http').ServerResponse} resp
+ * @param {number} expectedStatusCode
+ */
+function toHaveStatusCode(resp, expectedStatusCode) {
+    const pass = resp.status === expectedStatusCode;
+    const message = pass ? () =>
+            `Status Code did not match: ${resp.text}`
+        : () => `Status Code did not match: ${resp.text}`;
+    return {actual: resp.body.status, expected: expectedStatusCode, message, pass};
+}
+
+/**
+ *
+ * @param {import('http').ServerResponse} resp
+ */
+function toHaveStatusOk(resp) {
+    return toHaveStatusCode(resp, 200);
+}
+
+/**
+ * asserts
+ * @param {import('http').ServerResponse} resp
+ * @param {Object[]|Object} checks
+ */
+function toHaveMergeResponse(resp, checks) {
+    if (resp.status !== 200) {
+        return toHaveStatusOk(resp);
+    }
+    try {
+        const body = resp.body;
+        if (Array.isArray(body)) {
+            if (!Array.isArray(checks)) {
+                checks = [checks];
+            }
+            for (const bodyItemIndex in body) {
+                const bodyItem = body[`${bodyItemIndex}`];
+                const expectedItem = checks[`${bodyItemIndex}`];
+                if (expectedItem) {
+                    expect(bodyItem).toEqual(expect.objectContaining(expectedItem));
+                }
+            }
+        } else {
+            const firstCheck = Array.isArray(checks) ? checks[0] : checks;
+            if (firstCheck) {
+                expect(body).toEqual(expect.objectContaining(firstCheck));
+            }
+        }
+        // assertMergeIsSuccessful(resp.body);
+    } catch (e) {
+        const pass = false;
+        const message = () => 'Merge failed';
+        return {actual: resp.body, expected: checks, message, pass};
+    }
+    return {
+        pass: true,
+        message: () => 'Merge Succeeded'
+    };
+}
+
+/**
+ * expects resource count
+ * @param {import('http').ServerResponse} resp
+ * @param {number} expected
+ */
+function toHaveResourceCount(resp, expected) {
+    if (resp.status !== 200) {
+        return toHaveStatusOk(resp);
+    }
+    const pass = resp.body.length === expected;
+    const message = pass ? () =>
+            `Resource count matched: ${resp.text}`
+        : () => `Resource count did not match: ${resp.text}`;
+    return {actual: resp.body.status, expected: expected, message, pass};
+}
 
 module.exports = {
-    toHaveResponse
+    toHaveResponse,
+    toHaveStatusCode,
+    toHaveStatusOk,
+    toHaveMergeResponse,
+    toHaveResourceCount
 };

@@ -19,9 +19,6 @@ const {
 } = require('../../common');
 
 const {findDuplicateResources} = require('../../../utils/list.util');
-const {
-    expectResponse, expectMergeResponse, expectResourceCount,
-} = require('../../fhirAsserts');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Graph Contained Tests', () => {
@@ -39,37 +36,43 @@ describe('Practitioner Graph Contained Tests', () => {
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleDifferentSecurityTagResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true')
                 .send(graphDefinitionResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource);
 
             resp = await request
                 .post(
@@ -77,7 +80,8 @@ describe('Practitioner Graph Contained Tests', () => {
                 )
                 .send(graphDefinitionResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedHashReferencesResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedHashReferencesResource);
 
             console.log('----- Received resources ----');
             console.log(
@@ -93,31 +97,36 @@ describe('Practitioner Graph Contained Tests', () => {
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleDifferentSecurityTagResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             /**
              * http://www.hl7.org/fhir/parameters-example.json.html
@@ -132,7 +141,8 @@ describe('Practitioner Graph Contained Tests', () => {
                 .post('/4_0_0/Practitioner/$graph?id=1679033641&contained=true')
                 .send(parametersResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource);
 
             resp = await request
                 .post(
@@ -140,7 +150,8 @@ describe('Practitioner Graph Contained Tests', () => {
                 )
                 .send(parametersResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedHashReferencesResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedHashReferencesResource);
 
             console.log('----- Received resources ----');
             console.log(

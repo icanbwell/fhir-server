@@ -8,8 +8,7 @@ const {
     getHtmlHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const { assertStatusOk } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Patient UI Tests', () => {
     beforeEach(async () => {
@@ -62,8 +61,10 @@ describe('Patient UI Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Patient/_search')
-                .set(getHtmlHeaders())
-                .expect(assertStatusOk());
+                .set(getHtmlHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
 
             console.log('------- response Patient sorted ------------');
             console.log(JSON.stringify(resp, null, 2));

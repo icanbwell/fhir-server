@@ -6,7 +6,6 @@ const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json'
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectResponse, expectResourceCount, expectMergeResponse} = require('../fhirAsserts');
 
 describe('AuditEventReturnIdTests', () => {
     beforeEach(async () => {
@@ -21,18 +20,21 @@ describe('AuditEventReturnIdTests', () => {
         test('search by single id works', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount( 0);
 
             // first confirm there are no AuditEvent
             resp = await request.get('/4_0_0/AuditEvent').set(getHeaders()).expect(200);
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             // now add a record
             resp = await request
                 .post('/4_0_0/AuditEvent/1/$merge?validate=true')
                 .send(auditEventResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // now check that we get the right record back
             resp = await request
@@ -41,7 +43,8 @@ describe('AuditEventReturnIdTests', () => {
                 )
                 .set(getHeaders());
 
-            expectResponse(resp, expectedAuditEventResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedAuditEventResource);
         });
     });
 });

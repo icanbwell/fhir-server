@@ -8,7 +8,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {expectMergeResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Merge Bundle Tests', () => {
     beforeEach(async () => {
@@ -34,7 +33,8 @@ describe('Practitioner Merge Bundle Tests', () => {
                 .send(practitionerBundleResource)
                 .set(getHeaders());
 
-            expectMergeResponse(resp, [{created: true}, {created: true}]);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');

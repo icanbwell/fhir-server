@@ -8,7 +8,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {expectMergeResponse, expectResourceCount} = require('../../fhirAsserts');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -25,19 +24,22 @@ describe('Questionnaire Response Tests', () => {
             let resp = await request
                 .get('/4_0_0/QuestionnaireResponse')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/QuestionnaireResponse/1/$merge')
                 .send(questionnaireResponseBundle)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get(
                     '/4_0_0/QuestionnaireResponse?questionnaire=https://protocol-service.icanbwell.com/Questionnaire/medstar-squeeze|4.0.0'
                 )
                 .set(getHeaders());
+            // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedQuestionnaireResponseBundle);
         });
     });

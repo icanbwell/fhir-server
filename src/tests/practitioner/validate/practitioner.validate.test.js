@@ -14,7 +14,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectResponse, expectResourceCount} = require('../../fhirAsserts');
 
 describe('Practitioner Update Tests', () => {
     beforeEach(async () => {
@@ -31,20 +30,23 @@ describe('Practitioner Update Tests', () => {
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(validPractitionerResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedValidPractitionerResponse);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
         });
         test('Valid resource with resource parameter', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             /**
              * http://www.hl7.org/fhir/parameters-example.json.html
@@ -58,44 +60,47 @@ describe('Practitioner Update Tests', () => {
                 .post('/4_0_0/Practitioner/$validate')
                 .send(parametersResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedValidPractitionerResponse);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
         });
         test('Valid resource but no security code', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(validPractitionerNoSecurityCodeResource)
                 .set(getHeaders());
-            expectResponse(
-                resp,
-                expectedValidPractitionerNoSecurityCodeResponse,
-            );
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerNoSecurityCodeResponse);
         });
         test('Invalid resource', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/$validate')
                 .send(invalidPractitionerResource)
                 .set(getHeaders());
 
-            expectResponse(resp, expectedInvalidPractitionerResponse);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedInvalidPractitionerResponse);
         });
         test('Invalid resource with resource parameter', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             /**
              * http://www.hl7.org/fhir/parameters-example.json.html
@@ -108,7 +113,8 @@ describe('Practitioner Update Tests', () => {
                 .post('/4_0_0/Practitioner/$validate')
                 .send(parametersResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedInvalidPractitionerNoParametersResponse);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedInvalidPractitionerNoParametersResponse);
         });
     });
 });

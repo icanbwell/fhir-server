@@ -12,9 +12,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {
-    expectMergeResponse, expectResponse,
-} = require('../../fhirAsserts');
 
 describe('ValueSet Tests', () => {
     beforeEach(async () => {
@@ -34,19 +31,22 @@ describe('ValueSet Tests', () => {
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset1Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31')
                 .set(getHeaders());
-            expectResponse(resp, expectedValueSetResources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValueSetResources);
 
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31/$expand')
                 .set(getHeaders());
-            expectResponse(resp, expectedValueSetExpandResources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValueSetExpandResources);
         });
     });
 });

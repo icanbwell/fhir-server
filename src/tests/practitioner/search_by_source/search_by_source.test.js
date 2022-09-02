@@ -13,7 +13,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectResourceCount, expectMergeResponse, expectResponse} = require('../../fhirAsserts');
 
 describe('search_by_source', () => {
     beforeEach(async () => {
@@ -28,31 +27,36 @@ describe('search_by_source', () => {
         test('search by source works', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expectResourceCount(resp, 3);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(3);
 
             resp = await request
                 .get(
@@ -61,7 +65,8 @@ describe('search_by_source', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expectResponse(resp, expectedPractitionerResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         }, 30000);
     });
 });

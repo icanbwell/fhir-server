@@ -35,7 +35,6 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 const {findDuplicateResources} = require('../../../utils/list.util');
-const {expectResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Everything Tests', () => {
     beforeEach(async () => {
@@ -241,12 +240,14 @@ describe('Practitioner Everything Tests', () => {
             expect(resp.body['created']).toBe(true);
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
-            expectResponse(resp, expectedPractitionerResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
 
             resp = await request
                 .get('/4_0_0/Practitioner/1679033641/$everything')
                 .set(getHeaders());
-            expectResponse(resp, expectedEverythingResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedEverythingResource);
 
             // verify there are no duplicate ids
             const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));

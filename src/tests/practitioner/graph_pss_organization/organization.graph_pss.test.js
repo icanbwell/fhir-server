@@ -18,7 +18,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {expectResourceCount, expectMergeResponse, expectResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Graph PSS Contained Tests', () => {
     beforeEach(async () => {
@@ -33,37 +32,43 @@ describe('Practitioner Graph PSS Contained Tests', () => {
         test('Graph contained PSS works properly', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
-            expectResourceCount(resp, 0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Location/1/$merge')
                 .send(locationResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge')
                 .send(scheduleResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, [{created: true}, {created: true}]);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/HealthcareService/123456/$merge')
                 .send(healthcareServiceResource)
                 .set(getHeaders());
-            expectMergeResponse(resp, [{created: true}, {created: true}]);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/Organization/$graph?contained=true&id=Medstar-Alias-MPF-MPCR')
                 .send(graphDefinitionResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource);
 
             resp = await request
                 .post(
@@ -71,7 +76,8 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 )
                 .send(graphDefinitionResource)
                 .set(getHeaders());
-            expectResponse(resp, expectedHashReferencesResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedHashReferencesResource);
         });
     });
 });

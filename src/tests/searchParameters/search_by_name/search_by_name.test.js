@@ -21,10 +21,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {
-    expectMergeResponse,
-    expectResponse
-} = require('../../fhirAsserts');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -44,74 +40,86 @@ describe('Person Tests', () => {
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person1Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/2/$merge?validate=true')
                 .send(person2Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/3/$merge?validate=true')
                 .send(person3Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/4/$merge?validate=true')
                 .send(person4Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/5/$merge?validate=true')
                 .send(person5Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/6/$merge?validate=true')
                 .send(person6Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/7/$merge?validate=true')
                 .send(person7Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/8/$merge?validate=true')
                 .send(person8Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/9/$merge?validate=true')
                 .send(person9Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/10/$merge?validate=true')
                 .send(person10Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Person/11/$merge?validate=true')
                 .send(person11Resource)
                 .set(getHeaders());
-            expectMergeResponse(resp, {created: true});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Medication back
             resp = await request
                 .get('/4_0_0/Person?name=singhal&_bundle=1&')
                 .set(getHeaders());
-            expectResponse(resp, expectedPersonResources);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonResources);
         });
     });
 });
