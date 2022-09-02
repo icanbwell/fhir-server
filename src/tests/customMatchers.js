@@ -20,8 +20,11 @@ function cleanMeta(resource) {
                 delete tag['display'];
             }
         });
+    }
+    if (resource.meta) {
         delete resource.meta.lastUpdated;
     }
+
     return resource;
 }
 
@@ -42,12 +45,14 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     delete body['link'];
 
     cleanMeta(body);
-    body.entry.forEach((element) => {
-        cleanMeta(element['resource']);
-        if (fnCleanResource) {
-            fnCleanResource(element['resource']);
-        }
-    });
+    if (body.entry) {
+        body.entry.forEach((element) => {
+            cleanMeta(element['resource']);
+            if (fnCleanResource) {
+                fnCleanResource(element['resource']);
+            }
+        });
+    }
     delete expected['link'];
 
     if (expected.meta && expected.meta.tag) {
@@ -56,13 +61,15 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
         }
         cleanMeta(expected);
     }
-    expected.entry.forEach((element) => {
-        cleanMeta(element['resource']);
-        delete element['resource']['$schema'];
-        if (fnCleanResource) {
-            fnCleanResource(element['resource']);
-        }
-    });
+    if (expected.entry) {
+        expected.entry.forEach((element) => {
+            cleanMeta(element['resource']);
+            delete element['resource']['$schema'];
+            if (fnCleanResource) {
+                fnCleanResource(element['resource']);
+            }
+        });
+    }
 
     // now sort the two lists so the comparison is agnostic to order
     body.entry = body.entry.sort((a, b) =>
@@ -107,6 +114,56 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
 }
 
 /**
+ * check content
+ * @param {Object|Object[]} actual
+ * @param {Object|Object[]} expected
+ * @param {JestUtils} utils
+ * @param options
+ * @param expand
+ * @param [fnCleanResource]
+ * @returns {{actual, pass: boolean, expected, message: {(): string, (): string}}}
+ */
+function checkContent({actual, expected, utils, options, expand, fnCleanResource}) {
+    let pass = false;
+    if (!(Array.isArray(actual)) && actual.resourceType === 'Bundle') {
+        if (!Array.isArray(expected)) {
+            pass = compareBundles({body: actual, expected, fnCleanResource});
+        } else {
+            pass = deepEqual(actual.entry.map(e => e.resource), expected);
+        }
+    } else if (!(Array.isArray(expected)) && expected.resourceType === 'Bundle') {
+        if (!Array.isArray(actual)) {
+            pass = compareBundles({body: actual, expected, fnCleanResource});
+        } else {
+            pass = deepEqual(actual, expected.entry.map(e => e.resource));
+        }
+    } else {
+        pass = deepEqual(actual, expected);
+    }
+    const message = pass ? () =>
+            // eslint-disable-next-line prefer-template
+            utils.matcherHint('toBe', undefined, undefined, options) +
+            '\n\n' +
+            `Expected: not ${utils.printExpected(expected)}\n` +
+            `Received: ${utils.printReceived(actual)}`
+        : () => {
+            const diffString = diff(expected, actual, {
+                expand: expand,
+            });
+            return (
+                // eslint-disable-next-line prefer-template
+                utils.matcherHint('toBe', undefined, undefined, options) +
+                '\n\n' +
+                (diffString && diffString.includes('- Expect') ?
+                    `Difference:\n\n${diffString}` :
+                    `Expected: ${utils.printExpected(expected)}\n` +
+                    `Received: ${utils.printReceived(actual)}`)
+            );
+        };
+    return {actual: actual, expected: expected, message, pass};
+}
+
+/**
  * expect response
  * https://jestjs.io/docs/expect#custom-matchers-api
  * @param {import('http').ServerResponse} resp
@@ -142,28 +199,10 @@ function toHaveResponse(resp, expected, fnCleanResource) {
                 }),
             };
         }
-        const pass = compareBundles({body: resp.body, expected, fnCleanResource});
-        const message = pass ? () =>
-                // eslint-disable-next-line prefer-template
-                utils.matcherHint('toBe', undefined, undefined, options) +
-                '\n\n' +
-                `Expected: not ${utils.printExpected(expected)}\n` +
-                `Received: ${utils.printReceived(resp.body)}`
-            : () => {
-                const diffString = diff(expected, resp.body, {
-                    expand: this.expand,
-                });
-                return (
-                    // eslint-disable-next-line prefer-template
-                    utils.matcherHint('toBe', undefined, undefined, options) +
-                    '\n\n' +
-                    (diffString && diffString.includes('- Expect') ?
-                        `Difference:\n\n${diffString}` :
-                        `Expected: ${this.utils.printExpected(expected)}\n` +
-                        `Received: ${this.utils.printReceived(resp.body)}`)
-                );
-            };
-        return {actual: resp.body, expected: expected, message, pass};
+        return checkContent({
+            actual: resp.body, expected, utils, options, expand: this.expand,
+            fnCleanResource
+        });
     } else if (resp.body.data) {
         // GraphQL response
         // get first property of resp.body.data
@@ -183,40 +222,18 @@ function toHaveResponse(resp, expected, fnCleanResource) {
         } else {
             cleanMeta(expected);
         }
-        const pass = deepEqual(propertyValue, expected);
-        const message = pass ? () =>
-                // eslint-disable-next-line prefer-template
-                utils.matcherHint('toBe', undefined, undefined, options) +
-                '\n\n' +
-                `Expected: not ${utils.printExpected(expected)}\n` +
-                `Received: ${utils.printReceived(propertyValue)}`
-            : () => {
-                const diffString = diff(expected, propertyValue, {
-                    expand: this.expand,
-                });
-                return (
-                    // eslint-disable-next-line prefer-template
-                    utils.matcherHint('toBe', undefined, undefined, options) +
-                    '\n\n' +
-                    (diffString && diffString.includes('- Expect') ?
-                        `Difference:\n\n${diffString}` :
-                        `Expected: ${this.utils.printExpected(expected)}\n` +
-                        `Received: ${this.utils.printReceived(propertyValue)}`)
-                );
-            };
-        return {actual: propertyValue, expected: expected, message, pass};
+        return checkContent({
+            actual: propertyValue, expected, utils, options, expand: this.expand,
+            fnCleanResource
+        });
     } else {
         if (Array.isArray(resp.body)) {
             resp.body.forEach((element) => {
                 // clean out stuff that changes
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
+                cleanMeta(element);
             });
         } else {
-            if ('meta' in resp.body) {
-                delete resp.body['meta']['lastUpdated'];
-            }
+            cleanMeta(resp.body);
             if (resp.body.resourceType) {
                 const operationOutcome = validateResource(
                     resp.body,
@@ -239,38 +256,16 @@ function toHaveResponse(resp, expected, fnCleanResource) {
         if (Array.isArray(expected)) {
             expected.forEach((element) => {
                 // clean out stuff that changes
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
+                cleanMeta(element);
             });
         } else {
-            if ('meta' in expected) {
-                delete expected['meta']['lastUpdated'];
-            }
+            cleanMeta(expected);
         }
     }
-    const pass = deepEqual(resp.body, expected);
-    const message = pass ? () =>
-            // eslint-disable-next-line prefer-template
-            utils.matcherHint('toBe', undefined, undefined, options) +
-            '\n\n' +
-            `Expected: not ${utils.printExpected(expected)}\n` +
-            `Received: ${utils.printReceived(resp.body)}`
-        : () => {
-            const diffString = diff(expected, resp.body, {
-                expand: this.expand,
-            });
-            return (
-                // eslint-disable-next-line prefer-template
-                utils.matcherHint('toBe', undefined, undefined, options) +
-                '\n\n' +
-                (diffString && diffString.includes('- Expect') ?
-                    `Difference:\n\n${diffString}` :
-                    `Expected: ${this.utils.printExpected(expected)}\n` +
-                    `Received: ${this.utils.printReceived(resp.body)}`)
-            );
-        };
-    return {actual: resp.body, expected: expected, message, pass};
+    return checkContent({
+        actual: resp.body, expected, utils, options, expand: this.expand,
+        fnCleanResource
+    });
 }
 
 /**
@@ -325,7 +320,7 @@ function toHaveMergeResponse(resp, checks) {
         // assertMergeIsSuccessful(resp.body);
     } catch (e) {
         const pass = false;
-        const message = () => 'Merge failed';
+        const message = () => `Merge failed: ${JSON.stringify(resp.body)}`;
         return {actual: resp.body, expected: checks, message, pass};
     }
     return {
