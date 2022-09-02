@@ -52,7 +52,7 @@ jobs:
             - name: jest
               run: |
                 export NODE_OPTIONS="--max_old_space_size=8192"
-                echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node --optimize_for_size --gc_interval=100 ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit
+                echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit
               env:
                   CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
                   NODE_OPTIONS: "--max_old_space_size=8192"
