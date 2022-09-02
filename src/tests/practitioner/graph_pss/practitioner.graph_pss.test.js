@@ -115,8 +115,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .expect(200);
 
             expect(resp).toHaveResponse(expectedHashReferencesResource);
-
-        })
-        ;
+            expect(resp).toBeArray('kk');
+        });
     });
 });
