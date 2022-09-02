@@ -35,21 +35,21 @@ describe('search_by_source', () => {
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: {created: true}});
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: {created: true}});
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource3)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: {created: true}});
+            expectMergeResponse(resp, {created: true});
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expectResourceCount(resp, 3);
@@ -61,7 +61,7 @@ describe('search_by_source', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expectResponse({resp, expected: expectedPractitionerResource});
+            expectResponse(resp, expectedPractitionerResource);
         }, 30000);
     });
 });

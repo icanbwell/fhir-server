@@ -39,7 +39,7 @@ describe('Person Tests', () => {
                 .get('/4_0_0/Person/?_bundle=1')
                 .set(getHeaders())
                 .expect(assertStatusOk());
-            expectResponse({resp, expected: expectedPersonResources});
+            expectResponse(resp, expectedPersonResources);
         });
     });
 });

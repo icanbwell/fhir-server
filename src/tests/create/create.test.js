@@ -11,7 +11,7 @@ const {
     createTestRequest,
 } = require('../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const { expectResponse, expectStatusCode} = require('../fhirAsserts');
+const {expectResponse, expectStatusCode} = require('../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -41,7 +41,7 @@ describe('Practitioner Tests', () => {
             resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
-            expectResponse({resp, expected: practitioner1Resource});
+            expectResponse(resp, practitioner1Resource);
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -61,10 +61,9 @@ describe('Practitioner Tests', () => {
             resp = await request
                 .get('/4_0_0/Practitioner?_bundle=1&_sort=meta.lastUpdated')
                 .set(getHeaders());
-            expectResponse({
-                    resp,
-                    expected: expectedPractitionerResources,
-                }
+            expectResponse(
+                resp,
+                expectedPractitionerResources
             );
         });
     });

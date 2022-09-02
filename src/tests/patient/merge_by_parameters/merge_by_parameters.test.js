@@ -55,7 +55,7 @@ describe('Merge By Parameters Tests', () => {
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
                 .set(getHeaders());
-            expectResponse({resp, expected: expectedSinglePatientResource});
+            expectResponse(resp, expectedSinglePatientResource);
         });
     });
 });

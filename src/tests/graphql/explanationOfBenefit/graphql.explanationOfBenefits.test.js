@@ -83,7 +83,10 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                 })
                 .set(getGraphQLHeaders());
 
-            expectResponse(resp, expectedGraphQLResponse[0], true);
+            expectResponse(resp, expectedGraphQLResponse[0], (r) => {
+                delete r['meta'];
+                return r;
+            });
         });
     });
 });

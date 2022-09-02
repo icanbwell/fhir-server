@@ -34,7 +34,7 @@ describe('Practitioner Merge Bundle Tests', () => {
                 .send(practitionerBundleResource)
                 .set(getHeaders());
 
-            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');

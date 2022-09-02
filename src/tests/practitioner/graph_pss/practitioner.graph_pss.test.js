@@ -48,21 +48,21 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .send(groupResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: {created: true}});
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/InsurancePlan/1/$merge')
                 .send(insurancePlanResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/Location/1/$merge')
                 .send(locationResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: {created: true}});
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Practitioner/1003059437/$merge')
@@ -70,35 +70,35 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
                 .send(practitionerRoleResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge')
                 .send(scheduleResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: [{created: true}]});
+            expectMergeResponse(resp, [{created: true}]);
 
             resp = await request
                 .post('/4_0_0/Organization/123456/$merge')
                 .send(organizationResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/HealthcareService/123456/$merge')
                 .send(healthcareServiceResource)
                 .set(getHeaders())
                 .expect(200);
-            expectMergeResponse({resp, checks: [{created: true}, {created: true}]});
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true')
