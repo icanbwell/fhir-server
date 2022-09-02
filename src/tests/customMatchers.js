@@ -138,6 +138,16 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
             pass = deepEqual(actual, expected.entry.map(e => e.resource));
         }
     } else {
+        if (Array.isArray(actual)) {
+            actual.forEach(a => fnCleanResource(a));
+        } else {
+            fnCleanResource(actual);
+        }
+        if (Array.isArray(expected)) {
+            expected.forEach(a => fnCleanResource(a));
+        } else {
+            fnCleanResource(expected);
+        }
         pass = deepEqual(actual, expected);
     }
     const message = pass ? () =>
@@ -203,7 +213,7 @@ function toHaveResponse(resp, expected, fnCleanResource) {
             actual: resp.body, expected, utils, options, expand: this.expand,
             fnCleanResource
         });
-    } else if (resp.body.data && !(expected.body && expected.body.data) && !(expected.data) ) {
+    } else if (resp.body.data && !(expected.body && expected.body.data) && !(expected.data)) {
         // GraphQL response
         // get first property of resp.body.data
         // eslint-disable-next-line no-unused-vars
