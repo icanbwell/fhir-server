@@ -4,8 +4,13 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 // expected
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
 
-const {commonBeforeEach, commonAfterEach, getHeadersWithCustomToken, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeadersWithCustomToken,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('PatientReturnIdWithCustomBearerTokenTests', () => {
     beforeEach(async () => {
@@ -36,10 +41,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-            resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeadersWithCustomToken())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient').set(getHeadersWithCustomToken()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');

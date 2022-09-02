@@ -19,7 +19,6 @@
 union CoverageEligibilityRequestEnterer = Practitioner | PractitionerRole
 union CoverageEligibilityRequestProvider = Practitioner | PractitionerRole | Organization
 
-
 """
 CoverageEligibilityRequest
     The CoverageEligibilityRequest provides patient and insurance coverage
@@ -35,24 +34,24 @@ type CoverageEligibilityRequest {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: id        
+    id: id
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
     version changes to the resource.
     """
-    meta: Meta        
+    meta: Meta
     """
     A reference to a set of rules that were followed when the resource was
     constructed, and which must be understood when processing the content. Often,
     this is a reference to an implementation guide that defines the special rules
     along with other profiles etc.
     """
-    implicitRules: uri        
+    implicitRules: uri
     """
     The base language in which the resource is written.
     """
-    language: code        
+    language: code
     """
     A human-readable narrative that contains a summary of the resource and can be
     used to represent the content of the resource to a human. The narrative need
@@ -61,13 +60,13 @@ type CoverageEligibilityRequest {
     Resource definitions may define what content should be represented in the
     narrative to ensure clinical safety.
     """
-    text: Narrative        
+    text: Narrative
     """
     These resources do not have an independent existence apart from the resource
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]        
+    contained: [ResourceContainer]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,
@@ -75,7 +74,7 @@ type CoverageEligibilityRequest {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -86,24 +85,24 @@ type CoverageEligibilityRequest {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     A unique identifier assigned to this coverage eligiblity request.
     """
-    identifier: [Identifier]        
+    identifier: [Identifier]
     """
     The status of the resource instance.
     """
-    status: code!        
+    status: code!
     """
     When the requestor expects the processor to complete processing.
     """
-    priority: CodeableConcept        
+    priority: CodeableConcept
     """
     Code to specify whether requesting: prior authorization requirements for some
     service categories or billing codes; benefits for coverages specified or
@@ -111,54 +110,54 @@ type CoverageEligibilityRequest {
     validation that the specified coverage is in-force at the date/period
     specified or 'now' if not specified.
     """
-    purpose: [code]!        
+    purpose: [code]!
     """
     The party who is the beneficiary of the supplied coverage and for whom
     eligibility is sought.
     """
-    patient: Patient!        
+    patient: Patient!
     """
     None
     """
-    servicedDate: date        
+    servicedDate: date
     """
     None
     """
-    servicedPeriod: Period        
+    servicedPeriod: Period
     """
     The date when this resource was created.
     """
-    created: dateTime!        
+    created: dateTime!
     """
     Person who created the request.
     """
-    enterer: CoverageEligibilityRequestEnterer        
+    enterer: CoverageEligibilityRequestEnterer
     """
     The provider which is responsible for the request.
     """
-    provider: CoverageEligibilityRequestProvider        
+    provider: CoverageEligibilityRequestProvider
     """
     The Insurer who issued the coverage in question and is the recipient of the
     request.
     """
-    insurer: Organization!        
+    insurer: Organization!
     """
     Facility where the services are intended to be provided.
     """
-    facility: Location        
+    facility: Location
     """
     Additional information codes regarding exceptions, special considerations, the
     condition, situation, prior or concurrent issues.
     """
-    supportingInfo: [CoverageEligibilityRequestSupportingInfo]        
+    supportingInfo: [CoverageEligibilityRequestSupportingInfo]
     """
     Financial instruments for reimbursement for the health care products and
     services.
     """
-    insurance: [CoverageEligibilityRequestInsurance]        
+    insurance: [CoverageEligibilityRequestInsurance]
     """
     Service categories or billable services for which benefit details and/or an
     authorization prior to service delivery may be required by the payor.
     """
-    item: [CoverageEligibilityRequestItem]        
+    item: [CoverageEligibilityRequestItem]
 }

@@ -2,7 +2,6 @@
 
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
-const {getResource} = require('../common/getResource');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
@@ -135,8 +134,6 @@ class HistoryByIdOperation {
          */
         const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-        let Resource = getResource(base_version, resourceType);
-
         try {
             /**
              * @type {DatabasePartitionedCursor}
@@ -151,12 +148,19 @@ class HistoryByIdOperation {
             } catch (e) {
                 throw new BadRequestError(e);
             }
+            /**
+             * @type {Resource[]}
+             */
             const resources = [];
             while (await cursor.hasNext()) {
-                const element = await cursor.next();
-                const resource = new Resource(element);
-                if (this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
-                    resources.push(resource);
+                /**
+                 * @type {Resource|null}
+                 */
+                const resource = await cursor.next();
+                if (resource) {
+                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
+                        resources.push(resource);
+                    }
                 }
             }
             if (resources.length === 0) {

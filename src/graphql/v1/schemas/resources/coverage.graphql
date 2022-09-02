@@ -19,7 +19,6 @@ union CoveragePolicyHolder = Patient | RelatedPerson | Organization
 union CoverageSubscriber = Patient | RelatedPerson
 union CoveragePayor = Organization | Patient | RelatedPerson
 
-
 """
 Coverage
     Financial instrument which may be used to reimburse or pay for health care
@@ -32,24 +31,24 @@ type Coverage {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: id        
+    id: id
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
     version changes to the resource.
     """
-    meta: Meta        
+    meta: Meta
     """
     A reference to a set of rules that were followed when the resource was
     constructed, and which must be understood when processing the content. Often,
     this is a reference to an implementation guide that defines the special rules
     along with other profiles etc.
     """
-    implicitRules: uri        
+    implicitRules: uri
     """
     The base language in which the resource is written.
     """
-    language: code        
+    language: code
     """
     A human-readable narrative that contains a summary of the resource and can be
     used to represent the content of the resource to a human. The narrative need
@@ -58,13 +57,13 @@ type Coverage {
     Resource definitions may define what content should be represented in the
     narrative to ensure clinical safety.
     """
-    text: Narrative        
+    text: Narrative
     """
     These resources do not have an independent existence apart from the resource
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]        
+    contained: [ResourceContainer]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,
@@ -72,7 +71,7 @@ type Coverage {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -83,92 +82,92 @@ type Coverage {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     A unique identifier assigned to this coverage.
     """
-    identifier: [Identifier]        
+    identifier: [Identifier]
     """
     The status of the resource instance.
     """
-    status: code!        
+    status: code!
     """
     The type of coverage: social program, medical plan, accident coverage (workers
     compensation, auto), group health or payment by an individual or organization.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     The party who 'owns' the insurance policy.
     """
-    policyHolder: CoveragePolicyHolder        
+    policyHolder: CoveragePolicyHolder
     """
     The party who has signed-up for or 'owns' the contractual relationship to the
     policy or to whom the benefit of the policy for services rendered to them or
     their family is due.
     """
-    subscriber: CoverageSubscriber        
+    subscriber: CoverageSubscriber
     """
     The insurer assigned ID for the Subscriber.
     """
-    subscriberId: String        
+    subscriberId: String
     """
     The party who benefits from the insurance coverage; the patient when products
     and/or services are provided.
     """
-    beneficiary: Patient!        
+    beneficiary: Patient!
     """
     A unique identifier for a dependent under the coverage.
     """
-    dependent: String        
+    dependent: String
     """
     The relationship of beneficiary (patient) to the subscriber.
     """
-    relationship: CodeableConcept        
+    relationship: CodeableConcept
     """
     Time period during which the coverage is in force. A missing start date
     indicates the start date isn't known, a missing end date means the coverage is
     continuing to be in force.
     """
-    period: Period        
+    period: Period
     """
     The program or plan underwriter or payor including both insurance and non-
     insurance agreements, such as patient-pay agreements.
     """
-    payor: [CoveragePayor]!        
+    payor: [CoveragePayor]!
     """
     A suite of underwriter specific classifiers.
     """
-    class: [CoverageClass]        
+    class: [CoverageClass]
     """
     The order of applicability of this coverage relative to other coverages which
     are currently in force. Note, there may be gaps in the numbering and this does
     not imply primary, secondary etc. as the specific positioning of coverages
     depends upon the episode of care.
     """
-    order: Int        
+    order: Int
     """
     The insurer-specific identifier for the insurer-defined network of providers
     to which the beneficiary may seek treatment which will be covered at the 'in-
     network' rate, otherwise 'out of network' terms and conditions apply.
     """
-    network: String        
+    network: String
     """
     A suite of codes indicating the cost category and associated amount which have
     been detailed in the policy and may have been  included on the health card.
     """
-    costToBeneficiary: [CoverageCostToBeneficiary]        
+    costToBeneficiary: [CoverageCostToBeneficiary]
     """
     When 'subrogation=true' this insurance instance has been included not for
     adjudication but to provide insurers with the details to recover costs.
     """
-    subrogation: Boolean        
+    subrogation: Boolean
     """
     The policy(s) which constitute this insurance coverage.
     """
-    contract: [Contract]        
+    contract: [Contract]
 }

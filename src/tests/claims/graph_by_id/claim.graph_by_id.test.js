@@ -10,9 +10,13 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 const expectedResource_230916613368 = require('./fixtures/expected/expected-WPS-Claim-230916613368.json');
 const expectedResource_230916613369 = require('./fixtures/expected/expected-WPS-Claim-230916613369.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertStatusCode} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('Claim Graph By Id Contained Tests', () => {
     beforeEach(async () => {
@@ -38,8 +42,9 @@ describe('Claim Graph By Id Contained Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1376656959/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(assertStatusCode(200));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
             console.log('------- response practitionerResource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
@@ -88,18 +93,18 @@ describe('Claim Graph By Id Contained Tests', () => {
             console.log('------- end response  ------------');
             let body = resp.body;
             delete body['timestamp'];
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['fullUrl'];
                 delete element['resource']['meta']['lastUpdated'];
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }
             });
             let expected = expectedResource_230916613368;
             delete expected['timestamp'];
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete element['fullUrl'];
                 if ('meta' in element['resource']) {
                     delete element['resource']['meta']['lastUpdated'];
@@ -109,7 +114,7 @@ describe('Claim Graph By Id Contained Tests', () => {
                     delete element['$schema'];
                 }
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }
@@ -127,18 +132,18 @@ describe('Claim Graph By Id Contained Tests', () => {
             console.log('------- end response  ------------');
             body = resp.body;
             delete body['timestamp'];
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['fullUrl'];
                 delete element['resource']['meta']['lastUpdated'];
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }
             });
             expected = expectedResource_230916613369;
             delete expected['timestamp'];
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete element['fullUrl'];
                 if ('meta' in element['resource']) {
                     delete element['resource']['meta']['lastUpdated'];
@@ -148,7 +153,7 @@ describe('Claim Graph By Id Contained Tests', () => {
                     delete element['$schema'];
                 }
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }

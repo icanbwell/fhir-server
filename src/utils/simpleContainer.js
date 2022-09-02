@@ -14,6 +14,7 @@ class SimpleContainer {
      * @return {SimpleContainer}
      */
     register(name, cb) {
+        // https://www.w3schools.com/js/js_object_es5.asp
         Object.defineProperty(this, name, {
             get: () => {
                 if (!Object.hasOwn(this.services, name)) {

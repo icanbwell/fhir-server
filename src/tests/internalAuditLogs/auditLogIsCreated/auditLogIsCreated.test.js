@@ -8,10 +8,16 @@ const expectedAuditEvents1 = require('./fixtures/expected/expected_audit_events_
 const expectedAuditEvents2 = require('./fixtures/expected/expected_audit_events_2.json');
 const expectedAuditEvents3 = require('./fixtures/expected/expected_audit_events_3.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+    getTestContainer,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 const globals = require('../../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
+const { CLIENT_DB, AUDIT_EVENT_CLIENT_DB } = require('../../../constants');
 const env = require('var');
 
 describe('InternalAuditLog Tests', () => {
@@ -31,10 +37,7 @@ describe('InternalAuditLog Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             // first confirm there are no practitioners
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -80,13 +83,13 @@ describe('InternalAuditLog Tests', () => {
             await postRequestProcessor.waitTillDoneAsync();
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
-            logs.forEach(log => {
+            logs.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
                 delete log['recorded'];
             });
-            expectedAuditEvents1.forEach(log => {
+            expectedAuditEvents1.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
@@ -110,13 +113,13 @@ describe('InternalAuditLog Tests', () => {
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
-            logs.forEach(log => {
+            logs.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
                 delete log['recorded'];
             });
-            expectedAuditEvents2.forEach(log => {
+            expectedAuditEvents2.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
@@ -125,7 +128,9 @@ describe('InternalAuditLog Tests', () => {
             expect(logs).toStrictEqual(expectedAuditEvents2);
 
             // confirm no audit event log is created in the normal auditEventDb
-            expect((await fhirDb.collection(collection_name).find({}).toArray()).length).toStrictEqual(0);
+            expect(
+                (await fhirDb.collection(collection_name).find({}).toArray()).length
+            ).toStrictEqual(0);
 
             // try to merge the same item again. No audit event should be created
             resp = await request
@@ -141,13 +146,13 @@ describe('InternalAuditLog Tests', () => {
             await postRequestProcessor.waitTillDoneAsync();
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
-            logs.forEach(log => {
+            logs.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
                 delete log['recorded'];
             });
-            expectedAuditEvents2.forEach(log => {
+            expectedAuditEvents2.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
@@ -156,10 +161,7 @@ describe('InternalAuditLog Tests', () => {
             expect(logs).toStrictEqual(expectedAuditEvents2);
 
             // now check that we get the right record back
-            resp = await request
-                .get('/4_0_0/Practitioner/0')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner/0').set(getHeaders()).expect(200);
             console.log('------- response Practitioner sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response sort ------------');
@@ -170,13 +172,13 @@ describe('InternalAuditLog Tests', () => {
             // one audit log should be created
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(3);
-            logs.forEach(log => {
+            logs.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
                 delete log['recorded'];
             });
-            expectedAuditEvents3.forEach(log => {
+            expectedAuditEvents3.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];

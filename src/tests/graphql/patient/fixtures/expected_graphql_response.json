@@ -1,81 +1,75 @@
 [
-  {
-    "allergyIntolerance": [
-      {
-        "category": [
-          "environment"
+    {
+        "allergyIntolerance": [
+            {
+                "category": ["environment"],
+                "code": {
+                    "text": "Mold (organism)"
+                },
+                "criticality": "low",
+                "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51",
+                "type": "allergy"
+            }
         ],
-        "code": {
-          "text": "Mold (organism)"
-        },
-        "criticality": "low",
-        "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51",
-        "type": "allergy"
-      }
-    ],
-    "birthDate": "2017-01-01",
-    "explanationOfBenefit": [
-      {
-        "id": "WPS-Claim-230916613369",
-        "identifier": [
-          {
-            "system": "https://www.wpshealth.com/",
-            "value": "230916613369"
-          }
-        ]
-      }
-    ],
-    "careTeam": [
-      {
-        "id": "68ea6705-c595-445b-9782-a54accfc5d06",
-        "resourceType": "CareTeam",
-        "category": [
-          {
-            "coding": [
-              {
-                "system": "www.icanbwell.com/care-team-category",
-                "code": "favorite-practitioners"
-              }
-            ]
-          }
+        "birthDate": "2017-01-01",
+        "explanationOfBenefit": [
+            {
+                "id": "WPS-Claim-230916613369",
+                "identifier": [
+                    {
+                        "system": "https://www.wpshealth.com/",
+                        "value": "230916613369"
+                    }
+                ]
+            }
         ],
-        "name": "Favorites",
-        "status": "active"
-      }
-    ],
-    "id": "WPS-0559166162",
-    "name": [
-      {
-        "family": "PATIENT1",
-        "given": [
-          "SHYLA"
+        "careTeam": [
+            {
+                "id": "68ea6705-c595-445b-9782-a54accfc5d06",
+                "resourceType": "CareTeam",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "www.icanbwell.com/care-team-category",
+                                "code": "favorite-practitioners"
+                            }
+                        ]
+                    }
+                ],
+                "name": "Favorites",
+                "status": "active"
+            }
+        ],
+        "id": "WPS-0559166162",
+        "name": [
+            {
+                "family": "PATIENT1",
+                "given": ["SHYLA"]
+            }
         ]
-      }
-    ]
-  },
-  {
-    "allergyIntolerance": [],
-    "birthDate": "2017-01-01",
-    "explanationOfBenefit": [
-      {
-        "id": "WPS-Claim-429017018331",
-        "identifier": [
-          {
-            "system": "https://www.wpshealth.com/",
-            "value": "429017018331"
-          }
+    },
+    {
+        "allergyIntolerance": [],
+        "birthDate": "2017-01-01",
+        "explanationOfBenefit": [
+            {
+                "id": "WPS-Claim-429017018331",
+                "identifier": [
+                    {
+                        "system": "https://www.wpshealth.com/",
+                        "value": "429017018331"
+                    }
+                ]
+            }
+        ],
+        "careTeam": [],
+        "id": "WPS-5458231534",
+        "name": [
+            {
+                "family": "PATIENT2",
+                "given": ["SHYLA"]
+            }
         ]
-      }
-    ],
-    "careTeam": [],
-    "id": "WPS-5458231534",
-    "name": [
-      {
-        "family": "PATIENT2",
-        "given": [
-          "SHYLA"
-        ]
-      }
-    ]
-  }
+    }
 ]

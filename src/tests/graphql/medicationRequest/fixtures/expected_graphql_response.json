@@ -1,31 +1,31 @@
 [
-  {
-    "resource": {
-      "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
-      "medicationCodeableConcept": {
-        "text": "Lipitor"
-      },
-      "dispense": [
-        {
-          "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
-          "whenHandedOver": "2022-07-01"
-        },
-        {
-          "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
-          "whenHandedOver": "2022-07-05"
+    {
+        "resource": {
+            "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
+            "medicationCodeableConcept": {
+                "text": "Lipitor"
+            },
+            "dispense": [
+                {
+                    "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
+                    "whenHandedOver": "2022-07-01"
+                },
+                {
+                    "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+                    "whenHandedOver": "2022-07-05"
+                }
+            ],
+            "authoredOn": "2022-07-01"
         }
-      ],
-      "authoredOn": "2022-07-01"
+    },
+    {
+        "resource": {
+            "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+            "medicationCodeableConcept": {
+                "text": "Aspirin"
+            },
+            "dispense": [],
+            "authoredOn": "2022-07-05"
+        }
     }
-  },
-  {
-    "resource": {
-      "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
-      "medicationCodeableConcept": {
-        "text": "Aspirin"
-      },
-      "dispense": [],
-      "authoredOn": "2022-07-05"
-    }
-  }
 ]

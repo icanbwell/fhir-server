@@ -1,8 +1,5 @@
 query {
-    immunization(
-        _count: 100
-        date:{value:{greaterThan:"2021-01-01"}}
-    ) {
+    immunization(_count: 100, date: { value: { greaterThan: "2021-01-01" } }) {
         id
         vaccineCode {
             text

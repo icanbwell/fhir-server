@@ -4,11 +4,11 @@
 // Require dependencies
 const openTelemetry = require('@opentelemetry/sdk-node');
 // noinspection SpellCheckingInspection
-const {getNodeAutoInstrumentations} = require('@opentelemetry/auto-instrumentations-node');
-const {CollectorTraceExporter} = require('@opentelemetry/exporter-collector');
-const {MongoDBInstrumentation} = require('@opentelemetry/instrumentation-mongodb');
-const {HttpInstrumentation} = require('@opentelemetry/instrumentation-http');
-const {ExpressInstrumentation} = require('@opentelemetry/instrumentation-express');
+const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumentations-node');
+const { CollectorTraceExporter } = require('@opentelemetry/exporter-collector');
+const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
+const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
+const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
 // const { PrometheusExporter } = require("@openTelemetry/exporter-prometheus");
 
 const collectorOptions = {};
@@ -29,16 +29,20 @@ const sdk = new openTelemetry.NodeSDK({
         // Express instrumentation expects HTTP layer to be instrumented
         new HttpInstrumentation(),
         new ExpressInstrumentation(),
-    ]
+    ],
 });
 
 sdk.start()
-    .then(() => console.log(JSON.stringify({message: 'Tracing initialized'})))
-    .catch((error) => console.log(JSON.stringify({message: 'Error initializing tracing', error})));
+    .then(() => console.log(JSON.stringify({ message: 'Tracing initialized' })))
+    .catch((error) =>
+        console.log(JSON.stringify({ message: 'Error initializing tracing', error }))
+    );
 
 process.on('SIGTERM', () => {
     sdk.shutdown()
-        .then(() => console.log(JSON.stringify({message: 'Tracing terminated'})))
-        .catch((error) => console.log(JSON.stringify({message: 'Error terminating tracing', error})))
+        .then(() => console.log(JSON.stringify({ message: 'Tracing terminated' })))
+        .catch((error) =>
+            console.log(JSON.stringify({ message: 'Error terminating tracing', error }))
+        )
         .finally(() => process.exit(0));
 });

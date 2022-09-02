@@ -1,5 +1,4 @@
 const moment = require('moment-timezone');
-const {validateResource} = require('../../utils/validator.util');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
@@ -13,10 +12,16 @@ const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const {getResource} = require('../common/getResource');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ResourceCleaner} = require('../common/resourceCleaner');
+const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
+const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
+const {getResource} = require('../common/getResource');
+const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
+const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
+const {ResourceValidator} = require('../common/resourceValidator');
 
 class MergeOperation {
     /**
@@ -31,7 +36,7 @@ class MergeOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
-     * @param {ResourceCleaner} resourceCleaner
+     * @param {ResourceValidator} resourceValidator
      */
     constructor(
         {
@@ -46,7 +51,7 @@ class MergeOperation {
             scopesValidator,
             bundleManager,
             resourceLocatorFactory,
-            resourceCleaner
+            resourceValidator
         }
     ) {
         /**
@@ -106,12 +111,11 @@ class MergeOperation {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
-
         /**
-         * @type {ResourceCleaner}
+         * @type {ResourceValidator}
          */
-        this.resourceCleaner = resourceCleaner;
-        assertTypeEquals(resourceCleaner, ResourceCleaner);
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -199,6 +203,7 @@ class MergeOperation {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
+        // noinspection JSCheckFunctionSignatures
         try {
             let {/** @type {string} */ base_version} = args;
 
@@ -206,75 +211,95 @@ class MergeOperation {
              * @type {string[]}
              */
             const scopes = this.scopesManager.parseScopes(scope);
-            /**
-             * @type {function(OperationOutcome): Resource}
-             */
-            const OperationOutcomeResourceCreator = getResource(base_version, 'OperationOutcome');
-
             // read the incoming resource from request body
             /**
-             * @type {Resource|Resource[]|undefined}
+             * @type {Object|Object[]|undefined}
              */
-            let resourcesIncoming = args.resource ? args.resource : body;
+            let incomingObjects = args.resource ? args.resource : body;
 
             // see if the resources were passed as parameters
-            if (resourcesIncoming.resourceType === 'Parameters') {
+            if (incomingObjects.resourceType === 'Parameters') {
                 // Unfortunately our FHIR schema resource creator does not support Parameters
                 // const ParametersResourceCreator = getResource(base_version, 'Parameters');
                 // const parametersResource = new ParametersResourceCreator(resource_incoming);
-                const parametersResource = resourcesIncoming;
+                /**
+                 * @type {Object}
+                 */
+                const incomingObject = incomingObjects;
+                /**
+                 * @type {Parameters}
+                 */
+                const parametersResource = new Parameters(incomingObject);
                 if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                     /**
                      * @type {OperationOutcome}
                      */
-                    const operationOutcome = {
+                    const operationOutcome = new OperationOutcome({
                         id: 'validationfail',
                         resourceType: 'OperationOutcome',
                         issue: [
-                            {
-                                severity: 'error',
-                                code: 'structure',
-                                details: {
-                                    text: 'Invalid parameter list'
+                            new OperationOutcomeIssue({
+                                    severity: 'error',
+                                    code: 'structure',
+                                    details: new CodeableConcept({
+                                        text: 'Invalid parameter list'
+                                    })
                                 }
-                            }
+                            )
                         ]
-                    };
-                    return new OperationOutcomeResourceCreator(operationOutcome);
+                    });
+                    return operationOutcome;
                 }
                 // find the actual resource in the parameter called resource
+                /**
+                 * @type {ParametersParameter[]}
+                 */
                 const resourceParameters = parametersResource.parameter.filter(p => p.resource);
                 if (!resourceParameters || resourceParameters.length === 0) {
                     /**
                      * @type {OperationOutcome}
                      */
-                    const operationOutcome = {
+                    const operationOutcome = new OperationOutcome({
                         id: 'validationfail',
                         resourceType: 'OperationOutcome',
                         issue: [
-                            {
+                            new OperationOutcomeIssue({
                                 severity: 'error',
                                 code: 'structure',
-                                details: {
+                                details: new CodeableConcept({
                                     text: 'Invalid parameter list'
-                                }
-                            }
+                                })
+                            })
                         ]
-                    };
-                    return new OperationOutcomeResourceCreator(operationOutcome);
+                    });
+                    return operationOutcome;
                 }
-                resourcesIncoming = resourceParameters.map(r => r.resource);
+                incomingObjects = resourceParameters.map(r => r.resource);
             }
 
             // if the incoming request is a bundle then unwrap the bundle
-            if ((!(Array.isArray(resourcesIncoming))) && resourcesIncoming['resourceType'] === 'Bundle') {
-                const operationOutcome = validateResource(resourcesIncoming, 'Bundle', path);
-                if (operationOutcome && operationOutcome.statusCode === 400) {
+            if ((!(Array.isArray(incomingObjects))) && incomingObjects['resourceType'] === 'Bundle') {
+                /**
+                 * @type {Object}
+                 */
+                const incomingObject = incomingObjects;
+                const bundle1 = new Bundle(incomingObject);
+                /**
+                 * @type {OperationOutcome|null}
+                 */
+                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                    id: bundle1.id,
+                    resourceType: 'Bundle',
+                    resourceToValidate: bundle1,
+                    path: path,
+                    currentDate: currentDate
+                });
+                if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
                     validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                    return operationOutcome;
+                    return validationOperationOutcome;
                 }
                 // unwrap the resources
-                resourcesIncoming = resourcesIncoming.entry.map(e => e.resource);
+                incomingObjects = incomingObjects.entry.map(e => e.resource);
             }
 
             /**
@@ -284,14 +309,16 @@ class MergeOperation {
             /**
              * @type {boolean}
              */
-            const wasIncomingAList = Array.isArray(resourcesIncoming);
+            const wasIncomingAList = Array.isArray(incomingObjects);
 
             /**
              * @type {Resource[]}
              */
-            let resourcesIncomingArray = wasIncomingAList ? resourcesIncoming : [resourcesIncoming];
-
-            resourcesIncomingArray = resourcesIncomingArray.map(r => this.resourceCleaner.clean(base_version, r));
+            let resourcesIncomingArray = (wasIncomingAList ? incomingObjects : [incomingObjects])
+                .map(o => {
+                    const ResourceCreator = getResource(base_version, o.resourceType);
+                    return new ResourceCreator(o);
+                });
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
@@ -384,36 +411,44 @@ class MergeOperation {
                  * @type {OperationOutcome[]}
                  */
                 const operationOutcomes = mergeResults.map(m => {
-                        return m.issue ? {
-                            id: m.id,
-                            resourceType: m.resourceType,
-                            issue: m.issue
-                        } : {
+                        return m.issue ? new OperationOutcome({
                             id: m.id,
                             resourceType: m.resourceType,
                             issue: [
-                                {
+                                new OperationOutcomeIssue({
                                     severity: 'information',
                                     code: 'informational',
-                                    details: {
-                                        coding: [
-                                            {
-                                                // https://hl7.org/fhir/http.html#update
-                                                // The server SHALL return either a 200 OK HTTP status code if the
-                                                // resource was updated, or a 201 Created status code if the
-                                                // resource was created
-                                                system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
-                                                code: m.created ? '201' : m.updated ? '200' : '304',
-                                                display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
-                                            }
+                                    details: new CodeableConcept(
+                                        {text: 'OK'}
+                                    )
+                                })]
+                        }) : new OperationOutcome({
+                            id: m.id,
+                            resourceType: m.resourceType,
+                            issue: [
+                                new OperationOutcomeIssue({
+                                        severity: 'information',
+                                        code: 'informational',
+                                        details: new CodeableConcept({
+                                            coding: [
+                                                new Coding({
+                                                    // https://hl7.org/fhir/http.html#update
+                                                    // The server SHALL return either a 200 OK HTTP status code if the
+                                                    // resource was updated, or a 201 Created status code if the
+                                                    // resource was created
+                                                    system: 'https://www.rfc-editor.org/rfc/rfc9110.html',
+                                                    code: m.created ? '201' : m.updated ? '200' : '304',
+                                                    display: m.created ? 'Created' : m.updated ? 'Updated' : 'Not Modified',
+                                                })
+                                            ]
+                                        }),
+                                        expression: [
+                                            `${m.resourceType}/${m.id}`
                                         ]
-                                    },
-                                    expression: [
-                                        `${m.resourceType}/${m.id}`
-                                    ]
-                                }
+                                    }
+                                )
                             ]
-                        };
+                        });
                     }
                 );
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator(

@@ -5,8 +5,13 @@ const practitionerResource2 = require('./fixtures/practitioner/practitioner2.jso
 // expected
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('PractitionerSearchAllReturnTotalTests', () => {
     beforeEach(async () => {
@@ -20,10 +25,7 @@ describe('PractitionerSearchAllReturnTotalTests', () => {
     describe('Practitioner Search All Return Total Tests', () => {
         test('search all return total works', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -47,10 +49,7 @@ describe('PractitionerSearchAllReturnTotalTests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
@@ -66,11 +65,11 @@ describe('PractitionerSearchAllReturnTotalTests', () => {
             let body = resp.body;
             expect(body.entry.length).toBe(2);
             delete body.timestamp;
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['resource']['meta']['lastUpdated'];
             });
             let expected = expectedPractitionerResource;
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete element['resource']['meta']['lastUpdated'];
                 delete element['resource']['$schema'];
             });

@@ -3,9 +3,14 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 const observation1Resource = require('./fixtures/observation/observation1.json');
 
 // expected
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+    getTestContainer,
+} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertResourceCount, assertMerge} = require('../../fhirAsserts');
 
 describe('Patient Change Event Tests', () => {
     beforeEach(async () => {
@@ -28,24 +33,16 @@ describe('Patient Change Event Tests', () => {
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            let resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeaders());
-
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/Patient').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
-
-            console.log('------- response patient1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -70,16 +67,18 @@ describe('Patient Change Event Tests', () => {
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            await request
+            let resp = await request
                 .get('/4_0_0/Observation')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
-            await request
+            resp = await request
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
-                .set(getHeaders())
-                .expect(assertMerge({created: true}));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -106,16 +105,18 @@ describe('Patient Change Event Tests', () => {
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            await request
+            let resp = await request
                 .get('/4_0_0/Observation')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
-            await request
+            resp = await request
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
-                .set(getHeaders())
-                .expect(assertMerge({created: true}));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();

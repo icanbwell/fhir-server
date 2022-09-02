@@ -10,7 +10,6 @@
 # import Period from "../complex_types/period.graphql"
 # import ObservationReferenceRange from "../backbone_elements/observationReferenceRange.graphql"
 
-
 """
 Observation.Component
     Measurements and simple assertions made about a patient, device or other
@@ -20,7 +19,7 @@ type ObservationComponent {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -28,7 +27,7 @@ type ObservationComponent {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -39,73 +38,73 @@ type ObservationComponent {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Describes what was observed. Sometimes this is called the observation "code".
     """
-    code: CodeableConcept!        
+    code: CodeableConcept!
     """
     None
     """
-    valueQuantity: Quantity        
+    valueQuantity: Quantity
     """
     None
     """
-    valueCodeableConcept: CodeableConcept        
+    valueCodeableConcept: CodeableConcept
     """
     None
     """
-    valueString: String        
+    valueString: String
     """
     None
     """
-    valueBoolean: Boolean        
+    valueBoolean: Boolean
     """
     None
     """
-    valueInteger: Int        
+    valueInteger: Int
     """
     None
     """
-    valueRange: Range        
+    valueRange: Range
     """
     None
     """
-    valueRatio: Ratio        
+    valueRatio: Ratio
     """
     None
     """
-    valueSampledData: SampledData        
+    valueSampledData: SampledData
     """
     None
     """
-    valueTime: time        
+    valueTime: time
     """
     None
     """
-    valueDateTime: dateTime        
+    valueDateTime: dateTime
     """
     None
     """
-    valuePeriod: Period        
+    valuePeriod: Period
     """
     Provides a reason why the expected value in the element
     Observation.component.value[x] is missing.
     """
-    dataAbsentReason: CodeableConcept        
+    dataAbsentReason: CodeableConcept
     """
     A categorical assessment of an observation value.  For example, high, low,
     normal.
     """
-    interpretation: [CodeableConcept]        
+    interpretation: [CodeableConcept]
     """
     Guidance on how to interpret the value by comparison to a normal or
     recommended range.
     """
-    referenceRange: [ObservationReferenceRange]        
+    referenceRange: [ObservationReferenceRange]
 }

@@ -7,57 +7,51 @@
     "link": [
         {
             "path": "patient",
-            "target": [{"type": "Patient"}]
+            "target": [{ "type": "Patient" }]
         },
         {
             "path": "enterer",
-            "target": [
-                {"type": "Practitioner"},
-                {"type": "PractitionerRole"}
-            ]
+            "target": [{ "type": "Practitioner" }, { "type": "PractitionerRole" }]
         },
         {
             "path": "insurer",
-            "target": [{"type": "Organization"}]
+            "target": [{ "type": "Organization" }]
         },
         {
             "path": "provider",
             "target": [
-                {"type": "Practitioner"},
-                {"type": "PractitionerRole"},
-                {"type": "Organization"}
+                { "type": "Practitioner" },
+                { "type": "PractitionerRole" },
+                { "type": "Organization" }
             ]
         },
         {
             "path": "related[x].claim",
-            "target": [{"type": "Claim"}]
+            "target": [{ "type": "Claim" }]
         },
         {
             "path": "prescription",
-            "target": [
-                {"type": "MedicationRequest"},
-                {"type": "VisionPrescription"}
-            ]
+            "target": [{ "type": "MedicationRequest" }, { "type": "VisionPrescription" }]
         },
         {
             "path": "originalPrescription",
-            "target": [{"type": "MedicationRequest"}]
+            "target": [{ "type": "MedicationRequest" }]
         },
         {
             "path": "careTeam[x].provider",
             "target": [
-                {"type": "Practitioner"},
-                {"type": "PractitionerRole"},
-                {"type": "Organization"}
+                { "type": "Practitioner" },
+                { "type": "PractitionerRole" },
+                { "type": "Organization" }
             ]
         },
         {
             "path": "diagnosis[x].diagnosisReference",
-            "target": [{"type": "Condition"}]
+            "target": [{ "type": "Condition" }]
         },
         {
             "path": "procedure[x].procedureReference",
-            "target": [{"type": "Procedure"}]
+            "target": [{ "type": "Procedure" }]
         }
     ]
 }

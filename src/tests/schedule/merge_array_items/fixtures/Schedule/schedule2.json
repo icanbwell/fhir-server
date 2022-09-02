@@ -1,216 +1,216 @@
 {
-  "resourceType": "Schedule",
-  "id": "1720233406-SCH-MPCS",
-  "meta": {
-    "versionId": "58",
-    "lastUpdated": "2022-05-19T19:11:07.000Z",
-    "source": "http://medstarhealth.org/provider",
-    "security": [
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
-      },
-      {
-        "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
-      },
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "asymmetrik"
-      },
-      {
-        "system": "https://www.icanbwell.com/vendor",
-        "code": "asymmetrik"
-      },
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
-      },
-      {
-        "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
-      }
+    "resourceType": "Schedule",
+    "id": "1720233406-SCH-MPCS",
+    "meta": {
+        "versionId": "58",
+        "lastUpdated": "2022-05-19T19:11:07.000Z",
+        "source": "http://medstarhealth.org/provider",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "medstar"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "asymmetrik"
+            },
+            {
+                "system": "https://www.icanbwell.com/vendor",
+                "code": "asymmetrik"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "medstar"
+            }
+        ]
+    },
+    "extension": [
+        {
+            "id": "providersearch-IDHP",
+            "extension": [
+                {
+                    "id": "forsystem",
+                    "url": "forSystem",
+                    "valueUri": "http://medstarhealth.org/IDHP"
+                },
+                {
+                    "id": "searchable",
+                    "url": "searchCharacteristic",
+                    "valueCodeableConcept": {
+                        "id": "1",
+                        "coding": [
+                            {
+                                "id": "1",
+                                "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic",
+                                "code": "hide-from-search"
+                            }
+                        ],
+                        "text": "Provider is not searchable"
+                    }
+                },
+                {
+                    "id": "bookable",
+                    "url": "bookable",
+                    "valueCodeableConcept": {
+                        "id": "2",
+                        "coding": [
+                            {
+                                "id": "1",
+                                "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic",
+                                "code": "not-bookable"
+                            },
+                            {
+                                "id": "medstar-bookable-phone-value-coding",
+                                "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic",
+                                "code": "bookable-phone"
+                            }
+                        ],
+                        "text": "Provider is not online bookable"
+                    }
+                }
+            ],
+            "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search"
+        },
+        {
+            "id": "IDHP",
+            "extension": [
+                {
+                    "url": "for_system",
+                    "valueUri": "http://medstarhealth.org/IDHP"
+                },
+                {
+                    "id": "availability_score",
+                    "url": "availability_score",
+                    "valueDecimal": 1
+                }
+            ],
+            "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search"
+        }
+    ],
+    "active": true,
+    "serviceType": [
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "NEW",
+                    "display": "NEW"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "RET",
+                    "display": "RET"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "REX",
+                    "display": "REX"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "EV4",
+                    "display": "EV4"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "ERN",
+                    "display": "ERN"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "ERX",
+                    "display": "ERX"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "PHN",
+                    "display": "PHN"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "PHY",
+                    "display": "PHY"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "MEW",
+                    "display": "MEW"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/appointment-type",
+                    "code": "PH2",
+                    "display": "PH2"
+                }
+            ],
+            "text": "Medstar Appointment Type"
+        },
+        {
+            "coding": [
+                {
+                    "system": "http://medstarhealth.org/protocol",
+                    "code": "PrimaryCare",
+                    "display": "PrimaryCare"
+                }
+            ],
+            "text": "Medstar Protocol Departments"
+        }
+    ],
+    "actor": [
+        {
+            "reference": "PractitionerRole/1720233406-SCH-MPCS"
+        }
     ]
-  },
-  "extension": [
-    {
-      "id": "providersearch-IDHP",
-      "extension": [
-        {
-          "id": "forsystem",
-          "url": "forSystem",
-          "valueUri": "http://medstarhealth.org/IDHP"
-        },
-        {
-          "id": "searchable",
-          "url": "searchCharacteristic",
-          "valueCodeableConcept": {
-            "id": "1",
-            "coding": [
-              {
-                "id": "1",
-                "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic",
-                "code": "hide-from-search"
-              }
-            ],
-            "text": "Provider is not searchable"
-          }
-        },
-        {
-          "id": "bookable",
-          "url": "bookable",
-          "valueCodeableConcept": {
-            "id": "2",
-            "coding": [
-              {
-                "id": "1",
-                "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic",
-                "code": "not-bookable"
-              },
-              {
-                "id": "medstar-bookable-phone-value-coding",
-                "system": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/ValueSet/search_characteristic",
-                "code": "bookable-phone"
-              }
-            ],
-            "text": "Provider is not online bookable"
-          }
-        }
-      ],
-      "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search"
-    },
-    {
-      "id": "IDHP",
-      "extension": [
-        {
-          "url": "for_system",
-          "valueUri": "http://medstarhealth.org/IDHP"
-        },
-        {
-          "id": "availability_score",
-          "url": "availability_score",
-          "valueDecimal": 1
-        }
-      ],
-      "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search"
-    }
-  ],
-  "active": true,
-  "serviceType": [
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "NEW",
-          "display": "NEW"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "RET",
-          "display": "RET"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "REX",
-          "display": "REX"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "EV4",
-          "display": "EV4"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "ERN",
-          "display": "ERN"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "ERX",
-          "display": "ERX"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "PHN",
-          "display": "PHN"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "PHY",
-          "display": "PHY"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "MEW",
-          "display": "MEW"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/appointment-type",
-          "code": "PH2",
-          "display": "PH2"
-        }
-      ],
-      "text": "Medstar Appointment Type"
-    },
-    {
-      "coding": [
-        {
-          "system": "http://medstarhealth.org/protocol",
-          "code": "PrimaryCare",
-          "display": "PrimaryCare"
-        }
-      ],
-      "text": "Medstar Protocol Departments"
-    }
-  ],
-  "actor": [
-    {
-      "reference": "PractitionerRole/1720233406-SCH-MPCS"
-    }
-  ]
 }

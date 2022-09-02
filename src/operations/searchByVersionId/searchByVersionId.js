@@ -1,6 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
@@ -82,21 +81,24 @@ class SearchByVersionIdOperation {
 
             let {base_version, id, version_id} = args;
 
-            let Resource = getResource(base_version, resourceType);
-
             /**
              * @type {boolean}
              */
             const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
             // Query our collection for this observation
+            /**
+             * @type {Resource|null}
+             */
             let resource;
             try {
                 resource = await this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
                         resourceType, base_version, useAtlas
                     }
-                ).findOneAsync({query: {id: id.toString(), 'meta.versionId': `${version_id}`}});
+                ).findOneAsync({
+                    query: {id: id.toString(), 'meta.versionId': `${version_id}`}
+                });
             } catch (e) {
                 throw new BadRequestError(e);
             }
@@ -117,7 +119,7 @@ class SearchByVersionIdOperation {
                         startTime,
                         action: currentOperationName
                     });
-                return (new Resource(resource));
+                return resource;
             } else {
                 throw new NotFoundError();
             }

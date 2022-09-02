@@ -8,7 +8,6 @@ class ResourcePreparerTransform extends Transform {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object} args
-     * @param {(Object) => Resource} ResourceCreator
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
@@ -19,7 +18,6 @@ class ResourcePreparerTransform extends Transform {
             user,
             scope,
             args,
-            ResourceCreator,
             resourceType,
             useAccessIndex,
             signal,
@@ -39,10 +37,6 @@ class ResourcePreparerTransform extends Transform {
          * @type {Object}
          */
         this.args = args;
-        /**
-         * @type {function(?Object): Resource}
-         */
-        this.Resource = ResourceCreator;
         /**
          * @type {string}
          */
@@ -79,7 +73,10 @@ class ResourcePreparerTransform extends Transform {
             const promises = chunks.map(chunk1 =>
                 this.processChunkAsync(chunk1)
             );
-            Promise.all(promises).then(() => callback());
+            Promise.all(promises).then(() => callback()).catch(
+                (reason) => {
+                    throw new AggregateError([reason], 'ResourcePreparer _transform: error');
+                });
         } catch (e) {
             throw new AggregateError([e], 'ResourcePreparer _transform: error');
         }
@@ -91,8 +88,11 @@ class ResourcePreparerTransform extends Transform {
      * @returns {Promise<Resource[]>}
      */
     async processChunkAsync(chunk1) {
-        return this.resourcePreparer.prepareResourceAsync(this.user, this.scope, this.args, this.Resource, chunk1,
-            this.resourceName, this.useAccessIndex)
+        return this.resourcePreparer.prepareResourceAsync(
+            {
+                user: this.user, scope: this.scope, args: this.args, element: chunk1,
+                resourceType: this.resourceName, useAccessIndex: this.useAccessIndex
+            })
             .then(
                 resources => {
                     if (isTrue(env.LOG_STREAM_STEPS)) {

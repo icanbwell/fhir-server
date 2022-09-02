@@ -6,9 +6,13 @@ const medication3Resource = require('./fixtures/Medication/medication3.json');
 // expected
 const expectedMedicationResources = require('./fixtures/expected/expected_Medication.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Medication Tests', () => {
     beforeEach(async () => {
@@ -27,23 +31,23 @@ describe('Medication Tests', () => {
             let resp = await request
                 .post('/4_0_0/Medication/1/$merge?validate=true')
                 .send(medication1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Medication/1/$merge?validate=true')
                 .send(medication2Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Medication/1/$merge?validate=true')
                 .send(medication3Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Medication back
@@ -51,9 +55,8 @@ describe('Medication Tests', () => {
                 .get('/4_0_0/Medication/?_bundle=1&code:text=prednisoLONE&_debug=1')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles({
-                body: resp.body, expected: expectedMedicationResources
-            });
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMedicationResources);
         });
     });
 });

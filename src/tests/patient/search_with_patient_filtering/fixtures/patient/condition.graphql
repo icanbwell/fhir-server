@@ -1,7 +1,5 @@
 query Condition {
-    condition(
-        _count: 25
-    ) {
+    condition(_count: 25) {
         entry {
             resource {
                 id

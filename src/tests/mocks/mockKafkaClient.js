@@ -1,11 +1,11 @@
-const {KafkaClient} = require('../../utils/kafkaClient');
+const { KafkaClient } = require('../../utils/kafkaClient');
 
 class MockKafkaClient extends KafkaClient {
     /**
      * constructor
      */
     constructor() {
-        super({clientId: undefined, brokers: [], ssl: false});
+        super({ clientId: undefined, brokers: [], ssl: false });
         /**
          * @type {KafkaClientMessage[]}
          */
@@ -23,7 +23,6 @@ class MockKafkaClient extends KafkaClient {
     init(clientId, brokers, ssl) {
         // do nothing
     }
-
 
     clear() {
         this.messages = [];
@@ -50,5 +49,5 @@ class MockKafkaClient extends KafkaClient {
 }
 
 module.exports = {
-    MockKafkaClient
+    MockKafkaClient,
 };

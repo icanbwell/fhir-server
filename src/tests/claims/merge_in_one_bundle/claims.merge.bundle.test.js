@@ -1,8 +1,13 @@
 const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_benefits.json');
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -43,11 +48,11 @@ describe('Claim Merge Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedExplanationOfBenefitBundleResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }

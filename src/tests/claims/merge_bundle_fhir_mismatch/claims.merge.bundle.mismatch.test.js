@@ -3,9 +3,13 @@ const explanationOfBenefitBundleResource2 = require('./fixtures/explanation_of_b
 const explanationOfBenefitBundleResource3 = require('./fixtures/explanation_of_benefits3.json');
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected_explanation_of_benefits.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -19,51 +23,37 @@ describe('Claim Merge Tests', () => {
     describe('Claim Merge with overlapping items', () => {
         test('Claims with same claim number in different bundles and similar items merge properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders());
-
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/ExplanationOfBenefit').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource1)
                 .set(getHeaders());
 
-            assertMergeIsSuccessful(resp.body);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource2)
                 .set(getHeaders());
 
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3  ------------');
-
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({updated: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource3)
                 .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({updated: true});
 
-            console.log('------- response 4 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 4  ------------');
+            resp = await request.get('/4_0_0/ExplanationOfBenefit?_bundle=1').set(getHeaders());
 
-            resp = await request
-                .get('/4_0_0/ExplanationOfBenefit?_bundle=1')
-                .set(getHeaders());
-
-            assertCompareBundles(
-                {body: resp.body, expected: expectedExplanationOfBenefitBundleResource});
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedExplanationOfBenefitBundleResource);
         });
     });
 });

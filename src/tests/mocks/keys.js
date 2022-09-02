@@ -32,7 +32,7 @@ mQIDAQAB
 -----END PUBLIC KEY-----`;
 
 module.exports = {
-  publicKey,
-  privateKey,
-  randomPublicKey1
+    publicKey,
+    privateKey,
+    randomPublicKey1,
 };

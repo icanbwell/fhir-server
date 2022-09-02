@@ -1,4 +1,3 @@
-const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
 const {isTrue} = require('../../utils/isTrue');
@@ -98,8 +97,6 @@ class ExpandOperation {
          */
         const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-        let Resource = getResource(base_version, resourceType);
-
         /**
          * @type {Resource}
          */
@@ -143,14 +140,13 @@ class ExpandOperation {
             // run any enrichment
             resource = (await enrich([resource], resourceType))[0];
 
-            const result = new Resource(resource);
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo, args, resourceType, startTime,
                     action: currentOperationName,
-                    result: JSON.stringify(result)
+                    result: JSON.stringify(resource.toJSON())
                 });
-            return result;
+            return resource;
         } else {
             throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
         }

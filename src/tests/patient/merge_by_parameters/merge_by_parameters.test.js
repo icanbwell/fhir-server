@@ -4,9 +4,13 @@ const patient1Resource = require('./fixtures/patient/patient1.json');
 // expected
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertStatusCode, assertResourceCount, assertMerge, assertResponse} = require('../../fhirAsserts');
 
 describe('Merge By Parameters Tests', () => {
     beforeEach(async () => {
@@ -20,11 +24,11 @@ describe('Merge By Parameters Tests', () => {
     describe('Merge By Parameters Tests', () => {
         test('merge by parameters works', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             /**
              * http://www.hl7.org/fhir/parameters-example.json.html
@@ -32,27 +36,27 @@ describe('Merge By Parameters Tests', () => {
              */
             const parametersResource = {
                 resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: patient1Resource}]
+                parameter: [{name: 'resource', resource: patient1Resource}],
             };
 
-            await request
+            resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge')
                 .send(parametersResource)
-                .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(assertMerge([{created: true}]));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}]);
 
-            await request
+            resp = await request
                 .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(assertResourceCount(1));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
 
-            await request
+            resp = await request
                 .get('/4_0_0/Patient/00100000000')
-                .set(getHeaders())
-                .expect(200)
-                .expect(assertResponse({expected: expectedSinglePatientResource}));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedSinglePatientResource);
         });
     });
 });

@@ -39,18 +39,20 @@ const findUniques = (listToCheck, fnKey) => {
 };
 
 /**
- * @param {Object[]} listToCheck
- * @returns {Object[]}
+ * @param {Resource[]} listToCheck
+ * @returns {Resource[]}
  */
 const findDuplicateResources = (listToCheck) => {
+    // noinspection JSValidateTypes
     return findDuplicates(listToCheck, r => `${r.resourceType}/${r.id}`);
 };
 
 /**
- * @param {Object[]} listToCheck
- * @returns {Object[]}
+ * @param {Resource[]} listToCheck
+ * @returns {Resource[]}
  */
 const findUniqueResources = (listToCheck) => {
+    // noinspection JSValidateTypes
     return findUniques(listToCheck, r => `${r.resourceType}/${r.id}`);
 };
 
@@ -116,12 +118,20 @@ const groupByLambda = function (sourceArray, fnKey) { // `sourceArray` is an arr
  */
 const getFirstElementOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
 
+/**
+ * Gets the first element in an array if exists else returns null
+ * @param {Resource[]} sourceArray
+ * @return {Resource | null}
+ */
+const getFirstResourceOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
+
 module.exports = {
-    findDuplicates: findDuplicates,
-    findDuplicateResources: findDuplicateResources,
-    findUniques: findUniques,
-    findUniqueResources: findUniqueResources,
-    groupBy: groupBy,
-    groupByLambda: groupByLambda,
-    getFirstElementOrNull: getFirstElementOrNull
+    findDuplicates,
+    findDuplicateResources,
+    findUniques,
+    findUniqueResources,
+    groupBy,
+    groupByLambda,
+    getFirstElementOrNull,
+    getFirstResourceOrNull
 };

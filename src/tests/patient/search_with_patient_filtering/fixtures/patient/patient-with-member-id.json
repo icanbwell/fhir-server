@@ -1,38 +1,36 @@
 {
-  "resourceType": "Patient",
-  "id": "patient-123-c",
-  "meta": {
-    "source": "http://other.com/place",
-    "security": [
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "other"
-      },
-      {
-        "system": "https://www.icanbwell.com/owner",
-        "code": "other"
-      }
+    "resourceType": "Patient",
+    "id": "patient-123-c",
+    "meta": {
+        "source": "http://other.com/place",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "other"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "other"
+            }
+        ]
+    },
+    "identifier": [
+        {
+            "id": "bwell-member-id",
+            "system": "https://icanbwell.com/Bwell_Platform/member_id",
+            "value": "12345"
+        }
+    ],
+    "birthDate": "2000-01-01",
+    "gender": "female",
+    "name": [
+        {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": ["TEST"],
+            "prefix": [],
+            "suffix": []
+        }
     ]
-  },
-  "identifier": [
-    {
-      "id": "bwell-member-id",
-      "system": "https://icanbwell.com/Bwell_Platform/member_id",
-      "value": "12345"
-    }
-  ],
-  "birthDate": "2000-01-01",
-  "gender": "female",
-  "name": [
-    {
-      "use": "usual",
-      "text": "t",
-      "family": "PATIENT1",
-      "given": [
-        "TEST"
-      ],
-      "prefix": [],
-      "suffix": []
-    }
-  ]
 }

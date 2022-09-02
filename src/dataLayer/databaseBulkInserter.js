@@ -11,8 +11,10 @@ const {ErrorReporter} = require('../utils/slack.logger');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const {omitProperty} = require('../utils/omitProperties');
 const {ChangeEventProducer} = require('../utils/changeEventProducer');
+const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -120,6 +122,8 @@ class DatabaseBulkInserter extends EventEmitter {
     addOperationForResourceType({resourceType, operation}) {
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
         assertIsValid(operation, `operation: ${operation} is null`);
+        assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
+        assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
         // If there is no entry for this collection then create one
         if (!(this.operationsByResourceTypeMap.has(resourceType))) {
             this.operationsByResourceTypeMap.set(`${resourceType}`, []);
@@ -148,12 +152,11 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Inserts item into collection
      * @param {string} resourceType
-     * @param {Object} doc
+     * @param {Resource} doc
      * @returns {Promise<void>}
      */
     async insertOneAsync({resourceType, doc}) {
-        // remove _id to prevent duplicate keys in mongo
-        doc = omitProperty(doc, '_id');
+        assertTypeEquals(doc, Resource);
         // check to see if we already have this insert and if so use replace
         if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
             this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
@@ -185,7 +188,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 resourceType,
                 operation: {
                     insertOne: {
-                        document: doc
+                        document: doc.toJSON()
                     }
                 }
             }
@@ -196,15 +199,16 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Inserts item into history collection
      * @param {string} resourceType
-     * @param {Object} doc
+     * @param {Resource} doc
      * @returns {Promise<void>}
      */
     async insertOneHistoryAsync({resourceType, doc}) {
+        assertTypeEquals(doc, Resource);
         this.addHistoryOperationForResourceType({
                 resourceType,
                 operation: {
                     insertOne: {
-                        document: doc
+                        document: doc.toJSON()
                     }
                 }
             }
@@ -215,12 +219,11 @@ class DatabaseBulkInserter extends EventEmitter {
      * Replaces a document in Mongo with this one
      * @param {string} resourceType
      * @param {string} id
-     * @param {Object} doc
+     * @param {Resource} doc
      * @returns {Promise<void>}
      */
     async replaceOneAsync({resourceType, id, doc}) {
-        // remove _id to prevent duplicate keys in mongo
-        doc = omitProperty(doc, '_id');
+        assertTypeEquals(doc, Resource);
         // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
         // noinspection JSCheckFunctionSignatures
         this.addOperationForResourceType({
@@ -229,7 +232,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     replaceOne: {
                         filter: {id: id.toString()},
                         // upsert: true,
-                        replacement: doc
+                        replacement: doc.toJSON()
                     }
                 }
             }
@@ -334,15 +337,15 @@ class DatabaseBulkInserter extends EventEmitter {
                         resourceType: resourceType
                     };
                     if (mergeResultForResourceType.error) {
-                        mergeResultEntry.issue = {
+                        mergeResultEntry.issue = new OperationOutcomeIssue({
                             severity: 'error',
                             code: 'exception',
-                            details: {text: mergeResultForResourceType.error.message},
+                            details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
                             diagnostics: diagnostics,
                             expression: [
                                 resourceType + '/' + id
                             ]
-                        };
+                        });
                     }
                     mergeResultEntries.push(
                         mergeResultEntry
@@ -382,15 +385,15 @@ class DatabaseBulkInserter extends EventEmitter {
                         resourceType: resourceType
                     };
                     if (mergeResultForResourceType.error) {
-                        mergeResultEntry.issue = {
+                        mergeResultEntry.issue = new OperationOutcomeIssue({
                             severity: 'error',
                             code: 'exception',
-                            details: {text: mergeResultForResourceType.error.message},
+                            details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
                             diagnostics: diagnostics,
                             expression: [
                                 resourceType + '/' + id
                             ]
-                        };
+                        });
                     }
                     mergeResultEntries.push(
                         mergeResultEntry
@@ -506,8 +509,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }
                 // remove _id if present so mongo can insert properly
-                if (!useHistoryCollection && operation.insertOne)
-                {
+                if (!useHistoryCollection && operation.insertOne) {
                     delete operation.insertOne.document['_id'];
                 }
                 if (!useHistoryCollection && resource._id) {

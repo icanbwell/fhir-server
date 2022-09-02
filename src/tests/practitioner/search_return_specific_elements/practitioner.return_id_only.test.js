@@ -6,7 +6,12 @@ const expectedPractitionerResource = require('./fixtures/expected/expected_pract
 const expectedPractitionerResourceBundle = require('./fixtures/expected/expected_practitioner_bundle.json');
 const expectedPractitionerNoUserScopesBundle = require('./fixtures/expected/expected_practitioner_no_user_scopes.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
@@ -21,10 +26,7 @@ describe('PractitionerReturnIdTests', () => {
     describe('PractitionerReturnId Tests', () => {
         test('Id works properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -36,10 +38,8 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id')

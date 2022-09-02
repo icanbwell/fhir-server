@@ -5,9 +5,13 @@ const schedule2Resource = require('./fixtures/Schedule/schedule2.json');
 // expected
 const expectedScheduleResources = require('./fixtures/expected/expected_Schedule.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('Schedule Tests', () => {
     beforeEach(async () => {
@@ -26,26 +30,22 @@ describe('Schedule Tests', () => {
             let resp = await request
                 .post('/4_0_0/Schedule/1/$merge?validate=true')
                 .send(schedule1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge?validate=true')
                 .send(schedule2Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body, false);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({updated: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Schedule back
-            resp = await request
-                .get('/4_0_0/Schedule/?_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles({
-                body: resp.body, expected: expectedScheduleResources
-            });
+            resp = await request.get('/4_0_0/Schedule/?_bundle=1').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedScheduleResources);
         });
     });
 });

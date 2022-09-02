@@ -1,22 +1,20 @@
 {
-  "data": {
-    "updateGeneralPractitioner": null
-  },
-  "errors": [
-    {
-      "extensions": {
-        "code": "INTERNAL_SERVER_ERROR"
-      },
-      "locations": [
+    "data": {
+        "updateGeneralPractitioner": null
+    },
+    "errors": [
         {
-          "column": 3,
-          "line": 2
+            "extensions": {
+                "code": "INTERNAL_SERVER_ERROR"
+            },
+            "locations": [
+                {
+                    "column": 5,
+                    "line": 2
+                }
+            ],
+            "message": "Patient not found WPS-5458231534",
+            "path": ["updateGeneralPractitioner"]
         }
-      ],
-      "message": "Patient not found WPS-5458231534",
-      "path": [
-        "updateGeneralPractitioner"
-      ]
-    }
-  ]
+    ]
 }

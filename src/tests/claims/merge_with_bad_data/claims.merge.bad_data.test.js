@@ -2,9 +2,13 @@ const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_be
 const expectedExplanationOfBenefitBundleResource = require('./fixtures/expected/expected_explanation_of_benefits.json');
 const expectedMergeResponse = require('./fixtures/expected/expected_merge_response.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertResourceCount, assertResponse} = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -18,21 +22,24 @@ describe('Claim Merge Tests', () => {
     describe('Claim Merge Bundles', () => {
         test('Claims with one bad record merge properly', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
-            await request
+            resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
-                .set(getHeaders())
-                .expect(assertResponse({expected: expectedMergeResponse}));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMergeResponse);
 
-            await request
+            resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(assertResponse({expected: expectedExplanationOfBenefitBundleResource}));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedExplanationOfBenefitBundleResource);
         });
     });
 });

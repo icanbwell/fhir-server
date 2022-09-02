@@ -649,7 +649,6 @@ class SearchManager {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object?} args
-     * @param {(Object) => Resource} ResourceCreator
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @returns {Promise<Resource[]>}
@@ -657,7 +656,7 @@ class SearchManager {
     async readResourcesFromCursorAsync(
         {
             cursor, user, scope,
-            args, ResourceCreator, resourceType,
+            args, resourceType,
             useAccessIndex
         }
     ) {
@@ -697,7 +696,7 @@ class SearchManager {
                 // new ObjectChunker(batchObjectCount),
                 new ResourcePreparerTransform(
                     {
-                        user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal,
+                        user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
                         resourcePreparer: this.resourcePreparer
                     }
                 ),
@@ -799,12 +798,11 @@ class SearchManager {
      * @param {DatabasePartitionedCursor} cursor
      * @param {string|null} requestId
      * @param {string | null} url
-     * @param {function (string | null, number): {entry: {resource: Resource}[]}} fnBundle
+     * @param {function (string | null, number): Bundle} fnBundle
      * @param {import('http').ServerResponse} res
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object|null} args
-     * @param {function (?Object): Resource} ResourceCreator
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {number} batchObjectCount
@@ -813,9 +811,11 @@ class SearchManager {
     async streamBundleFromCursorAsync(
         {
             requestId,
-            cursor, url, fnBundle,
+            cursor,
+            url,
+            fnBundle,
             res, user, scope,
-            args, ResourceCreator, resourceType,
+            args, resourceType,
             useAccessIndex,
             batchObjectCount
         }
@@ -856,7 +856,7 @@ class SearchManager {
 
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal,
+                user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
                 resourcePreparer: this.resourcePreparer
             }
         );
@@ -900,7 +900,6 @@ class SearchManager {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {Object|null} args
-     * @param {function (?Object): Resource} ResourceCreator
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} contentType
@@ -915,7 +914,6 @@ class SearchManager {
             user,
             scope,
             args,
-            ResourceCreator,
             resourceType,
             useAccessIndex,
             contentType = 'application/fhir+json',
@@ -970,7 +968,7 @@ class SearchManager {
          */
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user, scope, args, ResourceCreator, resourceType, useAccessIndex, signal: ac.signal,
+                user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
                 resourcePreparer: this.resourcePreparer
             }
         );

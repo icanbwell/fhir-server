@@ -5,8 +5,13 @@ const practitionerResource = require('./fixtures/practitioner/practitioner.json'
 // expected
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -23,10 +28,7 @@ describe('PractitionerReturnIdTests', () => {
     describe('Practitioner Search By Last Updated Tests', () => {
         test('search by lastUpdated equals', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -43,10 +45,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp.status).toBe(200);
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
 
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -54,7 +53,11 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- end response 3 ------------');
 
             resp = await request
-                .get('/4_0_0/Practitioner?_lastUpdated=eq' + today_text + '&_useTwoStepOptimization=0')
+                .get(
+                    '/4_0_0/Practitioner?_lastUpdated=eq' +
+                        today_text +
+                        '&_useTwoStepOptimization=0'
+                )
                 .set(getHeaders());
 
             console.log('------- response Practitioner ------------');
@@ -72,10 +75,7 @@ describe('PractitionerReturnIdTests', () => {
         });
         test('search by lastUpdated greater than or equals', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -89,10 +89,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
@@ -115,10 +112,7 @@ describe('PractitionerReturnIdTests', () => {
         });
         test('search by lastUpdated greater than', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -132,10 +126,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
@@ -159,10 +150,7 @@ describe('PractitionerReturnIdTests', () => {
         });
         test('search by lastUpdated less than or equals', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -178,10 +166,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
@@ -204,10 +189,7 @@ describe('PractitionerReturnIdTests', () => {
         });
         test('search by lastUpdated less than', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -221,10 +203,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
@@ -247,10 +226,7 @@ describe('PractitionerReturnIdTests', () => {
         });
         test('search by lastUpdated less than and greater than (found)', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -264,10 +240,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
@@ -290,10 +263,7 @@ describe('PractitionerReturnIdTests', () => {
         });
         test('search by lastUpdated less than and greater than (not found)', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -309,10 +279,7 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');

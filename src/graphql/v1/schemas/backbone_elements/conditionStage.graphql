@@ -16,7 +16,7 @@ type ConditionStage {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,7 +24,7 @@ type ConditionStage {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -35,24 +35,24 @@ type ConditionStage {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     A simple summary of the stage such as "Stage 3". The determination of the
     stage is disease-specific.
     """
-    summary: CodeableConcept        
+    summary: CodeableConcept
     """
     Reference to a formal record of the evidence on which the staging assessment
     is based.
     """
-    assessment: [ConditionStageAssessment]        
+    assessment: [ConditionStageAssessment]
     """
     The kind of staging, such as pathological or clinical staging.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
 }

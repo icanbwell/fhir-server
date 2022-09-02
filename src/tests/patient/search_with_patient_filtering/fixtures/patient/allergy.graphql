@@ -1,7 +1,5 @@
 query Allergies {
-    allergyIntolerance(
-        _count: 25
-    ) {
+    allergyIntolerance(_count: 25) {
         entry {
             resource {
                 id

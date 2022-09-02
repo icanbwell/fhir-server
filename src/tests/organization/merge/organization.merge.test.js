@@ -2,8 +2,13 @@ const organizationBundleResourceInit = require('./fixtures/organization_init.jso
 const organizationBundleResourceUpdate = require('./fixtures/organization_update.json');
 const expectedOrganizationBundleResource = require('./fixtures/expected_organization.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('Organization Merge Tests', () => {
     beforeEach(async () => {
@@ -17,10 +22,7 @@ describe('Organization Merge Tests', () => {
     describe('Organization Merge Bundles', () => {
         test('Organization name merges properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Organization')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Organization').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -45,21 +47,18 @@ describe('Organization Merge Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3  ------------');
 
-            resp = await request
-                .get('/4_0_0/Organization?_count=10')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Organization?_count=10').set(getHeaders()).expect(200);
 
             let body = resp.body;
             console.log('------- response 4 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 4  ------------');
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedOrganizationBundleResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }

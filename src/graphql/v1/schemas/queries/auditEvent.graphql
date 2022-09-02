@@ -10,7 +10,6 @@ extend type Query {
         If the element is present, it must have either a @value, an @id, or extensions
     """
     auditEvent(
-
         # some old search parameters that we misspelled in the past so have to maintain backwards compatibility
         """
         list of ids to retrieve.  DEPRECATED: Use `_id`

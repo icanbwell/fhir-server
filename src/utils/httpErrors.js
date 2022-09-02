@@ -95,9 +95,14 @@ class NotAllowedError extends ServerError {
 }
 
 class NotValidatedError extends ServerError {
+    /**
+     * constructor
+     * @param {OperationOutcome} operationOutcome
+     * @param {Object} options
+     */
     constructor(operationOutcome, options = {}) {
         super('Validation Failed', {
-            // Set this to make the HTTP status code 409
+            // Set this to make the HTTP status code 400
             statusCode: 400,
             // Add any normal operation outcome stuff here
             issue: operationOutcome.issue

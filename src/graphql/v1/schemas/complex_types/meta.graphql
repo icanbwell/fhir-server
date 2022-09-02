@@ -6,7 +6,6 @@
 # import canonical from "../simple_types/canonical.graphql"
 # import Coding from "../complex_types/coding.graphql"
 
-
 """
 Meta
     The metadata about a resource. This is content in the resource that is
@@ -19,7 +18,7 @@ type Meta {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -27,38 +26,38 @@ type Meta {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     The version specific identifier, as it appears in the version portion of the
     URL. This value changes when the resource is created, updated, or deleted.
     """
-    versionId: id        
+    versionId: id
     """
     When the resource last changed - e.g. when the version changed.
     """
-    lastUpdated: instant        
+    lastUpdated: instant
     """
     A uri that identifies the source system of the resource. This provides a
     minimal amount of [[[Provenance]]] information that can be used to track or
     differentiate the source of information in the resource. The source may
     identify another FHIR server, document, message, database, etc.
     """
-    source: uri        
+    source: uri
     """
     A list of profiles (references to [[[StructureDefinition]]] resources) that
     this resource claims to conform to. The URL is a reference to
     [[[StructureDefinition.url]]].
     """
-    profile: [canonical]        
+    profile: [canonical]
     """
     Security labels applied to this resource. These tags connect specific
     resources to the overall security policy and infrastructure.
     """
-    security: [Coding]        
+    security: [Coding]
     """
     Tags applied to this resource. Tags are intended to be used to identify and
     relate resources to process and workflow, and applications are not required to
     consider the tags when interpreting the meaning of a resource.
     """
-    tag: [Coding]        
+    tag: [Coding]
 }

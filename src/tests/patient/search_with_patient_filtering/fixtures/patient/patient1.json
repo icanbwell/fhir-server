@@ -1,31 +1,29 @@
 {
-  "resourceType": "Patient",
-  "id": "patient-123-a",
-  "meta": {
-    "source": "http://medstarhealth.org/provider",
-    "security": [
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
-      },
-      {
-        "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
-      }
+    "resourceType": "Patient",
+    "id": "patient-123-a",
+    "meta": {
+        "source": "http://medstarhealth.org/provider",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "medstar"
+            }
+        ]
+    },
+    "birthDate": "2000-01-01",
+    "gender": "female",
+    "name": [
+        {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": ["TEST"],
+            "prefix": [],
+            "suffix": []
+        }
     ]
-  },
-  "birthDate": "2000-01-01",
-  "gender": "female",
-  "name": [
-    {
-      "use": "usual",
-      "text": "t",
-      "family": "PATIENT1",
-      "given": [
-        "TEST"
-      ],
-      "prefix": [],
-      "suffix": []
-    }
-  ]
 }

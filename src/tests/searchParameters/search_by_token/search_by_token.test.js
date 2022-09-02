@@ -5,9 +5,13 @@ const observation2Resource = require('./fixtures/observation/observation2.json')
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
 
 describe('ObservationReturnIdTests', () => {
     beforeEach(async () => {
@@ -26,44 +30,42 @@ describe('ObservationReturnIdTests', () => {
             let resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right observation back
             resp = await request
-                .get('/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library|BMI001&_setIndexHint=1&_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles({
-                body: resp.body, expected: expectedObservationResources
-            });
+                .get(
+                    '/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library|BMI001&_setIndexHint=1&_bundle=1'
+                )
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources);
 
             // search by just token code and make sure we get the right observation back
             resp = await request
                 .get('/4_0_0/Observation/?code=BMI001&_setIndexHint=1&_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles({
-                body: resp.body, expected: expectedObservationResources
-            });
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources);
 
             // search by just token system and make sure we get the right observation back
             resp = await request
-                .get('/4_0_0/Observation/?code=http://www.icanbwell.com/cql/libraryVersion|&_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles({
-                body: resp.body, expected: expectedObservationResources
-            });
+                .get(
+                    '/4_0_0/Observation/?code=http://www.icanbwell.com/cql/libraryVersion|&_bundle=1'
+                )
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources);
         });
     });
 });

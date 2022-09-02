@@ -8,6 +8,8 @@ const {CLIENT_DB} = require('../../../constants');
 const {createTestContainer} = require('../../createTestContainer');
 const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
 const env = require('var');
+const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
+const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -23,12 +25,14 @@ class MockChangeEventProducer extends ChangeEventProducer {
                     resourceManager,
                     patientChangeTopic,
                     taskChangeTopic,
-                    observationChangeTopic
-                }
-    ) {
+                    observationChangeTopic,
+                }) {
         super({
-            kafkaClient, resourceManager, patientChangeTopic,
-            taskChangeTopic, observationChangeTopic
+            kafkaClient,
+            resourceManager,
+            patientChangeTopic,
+            taskChangeTopic,
+            observationChangeTopic,
         });
     }
 }
@@ -48,18 +52,21 @@ describe('databaseBulkInserter Tests', () => {
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
 
-            const container = createTestContainer(
-                container1 => {
-                    container1.register('changeEventProducer',
-                        c => new MockChangeEventProducer({
+            const container = createTestContainer((container1) => {
+                container1.register(
+                    'changeEventProducer',
+                    (c) =>
+                        new MockChangeEventProducer({
                             kafkaClient: c.kafkaClient,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            observationChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                        }));
-                    return container1;
-                });
+                            observationChangeTopic:
+                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                        })
+                );
+                return container1;
+            });
 
             const onPatientCreateAsyncMock = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
@@ -82,21 +89,28 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
 
-            await databaseBulkInserter.insertOneAsync({resourceType: 'Patient', doc: patient});
-            await databaseBulkInserter.insertOneAsync({resourceType: 'Observation', doc: observation});
+            await databaseBulkInserter.insertOneAsync({resourceType: 'Patient', doc: new Patient(patient)});
+            await databaseBulkInserter.insertOneAsync({
+                resourceType: 'Observation',
+                doc: new Observation(observation),
+            });
 
             patient.birthDate = '2020-01-01';
-            await databaseBulkInserter.replaceOneAsync(
-                {resourceType: 'Patient', id: patient.id, doc: patient});
+            await databaseBulkInserter.replaceOneAsync({
+                resourceType: 'Patient',
+                id: patient.id,
+                doc: new Patient(patient),
+            });
 
             // now execute the bulk inserts
             const base_version = '4_0_0';
             const requestId1 = '1234';
-            await databaseBulkInserter.executeAsync(
-                {
-                    requestId: requestId1, currentDate, base_version, useAtlas: false
-                }
-            );
+            await databaseBulkInserter.executeAsync({
+                requestId: requestId1,
+                currentDate,
+                base_version,
+                useAtlas: false,
+            });
 
             // noinspection JSValidateTypes
             /**

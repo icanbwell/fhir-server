@@ -1,83 +1,83 @@
 [
-  {
-    "resourceType": "MedicationRequest",
-    "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
-    "meta": {
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "mps-api"
-        }
-      ]
-    },
-    "identifier": [
-      {
-        "system": "https://www.icanbwell.com/prescription_number",
-        "value": "1234"
-      }
-    ],
-    "status": "active",
-    "medicationCodeableConcept": {
-      "coding": [
-        {
-          "display": "Lipitor"
-        }
-      ],
-      "text": "Lipitor"
-    },
-    "subject": {
-      "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
-    },
-    "authoredOn": "2022-07-01",
-    "dosageInstruction": [
-      {
-        "doseAndRate": [
-          {
-            "type": {
-              "coding": [
+    {
+        "resourceType": "MedicationRequest",
+        "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
+        "meta": {
+            "security": [
                 {
-                  "code": "ordered"
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "mps-api"
                 }
-              ]
-            },
-            "doseQuantity": {
-              "value": 80,
-              "unit": "mg/1"
+            ]
+        },
+        "identifier": [
+            {
+                "system": "https://www.icanbwell.com/prescription_number",
+                "value": "1234"
             }
-          }
+        ],
+        "status": "active",
+        "medicationCodeableConcept": {
+            "coding": [
+                {
+                    "display": "Lipitor"
+                }
+            ],
+            "text": "Lipitor"
+        },
+        "subject": {
+            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+        },
+        "authoredOn": "2022-07-01",
+        "dosageInstruction": [
+            {
+                "doseAndRate": [
+                    {
+                        "type": {
+                            "coding": [
+                                {
+                                    "code": "ordered"
+                                }
+                            ]
+                        },
+                        "doseQuantity": {
+                            "value": 80,
+                            "unit": "mg/1"
+                        }
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  },
-  {
-    "resourceType": "MedicationRequest",
-    "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
-    "meta": {
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "mps-api"
-        }
-      ]
     },
-    "identifier": [
-      {
-        "system": "https://www.icanbwell.com/prescription_number",
-        "value": "1235"
-      }
-    ],
-    "status": "active",
-    "medicationCodeableConcept": {
-      "coding": [
-        {
-          "display": "Aspirin"
-        }
-      ],
-      "text": "Aspirin"
-    },
-    "subject": {
-      "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
-    },
-    "authoredOn": "2022-07-05"
-  }
+    {
+        "resourceType": "MedicationRequest",
+        "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+        "meta": {
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "mps-api"
+                }
+            ]
+        },
+        "identifier": [
+            {
+                "system": "https://www.icanbwell.com/prescription_number",
+                "value": "1235"
+            }
+        ],
+        "status": "active",
+        "medicationCodeableConcept": {
+            "coding": [
+                {
+                    "display": "Aspirin"
+                }
+            ],
+            "text": "Aspirin"
+        },
+        "subject": {
+            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+        },
+        "authoredOn": "2022-07-05"
+    }
 ]

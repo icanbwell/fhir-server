@@ -2,20 +2,20 @@
  * Implements helper functions for graphql
  */
 
-const {SearchByIdOperation} = require('../../operations/searchById/searchById');
+const { SearchByIdOperation } = require('../../operations/searchById/searchById');
 const async = require('async');
-const {logWarn} = require('../../operations/common/logging');
-const {getRequestInfo} = require('./requestInfoHelper');
-const {SearchBundleOperation} = require('../../operations/search/searchBundle');
-const {assertTypeEquals} = require('../../utils/assertType');
-const {SimpleContainer} = require('../../utils/simpleContainer');
+const { logWarn } = require('../../operations/common/logging');
+const { getRequestInfo } = require('./requestInfoHelper');
+const { SearchBundleOperation } = require('../../operations/search/searchBundle');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { SimpleContainer } = require('../../utils/simpleContainer');
 /**
  * This functions takes a FHIR Bundle and returns the resources in it
- * @param {{entry:{resource: Resource}[]}} bundle
+ * @param {Bundle} bundle
  * @return {Resource[]}
  */
 module.exports.unBundle = (bundle) => {
-    return bundle.entry.map(e => e.resource);
+    return bundle.entry ? bundle.entry.map((e) => e.resource) : [];
 };
 
 // noinspection JSUnusedLocalSymbols
@@ -49,7 +49,7 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
      */
     const container = context.container;
     assertTypeEquals(container, SimpleContainer);
-    if (!(reference)) {
+    if (!reference) {
         return null;
     }
     /**
@@ -68,7 +68,7 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
         assertTypeEquals(searchByIdOperation, SearchByIdOperation);
         return await searchByIdOperation.searchById(
             getRequestInfo(context),
-            {base_version: '4_0_0', id: idOfReference},
+            { base_version: '4_0_0', id: idOfReference },
             typeOfReference
         );
     } catch (e) {
@@ -80,8 +80,8 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
                     resourceType: typeOfReference,
                     id: idOfReference,
                     parentResourceType: parent.resourceType,
-                    parentId: parent.id
-                }
+                    parentId: parent.id,
+                },
             });
             return null;
         }
@@ -103,10 +103,10 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
      */
     const container = context.container;
     assertTypeEquals(container, SimpleContainer);
-    if (!(references)) {
+    if (!references) {
         return null;
     }
-    return async.flatMap(references, async reference => {
+    return async.flatMap(references, async (reference) => {
         /**
          * @type {string}
          */
@@ -141,8 +141,8 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
                         resourceType: typeOfReference,
                         id: idOfReference,
                         parentResourceType: parent.resourceType,
-                        parentId: parent.id
-                    }
+                        parentId: parent.id,
+                    },
                 });
                 return null;
             }
@@ -178,7 +178,7 @@ module.exports.getResources = async (parent, args, context, info, resourceType) 
             {
                 base_version: '4_0_0',
                 _bundle: '1',
-                ...args
+                ...args,
             },
             resourceType
         )

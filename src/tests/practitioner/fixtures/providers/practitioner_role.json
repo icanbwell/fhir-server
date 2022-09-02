@@ -1,47 +1,47 @@
 {
-  "resourceType": "PractitionerRole",
-  "id": "4657-3437",
+    "resourceType": "PractitionerRole",
+    "id": "4657-3437",
     "meta": {
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "medstar"
-        }
-      ]
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            }
+        ]
     },
-  "practitioner": {
-    "reference": "Practitioner/4657"
-  },
-  "organization": {
-    "reference": "Organization/MedStar Adult Medicine at MUMH",
-    "type": "Organization",
-    "display": "MedStar Adult Medicine at MUMH"
-  },
-  "code": [
-    {
-      "coding": [
+    "practitioner": {
+        "reference": "Practitioner/4657"
+    },
+    "organization": {
+        "reference": "Organization/MedStar Adult Medicine at MUMH",
+        "type": "Organization",
+        "display": "MedStar Adult Medicine at MUMH"
+    },
+    "code": [
         {
-          "system": "http://terminology.hl7.org/CodeSystem/practitioner-role",
-          "code": "doctor",
-          "display": "Doctor"
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/practitioner-role",
+                    "code": "doctor",
+                    "display": "Doctor"
+                }
+            ],
+            "text": "Doctor"
         }
-      ],
-      "text": "Doctor"
-    }
-  ],
-  "specialty": [
-    {
-      "coding": [
+    ],
+    "specialty": [
         {
-          "system": "https://www.medstarhealth.org/"
+            "coding": [
+                {
+                    "system": "https://www.medstarhealth.org/"
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "location": [
-    {
-      "reference": "Location/3437",
-      "display": "UMH 33RD ST PROF BLDG 3RD FL"
-    }
-  ]
+    ],
+    "location": [
+        {
+            "reference": "Location/3437",
+            "display": "UMH 33RD ST PROF BLDG 3RD FL"
+        }
+    ]
 }

@@ -1,58 +1,58 @@
 [
-  {
-    "action": "C",
-    "agent": [
-      {
-        "altId": "user/*.read user/*.write access/*.*",
-        "name": "imran",
-        "network": {
-          "type": 2
-        },
-        "requestor": true,
-        "who": {
-          "reference": "Person/imran"
-        }
-      }
-    ],
-    "entity": [
-      {
-        "detail": [
-          {
-            "type": "id",
-            "valueString": ""
-          },
-          {
-            "type": "base_version",
-            "valueString": "4_0_0"
-          },
-          {
-            "type": "validate",
-            "valueString": "true"
-          }
+    {
+        "action": "C",
+        "agent": [
+            {
+                "altId": "user/*.read user/*.write access/*.*",
+                "name": "imran",
+                "network": {
+                    "type": 2
+                },
+                "requestor": true,
+                "who": {
+                    "reference": "Person/imran"
+                }
+            }
         ],
-        "what": {
-          "reference": "Practitioner/1679033641"
-        }
-      }
-    ],
-    "meta": {
-      "security": [
-        {
-          "code": "bwell",
-          "system": "https://www.icanbwell.com/owner"
+        "entity": [
+            {
+                "detail": [
+                    {
+                        "type": "id",
+                        "valueString": ""
+                    },
+                    {
+                        "type": "base_version",
+                        "valueString": "4_0_0"
+                    },
+                    {
+                        "type": "validate",
+                        "valueString": "true"
+                    }
+                ],
+                "what": {
+                    "reference": "Practitioner/1679033641"
+                }
+            }
+        ],
+        "meta": {
+            "security": [
+                {
+                    "code": "bwell",
+                    "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                    "code": "bwell",
+                    "system": "https://www.icanbwell.com/access"
+                }
+            ],
+            "versionId": "1"
         },
-        {
-          "code": "bwell",
-          "system": "https://www.icanbwell.com/access"
+        "resourceType": "AuditEvent",
+        "type": {
+            "code": 110112,
+            "display": "Query",
+            "system": "http://dicom.nema.org/resources/ontology/DCM"
         }
-      ],
-      "versionId": "1"
-    },
-    "resourceType": "AuditEvent",
-    "type": {
-      "code": 110112,
-      "display": "Query",
-      "system": "http://dicom.nema.org/resources/ontology/DCM"
     }
-  }
 ]

@@ -13,9 +13,10 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getGraphQLHeaders, createTestRequest,
+    getGraphQLHeaders,
+    createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('GraphQL MedicationRequest Tests', () => {
     beforeEach(async () => {
@@ -30,10 +31,7 @@ describe('GraphQL MedicationRequest Tests', () => {
         test('GraphQL get MedicationRequest with dispenses', async () => {
             const request = await createTestRequest();
             const graphqlQueryText = query.replace(/\\n/g, '');
-            let resp = await request
-                .get('/4_0_0/MedicationRequest')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/MedicationRequest').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -68,9 +66,9 @@ describe('GraphQL MedicationRequest Tests', () => {
             resp = await request
                 .post('/graphqlv2')
                 .send({
-                    'operationName': null,
-                    'variables': {},
-                    'query': graphqlQueryText
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);

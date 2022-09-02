@@ -1,37 +1,37 @@
 {
-  "resourceType": "GraphDefinition",
-  "id": "o",
-  "name": "organization_everything",
-  "status": "active",
-  "start": "Slot",
-  "link": [
-    {
-      "path": "schedule",
-      "target": [
+    "resourceType": "GraphDefinition",
+    "id": "o",
+    "name": "organization_everything",
+    "status": "active",
+    "start": "Slot",
+    "link": [
         {
-          "type": "Schedule",
-          "link": [
-            {
-              "path": "actor",
-              "target": [
+            "path": "schedule",
+            "target": [
                 {
-                  "type": "PractitionerRole",
-                  "link": [
-                    {
-                      "path": "practitioner",
-                      "target": [
+                    "type": "Schedule",
+                    "link": [
                         {
-                          "type": "Practitioner"
+                            "path": "actor",
+                            "target": [
+                                {
+                                    "type": "PractitionerRole",
+                                    "link": [
+                                        {
+                                            "path": "practitioner",
+                                            "target": [
+                                                {
+                                                    "type": "Practitioner"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
                         }
-                      ]
-                    }
-                  ]
+                    ]
                 }
-              ]
-            }
-          ]
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

@@ -1,6 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {getResource} = require('../common/getResource');
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
@@ -137,7 +136,6 @@ class SearchByIdOperation {
              */
             const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
 
-            let Resource = getResource(base_version, resourceType);
             /**
              * @type {Promise<Resource> | *}
              */
@@ -191,7 +189,7 @@ class SearchByIdOperation {
                         startTime,
                         action: currentOperationName
                     });
-                return new Resource(resource);
+                return resource;
             } else {
                 throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
             }

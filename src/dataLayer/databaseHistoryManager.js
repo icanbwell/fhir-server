@@ -1,6 +1,8 @@
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const {getResource} = require('../operations/common/getResource');
 
 /**
  * This class provides access to _History collections
@@ -58,16 +60,17 @@ class DatabaseHistoryManager {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async insertOneAsync({doc}) {
+    async insertHistoryForResourceAsync({doc}) {
+        assertTypeEquals(doc, Resource);
         const collection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(doc);
-        await collection.insertOne(doc);
+        await collection.insertOne(doc.toJSON());
     }
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
      * @param { import('mongodb').WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
-     * @return {Promise<Resource|any>}
+     * @return {Promise<Resource|null>}
      */
     async findOneAsync({query, options = null}) {
         /**
@@ -80,7 +83,8 @@ class DatabaseHistoryManager {
              */
             const resource = await collection.findOne(query, options);
             if (resource !== null) {
-                return resource;
+                const ResourceCreator = getResource(this._base_version, this._resourceType);
+                return new ResourceCreator(resource);
             }
         }
         return null;
@@ -108,7 +112,9 @@ class DatabaseHistoryManager {
             const cursor = collection.find(query, options);
             cursors.push(cursor);
         }
-        return new DatabasePartitionedCursor({cursors});
+        return new DatabasePartitionedCursor({
+            base_version: this._base_version, resourceType: this._resourceType, cursors
+        });
     }
 }
 

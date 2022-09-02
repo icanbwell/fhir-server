@@ -5,8 +5,13 @@ const practiceOrganizationResource2 = require('./fixtures/practice/practice_orga
 // expected
 const expectedOrganizationResource = require('./fixtures/expected/expected_organization.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('Organization Everything Tests', () => {
     beforeEach(async () => {
@@ -20,10 +25,7 @@ describe('Organization Everything Tests', () => {
     describe('Everything Tests', () => {
         test('Everything works properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Organization')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Organization').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -48,7 +50,9 @@ describe('Organization Everything Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
             resp = await request
-                .get('/4_0_0/Organization?type=http://terminology.hl7.org/CodeSystem/organization-type|prov')
+                .get(
+                    '/4_0_0/Organization?type=http://terminology.hl7.org/CodeSystem/organization-type|prov'
+                )
                 .set(getHeaders())
                 .expect(200);
             console.log('------- response Practitioner ------------');
@@ -57,11 +61,11 @@ describe('Organization Everything Tests', () => {
             // clear out the lastUpdated column since that changes
             let body = resp.body;
             expect(body.length).toBe(1);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedOrganizationResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }

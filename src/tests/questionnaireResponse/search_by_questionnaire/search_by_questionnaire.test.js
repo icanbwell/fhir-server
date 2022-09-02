@@ -1,9 +1,13 @@
 const questionnaireResponseBundle = require('./fixtures/questionnaire_responses.json');
 const expectedQuestionnaireResponseBundle = require('./fixtures/expected_questionnaire_responses.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertResourceCount, assertMerge, assertResponse} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -17,21 +21,26 @@ describe('Questionnaire Response Tests', () => {
     describe('QuestionnaireResponse Bundles', () => {
         test('QuestionnaireResponse can search by questionnaire', async () => {
             const request = await createTestRequest();
-            await request
+            let resp = await request
                 .get('/4_0_0/QuestionnaireResponse')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
-            await request
+            resp = await request
                 .post('/4_0_0/QuestionnaireResponse/1/$merge')
                 .send(questionnaireResponseBundle)
-                .set(getHeaders())
-                .expect(assertMerge({created: true}));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
-            await request
-                .get('/4_0_0/QuestionnaireResponse?questionnaire=https://protocol-service.icanbwell.com/Questionnaire/medstar-squeeze|4.0.0')
-                .set(getHeaders())
-                .expect(assertResponse({expected: expectedQuestionnaireResponseBundle}));
+            resp = await request
+                .get(
+                    '/4_0_0/QuestionnaireResponse?questionnaire=https://protocol-service.icanbwell.com/Questionnaire/medstar-squeeze|4.0.0'
+                )
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedQuestionnaireResponseBundle);
         });
     });
 });

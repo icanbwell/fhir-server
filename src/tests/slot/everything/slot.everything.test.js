@@ -7,9 +7,14 @@ const slotPractitionerResource = require('./fixtures/slot/practitioner.json');
 // expected
 const expectedEverythingResource = require('./fixtures/expected/expected_everything.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {findDuplicateResources} = require('../../../utils/list.util');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { findDuplicateResources } = require('../../../utils/list.util');
 
 describe('Slot Everything Tests', () => {
     beforeEach(async () => {
@@ -23,10 +28,7 @@ describe('Slot Everything Tests', () => {
     describe('Everything Tests', () => {
         test('Everything works properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -72,18 +74,20 @@ describe('Slot Everything Tests', () => {
                 .get('/4_0_0/Slot/1275501447-UHG-MMMA-existing/$everything')
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response Slot 1275501447-UHG-MMMA-existing $everything ------------');
+            console.log(
+                '------- response Slot 1275501447-UHG-MMMA-existing $everything ------------'
+            );
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
             let body = resp.body;
             delete body['timestamp'];
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['fullUrl'];
                 delete element['resource']['meta']['lastUpdated'];
             });
             let expected = expectedEverythingResource;
             delete expected['timestamp'];
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete element['fullUrl'];
                 if ('meta' in element['resource']) {
                     delete element['resource']['meta']['lastUpdated'];
@@ -93,13 +97,13 @@ describe('Slot Everything Tests', () => {
                 }
             });
             console.log('----- Received resources ----');
-            console.log(`${body.entry.map(e => e.resource).map(a => `${a.resourceType}/${a.id}`)}`);
+            console.log(
+                `${body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`
+            );
             console.log('----- End of Received resources ----');
             // verify there are no duplicate ids
-            const duplicates = findDuplicateResources(
-                body.entry.map(e => e.resource)
-            );
-            expect(duplicates.map(a => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
+            const duplicates = findDuplicateResources(body.entry.map((e) => e.resource));
+            expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
 
             expect(body).toStrictEqual(expected);
         });

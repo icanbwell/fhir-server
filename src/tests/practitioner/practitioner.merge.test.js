@@ -2,8 +2,8 @@ const practitionerResource = require('./fixtures/providers/practitioner.json');
 const practitionerResourcev2 = require('./fixtures/providers/practitioner_v2.json');
 const expectedPractitionerResource_v2 = require('./fixtures/providers/expected_practitioner_v2.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
+const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
 
 describe('Practitioner Merge Tests', () => {
     beforeEach(async () => {
@@ -17,10 +17,7 @@ describe('Practitioner Merge Tests', () => {
     describe('Practitioner Merges', () => {
         test('Multiple calls to Practitioner merge properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -56,10 +53,7 @@ describe('Practitioner Merge Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3  ------------');
 
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
 
             // clear out the lastUpdated column since that changes
             let body = resp.body;

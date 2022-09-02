@@ -1,6 +1,5 @@
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
-const {getResource} = require('../common/getResource');
 const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
@@ -72,7 +71,7 @@ class SearchBundleOperation {
      * @param {Object} args
      * @param {string} resourceType
      * @param {boolean} filter
-     * @return {Promise<{entry:{resource: Resource}[]}>} array of resources or a bundle
+     * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
         requestInfo, args, resourceType,
@@ -165,12 +164,6 @@ class SearchBundleOperation {
                 });
             throw e;
         }
-
-        /**
-         * @type {function(?Object): Resource}
-         */
-        let ResourceCreator = getResource(base_version, resourceType);
-
         /**
          * @type {import('mongodb').FindOneOptions}
          */
@@ -244,7 +237,7 @@ class SearchBundleOperation {
                 resources = await this.searchManager.readResourcesFromCursorAsync(
                     {
                         cursor, user, scope, args,
-                        ResourceCreator, resourceType,
+                        resourceType,
                         useAccessIndex
                     }
                 );
@@ -280,6 +273,9 @@ class SearchBundleOperation {
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
+            /**
+             * @type {Bundle}
+             */
             const bundle = this.bundleManager.createBundle(
                 {
                     type: 'searchset',

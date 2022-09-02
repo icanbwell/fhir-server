@@ -3,13 +3,19 @@
  */
 const env = require('var');
 const Sentry = require('./middleware/sentry');
-const {profiles} = require('./profiles');
+const { profiles } = require('./profiles');
 // const {MongoClientOptions} = require('mongodb');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.MONGO_USERNAME !== undefined) {
-    mongoUrl = mongoUrl.replace('mongodb://', `mongodb://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`);
-    mongoUrl = mongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`);
+    mongoUrl = mongoUrl.replace(
+        'mongodb://',
+        `mongodb://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`
+    );
+    mongoUrl = mongoUrl.replace(
+        'mongodb+srv://',
+        `mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`
+    );
 }
 // url-encode the url
 mongoUrl = encodeURI(mongoUrl);
@@ -19,12 +25,12 @@ mongoUrl = encodeURI(mongoUrl);
  * @type {import('mongodb').MongoClientOptions}
  */
 const options = {
-        appName: 'fhir',
-        keepAlive: true,
-        connectTimeoutMS: 60000,
-        socketTimeoutMS: 60000,
-        retryReads: true,
-        // minPoolSize: 100,
+    appName: 'fhir',
+    keepAlive: true,
+    connectTimeoutMS: 60000,
+    socketTimeoutMS: 60000,
+    retryReads: true,
+    // minPoolSize: 100,
 };
 /**
  * @name mongoConfig
@@ -39,8 +45,14 @@ let mongoConfig = {
 
 let atlasMongoUrl = env.ATLAS_MONGO_URL;
 if (env.ATLAS_MONGO_USERNAME !== undefined) {
-    atlasMongoUrl = atlasMongoUrl.replace('mongodb://', `mongodb://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`);
-    atlasMongoUrl = atlasMongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`);
+    atlasMongoUrl = atlasMongoUrl.replace(
+        'mongodb://',
+        `mongodb://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`
+    );
+    atlasMongoUrl = atlasMongoUrl.replace(
+        'mongodb+srv://',
+        `mongodb+srv://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`
+    );
 }
 // url-encode the url
 atlasMongoUrl = atlasMongoUrl ? encodeURI(atlasMongoUrl) : atlasMongoUrl;
@@ -52,13 +64,19 @@ atlasMongoUrl = atlasMongoUrl ? encodeURI(atlasMongoUrl) : atlasMongoUrl;
 let atlasMongoConfig = {
     connection: atlasMongoUrl,
     db_name: String(env.ATLAS_MONGO_DB_NAME),
-    options: options
+    options: options,
 };
 
 let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL;
 if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
-    auditEventMongoUrl = auditEventMongoUrl.replace('mongodb://', `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`);
-    auditEventMongoUrl = auditEventMongoUrl.replace('mongodb+srv://', `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`);
+    auditEventMongoUrl = auditEventMongoUrl.replace(
+        'mongodb://',
+        `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
+    );
+    auditEventMongoUrl = auditEventMongoUrl.replace(
+        'mongodb+srv://',
+        `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
+    );
 }
 // url-encode the url
 auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditEventMongoUrl;
@@ -70,7 +88,7 @@ auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditE
 let auditEventMongoConfig = {
     connection: auditEventMongoUrl,
     db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
-    options: options
+    options: options,
 };
 
 // Set up whitelist
@@ -152,7 +170,7 @@ if (env.AUTH_ENABLED === '1') {
         strategy: {
             name: 'jwt',
             useSession: false,
-            service: './src/strategies/jwt.bearer.strategy.js'
+            service: './src/strategies/jwt.bearer.strategy.js',
         },
     };
 }
@@ -161,5 +179,5 @@ module.exports = {
     fhirServerConfig,
     mongoConfig,
     atlasMongoConfig,
-    auditEventMongoConfig
+    auditEventMongoConfig,
 };

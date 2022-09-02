@@ -4,7 +4,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import InvoicePriceComponent from "../backbone_elements/invoicePriceComponent.graphql"
 
-
 """
 Invoice.LineItem
     Invoice containing collected ChargeItems from an Account with calculated
@@ -14,7 +13,7 @@ type InvoiceLineItem {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -22,7 +21,7 @@ type InvoiceLineItem {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -33,24 +32,24 @@ type InvoiceLineItem {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Sequence in which the items appear on the invoice.
     """
-    sequence: Int        
+    sequence: Int
     """
     None
     """
-    chargeItemReference: ChargeItem        
+    chargeItemReference: ChargeItem
     """
     None
     """
-    chargeItemCodeableConcept: CodeableConcept        
+    chargeItemCodeableConcept: CodeableConcept
     """
     The price for a ChargeItem may be calculated as a base price with
     surcharges/deductions that apply in certain conditions. A ChargeItemDefinition
@@ -59,5 +58,5 @@ type InvoiceLineItem {
     used to offer transparency to the recipient of the Invoice as to how the
     prices have been calculated.
     """
-    priceComponent: [InvoicePriceComponent]        
+    priceComponent: [InvoicePriceComponent]
 }

@@ -18,7 +18,6 @@ union SupplyDeliveryPartOf = SupplyDelivery | Contract
 union SupplyDeliverySupplier = Practitioner | PractitionerRole | Organization
 union SupplyDeliveryReceiver = Practitioner | PractitionerRole
 
-
 """
 SupplyDelivery
     Record of delivery of what is supplied.
@@ -30,24 +29,24 @@ type SupplyDelivery {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: id        
+    id: id
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
     version changes to the resource.
     """
-    meta: Meta        
+    meta: Meta
     """
     A reference to a set of rules that were followed when the resource was
     constructed, and which must be understood when processing the content. Often,
     this is a reference to an implementation guide that defines the special rules
     along with other profiles etc.
     """
-    implicitRules: uri        
+    implicitRules: uri
     """
     The base language in which the resource is written.
     """
-    language: code        
+    language: code
     """
     A human-readable narrative that contains a summary of the resource and can be
     used to represent the content of the resource to a human. The narrative need
@@ -56,13 +55,13 @@ type SupplyDelivery {
     Resource definitions may define what content should be represented in the
     narrative to ensure clinical safety.
     """
-    text: Narrative        
+    text: Narrative
     """
     These resources do not have an independent existence apart from the resource
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]        
+    contained: [ResourceContainer]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,
@@ -70,7 +69,7 @@ type SupplyDelivery {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -81,65 +80,65 @@ type SupplyDelivery {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Identifier for the supply delivery event that is used to identify it across
     multiple disparate systems.
     """
-    identifier: [Identifier]        
+    identifier: [Identifier]
     """
     A plan, proposal or order that is fulfilled in whole or in part by this event.
     """
-    basedOn: [SupplyRequest]        
+    basedOn: [SupplyRequest]
     """
     A larger event of which this particular event is a component or step.
     """
-    partOf: [SupplyDeliveryPartOf]        
+    partOf: [SupplyDeliveryPartOf]
     """
     A code specifying the state of the dispense event.
     """
-    status: code        
+    status: code
     """
     A link to a resource representing the person whom the delivered item is for.
     """
-    patient: Patient        
+    patient: Patient
     """
     Indicates the type of dispensing event that is performed. Examples include:
     Trial Fill, Completion of Trial, Partial Fill, Emergency Fill, Samples, etc.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     The item that is being delivered or has been supplied.
     """
-    suppliedItem: SupplyDeliverySuppliedItem        
+    suppliedItem: SupplyDeliverySuppliedItem
     """
     None
     """
-    occurrenceDateTime: dateTime        
+    occurrenceDateTime: dateTime
     """
     None
     """
-    occurrencePeriod: Period        
+    occurrencePeriod: Period
     """
     None
     """
-    occurrenceTiming: Timing        
+    occurrenceTiming: Timing
     """
     The individual responsible for dispensing the medication, supplier or device.
     """
-    supplier: SupplyDeliverySupplier        
+    supplier: SupplyDeliverySupplier
     """
     Identification of the facility/location where the Supply was shipped to, as
     part of the dispense event.
     """
-    destination: Location        
+    destination: Location
     """
     Identifies the person who picked up the Supply.
     """
-    receiver: [SupplyDeliveryReceiver]        
+    receiver: [SupplyDeliveryReceiver]
 }

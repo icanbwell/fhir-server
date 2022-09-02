@@ -1,95 +1,95 @@
 {
-  "resourceType": "GraphDefinition",
-  "id": "o",
-  "name": "practitioner_references",
-  "status": "active",
-  "start": "Practitioner",
-  "link": [
-    {
-      "path": "qualification[x].issuer",
-      "target": [
+    "resourceType": "GraphDefinition",
+    "id": "o",
+    "name": "practitioner_references",
+    "status": "active",
+    "start": "Practitioner",
+    "link": [
         {
-          "type": "Organization"
-        }
-      ]
-    },
-    {
-      "description": "Practitioner Roles for this Practitioner",
-      "target": [
+            "path": "qualification[x].issuer",
+            "target": [
+                {
+                    "type": "Organization"
+                }
+            ]
+        },
         {
-          "type": "PractitionerRole",
-          "params": "practitioner={ref}&_security=https://www.icanbwell.com/access|medstar",
-          "link": [
-            {
-              "path": "organization",
-              "target": [
+            "description": "Practitioner Roles for this Practitioner",
+            "target": [
                 {
-                  "type": "Organization"
-                }
-              ]
-            },
-            {
-              "path": "location[x]",
-              "target": [
-                {
-                  "type": "Location"
-                }
-              ]
-            },
-            {
-              "path": "healthcareService[x]",
-              "target": [
-                {
-                  "type": "HealthcareService"
-                }
-              ]
-            },
-            {
-              "path": "extension.extension:url=plan",
-              "target": [
-                {
-                  "link": [
-                    {
-                      "path": "valueReference",
-                      "target": [
+                    "type": "PractitionerRole",
+                    "params": "practitioner={ref}&_security=https://www.icanbwell.com/access|medstar",
+                    "link": [
                         {
-                          "type": "InsurancePlan"
+                            "path": "organization",
+                            "target": [
+                                {
+                                    "type": "Organization"
+                                }
+                            ]
+                        },
+                        {
+                            "path": "location[x]",
+                            "target": [
+                                {
+                                    "type": "Location"
+                                }
+                            ]
+                        },
+                        {
+                            "path": "healthcareService[x]",
+                            "target": [
+                                {
+                                    "type": "HealthcareService"
+                                }
+                            ]
+                        },
+                        {
+                            "path": "extension.extension:url=plan",
+                            "target": [
+                                {
+                                    "link": [
+                                        {
+                                            "path": "valueReference",
+                                            "target": [
+                                                {
+                                                    "type": "InsurancePlan"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "target": [
+                                {
+                                    "type": "Schedule",
+                                    "params": "actor={ref}&_security=https://www.icanbwell.com/access|medstar"
+                                }
+                            ]
                         }
-                      ]
-                    }
-                  ]
+                    ]
                 }
-              ]
-            },
-            {
-              "target": [
+            ]
+        },
+        {
+            "description": "Group",
+            "target": [
                 {
-                  "type": "Schedule",
-                  "params": "actor={ref}&_security=https://www.icanbwell.com/access|medstar"
+                    "type": "Group",
+                    "params": "member={ref}&_security=https://www.icanbwell.com/access|medstar"
                 }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "description": "Group",
-      "target": [
+            ]
+        },
         {
-          "type": "Group",
-          "params": "member={ref}&_security=https://www.icanbwell.com/access|medstar"
+            "description": "Review score for the practitioner",
+            "target": [
+                {
+                    "type": "MeasureReport",
+                    "params": "subject={ref}&_security=https://www.icanbwell.com/access|medstar"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "description": "Review score for the practitioner",
-      "target": [
-        {
-          "type": "MeasureReport",
-          "params": "subject={ref}&_security=https://www.icanbwell.com/access|medstar"
-        }
-      ]
-    }
-  ]
+    ]
 }

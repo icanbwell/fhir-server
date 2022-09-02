@@ -7,10 +7,13 @@ const valueset4Resource = require('./fixtures/ValueSet/valueset4.json');
 // expected
 const expectedValueSetResources = require('./fixtures/expected/expected_ValueSet.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
-const {assertMergeIsSuccessful} = require('../../fhirAsserts');
-
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 
 describe('ValueSet Multiple Tests', () => {
     beforeEach(async () => {
@@ -29,42 +32,38 @@ describe('ValueSet Multiple Tests', () => {
             let resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset2Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset3Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset4Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right ValueSet back
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1106.45/$expand?_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-
-            const body = resp.body;
-            delete body['meta']['lastUpdated'];
-            delete expectedValueSetResources['meta']['lastUpdated'];
-            expect(resp.body).toStrictEqual(expectedValueSetResources);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValueSetResources);
         });
     });
 });

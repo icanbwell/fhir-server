@@ -1,0 +1,25 @@
+{
+  compilerOptions: {
+    target: "es2016",
+    module: "commonjs",
+    baseUrl: "./",
+    esModuleInterop: true,
+    strict: true,
+    strictNullChecks: true,
+    strictFunctionTypes: true,
+    strictBindCallApply: true,
+    strictPropertyInitialization: true,
+    noEmit: true
+  },
+  files: [
+    "global.d.ts",
+    "src/types/jest/index.d.ts"
+  ],
+  include: [
+    "src/**/*",
+    "test/**/*"
+  ],
+  exclude: [
+    "node_modules"
+  ]
+}

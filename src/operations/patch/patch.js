@@ -4,7 +4,6 @@ const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
-const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
@@ -126,11 +125,11 @@ class PatchOperation {
             // Make the changes indicated in the patch
             let resource_incoming = applyPatch(data, patchContent).newDocument;
 
-            let Resource = getResource(base_version, resourceType);
-            let resource = new Resource(resource_incoming);
+            let ResourceCreator = getResource(base_version, resourceType);
+            let resource = new ResourceCreator(resource_incoming);
 
             if (data && data.meta) {
-                let foundResource = new Resource(data);
+                let foundResource = new ResourceCreator(data);
                 let meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
@@ -146,11 +145,7 @@ class PatchOperation {
             /**
              * @type {Resource}
              */
-            let cleaned = removeNull(resource.toJSON());
-            /**
-             * @type {Resource}
-             */
-            let doc = cleaned;
+            let doc = resource;
 
             // Insert/update our resource record
             let res;
@@ -165,19 +160,16 @@ class PatchOperation {
                 throw new BadRequestError(e);
             }
             // Save to history
-
             /**
              * @type {Resource}
              */
-            let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-
-            // Insert our resource record to history but don't assign _id
+            const historyResource = doc.copy();
             try {
                 await this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
                         resourceType, base_version, useAtlas
                     }
-                ).insertOneAsync({doc: history_resource});
+                ).insertHistoryForResourceAsync({doc: historyResource});
             } catch (e) {
                 throw new BadRequestError(e);
             }

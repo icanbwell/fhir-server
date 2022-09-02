@@ -6,7 +6,6 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import MedicinalProductPharmaceuticalTargetSpecies from "../backbone_elements/medicinalProductPharmaceuticalTargetSpecies.graphql"
 
-
 """
 MedicinalProductPharmaceutical.RouteOfAdministration
     A pharmaceutical product described in terms of its composition and dose form.
@@ -15,7 +14,7 @@ type MedicinalProductPharmaceuticalRouteOfAdministration {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -23,7 +22,7 @@ type MedicinalProductPharmaceuticalRouteOfAdministration {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -34,47 +33,47 @@ type MedicinalProductPharmaceuticalRouteOfAdministration {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Coded expression for the route.
     """
-    code: CodeableConcept!        
+    code: CodeableConcept!
     """
     The first dose (dose quantity) administered in humans can be specified, for a
     product under investigation, using a numerical value and its unit of
     measurement.
     """
-    firstDose: Quantity        
+    firstDose: Quantity
     """
     The maximum single dose that can be administered as per the protocol of a
     clinical trial can be specified using a numerical value and its unit of
     measurement.
     """
-    maxSingleDose: Quantity        
+    maxSingleDose: Quantity
     """
     The maximum dose per day (maximum dose quantity to be administered in any one
     24-h period) that can be administered as per the protocol referenced in the
     clinical trial authorisation.
     """
-    maxDosePerDay: Quantity        
+    maxDosePerDay: Quantity
     """
     The maximum dose per treatment period that can be administered as per the
     protocol referenced in the clinical trial authorisation.
     """
-    maxDosePerTreatmentPeriod: Ratio        
+    maxDosePerTreatmentPeriod: Ratio
     """
     The maximum treatment period during which an Investigational Medicinal Product
     can be administered as per the protocol referenced in the clinical trial
     authorisation.
     """
-    maxTreatmentPeriod: Quantity        
+    maxTreatmentPeriod: Quantity
     """
     A species for which this route applies.
     """
-    targetSpecies: [MedicinalProductPharmaceuticalTargetSpecies]        
+    targetSpecies: [MedicinalProductPharmaceuticalTargetSpecies]
 }

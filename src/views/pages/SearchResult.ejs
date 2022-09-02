@@ -44,7 +44,7 @@
                             <% } %>
                         </td>
                     <% }) %>
-                    <td><%= searchUtils.formatDate(res.meta.lastUpdated) %></td>
+                    <td><%= res.meta ? searchUtils.formatDate(res.meta.lastUpdated): null %></td>
                 </tr>
                 <% }) %>
                 </tbody>

@@ -49,7 +49,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "2"
         },
         "name": [
           {
@@ -139,7 +140,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "1"
         },
         "practitioner": {
           "reference": "Practitioner/1679033641"
@@ -227,7 +229,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "1"
         },
         "name": "UMH 33RD ST PROF BLDG 3RD FL",
         "position": {
@@ -283,7 +286,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "1"
         },
         "resourceType": "HealthcareService"
       }
@@ -314,7 +318,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "1"
         },
         "organization": {
           "display": "MWHC",
@@ -350,7 +355,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "1"
         },
         "resourceType": "Organization",
         "type": [
@@ -375,7 +381,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "1"
         },
         "name": "AETNA-Aetna Elect Choice/ EPO (Aetna Health Fund) Innovation Health: Network Only Plus",
         "ownedBy": {
@@ -452,7 +459,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "1"
         },
         "practitioner": {
           "reference": "Practitioner/1679033641"
@@ -560,7 +568,8 @@
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
             }
-          ]
+          ],
+          "versionId": "1"
         },
         "name": "Primary Care",
         "providedBy": {

@@ -8,9 +8,7 @@ const ExplanationOfBenefitsEnrichmentProvider = require('./providers/explanation
  * Registered set of enrichment providers
  * @type {EnrichmentProvider[]}
  */
-const enrichmentProviders = [
-    new ExplanationOfBenefitsEnrichmentProvider()
-];
+const enrichmentProviders = [new ExplanationOfBenefitsEnrichmentProvider()];
 
 /**
  * Runs any registered enrichment providers

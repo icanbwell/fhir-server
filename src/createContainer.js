@@ -46,8 +46,9 @@ const {ResourcePreparer} = require('./operations/common/resourcePreparer');
 const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
 const {isTrue} = require('./utils/isTrue');
 const {BundleManager} = require('./operations/common/bundleManager');
-const {ResourceCleaner} = require('./operations/common/resourceCleaner');
 const {getImageVersion} = require('./utils/getImageVersion');
+const {ResourceMerger} = require('./operations/common/resourceMerger');
+const {ResourceValidator} = require('./operations/common/resourceValidator');
 
 /**
  * Creates a container and sets up all the services
@@ -63,12 +64,12 @@ const createContainer = function () {
             scopesManager: c.scopesManager
         }
     ));
-
+    container.register('resourceMerger', () => new ResourceMerger());
     container.register('scopesValidator', c => new ScopesValidator({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager
     }));
-
+    container.register('resourceValidator', () => new ResourceValidator());
     container.register('fhirLoggingManager', c => new FhirLoggingManager({
         scopesManager: c.scopesManager,
         imageVersion: getImageVersion()
@@ -148,7 +149,9 @@ const createContainer = function () {
                 auditLogger: c.auditLogger,
                 databaseBulkInserter: c.databaseBulkInserter,
                 databaseBulkLoader: c.databaseBulkLoader,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                resourceMerger: c.resourceMerger,
+                resourceValidator: c.resourceValidator
             }
         )
     );
@@ -190,8 +193,6 @@ const createContainer = function () {
     );
 
     container.register('bundleManager', () => new BundleManager());
-    container.register('resourceCleaner', () => new ResourceCleaner());
-
     // register fhir operations
     container.register('searchBundleOperation', c => new SearchBundleOperation(
             {
@@ -237,7 +238,8 @@ const createContainer = function () {
                 databaseHistoryFactory: c.databaseHistoryFactory,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
-                scopesValidator: c.scopesValidator
+                scopesValidator: c.scopesValidator,
+                resourceValidator: c.resourceValidator
             }
         )
     );
@@ -250,7 +252,8 @@ const createContainer = function () {
                 databaseQueryFactory: c.databaseQueryFactory,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
-                scopesValidator: c.scopesValidator
+                scopesValidator: c.scopesValidator,
+                resourceValidator: c.resourceValidator
             }
         )
     );
@@ -267,7 +270,7 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
-            resourceCleaner: c.resourceCleaner
+            resourceValidator: c.resourceValidator
         }
     ));
     container.register('everythingOperation', c => new EverythingOperation({
@@ -326,14 +329,16 @@ const createContainer = function () {
     container.register('validateOperation', c => new ValidateOperation(
         {
             scopesManager: c.scopesManager,
-            fhirLoggingManager: c.fhirLoggingManager
+            fhirLoggingManager: c.fhirLoggingManager,
+            resourceValidator: c.resourceValidator
         }
     ));
     container.register('graphOperation', c => new GraphOperation(
         {
             graphHelper: c.graphHelper,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            resourceValidator: c.resourceValidator
         }
     ));
     container.register('expandOperation', c => new ExpandOperation(

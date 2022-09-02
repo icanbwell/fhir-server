@@ -9,11 +9,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    wrapResourceInBundle,
-    createTestRequest
+    createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertCompareBundles, assertMergeIsSuccessful, assertStatusCode} = require('../../fhirAsserts');
 
 describe('ValueSet Tests', () => {
     beforeEach(async () => {
@@ -32,37 +30,23 @@ describe('ValueSet Tests', () => {
             let resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31')
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response Practitioner sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            assertCompareBundles({
-                body: wrapResourceInBundle(resp.body),
-                expected: expectedValueSetResources
-            });
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValueSetResources);
 
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31/$expand')
-                .set(getHeaders())
-                .expect(assertStatusCode(200));
-
-            console.log('------- response Practitioner sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            // clear out the lastUpdated column since that changes
-            assertCompareBundles({
-                body: wrapResourceInBundle(resp.body), expected: expectedValueSetExpandResources
-            });
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValueSetExpandResources);
         });
     });
 });

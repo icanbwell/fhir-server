@@ -1,10 +1,10 @@
-const {DataSource} = require('apollo-datasource');
-const {logWarn} = require('../../operations/common/logging');
+const { DataSource } = require('apollo-datasource');
+const { logWarn } = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const {groupByLambda} = require('../../utils/list.util');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SimpleContainer} = require('../../utils/simpleContainer');
+const { groupByLambda } = require('../../utils/list.util');
+const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
+const { SimpleContainer } = require('../../utils/simpleContainer');
 
 /**
  * This class stores the tuple of resourceType and id to uniquely identify a resource
@@ -33,7 +33,7 @@ class ResourceWithId {
         if (references.length !== 2) {
             return null;
         }
-        return {resourceType: references[0], id: references[1]};
+        return { resourceType: references[0], id: references[1] };
     }
 
     /**
@@ -104,14 +104,14 @@ class FhirDataSource extends DataSource {
 
     /**
      * This function takes a FHIR Bundle and returns the resources in it
-     * @param {{entry: {resource: Resource}[]}} bundle
+     * @param {Bundle} bundle
      * @return {Resource[]}
      */
     unBundle(bundle) {
         if (bundle.meta) {
             this.metaList.push(bundle.meta);
         }
-        return bundle.entry.map(e => e.resource);
+        return bundle.entry ? bundle.entry.map((e) => e.resource) : [];
     }
 
     /**
@@ -133,17 +133,15 @@ class FhirDataSource extends DataSource {
                 /** @type {string} */
                 resourceType,
                 /** @type {string} */
-                id
+                id,
             } = ResourceWithId.getResourceTypeAndIdFromReference(key);
             /**
              * resources with this resourceType and id
              * @type {Resource[]}
              */
-            const items = resources.filter(r => r.resourceType === resourceType && r.id === id);
+            const items = resources.filter((r) => r.resourceType === resourceType && r.id === id);
             // IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
-            resultsOrdered.push(
-                items.length > 0 ? items[0] : null
-            );
+            resultsOrdered.push(items.length > 0 ? items[0] : null);
         }
         return resultsOrdered;
     }
@@ -161,9 +159,8 @@ class FhirDataSource extends DataSource {
          * Each field in the object is the key
          * @type {Object}
          */
-        const groupKeysByResourceType = groupByLambda(
-            keys,
-            key => ResourceWithId.getResourceTypeFromReference(key)
+        const groupKeysByResourceType = groupByLambda(keys, (key) =>
+            ResourceWithId.getResourceTypeFromReference(key)
         );
         // noinspection UnnecessaryLocalVariableJS
         /**
@@ -171,34 +168,37 @@ class FhirDataSource extends DataSource {
          */
         const results = this.reorderResources(
             // run the loads in parallel by resourceType
-            await async.flatMap(Object.entries(groupKeysByResourceType), async groupKeysByResourceTypeKey => {
-                // resourceType is a string and resources is a list of resources of that resourceType
-                const [
-                    /** @type {string} **/
-                    resourceType,
-                    /** @type {string[]} **/
-                    references
-                ] = groupKeysByResourceTypeKey;
-                /**
-                 * @type {string[]}
-                 */
-                const idsOfReference = references
-                    .map(r => ResourceWithId.getIdFromReference(r))
-                    .filter(r => r !== null);
-                return this.unBundle(
-                    await this.searchBundleOperation.searchBundle(
-                        requestInfo,
-                        {
-                            base_version: '4_0_0',
-                            id: idsOfReference,
-                            _bundle: '1',
-                            _debug: '1'
-                        },
+            await async.flatMap(
+                Object.entries(groupKeysByResourceType),
+                async (groupKeysByResourceTypeKey) => {
+                    // resourceType is a string and resources is a list of resources of that resourceType
+                    const [
+                        /** @type {string} **/
                         resourceType,
-                        false
-                    )
-                );
-            }),
+                        /** @type {string[]} **/
+                        references,
+                    ] = groupKeysByResourceTypeKey;
+                    /**
+                     * @type {string[]}
+                     */
+                    const idsOfReference = references
+                        .map((r) => ResourceWithId.getIdFromReference(r))
+                        .filter((r) => r !== null);
+                    return this.unBundle(
+                        await this.searchBundleOperation.searchBundle(
+                            requestInfo,
+                            {
+                                base_version: '4_0_0',
+                                id: idsOfReference,
+                                _bundle: '1',
+                                _debug: '1',
+                            },
+                            resourceType,
+                            false
+                        )
+                    );
+                }
+            ),
             keys
         );
 
@@ -237,23 +237,18 @@ class FhirDataSource extends DataSource {
      * @return {Promise<null|Resource>}
      */
     async findResourceByReference(parent, args, context, info, reference) {
-        if (!(reference)) {
+        if (!reference) {
             return null;
         }
         const {
             /** @type {string} **/
             resourceType,
             /** @type {string} **/
-            id
+            id,
         } = ResourceWithId.getResourceTypeAndIdFromReference(reference.reference);
         try {
             // noinspection JSValidateTypes
-            return await this.dataLoader.load(
-                ResourceWithId.getReferenceKey(
-                    resourceType,
-                    id
-                )
-            );
+            return await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
         } catch (e) {
             if (e.name === 'NotFound') {
                 logWarn({
@@ -263,8 +258,8 @@ class FhirDataSource extends DataSource {
                         resourceType,
                         id,
                         parentResourceType: parent.resourceType,
-                        parentId: parent.id
-                    }
+                        parentId: parent.id,
+                    },
                 });
                 return null;
             } else {
@@ -283,13 +278,11 @@ class FhirDataSource extends DataSource {
      * @return {Promise<null|Resource[]>}
      */
     async findResourcesByReference(parent, args, context, info, references) {
-        if (!(references)) {
+        if (!references) {
             return null;
         }
-        return async.flatMap(references, async reference => {
-            return await this.findResourceByReference(
-                parent, args, context, info, reference
-            );
+        return async.flatMap(references, async (reference) => {
+            return await this.findResourceByReference(parent, args, context, info, reference);
         });
     }
 
@@ -311,7 +304,7 @@ class FhirDataSource extends DataSource {
                     base_version: '4_0_0',
                     _bundle: '1',
                     ...args,
-                    _debug: '1'
+                    _debug: '1',
                 },
                 resourceType
             )
@@ -325,7 +318,7 @@ class FhirDataSource extends DataSource {
      * @param {GraphQLContext} context
      * @param {Object} info
      * @param {string} resourceType
-     * @return {Promise<{entry:{resource: Resource}[]}>}
+     * @return {Promise<Bundle>}
      */
     async getResourcesBundle(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
@@ -335,7 +328,7 @@ class FhirDataSource extends DataSource {
                 base_version: '4_0_0',
                 _bundle: '1',
                 ...args,
-                _debug: '1'
+                _debug: '1',
             },
             resourceType
         );
@@ -358,18 +351,21 @@ class FhirDataSource extends DataSource {
          * @type {Meta}
          */
         const combinedMeta = {
-            tag: []
+            tag: [],
         };
         // get list of properties from first meta
         for (const /** @type {Meta} **/ meta of this.metaList) {
             for (const /** @type Coding **/ metaTag of meta.tag) {
-                const foundCombinedMetaTag = combinedMeta.tag.find(tag => tag.system === metaTag.system);
+                const foundCombinedMetaTag = combinedMeta.tag.find(
+                    (tag) => tag.system === metaTag.system
+                );
                 if (!foundCombinedMetaTag) {
                     combinedMeta.tag.push(metaTag);
                 } else {
                     // concatenate code and/or display
                     if (metaTag.display && foundCombinedMetaTag.display) {
-                        foundCombinedMetaTag.display = foundCombinedMetaTag.display + ',' + metaTag.display;
+                        foundCombinedMetaTag.display =
+                            foundCombinedMetaTag.display + ',' + metaTag.display;
                     }
                     if (metaTag.code && foundCombinedMetaTag.code) {
                         foundCombinedMetaTag.code = foundCombinedMetaTag.code + ',' + metaTag.code;
@@ -392,5 +388,5 @@ class FhirDataSource extends DataSource {
 }
 
 module.exports = {
-    FhirDataSource
+    FhirDataSource,
 };

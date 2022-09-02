@@ -6,7 +6,6 @@
 # import Range from "../complex_types/range.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
 
-
 """
 SubstanceSpecification.Relationship
     The detailed description of a substance, typically at a level beyond what is
@@ -16,7 +15,7 @@ type SubstanceSpecificationRelationship {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,7 +23,7 @@ type SubstanceSpecificationRelationship {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -35,57 +34,57 @@ type SubstanceSpecificationRelationship {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     None
     """
-    substanceReference: SubstanceSpecification        
+    substanceReference: SubstanceSpecification
     """
     None
     """
-    substanceCodeableConcept: CodeableConcept        
+    substanceCodeableConcept: CodeableConcept
     """
     For example "salt to parent", "active moiety", "starting material".
     """
-    relationship: CodeableConcept        
+    relationship: CodeableConcept
     """
     For example where an enzyme strongly bonds with a particular substance, this
     is a defining relationship for that enzyme, out of several possible substance
     relationships.
     """
-    isDefining: Boolean        
+    isDefining: Boolean
     """
     None
     """
-    amountQuantity: Quantity        
+    amountQuantity: Quantity
     """
     None
     """
-    amountRange: Range        
+    amountRange: Range
     """
     None
     """
-    amountRatio: Ratio        
+    amountRatio: Ratio
     """
     None
     """
-    amountString: String        
+    amountString: String
     """
     For use when the numeric.
     """
-    amountRatioLowLimit: Ratio        
+    amountRatioLowLimit: Ratio
     """
     An operator for the amount, for example "average", "approximately", "less
     than".
     """
-    amountType: CodeableConcept        
+    amountType: CodeableConcept
     """
     Supporting literature.
     """
-    source: [DocumentReference]        
+    source: [DocumentReference]
 }

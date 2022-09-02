@@ -5,7 +5,6 @@ const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
 const env = require('var');
 const moment = require('moment-timezone');
-const {removeNull} = require('../../utils/nullRemover');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
 const {assertTypeEquals} = require('../../utils/assertType');
@@ -15,6 +14,8 @@ const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
 const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained');
 const {ScopesManager} = require('../security/scopesManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 
 /**
  * This class helps with creating graph responses
@@ -168,10 +169,6 @@ class GraphHelper {
         if (!parentEntities || parentEntities.length === 0) {
             return; // nothing to do
         }
-        /**
-         * @type {function(?Object): Resource}
-         */
-        const RelatedResource = getResource(base_version, resourceType);
 
         // get values of this property from all the entities
         const relatedReferences = parentEntities.flatMap(p =>
@@ -232,48 +229,52 @@ class GraphHelper {
         cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         while (await cursor.hasNext()) {
-            const element = await cursor.next();
-            const relatedResource = removeNull(new RelatedResource(element).toJSON());
+            /**
+             * @type {Resource|null}
+             */
+            const relatedResource = await cursor.next();
 
-            // create a class to hold information about this resource
-            const relatedEntityAndContained = new ResourceEntityAndContained(
-                {
-                    entityId: relatedResource.id,
-                    entityResourceType: relatedResource.resourceType,
-                    fullUrl: this.getFullUrlForResource(
-                        {
-                            requestInfo, base_version, parentEntity: relatedResource
-                        }),
-                    includeInOutput: true,
-                    resource: relatedResource,
-                    containedEntries: []
+            if (relatedResource) {
+                // create a class to hold information about this resource
+                const relatedEntityAndContained = new ResourceEntityAndContained(
+                    {
+                        entityId: relatedResource.id,
+                        entityResourceType: relatedResource.resourceType,
+                        fullUrl: this.getFullUrlForResource(
+                            {
+                                requestInfo, base_version, parentEntity: relatedResource
+                            }),
+                        includeInOutput: true,
+                        resource: relatedResource,
+                        containedEntries: []
+                    }
+                );
+
+                // find matching parent and add to containedEntries
+                const matchingParentEntities = parentEntities.filter(
+                    p => (
+                        this.getPropertiesForEntity({entity: p, property})
+                            .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                            .filter(r => r !== undefined)
+                            .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
+                    )
+                );
+
+                if (matchingParentEntities.length === 0) {
+                    throw new Error(
+                        `Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` +
+                        ' in parent entities' +
+                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                        ` using property ${property}`
+                    );
                 }
-            );
 
-            // find matching parent and add to containedEntries
-            const matchingParentEntities = parentEntities.filter(
-                p => (
-                    this.getPropertiesForEntity({entity: p, property})
-                        .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                        .filter(r => r !== undefined)
-                        .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
-                )
-            );
-
-            if (matchingParentEntities.length === 0) {
-                throw new Error(
-                    `Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` +
-                    ' in parent entities' +
-                    ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                    ` using property ${property}`
-                );
-            }
-
-            // add it to each one since there can be multiple resources that point to the same related resource
-            for (const matchingParentEntity of matchingParentEntities) {
-                matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(
-                    relatedEntityAndContained
-                );
+                // add it to each one since there can be multiple resources that point to the same related resource
+                for (const matchingParentEntity of matchingParentEntities) {
+                    matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(
+                        relatedEntityAndContained
+                    );
+                }
             }
         }
     }
@@ -318,11 +319,6 @@ class GraphHelper {
             '{ref}',
             `${parentResourceType}/${parentIdList.toString()}`
         );
-        /**
-         * @type {function(?Object): Resource}
-         */
-        const RelatedResource = getResource(base_version, relatedResourceType);
-
         /**
          * @type {Object}
          */
@@ -392,7 +388,7 @@ class GraphHelper {
                                 requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
                             }),
                         includeInOutput: true,
-                        resource: removeNull(new RelatedResource(relatedResourcePropertyCurrent).toJSON()),
+                        resource: relatedResourcePropertyCurrent,
                         containedEntries: []
                     }
                 );
@@ -773,10 +769,12 @@ class GraphHelper {
          */
         let result = [];
         if (entityAndContained.includeInOutput) { // only include entities the caller has requested
-            result = result.concat([{
-                fullUrl: entityAndContained.fullUrl,
-                resource: entityAndContained.resource
-            }]);
+            result = result.concat([
+                new BundleEntry({
+                    fullUrl: entityAndContained.fullUrl,
+                    resource: entityAndContained.resource
+                })
+            ]);
         }
 
         // now recurse
@@ -819,10 +817,6 @@ class GraphHelper {
             idList
         }
     ) {
-        /**
-         * @type {function(?Object): Resource}
-         */
-        const StartResource = getResource(base_version, resourceType);
         /**
          * @type {BundleEntry[]}
          */
@@ -874,24 +868,21 @@ class GraphHelper {
              * element
              * @type {Resource|null}
              */
-            const element = await cursor.next();
-            // first add this object
-            /**
-             * @type {Resource}
-             */
-            const startResource = new StartResource(element);
-            /**
-             * @type {BundleEntry}
-             */
-            let current_entity = {
-                fullUrl: this.getFullUrlForResource(
-                    {
-                        requestInfo, base_version, parentEntity: startResource
-                    }),
-                resource: removeNull(startResource.toJSON())
-            };
-            entries = entries.concat([current_entity]);
-            topLevelBundleEntries.push(current_entity);
+            const startResource = await cursor.next();
+            if (startResource) {
+                /**
+                 * @type {BundleEntry}
+                 */
+                let current_entity = new BundleEntry({
+                    fullUrl: this.getFullUrlForResource(
+                        {
+                            requestInfo, base_version, parentEntity: startResource
+                        }),
+                    resource: startResource
+                });
+                entries = entries.concat([current_entity]);
+                topLevelBundleEntries.push(current_entity);
+            }
         }
 
         /**
@@ -1031,13 +1022,13 @@ class GraphHelper {
             )
         );
         // create a bundle
-        return {
+        return new Bundle({
             resourceType: 'Bundle',
             id: 'bundle-example',
             type: 'collection',
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             entry: uniqueEntries
-        };
+        });
     }
 }
 

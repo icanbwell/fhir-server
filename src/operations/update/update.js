@@ -2,13 +2,10 @@ const {logDebug} = require('../common/logging');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
-const {validateResource} = require('../../utils/validator.util');
-const {getUuid} = require('../../utils/uid.util');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
-const {removeNull} = require('../../utils/nullRemover');
 const {preSaveAsync} = require('../common/preSave');
 const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
@@ -21,7 +18,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const {omitProperty} = require('../../utils/omitProperties');
+const {ResourceValidator} = require('../common/resourceValidator');
 
 /**
  * Update Operation
@@ -37,6 +34,7 @@ class UpdateOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ResourceValidator} resourceValidator
      */
     constructor(
         {
@@ -47,7 +45,8 @@ class UpdateOperation {
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            resourceValidator
         }
     ) {
         /**
@@ -90,7 +89,11 @@ class UpdateOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-
+        /**
+         * @type {ResourceValidator}
+         */
+        this.resourceValidator = resourceValidator;
+        assertTypeEquals(resourceValidator, ResourceValidator);
     }
 
     /**
@@ -122,12 +125,16 @@ class UpdateOperation {
             }
         );
 
+        const currentDate = moment.utc().format('YYYY-MM-DD');
+
         // read the incoming resource from request body
+        /**
+         * @type {Object}
+         */
         let resource_incoming_json = body;
         let {base_version, id} = args;
 
         if (env.LOG_ALL_SAVES) {
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             await sendToS3('logs',
                 resourceType,
                 resource_incoming_json,
@@ -137,27 +144,32 @@ class UpdateOperation {
         }
 
         if (env.VALIDATE_SCHEMA || args['_validate']) {
-            const operationOutcome = validateResource(resource_incoming_json, resourceType, path);
-            if (operationOutcome && operationOutcome.statusCode === 400) {
+            /**
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
+                {
+                    id: resource_incoming_json.id,
+                    resourceType,
+                    resourceToValidate: resource_incoming_json,
+                    path: path,
+                    currentDate: currentDate
+                });
+            if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                const currentDate = moment.utc().format('YYYY-MM-DD');
-                const uuid = getUuid(resource_incoming_json);
-                operationOutcome.expression = [
-                    resourceType + '/' + uuid
-                ];
                 await sendToS3('validation_failures',
                     resourceType,
                     resource_incoming_json,
                     currentDate,
-                    uuid,
+                    resource_incoming_json.id,
                     currentOperationName);
                 await sendToS3('validation_failures',
                     resourceType,
-                    operationOutcome,
+                    validationOperationOutcome,
                     currentDate,
-                    uuid,
+                    resource_incoming_json.id,
                     'update_failure');
-                throw new NotValidatedError(operationOutcome);
+                throw new NotValidatedError(validationOperationOutcome);
             }
         }
 
@@ -187,10 +199,6 @@ class UpdateOperation {
             /**
              * @type {Resource|null}
              */
-            let cleaned;
-            /**
-             * @type {Resource|null}
-             */
             let doc;
 
             // check if resource was found in database or not
@@ -200,7 +208,7 @@ class UpdateOperation {
                 /**
                  * @type {Resource}
                  */
-                let foundResource = new ResourceCreator(data);
+                let foundResource = data;
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new ForbiddenError(
@@ -214,8 +222,8 @@ class UpdateOperation {
 
                 await preSaveAsync(resource_incoming);
 
-                const foundResourceObject = removeNull(foundResource.toJSON());
-                const resourceIncomingObject = removeNull(resource_incoming.toJSON());
+                const foundResourceObject = foundResource.toJSON();
+                const resourceIncomingObject = resource_incoming.toJSON();
                 // now create a patch between the document in db and the incoming document
                 //  this returns an array of patches
                 /**
@@ -241,7 +249,6 @@ class UpdateOperation {
                     };
                 }
                 if (env.LOG_ALL_SAVES) {
-                    const currentDate = moment.utc().format('YYYY-MM-DD');
                     await sendToS3('logs',
                         resourceType,
                         patchContent,
@@ -262,8 +269,7 @@ class UpdateOperation {
                 await preSaveAsync(resource_incoming);
 
                 // Same as update from this point on
-                cleaned = removeNull(resource_incoming.toJSON());
-                doc = cleaned;
+                doc = resource_incoming;
                 // check_fhir_mismatch(cleaned, patched_incoming_data);
             } else {
                 // not found so insert
@@ -292,11 +298,8 @@ class UpdateOperation {
 
                 await preSaveAsync(resource_incoming);
 
-                cleaned = removeNull(resource_incoming.toJSON());
-                doc = cleaned;
+                doc = resource_incoming;
             }
-
-            doc = omitProperty(doc, '_id');
 
             // Insert/update our resource record
             // When using the $set operator, only the specified fields are updated
@@ -309,19 +312,16 @@ class UpdateOperation {
                 {query: {id: id}, update: {$set: doc}, options: {upsert: true}});
             // save to history
 
-            // let history_resource = Object.assign(cleaned, {id: id});
             /**
              * @type {Resource}
              */
-            let history_resource = Object.assign(cleaned, {_id: id + cleaned.meta.versionId});
-            // delete history_resource['_id']; // make sure we don't have an _id field when inserting into history
+            const historyResource = doc.copy();
 
-            // Insert our resource record to history but don't assign _id
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {
                     resourceType, base_version, useAtlas
                 }
-            ).insertOneAsync({doc: history_resource});
+            ).insertHistoryForResourceAsync({doc: historyResource});
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
@@ -331,7 +331,6 @@ class UpdateOperation {
                         operation: currentOperationName, args, ids: [resource_incoming['id']]
                     }
                 );
-                const currentDate = moment.utc().format('YYYY-MM-DD');
                 await this.auditLogger.flushAsync({requestId, currentDate});
             }
 
@@ -356,7 +355,6 @@ class UpdateOperation {
 
             return result;
         } catch (e) {
-            const currentDate = moment.utc().format('YYYY-MM-DD');
             await sendToS3('errors',
                 resourceType,
                 resource_incoming_json,

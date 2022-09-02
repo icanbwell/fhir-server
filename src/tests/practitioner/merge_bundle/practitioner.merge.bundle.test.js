@@ -1,7 +1,12 @@
 const practitionerBundleResource = require('./fixtures/providers/practitioner_bundle.json');
 const expectedPractitionerBundleResource = require('./fixtures/providers/expected_practitioner_bundle.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
 const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
 
 describe('Practitioner Merge Bundle Tests', () => {
@@ -16,9 +21,7 @@ describe('Practitioner Merge Bundle Tests', () => {
     describe('Practitioner Merge Bundles', () => {
         test('Multiple calls to Practitioner merge bundles properly', async () => {
             const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -30,13 +33,13 @@ describe('Practitioner Merge Bundle Tests', () => {
                 .send(practitionerBundleResource)
                 .set(getHeaders());
 
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
 
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
 
             // clear out the lastUpdated column since that changes
             let body = resp.body;
@@ -44,11 +47,11 @@ describe('Practitioner Merge Bundle Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedPractitionerBundleResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
@@ -58,6 +61,7 @@ describe('Practitioner Merge Bundle Tests', () => {
                 }
             });
             expect(body).toStrictEqual(expected);
-        });
+        })
+        ;
     });
 });

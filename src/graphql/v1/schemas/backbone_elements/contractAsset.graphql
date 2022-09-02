@@ -9,7 +9,6 @@
 # import unsignedInt from "../simple_types/unsignedInt.graphql"
 # import ContractValuedItem from "../backbone_elements/contractValuedItem.graphql"
 
-
 """
 Contract.Asset
     Legally enforceable, formally recorded unilateral or bilateral directive i.e.,
@@ -19,7 +18,7 @@ type ContractAsset {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -27,7 +26,7 @@ type ContractAsset {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,75 +37,75 @@ type ContractAsset {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Differentiates the kind of the asset .
     """
-    scope: CodeableConcept        
+    scope: CodeableConcept
     """
     Target entity type about which the term may be concerned.
     """
-    type: [CodeableConcept]        
+    type: [CodeableConcept]
     """
     Associated entities.
     """
-    typeReference: [Resource]        
+    typeReference: [Resource]
     """
     May be a subtype or part of an offered asset.
     """
-    subtype: [CodeableConcept]        
+    subtype: [CodeableConcept]
     """
     Specifies the applicability of the term to an asset resource instance, and
     instances it refers to orinstances that refer to it, and/or are owned by the
     offeree.
     """
-    relationship: Coding        
+    relationship: Coding
     """
     Circumstance of the asset.
     """
-    context: [ContractContext]        
+    context: [ContractContext]
     """
     Description of the quality and completeness of the asset that imay be a factor
     in its valuation.
     """
-    condition: String        
+    condition: String
     """
     Type of Asset availability for use or ownership.
     """
-    periodType: [CodeableConcept]        
+    periodType: [CodeableConcept]
     """
     Asset relevant contractual time period.
     """
-    period: [Period]        
+    period: [Period]
     """
     Time period of asset use.
     """
-    usePeriod: [Period]        
+    usePeriod: [Period]
     """
     Clause or question text (Prose Object) concerning the asset in a linked form,
     such as a QuestionnaireResponse used in the formation of the contract.
     """
-    text: String        
+    text: String
     """
     Id [identifier??] of the clause or question text about the asset in the
     referenced form or QuestionnaireResponse.
     """
-    linkId: [String]        
+    linkId: [String]
     """
     Response to assets.
     """
-    answer: [ContractAnswer]        
+    answer: [ContractAnswer]
     """
     Security labels that protects the asset.
     """
-    securityLabelNumber: [unsignedInt]        
+    securityLabelNumber: [unsignedInt]
     """
     Contract Valued Item List.
     """
-    valuedItem: [ContractValuedItem]        
+    valuedItem: [ContractValuedItem]
 }

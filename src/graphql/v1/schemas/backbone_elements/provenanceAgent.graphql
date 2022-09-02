@@ -8,8 +8,20 @@
 # import Device from "../resources/device.graphql"
 # import Organization from "../resources/organization.graphql"
 
-union ProvenanceAgentWho = Practitioner | PractitionerRole | RelatedPerson | Patient | Device | Organization
-union ProvenanceAgentOnBehalfOf = Practitioner | PractitionerRole | RelatedPerson | Patient | Device | Organization
+union ProvenanceAgentWho =
+      Practitioner
+    | PractitionerRole
+    | RelatedPerson
+    | Patient
+    | Device
+    | Organization
+union ProvenanceAgentOnBehalfOf =
+      Practitioner
+    | PractitionerRole
+    | RelatedPerson
+    | Patient
+    | Device
+    | Organization
 
 """
 Provenance.Agent
@@ -27,7 +39,7 @@ type ProvenanceAgent {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -35,7 +47,7 @@ type ProvenanceAgent {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -46,27 +58,27 @@ type ProvenanceAgent {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The participation the agent had with respect to the activity.
     """
-    type: CodeableConcept        
+    type: CodeableConcept
     """
     The function of the agent with respect to the activity. The security role
     enabling the agent with respect to the activity.
     """
-    role: [CodeableConcept]        
+    role: [CodeableConcept]
     """
     The individual, device or organization that participated in the event.
     """
-    who: ProvenanceAgentWho!        
+    who: ProvenanceAgentWho!
     """
     The individual, device, or organization for whom the change was made.
     """
-    onBehalfOf: ProvenanceAgentOnBehalfOf        
+    onBehalfOf: ProvenanceAgentOnBehalfOf
 }

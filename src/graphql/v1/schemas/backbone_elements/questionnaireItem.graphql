@@ -8,7 +8,6 @@
 # import QuestionnaireAnswerOption from "../backbone_elements/questionnaireAnswerOption.graphql"
 # import QuestionnaireInitial from "../backbone_elements/questionnaireInitial.graphql"
 
-
 """
 Questionnaire.Item
     A structured set of questions intended to guide the collection of answers from
@@ -19,7 +18,7 @@ type QuestionnaireItem {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -27,7 +26,7 @@ type QuestionnaireItem {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -38,17 +37,17 @@ type QuestionnaireItem {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     An identifier that is unique within the Questionnaire allowing linkage to the
     equivalent item in a QuestionnaireResponse resource.
     """
-    linkId: String!        
+    linkId: String!
     """
     This element is a URI that refers to an [[[ElementDefinition]]] that provides
     information about this item, including information that might otherwise be
@@ -57,7 +56,7 @@ type QuestionnaireItem {
     present then the following element values MAY be derived from the Element
     Definition if the corresponding elements of this Questionnaire resource
     instance have no value:
-    
+
     * code (ElementDefinition.code)
     * type (ElementDefinition.type)
     * required (ElementDefinition.min)
@@ -66,77 +65,77 @@ type QuestionnaireItem {
     * answerValueSet (ElementDefinition.binding)
     * options (ElementDefinition.binding).
     """
-    definition: uri        
+    definition: uri
     """
     A terminology code that corresponds to this group or question (e.g. a code
     from LOINC, which defines many questions and answers).
     """
-    code: [Coding]        
+    code: [Coding]
     """
     A short label for a particular group, question or set of display text within
     the questionnaire used for reference by the individual completing the
     questionnaire.
     """
-    prefix: String        
+    prefix: String
     """
     The name of a section, the text of a question or text content for a display
     item.
     """
-    text: String        
+    text: String
     """
     The type of questionnaire item this is - whether text for display, a grouping
     of other items or a particular type of data to be captured (string, integer,
     coded choice, etc.).
     """
-    type: code!        
+    type: code!
     """
     A constraint indicating that this item should only be enabled (displayed/allow
     answers to be captured) when the specified condition is true.
     """
-    enableWhen: [QuestionnaireEnableWhen]        
+    enableWhen: [QuestionnaireEnableWhen]
     """
     Controls how multiple enableWhen values are interpreted -  whether all or any
     must be true.
     """
-    enableBehavior: code        
+    enableBehavior: code
     """
     An indication, if true, that the item must be present in a "completed"
     QuestionnaireResponse.  If false, the item may be skipped when answering the
     questionnaire.
     """
-    required: Boolean        
+    required: Boolean
     """
     An indication, if true, that the item may occur multiple times in the
     response, collecting multiple answers for questions or multiple sets of
     answers for groups.
     """
-    repeats: Boolean        
+    repeats: Boolean
     """
     An indication, when true, that the value cannot be changed by a human
     respondent to the Questionnaire.
     """
-    readOnly: Boolean        
+    readOnly: Boolean
     """
     The maximum number of characters that are permitted in the answer to be
     considered a "valid" QuestionnaireResponse.
     """
-    maxLength: Int        
+    maxLength: Int
     """
     A reference to a value set containing a list of codes representing permitted
     answers for a "choice" or "open-choice" question.
     """
-    answerValueSet: canonical        
+    answerValueSet: canonical
     """
     One of the permitted answers for a "choice" or "open-choice" question.
     """
-    answerOption: [QuestionnaireAnswerOption]        
+    answerOption: [QuestionnaireAnswerOption]
     """
     One or more values that should be pre-populated in the answer when initially
     rendering the questionnaire for user input.
     """
-    initial: [QuestionnaireInitial]        
+    initial: [QuestionnaireInitial]
     """
     Text, questions and other groups to be nested beneath a question or group.
     """
-    item: [QuestionnaireItem]        
+    item: [QuestionnaireItem]
 }
