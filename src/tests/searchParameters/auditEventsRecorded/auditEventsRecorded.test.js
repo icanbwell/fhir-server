@@ -3,6 +3,7 @@ const auditEventResource = require('./fixtures/auditEvents.json');
 
 // expected
 const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json');
+const expectedAuditEventResource2 = require('./fixtures/expectedAuditEvents2.json');
 
 const {
     commonBeforeEach,
@@ -53,7 +54,7 @@ describe('AuditEventRecordedTests', () => {
                 )
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedAuditEventResource);
+            expect(resp).toHaveResponse(expectedAuditEventResource2);
         });
     });
 });

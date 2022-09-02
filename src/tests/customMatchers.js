@@ -137,10 +137,11 @@ function toHaveResponse(resp, expected, fnCleanResource) {
     if (Array.isArray(resp.body) && !Array.isArray(expected)) {
         expected = [expected];
     }
-    if (!Array.isArray(resp.body) && Array.isArray(expected)) {
+    if (!Array.isArray(resp.body) && !resp.body.data && Array.isArray(expected)) {
         expected = expected[0];
     }
     if (!Array.isArray(resp.body) && resp.body.resourceType === 'Bundle') {
+        // handle bundles being returned
         if (Array.isArray(expected)) {
             // make into a bundle if it is not
             expected = {
@@ -170,6 +171,32 @@ function toHaveResponse(resp, expected, fnCleanResource) {
                         `Difference:\n\n${diffString}` :
                         `Expected: ${this.utils.printExpected(expected)}\n` +
                         `Received: ${this.utils.printReceived(resp.body)}`)
+                );
+            };
+        return {actual: resp.body, expected: expected, message, pass};
+    } else if (resp.body.data) {
+        // GraphQL response
+        // get first property of resp.body.data
+        const [, propertyValue] = Object.entries(resp.body.data)[0];
+        const pass = deepEqual(propertyValue, expected);
+        const message = pass ? () =>
+                // eslint-disable-next-line prefer-template
+                utils.matcherHint('toBe', undefined, undefined, options) +
+                '\n\n' +
+                `Expected: not ${utils.printExpected(expected)}\n` +
+                `Received: ${utils.printReceived(propertyValue)}`
+            : () => {
+                const diffString = diff(expected, propertyValue, {
+                    expand: this.expand,
+                });
+                return (
+                    // eslint-disable-next-line prefer-template
+                    utils.matcherHint('toBe', undefined, undefined, options) +
+                    '\n\n' +
+                    (diffString && diffString.includes('- Expect') ?
+                        `Difference:\n\n${diffString}` :
+                        `Expected: ${this.utils.printExpected(expected)}\n` +
+                        `Received: ${this.utils.printReceived(propertyValue)}`)
                 );
             };
         return {actual: resp.body, expected: expected, message, pass};
