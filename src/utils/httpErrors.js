@@ -3,7 +3,7 @@
  */
 
 // const {UserFacingError} = require('./baseErrors');
-const {ServerError} = require('@asymmetrik/node-fhir-server-core');
+const {ServerError} = require('../middleware/fhir/utils/server.error');
 const env = require('var');
 
 class BadRequestError extends ServerError {

@@ -10,7 +10,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
+const {VERSIONS} = require('../../middleware/fhir/utils/constants').constants;
 
 class HistoryOperation {
     /**

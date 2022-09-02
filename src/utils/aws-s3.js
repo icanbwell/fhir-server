@@ -3,10 +3,12 @@
  */
 
 const AWS = require('aws-sdk');
+const winston = require('winston');
+
 /**
  * @type {import('winston').logger}
  */
-const logger = require('@asymmetrik/node-fhir-server-core').loggers.get('default', {});
+const logger = winston.loggers.get('default', {});
 // const Sentry = require('./sentry');
 const moment = require('moment-timezone');
 

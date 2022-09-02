@@ -1,4 +1,4 @@
-const {resolveSchema} = require('../../fhir/schema.utils');
+const {resolveSchema} = require('../../middleware/fhir/utils/schema.utils');
 
 /**
  * Gets class for the given resource_name and version

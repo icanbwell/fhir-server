@@ -2,7 +2,7 @@ const {
     VERSIONS
 } = require('./constants');
 
-const schemasR4 = require('./classes/4_0_0/resources');
+const schemasR4 = require('../../../fhir/classes/4_0_0/resources');
 
 // const schemas3 = require('../resources/3_0_1/schemas');
 

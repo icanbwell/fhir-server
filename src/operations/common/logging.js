@@ -1,9 +1,12 @@
 const env = require('var');
 const moment = require('moment-timezone');
+const winston = require('winston');
+
 /**
  * @type {import('winston').logger}
  */
-const logger = require('@asymmetrik/node-fhir-server-core').loggers.get('default', {});
+const logger = winston.loggers.get('default', {});
+
 const os = require('os');
 const {generateUUID} = require('../../utils/uid.util');
 const fhirLogger = require('../../utils/fhirLogger').FhirLogger;

@@ -9,13 +9,12 @@ const env = require('var');
 const { htmlRenderer } = require('../middleware/htmlRenderer');
 const { errorReportingMiddleware } = require('../middleware/slackErrorHandler');
 const { isTrue } = require('../utils/isTrue');
-const loggers = require('@asymmetrik/node-fhir-server-core/dist/server/winston');
 const {
     resolveSchema,
     isValidVersion,
-} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils');
-const { VERSIONS } = require('@asymmetrik/node-fhir-server-core/dist/constants');
-const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
+} = require('../middleware/fhir/utils/schema.utils');
+const {VERSIONS} = require('../middleware/fhir/utils/constants').constants;
+const ServerError = require('../middleware/fhir/utils/server.error');
 const { generateUUID } = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
@@ -242,7 +241,6 @@ class MyFHIRServer extends FHIRServer.Server {
         /**
          * @type {import('winston').logger}
          */
-        let logger = loggers.get('default', {});
         //Enable error tracking error handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.errorHandler) {
             this.app.use(this.config.errorTracking.errorHandler());
@@ -296,14 +294,14 @@ class MyFHIRServer extends FHIRServer.Server {
                                 ],
                             });
 
-                            logger.error(error);
+                            // logger.error(error);
                             res.status(error.statusCode).json(error);
                         } else {
                             next();
                         }
                     }
                 } catch (e) {
-                    logger.error(e);
+                    // logger.error(e);
                     next();
                 }
             }
@@ -338,7 +336,7 @@ class MyFHIRServer extends FHIRServer.Server {
             if (req.id && !res.headersSent) {
                 res.setHeader('X-Request-ID', String(req.id));
             }
-            logger.error(error);
+            // logger.error(error);
             res.status(error.statusCode).json(error);
         });
 
