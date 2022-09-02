@@ -1,177 +1,227 @@
 [
-    {
-        "active": true,
-        "address": [
-            {
-                "city": "Perry Hall",
-                "line": ["5009 Honeygo Center Drive", "Suite 216"],
-                "postalCode": "21128",
-                "state": "MD"
-            }
+  {
+    "active": true,
+    "address": [
+      {
+        "city": "Perry Hall",
+        "line": [
+          "5009 Honeygo Center Drive",
+          "Suite 216"
         ],
-        "alias": ["MedStar Medical Group Derm at Honeygo"],
-        "contact": [
+        "postalCode": "21128",
+        "state": "MD"
+      }
+    ],
+    "alias": [
+      "MedStar Medical Group Derm at Honeygo"
+    ],
+    "contact": [
+      {
+        "purpose": {
+          "coding": [
             {
-                "purpose": {
-                    "coding": [
-                        {
-                            "code": "Central Scheduling",
-                            "system": "MedstarHealth.org"
-                        }
-                    ]
-                },
-                "telecom": [
-                    {
-                        "system": "phone",
-                        "use": "work"
-                    }
-                ]
+              "code": "Central Scheduling",
+              "system": "MedstarHealth.org"
             }
-        ],
-        "extension": [
-            {
-                "valueDecimal": -76.61668
-            },
-            {
-                "valueDecimal": 39.32792
-            }
-        ],
-        "id": "-733797173",
-        "identifier": [
-            {
-                "system": "bwell",
-                "use": "usual",
-                "value": "-733797173"
-            }
-        ],
-        "name": "MedStar Medical Group Dermatology at Honeygo",
-        "partOf": {
-            "display": "MedStar Medical Group",
-            "type": "Organization"
+          ]
         },
-        "resourceType": "Organization",
         "telecom": [
-            {
-                "system": "phone",
-                "value": "(410) 256-5858"
-            },
-            {
-                "system": "fax",
-                "value": "(866) 733-0434"
-            }
+          {
+            "system": "phone",
+            "use": "work"
+          }
+        ]
+      }
+    ],
+    "extension": [
+      {
+        "valueDecimal": -76.61668
+      },
+      {
+        "valueDecimal": 39.32792
+      }
+    ],
+    "id": "-733797173",
+    "identifier": [
+      {
+        "system": "bwell",
+        "use": "usual",
+        "value": "-733797173"
+      }
+    ],
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
+    "name": "MedStar Medical Group Dermatology at Honeygo",
+    "partOf": {
+      "display": "MedStar Medical Group",
+      "type": "Organization"
+    },
+    "resourceType": "Organization",
+    "telecom": [
+      {
+        "system": "phone",
+        "value": "(410) 256-5858"
+      },
+      {
+        "system": "fax",
+        "value": "(866) 733-0434"
+      }
+    ],
+    "type": [
+      {
+        "coding": [
+          {
+            "code": "prov",
+            "display": "Healthcare Provider",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
         ],
-        "type": [
-            {
-                "coding": [
-                    {
-                        "code": "prov",
-                        "display": "Healthcare Provider",
-                        "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                    }
-                ],
-                "text": "Healthcare Organization"
-            },
-            {
-                "coding": [
-                    {
-                        "code": "ER",
-                        "display": "Emergency Room",
-                        "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                    }
-                ],
-                "text": "ER Indicator"
-            }
-        ]
-    },
-    {
-        "id": "AETNA",
-        "identifier": [
-            {
-                "type": {
-                    "coding": [
-                        {
-                            "code": "XV",
-                            "display": "Health Plan",
-                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                        }
-                    ]
-                },
-                "value": "AETNA"
-            }
+        "text": "Healthcare Organization"
+      },
+      {
+        "coding": [
+          {
+            "code": "ER",
+            "display": "Emergency Room",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
         ],
-        "resourceType": "Organization",
-        "type": [
+        "text": "ER Indicator"
+      }
+    ]
+  },
+  {
+    "id": "AETNA",
+    "identifier": [
+      {
+        "type": {
+          "coding": [
             {
-                "coding": [
-                    {
-                        "code": "ins",
-                        "display": "Insurance Company",
-                        "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                    }
-                ]
+              "code": "XV",
+              "display": "Health Plan",
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }
-        ]
+          ]
+        },
+        "value": "AETNA"
+      }
+    ],
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
     },
-    {
-        "id": "MWHC",
-        "identifier": [
+    "resourceType": "Organization",
+    "type": [
+      {
+        "coding": [
+          {
+            "code": "ins",
+            "display": "Insurance Company",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "MWHC",
+    "identifier": [
+      {
+        "type": {
+          "coding": [
             {
-                "type": {
-                    "coding": [
-                        {
-                            "code": "FI",
-                            "display": "Facility Id",
-                            "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                        }
-                    ]
-                },
-                "value": "MWHC"
+              "code": "FI",
+              "display": "Facility Id",
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
             }
+          ]
+        },
+        "value": "MWHC"
+      }
+    ],
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
+    "resourceType": "Organization",
+    "type": [
+      {
+        "coding": [
+          {
+            "code": "prov",
+            "display": "Healthcare Provider",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "MedStar-Medical-Group",
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
+    "name": "MedStar Medical Group",
+    "resourceType": "Organization",
+    "type": [
+      {
+        "coding": [
+          {
+            "code": "prov",
+            "display": "Healthcare Provider",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
         ],
-        "resourceType": "Organization",
-        "type": [
-            {
-                "coding": [
-                    {
-                        "code": "prov",
-                        "display": "Healthcare Provider",
-                        "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                    }
-                ]
-            }
-        ]
+        "text": "Healthcare Organization"
+      }
+    ]
+  },
+  {
+    "id": "Stanford-Medical-School",
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
     },
-    {
-        "id": "MedStar-Medical-Group",
-        "name": "MedStar Medical Group",
-        "resourceType": "Organization",
-        "type": [
-            {
-                "coding": [
-                    {
-                        "code": "prov",
-                        "display": "Healthcare Provider",
-                        "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                    }
-                ],
-                "text": "Healthcare Organization"
-            }
+    "name": "Stanford Medical School",
+    "resourceType": "Organization",
+    "type": [
+      {
+        "coding": [
+          {
+            "code": "edu",
+            "display": "Educational Institute",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
         ]
-    },
-    {
-        "id": "Stanford-Medical-School",
-        "name": "Stanford Medical School",
-        "resourceType": "Organization",
-        "type": [
-            {
-                "coding": [
-                    {
-                        "code": "edu",
-                        "display": "Educational Institute",
-                        "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                    }
-                ]
-            }
-        ]
-    }
+      }
+    ]
+  }
 ]

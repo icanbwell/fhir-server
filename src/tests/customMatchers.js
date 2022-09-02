@@ -13,6 +13,18 @@ const {expect} = require('@jest/globals');
  * @property {function(Object): string} printReceived
  */
 
+function cleanMeta(resource) {
+    if (resource.meta && resource.meta.tag) {
+        resource.meta.tag.forEach((tag) => {
+            if (tag['system'] === 'https://www.icanbwell.com/queryTime') {
+                delete tag['display'];
+            }
+        });
+        delete resource.meta.lastUpdated;
+    }
+    return resource;
+}
+
 /**
  * compares two bundles
  * @param {Object} body
@@ -28,20 +40,10 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     delete body['timestamp'];
     delete expected['timestamp'];
     delete body['link'];
-    if (body.meta && body.meta.tag) {
-        if (ignoreMetaTags) {
-            body.meta.tag = [];
-        }
-        body.meta.tag.forEach((tag) => {
-            if (tag['system'] === 'https://www.icanbwell.com/queryTime') {
-                delete tag['display'];
-            }
-        });
-    }
+
+    cleanMeta(body);
     body.entry.forEach((element) => {
-        if (element['resource'] && element['resource']['meta']) {
-            delete element['resource']['meta']['lastUpdated'];
-        }
+        cleanMeta(element['resource']);
         if (fnCleanResource) {
             fnCleanResource(element['resource']);
         }
@@ -52,16 +54,10 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
         if (ignoreMetaTags) {
             expected.meta.tag = [];
         }
-        expected.meta.tag.forEach((tag) => {
-            if (tag['system'] === 'https://www.icanbwell.com/queryTime') {
-                delete tag['display'];
-            }
-        });
+        cleanMeta(expected);
     }
     expected.entry.forEach((element) => {
-        if (element['resource']['meta']) {
-            delete element['resource']['meta']['lastUpdated'];
-        }
+        cleanMeta(element['resource']);
         delete element['resource']['$schema'];
         if (fnCleanResource) {
             fnCleanResource(element['resource']);
@@ -79,12 +75,10 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     body.entry.forEach((element) => {
         delete element['fullUrl'];
         if (element['resource']) {
-            if (element['resource']['meta']) {
-                delete element['resource']['meta']['lastUpdated'];
-            }
+            cleanMeta(element['resource']);
             if (element['resource']['contained']) {
                 element['resource']['contained'].forEach((containedElement) => {
-                    delete containedElement['meta']['lastUpdated'];
+                    cleanMeta(containedElement);
                 });
                 // sort the list
                 element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
@@ -95,16 +89,13 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     });
     expected.entry.forEach((element) => {
         delete element['fullUrl'];
-        if ('meta' in element['resource']) {
-            delete element['resource']['meta']['lastUpdated'];
-        }
-        // element['resource']['meta']['versionId'] = '1';
+        cleanMeta(element['resource']);
         if ('$schema' in element) {
             delete element['$schema'];
         }
         if (element['resource']['contained']) {
             element['resource']['contained'].forEach((containedElement) => {
-                delete containedElement['meta']['lastUpdated'];
+                cleanMeta(containedElement);
             });
             // sort the list
             element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
@@ -112,7 +103,6 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
             );
         }
     });
-
     return deepEqual(body, expected);
 }
 
@@ -177,7 +167,22 @@ function toHaveResponse(resp, expected, fnCleanResource) {
     } else if (resp.body.data) {
         // GraphQL response
         // get first property of resp.body.data
-        const [, propertyValue] = Object.entries(resp.body.data)[0];
+        // eslint-disable-next-line no-unused-vars
+        let [propertyName, propertyValue] = Object.entries(resp.body.data)[0];
+        // see if the return value is a bundle
+        if (!(Array.isArray(propertyValue)) && propertyValue.entry && Array.isArray(expected)) {
+            propertyValue = propertyValue.entry.map(e => e.resource);
+        }
+        if (Array.isArray(propertyValue)) {
+            propertyValue.forEach(item => cleanMeta(item));
+        } else {
+            cleanMeta(propertyValue);
+        }
+        if (Array.isArray(expected)) {
+            expected.forEach(item => cleanMeta(item));
+        } else {
+            cleanMeta(expected);
+        }
         const pass = deepEqual(propertyValue, expected);
         const message = pass ? () =>
                 // eslint-disable-next-line prefer-template
@@ -199,7 +204,7 @@ function toHaveResponse(resp, expected, fnCleanResource) {
                         `Received: ${this.utils.printReceived(propertyValue)}`)
                 );
             };
-        return {actual: resp.body, expected: expected, message, pass};
+        return {actual: propertyValue, expected: expected, message, pass};
     } else {
         if (Array.isArray(resp.body)) {
             resp.body.forEach((element) => {
@@ -278,7 +283,7 @@ function toHaveStatusCode(resp, expectedStatusCode) {
     const message = pass ? () =>
             `Status Code did not match: ${resp.text}`
         : () => `Status Code did not match: ${resp.text}`;
-    return {actual: resp.body.status, expected: expectedStatusCode, message, pass};
+    return {actual: resp.status, expected: expectedStatusCode, message, pass};
 }
 
 /**
@@ -342,7 +347,7 @@ function toHaveResourceCount(resp, expected) {
     const message = pass ? () =>
             `Resource count matched: ${resp.text}`
         : () => `Resource count did not match: ${resp.text}`;
-    return {actual: resp.body.status, expected: expected, message, pass};
+    return {actual: resp.body.length, expected: expected, message, pass};
 }
 
 module.exports = {

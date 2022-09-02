@@ -54,7 +54,8 @@ describe('Practitioner Complex Merge Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
-                .send(practitionerResource);
+                .send(practitionerResource)
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 

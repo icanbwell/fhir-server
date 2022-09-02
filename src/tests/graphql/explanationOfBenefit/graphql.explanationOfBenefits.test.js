@@ -72,11 +72,11 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
 
             resp = await request.get('/4_0_0/Patient/').set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+            expect(resp).toHaveResourceCount(2);
 
             resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+            expect(resp).toHaveResourceCount(2);
 
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
