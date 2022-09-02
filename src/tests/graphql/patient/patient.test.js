@@ -170,7 +170,7 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(2);
 
-            await request
+            resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
                 .post('/graphql')
@@ -238,7 +238,7 @@ describe('GraphQL Patient Tests', () => {
 
             resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+            expect(resp).toHaveResourceCount(2);
 
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)

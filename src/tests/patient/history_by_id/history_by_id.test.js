@@ -62,7 +62,7 @@ describe('PractitionerReturnIdTests', () => {
                 .send(patient1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({created: false, updated: false});
 
             // assertMergeIsSuccessful(resp.body, false);
 

@@ -39,7 +39,7 @@ describe('Schedule Tests', () => {
                 .send(schedule2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({updated: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Schedule back

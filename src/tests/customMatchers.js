@@ -203,13 +203,13 @@ function toHaveResponse(resp, expected, fnCleanResource) {
             actual: resp.body, expected, utils, options, expand: this.expand,
             fnCleanResource
         });
-    } else if (resp.body.data) {
+    } else if (resp.body.data && !(expected.body && expected.body.data) && !(expected.data) ) {
         // GraphQL response
         // get first property of resp.body.data
         // eslint-disable-next-line no-unused-vars
         let [propertyName, propertyValue] = Object.entries(resp.body.data)[0];
         // see if the return value is a bundle
-        if (!(Array.isArray(propertyValue)) && propertyValue.entry && Array.isArray(expected)) {
+        if (propertyValue && !(Array.isArray(propertyValue)) && propertyValue.entry && Array.isArray(expected)) {
             propertyValue = propertyValue.entry.map(e => e.resource);
         }
         if (Array.isArray(propertyValue)) {
@@ -338,11 +338,23 @@ function toHaveResourceCount(resp, expected) {
     if (resp.status !== 200) {
         return toHaveStatusOk(resp);
     }
-    const pass = resp.body.length === expected;
+    let count;
+    if (!(Array.isArray(resp.body))) {
+        if (resp.body.resourceType === 'Bundle') {
+            count = resp.body.entry.length;
+        } else if (resp.body.resourceType) {
+            count = 1;
+        } else {
+            count = 0;
+        }
+    } else {
+        count = resp.body.length;
+    }
+    const pass = count === expected;
     const message = pass ? () =>
             `Resource count matched: ${resp.text}`
         : () => `Resource count did not match: ${resp.text}`;
-    return {actual: resp.body.length, expected: expected, message, pass};
+    return {actual: count, expected: expected, message, pass};
 }
 
 module.exports = {
