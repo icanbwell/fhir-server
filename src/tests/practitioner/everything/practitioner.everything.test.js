@@ -33,9 +33,9 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const { findDuplicateResources } = require('../../../utils/list.util');
-const { assertStatusCode } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {findDuplicateResources} = require('../../../utils/list.util');
+const {expectResponse} = require('../../fhirAsserts');
 
 describe('Practitioner Everything Tests', () => {
     beforeEach(async () => {
@@ -240,57 +240,17 @@ describe('Practitioner Everything Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            delete expected[0]['meta']['lastUpdated'];
-            delete expected[0]['$schema'];
-            expected[0]['meta']['versionId'] = '2';
-            expect(body).toStrictEqual(expected);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
+            expectResponse(resp, expectedPractitionerResource);
 
             resp = await request
                 .get('/4_0_0/Practitioner/1679033641/$everything')
-                .set(getHeaders())
-                .expect(assertStatusCode(200));
+                .set(getHeaders());
+            expectResponse(resp, expectedEverythingResource);
 
-            console.log('------- response Practitioner 1679033641 $everything ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            body = resp.body;
-            delete body['timestamp'];
-            body.entry.forEach((element) => {
-                delete element['fullUrl'];
-                delete element['resource']['meta']['versionId'];
-                delete element['resource']['meta']['lastUpdated'];
-            });
-            expected = expectedEverythingResource;
-            expected.entry.forEach((element) => {
-                delete expected['timestamp'];
-                delete element['fullUrl'];
-                if ('meta' in element['resource']) {
-                    delete element['resource']['meta']['versionId'];
-                    delete element['resource']['meta']['lastUpdated'];
-                }
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            console.log('----- Received resources ----');
-            console.log(
-                `${body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`
-            );
-            console.log('----- End of Received resources ----');
             // verify there are no duplicate ids
-            const duplicates = findDuplicateResources(body.entry.map((e) => e.resource));
+            const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));
             expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
-            expect(body).toStrictEqual(expected);
         });
     });
 });

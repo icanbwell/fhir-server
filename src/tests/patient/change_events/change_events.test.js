@@ -10,8 +10,8 @@ const {
     createTestRequest,
     getTestContainer,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const { assertResourceCount, assertMerge } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {expectMergeResponse, expectResourceCount} = require('../../fhirAsserts');
 
 describe('Patient Change Event Tests', () => {
     beforeEach(async () => {
@@ -35,21 +35,13 @@ describe('Patient Change Event Tests', () => {
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
-
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
-
-            console.log('------- response patient1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            expectMergeResponse(resp, {created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -74,16 +66,16 @@ describe('Patient Change Event Tests', () => {
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            await request
+            let resp = await request
                 .get('/4_0_0/Observation')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
-            await request
+            resp = await request
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
-                .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -110,16 +102,16 @@ describe('Patient Change Event Tests', () => {
              */
             const mockKafkaClient = getTestContainer().kafkaClient;
             mockKafkaClient.clear();
-            await request
+            let resp = await request
                 .get('/4_0_0/Observation')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
-            await request
+            resp = await request
                 .post('/4_0_0/Observation/0/$merge')
                 .send(observation1Resource)
-                .set(getHeaders())
-                .expect(assertMerge({ created: true }));
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();

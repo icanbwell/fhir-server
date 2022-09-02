@@ -8,7 +8,11 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertResourceCount, assertMerge, expectResponse} = require('../../fhirAsserts');
+const {
+    expectResponse,
+    expectMergeResponse,
+    expectResourceCount
+} = require('../../fhirAsserts');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -24,19 +28,19 @@ describe('Questionnaire Response Tests', () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/QuestionnaireResponse')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .post('/4_0_0/QuestionnaireResponse/1/$merge')
                 .send(questionnaireResponseBundle)
-                .set(getHeaders())
-                .expect(assertMerge({created: true}));
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient=029260322')
                 .set(getHeaders());
-            expectResponse({resp, expected: expectedQuestionnaireResponseBundle});
+            expectResponse(resp, expectedQuestionnaireResponseBundle);
         });
     });
 });

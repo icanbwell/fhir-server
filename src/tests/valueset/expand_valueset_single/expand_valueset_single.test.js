@@ -9,14 +9,11 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    wrapResourceInBundle,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {
-    assertCompareBundles,
-    assertMergeIsSuccessful,
-    assertStatusCode,
+    expectMergeResponse, expectResponse,
 } = require('../../fhirAsserts');
 
 describe('ValueSet Tests', () => {
@@ -36,38 +33,20 @@ describe('ValueSet Tests', () => {
             let resp = await request
                 .post('/4_0_0/ValueSet/1/$merge?validate=true')
                 .send(valueset1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31')
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response Practitioner sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            assertCompareBundles({
-                body: wrapResourceInBundle(resp.body),
-                expected: expectedValueSetResources,
-            });
+                .set(getHeaders());
+            expectResponse(resp, expectedValueSetResources);
 
             // ACT & ASSERT
             resp = await request
                 .get('/4_0_0/ValueSet/2.16.840.1.113762.1.4.1235.31/$expand')
-                .set(getHeaders())
-                .expect(assertStatusCode(200));
-
-            console.log('------- response Practitioner sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            // clear out the lastUpdated column since that changes
-            assertCompareBundles({
-                body: wrapResourceInBundle(resp.body),
-                expected: expectedValueSetExpandResources,
-            });
+                .set(getHeaders());
+            expectResponse(resp, expectedValueSetExpandResources);
         });
     });
 });

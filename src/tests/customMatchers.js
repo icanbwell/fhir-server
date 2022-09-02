@@ -192,7 +192,7 @@ function toHaveResponse(resp, expected, fnCleanResource) {
                 );
                 if (operationOutcome && operationOutcome.statusCode === 400) {
                     assertFail({
-                        source: 'assertResponse',
+                        source: 'expectResponse',
                         message: 'FHIR validation failed',
                         args: {
                             resourceType: resp.body.resourceType,

@@ -2,34 +2,6 @@ const {expect} = require('@jest/globals');
 const {assertFail} = require('../utils/assertType');
 const {validateResource} = require('../utils/validator.util');
 
-/**
- * confirms that object was created
- * @param {Object | [Object]} body
- * @param {boolean} expectCreate
- */
-function assertMergeIsSuccessful(body, expectCreate = true) {
-    console.log(JSON.stringify(body, null, 2));
-    try {
-        if (Array.isArray(body)) {
-            for (const bodyItem of body) {
-                if (expectCreate) {
-                    expect(bodyItem['created']).toBe(true);
-                } else {
-                    expect(bodyItem['updated']).toBe(true);
-                }
-            }
-        } else {
-            if (expectCreate) {
-                expect(body['created']).toBe(true);
-            } else {
-                expect(body['updated']).toBe(true);
-            }
-        }
-    } catch (e) {
-        e.message += `, body: ${JSON.stringify(body)}`;
-        throw e;
-    }
-}
 
 /**
  * compares two bundles
@@ -145,7 +117,7 @@ function expectStatusCode(resp, expectedStatusCode) {
         expect(resp.status).toBe(expectedStatusCode);
     } catch (e) {
         assertFail({
-            source: 'assertStatusCode',
+            source: 'expectStatusCode',
             message: `Status Code did not match: ${resp.text}`,
             args: {
                 expected: expectedStatusCode,
@@ -158,22 +130,11 @@ function expectStatusCode(resp, expectedStatusCode) {
 }
 
 /**
- * Asserts that response matches the status
- * @param {number} expectedStatusCode
- * @return {(function(*): void)|*}
- */
-function assertStatusCode(expectedStatusCode) {
-    return (resp) => {
-        expectStatusCode(resp, expectedStatusCode);
-    };
-}
-
-/**
  * Asserts that response has OK status
  * @return {(function(*): void)|*}
  */
-function assertStatusOk() {
-    return assertStatusCode(200);
+function expectStatusOk(resp) {
+    return expectStatusCode(resp, 200);
 }
 
 /**
@@ -187,7 +148,7 @@ function expectResourceCount(resp, count) {
         expect(resp.body.length).toBe(count);
     } catch (e) {
         assertFail({
-            source: 'assertResourceCount',
+            source: 'expectResourceCount',
             message: `Resource count ${resp.body.length} != ${count}: ${JSON.stringify(
                 resp.body
             )}`,
@@ -202,23 +163,12 @@ function expectResourceCount(resp, count) {
 }
 
 /**
- * Asserts that count of resources in the response matches
- * @param {number} count
- * @return {(function(*): void)|*}
- */
-function assertResourceCount(count) {
-    return (resp) => {
-        expectResourceCount(resp, count);
-    };
-}
-
-/**
  * asserts
  * @param {import('http').ServerResponse} resp
  * @param {Object[]|Object} checks
  * @returns {void}
  */
-function expectMergeResponse({resp, checks}) {
+function expectMergeResponse(resp, checks) {
     try {
         expect(resp.status).toBe(200);
         const body = resp.body;
@@ -256,24 +206,13 @@ function expectMergeResponse({resp, checks}) {
 }
 
 /**
- * Asserts that merge is successfull
- * @param {Object[]|Object} checks
- * @return {(function(*): void)|*}
- */
-function assertMerge(checks) {
-    return (resp) => {
-        checks = expectMergeResponse({resp, checks});
-    };
-}
-
-/**
  * expect response
  * @param {import('http').ServerResponse} resp
  * @param {Object|Object[]} expected
  * @param {(Resource) => Resource} [fnCleanResource]
  * @returns {void}
  */
-function expectResponse({resp, expected, fnCleanResource}) {
+function expectResponse(resp, expected, fnCleanResource) {
     if (Array.isArray(resp.body) && !Array.isArray(expected)) {
         expected = [expected];
     }
@@ -313,7 +252,7 @@ function expectResponse({resp, expected, fnCleanResource}) {
                 );
                 if (operationOutcome && operationOutcome.statusCode === 400) {
                     assertFail({
-                        source: 'assertResponse',
+                        source: 'expectResponse',
                         message: 'FHIR validation failed',
                         args: {
                             resourceType: resp.body.resourceType,
@@ -340,29 +279,8 @@ function expectResponse({resp, expected, fnCleanResource}) {
     expect(resp.body).toStrictEqual(expected);
 }
 
-/**
- * Asserts that merge is successfull
- * @param {Object|Object[]} expected
- * @param {(Resource) => Resource} [fnCleanResource]
- * @return {(function(*): void)|*}
- */
-function assertResponse({expected, fnCleanResource}) {
-    // store the stack here since the function below is async
-    // const stack = new Error().stack;
-    expect(expected).not.toBeUndefined();
-    return (/** @type {import('http').ServerResponse} */ resp) => {
-        expected = expectResponse({resp, expected, fnCleanResource});
-    };
-}
-
 module.exports = {
-    assertCompareBundles,
-    assertMergeIsSuccessful,
-    assertStatusCode,
-    assertResourceCount,
-    assertResponse,
-    assertMerge,
-    assertStatusOk,
+    expectStatusOk,
     expectMergeResponse,
     expectResponse,
     expectResourceCount,

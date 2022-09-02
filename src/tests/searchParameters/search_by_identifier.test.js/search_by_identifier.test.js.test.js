@@ -10,8 +10,11 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {
+    expectMergeResponse,
+    expectResponse
+} = require('../../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -30,20 +33,15 @@ describe('Practitioner Tests', () => {
             let resp = await request
                 .post('/4_0_0/Practitioner/1/$merge?validate=true')
                 .send(practitioner1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1&identifier=http://medstarhealth.org|4657')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles({
-                body: resp.body,
-                expected: expectedPractitionerResources,
-            });
+                .set(getHeaders());
+            expectResponse(resp, expectedPractitionerResources);
         });
     });
 });

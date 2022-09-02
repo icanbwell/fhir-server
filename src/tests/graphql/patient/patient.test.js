@@ -25,8 +25,12 @@ const {
     getUnAuthenticatedGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const { assertResourceCount, assertMerge } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {
+    expectMergeResponse,
+    expectResourceCount,
+    expectResponse, expectStatusCode
+} = require('../../fhirAsserts');
 
 describe('GraphQL Patient Tests', () => {
     beforeEach(async () => {
@@ -44,53 +48,53 @@ describe('GraphQL Patient Tests', () => {
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .get('/4_0_0/AllergyIntolerance')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
-                .set(getHeaders())
-                .expect(assertMerge([{ created: true }, { created: true }]));
+                .set(getHeaders());
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
-                .set(getHeaders())
-                .expect(assertMerge([{ created: true }, { created: true }]));
+                .set(getHeaders());
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
-                .set(getHeaders())
-                .expect(assertMerge([{ created: true }, { created: true }]));
+                .set(getHeaders());
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
-                .set(getHeaders())
-                .expect(assertMerge([{ created: true }, { created: true }]));
+                .set(getHeaders());
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
-                .set(getHeaders())
-                .expect(assertMerge([{ created: true }, { created: true }]));
+                .set(getHeaders());
+            expectMergeResponse(resp, [{created: true}, {created: true}]);
 
             resp = await request
                 .get('/4_0_0/Patient/')
-                .set(getHeaders())
-                .expect(assertResourceCount(2));
+                .set(getHeaders());
+            expectResourceCount(resp, 2);
 
             resp = await request
                 .get('/4_0_0/ExplanationOfBenefit/')
-                .set(getHeaders())
-                .expect(assertResourceCount(2));
+                .set(getHeaders());
+            expectResourceCount(resp, 2);
 
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
@@ -101,29 +105,8 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders())
-                .expect(200);
-
-            let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
-            if (body.errors) {
-                console.log(body.errors);
-                expect(body.errors).toBeUndefined();
-            }
-            expect(body.data.patient.length).toBe(2);
-            let expected = expectedGraphQlResponse;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                // element['meta'] = {'versionId': '1'};
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body.data.patient).toStrictEqual(expected);
+                .set(getGraphQLHeaders());
+            expectResponse(resp, expectedGraphQlResponse);
         });
         test('GraphQL Patient properly (unauthenticated)', async () => {
             const request = await createTestRequest();
@@ -131,79 +114,47 @@ describe('GraphQL Patient Tests', () => {
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
-            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders());
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders());
+            expectResourceCount(resp, 1);
 
-            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
-
-            console.log('------- response patient ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response patient  ------------');
-
-            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders()).expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders());
+            expectResourceCount(resp, 1);
 
             await request
                 // .get('/graphql/?query=' + graphqlQueryText)
@@ -214,8 +165,8 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getUnAuthenticatedGraphQLHeaders())
-                .expect(401);
+                .set(getUnAuthenticatedGraphQLHeaders());
+            expectStatusCode(resp, 401);
         });
         test('GraphQL Patient properly (missing user scopes)', async () => {
             const request = await createTestRequest();
@@ -223,79 +174,47 @@ describe('GraphQL Patient Tests', () => {
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
-            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders());
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
-
-            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
-
-            console.log('------- response patient ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response patient  ------------');
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders());
+            expectResourceCount(resp, 1);
 
             resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders()).expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            expectResourceCount(resp, 1);
 
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
@@ -309,11 +228,7 @@ describe('GraphQL Patient Tests', () => {
                 .set(getGraphQLHeaders('user/Practitioner.read access/medstar.*'))
                 .expect(200);
 
-            let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
-            expect(body).toStrictEqual(expectedGraphqlMissingUserScopesResponse);
+            expectResponse(resp, expectedGraphqlMissingUserScopesResponse);
         });
         test('GraphQL Patient properly (missing access scopes)', async () => {
             const request = await createTestRequest();
@@ -321,79 +236,47 @@ describe('GraphQL Patient Tests', () => {
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
-            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            resp = await request.get('/4_0_0/AllergyIntolerance').set(getHeaders());
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/AllergyIntolerance/1/$merge')
                 .send(allergyIntoleranceBundleResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders());
+            expectResourceCount(resp, 1);
 
-            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
-
-            console.log('------- response patient ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response patient  ------------');
-
-            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders()).expect(200);
-
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            resp = await request.get('/4_0_0/ExplanationOfBenefit/').set(getHeaders());
+            expectResourceCount(resp, 1);
 
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
@@ -407,11 +290,7 @@ describe('GraphQL Patient Tests', () => {
                 .set(getGraphQLHeaders('user/Patient.read access/fake.*'))
                 .expect(200);
 
-            let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
-            expect(body).toStrictEqual(expectedGraphqlMissingAccessScopesResponse);
+            expectResponse(resp, expectedGraphqlMissingAccessScopesResponse);
         });
     });
 });

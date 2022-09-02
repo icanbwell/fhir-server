@@ -11,8 +11,11 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {
+    expectResponse,
+    expectMergeResponse
+} = require('../../fhirAsserts');
 
 describe('Schedule Tests', () => {
     beforeEach(async () => {
@@ -31,24 +34,19 @@ describe('Schedule Tests', () => {
             let resp = await request
                 .post('/4_0_0/Schedule/1/$merge?validate=true')
                 .send(schedule1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Schedule/1/$merge?validate=true')
                 .send(schedule2Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body, false);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Schedule back
-            resp = await request.get('/4_0_0/Schedule/?_bundle=1').set(getHeaders()).expect(200);
-            assertCompareBundles({
-                body: resp.body,
-                expected: expectedScheduleResources,
-            });
+            resp = await request.get('/4_0_0/Schedule/?_bundle=1').set(getHeaders());
+            expectResponse(resp, expectedScheduleResources);
         });
     });
 });

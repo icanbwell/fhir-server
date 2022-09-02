@@ -11,7 +11,7 @@ const {
     createTestRequest,
 } = require('../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertStatusCode, expectResponse} = require('../fhirAsserts');
+const { expectResponse, expectStatusCode} = require('../fhirAsserts');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -30,8 +30,8 @@ describe('Practitioner Tests', () => {
             let resp = await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
-                .set(getHeaders())
-                .expect(assertStatusCode(201));
+                .set(getHeaders());
+            expectStatusCode(resp, 201);
 
             const id1 = resp.headers['content-location'].split('/').splice(5, 1)[0];
             expectedPractitionerResources.entry[0].resource.id = id1;
@@ -50,8 +50,8 @@ describe('Practitioner Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner')
                 .send(practitioner1Resource)
-                .set(getHeaders())
-                .expect(assertStatusCode(201));
+                .set(getHeaders());
+            expectStatusCode(resp, 201);
 
             const id2 = resp.headers['content-location'].split('/').splice(5, 1)[0];
             expectedPractitionerResources.entry[1].resource.id = id2;

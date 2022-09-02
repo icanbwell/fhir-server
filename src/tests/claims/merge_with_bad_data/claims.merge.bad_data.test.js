@@ -9,7 +9,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
-const {assertResourceCount, expectResponse} = require('../../fhirAsserts');
+const {expectResponse, expectResourceCount} = require('../../fhirAsserts');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -25,19 +25,19 @@ describe('Claim Merge Tests', () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
                 .set(getHeaders());
-            expectResponse({resp, expected: expectedMergeResponse});
+            expectResponse(resp, expectedMergeResponse);
 
             resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders());
-            expectResponse({resp, expected: expectedExplanationOfBenefitBundleResource});
+            expectResponse(resp, expectedExplanationOfBenefitBundleResource);
         });
     });
 });

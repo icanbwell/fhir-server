@@ -20,8 +20,11 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {
+    expectMergeResponse,
+    expectResponse
+} = require('../../fhirAsserts');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -40,90 +43,75 @@ describe('Person Tests', () => {
             let resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
                 .send(person1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/2/$merge?validate=true')
                 .send(person2Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/3/$merge?validate=true')
                 .send(person3Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/4/$merge?validate=true')
                 .send(person4Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/5/$merge?validate=true')
                 .send(person5Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/6/$merge?validate=true')
                 .send(person6Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/7/$merge?validate=true')
                 .send(person7Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/8/$merge?validate=true')
                 .send(person8Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/9/$merge?validate=true')
                 .send(person9Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/10/$merge?validate=true')
                 .send(person10Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Person/11/$merge?validate=true')
                 .send(person11Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Medication back
             resp = await request
                 .get('/4_0_0/Person?name=singhal&_bundle=1&')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles({
-                body: resp.body,
-                expected: expectedPersonResources,
-            });
+                .set(getHeaders());
+            expectResponse(resp, expectedPersonResources);
         });
     });
 });

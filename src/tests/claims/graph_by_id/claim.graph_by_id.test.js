@@ -17,7 +17,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const { assertStatusCode } = require('../../fhirAsserts');
+const { expectStatusCode} = require('../../fhirAsserts');
 
 describe('Claim Graph By Id Contained Tests', () => {
     beforeEach(async () => {
@@ -43,8 +43,8 @@ describe('Claim Graph By Id Contained Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1376656959/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(assertStatusCode(200));
+                .set(getHeaders());
+            expectStatusCode(resp, 200);
             console.log('------- response practitionerResource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');

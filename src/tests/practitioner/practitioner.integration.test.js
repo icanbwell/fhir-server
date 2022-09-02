@@ -3,9 +3,9 @@ const locationResource = require('./fixtures/providers/location.json');
 const practitionerRoleResource = require('./fixtures/providers/practitioner_role.json');
 const expectedPractitionerResource = require('./fixtures/providers/expected_practitioner.json');
 
-const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
-const { assertStatusCode } = require('../fhirAsserts');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
+const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {expectStatusCode, expectResponse} = require('../fhirAsserts');
 
 describe('Practitioner Integration Tests', () => {
     beforeEach(async () => {
@@ -36,30 +36,17 @@ describe('Practitioner Integration Tests', () => {
             resp = await request
                 .post('/4_0_0/PractitionerRole')
                 .send(practitionerRoleResource)
-                .set(getHeaders())
-                .expect(assertStatusCode(201));
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3  ------------');
+                .set(getHeaders());
+
+            expectStatusCode(resp, 201);
+
             resp = await request
                 .post('/4_0_0/Location')
                 .send(locationResource)
-                .set(getHeaders())
-                .expect(201);
-            console.log('------- response 4 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 4  ------------');
-            resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            delete expected[0]['meta']['lastUpdated'];
-            expect(body).toStrictEqual(expected);
-            console.log('------- response 5 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 5  ------------');
+                .set(getHeaders());
+            expectStatusCode(resp, 201);
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
+            expectResponse(resp, expectedPractitionerResource);
         });
     });
 });

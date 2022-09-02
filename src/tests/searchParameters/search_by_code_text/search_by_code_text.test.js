@@ -12,8 +12,11 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach } = require('@jest/globals');
-const { assertCompareBundles, assertMergeIsSuccessful } = require('../../fhirAsserts');
+const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {
+    expectMergeResponse,
+    expectResponse
+} = require('../../fhirAsserts');
 
 describe('Medication Tests', () => {
     beforeEach(async () => {
@@ -32,23 +35,20 @@ describe('Medication Tests', () => {
             let resp = await request
                 .post('/4_0_0/Medication/1/$merge?validate=true')
                 .send(medication1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Medication/1/$merge?validate=true')
                 .send(medication2Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             resp = await request
                 .post('/4_0_0/Medication/1/$merge?validate=true')
                 .send(medication3Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            expectMergeResponse(resp, {created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Medication back
@@ -56,10 +56,7 @@ describe('Medication Tests', () => {
                 .get('/4_0_0/Medication/?_bundle=1&code:text=prednisoLONE&_debug=1')
                 .set(getHeaders())
                 .expect(200);
-            assertCompareBundles({
-                body: resp.body,
-                expected: expectedMedicationResources,
-            });
+            expectResponse(resp, expectedMedicationResources);
         });
     });
 });

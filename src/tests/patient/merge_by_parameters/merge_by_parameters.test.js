@@ -12,9 +12,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach} = require('@jest/globals');
 const {
-    assertStatusCode,
-    assertResourceCount,
-    assertMerge, expectResponse,
+    expectResponse, expectMergeResponse, expectResourceCount,
 } = require('../../fhirAsserts');
 
 describe('Merge By Parameters Tests', () => {
@@ -31,9 +29,8 @@ describe('Merge By Parameters Tests', () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(assertResourceCount(0));
+                .set(getHeaders());
+            expectResourceCount(resp, 0);
 
             /**
              * http://www.hl7.org/fhir/parameters-example.json.html
@@ -47,20 +44,17 @@ describe('Merge By Parameters Tests', () => {
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge')
                 .send(parametersResource)
-                .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(assertMerge([{created: true}]));
+                .set(getHeaders());
+            expectMergeResponse(resp, [{created: true}]);
 
             resp = await request
                 .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(assertStatusCode(200))
-                .expect(assertResourceCount(1));
+                .set(getHeaders());
+            expectResourceCount(resp, 1);
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             expectResponse({resp, expected: expectedSinglePatientResource});
         });
     });
