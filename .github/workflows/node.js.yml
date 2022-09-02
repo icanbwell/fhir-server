@@ -53,4 +53,4 @@ jobs:
               run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit
               env:
                   CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
-                  NODE_OPTIONS: --max_old_space_size=8192
+                  NODE_OPTIONS: "--max_old_space_size=8192"
