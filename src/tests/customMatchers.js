@@ -138,16 +138,19 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
             pass = deepEqual(actual, expected.entry.map(e => e.resource));
         }
     } else {
-        if (Array.isArray(actual)) {
-            actual.forEach(a => fnCleanResource(a));
-        } else {
-            fnCleanResource(actual);
+        if (fnCleanResource) {
+            if (Array.isArray(actual)) {
+                actual.forEach(a => fnCleanResource(a));
+            } else {
+                fnCleanResource(actual);
+            }
+            if (Array.isArray(expected)) {
+                expected.forEach(a => fnCleanResource(a));
+            } else {
+                fnCleanResource(expected);
+            }
         }
-        if (Array.isArray(expected)) {
-            expected.forEach(a => fnCleanResource(a));
-        } else {
-            fnCleanResource(expected);
-        }
+
         pass = deepEqual(actual, expected);
     }
     const message = pass ? () =>
