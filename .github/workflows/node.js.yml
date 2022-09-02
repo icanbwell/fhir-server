@@ -50,7 +50,9 @@ jobs:
             - run: yarn install
             - run: npm run build --if-present
             - name: jest
-              run: echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit
+              run: |
+                export NODE_OPTIONS="--max_old_space_size=8192"
+                echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit
               env:
                   CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
                   NODE_OPTIONS: "--max_old_space_size=8192"
