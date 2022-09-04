@@ -28,7 +28,7 @@ const getParameters = (version, resource) => {
  * @description Get the search parameters for a given resource on a specific version
  * @param {String} profile - Name of the profile we are retrieving arguments for
  * @param {String} version - Which version we are using
- * @param {String} customArgsModule - Path to a metadata module that contains
+ * @param {String} [customArgsModule] - Path to a metadata module that contains
  *  a makeResource function that returns a search param
  * @return {Object} Arguments specific to a resource
  */

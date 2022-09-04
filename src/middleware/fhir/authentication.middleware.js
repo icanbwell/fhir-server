@@ -8,7 +8,7 @@ const passport = require('passport');
  */
 
 
-module.exports = function authenticationMiddleware(config) {
+module.exports = async function authenticationMiddleware(config) {
   // Don't do any validation for testing
   if (process.env.NODE_ENV === 'test') {
     return noOpMiddleware;
@@ -20,6 +20,7 @@ module.exports = function authenticationMiddleware(config) {
       name,
       useSession = false
     } = config.auth.strategy;
+    // noinspection JSCheckFunctionSignatures
     return passport.authenticate(name, {
       session: useSession
     });

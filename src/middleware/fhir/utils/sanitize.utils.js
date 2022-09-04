@@ -116,7 +116,7 @@ let findMatchWithName = (name = '', params = {}) => {
  * @param {Array<Object>} config - Sanitize config for how to deal with params
  * @param {string} config.name - Argument name
  * @param {string} config.type - Argument type. Acceptable types are (boolean, string, number)
- * @param {boolean} required - Should we throw if this argument is present and invalid, default is false
+ * @param {boolean} [required] - Should we throw if this argument is present and invalid, default is false
  */
 // eslint-disable-next-line no-unused-vars
 let sanitizeMiddleware = function (config, required) {
