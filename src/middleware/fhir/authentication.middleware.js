@@ -8,7 +8,7 @@ const passport = require('passport');
  */
 
 
-module.exports = async function authenticationMiddleware(config) {
+module.exports = function authenticationMiddleware(config) {
   // Don't do any validation for testing
   if (process.env.NODE_ENV === 'test') {
     return noOpMiddleware;

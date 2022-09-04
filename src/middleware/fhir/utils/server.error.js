@@ -4,7 +4,7 @@
  * @summary Error class for throwing errors from services
  * @class ServerError
  */
-module.exports = class ServerError extends Error {
+class ServerError extends Error {
     constructor(message, options) {
         super(message);
         Object.setPrototypeOf(this, ServerError.prototype); // Make message enumerable
@@ -18,4 +18,9 @@ module.exports = class ServerError extends Error {
         } // Mixin any additional options
         Object.assign(this, options);
     }
+}
+
+module.exports = {
+    ServerError
 };
+

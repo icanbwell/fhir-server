@@ -1,6 +1,6 @@
 // const parametersR401 = require('../resources/4_0_1/parameters');
 
-// const parametersR4 = require('../resources/4_0_0/parameters');
+const parametersR4 = require('../resources/4_0_0/parameters');
 
 // const parameters3 = require('../resources/3_0_1/parameters');
 
@@ -8,20 +8,19 @@
 
 // eslint-disable-next-line no-unused-vars
 const getParameters = (version, resource) => {
-    return;
-    // switch (version) {
+    switch (version) {
         // case '4_0_1':
         //     return parametersR401[`${resource}`];
 
-        // case '4_0_0':
-        //     return parametersR4[`${resource}`];
+        case '4_0_0':
+            return parametersR4[`${resource}`];
 
         // case '3_0_1':
         //     return parameters3[`${resource}`];
         //
         // case '1_0_2':
         //     return parameters1[`${resource}`];
-    // }
+    }
 };
 /**
  * @function getSearchParameters

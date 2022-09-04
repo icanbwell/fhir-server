@@ -1,8 +1,6 @@
-const {
-  container
-} = require('winston');
+const winston = require('winston');
 
-let logger = container.get('default');
+let logger = winston.loggers.get('default');
 
 const path = require('path');
 

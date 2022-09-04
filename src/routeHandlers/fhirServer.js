@@ -6,20 +6,20 @@ const FHIRServer = require('@asymmetrik/node-fhir-server-core');
 const compression = require('compression');
 const bodyParser = require('body-parser');
 const env = require('var');
-const { htmlRenderer } = require('../middleware/htmlRenderer');
-const { errorReportingMiddleware } = require('../middleware/slackErrorHandler');
-const { isTrue } = require('../utils/isTrue');
+const {htmlRenderer} = require('../middleware/htmlRenderer');
+const {errorReportingMiddleware} = require('../middleware/slackErrorHandler');
+const {isTrue} = require('../utils/isTrue');
 const {
     resolveSchema,
     isValidVersion,
 } = require('../middleware/fhir/utils/schema.utils');
-const {VERSIONS} = require('../middleware/fhir/utils/constants').constants;
-const ServerError = require('../middleware/fhir/utils/server.error');
-const { generateUUID } = require('../utils/uid.util');
+const {VERSIONS} = require('../middleware/fhir/utils/constants');
+const {ServerError} = require('../middleware/fhir/utils/server.error');
+const {generateUUID} = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
-const { FhirRouter } = require('../middleware/fhir/router');
-const { assertTypeEquals } = require('../utils/assertType');
+const {FhirRouter} = require('../middleware/fhir/router');
+const {assertTypeEquals} = require('../utils/assertType');
 // const passport = require('passport');
 // const path = require('path');
 
@@ -47,7 +47,7 @@ class MyFHIRServer extends FHIRServer.Server {
         this.fhirRouter = this.container.fhirRouter;
         assertTypeEquals(this.fhirRouter, FhirRouter);
 
-        let { server = {} } = this.config;
+        let {server = {}} = this.config;
         this.env = {
             IS_PRODUCTION: !process.env.NODE_ENV || process.env.NODE_ENV === 'production',
             USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined,
@@ -155,7 +155,7 @@ class MyFHIRServer extends FHIRServer.Server {
      */
     configureSession(session) {
         // Session config can come from the core config as well, let's handle both cases
-        let { server = {} } = this.config; // If a session was passed in the config, let's use it
+        let {server = {}} = this.config; // If a session was passed in the config, let's use it
 
         if (session || server.sessionStore) {
             this.app.use(session || server.sessionStore);
@@ -195,7 +195,7 @@ class MyFHIRServer extends FHIRServer.Server {
      */
     setPublicDirectory(publicDirectory = '') {
         // Public config can come from the core config as well, let's handle both cases
-        let { server = {} } = this.config;
+        let {server = {}} = this.config;
 
         if (publicDirectory || server.publicDirectory) {
             this.app.use(express.static(publicDirectory || server.publicDirectory));
@@ -255,9 +255,9 @@ class MyFHIRServer extends FHIRServer.Server {
                 /** @type {import('http').ServerResponse} */ res,
                 next
             ) => {
+                // get base from URL instead of params since it might not be forwarded
+                const base = req.url.split('/')[1];
                 try {
-                    // get base from URL instead of params since it might not be forwarded
-                    const base = req.url.split('/')[1];
 
                     // Get an operation outcome for this instance
                     const OperationOutcome = resolveSchema(
@@ -295,14 +295,28 @@ class MyFHIRServer extends FHIRServer.Server {
                             });
 
                             // logger.error(error);
-                            res.status(error.statusCode).json(error);
+                            res.status(500).json(error);
                         } else {
                             next();
                         }
                     }
                 } catch (e) {
                     // logger.error(e);
-                    next();
+                    // Get an operation outcome for this instance
+                    const OperationOutcome = resolveSchema(
+                        isValidVersion(base) ? base : VERSIONS['4_0_1'],
+                        'operationoutcome'
+                    );
+                    res.status(500).json(new OperationOutcome({
+                        issue: [
+                            {
+                                severity: 'error',
+                                code: 'exception',
+                                diagnostics: e.toString() + ' | ' + e.stack
+                            }
+                        ]
+                    }));
+                    // next();
                 }
             }
         );

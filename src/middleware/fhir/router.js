@@ -28,7 +28,7 @@ const {
     getSearchParameters
 } = require('./utils/params.utils');
 
-const {VERSIONS, INTERACTIONS} = require('./utils/constants').constants;
+const {VERSIONS, INTERACTIONS} = require('./utils/constants');
 
 const {CustomOperationsController} = require('./4_0_0/controllers/operations.controller');
 
