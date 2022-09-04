@@ -5,7 +5,10 @@ const {
 
 const {
     resolveSchema
-} = require('./schema.utils'); // Helper to determine which operation outcome to retrieve
+} = require('./schema.utils');
+const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const Narrative = require('../../../fhir/classes/4_0_0/complex_types/narrative'); // Helper to determine which operation outcome to retrieve
 
 
 let getErrorConstructor = baseVersion => {
@@ -21,21 +24,19 @@ let getErrorConstructor = baseVersion => {
 let div_content = (severity, diagnostics) => '<div xmlns="http://www.w3.org/1999/xhtml"><h1>Operation Outcome</h1><table border="0">' + `<table border=\"0\"><tr><td style=\"font-weight: bold;\">${severity}</td>` + `<td><pre>${diagnostics}</pre></td></tr></table></div>`;
 /* eslint-enable no-useless-escape */
 // Invalid or Missing parameter from request
-
-
+// eslint-disable-next-line no-unused-vars
 let invalidParameter = (message, base_version) => {
-    let ErrorConstructor = getErrorConstructor(base_version);
-    return new ErrorConstructor({
-        statusCode: 400,
-        text: {
+    return new OperationOutcome({
+        // statusCode: 400,
+        text: new Narrative({
             status: 'generated',
             div: div_content(ISSUE.SEVERITY.ERROR, message)
-        },
-        issue: {
+        }),
+        issue: [new OperationOutcomeIssue({
             code: ISSUE.CODE.INVALID,
             severity: ISSUE.SEVERITY.ERROR,
             diagnostics: message
-        }
+        })]
     });
 }; // Unauthorized request of some resource
 
@@ -142,21 +143,19 @@ let deleted = (message, base_version) => {
  * @param {String} base_version - dstu2 or stu3
  * @return {OperationOutcome}
  */
-
-
+// eslint-disable-next-line no-unused-vars
 let customError = (err, base_version) => {
-    let ErrorConstructor = getErrorConstructor(base_version);
-    return new ErrorConstructor({
-        statusCode: err.statusCode,
-        text: {
+    return new OperationOutcome({
+        // statusCode: err.statusCode,
+        text: new Narrative({
             status: 'generated',
             div: div_content(err.severity, err.message)
-        },
-        issue: {
+        }),
+        issue: [new OperationOutcomeIssue({
             code: err.code,
             severity: err.severity,
             diagnostics: err.message
-        },
+        })],
         isCustom: true
     });
 };
