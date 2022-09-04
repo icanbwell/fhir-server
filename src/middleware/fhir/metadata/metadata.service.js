@@ -6,7 +6,7 @@ const errors = require('../utils/error.utils.js');
 
 // const {
 //     container
-// } = require('../winston.js');
+// } = require('../../../winstonInit');
 //
 // let logger = container.get('default');
 /**

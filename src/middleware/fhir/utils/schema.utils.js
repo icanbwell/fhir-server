@@ -3,6 +3,7 @@ const {
 } = require('./constants');
 
 const schemasR4 = require('../../../fhir/classes/4_0_0/resources');
+const schemasComplexTypeR4 = require('../../../fhir/classes/4_0_0/complex_types');
 
 // const schemas3 = require('../resources/3_0_1/schemas');
 
@@ -21,7 +22,7 @@ const resolveSchema = (version = '4_0_0', schema = '') => {
         //     return schemasR401[lowercaseSchema];
 
         case '4_0_0':
-            return schemasR4[`${lowercaseSchema}`];
+            return schemasR4[`${lowercaseSchema}`] || schemasComplexTypeR4[`${lowercaseSchema}`];
 
         // case '3_0_1':
         //     return schemas3[lowercaseSchema];

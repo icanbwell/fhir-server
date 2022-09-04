@@ -20,8 +20,8 @@ const helmet = require('helmet');
 const express = require('express');
 const {FhirRouter} = require('../middleware/fhir/router');
 const {assertTypeEquals} = require('../utils/assertType');
-// const passport = require('passport');
-// const path = require('path');
+const passport = require('passport');
+const path = require('path');
 
 class MyFHIRServer extends FHIRServer.Server {
     /**
@@ -169,24 +169,24 @@ class MyFHIRServer extends FHIRServer.Server {
     //     return this;
     // }
 
-    configurePassport() {
-        return super.configurePassport();
-    }
-
     // configurePassport() {
-    //     if (this.config.auth && this.config.auth.strategy) {
-    //         let {
-    //             strategy
-    //             // eslint-disable-next-line security/detect-non-literal-require
-    //         } = require(path.resolve(this.config.auth.strategy.service));
-    //
-    //         // noinspection JSCheckFunctionSignatures
-    //         passport.use('jwt', strategy);
-    //     } // return self for chaining
-    //
-    //
-    //     return this;
+    //     return super.configurePassport();
     // }
+
+    configurePassport() {
+        if (this.config.auth && this.config.auth.strategy) {
+            let {
+                strategy
+                // eslint-disable-next-line security/detect-non-literal-require
+            } = require(path.resolve(this.config.auth.strategy.service));
+
+            // noinspection JSCheckFunctionSignatures
+            passport.use('jwt', strategy);
+        } // return self for chaining
+
+
+        return this;
+    }
 
     /**
      * Set up a public directory for static assets

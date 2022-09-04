@@ -3,12 +3,14 @@
  */
 
 const AWS = require('aws-sdk');
-const winston = require('winston');
+const {
+  container
+} = require('../winstonInit');
 
 /**
  * @type {import('winston').logger}
  */
-const logger = winston.loggers.get('default', {});
+const logger = container.get('default');
 // const Sentry = require('./sentry');
 const moment = require('moment-timezone');
 

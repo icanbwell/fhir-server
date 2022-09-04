@@ -1,11 +1,13 @@
 const env = require('var');
 const moment = require('moment-timezone');
-const winston = require('winston');
+const {
+  container
+} = require('../../winstonInit');
 
 /**
  * @type {import('winston').logger}
  */
-const logger = winston.loggers.get('default', {});
+const logger = container.get('default');
 
 const os = require('os');
 const {generateUUID} = require('../../utils/uid.util');

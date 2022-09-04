@@ -62,6 +62,11 @@ def main() -> int:
     if os.path.exists(indexFilePath):
         os.remove(indexFilePath)
 
+    classes_complex_types_folder = classes_dir.joinpath("complex_types")
+    complexTypeIndexFilePath = classes_complex_types_folder.joinpath("index.js")
+    if os.path.exists(complexTypeIndexFilePath):
+        os.remove(complexTypeIndexFilePath)
+
     fhir_entities: List[FhirEntity] = [f for f in FhirXmlSchemaParser.generate_classes() if f.is_resource]
 
     with open(data_dir.joinpath("template.javascript.class.index.jinja2"), "r") as file:
@@ -69,6 +74,24 @@ def main() -> int:
         from jinja2 import Template
 
         file_path = indexFilePath
+        template = Template(
+            template_contents, trim_blocks=True, lstrip_blocks=True
+        )
+        result = template.render(
+            fhir_entities=fhir_entities,
+        )
+    if not path.exists(file_path):
+        with open(file_path, "w") as file2:
+            file2.write(result)
+
+    fhir_entities: List[FhirEntity] = [f for f in FhirXmlSchemaParser.generate_classes()
+                                       if f.type_ == "Element" and f.cleaned_name != "Resource"]
+
+    with open(data_dir.joinpath("template.javascript.class.index.jinja2"), "r") as file:
+        template_contents = file.read()
+        from jinja2 import Template
+
+        file_path = complexTypeIndexFilePath
         template = Template(
             template_contents, trim_blocks=True, lstrip_blocks=True
         )
