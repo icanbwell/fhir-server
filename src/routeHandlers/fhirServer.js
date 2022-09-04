@@ -2,7 +2,7 @@
  * This route handler implement the fhir server route.  It inherits from the base FHIR Server and makes some changes
  */
 
-const FHIRServer = require('@asymmetrik/node-fhir-server-core');
+// const FHIRServer = require('@asymmetrik/node-fhir-server-core');
 const compression = require('compression');
 const bodyParser = require('body-parser');
 const env = require('var');
@@ -23,7 +23,7 @@ const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 
-class MyFHIRServer extends FHIRServer.Server {
+class MyFHIRServer /*extends FHIRServer.Server*/ {
     /**
      * constructor
      * @param {function (): SimpleContainer} fnCreateContainer
@@ -31,10 +31,10 @@ class MyFHIRServer extends FHIRServer.Server {
      * @param {import('express').Express} app
      */
     constructor(fnCreateContainer, config = {}, app = null) {
-        super(config, app);
-        // this.config = config;
+        // super(config, app);
+        this.config = config;
         // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
-        // this.app = app ? app : express(); // Setup some environment variables handy for setup
+        this.app = app ? app : express(); // Setup some environment variables handy for setup
 
         /**
          * @type {SimpleContainer}
