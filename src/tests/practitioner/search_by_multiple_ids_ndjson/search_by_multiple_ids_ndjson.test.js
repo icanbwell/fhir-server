@@ -15,7 +15,7 @@ const {
     getHeadersNdJsonFormUrlEncoded,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 const { ndjsonToJsonText } = require('ndjson-to-json-text');
 
 describe('PractitionerReturnIdTests', () => {

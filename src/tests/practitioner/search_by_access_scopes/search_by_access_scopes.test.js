@@ -13,7 +13,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('search_by_security_tag', () => {
     const scope = 'user/*.read user/*.write access/medstar.* access/thedacare.*';

@@ -1,6 +1,6 @@
 const input = require('./fixtures/input.json');
 const { removeNull } = require('../../../utils/nullRemover');
-const { describe, expect } = require('@jest/globals');
+const { describe, expect, test } = require('@jest/globals');
 
 describe('nullRemover Tests', () => {
     describe('nullRemover Tests', () => {

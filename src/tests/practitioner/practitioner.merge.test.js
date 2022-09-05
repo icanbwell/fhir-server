@@ -3,7 +3,7 @@ const practitionerResourcev2 = require('./fixtures/providers/practitioner_v2.jso
 const expectedPractitionerResource_v2 = require('./fixtures/providers/expected_practitioner_v2.json');
 
 const { commonBeforeEach, commonAfterEach, getHeaders, createTestRequest } = require('../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('Practitioner Merge Tests', () => {
     beforeEach(async () => {

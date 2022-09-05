@@ -2,7 +2,7 @@ const {validateResource} = require('../utils/validator.util');
 const {assertFail} = require('../utils/assertType');
 const {diff} = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
-const {expect} = require('@jest/globals');
+const {expect } = require('@jest/globals');
 
 
 /**

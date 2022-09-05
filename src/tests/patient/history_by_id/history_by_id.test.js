@@ -12,7 +12,7 @@ const {
     createTestRequest,
     getTestContainer,
 } = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test } = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {

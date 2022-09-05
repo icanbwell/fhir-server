@@ -1,6 +1,6 @@
 const patient = require('./fixtures/patient.json');
 const observation = require('./fixtures/observation.json');
-const {describe, expect, beforeEach, afterEach} = require('@jest/globals');
+const {describe, expect, beforeEach, afterEach, test } = require('@jest/globals');
 const moment = require('moment-timezone');
 const {commonBeforeEach, commonAfterEach} = require('../../common');
 const globals = require('../../../globals');

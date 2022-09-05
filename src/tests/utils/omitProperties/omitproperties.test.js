@@ -1,5 +1,5 @@
 const { commonBeforeEach, commonAfterEach } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 const { omitProperty } = require('../../../utils/omitProperties');
 
 describe('Patient Tests', () => {

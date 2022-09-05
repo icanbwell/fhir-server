@@ -34,7 +34,7 @@ const {
     getCustomGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeAll, afterAll, expect} = require('@jest/globals');
+const {describe, beforeAll, afterAll, expect, test } = require('@jest/globals');
 
 describe('patient Tests', () => {
     beforeAll(async () => {

@@ -19,7 +19,7 @@ const {
 } = require('../../common');
 
 const {findDuplicateResources} = require('../../../utils/list.util');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('Practitioner Graph Contained Tests', () => {
     beforeEach(async () => {
