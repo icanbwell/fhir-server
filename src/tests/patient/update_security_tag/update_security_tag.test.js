@@ -12,7 +12,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const env = require('var');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('PractitionerUpdateSecurityTagTests', () => {
     beforeEach(async () => {

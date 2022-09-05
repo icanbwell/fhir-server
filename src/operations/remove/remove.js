@@ -13,7 +13,7 @@ const {AuditLogger} = require('../../utils/auditLogger');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
+const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 
 class RemoveOperation {
     /**

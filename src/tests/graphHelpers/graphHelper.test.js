@@ -8,7 +8,7 @@ const graphWithExtensionDefinition = require('./fixtures/graphWithExtension.json
 const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithExtension.json');
 const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
 const { createTestContainer } = require('../createTestContainer');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 /**
  * Gets graph helper

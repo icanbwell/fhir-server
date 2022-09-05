@@ -23,7 +23,7 @@ const {
     createTestRequest,
     getTestContainer,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 const globals = require('../../../globals');
 const { AUDIT_EVENT_CLIENT_DB } = require('../../../constants');
 const env = require('var');

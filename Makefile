@@ -118,6 +118,12 @@ lint:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	npm run lint
 
+.PHONY:fix-lint
+fix-lint:
+	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
+	npm run fix_lint && \
+	npm run lint
+
 .PHONY:generate
 generate:
 	python3 src/services/generate_services.py

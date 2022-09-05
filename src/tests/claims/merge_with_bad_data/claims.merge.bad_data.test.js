@@ -8,7 +8,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test } = require('@jest/globals');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {

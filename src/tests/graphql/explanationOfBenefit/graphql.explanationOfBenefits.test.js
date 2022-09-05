@@ -21,7 +21,7 @@ const {
     getGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test } = require('@jest/globals');
 
 describe('GraphQL ExplanationOfBenefit Tests', () => {
     beforeEach(async () => {

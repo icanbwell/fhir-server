@@ -2,9 +2,9 @@ const {Writable} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {isNdJsonContentType} = require('../../utils/contentTypes');
-const {loggers} = require('@asymmetrik/node-fhir-server-core');
+const {container} = require('../../winstonInit');
 const {assertIsValid} = require('../../utils/assertType');
-const logger = loggers.get('default');
+const logger = container.get('default');
 
 class HttpResponseWriter extends Writable {
     /**

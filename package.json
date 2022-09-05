@@ -76,7 +76,6 @@
   },
   "dependencies": {
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
-    "@asymmetrik/node-fhir-server-core": "^2.2.4",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
     "@elastic/elasticsearch": "^8.2.1",
     "@graphql-eslint/eslint-plugin": "^3.10.7",
@@ -146,7 +145,10 @@
     "var": "^0.4.0",
     "winston": "^3.8.1",
     "winston-elasticsearch": "^0.17.1",
-    "winston-transport": "^4.5.0"
+    "winston-transport": "^4.5.0",
+    "validator": "^13.7.0",
+    "sanitize-html": "^2.7.1",
+    "xss": "^1.0.14"
   },
   "devDependencies": {
     "@jest/globals": "^29.0.1",

@@ -2,31 +2,32 @@
  * Main entrypoint that sets up the app
  */
 const express = require('express');
-const { fhirServerConfig } = require('./config');
+const {fhirServerConfig} = require('./config');
 const Prometheus = require('./utils/prometheus.utils');
 const cors = require('cors');
 const env = require('var');
 const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
-const { graphqlv1 } = require('./middleware/graphql/graphqlServer1');
-const { graphql } = require('./middleware/graphql/graphqlServer');
-const { resourceDefinitions } = require('./utils/resourceDefinitions');
+const {graphqlv1} = require('./middleware/graphql/graphqlServer1');
+const {graphql} = require('./middleware/graphql/graphqlServer');
+const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
 const passport = require('passport');
-const { strategy } = require('./strategies/jwt.bearer.strategy');
+const {strategy} = require('./strategies/jwt.bearer.strategy');
 
-const { handleAlert } = require('./routeHandlers/alert');
-const { MyFHIRServer } = require('./routeHandlers/fhirServer');
-const { handleSecurityPolicy } = require('./routeHandlers/contentSecurityPolicy');
-const { handleVersion } = require('./routeHandlers/version');
-const { handleLogout } = require('./routeHandlers/logout');
-const { handleClean } = require('./routeHandlers/clean');
-const { handleIndex } = require('./routeHandlers/index');
-const { handleStats } = require('./routeHandlers/stats');
-const { handleSmartConfiguration } = require('./routeHandlers/smartConfiguration');
-const { isTrue } = require('./utils/isTrue');
+const {handleAlert} = require('./routeHandlers/alert');
+const {MyFHIRServer} = require('./routeHandlers/fhirServer');
+const {handleSecurityPolicy} = require('./routeHandlers/contentSecurityPolicy');
+const {handleVersion} = require('./routeHandlers/version');
+const {handleLogout} = require('./routeHandlers/logout');
+const {handleClean} = require('./routeHandlers/clean');
+const {handleIndex} = require('./routeHandlers/index');
+const {handleStats} = require('./routeHandlers/stats');
+const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
+const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
+const {initialize} = require('./winstonInit');
 
 if (isTrue(env.TRACING_ENABLED)) {
     require('./tracing');
@@ -57,6 +58,7 @@ function createFhirApp(fnCreateContainer, app1) {
  * @return {import('express').Express}
  */
 function createApp(fnCreateContainer) {
+    initialize();
     const swaggerUi = require('swagger-ui-express');
     // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
@@ -124,7 +126,7 @@ function createApp(fnCreateContainer) {
         res.redirect(redirectUrl);
     });
 
-    app.get('/health', (req, res) => res.json({ status: 'ok' }));
+    app.get('/health', (req, res) => res.json({status: 'ok'}));
     app.get('/version', handleVersion);
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
@@ -185,7 +187,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
                     router.use(passport.initialize({}));
-                    router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     // noinspection JSCheckFunctionSignatures
                     router.use(graphqlMiddleware);
                     app.use('/graphqlv2', router);
@@ -197,7 +199,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     router1.use(passport.initialize({}));
-                    router1.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+                    router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     // noinspection JSCheckFunctionSignatures
                     router1.use(graphqlMiddlewareV1);
 
@@ -213,7 +215,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
                     router.use(passport.initialize({}));
-                    router.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     // noinspection JSCheckFunctionSignatures
                     router.use(graphqlMiddleware);
                     app.use('/graphqlv2', router);
@@ -223,7 +225,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     router1.use(passport.initialize({}));
-                    router1.use(passport.authenticate('graphqlStrategy', { session: false }, null));
+                    router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     // noinspection JSCheckFunctionSignatures
                     router1.use(graphqlMiddlewareV1);
 
@@ -261,4 +263,4 @@ function unmountRoutes(app) {
     app.use('/graphqlv2', express.Router());
 }
 
-module.exports = { createApp, unmountRoutes };
+module.exports = {createApp, unmountRoutes};

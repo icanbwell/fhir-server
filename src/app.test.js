@@ -3,7 +3,7 @@
  */
 const { createTestRequest } = require('./tests/common');
 
-const { describe, expect } = require('@jest/globals');
+const { describe, expect, test } = require('@jest/globals');
 
 describe('#app', () => {
     test('it should startup and return health check status ok', async () => {

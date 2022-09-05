@@ -2,29 +2,27 @@
  * This route handler implement the fhir server route.  It inherits from the base FHIR Server and makes some changes
  */
 
-const FHIRServer = require('@asymmetrik/node-fhir-server-core');
 const compression = require('compression');
 const bodyParser = require('body-parser');
 const env = require('var');
-const { htmlRenderer } = require('../middleware/htmlRenderer');
-const { errorReportingMiddleware } = require('../middleware/slackErrorHandler');
-const { isTrue } = require('../utils/isTrue');
-const loggers = require('@asymmetrik/node-fhir-server-core/dist/server/winston');
+const {htmlRenderer} = require('../middleware/htmlRenderer');
+const {errorReportingMiddleware} = require('../middleware/slackErrorHandler');
+const {isTrue} = require('../utils/isTrue');
 const {
     resolveSchema,
     isValidVersion,
-} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/schema.utils');
-const { VERSIONS } = require('@asymmetrik/node-fhir-server-core/dist/constants');
-const ServerError = require('@asymmetrik/node-fhir-server-core/dist/server/utils/server.error');
-const { generateUUID } = require('../utils/uid.util');
+} = require('../middleware/fhir/utils/schema.utils');
+const {VERSIONS} = require('../middleware/fhir/utils/constants');
+const {ServerError} = require('../middleware/fhir/utils/server.error');
+const {generateUUID} = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
-const { FhirRouter } = require('../middleware/fhir/router');
-const { assertTypeEquals } = require('../utils/assertType');
-// const passport = require('passport');
-// const path = require('path');
+const {FhirRouter} = require('../middleware/fhir/router');
+const {assertTypeEquals} = require('../utils/assertType');
+const passport = require('passport');
+const path = require('path');
 
-class MyFHIRServer extends FHIRServer.Server {
+class MyFHIRServer {
     /**
      * constructor
      * @param {function (): SimpleContainer} fnCreateContainer
@@ -32,10 +30,10 @@ class MyFHIRServer extends FHIRServer.Server {
      * @param {import('express').Express} app
      */
     constructor(fnCreateContainer, config = {}, app = null) {
-        super(config, app);
-        // this.config = config;
+        // super(config, app);
+        this.config = config;
         // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
-        // this.app = app ? app : express(); // Setup some environment variables handy for setup
+        this.app = app ? app : express(); // Setup some environment variables handy for setup
 
         /**
          * @type {SimpleContainer}
@@ -48,7 +46,7 @@ class MyFHIRServer extends FHIRServer.Server {
         this.fhirRouter = this.container.fhirRouter;
         assertTypeEquals(this.fhirRouter, FhirRouter);
 
-        let { server = {} } = this.config;
+        let {server = {}} = this.config;
         this.env = {
             IS_PRODUCTION: !process.env.NODE_ENV || process.env.NODE_ENV === 'production',
             USE_HTTPS: server.ssl && server.ssl.key && server.ssl.cert ? server.ssl : undefined,
@@ -156,7 +154,7 @@ class MyFHIRServer extends FHIRServer.Server {
      */
     configureSession(session) {
         // Session config can come from the core config as well, let's handle both cases
-        let { server = {} } = this.config; // If a session was passed in the config, let's use it
+        let {server = {}} = this.config; // If a session was passed in the config, let's use it
 
         if (session || server.sessionStore) {
             this.app.use(session || server.sessionStore);
@@ -170,24 +168,24 @@ class MyFHIRServer extends FHIRServer.Server {
     //     return this;
     // }
 
-    configurePassport() {
-        return super.configurePassport();
-    }
-
     // configurePassport() {
-    //     if (this.config.auth && this.config.auth.strategy) {
-    //         let {
-    //             strategy
-    //             // eslint-disable-next-line security/detect-non-literal-require
-    //         } = require(path.resolve(this.config.auth.strategy.service));
-    //
-    //         // noinspection JSCheckFunctionSignatures
-    //         passport.use('jwt', strategy);
-    //     } // return self for chaining
-    //
-    //
-    //     return this;
+    //     return super.configurePassport();
     // }
+
+    configurePassport() {
+        if (this.config.auth && this.config.auth.strategy) {
+            let {
+                strategy
+                // eslint-disable-next-line security/detect-non-literal-require
+            } = require(path.resolve(this.config.auth.strategy.service));
+
+            // noinspection JSCheckFunctionSignatures
+            passport.use('jwt', strategy);
+        } // return self for chaining
+
+
+        return this;
+    }
 
     /**
      * Set up a public directory for static assets
@@ -196,7 +194,7 @@ class MyFHIRServer extends FHIRServer.Server {
      */
     setPublicDirectory(publicDirectory = '') {
         // Public config can come from the core config as well, let's handle both cases
-        let { server = {} } = this.config;
+        let {server = {}} = this.config;
 
         if (publicDirectory || server.publicDirectory) {
             this.app.use(express.static(publicDirectory || server.publicDirectory));
@@ -242,7 +240,6 @@ class MyFHIRServer extends FHIRServer.Server {
         /**
          * @type {import('winston').logger}
          */
-        let logger = loggers.get('default', {});
         //Enable error tracking error handler if supplied in config
         if (this.config.errorTracking && this.config.errorTracking.errorHandler) {
             this.app.use(this.config.errorTracking.errorHandler());
@@ -257,9 +254,9 @@ class MyFHIRServer extends FHIRServer.Server {
                 /** @type {import('http').ServerResponse} */ res,
                 next
             ) => {
+                // get base from URL instead of params since it might not be forwarded
+                const base = req.url.split('/')[1];
                 try {
-                    // get base from URL instead of params since it might not be forwarded
-                    const base = req.url.split('/')[1];
 
                     // Get an operation outcome for this instance
                     const OperationOutcome = resolveSchema(
@@ -296,15 +293,29 @@ class MyFHIRServer extends FHIRServer.Server {
                                 ],
                             });
 
-                            logger.error(error);
-                            res.status(error.statusCode).json(error);
+                            // logger.error(error);
+                            res.status(500).json(error);
                         } else {
                             next();
                         }
                     }
                 } catch (e) {
-                    logger.error(e);
-                    next();
+                    // logger.error(e);
+                    // Get an operation outcome for this instance
+                    const OperationOutcome = resolveSchema(
+                        isValidVersion(base) ? base : VERSIONS['4_0_1'],
+                        'operationoutcome'
+                    );
+                    res.status(500).json(new OperationOutcome({
+                        issue: [
+                            {
+                                severity: 'error',
+                                code: 'exception',
+                                diagnostics: e.toString() + ' | ' + e.stack
+                            }
+                        ]
+                    }));
+                    // next();
                 }
             }
         );
@@ -338,7 +349,7 @@ class MyFHIRServer extends FHIRServer.Server {
             if (req.id && !res.headersSent) {
                 res.setHeader('X-Request-ID', String(req.id));
             }
-            logger.error(error);
+            // logger.error(error);
             res.status(error.statusCode).json(error);
         });
 

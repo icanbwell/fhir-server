@@ -21,7 +21,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect} = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('Practitioner Graph PSS Contained Tests', () => {
     beforeEach(async () => {

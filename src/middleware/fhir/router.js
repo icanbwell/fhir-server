@@ -1,24 +1,24 @@
 /* eslint-disable security/detect-object-injection */
-const versionValidationMiddleware = require('@asymmetrik/node-fhir-server-core/dist/server/middleware/version-validation.middleware');
+const versionValidationMiddleware = require('./version-validation.middleware');
 
-const authenticationMiddleware = require('@asymmetrik/node-fhir-server-core/dist/server/middleware/authentication.middleware');
+const authenticationMiddleware = require('./authentication.middleware');
 
-const sofScopeMiddleware = require('@asymmetrik/node-fhir-server-core/dist/server/middleware/sof-scope.middleware');
+const sofScopeMiddleware = require('./sof-scope.middleware');
 
 const {
     route: metadataConfig
-} = require('@asymmetrik/node-fhir-server-core/dist/server/metadata/metadata.config');
+} = require('./metadata/metadata.config');
 
 const {
     routeArgs,
     routes
-} = require('@asymmetrik/node-fhir-server-core/dist/server/route.config');
+} = require('./route.config');
 
-const hyphenToCamelcase = require('@asymmetrik/node-fhir-server-core/dist/server/utils/hyphen-to-camel.utils');
+const hyphenToCamelcase = require('./utils/hyphen-to-camel.utils');
 
 const {
     sanitizeMiddleware
-} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/sanitize.utils');
+} = require('./utils/sanitize.utils');
 
 const {
     ControllerUtils
@@ -26,9 +26,9 @@ const {
 
 const {
     getSearchParameters
-} = require('@asymmetrik/node-fhir-server-core/dist/server/utils/params.utils');
+} = require('./utils/params.utils');
 
-const {VERSIONS, INTERACTIONS} = require('@asymmetrik/node-fhir-server-core').constants;
+const {VERSIONS, INTERACTIONS} = require('./utils/constants');
 
 const {CustomOperationsController} = require('./4_0_0/controllers/operations.controller');
 
@@ -272,7 +272,7 @@ class FhirRouter {
             let parameters;
 
             try {
-                parameters = versions.reduce((all, version) => all.concat(getSearchParameters(lowercaseKey, version, overrideArguments, null)), []);
+                parameters = versions.reduce((all, version) => all.concat(getSearchParameters(lowercaseKey, version, overrideArguments)), []);
             } catch (err) {
                 throw new Error(`${profileName} is an invalid profile configuration, please see the wiki for ` + 'instructions on how to enable a profile in your server, ' + 'https://github.com/Asymmetrik/node-fhir-server-core/wiki/Profile');
             } // Enable all provided operations for this profile
@@ -357,7 +357,7 @@ class FhirRouter {
     enableBaseRoute(app, config, corsDefaults) {
         // Determine which versions need a base endpoint, we need to loop through
         // all the configured profiles and find all the uniquely provided versions
-        let routes1 = require('@asymmetrik/node-fhir-server-core/dist/server/base/base.config');
+        let routes1 = require('./base/base.config');
 
         for (let i = 0; routes1.length; i++) {
             let versionValidationConfiguration = {

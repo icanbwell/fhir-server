@@ -13,7 +13,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect } = require('@jest/globals');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 const { findDuplicateResources } = require('../../../utils/list.util');
 
 describe('Slot Everything Tests', () => {
