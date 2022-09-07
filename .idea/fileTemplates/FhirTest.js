@@ -7,9 +7,8 @@ const ${ResourceNameLower}1Resource = require('./fixtures/${ResourceName}/${Reso
 // expected
 const expected${ResourceName}Resources = require('./fixtures/expected/expected_${ResourceName}.json');
 
-const {assertStatusOk, assertResponse, assertMerge} = require('../../fhirAsserts');
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
-const {describe, beforeEach, afterEach} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('${ResourceName} Tests', () => {
     beforeEach(async () => {
@@ -25,19 +24,20 @@ describe('${ResourceName} Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            await request
+            let resp = await request
                 .post('/4_0_0/${ResourceName}/1/${dollar}merge?validate=true')
                 .send(${ResourceNameLower}1Resource)
-                .set(getHeaders())
-                .expect(assertMerge({ created: true}));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});    
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right ${ResourceName} back
-            await request
+            resp = await request
                 .get('/4_0_0/${ResourceName}/?_bundle=1&[write_query_here]')
-                .set(getHeaders())
-                .expect(assertStatusOk())
-                .expect(assertResponse({ expected: expected${ResourceName}Resources }));
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expected${ResourceName}Resources);
         });
     });
 });
