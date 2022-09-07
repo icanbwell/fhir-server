@@ -2,7 +2,7 @@ const {validateResource} = require('../utils/validator.util');
 const {assertFail} = require('../utils/assertType');
 const {diff} = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
-const {expect } = require('@jest/globals');
+const {expect} = require('@jest/globals');
 
 
 /**
@@ -52,6 +52,25 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
                 fnCleanResource(element['resource']);
             }
         });
+        // now sort the two lists so the comparison is agnostic to order
+        body.entry = body.entry.sort((a, b) =>
+            `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
+        );
+        body.entry.forEach((element) => {
+            delete element['fullUrl'];
+            if (element['resource']) {
+                cleanMeta(element['resource']);
+                if (element['resource']['contained']) {
+                    element['resource']['contained'].forEach((containedElement) => {
+                        cleanMeta(containedElement);
+                    });
+                    // sort the list
+                    element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
+                        `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
+                    );
+                }
+            }
+        });
     }
     delete expected['link'];
 
@@ -69,20 +88,15 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
                 fnCleanResource(element['resource']);
             }
         });
-    }
-
-    // now sort the two lists so the comparison is agnostic to order
-    body.entry = body.entry.sort((a, b) =>
-        `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
-    );
-    expected.entry = expected.entry.sort((a, b) =>
-        `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
-    );
-
-    body.entry.forEach((element) => {
-        delete element['fullUrl'];
-        if (element['resource']) {
+        expected.entry = expected.entry.sort((a, b) =>
+            `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
+        );
+        expected.entry.forEach((element) => {
+            delete element['fullUrl'];
             cleanMeta(element['resource']);
+            if ('$schema' in element) {
+                delete element['$schema'];
+            }
             if (element['resource']['contained']) {
                 element['resource']['contained'].forEach((containedElement) => {
                     cleanMeta(containedElement);
@@ -92,24 +106,9 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
                     `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
                 );
             }
-        }
-    });
-    expected.entry.forEach((element) => {
-        delete element['fullUrl'];
-        cleanMeta(element['resource']);
-        if ('$schema' in element) {
-            delete element['$schema'];
-        }
-        if (element['resource']['contained']) {
-            element['resource']['contained'].forEach((containedElement) => {
-                cleanMeta(containedElement);
-            });
-            // sort the list
-            element['resource']['contained'] = element['resource']['contained'].sort((a, b) =>
-                `${a.resourceType}/${a.id}`.localeCompare(`${b.resourceType}/${b.id}`)
-            );
-        }
-    });
+        });
+    }
+
     return deepEqual(body, expected);
 }
 

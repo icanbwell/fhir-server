@@ -92,15 +92,13 @@ let generateCapabilityStatement = ({
         if (profile.metadata) {
             // eslint-disable-next-line security/detect-non-literal-require
             customMakeResource = require(profile.metadata).makeResource;
-        } else {
-            customMakeResource = profile.service.makeResource;
         }
 
         let resource = customMakeResource ? customMakeResource(Object.assign(fhirVersion, {
             key: profile.key
         })) : profile.makeResource(fhirVersion, profile.key); // Determine the interactions we need to list for this profile
 
-        resource.interaction = generateInteractions(profile.service, resource.type);
+        resource.interaction = generateInteractions(resource.type);
         return resource;
     }); // Add the server statement to the main statement
 

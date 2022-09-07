@@ -316,7 +316,7 @@ class MergeOperation {
              */
             let resourcesIncomingArray = (wasIncomingAList ? incomingObjects : [incomingObjects])
                 .map(o => {
-                    const ResourceCreator = getResource(base_version, o.resourceType);
+                    const ResourceCreator = getResource(base_version, o.resourceType || resourceType);
                     return new ResourceCreator(o);
                 });
 
