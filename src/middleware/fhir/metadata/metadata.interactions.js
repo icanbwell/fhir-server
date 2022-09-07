@@ -4,71 +4,53 @@
  */
 let profileInteractions = {};
 
-let generateInteractions = (service, resourceType) => {
-  // return from cache if it exists
-  if (profileInteractions[`${resourceType}`]) {
-    return profileInteractions[`${resourceType}`];
-  }
+let generateInteractions = (resourceType) => {
+    // return from cache if it exists
+    if (profileInteractions[`${resourceType}`]) {
+        return profileInteractions[`${resourceType}`];
+    }
 
-  let interactions = []; // Test for the existence of a service method
+    let interactions = []; // Test for the existence of a service method
 
-  if (service.search) {
     interactions.push({
-      code: 'search-type'
+        code: 'search-type'
     });
-  }
 
-  if (service.searchById) {
     interactions.push({
-      code: 'read'
+        code: 'read'
     });
-  }
 
-  if (service.searchByVersionId) {
     interactions.push({
-      code: 'vread'
+        code: 'vread'
     });
-  }
 
-  if (service.create) {
     interactions.push({
-      code: 'create'
+        code: 'create'
     });
-  }
 
-  if (service.update) {
     interactions.push({
-      code: 'update'
+        code: 'update'
     });
-  }
 
-  if (service.remove) {
     interactions.push({
-      code: 'delete'
+        code: 'delete'
     });
-  }
 
-  if (service.history) {
     interactions.push({
-      code: 'history-type'
+        code: 'history-type'
     });
-  }
 
-  if (service.historyById) {
     interactions.push({
-      code: 'history-instance'
+        code: 'history-instance'
     });
-  }
 
-  if (service.expandById) {
     interactions.push({
-      code: 'expand'
+        code: 'expand'
     });
-  } // Save these interactions so we don't need to do this again
 
-
-  profileInteractions[`${resourceType}`] = interactions;
-  return interactions;
+    // Save these interactions so we don't need to do this again
+    profileInteractions[`${resourceType}`] = interactions;
+    return interactions;
 };
 
 module.exports = generateInteractions;

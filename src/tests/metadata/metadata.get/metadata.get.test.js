@@ -22,7 +22,10 @@ describe('Meta Tests', () => {
                 .get('/4_0_0/metadata')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedMetaResources);
+            expect(resp).toHaveResponse(expectedMetaResources, (resource) => {
+                delete resource['date'];
+                return resource;
+            });
         });
     });
 });
