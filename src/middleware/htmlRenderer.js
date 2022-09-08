@@ -1,7 +1,7 @@
 /**
  * This middleware detects if the request is from a web browser user-agent and returns HTML rendered views
  */
-const { resourceDefinitions } = require('../utils/resourceDefinitions');
+const {resourceDefinitions} = require('../utils/resourceDefinitions');
 const {
     searchFormData,
     advSearchFormData,
@@ -10,7 +10,7 @@ const {
     limit,
     searchUtils,
 } = require('../utils/searchForm.util');
-const { shouldReturnHtml } = require('../utils/requestHelpers');
+const {shouldReturnHtml} = require('../utils/requestHelpers');
 
 /**
  * middleware to render HTML
@@ -36,11 +36,13 @@ const htmlRenderer = (req, res, next) => {
                 if (parsedData.meta) {
                     meta = parsedData.meta;
                 }
-                if (parsedData.entry) {
-                    parsedData = parsedData.entry.map((entry) => entry.resource);
+                if (parsedData.resourceType === 'Bundle') {
+                    // unbundle
+                    parsedData = parsedData.entry ? parsedData.entry.map((entry) => entry.resource) : [];
                 } else if (!Array.isArray(parsedData)) {
                     parsedData = [parsedData];
                 }
+
                 res.json = oldJson; // set function back to avoid the 'double-send'
                 res.set('Content-Type', 'text/html');
                 res.set('Cache-Control', 'no-cache, no-store, must-revalidate'); // HTTP 1.1.
