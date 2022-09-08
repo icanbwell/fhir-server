@@ -27,5 +27,18 @@ describe('Meta Tests', () => {
                 return resource;
             });
         });
+        test('metadata.get works raw', async () => {
+            const request = await createTestRequest();
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right Meta back
+            let resp = await request
+                .get('/4_0_0/metadata?raw=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMetaResources, (resource) => {
+                delete resource['date'];
+                return resource;
+            });
+        });
     });
 });
