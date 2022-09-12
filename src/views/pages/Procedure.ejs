@@ -11,7 +11,7 @@
             <!-- prettier-ignore -->
             <%- include('../partials/resourceHeader', {res: res}); %>
 
-            <%- include('../partials/code', {value:  res.status, name: "Status"}); %>
+            <%- include('../partials/code', {value: res.status, name: "Status"}); %>
 
             <!-- prettier-ignore -->
             <%- include('../partials/reference', {references: res.basedOn, name: "Based On"}); %>
@@ -44,6 +44,8 @@
             <%- include('../partials/reference', {references: res.reasonReference, name: "Reason"}); %>
 
             <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reasonCode, name: "Reason Code", searchParameter: ''}); %>
+
+            <%- include('../partials/annotation', {annotations: res.note, name: "Notes"}); %>
 
             <%- include('../partials/json', {res: res, index: index}); %>
         </div>
