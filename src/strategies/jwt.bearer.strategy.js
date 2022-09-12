@@ -140,7 +140,10 @@ class MyJwtStrategy extends JwtStrategy {
     authenticate(req, options) {
         const self = this;
         const token = self._jwtFromRequest(req);
-        const resourceUrl = req.originalUrl;
+        // can't just urlencode per https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html
+        // "You can't set the value of a state parameter to a URL-encoded JSON string. To pass a string that matches
+        // this format in a state parameter, encode the string to Base64, then decode it in your app.
+        const resourceUrl = req.originalUrl ? Buffer.from(req.originalUrl).toString('base64') : '';
         if (
             !token &&
             req.accepts('text/html') &&
@@ -151,7 +154,10 @@ class MyJwtStrategy extends JwtStrategy {
                 (req.method === 'POST' && resourceUrl && resourceUrl.includes('_search')))
         ) {
             const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
-            const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
+            // state parameter determines the url that Cognito redirects to: https://docs.aws.amazon.com/cognito/latest/developerguide/authorization-endpoint.html
+            const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?` +
+                `response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
+                `&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
             logDebug({user: '', args: {message: 'Redirecting', redirect: redirectUrl}});
             return self.redirect(redirectUrl);
         }

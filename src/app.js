@@ -115,8 +115,14 @@ function createApp(fnCreateContainer) {
 
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
     app.get('/authcallback', (req, res) => {
+        const state = req.query.state;
+        const resourceUrl = state ?
+            encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
+        // console.log(`Redirecting to ${resourceUrl}`);
         res.redirect(
-            `/callback.html?code=${req.query.code}&resourceUrl=${req.query.state}&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${httpProtocol}://${req.headers.host}/authcallback&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
+            `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
+            `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${httpProtocol}://` +
+            `${req.headers.host}/authcallback&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
         );
     });
 
