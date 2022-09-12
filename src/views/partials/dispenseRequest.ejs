@@ -1,0 +1,41 @@
+<% if (!Array.isArray(value)) {
+    value = [value];
+} %>
+<% if (value && value.length > 0 && value[0]) { %>
+    <h4><%= name; %></h4>
+    <% value.forEach(function(dispenseRequest){ %>
+        <div>
+            <% if (dispenseRequest.initialFill) { %>
+                <h5>Initial Fill</h5>
+                <%- include('../partials/quantity', {value: dispenseRequest.initialFill.quantity, name: "Quantity"}); %>
+                <%- include('../partials/nameValue', {value: dispenseRequest.initialFill.duration, name: "Duration"}); %>
+            <% } %>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">dispenseInterval</th>
+                    <th scope="col">validityPeriod start</th>
+                    <th scope="col">validityPeriod end</th>
+                    <th scope="col">numberOfRepeatsAllowed</th>
+                    <th scope="col">quantity</th>
+                    <th scope="col">quantity Unit</th>
+                    <th scope="col">expectedSupplyDuration</th>
+                    <th scope="col">Performer</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><%= dispenseRequest.dispenseInterval %></td>
+                    <td><%= dispenseRequest.validityPeriod ? dispenseRequest.validityPeriod.start : '' %></td>
+                    <td><%= dispenseRequest.validityPeriod ? dispenseRequest.validityPeriod.end : '' %></td>
+                    <td><%= dispenseRequest.numberOfRepeatsAllowed %></td>
+                    <td><%= dispenseRequest.quantity ? dispenseRequest.quantity.value : '' %></td>
+                    <td><%= dispenseRequest.quantity ? dispenseRequest.quantity.unit : '' %></td>
+                    <td><%= dispenseRequest.expectedSupplyDuration %></td>
+                    <td><%= dispenseRequest.performer ? dispenseRequest.performer.reference : '' %></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    <% }); %>
+<% } %>

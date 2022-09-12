@@ -2,32 +2,36 @@
     timing = [timing];
 } %>
 <% if (timing && timing.length > 0 && timing[0]) { %>
-    <div>
-        <h4><%= name; %></h4>
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">Event</th>
-                <th scope="col">Count</th>
-                <th scope="col">Count Max</th>
-            </tr>
-            </thead>
-            <tbody>
+    <% if (timing[0].count || timing[0].code) { %>
+        <div>
+            <h4><%= name; %></h4>
+            <% if (timing[0].count) { %>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Event</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Count Max</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% timing.forEach(function(t){ %>
+                        <tr>
+                            <td>
+                                <% if(t.event) { %>
+                                    <% t.event.forEach(function(dt){ %><%= dt %><% }) %>
+                                <% } %>
+                            </td>
+                            <td><%= t.count %></td>
+                            <td><%= t.countMax %></td>
+                        </tr>
+                    <% }); %>
+                    </tbody>
+                </table>
+            <% } %>
             <% timing.forEach(function(t){ %>
-                <tr>
-                    <td>
-                        <% if(t.event) { %>
-                            <% t.event.forEach(function(dt){ %><%= dt %><% }) %>
-                        <% } %>
-                    </td>
-                    <td><%= t.count %></td>
-                    <td><%= t.countMax %></td>
-                </tr>
-            <% }); %>
-            </tbody>
-        </table>
-        <% timing.forEach(function(t){ %>
-            <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: t.code, name: "Timing Code", searchParameter: ''}); %>
-        <% }) %>
-    </div>
+                <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: t.code, name: "Timing Code", searchParameter: ''}); %>
+            <% }) %>
+        </div>
+    <% } %>
 <% } %>
