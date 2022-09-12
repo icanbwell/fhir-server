@@ -1,31 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <%- include('../partials/head'); %>
-    </head>
-    <body class="container-fluid p-0">
-        <%- include('../partials/header', {resources: resources}); %>
-        <main>
-            <% resources.forEach(function(res, index){ %>
-            <div class="resource-item">
-                <!-- prettier-ignore -->
-                <%- include('../partials/resourceHeader', {res: res}); %>
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
 
-                <h4>Status</h4>
-                <%= res.status %>
-                <!-- prettier-ignore -->
-                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [res.type], name: "Type", searchParameter:'type'}); %>
-                <%- include('../partials/reference', {references: [res.subscriber], name: "Subscriber"}); %>
-                <%- include('../partials/reference', {references: [res.beneficiary], name: "Beneficiary"}); %>
-                <%- include('../partials/reference', {references: res.payor, name: "Payor"}); %>
-                <%- include('../partials/period', {periods: [res.period], name: "Period"}); %>
-                <%- include('../partials/codeableConceptWithValue', {resourceType: res.resourceType, codeableConceptsWithValue: res.class, codePropertyName: "type", name: "Class", searchParameter:'class-type'}); %>
-                <%- include('../partials/reference', {references: res.contract, name: "Contract"}); %>
-                <%- include('../partials/json', {res: res, index: index}); %>
-            </div>
-            <%})%>
-        </main>
+            <%- include('../partials/code', {value: res.status, name: "Status"}); %>
+            <!-- prettier-ignore -->
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [res.type], name: "Type", searchParameter:'type'}); %>
+            <%- include('../partials/reference', {references: [res.subscriber], name: "Subscriber"}); %>
+            <%- include('../partials/reference', {references: [res.beneficiary], name: "Beneficiary"}); %>
+            <%- include('../partials/reference', {references: res.payor, name: "Payor"}); %>
+            <%- include('../partials/period', {periods: [res.period], name: "Period"}); %>
+            <%- include('../partials/codeableConceptWithValue', {resourceType: res.resourceType, codeableConceptsWithValue: res.class, codePropertyName: "type", name: "Class", searchParameter:'class-type'}); %>
+            <%- include('../partials/reference', {references: res.contract, name: "Contract"}); %>
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }); %>
+</main>
 
-        <%- include('../partials/footer', {url: url, meta: meta}); %>
-    </body>
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
 </html>
