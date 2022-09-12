@@ -11,10 +11,7 @@
             <!-- prettier-ignore -->
             <%- include('../partials/resourceHeader', {res: res}); %>
 
-            <div>
-                <h4>Status</h4>
-                <%= res.status; %>
-            </div>
+            <%- include('../partials/code', {value:  res.status, name: "Status"}); %>
 
             <!-- prettier-ignore -->
             <%- include('../partials/reference', {references: res.basedOn, name: "Based On"}); %>
