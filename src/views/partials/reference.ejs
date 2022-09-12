@@ -1,3 +1,6 @@
+<% if (!Array.isArray(references)) {
+    references = [references];
+} %>
 <% if (references && references.length > 0 && references[0]) { %>
     <div>
         <h4><%= name %></h4>

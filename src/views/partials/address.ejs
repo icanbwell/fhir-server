@@ -1,4 +1,7 @@
-<% if (addresses) { %>
+<% if (!Array.isArray(addresses)) {
+    addresses = [addresses];
+} %>
+<% if (addresses && addresses.length > 0 && addresses[0]) { %>
 <div>
     <h4><%= name %></h4>
     <table class="table">

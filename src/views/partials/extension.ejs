@@ -1,4 +1,7 @@
-<% if (extensions) { %>
+<% if (!Array.isArray(extensions)) {
+    extensions = [extensions];
+} %>
+<% if (extensions && extensions.length > 0 && extensions[0]) { %>
 <h4>Extension</h4>
 <table class="table">
     <thead>
