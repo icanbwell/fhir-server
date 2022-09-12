@@ -31,7 +31,7 @@
             <%- include('../partials/dateTime', {value: res.performedDateTime, name: "Performed Date"}); %>
             <%- include('../partials/period', {periods: res.performedPeriod, name: "Period"}); %>
 
-            <!--            Performer-->
+            <%- include('../partials/performer', {performers: res.performer, name: "Performers"}); %>
 
             <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.bodySite, name: "Body Site", searchParameter: ''}); %>
             <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: [res.outcome], name: "Outcome", searchParameter: ''}); %>
