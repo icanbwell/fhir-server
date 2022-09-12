@@ -1,4 +1,7 @@
-<% if (identifiers) { %>
+<% if (!Array.isArray(identifiers)) {
+    identifiers = [identifiers];
+} %>
+<% if (identifiers && identifiers.length > 0 && identifiers[0]) { %>
     <div>
         <h4><%= name %></h4>
         <table class="table">

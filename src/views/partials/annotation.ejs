@@ -1,0 +1,34 @@
+<% if (!Array.isArray(annotations)) {
+    annotations = [annotations];
+} %>
+<% if (annotations && annotations.length > 0 && annotations[0]) { %>
+    <div>
+        <h4>Names</h4>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Author</th>
+                <th scope="col">time</th>
+                <th scope="col">text</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% annotations.forEach(function(annotation){ %>
+                <% if (annotation) { %>
+                    <tr>
+                        <td>
+                            <% if (annotation.authorReference) { %>
+                                <%= annotation.authorReference.reference; %>
+                            <% } else { %>
+                                <%= annotation.authorString; %>
+                            <% } %>
+                        </td>
+                        <td><%= annotation.time; %></td>
+                        <td><%= annotation.text; %></td>
+                    </tr>
+                <% } %>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+<% } %>

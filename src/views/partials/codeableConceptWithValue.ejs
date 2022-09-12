@@ -1,4 +1,7 @@
-<% if (codeableConceptsWithValue && codeableConceptsWithValue.length > 0) { %>
+<% if (!Array.isArray(codeableConceptsWithValue)) {
+    codeableConceptsWithValue = [codeableConceptsWithValue];
+} %>
+<% if (codeableConceptsWithValue && codeableConceptsWithValue.length > 0 && codeableConceptsWithValue[0]) { %>
 <div>
     <h4><%= name %></h4>
     <table class="table">

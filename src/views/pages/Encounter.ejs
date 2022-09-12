@@ -1,39 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <%- include('../partials/head'); %>
-    </head>
-    <body class="container-fluid p-0">
-        <%- include('../partials/header', {resources: resources}); %>
-        <main>
-            <% resources.forEach(function(res, index){ %>
-            <div class="resource-item">
-                <!-- prettier-ignore -->
-                <%- include('../partials/resourceHeader', {res: res}); %>
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
 
-                <h4>Status</h4>
-                <%= res.status %>
-                <!-- prettier-ignore -->
-                <%- include('../partials/coding', {resourceType: res.resourceType, codings: [res.class], name: "Class", searchParameter: 'class'}); %>
-                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type", searchParameter:'type'}); %>
-                <%- include('../partials/reference', {references: [res.subject], name: "Subject"}); %>
-                <%- include('../partials/period', {periods: [res.period], name: "Period"}); %>
-                <% if (res.participant) { %>
-                    <% res.participant.forEach(function(participant){ %>
-                        <%- include('../partials/reference', {references: [participant.individual], name: "Participant"}); %>
-                    <% }) %>
-                <% } %>
-                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reasonCode, name: "Reason Code", searchParameter: 'reason-code'}); %>
-                <% if (res.location) { %>
-                    <% res.location.forEach(function(location){ %>
-                        <%- include('../partials/reference', {references: [location.location], name: "Location"}); %>
-                    <% }) %>
-                <% } %>
-                <%- include('../partials/json', {res: res, index: index}); %>
-            </div>
-            <%})%>
-        </main>
+            <%- include('../partials/code', {value: res.status, name: "Status"}); %>
+            <!-- prettier-ignore -->
+            <%- include('../partials/coding', {resourceType: res.resourceType, codings: res.class, name: "Class", searchParameter: 'class'}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type", searchParameter:'type'}); %>
 
-        <%- include('../partials/footer', {url: url, meta: meta}); %>
-    </body>
+            <%- include('../partials/reference', {references: res.subject, name: "Subject"}); %>
+
+            <% if (res.participant) { %>
+                <% res.participant.forEach(function(participant){ %>
+                    <%- include('../partials/reference', {references: participant.individual, name: "Participant"}); %>
+                <% }); %>
+            <% } %>
+            <%- include('../partials/period', {periods: res.period, name: "Period"}); %>
+            <%- include('../partials/nameValue', {value: res.length, name: "Length"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reasonCode, name: "Reason Code", searchParameter: 'reason-code'}); %>
+            <%- include('../partials/reference', {references: res.reasonReference, name: "Reason"}); %>
+
+            <% if (res.diagnosis){ %>
+                <% res.diagnosis.forEach(function(diagnosis){ %>
+                    <%- include('../partials/reference', {references: diagnosis.condition, name: "Condition"}); %>
+                    <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: diagnosis.use, name: "Use", searchParameter: 'reason-code'}); %>
+                    <%- include('../partials/nameValue', {value: diagnosis.rank, name: "Rank"}); %>
+                <% }); %>
+            <% } %>
+
+            <% if (res.location) { %>
+                <% res.location.forEach(function(location){ %>
+                    <%- include('../partials/reference', {references: [location.location], name: "Location"}); %>
+                <% }); %>
+            <% } %>
+
+            <%- include('../partials/reference', {references: res.serviceProvider, name: "Service Provider"}); %>
+            <%- include('../partials/reference', {references: res. partOf, name: "Part Of"}); %>
+
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }); %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
 </html>

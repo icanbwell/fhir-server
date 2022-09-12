@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
+
+            <%- include('../partials/code', {value: res.status, name: "Status"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.statusReason, name: "Status Reason", searchParameter: ''}); %>
+
+            <%- include('../partials/code', {value: res.intent, name: "Intent"}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.category, name: "Category", searchParameter: ''}); %>
+            <%- include('../partials/code', {value: res.priority, name: "Priority"}); %>
+
+            <%- include('../partials/nameValue', {value: res.doNotPerform, name: "Do Not Perform"}); %>
+            <%- include('../partials/nameValue', {value: res.reportedBoolean, name: "Reported"}); %>
+            <%- include('../partials/reference', {references: res.reportedReference, name: "Reported"}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.medicationCodeableConcept, name: "Medication", searchParameter: ''}); %>
+            <%- include('../partials/reference', {references: res.medicationReference, name: "Medication"}); %>
+
+            <%- include('../partials/reference', {references: res.subject, name: "Subject"}); %>
+            <%- include('../partials/reference', {references: res.encounter, name: "Encounter"}); %>
+
+            <%- include('../partials/reference', {references: res.supportingInformation, name: "Supporting Information"}); %>
+
+            <%- include('../partials/dateTime', {value: res.authoredOn, name: "Authored On"}); %>
+
+            <%- include('../partials/reference', {references: res.requester, name: "Requester"}); %>
+            <%- include('../partials/reference', {references: res.performer, name: "Performer"}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.performerType, name: "Performer Type", searchParameter: ''}); %>
+
+            <%- include('../partials/reference', {references: res.recorder, name: "Recorder"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reasonCode, name: "Reason Code", searchParameter: ''}); %>
+            <%- include('../partials/reference', {references: res.reasonReference, name: "Reason Reference"}); %>
+
+            <%- include('../partials/reference', {references: res.basedOn, name: "Based On"}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.courseOfTherapyType, name: "Course of Therapy", searchParameter: ''}); %>
+            <%- include('../partials/reference', {references: res.insurance, name: "Insurance"}); %>
+
+            <%- include('../partials/annotation', {annotations: res.note, name: "Notes"}); %>
+
+            <%- include('../partials/dosage', {dosages: res.dosageInstruction, name: "Dosage"}); %>
+
+            <%- include('../partials/dispenseRequest', {value: res.dispenseRequest, name: "Dispense Request"}); %>
+
+            <% if (res.substitution) { %>
+                <%- include('../partials/nameValue', {value: res.substitution.allowedBoolean, name: "Allowed"}); %>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.courseOfTherapyType, name: "Allowed", searchParameter: ''}); %>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reason, name: "Reason", searchParameter: ''}); %>
+            <% } %>
+            <%- include('../partials/reference', {references: res.priorPrescription, name: "Prior Prescription"}); %>
+            <%- include('../partials/reference', {references: res.detectedIssue, name: "Detected Issue"}); %>
+            <%- include('../partials/reference', {references: res.eventHistory, name: "Event History"}); %>
+
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }); %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
+</html>

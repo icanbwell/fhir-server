@@ -1,0 +1,28 @@
+<% if (!Array.isArray(dosages)) {
+    dosages = [dosages];
+} %>
+<% if (dosages && dosages.length > 0 && dosages[0]) { %>
+    <h4><%= name ;%></h4>
+    <% dosages.forEach(function(dosage){ %>
+        <div>
+            <h5>Sequence <%= dosage.sequence || ''; %></h5>
+            <%- include('../partials/nameValue', {value: dosage.text, name: "Text"}); %>
+            <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: dosage.additionalInstruction, name: "Additional Instruction", searchParameter: ''}); %>
+            <%- include('../partials/nameValue', {value: dosage.patientInstruction, name: "Patient Instruction"}); %>
+            <%- include('../partials/timing', {timing: dosage.timing, name: "Timing"}); %>
+            <%- include('../partials/nameValue', {value: dosage.asNeededBoolean, name: "As Needed"}); %>
+
+
+            <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: dosage.asNeededCodeableConcept, name: "As Needed", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: dosage.site, name: "Site", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: dosage.route, name: "Route", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: dosage.method, name: "Method", searchParameter: ''}); %>
+
+            <% if (dosage.doseAndRate) { %>
+                <% dosage.doseAndRate.forEach(function(dose){ %>
+                    <%- include('../partials/codeableConcept', {resourceType: '', codeableConcepts: dose.type, name: "Type", searchParameter: ''}); %>
+                <% }) %>
+            <% } %>
+        </div>
+    <% }); %>
+<% } %>

@@ -1,47 +1,50 @@
 <header>
-  <nav class="navbar px-3 pt-2">
-    <a href="/" title="Go to Home Page" class="px-3 helix-logo"></a>
-    <h5 class="flex-grow-1 px-3 mb-0">Helix FHIR Server</h5>
-    <button
-      type="button"
-      id="appInfo"
-      class="btn btn-light fa fa-info ms-2"
-      title="Information"
-      data-bs-toggle="modal"
-      data-bs-target="#appInfoModal"
-    ></button>
+    <nav class="navbar px-3 pt-2">
+        <a href="/" title="Go to Home Page" class="px-3 helix-logo"></a>
+        <h5 class="flex-grow-1 px-3 mb-0">Helix FHIR Server</h5>
+        <button
+                type="button"
+                id="appInfo"
+                class="btn btn-light fa fa-info ms-2"
+                title="Information"
+                data-bs-toggle="modal"
+                data-bs-target="#appInfoModal"
+        ></button>
 
-    <% if (locals.environment) { %>
-    <a id="btnLogout" class="btn btn-success btn-sm ms-2" href="/logout_action">
-      <i class="fa fa-sign-out"></i>
-      Logout
-    </a>
-    <% } %>
-  </nav>
+        <% if (locals.environment) { %>
+            <a id="btnLogout" class="btn btn-success btn-sm ms-2" href="/logout_action">
+                <i class="fa fa-sign-out"></i>
+                Logout
+            </a>
+        <% } %>
+    </nav>
 </header>
 
 <div class="modal fade" id="appInfoModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog <% if(typeof(meta) !== "undefined"){ %>modal-xl<% } %>">
-    <div class="modal-content">
-      <div class="modal-header py-2">
-        <h5 class="modal-title">Information</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <% if(locals.environment) { %>
-        <h5>Server</h5>
-        <%= locals.environment %><% } %>
-        <!-- prettier-ignore -->
-        <% if(typeof(meta) !== "undefined"){ %>
-        <%- include('../partials/bundleMeta', {meta: meta}); %>
-        <hr />
-        <% } %>
-        <!-- prettier-ignore -->
-        Swagger API Documentation: <a href="/api-docs/">/api-docs</a>
-      </div>
-      <div class="modal-footer py-1">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
+    <div class="modal-dialog <% if(typeof (meta) !== 'undefined'){ %>modal-xl<% } %>">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title">Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <% if(locals.environment) { %>
+                    <h5>Server</h5>
+                    <%= locals.environment ;%>
+                <% } %>
+                <!-- prettier-ignore -->
+                <% if(typeof (meta) !== 'undefined'){ %>
+                    <%- include('../partials/bundleMeta', {meta: meta}); %>
+                    <hr/>
+                <% } %>
+                <!-- prettier-ignore -->
+                Swagger API Documentation: <a href="/api-docs/">/api-docs</a>
+            </div>
+            <div class="modal-footer py-1">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
+<% if(resources != null && resources.length === 0){ %><br/><h2 style="text-align: center">No Resources Found</h2><% } %>

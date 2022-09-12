@@ -1,4 +1,7 @@
-<% if (codings) { %>
+<% if (!Array.isArray(codings)) {
+    codings = [codings];
+} %>
+<% if (codings && codings.length > 0 && codings[0]) { %>
     <div>
         <h4><%= name %></h4>
         <table class="table">

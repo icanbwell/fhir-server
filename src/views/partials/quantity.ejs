@@ -1,0 +1,30 @@
+<% if (!Array.isArray(value)) {
+    value = [value];
+} %>
+<% if (value && value.length > 0 && value[0]) { %>
+    <div>
+        <h4><%= name; %></h4>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">comparator</th>
+                <th scope="col">value</th>
+                <th scope="col">unit</th>
+                <th scope="col">system</th>
+                <th scope="col">code</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% value.forEach(function(quantity){ %>
+                <tr>
+                    <td><%= quantity.comparator; %></td>
+                    <td><%= quantity.value; %></td>
+                    <td><%= quantity.unit; %></td>
+                    <td><%= quantity.system; %></td>
+                    <td><%= quantity.code; %></td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+<% } %>
