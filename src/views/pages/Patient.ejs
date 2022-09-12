@@ -47,6 +47,7 @@
                 <%- include('../partials/contactpoint', {resourceType: res.resourceType, contacts: res.telecom, name: "Telecom" }); %>
                 <%- include('../partials/address', {resourceType: res.resourceType, addresses: res.address, name: "Address" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Account', property:'patient'}], id:res.id, name: "Account" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'AllergyIntolerance', property:'patient'}], id:res.id, name: "AllergyIntolerance" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Appointment', property:'patient'}], id:res.id, name: "Appointment" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'AuditEvent', property:'patient'}], id:res.id, name: "AuditEvent" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'CareTeam', property:'patient'}], id:res.id, name: "CareTeam" }); %>
@@ -54,10 +55,14 @@
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ChargeItem', property:'patient'}], id:res.id, name: "ChargeItem" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Coverage', property:'patient'}], id:res.id, name: "Coverage" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Encounter', property:'patient'}], id:res.id, name: "Encounter" }); %>
-                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Observation', property:'patient'}], id:res.id, name: "Observation" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Immunization', property:'patient'}], id:res.id, name: "Immunization" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ExplanationOfBenefit', property:'patient'}], id:res.id, name: "ExplanationOfBenefit" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MeasureReport', property:'patient'}], id:res.id, name: "MeasureReport" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationRequest', property:'patient'}], id:res.id, name: "MedicationRequest" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationStatement', property:'patient'}], id:res.id, name: "MedicationStatement" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Observation', property:'patient'}], id:res.id, name: "Observation" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Person', property:'patient'}], id:res.id, name: "Person" }); %>
+                <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Procedure', property:'patient'}], id:res.id, name: "Procedure" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'patient'}], id:res.id, name: "Schedule" }); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ServiceRequest', property:'patient'}], id:res.id, name: "ServiceRequest" }); %>
                 <%- include('../partials/json', {res: res, index: index}); %>
