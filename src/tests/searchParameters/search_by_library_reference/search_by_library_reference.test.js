@@ -35,12 +35,14 @@ describe('Measure Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request.get('/4_0_0/Measure?depends-on=AWVCN001').set(getHeaders());
+            console.log('response: ', resp);
             expect(resp.body['entry'][0]['resource']['url']).toStrictEqual(expectedUrl);
             expect(resp.body['entry'][0]['resource']['library'][0]).toStrictEqual(expectedLibrary);
 
             resp = await request
                 .get('/4_0_0/Measure?depends-on=Library/AWVCN001')
                 .set(getHeaders());
+            //console.log(resp);
             expect(resp.body['entry'][0]['resource']['url']).toStrictEqual(expectedUrl);
             expect(resp.body['entry'][0]['resource']['library'][0]).toStrictEqual(expectedLibrary);
         });
