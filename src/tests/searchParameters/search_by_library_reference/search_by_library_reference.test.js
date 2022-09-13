@@ -41,6 +41,7 @@ describe('Measure Tests', () => {
             resp = await request
                 .get('/4_0_0/Measure?depends-on=Library/AWVCN001')
                 .set(getHeaders());
+            // console.log(resp);
             expect(resp.body[0]['url']).toStrictEqual(expectedUrl);
             expect(resp.body[0]['library'][0]).toStrictEqual(expectedLibrary);
         });
