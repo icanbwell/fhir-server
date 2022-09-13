@@ -2,7 +2,8 @@
 const libraryReference1Resource = require('./fixtures/Library_Reference/Library_Reference1.json');
 
 // expected
-const expectedLibraryReferenceResources = require('./fixtures/expected/expected_library_reference.json');
+const expectedUrl = 'https://fhir.dev.icanbwell.com/4_0_0/Measure/AWVCN';
+const expectedLibrary = 'Library/AWVCN001';
 
 const {
     commonBeforeEach,
@@ -10,7 +11,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const { describe, beforeEach, afterEach, test } = require('@jest/globals');
 
 describe('Measure Tests', () => {
     beforeEach(async () => {
@@ -31,19 +32,17 @@ describe('Measure Tests', () => {
                 .send(libraryReference1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
-            resp = await request
-                .get('/4_0_0/Measure?depends-on=AWVCN001')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedLibraryReferenceResources);
+            resp = await request.get('/4_0_0/Measure?depends-on=AWVCN001').set(getHeaders());
+            expect(resp.body['entry'][0]['resource']['url']).toStrictEqual(expectedUrl);
+            expect(resp.body['entry'][0]['resource']['library'][0]).toStrictEqual(expectedLibrary);
 
             resp = await request
                 .get('/4_0_0/Measure?depends-on=Library/AWVCN001')
                 .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedLibraryReferenceResources);
+            expect(resp.body['entry'][0]['resource']['url']).toStrictEqual(expectedUrl);
+            expect(resp.body['entry'][0]['resource']['library'][0]).toStrictEqual(expectedLibrary);
         });
     });
 });
