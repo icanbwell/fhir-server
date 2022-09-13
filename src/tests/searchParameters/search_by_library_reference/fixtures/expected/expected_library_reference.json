@@ -39,11 +39,11 @@
     "link": [
         {
             "relation": "self",
-            "url": "https://fhir.dev.icanbwell.com/4_0_0/Measure?depends-on=AWVCN001"
+            "url": "https://fhir.dev.bwell.zone/4_0_0/Measure?depends-on=AWVCN001"
         },
         {
             "relation": "next",
-            "url": "https://fhir.dev.icanbwell.com/4_0_0/Measure?depends-on=AWVCN001&id%3Aabove=AWVCNE"
+            "url": "https://fhir.dev.bwell.zone/4_0_0/Measure?depends-on=AWVCN001&id%3Aabove=AWVCNE"
         }
     ]
 }
