@@ -1,4 +1,4 @@
-const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
+const { referenceQueryBuilder } = require('../../../utils/querybuilder.util');
 
 /**
  * Filters by reference
@@ -34,13 +34,15 @@ function filterByReference(propertyObj, and_segments, queryParameterValue, colum
             );
         }
     } else {
+        var field = propertyObj.fields ? `${propertyObj.fields[propertyObj.fields.length - 1]}` // set field to 'library' if propertyObj.fields
+            : `${propertyObj.field}.reference`;
         // handle multiple targets
         // if resourceType is specified then search for only those resources
         if (queryParameterValue.includes('/')) {
             and_segments.push(
                 referenceQueryBuilder(
                     queryParameterValue,
-                    `${propertyObj.field}.reference`,
+                    field,
                     null
                 )
             );
@@ -51,14 +53,14 @@ function filterByReference(propertyObj, and_segments, queryParameterValue, colum
                     referenceQueryBuilder(
                         queryParameterValue.includes('/') ? queryParameterValue
                             : `${target1}/` + queryParameterValue,
-                        `${propertyObj.field}.reference`,
+                        field,
                         null
                     )
                 ),
             });
         }
     }
-    columns.add(`${propertyObj.field}.reference`);
+    columns.add(propertyObj.fields ? `${propertyObj.fields}` : `${propertyObj.field}.reference`);
 }
 
 module.exports = {
