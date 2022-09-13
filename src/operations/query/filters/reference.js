@@ -59,7 +59,7 @@ function filterByReference(propertyObj, and_segments, queryParameterValue, colum
             });
         }
     }
-    columns.add(`${propertyObj.field}.reference`);
+    columns.add(propertyObj.fields ? `${propertyObj.fields}` : `${propertyObj.field}.reference`);
 }
 
 module.exports = {
