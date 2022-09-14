@@ -124,9 +124,9 @@ let sanitizeMiddleware = function (config, required) {
         let currentArgs = parseParams(req);
         let cleanArgs = {}; // filter only ones with version or no version
 
-        let version_specific_params = config.filter(param => {
+        let version_specific_params = config ? config.filter(param => {
             return !param.versions || param.versions === req.params.base_version;
-        }); // Check each argument in the config
+        }) : []; // Check each argument in the config
 
         for (let i = 0; i < version_specific_params.length; i++) {
             let conf = version_specific_params[`${i}`];

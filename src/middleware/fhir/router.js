@@ -34,6 +34,7 @@ const {CustomOperationsController} = require('./4_0_0/controllers/operations.con
 
 const cors = require('cors');
 const {assertTypeEquals} = require('../../utils/assertType');
+const {NotFoundError} = require('../../utils/httpErrors');
 
 const uniques = list => list.filter((val, index, self) => val && self.indexOf(val) === index);
 
@@ -107,7 +108,12 @@ class FhirRouter {
 
             const controller = this.controllerUtils.getController(fhirVersion, lowercaseKey); // Invoke the correct interaction on our controller
 
-            await controller[interaction](service, resourceType)(req, res, next);
+            if (!controller[interaction]) {
+                return next(new NotFoundError('Route not found'));
+            }
+            if (controller[interaction]) {
+                await controller[interaction](service, resourceType)(req, res, next);
+            }
         };
     }
 
