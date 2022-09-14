@@ -136,7 +136,7 @@
     "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.0",
-    "prom-client": "^14.0.1",
+    "prom-client": "^14.1.0",
     "response-time": "^2.3.2",
     "snyk": "^1.996.0",
     "superagent": "^8.0.0",
