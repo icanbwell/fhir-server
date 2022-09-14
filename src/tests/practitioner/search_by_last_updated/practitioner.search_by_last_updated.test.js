@@ -42,7 +42,8 @@ describe('PractitionerReturnIdTests', () => {
             console.log('------- response practitionerResource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
-            expect(resp.status).toBe(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
             expect(resp.body['created']).toBe(true);
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);

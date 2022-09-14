@@ -13,8 +13,8 @@ class Partitioner {
      */
     // eslint-disable-next-line no-unused-vars
     getPartitionName(resource) {
-        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return `${this._resourceType}`;
+        assertIsValid(!resource.resourceType.endsWith('4_0_0'), `resourceType ${resource.resourceType} has an invalid postfix`);
+        return `${resource.resourceType}`;
     }
 }
 
