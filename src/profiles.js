@@ -2609,7 +2609,7 @@ const profiles = {
         service: './src/services/explanationofbenefit/explanationofbenefit.service.js',
         versions: [VERSIONS['4_0_0']],
         filterByPerson: true,
-        filterBy: 'subject.reference',
+        filterBy: 'patient.reference',
         operation: [
             {
                 name: 'everything',
