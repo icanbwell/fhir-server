@@ -3741,10 +3741,10 @@
     "fastq" "^1.6.1"
     "queue-microtask" "^1.1.2"
 
-"aws-sdk@^2.1208.0":
-  "integrity" "sha512-Wyq9TJyvRZMcHmcGwmOJag5/94m+Gq3BHcK2klwFvgUf1OWWJc4OYqmi90d7qJ09ydTeGGMeodNJildQdkOrYQ=="
-  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1208.0.tgz"
-  "version" "2.1208.0"
+"aws-sdk@^2.1216.0":
+  "integrity" "sha512-sCgkIc9ZdFyf4dImsbRx+139gw9A6Xy924wwP4rAVrYeSbudBY0jDO4wJBAwUpPKqX5cxjSLmjP7gOi2CDwhjw=="
+  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1216.0.tgz"
+  "version" "2.1216.0"
   dependencies:
     "buffer" "4.9.2"
     "events" "1.1.1"
@@ -11518,10 +11518,10 @@
   "resolved" "https://registry.npmjs.org/process-warning/-/process-warning-1.0.0.tgz"
   "version" "1.0.0"
 
-"prom-client@^14.0.1":
-  "integrity" "sha512-HxTArb6fkOntQHoRGvv4qd/BkorjliiuO2uSWC2KC17MUTKYttWdDoXX/vxOhQdkoECEM9BBH0pj2l8G8kev6w=="
-  "resolved" "https://registry.npmjs.org/prom-client/-/prom-client-14.0.1.tgz"
-  "version" "14.0.1"
+"prom-client@^14.1.0":
+  "integrity" "sha512-iFWCchQmi4170omLpFXbzz62SQTmPhtBL35v0qGEVRHKcqIeiexaoYeP0vfZTujxEq3tA87iqOdRbC9svS1B9A=="
+  "resolved" "https://registry.npmjs.org/prom-client/-/prom-client-14.1.0.tgz"
+  "version" "14.1.0"
   dependencies:
     "tdigest" "^0.1.1"
 
@@ -12668,10 +12668,10 @@
     "source-map-resolve" "^0.5.0"
     "use" "^3.1.0"
 
-"snyk@^1.996.0":
-  "integrity" "sha512-nq//Ely0bSt50LzX9Er5lCQNqTpaKn7I7xkhUB3Z+8rs8Jqha360HeQwhbVzsuQS3xT/1+36zt6CcgyLPM1QbA=="
-  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.996.0.tgz"
-  "version" "1.996.0"
+"snyk@^1.1005.0":
+  "integrity" "sha512-pnH3qQvMoaY9SlXrIldZdW36z2uRatHP/Y5azmLbE0QRIF7FR+JQF87ujsXMh9MQ4OEt5T6T9l1P7UmHkvk6vg=="
+  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.1005.0.tgz"
+  "version" "1.1005.0"
 
 "socks-proxy-agent@^5.0.0", "socks-proxy-agent@5":
   "integrity" "sha512-vZdmnjb9a2Tz6WEQVIurybSwElwPxMZaIc7PzqbJTrezcKNznv6giT7J7tZDZ1BojVaa1jvO/UiUdhDVB0ACoQ=="
