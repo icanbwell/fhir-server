@@ -49,6 +49,7 @@ const {BundleManager} = require('./operations/common/bundleManager');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ResourceMerger} = require('./operations/common/resourceMerger');
 const {ResourceValidator} = require('./operations/common/resourceValidator');
+const {Partitioner} = require('./operations/common/partitioner');
 
 /**
  * Creates a container and sets up all the services
@@ -95,6 +96,7 @@ const createContainer = function () {
         }
     ));
 
+    container.register('partitioner', () => new Partitioner());
     container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
     container.register('indexManager', c => new IndexManager(
         {
@@ -111,7 +113,8 @@ const createContainer = function () {
         }));
     container.register('resourceLocatorFactory', c => new ResourceLocatorFactory(
         {
-            collectionManager: c.collectionManager
+            collectionManager: c.collectionManager,
+            partitioner: c.partitioner
         }));
 
     container.register('databaseQueryFactory', c => new DatabaseQueryFactory(

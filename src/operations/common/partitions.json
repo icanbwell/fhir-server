@@ -1,0 +1,6 @@
+{
+  "AuditEvent": {
+    "field": "recorded",
+    "type": "month"
+  }
+}

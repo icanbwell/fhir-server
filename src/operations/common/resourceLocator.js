@@ -3,6 +3,7 @@ const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../const
 const async = require('async');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
+const {Partitioner} = require('./partitioner');
 
 /**
  * This class returns collections that contain the requested resourceType
@@ -12,9 +13,10 @@ class ResourceLocator {
      * @param {MongoCollectionManager} collectionManager
      * @param {string} resourceType
      * @param {string} base_version
+     * @param {Partitioner} partitioner
      * @param {boolean|null} useAtlas
      */
-    constructor({collectionManager, resourceType, base_version, useAtlas}) {
+    constructor({collectionManager, resourceType, base_version, partitioner, useAtlas}) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
         assertTypeEquals(collectionManager, MongoCollectionManager);
@@ -37,6 +39,11 @@ class ResourceLocator {
          * @private
          */
         this._useAtlas = useAtlas;
+        /**
+         * @type {Partitioner}
+         */
+        this.partitioner = partitioner;
+        assertTypeEquals(partitioner, Partitioner);
     }
 
     /**
@@ -47,7 +54,8 @@ class ResourceLocator {
     // eslint-disable-next-line no-unused-vars
     getCollectionName(resource) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return `${this._resourceType}_${this._base_version}`;
+        const partition = this.partitioner.getPartitionName(resource);
+        return `${partition}_${this._base_version}`;
     }
 
     /**
@@ -76,7 +84,8 @@ class ResourceLocator {
 // eslint-disable-next-line no-unused-vars
     getHistoryCollectionName(resource) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return `${this._resourceType}_${this._base_version}_History`;
+        const partition = this.partitioner.getPartitionName(resource);
+        return `${partition}_${this._base_version}_History`;
     }
 
     /**
