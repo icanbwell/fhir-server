@@ -20,11 +20,11 @@ const {filterByCanonical} = require('./filters/canonical');
 
 /**
  * Builds a mongo query for search parameters
- * @param {string} resourceName
+ * @param {string} resourceType
  * @param {Object} args
  * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
  */
-module.exports.buildR4SearchQuery = (resourceName, args) => {
+module.exports.buildR4SearchQuery = (resourceType, args) => {
     // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
     // ---- start of backward compatibility mappings ---
     if (args['source'] && !args['_source']) {
@@ -75,12 +75,12 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
     let and_segments = [];
 
     // add FHIR queries
-    for (const [resourceType, resourceObj] of Object.entries(searchParameterQueries)) {
-        if (resourceType === resourceName || resourceType === 'Resource') {
+    for (const [searchParameterResourceType, searchParameterObj] of Object.entries(searchParameterQueries)) {
+        if (searchParameterResourceType === resourceType || searchParameterResourceType === 'Resource') {
             for (const [
                 /** @type {string} **/ queryParameter,
                 /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj,
-            ] of Object.entries(resourceObj)) {
+            ] of Object.entries(searchParameterObj)) {
                 /**
                  * @type {string | string[]}
                  */
@@ -115,7 +115,7 @@ module.exports.buildR4SearchQuery = (resourceName, args) => {
                                 queryParameterValue,
                                 propertyObj,
                                 and_segments,
-                                resourceName,
+                                resourceType,
                                 columns
                             );
                             break;
