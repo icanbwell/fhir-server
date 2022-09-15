@@ -7,14 +7,15 @@ const {tokenQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {import('../common/types').SearchParameterDefinition} propertyObj
  * @param {Object[]} and_segments
  * @param {Set} columns
+ * @param {boolean} useAccessIndex
  * @returns {*[]}
  */
-function filterBySecurityTag({queryParameterValue, propertyObj, and_segments, columns}) {
+function filterBySecurityTag({queryParameterValue, propertyObj, and_segments, columns, useAccessIndex}) {
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }
     for (const tokenQueryItem of queryParameterValue) {
-        if (propertyObj.fieldFilter === "[system/@value='email']") {
+        if (propertyObj.fieldFilter === '[system/@value=\'email\']') {
             and_segments.push(
                 tokenQueryBuilder(
                     tokenQueryItem,
@@ -25,7 +26,7 @@ function filterBySecurityTag({queryParameterValue, propertyObj, and_segments, co
             );
             columns.add(`${propertyObj.field}.system`);
             columns.add(`${propertyObj.field}.value`);
-        } else if (propertyObj.fieldFilter === "[system/@value='phone']") {
+        } else if (propertyObj.fieldFilter === '[system/@value=\'phone\']') {
             and_segments.push(
                 tokenQueryBuilder(
                     tokenQueryItem,
@@ -52,17 +53,32 @@ function filterBySecurityTag({queryParameterValue, propertyObj, and_segments, co
             propertyObj.field === 'meta.security' ||
             propertyObj.field === 'meta.tag'
         ) {
-            // http://www.hl7.org/fhir/search.html#token
-            and_segments.push(
-                tokenQueryBuilder(
-                    tokenQueryItem,
-                    'code',
-                    `${propertyObj.field}`,
-                    ''
-                )
-            );
-            columns.add(`${propertyObj.field}.system`);
-            columns.add(`${propertyObj.field}.code`);
+            if (useAccessIndex) {
+                // http://www.hl7.org/fhir/search.html#token
+                and_segments.push(
+                    tokenQueryBuilder(
+                        tokenQueryItem,
+                        'code',
+                        `${propertyObj.field}`,
+                        ''
+                    )
+                );
+                columns.add(`${propertyObj.field}.system`);
+                columns.add(`${propertyObj.field}.code`);
+            } else {
+                // http://www.hl7.org/fhir/search.html#token
+                and_segments.push(
+                    tokenQueryBuilder(
+                        tokenQueryItem,
+                        'code',
+                        `${propertyObj.field}`,
+                        ''
+                    )
+                );
+                columns.add(`${propertyObj.field}.system`);
+                columns.add(`${propertyObj.field}.code`);
+            }
+
         } else {
             and_segments.push({
                 $or: [

@@ -23,9 +23,10 @@ const {filterBySecurityTag} = require('./filters/securityTag');
  * Builds a mongo query for search parameters
  * @param {string} resourceType
  * @param {Object} args
+ * @param {boolean} useAccessIndex
  * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
  */
-module.exports.buildR4SearchQuery = ({resourceType, args}) => {
+module.exports.buildR4SearchQuery = ({resourceType, args, useAccessIndex}) => {
     // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
     // ---- start of backward compatibility mappings ---
     if (args['source'] && !args['_source']) {
@@ -133,7 +134,8 @@ module.exports.buildR4SearchQuery = ({resourceType, args}) => {
                         case fhirFilterTypes.token:
                             if (propertyObj.field === 'meta.security') {
                                 filterBySecurityTag({
-                                    queryParameterValue, propertyObj, and_segments, columns
+                                    queryParameterValue, propertyObj, and_segments, columns,
+                                    useAccessIndex
                                 });
                             } else {
                                 filterByToken({
