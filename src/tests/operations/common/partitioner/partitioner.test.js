@@ -105,8 +105,9 @@ describe('Partitioner Tests', () => {
             expect(partitioner.partitionsCache.size).toBe(2);
             const partitions = partitioner.partitionsCache.get('AuditEvent');
             expect(partitions.length).toBe(2);
-            expect(partitions[0]).toBe(mongoCollectionName2);
-            expect(partitions[1]).toBe(mongoCollectionName1);
+            const partitionsSorted = partitions.sort();
+            expect(partitionsSorted[0]).toBe(mongoCollectionName1);
+            expect(partitionsSorted[1]).toBe(mongoCollectionName2);
         });
         test('getPartitionNameAsync works for partitioned collection with no records', async () => {
             const partitioner = new Partitioner({configManager: new MockConfigManager()});
