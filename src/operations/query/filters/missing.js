@@ -9,7 +9,7 @@ const {isTrue} = require('../../../utils/isTrue');
  * @param {import('../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
  */
-function filterByMissing(args, queryParameter, and_segments, propertyObj, columns) {
+function filterByMissing({args, queryParameter, and_segments, propertyObj, columns}) {
     // handle check for missing values
     const missing_flag = isTrue(args[`${queryParameter}:missing`]);
     if (missing_flag === true) {
