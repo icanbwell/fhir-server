@@ -75,6 +75,9 @@ let insufficientScope = (message, base_version) => {
 
 let notFound = (message, base_version) => {
     let ErrorConstructor = getErrorConstructor(base_version);
+    if (!ErrorConstructor){
+        ErrorConstructor = getErrorConstructor('4_0_0');
+    }
     return new ErrorConstructor({
         statusCode: 404,
         text: {

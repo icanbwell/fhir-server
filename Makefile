@@ -64,7 +64,7 @@ init:
 	brew install yarn
 	brew install kompose
 	#brew install nvm
-	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.37.2/install.sh | zsh
+	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | zsh
 	nvm install ${NODE_VERSION}
 	make update
 

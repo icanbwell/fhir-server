@@ -50,8 +50,7 @@ describe('PractitionerReturnIdTests', () => {
             await postRequestProcessor.waitTillDoneAsync();
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedHistorySinglePatient);

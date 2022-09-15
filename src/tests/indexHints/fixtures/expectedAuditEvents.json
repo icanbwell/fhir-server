@@ -458,10 +458,6 @@
             {
                 "display": "{'useTwoStepSearchOptimization':undefined}",
                 "system": "https://www.icanbwell.com/queryOptimization"
-            },
-            {
-                "code": "helix_audit_event_security",
-                "system": "https://www.icanbwell.com/queryIndexHint"
             }
         ]
     },

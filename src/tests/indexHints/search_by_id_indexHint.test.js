@@ -5,7 +5,7 @@ const auditEventResource = require('./fixtures/auditEvents.json');
 const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('AuditEventReturnIdTests', () => {
     beforeEach(async () => {
@@ -21,7 +21,7 @@ describe('AuditEventReturnIdTests', () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount( 0);
+            expect(resp).toHaveResourceCount(0);
 
             // first confirm there are no AuditEvent
             resp = await request.get('/4_0_0/AuditEvent').set(getHeaders()).expect(200);
@@ -43,6 +43,14 @@ describe('AuditEventReturnIdTests', () => {
                 )
                 .set(getHeaders());
 
+            expectedAuditEventResource.meta.tag.forEach((tag) => {
+                if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
+                    tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
+                }
+                if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
+                    tag['code'] = 'AuditEvent_4_0_0_2021_09';
+                }
+            });
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource);
         });

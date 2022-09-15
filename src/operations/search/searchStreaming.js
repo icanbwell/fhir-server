@@ -279,7 +279,7 @@ class SearchStreamingOperation {
                         /**
                          * @type {string}
                          */
-                        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
                         /**
                          * @type {Resource[]}
                          */
@@ -369,7 +369,7 @@ class SearchStreamingOperation {
                         /**
                          * @type {string}
                          */
-                        const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
                         /**
                          * @type {Bundle}
                          */
@@ -413,7 +413,7 @@ class SearchStreamingOperation {
             /**
              * @type {string}
              */
-            const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
@@ -427,7 +427,7 @@ class SearchStreamingOperation {
             /**
              * @type {string}
              */
-            const collectionName = resourceLocator.getFirstCollectionNameForQuery();
+            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,

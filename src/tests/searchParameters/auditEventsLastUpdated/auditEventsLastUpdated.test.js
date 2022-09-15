@@ -10,7 +10,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('AuditEventLastUpdatedTests', () => {
     beforeEach(async () => {
@@ -44,6 +44,14 @@ describe('AuditEventLastUpdatedTests', () => {
                 )
                 .set(getHeaders());
 
+            expectedAuditEventResource.meta.tag.forEach((tag) => {
+                if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
+                    tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
+                }
+                if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
+                    tag['code'] = 'AuditEvent_4_0_0_2021_09';
+                }
+            });
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource);
         });

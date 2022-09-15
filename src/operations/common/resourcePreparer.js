@@ -1,19 +1,26 @@
 const {enrich} = require('../../enrich/enrich');
-const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
+const {AccessIndexManager} = require('./accessIndexManager');
 
 class ResourcePreparer {
     /**
      * constructor
      * @param {ScopesManager} scopesManager
+     * @param {AccessIndexManager} accessIndexManager
      */
-    constructor({scopesManager}) {
+    constructor({scopesManager, accessIndexManager}) {
         /**
          * @type {ScopesManager}
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {AccessIndexManager}
+         */
+        this.accessIndexManager = accessIndexManager;
+        assertTypeEquals(accessIndexManager, AccessIndexManager);
     }
 
     /**
@@ -68,7 +75,7 @@ class ResourcePreparer {
                                }) {
         let resources = [];
         if (args['_elements']) {
-            if (!useAccessIndex || !resourceHasAccessIndex(resourceType)) {
+            if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex(resourceType)) {
                 // if the whole resource is returned then we have security tags to check again to be double sure
                 if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
                     return [];

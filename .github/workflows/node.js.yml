@@ -41,13 +41,15 @@ jobs:
         strategy:
             matrix:
                 chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
+            fail-fast: false
         steps:
             - uses: actions/checkout@v2
             - name: Use Node.js 16.17.x
               uses: actions/setup-node@v1
               with:
                   node-version: 16.17.x
-            - run: yarn install
+            - run: | # retry since mongo memory server fails to download sometimes
+                yarn install || yarn install
             - run: npm run build --if-present
             - name: jest
               run: |

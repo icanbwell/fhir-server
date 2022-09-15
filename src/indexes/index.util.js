@@ -107,7 +107,7 @@ class IndexManager {
         }
 
         for (const [collection, indexesArray] of Object.entries(customIndexes)) {
-            if (collection === collection_name) {
+            if (collection_name.startsWith(collection)) {
                 for (const indexDefinition of indexesArray) {
                     for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
                         createdIndex = await this.create_index_if_not_exists(db, indexColumns, collection_name, indexName) || createdIndex;

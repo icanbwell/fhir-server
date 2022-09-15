@@ -27,6 +27,7 @@ const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals
 const globals = require('../../../globals');
 const { AUDIT_EVENT_CLIENT_DB } = require('../../../constants');
 const env = require('var');
+const moment = require('moment-timezone');
 
 describe('GraphQL Patient Tests', () => {
     beforeEach(async () => {
@@ -54,10 +55,14 @@ describe('GraphQL Patient Tests', () => {
             const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
             const base_version = '4_0_0';
             const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
+            const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            const year = fieldDate.getUTCFullYear();
+            const month = fieldDate.getUTCMonth() + 1; // 0 indexed
+            const monthFormatted = String(month).padStart(2, '0');
             /**
              * @type {string}
              */
-            const mongoCollectionName = `${collection_name}_${base_version}`;
+            const mongoCollectionName = `${collection_name}_${base_version}_${year}_${monthFormatted}`;
             /**
              * mongo collection
              * @type {import('mongodb').Collection}

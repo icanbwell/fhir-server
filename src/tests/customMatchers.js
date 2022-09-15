@@ -3,7 +3,8 @@ const {assertFail} = require('../utils/assertType');
 const {diff} = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
 const {expect} = require('@jest/globals');
-
+const moment = require('moment-timezone');
+const {Partitioner} = require('../operations/common/partitioner');
 
 /**
  * @typedef JestUtils
@@ -14,10 +15,24 @@ const {expect} = require('@jest/globals');
  */
 
 function cleanMeta(resource) {
+    const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+    /**
+     * @type {string}
+     */
+    const auditCollectionName = Partitioner.getPartitionNameFromYearMonth(
+        {fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0'}
+    );
+
     if (resource.meta && resource.meta.tag) {
         resource.meta.tag.forEach((tag) => {
-            if (tag['system'] === 'https://www.icanbwell.com/queryTime') {
+            if (tag['system'] === 'https://www.icanbwell.com/queryTime' && tag['display']) {
                 delete tag['display'];
+            }
+            if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
+                tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', `db.${auditCollectionName}.`);
+            }
+            if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
+                tag['code'] = `${auditCollectionName}`;
             }
         });
     }
