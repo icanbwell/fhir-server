@@ -1,9 +1,55 @@
 const env = require('var');
 const partitions = require('./partitions.json');
 const {assertIsValid, assertFail} = require('../../utils/assertType');
+const globals = require('../../globals');
+const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
 
 class Partitioner {
     constructor() {
+        /**
+         * cache for partitions for resourceType
+         * <resourceType, partitions>
+         * @type {Map<string, string[]>}
+         */
+        this.partitionsCache = new Map();
+
+        // see if resourceType is in list of resources we want to partitionConfig in this environment
+        /**
+         * @type {string|undefined}
+         */
+        const partitionResourcesString = env.PARTITION_RESOURCES;
+        /**
+         * @type {string[]}
+         */
+        this.partitionResources = partitionResourcesString ?
+            partitionResourcesString.split(',').map(s => String(s).trim()) : [];
+    }
+
+    async loadPartitionsFromDatabase() {
+        for (const resourceType of this.partitionResources) {
+            if (!(this.partitionResources.has(resourceType))) {
+                this.partitionResources.set(`${resourceType}`, []);
+            }
+            const connection = this.getDatabaseConnection({resourceType});
+
+            for await (const collection of connection.listCollections()) {
+                if (collection.name.indexOf('system.') === -1) {
+                    this.operationsByResourceTypeMap.get(resourceType).push(collection.name);
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Gets the database connection for the given collection
+     * @param {string} resourceType
+     * @returns {import('mongodb').Db}
+     */
+    getDatabaseConnection({resourceType}) {
+        // noinspection JSValidateTypes
+        return (resourceType === 'AuditEvent') ?
+            globals.get(AUDIT_EVENT_CLIENT_DB) : globals.get(CLIENT_DB);
     }
 
     /**
@@ -20,15 +66,9 @@ class Partitioner {
 
         // see if there is a partitionConfig defined for this resource
         const partitionConfig = partitions[`${resourceType}`];
-        // see if resourceType is in list of resources we want to partitionConfig in this environment
-        /**
-         * @type {string|undefined}
-         */
-        const partitionResourcesString = env.PARTITION_RESOURCES;
-        const partitionResources = partitionResourcesString ?
-            partitionResourcesString.split(',').map(s => s.trim()) : [];
+
         // if partitionConfig found then use that to calculate the name of the partitionConfig
-        if (partitionConfig && partitionResources.includes(resourceType)) {
+        if (partitionConfig && this.partitionResources.includes(resourceType)) {
             const field = partitionConfig['field'];
             const type = partitionConfig['type'];
             switch (type) {
