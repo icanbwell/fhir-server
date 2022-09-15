@@ -326,9 +326,9 @@ class SearchManager {
         // find columns being queried and match them to an index
         if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
             // TODO: handle index hints for multiple collections
-            const collectionNamesForQueryForResourceType = this.resourceLocatorFactory.createResourceLocator(
-                {resourceType, base_version, useAtlas})
-                .getCollectionNamesForQuery();
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                {resourceType, base_version, useAtlas});
+            const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync();
             const __ret = this.setIndexHint(
                 {
                     indexHint,

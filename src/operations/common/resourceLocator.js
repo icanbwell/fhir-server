@@ -51,10 +51,10 @@ class ResourceLocator {
      * @param {Resource} resource
      * @returns {string}
      */
-    // eslint-disable-next-line no-unused-vars
-    getCollectionName(resource) {
+    async getCollectionNameAsync(resource) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        const partition = this.partitioner.getPartitionName({resource, base_version: this._base_version});
+        const partition = await this.partitioner.getPartitionNameAsync(
+            {resource, base_version: this._base_version});
         return partition;
     }
 
@@ -62,9 +62,9 @@ class ResourceLocator {
      * returns all the collection names for resourceType
      * @returns {string[]}
      */
-    getCollectionNamesForQuery() {
+    async getCollectionNamesForQueryAsync() {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return this.partitioner.getAllPartitionsForResourceType({
+        return await this.partitioner.getAllPartitionsForResourceTypeAsync({
             resourceType: this._resourceType,
             base_version: this._base_version
         });
@@ -74,9 +74,9 @@ class ResourceLocator {
      * returns the first collection name for resourceType.   Use for debugging only
      * @returns {string}
      */
-    getFirstCollectionNameForQuery() {
+    async getFirstCollectionNameForQueryAsync() {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return this.partitioner.getAllPartitionsForResourceType({
+        return await this.partitioner.getAllPartitionsForResourceTypeAsync({
             resourceType: this._resourceType,
             base_version: this._base_version
         })[0];
@@ -87,10 +87,9 @@ class ResourceLocator {
      * @param {Resource} resource
      * @returns {string}
      */
-// eslint-disable-next-line no-unused-vars
-    getHistoryCollectionName(resource) {
+    async getHistoryCollectionNameAsync(resource) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
-        const partition = this.partitioner.getPartitionName({resource, base_version: this._base_version});
+        const partition = await this.partitioner.getPartitionNameAsync({resource, base_version: this._base_version});
         return `${partition}_History`;
     }
 
@@ -98,9 +97,9 @@ class ResourceLocator {
      * returns all the collection names for resourceType
      * @returns {string[]}
      */
-    getHistoryCollectionNamesForQuery() {
+    async getHistoryCollectionNamesForQueryAsync() {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return this.partitioner.getAllHistoryPartitionsForResourceType({
+        return await this.partitioner.getAllHistoryPartitionsForResourceTypeAsync({
             resourceType: this._resourceType,
             base_version: this._base_version
         });
@@ -110,7 +109,7 @@ class ResourceLocator {
      * Gets the database connection for the given collection
      * @returns {import('mongodb').Db}
      */
-    getDatabaseConnection() {
+    async getDatabaseConnectionAsync() {
         // noinspection JSValidateTypes
         return (this._resourceType === 'AuditEvent') ?
             globals.get(AUDIT_EVENT_CLIENT_DB) : (this._useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
@@ -127,7 +126,7 @@ class ResourceLocator {
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = this.getDatabaseConnection();
+        const db = await this.getDatabaseConnectionAsync();
         return await this.collectionManager.getOrCreateCollectionAsync(
             {db, collection_name: collectionName});
     }
@@ -141,7 +140,7 @@ class ResourceLocator {
         /**
          * @type {string}
          */
-        const collectionName = this.getCollectionName(resource);
+        const collectionName = await this.getCollectionNameAsync(resource);
         return await this.getOrCreateCollectionAsync(collectionName);
     }
 
@@ -153,12 +152,12 @@ class ResourceLocator {
         /**
          * @type {string[]}
          */
-        const collectionNames = this.getCollectionNamesForQuery();
+        const collectionNames = await this.getCollectionNamesForQueryAsync();
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = this.getDatabaseConnection();
+        const db = await this.getDatabaseConnectionAsync();
         return async.map(collectionNames,
             async collectionName => await this.collectionManager.getOrCreateCollectionAsync(
                 {db, collection_name: collectionName}));
@@ -172,12 +171,12 @@ class ResourceLocator {
         /**
          * @type {string[]}
          */
-        const collectionNames = this.getHistoryCollectionNamesForQuery();
+        const collectionNames = await this.getHistoryCollectionNamesForQueryAsync();
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = this.getDatabaseConnection();
+        const db = await this.getDatabaseConnectionAsync();
         return async.map(collectionNames,
             async collectionName => await this.collectionManager.getOrCreateCollectionAsync(
                 {db, collection_name: collectionName}));
@@ -192,12 +191,12 @@ class ResourceLocator {
         /**
          * @type {string}
          */
-        const collectionName = this.getHistoryCollectionName(resource);
+        const collectionName = this.getHistoryCollectionNameAsync(resource);
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = this.getDatabaseConnection();
+        const db = await this.getDatabaseConnectionAsync();
         return await this.collectionManager.getOrCreateCollectionAsync({db, collection_name: collectionName});
     }
 }

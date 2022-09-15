@@ -1,8 +1,11 @@
 const env = require('var');
-const partitions = require('./partitions.json');
+const partitionConfiguration = require('./partitions.json');
 const {assertIsValid, assertFail} = require('../../utils/assertType');
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
+
+const Mutex = require('async-mutex').Mutex;
+const mutex = new Mutex();
 
 class Partitioner {
     constructor() {
@@ -23,22 +26,60 @@ class Partitioner {
          */
         this.partitionResources = partitionResourcesString ?
             partitionResourcesString.split(',').map(s => String(s).trim()) : [];
+
+        /**
+         * @type {boolean}
+         */
+        this.isPartitionsCacheLoaded = false;
     }
 
-    async loadPartitionsFromDatabase() {
-        for (const resourceType of this.partitionResources) {
-            if (!(this.partitionResources.has(resourceType))) {
-                this.partitionResources.set(`${resourceType}`, []);
+    async loadPartitionsFromDatabaseAsync() {
+        const release = await mutex.acquire();
+        try {
+            if (this.isPartitionsCacheLoaded) {
+                return;
             }
-            const connection = this.getDatabaseConnection({resourceType});
+            for (const /** @type {string} */ resourceType of this.partitionResources) {
+                if (!(this.partitionsCache.has(resourceType))) {
+                    this.partitionsCache.set(`${resourceType}`, []);
+                }
+                const connection = await this.getDatabaseConnectionAsync({resourceType});
 
-            for await (const collection of connection.listCollections()) {
-                if (collection.name.indexOf('system.') === -1) {
-                    this.operationsByResourceTypeMap.get(resourceType).push(collection.name);
+                for await (const collection of connection.listCollections()) {
+                    if (collection.name.indexOf('system.') === -1) {
+                        this.partitionsCache.get(resourceType).push(collection.name);
+                    }
                 }
             }
+            this.isPartitionsCacheLoaded = true;
+        } finally {
+            release();
         }
+    }
 
+    /**
+     * Adds a partition to the cache if it does not exist
+     * @param {string} resourceType
+     * @param {string} partition
+     * @returns {Promise<void>}
+     */
+    async addPartitionsToCacheAsync({resourceType, partition}) {
+        const release = await mutex.acquire();
+        try {
+
+            if (!(this.partitionsCache.has(resourceType))) {
+                this.partitionsCache.set(`${resourceType}`, []);
+            }
+            /**
+             * @type {string[]}
+             */
+            const partitions = this.partitionsCache.get(resourceType);
+            if (!partitions.includes(partition)) {
+                partitions.push(partition);
+            }
+        } finally {
+            release();
+        }
     }
 
     /**
@@ -46,7 +87,7 @@ class Partitioner {
      * @param {string} resourceType
      * @returns {import('mongodb').Db}
      */
-    getDatabaseConnection({resourceType}) {
+    async getDatabaseConnectionAsync({resourceType}) {
         // noinspection JSValidateTypes
         return (resourceType === 'AuditEvent') ?
             globals.get(AUDIT_EVENT_CLIENT_DB) : globals.get(CLIENT_DB);
@@ -58,14 +99,15 @@ class Partitioner {
      * @param {string} base_version
      * @returns {string}
      */
-    // eslint-disable-next-line no-unused-vars
-    getPartitionName({resource, base_version}) {
+    async getPartitionNameAsync({resource, base_version}) {
+        await this.loadPartitionsFromDatabaseAsync();
+
         const resourceType = resource.resourceType;
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
         const resourceWithBaseVersion = `${resourceType}_${base_version}`;
 
         // see if there is a partitionConfig defined for this resource
-        const partitionConfig = partitions[`${resourceType}`];
+        const partitionConfig = partitionConfiguration[`${resourceType}`];
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
         if (partitionConfig && this.partitionResources.includes(resourceType)) {
@@ -75,6 +117,7 @@ class Partitioner {
                 case 'year-month': {// get value of field
                     const fieldValue = resource[`${field}`];
                     if (!fieldValue) {
+                        await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
                         return resourceWithBaseVersion;
                     } else {
                         // extract month
@@ -82,7 +125,9 @@ class Partitioner {
                         const year = fieldDate.getUTCFullYear();
                         const month = fieldDate.getUTCMonth() + 1; // 0 indexed
                         const monthFormatted = String(month).padStart(2, '0');
-                        return `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
+                        const partition = `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
+                        await this.addPartitionsToCacheAsync({resourceType, partition});
+                        return partition;
                     }
                 }
                     // eslint-disable-next-line no-unreachable
@@ -98,6 +143,7 @@ class Partitioner {
 
             }
         } else {
+            await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
             return resourceWithBaseVersion;
         }
     }
@@ -108,8 +154,9 @@ class Partitioner {
      * @param {string} base_version
      * @returns {string[]}
      */
-    getAllPartitionsForResourceType({resourceType, base_version}) {
+    async getAllPartitionsForResourceTypeAsync({resourceType, base_version}) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+        await this.loadPartitionsFromDatabaseAsync();
         return [`${resourceType}_${base_version}`];
     }
 
@@ -119,8 +166,9 @@ class Partitioner {
      * @param {string} base_version
      * @returns {string[]}
      */
-    getAllHistoryPartitionsForResourceType({resourceType, base_version}) {
+    async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version}) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+        await this.loadPartitionsFromDatabaseAsync();
         return [`${resourceType}_${base_version}_History`];
     }
 }

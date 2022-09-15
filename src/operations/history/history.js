@@ -210,7 +210,7 @@ class HistoryOperation {
                 total_count: resources.length,
                 args,
                 originalQuery: {},
-                collectionName: resources.length > 0 ? resourceLocator.getHistoryCollectionName(resources[0]) : null,
+                collectionName: resources.length > 0 ? resourceLocator.getHistoryCollectionNameAsync(resources[0]) : null,
                 originalOptions: {},
                 stopTime,
                 startTime,

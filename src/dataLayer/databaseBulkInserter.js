@@ -503,8 +503,8 @@ class DatabaseBulkInserter extends EventEmitter {
                  * @type {string}
                  */
                 const collectionName = useHistoryCollection ?
-                    resourceLocator.getHistoryCollectionName(resource) :
-                    resourceLocator.getCollectionName(resource);
+                    await resourceLocator.getHistoryCollectionNameAsync(resource) :
+                    await resourceLocator.getCollectionNameAsync(resource);
                 if (!(operationsByCollectionNames.has(collectionName))) {
                     operationsByCollectionNames.set(`${collectionName}`, []);
                 }
