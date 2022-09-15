@@ -256,11 +256,16 @@ class MyFHIRServer {
             ) => {
                 // get base from URL instead of params since it might not be forwarded
                 const base = req.url.split('/')[1];
+                const isValidBaseVersion = isValidVersion(base);
+                if (!isValidBaseVersion){
+                    res.status(404);
+                    res.end();
+                    return;
+                }
                 try {
-
                     // Get an operation outcome for this instance
-                    const OperationOutcome = resolveSchema(
-                        isValidVersion(base) ? base : VERSIONS['4_0_1'],
+                    let OperationOutcome = resolveSchema(
+                        isValidBaseVersion ? base : VERSIONS['4_0_0'],
                         'operationoutcome'
                     );
                     if (res.headersSent) {
@@ -303,7 +308,7 @@ class MyFHIRServer {
                     // logger.error(e);
                     // Get an operation outcome for this instance
                     const OperationOutcome = resolveSchema(
-                        isValidVersion(base) ? base : VERSIONS['4_0_1'],
+                        isValidBaseVersion ? base : VERSIONS['4_0_1'],
                         'operationoutcome'
                     );
                     res.status(500).json(new OperationOutcome({
