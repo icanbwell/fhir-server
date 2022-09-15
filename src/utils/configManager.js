@@ -13,6 +13,13 @@ class ConfigManager {
         return partitionResourcesString ?
             partitionResourcesString.split(',').map(s => String(s).trim()) : [];
     }
+
+    get resourcesWithAccessIndex() {
+        return (
+            env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',')
+                .map((col) => col.trim())
+        ) || [];
+    }
 }
 
 module.exports = {

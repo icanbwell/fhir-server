@@ -51,6 +51,7 @@ const {ResourceMerger} = require('./operations/common/resourceMerger');
 const {ResourceValidator} = require('./operations/common/resourceValidator');
 const {Partitioner} = require('./operations/common/partitioner');
 const {ConfigManager} = require('./utils/configManager');
+const {AccessIndexManager} = require('./operations/common/accessIndexManager');
 
 /**
  * Creates a container and sets up all the services
@@ -66,7 +67,8 @@ const createContainer = function () {
     container.register('scopesManager', () => new ScopesManager());
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
-            scopesManager: c.scopesManager
+            scopesManager: c.scopesManager,
+            accessIndexManager: c.accessIndexManager
         }
     ));
     container.register('resourceMerger', () => new ResourceMerger());
@@ -147,7 +149,8 @@ const createContainer = function () {
 
     container.register('securityTagManager', (c) => new SecurityTagManager(
         {
-            scopesManager: c.scopesManager
+            scopesManager: c.scopesManager,
+            accessIndexManager: c.accessIndexManager
         }));
 
     container.register('mergeManager', (c) => new MergeManager(
@@ -406,6 +409,10 @@ const createContainer = function () {
             }
         )
     );
+
+    container.register('accessIndexManager', (c) => new AccessIndexManager({
+        configManager: c.configManager
+    }));
 
     return container;
 };

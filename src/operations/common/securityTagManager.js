@@ -1,9 +1,9 @@
 const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
-const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
 const {profiles} = require('../../profiles');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
+const {AccessIndexManager} = require('./accessIndexManager');
 
 /**
  * This class manages queries for security tags
@@ -12,13 +12,20 @@ class SecurityTagManager {
     /**
      * constructor
      * @param {ScopesManager} scopesManager
+     * @param {AccessIndexManager} accessIndexManager
      */
-    constructor({scopesManager}) {
+    constructor({scopesManager, accessIndexManager}) {
         /**
          * @type {ScopesManager}
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {AccessIndexManager}
+         */
+        this.accessIndexManager = accessIndexManager;
+        assertTypeEquals(accessIndexManager, AccessIndexManager);
     }
 
     /**
@@ -83,7 +90,7 @@ class SecurityTagManager {
         if (securityTags && securityTags.length > 0) {
             let securityTagQuery;
             // special handling for large collections for performance
-            if (useAccessIndex && resourceHasAccessIndex(resourceType)) {
+            if (useAccessIndex && this.accessIndexManager.resourceHasAccessIndex(resourceType)) {
                 if (securityTags.length === 1) {
                     securityTagQuery = {[`_access.${securityTags[0]}`]: 1};
                 } else {
