@@ -157,19 +157,24 @@ class Partitioner {
     async getAllPartitionsForResourceTypeAsync({resourceType, base_version}) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
         await this.loadPartitionsFromDatabaseAsync();
-        return [`${resourceType}_${base_version}`];
+        // if partition does not exist yet return default
+        if (!(this.partitionsCache.has(resourceType))) {
+            return [`${resourceType}_${base_version}`];
+        }
+        // else return the partition from the cache
+        return this.partitionsCache.get(resourceType);
     }
 
     /**
-     * returns all the collection names for resourceType
+     * returns all the history collection names for resourceType
      * @param {string} resourceType
      * @param {string} base_version
      * @returns {string[]}
      */
     async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version}) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
-        await this.loadPartitionsFromDatabaseAsync();
-        return [`${resourceType}_${base_version}_History`];
+        return await this.getAllPartitionsForResourceTypeAsync({resourceType, base_version})
+            .map(partition => `${partition}_History`);
     }
 }
 
