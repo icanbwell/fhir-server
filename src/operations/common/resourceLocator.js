@@ -191,7 +191,7 @@ class ResourceLocator {
         /**
          * @type {string}
          */
-        const collectionName = this.getHistoryCollectionNameAsync(resource);
+        const collectionName = await this.getHistoryCollectionNameAsync(resource);
         /**
          * mongo db connection
          * @type {import('mongodb').Db}
