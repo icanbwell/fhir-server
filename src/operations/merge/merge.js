@@ -453,7 +453,7 @@ class MergeOperation {
                 );
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                     {resourceType, base_version, useAtlas});
-                const firstCollectionNameForQuery = await resourceLocator.getFirstCollectionNameForQueryAsync();
+                const firstCollectionNameForQuery = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
                 // noinspection JSValidateTypes
                 /**
                  * @type {Resource[]}

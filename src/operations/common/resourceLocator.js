@@ -74,7 +74,7 @@ class ResourceLocator {
      * returns the first collection name for resourceType.   Use for debugging only
      * @returns {string}
      */
-    async getFirstCollectionNameForQueryAsync() {
+    async getFirstCollectionNameForQueryDebugOnlyAsync() {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         const collectionNames = await this.partitioner.getAllPartitionsForResourceTypeAsync({
             resourceType: this._resourceType,

@@ -231,7 +231,7 @@ class SearchBundleOperation {
                     user, args: {
                         query:
                             mongoQueryAndOptionsStringify(
-                               await resourceLocator.getFirstCollectionNameForQueryAsync(), originalQuery, originalOptions)
+                               await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(), originalQuery, originalOptions)
                     }
                 });
                 resources = await this.searchManager.readResourcesFromCursorAsync(
@@ -267,7 +267,7 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryAsync();
+            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
             /**
              * id of last resource in the list
              * @type {?string}
@@ -315,7 +315,7 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryAsync();
+            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
