@@ -53,18 +53,32 @@ function filterBySecurityTag({queryParameterValue, propertyObj, and_segments, co
             propertyObj.field === 'meta.security' ||
             propertyObj.field === 'meta.tag'
         ) {
-            if (useAccessIndex) {
-                // http://www.hl7.org/fhir/search.html#token
-                and_segments.push(
-                    tokenQueryBuilder(
-                        tokenQueryItem,
-                        'code',
-                        `${propertyObj.field}`,
-                        ''
-                    )
-                );
-                columns.add(`${propertyObj.field}.system`);
-                columns.add(`${propertyObj.field}.code`);
+            /**
+             * @type {string}
+             */
+            const decodedTokenQueryItem = decodeURIComponent(tokenQueryItem);
+            if (decodedTokenQueryItem.includes('|') && useAccessIndex) {
+                const [system, value] = decodedTokenQueryItem.split('|');
+                if (system === 'https://www.icanbwell.com/access') {
+                    // http://www.hl7.org/fhir/search.html#token
+                    const field = `_access.${value}`;
+                    and_segments.push(
+                        {
+                            [field]: 1
+                        });
+                    columns.add(`${field}`);
+                } else {
+                    and_segments.push(
+                        tokenQueryBuilder(
+                            tokenQueryItem,
+                            'code',
+                            `${propertyObj.field}`,
+                            ''
+                        )
+                    );
+                    columns.add(`${propertyObj.field}.system`);
+                    columns.add(`${propertyObj.field}.code`);
+                }
             } else {
                 // http://www.hl7.org/fhir/search.html#token
                 and_segments.push(
