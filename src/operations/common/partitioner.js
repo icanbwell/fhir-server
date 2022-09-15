@@ -49,9 +49,9 @@ class Partitioner {
                  */
                 const connection = await this.getDatabaseConnectionAsync({resourceType});
 
-                for await (const collection of connection.listCollections()) {
-                    if (collection.name.indexOf('system.') === -1) {
-                        console.log(JSON.stringify({resourceType, collection}));
+                for await (const /** @type {{name: string, type: string}} */ collection of connection.listCollections(
+                    {}, {nameOnly: true})) {
+                    if (collection.name.startsWith(resourceType) && !collection.name.includes('_History')) {
                         this.partitionsCache.get(resourceType).push(collection.name);
                     }
                 }
@@ -69,6 +69,8 @@ class Partitioner {
      * @returns {Promise<void>}
      */
     async addPartitionsToCacheAsync({resourceType, partition}) {
+        assertIsValid(resourceType, 'resourceType is empty');
+
         const release = await mutex.acquire();
         try {
 
@@ -105,10 +107,14 @@ class Partitioner {
      * @returns {string}
      */
     async getPartitionNameAsync({resource, base_version}) {
-        await this.loadPartitionsFromDatabaseAsync();
+        assertIsValid(resource, 'Resource is null');
 
         const resourceType = resource.resourceType;
+        assertIsValid(resourceType, `resourceType is empty for resource: ${JSON.stringify(resource)}`);
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+
+        await this.loadPartitionsFromDatabaseAsync();
+
         const resourceWithBaseVersion = `${resourceType}_${base_version}`;
 
         // see if there is a partitionConfig defined for this resource
@@ -160,6 +166,8 @@ class Partitioner {
      * @returns {string[]}
      */
     async getAllPartitionsForResourceTypeAsync({resourceType, base_version}) {
+        assertIsValid(resourceType, 'resourceType is empty');
+
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
         await this.loadPartitionsFromDatabaseAsync();
         // if partition does not exist yet return default
@@ -177,6 +185,8 @@ class Partitioner {
      * @returns {string[]}
      */
     async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version}) {
+        assertIsValid(resourceType, 'resourceType is empty');
+
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
         return await this.getAllPartitionsForResourceTypeAsync({resourceType, base_version})
             .map(partition => `${partition}_History`);
