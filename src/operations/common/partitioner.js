@@ -1,31 +1,32 @@
-const env = require('var');
 const partitionConfiguration = require('./partitions.json');
-const {assertIsValid, assertFail} = require('../../utils/assertType');
+const {assertIsValid, assertFail, assertTypeEquals} = require('../../utils/assertType');
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
+const {ConfigManager} = require('../../utils/configManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
+/**
+ * @description This class implements partitioning for resource types
+ */
 class Partitioner {
-    constructor() {
+    /**
+     * Constructor
+     * @param {ConfigManager} configManager
+     */
+    constructor({configManager}) {
+        assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {string[]}
+         */
+        this.partitionResources = configManager.partitionResources;
         /**
          * cache for partitions for resourceType
          * <resourceType, partitions>
          * @type {Map<string, string[]>}
          */
         this.partitionsCache = new Map();
-
-        // see if resourceType is in list of resources we want to partitionConfig in this environment
-        /**
-         * @type {string|undefined}
-         */
-        const partitionResourcesString = env.PARTITION_RESOURCES;
-        /**
-         * @type {string[]}
-         */
-        this.partitionResources = partitionResourcesString ?
-            partitionResourcesString.split(',').map(s => String(s).trim()) : [];
 
         /**
          * @type {boolean}
@@ -43,10 +44,14 @@ class Partitioner {
                 if (!(this.partitionsCache.has(resourceType))) {
                     this.partitionsCache.set(`${resourceType}`, []);
                 }
+                /**
+                 * @type {import('mongodb').Db}
+                 */
                 const connection = await this.getDatabaseConnectionAsync({resourceType});
 
                 for await (const collection of connection.listCollections()) {
                     if (collection.name.indexOf('system.') === -1) {
+                        console.log(JSON.stringify({resourceType, collection}));
                         this.partitionsCache.get(resourceType).push(collection.name);
                     }
                 }
