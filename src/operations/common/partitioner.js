@@ -61,6 +61,28 @@ class Partitioner {
             return resourceWithBaseVersion;
         }
     }
+
+    /**
+     * returns all the collection names for resourceType
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @returns {string[]}
+     */
+    getAllPartitionsForResourceType({resourceType, base_version}) {
+        assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+        return [`${resourceType}_${base_version}`];
+    }
+
+    /**
+     * returns all the collection names for resourceType
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @returns {string[]}
+     */
+    getAllHistoryPartitionsForResourceType({resourceType, base_version}) {
+        assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+        return [`${resourceType}_${base_version}_History`];
+    }
 }
 
 module.exports = {

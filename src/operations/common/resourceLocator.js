@@ -64,7 +64,10 @@ class ResourceLocator {
      */
     getCollectionNamesForQuery() {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return [`${this._resourceType}_${this._base_version}`];
+        return this.partitioner.getAllPartitionsForResourceType({
+            resourceType: this._resourceType,
+            base_version: this._base_version
+        });
     }
 
     /**
@@ -73,7 +76,10 @@ class ResourceLocator {
      */
     getFirstCollectionNameForQuery() {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return [`${this._resourceType}_${this._base_version}`][0];
+        return this.partitioner.getAllPartitionsForResourceType({
+            resourceType: this._resourceType,
+            base_version: this._base_version
+        })[0];
     }
 
     /**
@@ -94,7 +100,10 @@ class ResourceLocator {
      */
     getHistoryCollectionNamesForQuery() {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return [`${this._resourceType}_${this._base_version}_History`];
+        return this.partitioner.getAllHistoryPartitionsForResourceType({
+            resourceType: this._resourceType,
+            base_version: this._base_version
+        });
     }
 
     /**
