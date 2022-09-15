@@ -106,6 +106,24 @@ class CodeableConcept extends Element {
             }
         });
 
+
+        /**
+         * @description Specific instances of data or objects that have been accessed.
+         * @property {AuditEventEntity[]|undefined}
+         */
+        Object.defineProperty(this, '_access', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._access,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null) {
+                    return;
+                }
+                this.__data._access = valueProvided;
+            }
+        });
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -131,6 +149,20 @@ class CodeableConcept extends Element {
             coding: this.coding && this.coding.map(v => v.toJSON()),
             text: this.text,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @return {Object}
+     */
+    toJSONInternal() {
+        const {removeNull} = require('../../../../utils/nullRemover');
+        const json = this.toJSON();
+
+        if (this._access) {
+            json._access = this._access;
+        }
+        return removeNull(json);
     }
 }
 

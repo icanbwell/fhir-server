@@ -20,6 +20,7 @@ const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
+const {Partitioner} = require('../../../operations/common/partitioner');
 
 describe('InternalAuditLog Tests', () => {
     beforeEach(async () => {
@@ -60,13 +61,14 @@ describe('InternalAuditLog Tests', () => {
             const base_version = '4_0_0';
             const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-            const year = fieldDate.getUTCFullYear();
-            const month = fieldDate.getUTCMonth() + 1; // 0 indexed
-            const monthFormatted = String(month).padStart(2, '0');
             /**
              * @type {string}
              */
-            const mongoCollectionName = `${collection_name}_${base_version}_${year}_${monthFormatted}`;
+            const mongoCollectionName = Partitioner.getPartitionNameFromYearMonth(
+                {
+                    fieldValue: fieldDate.toString(),
+                    resourceWithBaseVersion: `${collection_name}_${base_version}`,
+                });
             /**
              * mongo collection
              * @type {import('mongodb').Collection}

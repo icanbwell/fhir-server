@@ -309,7 +309,7 @@ class UpdateOperation {
             const res = await this.databaseQueryFactory.createQuery(
                 {resourceType, base_version, useAtlas}
             ).findOneAndUpdateAsync(
-                {query: {id: id}, update: {$set: doc}, options: {upsert: true}});
+                {query: {id: id}, update: {$set: doc.toJSONInternal()}, options: {upsert: true}});
             // save to history
 
             /**
