@@ -171,7 +171,7 @@ class Partitioner {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
         await this.loadPartitionsFromDatabaseAsync();
         // if partition does not exist yet return default
-        if (!(this.partitionsCache.has(resourceType))) {
+        if (!(this.partitionsCache.has(resourceType)) || this.partitionsCache.get(resourceType).length === 0) {
             return [`${resourceType}_${base_version}`];
         }
         // else return the partition from the cache

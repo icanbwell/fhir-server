@@ -8,7 +8,7 @@ const {
     getHtmlHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('History UI Tests', () => {
     beforeEach(async () => {
@@ -48,8 +48,10 @@ describe('History UI Tests', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
-                .set(getHtmlHeaders())
-                .expect(200);
+                .set(getHtmlHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
 
             console.log('------- response Patient sorted ------------');
             console.log(JSON.stringify(resp, null, 2));
