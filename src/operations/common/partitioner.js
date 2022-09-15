@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-unused-vars
+const env = require('var');
 const partitions = require('./partitions.json');
 const {assertIsValid, assertFail} = require('../../utils/assertType');
 
@@ -15,11 +15,19 @@ class Partitioner {
     getPartitionName(resource) {
         const resourceType = resource.resourceType;
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
-        // see if there is a partition defined for this resource
-        const partition = partitions[`${resourceType}`];
-        if (partition) {
-            const field = partition['field'];
-            const type = partition['type'];
+        // see if there is a partitionConfig defined for this resource
+        const partitionConfig = partitions[`${resourceType}`];
+        // see if resourceType is in list of resources we want to partitionConfig in this environment
+        /**
+         * @type {string|undefined}
+         */
+        const partitionResourcesString = env.PARTITION_RESOURCES;
+        const partitionResources = partitionResourcesString ?
+            partitionResourcesString.split(',').map(s => s.trim()) : [];
+        // if partitionConfig found then use that to calculate the name of the partitionConfig
+        if (partitionConfig && partitionResources.includes(resourceType)) {
+            const field = partitionConfig['field'];
+            const type = partitionConfig['type'];
             switch (type) {
                 case 'year-month': {// get value of field
                     const fieldValue = resource[`${field}`];
