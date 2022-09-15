@@ -324,7 +324,7 @@ class GraphHelper {
          */
         const args = this.parseQueryStringIntoArgs(reverseFilterWithParentIds);
         const searchParameterName = Object.keys(args)[0];
-        let query = buildR4SearchQuery(relatedResourceType, args).query;
+        let query = buildR4SearchQuery({resourceType: relatedResourceType, args}).query;
 
         /**
          * @type {string[]}

@@ -24,7 +24,7 @@ const {filterByCanonical} = require('./filters/canonical');
  * @param {Object} args
  * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
  */
-module.exports.buildR4SearchQuery = (resourceType, args) => {
+module.exports.buildR4SearchQuery = ({resourceType, args}) => {
     // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
     // ---- start of backward compatibility mappings ---
     if (args['source'] && !args['_source']) {

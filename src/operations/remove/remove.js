@@ -123,7 +123,7 @@ class RemoveOperation {
                 } else if (base_version === VERSIONS['1_0_2']) {
                     query = buildDstu2SearchQuery(args);
                 } else {
-                    ({query} = buildR4SearchQuery(resourceType, args));
+                    ({query} = buildR4SearchQuery({resourceType, args}));
                 }
             } catch (e) {
                 throw e;
