@@ -131,12 +131,11 @@ class Partitioner {
                         await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
                         return resourceWithBaseVersion;
                     } else {
-                        // extract month
-                        const fieldDate = new Date(fieldValue);
-                        const year = fieldDate.getUTCFullYear();
-                        const month = fieldDate.getUTCMonth() + 1; // 0 indexed
-                        const monthFormatted = String(month).padStart(2, '0');
-                        const partition = `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
+                        /**
+                         * @type {string}
+                         */
+                        const partition = Partitioner.getPartitionNameFromYearMonth(
+                            {fieldValue, resourceWithBaseVersion});
                         await this.addPartitionsToCacheAsync({resourceType, partition});
                         return partition;
                     }
@@ -157,6 +156,20 @@ class Partitioner {
             await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
             return resourceWithBaseVersion;
         }
+    }
+
+    /**
+     * @param {string} fieldValue
+     * @param {string} resourceWithBaseVersion
+     * @returns {string}
+     */
+    static getPartitionNameFromYearMonth({fieldValue, resourceWithBaseVersion}) {
+        const fieldDate = new Date(fieldValue);
+        const year = fieldDate.getUTCFullYear();
+        const month = fieldDate.getUTCMonth() + 1; // 0 indexed
+        const monthFormatted = String(month).padStart(2, '0');
+        const partition = `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
+        return partition;
     }
 
     /**
@@ -188,8 +201,8 @@ class Partitioner {
         assertIsValid(resourceType, 'resourceType is empty');
 
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
-        return await this.getAllPartitionsForResourceTypeAsync({resourceType, base_version})
-            .map(partition => `${partition}_History`);
+        const partitions = await this.getAllPartitionsForResourceTypeAsync({resourceType, base_version});
+        return partitions.map(partition => `${partition}_History`);
     }
 }
 
