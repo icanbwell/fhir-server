@@ -11,7 +11,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('AuditEventRecordedTests', () => {
     beforeEach(async () => {
@@ -44,6 +44,15 @@ describe('AuditEventRecordedTests', () => {
                     '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-06-01&_bundle=1'
                 )
                 .set(getHeaders());
+
+            expectedAuditEventResource.meta.tag.forEach((tag) => {
+                if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
+                    tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
+                }
+                if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
+                    tag['code'] = 'AuditEvent_4_0_0_2021_09';
+                }
+            });
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource);
 
@@ -53,6 +62,15 @@ describe('AuditEventRecordedTests', () => {
                     '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-09-19&_bundle=1'
                 )
                 .set(getHeaders());
+
+            expectedAuditEventResource2.meta.tag.forEach((tag) => {
+                if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
+                    tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
+                }
+                if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
+                    tag['code'] = 'AuditEvent_4_0_0_2021_09';
+                }
+            });
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResource2);
         });
