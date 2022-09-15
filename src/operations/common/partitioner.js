@@ -9,12 +9,15 @@ class Partitioner {
     /**
      * returns the collection name for this resource
      * @param {Resource} resource
+     * @param {string} base_version
      * @returns {string}
      */
     // eslint-disable-next-line no-unused-vars
-    getPartitionName(resource) {
+    getPartitionName({resource, base_version}) {
         const resourceType = resource.resourceType;
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+        const resourceWithBaseVersion = `${resourceType}_${base_version}`;
+
         // see if there is a partitionConfig defined for this resource
         const partitionConfig = partitions[`${resourceType}`];
         // see if resourceType is in list of resources we want to partitionConfig in this environment
@@ -32,14 +35,14 @@ class Partitioner {
                 case 'year-month': {// get value of field
                     const fieldValue = resource[`${field}`];
                     if (!fieldValue) {
-                        return `${resourceType}`;
+                        return resourceWithBaseVersion;
                     } else {
                         // extract month
                         const fieldDate = new Date(fieldValue);
                         const year = fieldDate.getUTCFullYear();
                         const month = fieldDate.getUTCMonth() + 1; // 0 indexed
                         const monthFormatted = String(month).padStart(2, '0');
-                        return `${resourceType}_${year}_${monthFormatted}`;
+                        return `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
                     }
                 }
                     // eslint-disable-next-line no-unreachable
@@ -55,7 +58,7 @@ class Partitioner {
 
             }
         } else {
-            return `${resourceType}`;
+            return resourceWithBaseVersion;
         }
     }
 }

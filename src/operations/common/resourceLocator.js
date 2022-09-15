@@ -54,8 +54,8 @@ class ResourceLocator {
     // eslint-disable-next-line no-unused-vars
     getCollectionName(resource) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        const partition = this.partitioner.getPartitionName(resource);
-        return `${partition}_${this._base_version}`;
+        const partition = this.partitioner.getPartitionName({resource, base_version: this._base_version});
+        return partition;
     }
 
     /**
@@ -84,8 +84,8 @@ class ResourceLocator {
 // eslint-disable-next-line no-unused-vars
     getHistoryCollectionName(resource) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
-        const partition = this.partitioner.getPartitionName(resource);
-        return `${partition}_${this._base_version}_History`;
+        const partition = this.partitioner.getPartitionName({resource, base_version: this._base_version});
+        return `${partition}_History`;
     }
 
     /**

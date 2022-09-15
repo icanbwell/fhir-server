@@ -66,7 +66,7 @@ describe('InternalAuditLog Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName = `${collection_name}_${year}_${monthFormatted}_${base_version}`;
+            const mongoCollectionName = `${collection_name}_${base_version}_${year}_${monthFormatted}`;
             /**
              * mongo collection
              * @type {import('mongodb').Collection}
