@@ -41,6 +41,7 @@ jobs:
         strategy:
             matrix:
                 chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
+            fail-fast: false
         steps:
             - uses: actions/checkout@v2
             - name: Use Node.js 16.17.x
