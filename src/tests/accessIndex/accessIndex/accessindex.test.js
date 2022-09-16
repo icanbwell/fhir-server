@@ -1,5 +1,6 @@
 // test file
 const auditevent1Resource = require('./fixtures/AuditEvent/auditevent1.json');
+const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 // expected
 const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
@@ -10,7 +11,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {Partitioner} = require('../../../operations/common/partitioner');
 const globals = require('../../../globals');
-const {AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
+const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../../constants');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
@@ -102,6 +103,51 @@ describe('AuditEvent Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
+        });
+        test('accessIndex works even fo resources not on partitinnResources', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+            // first confirm there are no AuditEvent
+            let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            // ARRANGE
+            // add the resources to FHIR server
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync();
+
+            /**
+             * @type {string}
+             */
+            const mongoCollectionName = 'Patient_4_0_0';
+            /**
+             * mongo fhirDb connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = globals.get(CLIENT_DB);
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            let patientCollection = fhirDb.collection(mongoCollectionName);
+            /**
+             * @type {import('mongodb').DefaultSchema[]}
+             */
+            const patientEntries = await patientCollection.find({}).toArray();
+            expect(patientEntries[0]._access.medstar).toBe(1);
         });
     });
 });
