@@ -1,4 +1,5 @@
 const env = require('var');
+const {isTrue} = require('./isTrue');
 
 class ConfigManager {
     /**
@@ -19,6 +20,10 @@ class ConfigManager {
             env.COLLECTIONS_ACCESS_INDEX && env.COLLECTIONS_ACCESS_INDEX.split(',')
                 .map((col) => col.trim())
         ) || [];
+    }
+
+    get useAccessIndex() {
+        return isTrue(env.USE_ACCESS_INDEX);
     }
 }
 

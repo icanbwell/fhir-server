@@ -14,6 +14,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {ConfigManager} = require('../../utils/configManager');
 
 class RemoveOperation {
     /**
@@ -22,6 +23,7 @@ class RemoveOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -29,7 +31,8 @@ class RemoveOperation {
             auditLogger,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            configManager
         }
     ) {
         /**
@@ -58,6 +61,11 @@ class RemoveOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -123,7 +131,11 @@ class RemoveOperation {
                 } else if (base_version === VERSIONS['1_0_2']) {
                     query = buildDstu2SearchQuery(args);
                 } else {
-                    ({query} = buildR4SearchQuery({resourceType, args}));
+                    ({query} = buildR4SearchQuery(
+                        {
+                            resourceType, args,
+                            useAccessIndex: this.configManager.useAccessIndex
+                        }));
                 }
             } catch (e) {
                 throw e;
