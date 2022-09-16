@@ -11,11 +11,11 @@ function isPeriodField(fieldString) {
  * @param {string | string[]} queryParameterValue
  * @param {import('../common/types').SearchParameterDefinition} propertyObj
  * @param {Object[]} and_segments
- * @param {string} resourceName
+ * @param {string} resourceType
  * @param {Set} columns
  * @returns {*[]}
  */
-function filterByDateTime(queryParameterValue, propertyObj, and_segments, resourceName, columns) {
+function filterByDateTime({queryParameterValue, propertyObj, and_segments, resourceType, columns}) {
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }
@@ -62,7 +62,7 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
             });
         } else if (
             propertyObj.field === 'meta.lastUpdated' ||
-            isColumnDateType(resourceName, propertyObj.field)
+            isColumnDateType(resourceType, propertyObj.field)
         ) {
             // if this of native Date type
             // this field stores the date as a native date, so we can do faster queries
@@ -85,5 +85,5 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
 }
 
 module.exports = {
-    filterByDateTime: filterByDateTime,
+    filterByDateTime,
 };

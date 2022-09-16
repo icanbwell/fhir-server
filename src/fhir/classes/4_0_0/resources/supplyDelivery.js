@@ -476,6 +476,24 @@ class SupplyDelivery extends Resource {
             }
         });
 
+
+        /**
+         * @description Specific instances of data or objects that have been accessed.
+         * @property {AuditEventEntity[]|undefined}
+         */
+        Object.defineProperty(this, '_access', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._access,
+            set: valueProvided => {
+                if (valueProvided === undefined || valueProvided === null) {
+                    return;
+                }
+                this.__data._access = valueProvided;
+            }
+        });
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -630,6 +648,20 @@ class SupplyDelivery extends Resource {
             destination: this.destination && this.destination.toJSON(),
             receiver: this.receiver && this.receiver.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @return {Object}
+     */
+    toJSONInternal() {
+        const {removeNull} = require('../../../../utils/nullRemover');
+        const json = this.toJSON();
+
+        if (this._access) {
+            json._access = this._access;
+        }
+        return removeNull(json);
     }
 }
 

@@ -7,7 +7,7 @@
  * @param {string} queryParameter
  * @param {Set} columns
  */
-function filterByAboveAndBelow(and_segments, propertyObj, args, queryParameter, columns) {
+function filterByAboveAndBelow({and_segments, propertyObj, args, queryParameter, columns}) {
     and_segments.push({
         [`${propertyObj.field}`]: {
             $gt: args[`${queryParameter}:above`],

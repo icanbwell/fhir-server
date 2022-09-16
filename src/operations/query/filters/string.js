@@ -7,7 +7,7 @@
  * @param {import('../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
  */
-function filterByString(queryParameterValue, and_segments, propertyObj, columns) {
+function filterByString({queryParameterValue, and_segments, propertyObj, columns}) {
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
 

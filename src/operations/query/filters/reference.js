@@ -8,7 +8,7 @@ const { referenceQueryBuilder } = require('../../../utils/querybuilder.util');
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
  */
-function filterByReference(propertyObj, and_segments, queryParameterValue, columns) {
+function filterByReference({propertyObj, and_segments, queryParameterValue, columns}) {
     if (propertyObj.target.length === 1) {
         // handle simple case without an OR to keep it simple
         const target = propertyObj.target[0];

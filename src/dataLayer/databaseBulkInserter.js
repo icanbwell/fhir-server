@@ -188,7 +188,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 resourceType,
                 operation: {
                     insertOne: {
-                        document: doc.toJSON()
+                        document: doc.toJSONInternal()
                     }
                 }
             }
@@ -208,7 +208,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 resourceType,
                 operation: {
                     insertOne: {
-                        document: doc.toJSON()
+                        document: doc.toJSONInternal()
                     }
                 }
             }
@@ -232,7 +232,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     replaceOne: {
                         filter: {id: id.toString()},
                         // upsert: true,
-                        replacement: doc.toJSON()
+                        replacement: doc.toJSONInternal()
                     }
                 }
             }

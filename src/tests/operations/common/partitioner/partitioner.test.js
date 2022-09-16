@@ -59,13 +59,13 @@ describe('Partitioner Tests', () => {
             await fhirDb.collection(mongoCollectionName1).insertOne({foo: 1});
             // now add the Audit Event
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-            const year = fieldDate.getUTCFullYear();
-            const month = fieldDate.getUTCMonth() + 1; // 0 indexed
-            const monthFormatted = String(month).padStart(2, '0');
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = `AuditEvent_4_0_0_${year}_${monthFormatted}`;
+            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+                fieldValue: fieldDate.toString(),
+                resourceWithBaseVersion: 'AuditEvent_4_0_0'
+            });
             /**
              * mongo connection
              * @type {import('mongodb').Db}
@@ -93,13 +93,13 @@ describe('Partitioner Tests', () => {
             await auditEventDb.collection(mongoCollectionName1).insertOne({foo: 1});
             // now add the Audit Event
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-            const year = fieldDate.getUTCFullYear();
-            const month = fieldDate.getUTCMonth() + 1; // 0 indexed
-            const monthFormatted = String(month).padStart(2, '0');
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = `AuditEvent_4_0_0_${year}_${monthFormatted}`;
+            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+                resourceWithBaseVersion: 'AuditEvent_4_0_0',
+                fieldValue: fieldDate.toString()
+            });
             await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
             await partitioner.loadPartitionsFromDatabaseAsync();
             expect(partitioner.partitionsCache.size).toBe(2);
@@ -138,20 +138,23 @@ describe('Partitioner Tests', () => {
             await auditEventDb.collection(mongoCollectionName1).insertOne({foo: 1});
             // now add the Audit Event
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-            const year = fieldDate.getUTCFullYear();
-            const month = fieldDate.getUTCMonth() + 1; // 0 indexed
-            const monthFormatted = String(month).padStart(2, '0');
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = `AuditEvent_4_0_0_${year}_${monthFormatted}`;
+            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+                fieldValue: fieldDate.toString(),
+                resourceWithBaseVersion: 'AuditEvent_4_0_0'
+            });
             await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
 
             // noinspection JSValidateTypes
             /**
              * @type {Resource}
              */
-            const resource = {resourceType: 'AuditEvent', recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'))};
+            const resource = {
+                resourceType: 'AuditEvent',
+                recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'))
+            };
             const partition = await partitioner.getPartitionNameAsync({
                 resource: resource,
                 base_version: '4_0_0'

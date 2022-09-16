@@ -115,7 +115,9 @@ class SearchManager {
             } else if (base_version === VERSIONS['1_0_2']) {
                 query = buildDstu2SearchQuery(args);
             } else {
-                ({query, columns} = buildR4SearchQuery(resourceType, args));
+                ({query, columns} = buildR4SearchQuery({
+                    resourceType, args, useAccessIndex
+                }));
             }
         } catch (e) {
             throw e;

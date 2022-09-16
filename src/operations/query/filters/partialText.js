@@ -9,7 +9,7 @@ const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {import('../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
  */
-function filterByPartialText(args, queryParameter, and_segments, propertyObj, columns) {
+function filterByPartialText({args, queryParameter, and_segments, propertyObj, columns}) {
     // implement the modifier for partial text search
     // https://www.hl7.org/fhir/search.html#modifiers
     /**

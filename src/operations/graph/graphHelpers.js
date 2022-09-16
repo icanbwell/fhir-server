@@ -16,6 +16,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
+const {ConfigManager} = require('../../utils/configManager');
 
 /**
  * This class helps with creating graph responses
@@ -26,13 +27,15 @@ class GraphHelper {
      * @param {SecurityTagManager} securityTagManager
      * @param {ScopesManager} scopesManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
             databaseQueryFactory,
             securityTagManager,
             scopesManager,
-            scopesValidator
+            scopesValidator,
+            configManager
         }
     ) {
         /**
@@ -57,6 +60,11 @@ class GraphHelper {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -324,7 +332,10 @@ class GraphHelper {
          */
         const args = this.parseQueryStringIntoArgs(reverseFilterWithParentIds);
         const searchParameterName = Object.keys(args)[0];
-        let query = buildR4SearchQuery(relatedResourceType, args).query;
+        let query = buildR4SearchQuery({
+            resourceType: relatedResourceType, args,
+            useAccessIndex: this.configManager.useAccessIndex
+        }).query;
 
         /**
          * @type {string[]}

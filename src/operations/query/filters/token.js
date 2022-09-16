@@ -9,7 +9,7 @@ const {tokenQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {Set} columns
  * @returns {*[]}
  */
-function filterByToken(queryParameterValue, propertyObj, and_segments, columns) {
+function filterByToken({queryParameterValue, propertyObj, and_segments, columns}) {
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }

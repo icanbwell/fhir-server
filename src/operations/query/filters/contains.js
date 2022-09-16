@@ -19,7 +19,7 @@ function paramMatch(fields, name) {
  * @param {Object} args
  * @param {Set} columns
  */
-function filterByContains(and_segments, propertyObj, queryParameter, args, columns) {
+function filterByContains({and_segments, propertyObj, queryParameter, args, columns}) {
     and_segments.push({
         [`${propertyObj.field || paramMatch(propertyObj.fields, queryParameter)}`]:
             {

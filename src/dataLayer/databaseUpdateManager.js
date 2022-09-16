@@ -47,7 +47,7 @@ class DatabaseUpdateManager {
      */
     async insertOneAsync({doc}) {
         const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
-        await collection.insertOne(doc.toJSON());
+        await collection.insertOne(doc.toJSONInternal());
     }
 }
 

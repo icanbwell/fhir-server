@@ -197,7 +197,8 @@ const createContainer = function () {
                 databaseQueryFactory: c.databaseQueryFactory,
                 securityTagManager: c.securityTagManager,
                 scopesManager: c.scopesManager,
-                scopesValidator: c.scopesValidator
+                scopesValidator: c.scopesValidator,
+                configManager: c.configManager
             }
         )
     );
@@ -295,7 +296,8 @@ const createContainer = function () {
             auditLogger: c.auditLogger,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            configManager: c.configManager
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(

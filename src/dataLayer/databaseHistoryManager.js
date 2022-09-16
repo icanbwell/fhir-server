@@ -63,7 +63,7 @@ class DatabaseHistoryManager {
     async insertHistoryForResourceAsync({doc}) {
         assertTypeEquals(doc, Resource);
         const collection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(doc);
-        await collection.insertOne(doc.toJSON());
+        await collection.insertOne(doc.toJSONInternal());
     }
 
     /**
