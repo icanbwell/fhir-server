@@ -27,24 +27,24 @@ class MongoCollectionManager {
     /**
      * Gets or creates a collection
      * @param {import('mongodb').Db} db
-     * @param {string} collection_name
+     * @param {string} collectionName
      * @return {Promise<import('mongodb').Collection>}
      */
-    async getOrCreateCollectionAsync({db, collection_name}) {
+    async getOrCreateCollectionAsync({db, collectionName}) {
         assertIsValid(db !== undefined);
-        assertIsValid(collection_name !== undefined);
+        assertIsValid(collectionName !== undefined);
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
         await mutex.runExclusive(async () => {
-            const collectionExists = await db.listCollections({name: collection_name}, {nameOnly: true}).hasNext();
+            const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
             if (!collectionExists) {
-                await db.createCollection(collection_name);
+                await db.createCollection(collectionName);
                 if (isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION)) {
                     // and index it
-                    await this.indexManager.indexCollectionAsync(collection_name, db);
+                    await this.indexManager.indexCollectionAsync({collectionName, db});
                 }
             }
         });
-        return db.collection(collection_name);
+        return db.collection(collectionName);
     }
 }
 

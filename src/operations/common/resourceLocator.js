@@ -129,7 +129,7 @@ class ResourceLocator {
          */
         const db = await this.getDatabaseConnectionAsync();
         return await this.collectionManager.getOrCreateCollectionAsync(
-            {db, collection_name: collectionName});
+            {db, collectionName});
     }
 
     /**
@@ -161,7 +161,7 @@ class ResourceLocator {
         const db = await this.getDatabaseConnectionAsync();
         return async.map(collectionNames,
             async collectionName => await this.collectionManager.getOrCreateCollectionAsync(
-                {db, collection_name: collectionName}));
+                {db, collectionName}));
     }
 
     /**
@@ -180,7 +180,7 @@ class ResourceLocator {
         const db = await this.getDatabaseConnectionAsync();
         return async.map(collectionNames,
             async collectionName => await this.collectionManager.getOrCreateCollectionAsync(
-                {db, collection_name: collectionName}));
+                {db, collectionName}));
     }
 
     /**
@@ -198,7 +198,7 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = await this.getDatabaseConnectionAsync();
-        return await this.collectionManager.getOrCreateCollectionAsync({db, collection_name: collectionName});
+        return await this.collectionManager.getOrCreateCollectionAsync({db, collectionName});
     }
 }
 

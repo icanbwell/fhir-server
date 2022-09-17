@@ -1,12 +1,13 @@
 /**
  * This file implements a background long-running task to apply indexes to mongo db
  */
-const { ErrorReporter } = require('../utils/slack.logger');
+const {ErrorReporter} = require('../utils/slack.logger');
 
 // This runs in a separate process to index so the main thread is not blocked
 // from https://riptutorial.com/node-js/example/21833/processing-long-running-queries-with-node
 
-const { IndexManager } = require('../indexes/index.util');
+const {IndexManager} = require('../indexes/index.util');
+const {getImageVersion} = require('../utils/getImageVersion');
 
 // eslint-disable-next-line no-unused-vars
 process.on('message', async (params) => {
@@ -14,18 +15,18 @@ process.on('message', async (params) => {
     console.log('message:' + params);
     const message = params.message;
     const tableName = params.tableName;
-    process.send({ status: 'We have started processing your data.' });
+    process.send({status: 'We have started processing your data.'});
 
-    const errorReporter = new ErrorReporter();
+    const errorReporter = new ErrorReporter(getImageVersion());
     try {
-        const indexManager = new IndexManager({ errorReporter: new ErrorReporter() });
+        const indexManager = new IndexManager({errorReporter});
         if (message === 'Start Index') {
             console.log('==== Starting indexing in separate process ====');
             await errorReporter.reportMessageAsync({
                 source: 'indexerTask',
                 message: 'Starting indexing in separate process',
             });
-            const collection_stats = await indexManager.indexAllCollectionsAsync(tableName);
+            const collection_stats = await indexManager.indexAllCollectionsAsync({tableName});
             await errorReporter.reportMessageAsync({
                 source: 'indexerTask',
                 message: 'Finished indexing in separate process',
@@ -42,7 +43,7 @@ process.on('message', async (params) => {
                 source: 'indexerTask',
                 message: 'Starting deleting indexes in separate process',
             });
-            await indexManager.deleteIndexesInAllCollectionsAsync(tableName);
+            await indexManager.deleteIndexesInAllCollectionsAsync({tableName});
             await errorReporter.reportMessageAsync({
                 source: 'indexerTask',
                 message: 'Finished deleting index in separate process',
@@ -52,7 +53,7 @@ process.on('message', async (params) => {
                 source: 'indexerTask',
                 message: 'Starting indexing in separate process',
             });
-            const collection_stats = await indexManager.indexAllCollectionsAsync(tableName);
+            const collection_stats = await indexManager.indexAllCollectionsAsync({tableName});
             await errorReporter.reportMessageAsync({
                 source: 'indexerTask',
                 message: 'Finished indexing in separate process',
