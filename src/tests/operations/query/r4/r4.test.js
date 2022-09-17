@@ -34,5 +34,14 @@ describe('AuditEvent Tests', () => {
             expect(result.query.$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['2']['_access.medstar']).toBe(1);
         });
+        test('r4 works with Task and subject', async () => {
+            const args = {
+                'subject': 'Patient/1234'
+            };
+            const result = buildR4SearchQuery({
+                resourceType: 'Task', args, useAccessIndex: false
+            });
+            expect(result.query.$and['0']['for.reference']).toStrictEqual('Patient/1234');
+        });
     });
 });

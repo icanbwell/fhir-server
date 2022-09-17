@@ -7,7 +7,7 @@
 
 // const controllers1 = require('@asymmetrik/node-fhir-server-core/dist/server/resources/1_0_2/controllers');
 
-const {GenericController} = require('./4_0_0/controllers/generic_controller');
+const {GenericController} = require('./4_0_0/controllers/generic.controller');
 const {assertTypeEquals} = require('../../utils/assertType');
 
 class ControllerUtils {

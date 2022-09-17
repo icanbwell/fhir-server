@@ -74,6 +74,7 @@ class PatchOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
     async patch(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -192,6 +193,7 @@ class PatchOperation {
                 id: doc.id,
                 created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
                 resource_version: doc.meta.versionId,
+                resource: doc
             };
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

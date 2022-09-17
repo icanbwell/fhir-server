@@ -1,15 +1,19 @@
-const handler = require('../../fhir-response-util');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
+const {FhirResponseWriter} = require('../../fhirResponseWriter');
 
 class CustomOperationsController {
     /**
      * constructor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirOperationsManager} fhirOperationsManager
+     * @param {FhirResponseWriter} fhirResponseWriter
      */
-    constructor({postRequestProcessor, fhirOperationsManager}) {
+    constructor({
+                    postRequestProcessor, fhirOperationsManager,
+                    fhirResponseWriter
+                }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
          * @type {PostRequestProcessor}
@@ -20,6 +24,11 @@ class CustomOperationsController {
          * @type {FhirOperationsManager}
          */
         this.fhirOperationsManager = fhirOperationsManager;
+        /**
+         * @type {FhirResponseWriter}
+         */
+        this.fhirResponseWriter = fhirResponseWriter;
+        assertTypeEquals(fhirResponseWriter, FhirResponseWriter);
     }
 
     /**
@@ -47,10 +56,14 @@ class CustomOperationsController {
             };
 
             try {
-                const results = await this.fhirOperationsManager[`${name}`](args, {
+                const result = await this.fhirOperationsManager[`${name}`](args, {
                     req
                 }, resourceType);
-                handler.read(req, res, results);
+                if (name === 'merge') {
+                    this.fhirResponseWriter.merge({req, res, result});
+                } else {
+                    this.fhirResponseWriter.readCustomOperation({req, res, result});
+                }
             } catch (e) {
                 next(e);
             } finally {
@@ -73,11 +86,11 @@ class CustomOperationsController {
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const results = await
+                const result = await
                     this.fhirOperationsManager[`${name}`](req.sanitized_args, {
                         req
                     }, resourceType);
-                handler.read(req, res, results);
+                this.fhirResponseWriter.readCustomOperation({req, res, result});
             } catch (e) {
                 next(e);
             } finally {
