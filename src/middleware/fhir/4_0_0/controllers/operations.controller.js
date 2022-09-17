@@ -1,15 +1,17 @@
-const handler = require('../../fhir-response-util');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
+const {FhirResponseWriter} = require('../../fhir-response-util');
 
 class CustomOperationsController {
     /**
      * constructor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirOperationsManager} fhirOperationsManager
+     * @param {FhirResponseWriter} fhirResponseWriter
      */
-    constructor({postRequestProcessor, fhirOperationsManager}) {
+    constructor({postRequestProcessor, fhirOperationsManager,
+                fhirResponseWriter}) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
          * @type {PostRequestProcessor}
@@ -20,6 +22,11 @@ class CustomOperationsController {
          * @type {FhirOperationsManager}
          */
         this.fhirOperationsManager = fhirOperationsManager;
+        /**
+         * @type {FhirResponseWriter}
+         */
+        this.fhirResponseWriter = fhirResponseWriter;
+        assertTypeEquals(fhirResponseWriter, FhirResponseWriter);
     }
 
     /**
@@ -50,7 +57,7 @@ class CustomOperationsController {
                 const results = await this.fhirOperationsManager[`${name}`](args, {
                     req
                 }, resourceType);
-                handler.read(req, res, results);
+                this.fhirResponseWriter.read({req, res, json: results});
             } catch (e) {
                 next(e);
             } finally {
@@ -77,7 +84,7 @@ class CustomOperationsController {
                     this.fhirOperationsManager[`${name}`](req.sanitized_args, {
                         req
                     }, resourceType);
-                handler.read(req, res, results);
+                this.fhirResponseWriter.read({req, res, json: results});
             } catch (e) {
                 next(e);
             } finally {

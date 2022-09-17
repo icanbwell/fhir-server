@@ -2,171 +2,179 @@ const path = require('path');
 
 // const assert = require('node:assert/strict');
 
-/**
- * @function getContentType
- * @description Get the correct application type for the response
- * @param {string} version Version of resources we are working with
- */
-function getContentType(version) {
-    switch (version) {
-        case '1_0_2':
-            return 'application/json+fhir';
-        case '3_0_1':
-        case '4_0_0':
-            return 'application/fhir+json';
-        default:
-            return 'application/json';
-    }
-}
-
-/**
- * @function read
- * @description Used when you are returning a Bundle of resources
- * @param {import('http').IncomingMessage} req - Express request object
- * @param {import('http').ServerResponse} res - Express response object
- * @param {Object} json - json to send to client
- */
-function read(req, res, json) {
-    let fhirVersion = req.params.base_version;
-    res.type(getContentType(fhirVersion));
-
-    // assert(req.id);
-    if (req.id && !res.headersSent) {
-        res.setHeader('X-Request-ID', String(req.id));
-    }
-    res.status(200).json(json);
-}
-
-/**
- * @function readOne
- * @description Used when you are returning a single resource of any type
- * @param {import('http').IncomingMessage} req - Express request object
- * @param {import('http').ServerResponse} res - Express response object
- * @param {Object} resource - resource to send to client
- */
-function readOne(req, res, resource) {
-    let fhirVersion = req.params.base_version;
-
-    if (resource && resource.meta) {
-        res.set('Last-Modified', resource.meta.lastUpdated);
-        res.set('ETag', `W/"${resource.meta.versionId}"`);
+class FhirResponseWriter {
+    constructor() {
     }
 
-    res.type(getContentType(fhirVersion));
-    if (req.id && !res.headersSent) {
-        res.setHeader('X-Request-ID', String(req.id));
-    }
-    if (!resource) {
-        res.sendStatus(404);
-    } else {
-        res.status(200).json(resource);
-    }
-}
 
-/**
- * @function create
- * @description Used when you are creating a single resource of any type
- * @param {import('http').IncomingMessage} req - Express request object
- * @param {import('http').ServerResponse} res - Express response object
- * @param {Object} json - json to send to client
- * @param {Object} options - Any additional options necessary to generate response
- */
-function create(req, res, json, options) {
-    let fhirVersion = req.params.base_version ? req.params.base_version : '';
-    let baseUrl = `${req.protocol}://${req.get('host')}`;
-
-    // https://hl7.org/fhir/http.html#create
-    let location;
-    if (fhirVersion === '') {
-        location = `${options.type}/${json.id}`;
-    } else {
-        location = `${fhirVersion}/${options.type}/${json.id}`;
+    /**
+     * @function getContentType
+     * @description Get the correct application type for the response
+     * @param {string} version Version of resources we are working with
+     */
+    getContentType(version) {
+        switch (version) {
+            case '1_0_2':
+                return 'application/json+fhir';
+            case '3_0_1':
+            case '4_0_0':
+                return 'application/fhir+json';
+            default:
+                return 'application/json';
+        }
     }
 
-    if (json.meta.versionId) {
-        let pathname = path.posix.join(location, '_history', json.meta.versionId);
-        res.set('Content-Location', `${baseUrl}/${pathname}`);
-        res.set('ETag', json.meta.versionId);
-    }
-    if (req.id && !res.headersSent) {
-        res.setHeader('X-Request-ID', String(req.id));
-    }
-    res.set('Location', location);
-    // https://hl7.org/fhir/http.html#ops
-    if (req.headers.prefer && req.headers.prefer === 'return=representation') {
-        res.status(201).json(json).end();
-    } else {
-        res.status(201).end();
-    }
-}
+    /**
+     * @function read
+     * @description Used when you are returning a Bundle of resources
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('http').ServerResponse} res - Express response object
+     * @param {Object} json - json to send to client
+     */
+    read({req, res, json}) {
+        let fhirVersion = req.params.base_version;
+        res.type(this.getContentType(fhirVersion));
 
-/**
- * @function update
- * @description Used when you are updating a single resource of any type
- * @param {import('http').IncomingMessage} req - Express request object
- * @param {import('http').ServerResponse} res - Express response object
- * @param {Object} json - json to send to client
- * @param {Object} options - Any additional options necessary to generate response
- */
-function update(req, res, json, options) {
-    let fhirVersion = req.params.base_version;
-    let baseUrl = `${req.protocol}://${req.get('host')}`;
-    let location = `${fhirVersion}/${options.type}/${json.id}`;
-    let status = json.created ? 201 : 200;
-    let date = new Date();
+        // assert(req.id);
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+        res.status(200).json(json);
+    }
 
-    if (json.resource_version) {
-        let pathname = path.posix.join(location, '_history', json.resource_version);
-        res.set('Content-Location', `${baseUrl}/${pathname}`);
-        res.set('ETag', json.resource_version);
-    }
-    res.set('Last-Modified', date.toISOString());
-    res.type(getContentType(fhirVersion));
-    res.set('Location', location);
-    if (req.id && !res.headersSent) {
-        res.setHeader('X-Request-ID', String(req.id));
-    }
-    res.status(status).end();
-}
+    /**
+     * @function readOne
+     * @description Used when you are returning a single resource of any type
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('http').ServerResponse} res - Express response object
+     * @param {Object} resource - resource to send to client
+     */
+    readOne({req, res, resource}) {
+        let fhirVersion = req.params.base_version;
 
-/**
- * @function remove
- * @description Used when you are deleting a single resource of any type
- * @param {import('http').IncomingMessage} req - Express request object
- * @param {import('http').ServerResponse} res - Express response object
- * @param {Object} json - json to send to client
- */
-function remove(req, res, json) {
-    if (json && json.deleted) {
-        res.set('ETag', json.deleted);
-    }
-    if (req.id && !res.headersSent) {
-        res.setHeader('X-Request-ID', String(req.id));
-    }
-    res.status(204).end();
-}
+        if (resource && resource.meta) {
+            res.set('Last-Modified', resource.meta.lastUpdated);
+            res.set('ETag', `W/"${resource.meta.versionId}"`);
+        }
 
-/**
- * @function history
- * @description Used when you are querying the history of a resource of any type
- * @param {import('http').IncomingMessage} req - Express request object
- * @param {import('http').ServerResponse} res - Express response object
- * @param {Object} json - json to send to client
- */
-function history(req, res, json) {
-    let version = req.params.base_version;
-    res.type(getContentType(version));
-    if (req.id && !res.headersSent) {
-        res.setHeader('X-Request-ID', String(req.id));
+        res.type(this.getContentType(fhirVersion));
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+        if (!resource) {
+            res.sendStatus(404);
+        } else {
+            res.status(200).json(resource);
+        }
     }
-    res.status(200).json(json);
+
+    /**
+     * @function create
+     * @description Used when you are creating a single resource of any type
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('http').ServerResponse} res - Express response object
+     * @param {{id: string}} json - json to send to client
+     * @param {{type: string}} options - Any additional options necessary to generate response
+     */
+    create({req, res, json, options}) {
+        let fhirVersion = req.params.base_version ? req.params.base_version : '';
+        let baseUrl = `${req.protocol}://${req.get('host')}`;
+
+        // https://hl7.org/fhir/http.html#create
+        let location;
+        if (fhirVersion === '') {
+            location = `${options.type}/${json.id}`;
+        } else {
+            location = `${fhirVersion}/${options.type}/${json.id}`;
+        }
+
+        if (json.meta && json.meta.versionId) {
+            let pathname = path.posix.join(location, '_history', json.meta.versionId);
+            res.set('Content-Location', `${baseUrl}/${pathname}`);
+            res.set('ETag', json.meta.versionId);
+        }
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+        res.set('Location', location);
+        // https://hl7.org/fhir/http.html#ops
+        if (req.headers.prefer && req.headers.prefer === 'return=representation') {
+            res.status(201).json(json).end();
+        } else {
+            res.status(201).end();
+        }
+        //TODO: handle return=OperationOutcome
+    }
+
+    /**
+     * @function update
+     * @description Used when you are updating a single resource of any type
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('http').ServerResponse} res - Express response object
+     * @param {{id: string, resource_version: string|undefined}} json - json to send to client
+     * @param {{type: string}} options - Any additional options necessary to generate response
+     */
+    update({req, res, json, options}) {
+        let fhirVersion = req.params.base_version;
+        let baseUrl = `${req.protocol}://${req.get('host')}`;
+        let location = `${fhirVersion}/${options.type}/${json.id}`;
+        let status = json.created ? 201 : 200;
+        let date = new Date();
+
+        if (json.resource_version) {
+            let pathname = path.posix.join(location, '_history', json.resource_version);
+            res.set('Content-Location', `${baseUrl}/${pathname}`);
+            res.set('ETag', json.resource_version);
+        }
+        res.set('Last-Modified', date.toISOString());
+        res.type(this.getContentType(fhirVersion));
+        res.set('Location', location);
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+        // https://hl7.org/fhir/http.html#ops
+        if (req.headers.prefer && req.headers.prefer === 'return=minimal') {
+            res.status(status).end();
+        } else { // or return=representation
+            res.status(status).json(json).end();
+        }
+        // TODO: handle return=OperationOutcome
+    }
+
+    /**
+     * @function remove
+     * @description Used when you are deleting a single resource of any type
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('http').ServerResponse} res - Express response object
+     * @param {Object} json - json to send to client
+     */
+    remove({req, res, json}) {
+        if (json && json.deleted) {
+            res.set('ETag', json.deleted);
+        }
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+        res.status(204).end();
+    }
+
+    /**
+     * @function history
+     * @description Used when you are querying the history of a resource of any type
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('http').ServerResponse} res - Express response object
+     * @param {Object} json - json to send to client
+     */
+    history({req, res, json}) {
+        let version = req.params.base_version;
+        res.type(this.getContentType(version));
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+        res.status(200).json(json);
+    }
 }
 
 module.exports = {
-    read,
-    readOne,
-    create,
-    update,
-    remove,
-    history,
+    FhirResponseWriter
 };

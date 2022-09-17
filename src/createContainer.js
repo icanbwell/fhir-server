@@ -21,7 +21,7 @@ const {GraphHelper} = require('./operations/graph/graphHelpers');
 const {FhirRouter} = require('./middleware/fhir/router');
 const {ControllerUtils} = require('./middleware/fhir/controller.utils');
 const {CustomOperationsController} = require('./middleware/fhir/4_0_0/controllers/operations.controller');
-const {GenericController} = require('./middleware/fhir/4_0_0/controllers/generic_controller');
+const {GenericController} = require('./middleware/fhir/4_0_0/controllers/generic.controller');
 const {FhirOperationsManager} = require('./operations/fhirOperationsManager');
 const {SearchBundleOperation} = require('./operations/search/searchBundle');
 const {SearchStreamingOperation} = require('./operations/search/searchStreaming');
@@ -52,6 +52,7 @@ const {ResourceValidator} = require('./operations/common/resourceValidator');
 const {Partitioner} = require('./operations/common/partitioner');
 const {ConfigManager} = require('./utils/configManager');
 const {AccessIndexManager} = require('./operations/common/accessIndexManager');
+const {FhirResponseWriter} = require('./middleware/fhir/fhir-response-util');
 
 /**
  * Creates a container and sets up all the services
@@ -264,7 +265,9 @@ const createContainer = function () {
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
-                resourceValidator: c.resourceValidator
+                resourceValidator: c.resourceValidator,
+                bundleManager: c.bundleManager,
+                resourceLocatorFactory: c.resourceLocatorFactory
             }
         )
     );
@@ -384,10 +387,12 @@ const createContainer = function () {
             }
         )
     );
+    container.register('fhirResponseWriter', () => new FhirResponseWriter());
     container.register('genericController', (c) => new GenericController(
             {
                 postRequestProcessor: c.postRequestProcessor,
-                fhirOperationsManager: c.fhirOperationsManager
+                fhirOperationsManager: c.fhirOperationsManager,
+                fhirResponseWriter: c.fhirResponseWriter
             }
         )
     );
@@ -400,7 +405,8 @@ const createContainer = function () {
     container.register('customOperationsController', (c) => new CustomOperationsController(
             {
                 postRequestProcessor: c.postRequestProcessor,
-                fhirOperationsManager: c.fhirOperationsManager
+                fhirOperationsManager: c.fhirOperationsManager,
+                fhirResponseWriter: c.fhirResponseWriter
             }
         )
     );

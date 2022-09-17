@@ -1,10 +1,10 @@
-const handler = require('../../fhir-response-util');
 const {isTrue} = require('../../../../utils/isTrue');
 const env = require('var');
 const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
+const {FhirResponseWriter} = require('../../fhir-response-util');
 
 /**
  * @typedef FhirService
@@ -23,15 +23,22 @@ const {assertTypeEquals} = require('../../../../utils/assertType');
  */
 
 /**
- * Handles standard fhir requrests
+ * Handles standard fhir requests
  */
 class GenericController {
     /**
      * constructor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirOperationsManager} fhirOperationsManager
+     * @param {FhirResponseWriter} fhirResponseWriter
      */
-    constructor({postRequestProcessor, fhirOperationsManager}) {
+    constructor(
+        {
+            postRequestProcessor,
+            fhirOperationsManager,
+            fhirResponseWriter
+        }
+    ) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
          * @type {PostRequestProcessor}
@@ -42,6 +49,12 @@ class GenericController {
          * @type {FhirOperationsManager}
          */
         this.fhirOperationsManager = fhirOperationsManager;
+
+        /**
+         * @type {FhirResponseWriter}
+         */
+        this.fhirResponseWriter = fhirResponseWriter;
+        assertTypeEquals(fhirResponseWriter, FhirResponseWriter);
     }
 
     /**
@@ -78,7 +91,7 @@ class GenericController {
                             res
                         },
                         resourceType);
-                    handler.read(req, res, bundle);
+                    this.fhirResponseWriter.read({req, res, json: bundle});
                 }
             } catch (e) {
                 next(e);
@@ -105,7 +118,7 @@ class GenericController {
                         res
                     },
                     resourceType);
-                handler.readOne(req, res, resource);
+                this.fhirResponseWriter.readOne({req, res, resource});
             } catch (e) {
                 next(e);
             } finally {
@@ -134,7 +147,7 @@ class GenericController {
                     },
                     resourceType
                 );
-                handler.readOne(req, res, resource);
+                this.fhirResponseWriter.readOne({req, res, resource});
             } catch (e) {
                 next(e);
             } finally {
@@ -164,7 +177,9 @@ class GenericController {
                     },
                     resourceType
                 );
-                handler.create(req, res, json, { type: resourceType});
+                this.fhirResponseWriter.create({
+                    req, res, json, options: {type: resourceType}
+                });
             } catch (e) {
                 next(e);
             } finally {
@@ -191,7 +206,9 @@ class GenericController {
                     },
                     resourceType
                 );
-                handler.create(req, res, json, {});
+                this.fhirResponseWriter.create({
+                    req, res, json, options: {}
+                });
             } catch (e) {
                 next(e);
             } finally {
@@ -218,7 +235,9 @@ class GenericController {
                     },
                     resourceType
                 );
-                handler.update(req, res, json, {});
+                this.fhirResponseWriter.update({
+                    req, res, json, options: {}
+                });
             } catch (e) {
                 next(e);
             } finally {
@@ -245,7 +264,7 @@ class GenericController {
                     },
                     resourceType
                 );
-                handler.remove(req, res, json);
+                this.fhirResponseWriter.remove({req, res, json});
             } catch (e) {
                 next(e);
             } finally {
@@ -274,7 +293,9 @@ class GenericController {
                     },
                     resourceType
                 );
-                handler.update(req, res, json, {});
+                this.fhirResponseWriter.update({
+                    req, res, json, options: {}
+                });
             } catch (e) {
                 next(e);
             } finally {
@@ -301,7 +322,7 @@ class GenericController {
                     },
                     resourceType
                 );
-                handler.history(req, res, bundle);
+                this.fhirResponseWriter.history({req, res, json: bundle});
             } catch (e) {
                 next(e);
             } finally {
@@ -328,7 +349,7 @@ class GenericController {
                     },
                     resourceType
                 );
-                handler.history(req, res, bundle);
+                this.fhirResponseWriter.history({req, res, json: bundle});
             } catch (e) {
                 next(e);
             } finally {

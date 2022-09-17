@@ -353,7 +353,7 @@ class UpdateOperation {
             });
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
-            return result;
+            return doc;
         } catch (e) {
             await sendToS3('errors',
                 resourceType,
