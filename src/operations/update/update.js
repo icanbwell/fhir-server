@@ -101,6 +101,7 @@ class UpdateOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
     async update(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -246,6 +247,7 @@ class UpdateOperation {
                         id: id,
                         created: false,
                         resource_version: foundResource.meta.versionId,
+                        resource: foundResource
                     };
                 }
                 if (env.LOG_ALL_SAVES) {
@@ -338,6 +340,7 @@ class UpdateOperation {
                 id: id,
                 created: res.created,
                 resource_version: doc.meta.versionId,
+                resource: doc
             };
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
@@ -353,7 +356,7 @@ class UpdateOperation {
             });
             this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
-            return doc;
+            return result;
         } catch (e) {
             await sendToS3('errors',
                 resourceType,

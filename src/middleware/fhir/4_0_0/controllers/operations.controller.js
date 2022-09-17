@@ -1,7 +1,7 @@
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
-const {FhirResponseWriter} = require('../../fhir-response-util');
+const {FhirResponseWriter} = require('../../fhirResponseWriter');
 
 class CustomOperationsController {
     /**
@@ -10,8 +10,10 @@ class CustomOperationsController {
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {FhirResponseWriter} fhirResponseWriter
      */
-    constructor({postRequestProcessor, fhirOperationsManager,
-                fhirResponseWriter}) {
+    constructor({
+                    postRequestProcessor, fhirOperationsManager,
+                    fhirResponseWriter
+                }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
          * @type {PostRequestProcessor}
@@ -54,10 +56,14 @@ class CustomOperationsController {
             };
 
             try {
-                const results = await this.fhirOperationsManager[`${name}`](args, {
+                const result = await this.fhirOperationsManager[`${name}`](args, {
                     req
                 }, resourceType);
-                this.fhirResponseWriter.read({req, res, json: results});
+                if (name === 'merge') {
+                    this.fhirResponseWriter.merge({req, res, result});
+                } else {
+                    this.fhirResponseWriter.readCustomOperation({req, res, result});
+                }
             } catch (e) {
                 next(e);
             } finally {
@@ -80,11 +86,11 @@ class CustomOperationsController {
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const results = await
+                const result = await
                     this.fhirOperationsManager[`${name}`](req.sanitized_args, {
                         req
                     }, resourceType);
-                this.fhirResponseWriter.read({req, res, json: results});
+                this.fhirResponseWriter.readCustomOperation({req, res, result});
             } catch (e) {
                 next(e);
             } finally {

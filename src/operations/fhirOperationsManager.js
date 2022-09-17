@@ -306,6 +306,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
     async update(args, {req}, resourceType) {
         /**
@@ -415,6 +416,7 @@ class FhirOperationsManager {
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
      * @param {string} resourceType
+     * @return {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
     async patch(args, {req}, resourceType) {
         return this.patchOperation.patch(

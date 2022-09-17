@@ -52,7 +52,7 @@ const {ResourceValidator} = require('./operations/common/resourceValidator');
 const {Partitioner} = require('./operations/common/partitioner');
 const {ConfigManager} = require('./utils/configManager');
 const {AccessIndexManager} = require('./operations/common/accessIndexManager');
-const {FhirResponseWriter} = require('./middleware/fhir/fhir-response-util');
+const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
 
 /**
  * Creates a container and sets up all the services

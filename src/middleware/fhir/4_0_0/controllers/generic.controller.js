@@ -4,7 +4,7 @@ const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
-const {FhirResponseWriter} = require('../../fhir-response-util');
+const {FhirResponseWriter} = require('../../fhirResponseWriter');
 
 /**
  * @typedef FhirService
@@ -91,7 +91,7 @@ class GenericController {
                             res
                         },
                         resourceType);
-                    this.fhirResponseWriter.read({req, res, json: bundle});
+                    this.fhirResponseWriter.read({req, res, result: bundle});
                 }
             } catch (e) {
                 next(e);
@@ -171,14 +171,14 @@ class GenericController {
                 /**
                  * @type {Resource}
                  */
-                const json = await this.fhirOperationsManager.create(req.sanitized_args, {
+                const resource = await this.fhirOperationsManager.create(req.sanitized_args, {
                         req,
                         res
                     },
                     resourceType
                 );
                 this.fhirResponseWriter.create({
-                    req, res, json, options: {type: resourceType}
+                    req, res, resource, options: {type: resourceType}
                 });
             } catch (e) {
                 next(e);
@@ -200,14 +200,14 @@ class GenericController {
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const json = await this.fhirOperationsManager.merge(req.sanitized_args, {
+                const resource = await this.fhirOperationsManager.merge(req.sanitized_args, {
                         req,
                         res
                     },
                     resourceType
                 );
                 this.fhirResponseWriter.create({
-                    req, res, json, options: {}
+                    req, res, resource, options: {type: resourceType}
                 });
             } catch (e) {
                 next(e);
@@ -229,14 +229,17 @@ class GenericController {
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const json = await this.fhirOperationsManager.update(req.sanitized_args, {
+                /**
+                 * @type {{id: string, created: boolean, resource_version: string, resource: Resource}}
+                 */
+                const result = await this.fhirOperationsManager.update(req.sanitized_args, {
                         req,
                         res
                     },
                     resourceType
                 );
                 this.fhirResponseWriter.update({
-                    req, res, json, options: {}
+                    req, res, result, options: {type: resourceType}
                 });
             } catch (e) {
                 next(e);
@@ -285,7 +288,10 @@ class GenericController {
             /** @type {import('http').ServerResponse}*/res,
             /** @type {function() : void}*/next) => {
             try {
-                const json = await this.fhirOperationsManager.patch(
+                /**
+                 * @type {{id: string, created: boolean, resource_version: string, resource: Resource}}
+                 */
+                const result = await this.fhirOperationsManager.patch(
                     req.sanitized_args,
                     {
                         req,
@@ -294,7 +300,7 @@ class GenericController {
                     resourceType
                 );
                 this.fhirResponseWriter.update({
-                    req, res, json, options: {}
+                    req, res, result, options: {type: resourceType}
                 });
             } catch (e) {
                 next(e);
