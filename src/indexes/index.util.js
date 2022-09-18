@@ -93,11 +93,14 @@ class IndexManager {
      * creates indexes on a collection
      * @param {string} collectionName
      * @param {import('mongodb').Db} db
-     * @return {Promise<{indexes: *, createdIndex: boolean, name, count: *}>}
+     * @return {Promise<{indexes: {v:number,key:Object, name:string, unique:boolean|undefined}[], indexesCreated: number, name: string}>}
      */
     async indexCollectionAsync({collectionName, db}) {
         // check if index exists
-        let createdIndex = false;
+        let indexesCreated = 0;
+
+        const baseCollectionName = collectionName.endsWith('_4_0_0') ?
+            collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
         // first add indexes that are set on all collections (except ones marked exlude)
         for (const [indexCollectionName,
@@ -105,12 +108,15 @@ class IndexManager {
             of Object.entries(customIndexes)) {
             if (indexCollectionName === '*') {
                 for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
-                    if (!indexConfig.exclude || !indexConfig.exclude.includes(collectionName)) {
-                        createdIndex = await this.create_index_if_not_exists(
+                    if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                        const createdIndex = await this.create_index_if_not_exists(
                             {
                                 db, indexConfig, collectionName
                             }
-                        ) || createdIndex;
+                        );
+                        if (createdIndex) {
+                            indexesCreated += 1;
+                        }
                     }
                 }
             }
@@ -120,14 +126,17 @@ class IndexManager {
         for (const [indexCollectionName,
             /** @type {{keys:Object, options:Object, exclude: string[]}[]} */ indexConfigs]
             of Object.entries(customIndexes)) {
-            if (collectionName.startsWith(indexCollectionName)) {
+            if (baseCollectionName === indexCollectionName) {
                 for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
-                    if (!indexConfig.exclude || !indexConfig.exclude.includes(collectionName)) {
-                        createdIndex = await this.create_index_if_not_exists(
+                    if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                        const createdIndex = await this.create_index_if_not_exists(
                             {
                                 db, indexConfig, collectionName
                             }
-                        ) || createdIndex;
+                        );
+                        if (createdIndex) {
+                            indexesCreated += 1;
+                        }
                     }
                 }
             }
@@ -136,8 +145,8 @@ class IndexManager {
         const indexes = await db.collection(collectionName).indexes();
         return {
             name: collectionName,
-            createdIndex: createdIndex,
-            indexes: indexes
+            indexesCreated,
+            indexes
         };
     }
 
