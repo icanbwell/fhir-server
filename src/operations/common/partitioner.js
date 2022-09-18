@@ -228,7 +228,7 @@ class Partitioner {
                      */
                     let currentDate = moment.utc(lessThan);
                     const partitions = [];
-                    while (currentDate.isSameOrAfter(greaterThan)) {
+                    while (currentDate.isSameOrAfter(greaterThan.startOf('month'))) {
                         /**
                          * @type {string}
                          */
@@ -242,11 +242,7 @@ class Partitioner {
                         }
                         currentDate = currentDate.utc().subtract(1, 'months');
                     }
-                    if (partitions.length > 0) {
-                        return partitions;
-                    } else {
-                        return [resourceWithBaseVersion];
-                    }
+                    return partitions;
                 }
                     // eslint-disable-next-line no-unreachable
                     break;
@@ -261,7 +257,6 @@ class Partitioner {
 
             }
         } else {
-            await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
             return [resourceWithBaseVersion];
         }
     }

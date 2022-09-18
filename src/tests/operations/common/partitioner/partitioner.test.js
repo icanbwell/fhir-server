@@ -270,7 +270,7 @@ describe('Partitioner Tests', () => {
              */
             const query = {
                 $and: [
-                    {'recorded': {$gt: new Date(2022, 7 - 1, 10)}}, // javascript months are 0-based
+                    {'recorded': {$gt: new Date(2022, 7 - 1, 9)}}, // javascript months are 0-based
                 ]
             };
             // noinspection JSValidateTypes
@@ -372,8 +372,7 @@ describe('Partitioner Tests', () => {
                 base_version: '4_0_0',
                 query
             });
-            expect(partitions.length).toBe(1);
-            expect(partitions[0]).toBe('AuditEvent_4_0_0');
+            expect(partitions.length).toBe(0);
         });
     });
 });
