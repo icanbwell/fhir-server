@@ -12,7 +12,7 @@ class ResourceLocatorFactory {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {PartitioningManager} partitioningManager
      */
-    constructor({mongoCollectionManager, partitioner: partitioningManager}) {
+    constructor({mongoCollectionManager, partitioningManager}) {
         assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
         /**
          * @type {MongoCollectionManager}
@@ -21,7 +21,7 @@ class ResourceLocatorFactory {
         /**
          * @type {PartitioningManager}
          */
-        this.partitioner = partitioningManager;
+        this.partitioningManager = partitioningManager;
         assertTypeEquals(partitioningManager, PartitioningManager);
     }
 

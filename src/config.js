@@ -27,9 +27,12 @@ mongoUrl = encodeURI(mongoUrl);
 const options = {
     appName: 'fhir',
     keepAlive: true,
-    connectTimeoutMS: 60000,
-    socketTimeoutMS: 60000,
+    connectTimeoutMS: 360000,
+    socketTimeoutMS: 360000,
     retryReads: true,
+    maxIdleTimeMS: 60000,
+    // https://www.mongodb.com/developer/products/mongodb/mongodb-network-compression/
+    compressors: ['zstd']
     // minPoolSize: 100,
 };
 /**

@@ -1152,10 +1152,111 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@mongodb-js/zstd-darwin-arm64@1.0.0":
+  "integrity" "sha512-WRVWJ5BZOcxmbHRPFhUPAIAb8BVLDvH1dJzL3+Wl+xPDevu6eoFKZ6ZPsyyZe4aBFnVgS4bqlpwdQ4ShzrY+HQ=="
+  "resolved" "https://registry.npmjs.org/@mongodb-js/zstd-darwin-arm64/-/zstd-darwin-arm64-1.0.0.tgz"
+  "version" "1.0.0"
+
+"@mongodb-js/zstd-darwin-x64@1.0.0":
+  "integrity" "sha512-7cInPU8m3by4EawyaDe3GD0WytrTeS9+B3JX2e+XeDChf9RXzFs+zXmVu51lIq8aqS2J+LwYoBPV/xxPdxTS1g=="
+  "resolved" "https://registry.npmjs.org/@mongodb-js/zstd-darwin-x64/-/zstd-darwin-x64-1.0.0.tgz"
+  "version" "1.0.0"
+
+"@mongodb-js/zstd-linux-arm64-gnu@1.0.0":
+  "integrity" "sha512-qGL8mp2UyJNqGObgnh3NBzAxScVSQxn7bZsLrkSWy1xTytXgAgPmmnmIPhIH5q7Aa/sk797bkIprO8G0bRrNTQ=="
+  "resolved" "https://registry.npmjs.org/@mongodb-js/zstd-linux-arm64-gnu/-/zstd-linux-arm64-gnu-1.0.0.tgz"
+  "version" "1.0.0"
+
+"@mongodb-js/zstd-linux-x64-gnu@1.0.0":
+  "integrity" "sha512-5oBwpDjA3pY0XMo6uqr59ZOJjdkY4Yay6szzIRBzk//z1XpWjPs2Lf2zfRlnlzH7Q3EZEoHqFkk+kH9ZvHBC4Q=="
+  "resolved" "https://registry.npmjs.org/@mongodb-js/zstd-linux-x64-gnu/-/zstd-linux-x64-gnu-1.0.0.tgz"
+  "version" "1.0.0"
+
+"@mongodb-js/zstd-win32-x64-msvc@1.0.0":
+  "integrity" "sha512-c/7D7l0pw9yIsCmuUDxRaJxT9cmxn3A9u1GeslHuz/DRSMVHY6Sb5srMJlBviUF1Q7YGK5teM03JoHso4+vLlw=="
+  "resolved" "https://registry.npmjs.org/@mongodb-js/zstd-win32-x64-msvc/-/zstd-win32-x64-msvc-1.0.0.tgz"
+  "version" "1.0.0"
+
+"@mongodb-js/zstd@^1.0.0":
+  "integrity" "sha512-vApdTgi6gxRjgKpKm8z5wtZ5dGNTfh4AewomjMhHanDvCOkv3HQHjJhoodtecdqZnaJm3WcvTYgcL53rQAsOaA=="
+  "resolved" "https://registry.npmjs.org/@mongodb-js/zstd/-/zstd-1.0.0.tgz"
+  "version" "1.0.0"
+  optionalDependencies:
+    "@mongodb-js/zstd-darwin-arm64" "1.0.0"
+    "@mongodb-js/zstd-darwin-x64" "1.0.0"
+    "@mongodb-js/zstd-linux-arm64-gnu" "1.0.0"
+    "@mongodb-js/zstd-linux-x64-gnu" "1.0.0"
+    "@mongodb-js/zstd-win32-x64-msvc" "1.0.0"
+
 "@n1ru4l/graphql-live-query@^0.9.0":
   "integrity" "sha512-BTpWy1e+FxN82RnLz4x1+JcEewVdfmUhV1C6/XYD5AjS7PQp9QFF7K8bCD6gzPTr2l+prvqOyVueQhFJxB1vfg=="
   "resolved" "https://registry.npmjs.org/@n1ru4l/graphql-live-query/-/graphql-live-query-0.9.0.tgz"
   "version" "0.9.0"
+
+"@napi-rs/snappy-android-arm-eabi@7.1.2":
+  "integrity" "sha512-ZjGi5ZsMjw0HXQ5y480ZKAUoCnOEbeqMQQVc+05HDCKa0pcRFMt6LF8AtLQtgYXzQlph9XPBH/ZUFgLW4REv2Q=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-android-arm-eabi/-/snappy-android-arm-eabi-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-android-arm64@7.1.2":
+  "integrity" "sha512-KgBmg/bW9TwUYPvsVejEyq5NttbWDy4AovK+8pHxoJMyaVjhactCKo7nvi95oIDAjZfE/k/oDOXIIHj4hD6YJA=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-android-arm64/-/snappy-android-arm64-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-darwin-arm64@7.1.2":
+  "integrity" "sha512-++9cCmOeKCEyIppkQ/SHhvB8YfLiwS/tttViuch10LObvvYvDi89KqnNTl+aDHiQirYb2Oso4pO6NtNFXWR9TA=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-darwin-arm64/-/snappy-darwin-arm64-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-darwin-x64@7.1.2":
+  "integrity" "sha512-ohALmiR6KCC3+St8TIRjt9/55xql9gQ6F9VQENn6ytzELLytx7U3snqOXbQuyCdVQVDJ7P4El5y/vmr15joZxg=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-darwin-x64/-/snappy-darwin-x64-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-freebsd-x64@7.1.2":
+  "integrity" "sha512-WZ9aQrevGAJys9G/Xfpgcu6pYHBoC30KxP+9NEiFB/lgtgek383Q3kWkvgaa0YEJkJjaogUk23z33uJhpgVWeg=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-freebsd-x64/-/snappy-freebsd-x64-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-linux-arm-gnueabihf@7.1.2":
+  "integrity" "sha512-S3KegSDjWrQy39Cvj8LqdCcLkaJ7sEM5EUWgWPRPP/I2RIwpf/b2DamFCJD3AxC/nje4BC+wZOw6DKrtP+bKUQ=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-linux-arm-gnueabihf/-/snappy-linux-arm-gnueabihf-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-linux-arm64-gnu@7.1.2":
+  "integrity" "sha512-GwANwqhqD82LbNgTKMazRp6UWiCVyRDypx53/22h8Qm4+hX7s+8GnBYovme72Bay8xwHO7q187xQ5yt95h/w2Q=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-linux-arm64-gnu/-/snappy-linux-arm64-gnu-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-linux-arm64-musl@7.1.2":
+  "integrity" "sha512-IP+nCT7AzfULPPOCoNzyuwkjslNZDpD6dKTL5/ET3Ay+ny9LaG7fWkdZSRC+6VUODTwekuACJrgokWxvLRwSPQ=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-linux-arm64-musl/-/snappy-linux-arm64-musl-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-linux-x64-gnu@7.1.2":
+  "integrity" "sha512-jwmsEWVRswFJkFehEilMyTbAbPBCYSuTtzjOl2EV1nR+vNprEN71ckztWTH23ffnRdgadpfq9KWXhRm6b2JhCg=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-linux-x64-gnu/-/snappy-linux-x64-gnu-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-linux-x64-musl@7.1.2":
+  "integrity" "sha512-LS1snI10f3gjSTRwJz4Tug0Bo4Lx8PXAeknc0/nEGTtJe2Kon2C77vVnw5d3tIy/kPsgz5YFT5PGHlhrF8ZWxg=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-linux-x64-musl/-/snappy-linux-x64-musl-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-win32-arm64-msvc@7.1.2":
+  "integrity" "sha512-jJhlgZol/LHFCQ7irDzZBLCYSjD9bSMM5UHQYQElXOd1pb69rWoxQDNTlkImUsRWvMgmoqEQlzd/B9tEltF2Qw=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-win32-arm64-msvc/-/snappy-win32-arm64-msvc-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-win32-ia32-msvc@7.1.2":
+  "integrity" "sha512-IyA6zbF5PZGZjoFmXvVNDI5NtcPg6WqJU2WebO9/JD3QopX0VPZTZmtf4InYZLY+5+/0jG/gnn1YhgF0zMyqFw=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-win32-ia32-msvc/-/snappy-win32-ia32-msvc-7.1.2.tgz"
+  "version" "7.1.2"
+
+"@napi-rs/snappy-win32-x64-msvc@7.1.2":
+  "integrity" "sha512-ld7CviGLLy9hoY0tqNuVo0wUyfyZj2DONz8ulGfJAA0JiIcRqIeXPOIOnNi9dZJPX46LcQARonAyrGntJorMYQ=="
+  "resolved" "https://registry.npmjs.org/@napi-rs/snappy-win32-x64-msvc/-/snappy-win32-x64-msvc-7.1.2.tgz"
+  "version" "7.1.2"
 
 "@nodelib/fs.scandir@2.1.5":
   "integrity" "sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g=="
@@ -8149,6 +8250,25 @@
   "integrity" "sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg=="
   "resolved" "https://registry.npmjs.org/smart-buffer/-/smart-buffer-4.2.0.tgz"
   "version" "4.2.0"
+
+"snappy@^7.1.2":
+  "integrity" "sha512-7HtTCxP9pGh+Z3Pa72HELeuMiSKKfbb6pyNdkQmfElGxlLMhy5A6Vq98SyneQQgO1wkS+TV23lyEC3oWvU19+A=="
+  "resolved" "https://registry.npmjs.org/snappy/-/snappy-7.1.2.tgz"
+  "version" "7.1.2"
+  optionalDependencies:
+    "@napi-rs/snappy-android-arm-eabi" "7.1.2"
+    "@napi-rs/snappy-android-arm64" "7.1.2"
+    "@napi-rs/snappy-darwin-arm64" "7.1.2"
+    "@napi-rs/snappy-darwin-x64" "7.1.2"
+    "@napi-rs/snappy-freebsd-x64" "7.1.2"
+    "@napi-rs/snappy-linux-arm-gnueabihf" "7.1.2"
+    "@napi-rs/snappy-linux-arm64-gnu" "7.1.2"
+    "@napi-rs/snappy-linux-arm64-musl" "7.1.2"
+    "@napi-rs/snappy-linux-x64-gnu" "7.1.2"
+    "@napi-rs/snappy-linux-x64-musl" "7.1.2"
+    "@napi-rs/snappy-win32-arm64-msvc" "7.1.2"
+    "@napi-rs/snappy-win32-ia32-msvc" "7.1.2"
+    "@napi-rs/snappy-win32-x64-msvc" "7.1.2"
 
 "snyk@^1.1006.0":
   "integrity" "sha512-xnMLyyvRS0nbRrISiHOLYu7XCC/Hzk+Bvkt72ugmTH/gOc9EVqR5iCMdTo9iLoY/8lzINxsKeHZk8/eP5l2muA=="

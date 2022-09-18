@@ -103,7 +103,8 @@ const createContainer = function () {
         }
     ));
 
-    container.register('partitioningManager', (c) => new PartitioningManager({configManager: c.configManager}));
+    container.register('partitioningManager', (c) => new PartitioningManager(
+        {configManager: c.configManager}));
     container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
     container.register('indexManager', (c) => new IndexManager(
         {
