@@ -172,7 +172,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // eslint-disable-next-line no-loop-func
             async (bail, retryNumber) => {
                 if (retryNumber > 1) {
-                    console.log(`hasNext retry number: ${retryNumber}`);
+                    console.log(`next retry number: ${retryNumber}`);
                 }
                 return await cursor.next();
             },

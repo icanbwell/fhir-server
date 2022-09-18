@@ -204,12 +204,12 @@ class Partitioner {
                      * init to an initial value
                      * @type {moment.Moment}
                      */
-                    let greaterThan = moment.utc(new Date(2022, 5 - 1, 10));
+                    let greaterThan = moment.utc(new Date(2010, 0, 1));
                     /**
                      * init to an initial value
                      * @type {moment.Moment}
                      */
-                    let lessThan = moment.utc(new Date(2022, 9 - 1, 10));
+                    let lessThan = moment.utc(new Date(2030, 0, 1));
                     for (const clauseForDate of clausesForDate) {
                         /**
                          * @type {{$gt:Date|undefined, $lt: Date|undefined }}
