@@ -74,6 +74,7 @@ const connectAsync = async function () {
     if (globals.get(CLIENT)) {
         return;
     }
+    console.log(JSON.stringify(mongoConfig));
     const client = await createClientAsync(mongoConfig);
 
     globals.set(CLIENT, client);
