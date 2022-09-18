@@ -15,6 +15,9 @@ const {createContainer} = require('../../createContainer');
 const {assertTypeEquals} = require('../../utils/assertType');
 
 
+/**
+ * @classdesc Copies documents from source collection into the appropriate partitioned collection
+ */
 class PartitionAuditEventRunner extends BaseBulkOperationRunner {
     /**
      * constructor
@@ -36,10 +39,20 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         assertTypeEquals(recordedBefore, Date);
     }
 
+    /**
+     * gets first day of next month
+     * @param {Date} date
+     * @returns {Date}
+     */
     getFirstDayOfNextMonth(date) {
         return new Date(date.getUTCFullYear(), date.getUTCMonth() + 1, 1);
     }
 
+    /**
+     * gets first day of previous month
+     * @param {Date} date
+     * @returns {Date}
+     */
     getFirstDateOfPreviousMonth(date) {
         return new Date(date.getFullYear(), date.getMonth() - 1, 1);
     }
@@ -141,6 +154,10 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
     }
 }
 
+/**
+ * main function
+ * @returns {Promise<void>}
+ */
 async function main() {
     const args = process.argv.slice(2);
     console.log(...args);

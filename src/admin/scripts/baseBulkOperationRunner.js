@@ -3,6 +3,10 @@ const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
 
+/**
+ * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
+ *              create bulk operations and then sending the bulk operations once batch size has been reached
+ */
 class BaseBulkOperationRunner extends BaseScriptRunner {
     /**
      * @param {MongoCollectionManager} mongoCollectionManager

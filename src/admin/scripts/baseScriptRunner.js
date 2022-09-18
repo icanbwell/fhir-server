@@ -10,6 +10,9 @@ const {connectAsync, disconnectAsync} = require('../../utils/connect');
  * @property {number} nUpserted
  */
 
+/**
+ * @classdesc base class that implements connecting to the database
+ */
 class BaseScriptRunner {
     async init() {
         await connectAsync();
