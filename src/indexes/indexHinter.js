@@ -29,23 +29,32 @@ function eqSet(as, bs) {
 
 /**
  * find index for given collection and fields
- * @param {string} collection_name
+ * @param {string} collectionName
  * @param {string[]} fields
  * @return {string|null}
  */
-function findIndexForFields(collection_name, fields) {
+function findIndexForFields(collectionName, fields) {
     if (!fields || fields.length === 0) {
         return null;
     }
-
+    if (collectionName.includes('_History')) {
+        // don't index history collections
+        return null;
+    }
     const fieldsSet = new Set(fields);
-    for (const [collection, indexesArray] of Object.entries(customIndexes)) {
-        if (collection === '*' || collection === collection_name) {
-            for (const indexDefinition of indexesArray) {
-                // noinspection JSCheckFunctionSignatures
-                for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
+
+    const baseCollectionName = collectionName.endsWith('_4_0_0') ?
+        collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
+
+    for (const [indexCollectionName,
+        /** @type {{keys:Object, options:Object, exclude: string[]}[]} */ indexConfigs]
+        of Object.entries(customIndexes)) {
+        if (indexCollectionName === '*' || baseCollectionName === indexCollectionName) {
+            for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
+                if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                    const indexColumns = Object.keys(indexConfig.keys);
                     if (eqSet(new Set(indexColumns), fieldsSet)) {
-                        return indexName;
+                        return indexConfig.options.name;
                     }
                 }
             }
