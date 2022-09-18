@@ -3,7 +3,7 @@ const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../const
 const async = require('async');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
-const {Partitioner} = require('../../partitioners/partitioner');
+const {PartitioningManager} = require('../../partitioners/partitioningManager');
 
 /**
  * This class returns collections that contain the requested resourceType
@@ -13,10 +13,10 @@ class ResourceLocator {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {Partitioner} partitioner
+     * @param {PartitioningManager} partitioningManager
      * @param {boolean|null} useAtlas
      */
-    constructor({mongoCollectionManager, resourceType, base_version, partitioner, useAtlas}) {
+    constructor({mongoCollectionManager, resourceType, base_version, partitioningManager, useAtlas}) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
         assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
@@ -40,10 +40,10 @@ class ResourceLocator {
          */
         this._useAtlas = useAtlas;
         /**
-         * @type {Partitioner}
+         * @type {PartitioningManager}
          */
-        this.partitioner = partitioner;
-        assertTypeEquals(partitioner, Partitioner);
+        this.partitioningManager = partitioningManager;
+        assertTypeEquals(partitioningManager, PartitioningManager);
     }
 
     /**
@@ -53,7 +53,7 @@ class ResourceLocator {
      */
     async getCollectionNameAsync(resource) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        const partition = await this.partitioner.getPartitionNameByResourceAsync(
+        const partition = await this.partitioningManager.getPartitionNameByResourceAsync(
             {resource, base_version: this._base_version});
         return partition;
     }
@@ -65,7 +65,7 @@ class ResourceLocator {
      */
     async getCollectionNamesForQueryAsync({query}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return await this.partitioner.getPartitionNamesByQueryAsync({
+        return await this.partitioningManager.getPartitionNamesByQueryAsync({
             resourceType: this._resourceType,
             base_version: this._base_version,
             query
@@ -82,7 +82,7 @@ class ResourceLocator {
         /**
          * @type {string[]}
          */
-        const collectionNames = await this.partitioner.getPartitionNameByResourceAsync({
+        const collectionNames = await this.partitioningManager.getPartitionNamesByQueryAsync({
             resourceType: this._resourceType,
             base_version: this._base_version,
             query
@@ -100,7 +100,7 @@ class ResourceLocator {
         /**
          * @type {string}
          */
-        const partition = await this.partitioner.getPartitionNameByResourceAsync({
+        const partition = await this.partitioningManager.getPartitionNameByResourceAsync({
             resource,
             base_version: this._base_version
         });
@@ -114,7 +114,7 @@ class ResourceLocator {
      */
     async getHistoryCollectionNamesForQueryAsync({query}) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return await this.partitioner.getAllHistoryPartitionsForResourceTypeAsync({
+        return await this.partitioningManager.getAllHistoryPartitionsForResourceTypeAsync({
             resourceType: this._resourceType,
             base_version: this._base_version,
             query

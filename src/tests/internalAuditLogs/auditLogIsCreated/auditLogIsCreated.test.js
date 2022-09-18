@@ -20,7 +20,7 @@ const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
-const {Partitioner} = require('../../../partitioners/partitioner');
+const {Partitioner} = require('../../../partitioners/partitioningManager');
 
 describe('InternalAuditLog Tests', () => {
     beforeEach(async () => {

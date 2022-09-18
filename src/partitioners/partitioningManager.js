@@ -4,7 +4,7 @@ const globals = require('../globals');
 const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../constants');
 const {ConfigManager} = require('../utils/configManager');
 const {isUTCDayDifferent} = require('../utils/date.util');
-const moment = require('moment-timezone');
+const {YearMonthPartitioner} = require('./yearMonthPartitioner');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -12,7 +12,7 @@ const mutex = new Mutex();
 /**
  * @description This class implements partitioning for resource types
  */
-class Partitioner {
+class PartitioningManager {
     /**
      * Constructor
      * @param {ConfigManager} configManager
@@ -132,26 +132,22 @@ class Partitioner {
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
         if (partitionConfig && this.partitionResources.includes(resourceType)) {
+            /**
+             * @type {string}
+             */
             const field = partitionConfig['field'];
+            /**
+             * @type {string}
+             */
             const type = partitionConfig['type'];
             switch (type) {
-                case 'year-month': {// get value of field
-                    const fieldValue = resource[`${field}`];
-                    if (!fieldValue) {
-                        await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
-                        return resourceWithBaseVersion;
-                    } else {
-                        /**
-                         * @type {string}
-                         */
-                        const partition = Partitioner.getPartitionNameFromYearMonth(
-                            {fieldValue, resourceWithBaseVersion});
-                        await this.addPartitionsToCacheAsync({resourceType, partition});
-                        return partition;
-                    }
+                case 'year-month': {
+                    const partition = await new YearMonthPartitioner().getPartitionByResourceAsync({
+                        resource, field, resourceType, resourceWithBaseVersion
+                    });
+                    await this.addPartitionsToCacheAsync({resourceType, partition});
+                    return partition;
                 }
-                    // eslint-disable-next-line no-unreachable
-                    break;
 
                 default:
                     assertFail(
@@ -190,62 +186,13 @@ class Partitioner {
             const field = partitionConfig['field'];
             const type = partitionConfig['type'];
             switch (type) {
-                case 'year-month': {
-                    /**
-                     * @type {Object[]}
-                     */
-                    const andClauses = query.$and || [];
-                    /**
-                     * @type {Object[]}
-                     */
-                    const clausesForDate = andClauses.filter(c => c[`${field}`] !== undefined);
-
-                    /**
-                     * init to an initial value
-                     * @type {moment.Moment}
-                     */
-                    let greaterThan = moment.utc(new Date(2010, 0, 1));
-                    /**
-                     * init to an initial value
-                     * @type {moment.Moment}
-                     */
-                    let lessThan = moment.utc(new Date(2030, 0, 1));
-                    for (const clauseForDate of clausesForDate) {
-                        /**
-                         * @type {{$gt:Date|undefined, $lt: Date|undefined }}
-                         */
-                        const value = clauseForDate[`${field}`];
-                        if (value.$gt) {
-                            greaterThan = moment.utc(value.$gt).isAfter(greaterThan) ? moment.utc(value.$gt) : greaterThan;
-                        }
-                        if (value.$lt) {
-                            lessThan = moment.utc(value.$lt).isBefore(lessThan) ? moment.utc(value.$lt) : lessThan;
-                        }
-                    }
-                    // now find partitions for the months in between greaterThan and lessThan
-                    /**
-                     * @type {moment.Moment}
-                     */
-                    let currentDate = moment.utc(lessThan);
-                    const partitions = [];
-                    while (currentDate.isSameOrAfter(greaterThan.startOf('month'))) {
-                        /**
-                         * @type {string}
-                         */
-                        const partition = Partitioner.getPartitionNameFromYearMonth(
-                            {
-                                fieldValue: currentDate.utc().toISOString(), resourceWithBaseVersion
-                            }
-                        );
-                        if (this.partitionsCache.has(resourceType) && this.partitionsCache.get(resourceType).includes(partition)) {
-                            partitions.push(partition);
-                        }
-                        currentDate = currentDate.utc().subtract(1, 'months');
-                    }
-                    return partitions;
-                }
-                    // eslint-disable-next-line no-unreachable
-                    break;
+                case 'year-month':
+                    return await new YearMonthPartitioner().getPartitionByQueryAsync({
+                        resourceType,
+                        query,
+                        field,
+                        resourceWithBaseVersion
+                    });
 
                 default:
                     assertFail(
@@ -259,20 +206,6 @@ class Partitioner {
         } else {
             return [resourceWithBaseVersion];
         }
-    }
-
-    /**
-     * @param {string} fieldValue
-     * @param {string} resourceWithBaseVersion
-     * @returns {string}
-     */
-    static getPartitionNameFromYearMonth({fieldValue, resourceWithBaseVersion}) {
-        const fieldDate = new Date(fieldValue);
-        const year = fieldDate.getUTCFullYear();
-        const month = fieldDate.getUTCMonth() + 1; // 0 indexed
-        const monthFormatted = String(month).padStart(2, '0');
-        const partition = `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
-        return partition;
     }
 
     /**
@@ -296,5 +229,5 @@ class Partitioner {
 }
 
 module.exports = {
-    Partitioner
+    PartitioningManager
 };

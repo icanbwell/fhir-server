@@ -4,7 +4,7 @@ const {diff} = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
 const {expect} = require('@jest/globals');
 const moment = require('moment-timezone');
-const {Partitioner} = require('../partitioners/partitioner');
+const {Partitioner} = require('../partitioners/partitioningManager');
 
 /**
  * @typedef JestUtils

@@ -1,7 +1,7 @@
 const {ResourceLocator} = require('./resourceLocator');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {assertTypeEquals} = require('../../utils/assertType');
-const {Partitioner} = require('../../partitioners/partitioner');
+const {PartitioningManager} = require('../../partitioners/partitioningManager');
 
 /**
  * This factor creates ResourceLocators
@@ -10,19 +10,19 @@ class ResourceLocatorFactory {
     /**
      * Constructor
      * @param {MongoCollectionManager} mongoCollectionManager
-     * @param {Partitioner} partitioner
+     * @param {PartitioningManager} partitioningManager
      */
-    constructor({mongoCollectionManager, partitioner}) {
+    constructor({mongoCollectionManager, partitioner: partitioningManager}) {
         assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
         /**
          * @type {MongoCollectionManager}
          */
         this.mongoCollectionManager = mongoCollectionManager;
         /**
-         * @type {Partitioner}
+         * @type {PartitioningManager}
          */
-        this.partitioner = partitioner;
-        assertTypeEquals(partitioner, Partitioner);
+        this.partitioner = partitioningManager;
+        assertTypeEquals(partitioningManager, PartitioningManager);
     }
 
     /**
@@ -35,7 +35,7 @@ class ResourceLocatorFactory {
         return new ResourceLocator(
             {
                 mongoCollectionManager: this.mongoCollectionManager, resourceType, base_version,
-                partitioner: this.partitioner,
+                partitioningManager: this.partitioningManager,
                 useAtlas
             }
         );

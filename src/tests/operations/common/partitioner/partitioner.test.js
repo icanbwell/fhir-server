@@ -1,6 +1,6 @@
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {commonBeforeEach, commonAfterEach} = require('../../../common');
-const {Partitioner} = require('../../../../partitioners/partitioner');
+const {PartitioningManager} = require('../../../../partitioners/partitioningManager');
 const globals = require('../../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../../constants');
 const {ConfigManager} = require('../../../../utils/configManager');
@@ -15,7 +15,7 @@ class MockConfigManager extends ConfigManager {
     }
 }
 
-describe('Partitioner Tests', () => {
+describe('PartitioningManager Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -26,7 +26,7 @@ describe('Partitioner Tests', () => {
 
     describe('loadPartitionsFromDatabaseAsync Tests', () => {
         test('loadPartitionsFromDatabaseAsync works', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             /**
              * mongo connection
@@ -45,7 +45,7 @@ describe('Partitioner Tests', () => {
             expect(partitions[0]).toBe(mongoCollectionName);
         });
         test('loadPartitionsFromDatabaseAsync works for collections for multiple resources', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             /**
              * mongo connection
@@ -62,7 +62,7 @@ describe('Partitioner Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -79,7 +79,7 @@ describe('Partitioner Tests', () => {
             expect(partitions[0]).toBe(mongoCollectionName2);
         });
         test('loadPartitionsFromDatabaseAsync works for multiple collections for same resource', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             /**
              * mongo connection
@@ -96,7 +96,7 @@ describe('Partitioner Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
                 resourceWithBaseVersion: 'AuditEvent_4_0_0',
                 fieldValue: fieldDate.toString()
             });
@@ -112,7 +112,7 @@ describe('Partitioner Tests', () => {
     });
     describe('getPartitionNameByResourceAsync Tests', () => {
         test('getPartitionNameByResourceAsync works for partitioned collection with no records', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             // noinspection JSValidateTypes
             /**
@@ -126,7 +126,7 @@ describe('Partitioner Tests', () => {
             expect(partition).toBe('Account_4_0_0');
         });
         test('getPartitionNameByResourceAsync works for partitioned collection with records', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             /**
              * mongo connection
@@ -143,7 +143,7 @@ describe('Partitioner Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -166,7 +166,7 @@ describe('Partitioner Tests', () => {
     });
     describe('getPartitionNamesByQueryAsync Tests', () => {
         test('getPartitionNamesByQueryAsync works for partitioned collection with no query', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             // noinspection JSValidateTypes
             const partitions = await partitioner.getPartitionNamesByQueryAsync({
@@ -178,7 +178,7 @@ describe('Partitioner Tests', () => {
             expect(partitions[0]).toBe('Account_4_0_0');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with no query', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             // noinspection JSValidateTypes
             const partitions = await partitioner.getPartitionNamesByQueryAsync({
@@ -190,7 +190,7 @@ describe('Partitioner Tests', () => {
             expect(partitions[0]).toBe('AuditEvent_4_0_0');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for both gt & lt', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             /**
              * mongo connection
@@ -207,7 +207,7 @@ describe('Partitioner Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -237,7 +237,7 @@ describe('Partitioner Tests', () => {
             expect(partitions[0]).toBe('AuditEvent_4_0_0_2022_07');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for just gt', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             /**
              * mongo connection
@@ -254,7 +254,7 @@ describe('Partitioner Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -283,7 +283,7 @@ describe('Partitioner Tests', () => {
             expect(partitions[0]).toBe('AuditEvent_4_0_0_2022_07');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for just lt', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             /**
              * mongo connection
@@ -300,7 +300,7 @@ describe('Partitioner Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -329,7 +329,7 @@ describe('Partitioner Tests', () => {
             expect(partitions[0]).toBe('AuditEvent_4_0_0_2022_07');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for both gt & lt outside range', async () => {
-            const partitioner = new Partitioner({configManager: new MockConfigManager()});
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             /**
              * mongo connection
@@ -346,7 +346,7 @@ describe('Partitioner Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = Partitioner.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
