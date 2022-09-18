@@ -58,8 +58,9 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             }
             doc['_access'] = _access;
         }
-        // console.log(doc);
-        // batch up the calls to update
+        // delete _id so it does not cause a conflict in replace
+        // e.g., 'Got error MongoBulkWriteError: After applying the update, the (immutable) field '_id' was found to have been altered to _id'
+        delete doc._id;
         /**
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
          */
@@ -123,7 +124,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             destinationCollectionName,
                             query,
                             startFromIdContainer: this.startFromIdContainer,
-                            fnCreateBulkOperation: this.processRecordAsync,
+                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false
                         }
                     );
