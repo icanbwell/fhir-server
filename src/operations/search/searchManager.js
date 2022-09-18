@@ -10,7 +10,7 @@ const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {pipeline} = require('stream/promises');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparerTransform');
 const {Transform} = require('stream');
-const {findIndexForFields} = require('../../indexes/indexHinter');
+const {IndexHinter} = require('../../indexes/indexHinter');
 const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
@@ -35,13 +35,15 @@ class SearchManager {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {SecurityTagManager} securityTagManager
      * @param {ResourcePreparer} resourcePreparer
+     * @param {IndexHinter} indexHinter
      */
     constructor(
         {
             databaseQueryFactory,
             resourceLocatorFactory,
             securityTagManager,
-            resourcePreparer
+            resourcePreparer,
+            indexHinter
         }
     ) {
         /**
@@ -65,6 +67,12 @@ class SearchManager {
          */
         this.resourcePreparer = resourcePreparer;
         assertTypeEquals(resourcePreparer, ResourcePreparer);
+
+        /**
+         * @type {IndexHinter}
+         */
+        this.indexHinter = indexHinter;
+        assertTypeEquals(indexHinter, IndexHinter);
     }
 
     /**
@@ -778,7 +786,7 @@ class SearchManager {
             user
         }
     ) {
-        indexHint = findIndexForFields(mongoCollectionName, Array.from(columns));
+        indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
         if (indexHint) {
             cursor = cursor.hint({indexHint});
             logDebug(

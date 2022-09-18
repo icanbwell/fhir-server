@@ -53,6 +53,7 @@ const {Partitioner} = require('./operations/common/partitioner');
 const {ConfigManager} = require('./utils/configManager');
 const {AccessIndexManager} = require('./operations/common/accessIndexManager');
 const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
+const {IndexHinter} = require('./indexes/indexHinter');
 
 /**
  * Creates a container and sets up all the services
@@ -138,12 +139,15 @@ const createContainer = function () {
         }));
 
     container.register('resourceManager', () => new ResourceManager());
+    container.register('indexHinter', () => new IndexHinter());
+
     container.register('searchManager', (c) => new SearchManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 securityTagManager: c.securityTagManager,
-                resourcePreparer: c.resourcePreparer
+                resourcePreparer: c.resourcePreparer,
+                indexHinter: c.indexHinter
             }
         )
     );
