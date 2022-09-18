@@ -1,7 +1,7 @@
 const {ResourceLocator} = require('./resourceLocator');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {assertTypeEquals} = require('../../utils/assertType');
-const {Partitioner} = require('./partitioner');
+const {Partitioner} = require('../../partitioners/partitioner');
 
 /**
  * This factor creates ResourceLocators

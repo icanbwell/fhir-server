@@ -2,7 +2,7 @@ const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} =
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
-const {Partitioner} = require('../../../operations/common/partitioner');
+const {Partitioner} = require('../../../partitioners/partitioner');
 
 describe('Create Index Tests', () => {
     beforeEach(async () => {

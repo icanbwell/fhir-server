@@ -1,9 +1,9 @@
 const partitionConfiguration = require('./partitions.json');
-const {assertIsValid, assertFail, assertTypeEquals} = require('../../utils/assertType');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
-const {ConfigManager} = require('../../utils/configManager');
-const {isUTCDayDifferent} = require('../../utils/date.util');
+const {assertIsValid, assertFail, assertTypeEquals} = require('../utils/assertType');
+const globals = require('../globals');
+const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../constants');
+const {ConfigManager} = require('../utils/configManager');
+const {isUTCDayDifferent} = require('../utils/date.util');
 const moment = require('moment-timezone');
 
 const Mutex = require('async-mutex').Mutex;
@@ -276,42 +276,21 @@ class Partitioner {
     }
 
     /**
-     * returns all the collection names for resourceType
+     * returns all the history collection names for resourceType
      * @param {string} resourceType
      * @param {string} base_version
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {string[]}
      */
-    // eslint-disable-next-line no-unused-vars
-    async getAllPartitionsForResourceTypeAsync({resourceType, base_version, query}) {
+    async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version, query}) {
         assertIsValid(resourceType, 'resourceType is empty');
 
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
-        await this.loadPartitionsFromDatabaseAsync();
-        /**
-         * @type {string[]}
-         */
-        const partitions = this.partitionsCache.get(resourceType);
-        if (!(this.partitionsCache.has(resourceType)) || partitions.length === 0) {
-            // if partition does not exist yet return default
-            return [`${resourceType}_${base_version}`];
-        }
-        // else return the partition from the cache
-        // TODO: try to match partitions to query
-        return partitions;
-    }
-
-    /**
-     * returns all the history collection names for resourceType
-     * @param {string} resourceType
-     * @param {string} base_version
-     * @returns {string[]}
-     */
-    async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version}) {
-        assertIsValid(resourceType, 'resourceType is empty');
-
-        assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
-        const partitions = await this.getAllPartitionsForResourceTypeAsync({resourceType, base_version});
+        const partitions = await this.getPartitionNamesByQueryAsync(
+            {
+                resourceType, base_version,
+                query
+            });
         return partitions.map(partition => `${partition}_History`);
     }
 }

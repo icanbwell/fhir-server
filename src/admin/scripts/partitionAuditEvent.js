@@ -8,7 +8,7 @@ dotenv.config({
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {Partitioner} = require('../../operations/common/partitioner');
+const {Partitioner} = require('../../partitioners/partitioner');
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const {createContainer} = require('../../createContainer');

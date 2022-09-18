@@ -3,7 +3,7 @@ const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../const
 const async = require('async');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
-const {Partitioner} = require('./partitioner');
+const {Partitioner} = require('../../partitioners/partitioner');
 
 /**
  * This class returns collections that contain the requested resourceType
@@ -65,7 +65,7 @@ class ResourceLocator {
      */
     async getCollectionNamesForQueryAsync({query}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        return await this.partitioner.getAllPartitionsForResourceTypeAsync({
+        return await this.partitioner.getPartitionNamesByQueryAsync({
             resourceType: this._resourceType,
             base_version: this._base_version,
             query
@@ -82,12 +82,12 @@ class ResourceLocator {
         /**
          * @type {string[]}
          */
-        const collectionNames = await this.partitioner.getAllPartitionsForResourceTypeAsync({
+        const collectionNames = await this.partitioner.getPartitionNameByResourceAsync({
             resourceType: this._resourceType,
             base_version: this._base_version,
             query
         });
-        return collectionNames[0];
+        return collectionNames.length > 0 ? collectionNames[0] : '';
     }
 
     /**
@@ -100,7 +100,10 @@ class ResourceLocator {
         /**
          * @type {string}
          */
-        const partition = await this.partitioner.getPartitionNameByResourceAsync({resource, base_version: this._base_version});
+        const partition = await this.partitioner.getPartitionNameByResourceAsync({
+            resource,
+            base_version: this._base_version
+        });
         return `${partition}_History`;
     }
 
