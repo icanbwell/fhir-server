@@ -13,9 +13,9 @@ describe('Create Index Tests', () => {
         await commonAfterEach();
     });
 
-    function delay(time) {
-        return new Promise(resolve => setTimeout(resolve, time));
-    }
+    // function delay(time) {
+    //     return new Promise(resolve => setTimeout(resolve, time));
+    // }
 
     describe('CreateIndex Tests', () => {
         test('createIndex works for Patient', async () => {
@@ -41,13 +41,13 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const patientCollection = fhirDb.collection(collectionName);
-            patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
                 db: fhirDb
             });
-            await delay(3000); // sleep so indexes are done
+            // await delay(3000); // sleep so indexes are done
             // check that indexes were created properly
             /**
              * @type {Object[]}
@@ -125,7 +125,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -200,7 +200,7 @@ describe('Create Index Tests', () => {
                         'id': 1
                     },
                     'name': 'id_1',
-                    'unique': true
+                    // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
@@ -251,7 +251,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -326,7 +326,7 @@ describe('Create Index Tests', () => {
                         'id': 1
                     },
                     'name': 'id_1',
-                    'unique': true
+                    // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
@@ -372,7 +372,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Collection}
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
-            auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
+            await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
             // run indexManager
             await indexManager.indexCollectionAsync({
                 collectionName,
@@ -452,7 +452,7 @@ describe('Create Index Tests', () => {
                         'id': 1
                     },
                     'name': 'id_1',
-                    'unique': true
+                    // 'unique': true
                 }
             );
             expect(sortedIndexes[6]).toStrictEqual(
