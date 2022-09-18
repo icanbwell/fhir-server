@@ -103,7 +103,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     ]
                 };
                 try {
-                    await this.runForQueryBatches(
+                    await this.runForQueryBatchesAsync(
                         {
                             db: fhirDb,
                             sourceCollectionName,
@@ -126,7 +126,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
     }
 }
 
-const main = async function () {
+async function main() {
     const args = process.argv.slice(2);
     console.log(...args);
     let currentDateTime = new Date();
@@ -153,7 +153,7 @@ const main = async function () {
     await processAuditEventRunner.processAsync();
 
     process.exit(0);
-};
+}
 
 main().catch(reason => {
     console.error(reason);

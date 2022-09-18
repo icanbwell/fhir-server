@@ -22,3 +22,11 @@ globalConfig.json
 !.idea/fileTemplates
 #!/.idea/file.template.settings.xml
 /src/graphql/generator/__pycache__
+
+# dotenv environment variables file
+.env
+.env.prod
+.env.prod.events
+.env.staging
+.env.staging.events
+.env.test

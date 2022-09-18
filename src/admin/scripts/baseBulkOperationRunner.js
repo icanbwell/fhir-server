@@ -27,7 +27,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [ordered]
      * @returns {Promise<string>}
      */
-    async runForQueryBatches(
+    async runForQueryBatchesAsync(
         {
             db,
             sourceCollectionName,
