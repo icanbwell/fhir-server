@@ -32,8 +32,9 @@ const options = {
     retryReads: true,
     maxIdleTimeMS: 60000,
     // https://www.mongodb.com/developer/products/mongodb/mongodb-network-compression/
-    compressors: ['zstd']
-    // minPoolSize: 100,
+    compressors: ['zstd'],
+    // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
+    minPoolSize: 100,
 };
 /**
  * @name mongoConfig
