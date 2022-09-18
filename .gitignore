@@ -24,9 +24,7 @@ globalConfig.json
 /src/graphql/generator/__pycache__
 
 # dotenv environment variables file
-.env
-.env.prod
-.env.prod.events
-.env.staging
-.env.staging.events
+src/admin/scripts/.env
+src/admin/scripts/.env.prod
+src/admin/scripts/.env.staging
 .env.test

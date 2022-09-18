@@ -1,5 +1,4 @@
 const {connectAsync, disconnectAsync} = require('../../utils/connect');
-const dotenv = require('dotenv');
 
 /**
  * @typedef StartFromIdContainer
@@ -13,8 +12,6 @@ const dotenv = require('dotenv');
 
 class BaseScriptRunner {
     async init() {
-        // load config from .env
-        dotenv.config();
         await connectAsync();
         /**
          * For reporting progress

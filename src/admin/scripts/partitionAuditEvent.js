@@ -1,8 +1,17 @@
+// load config from .env.  Should be first thing so env vars are available to rest of the code
+const path = require('path');
+const dotenv = require('dotenv');
+const pathToEnv = path.resolve('./.env');
+dotenv.config({
+    path: pathToEnv
+});
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {Partitioner} = require('../../operations/common/partitioner');
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const {createContainer} = require('../../createContainer');
+const {assertTypeEquals} = require('../../utils/assertType');
+
 
 class PartitionAuditEventRunner extends BaseBulkOperationRunner {
     /**
@@ -16,11 +25,13 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         /**
          * @type {Date}
          */
-        this.recordAfter = recordedAfter;
+        this.recordedAfter = recordedAfter;
+        assertTypeEquals(recordedAfter, Date);
         /**
          * @type {Date}
          */
-        this.recordBefore = recordedBefore;
+        this.recordedBefore = recordedBefore;
+        assertTypeEquals(recordedBefore, Date);
     }
 
     getFirstDayOfNextMonth(date) {
@@ -73,7 +84,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             /**
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
 
             console.log(`Starting loop from ${this.recordedAfter} till ${this.recordedBefore}`);
             /**
@@ -105,7 +116,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            db: fhirDb,
+                            db: auditEventDb,
                             sourceCollectionName,
                             destinationCollectionName,
                             query,
@@ -157,7 +168,9 @@ async function main() {
 }
 
 /**
- * To run this: node src/admin/scripts/partitionAuditEvent.js 2022-08-01 2022-09-01
+ * To run this:
+ * nvm use 16.17.0
+ * node src/admin/scripts/partitionAuditEvent.js 2022-08-01 2022-09-01
  */
 main().catch(reason => {
     console.error(reason);
