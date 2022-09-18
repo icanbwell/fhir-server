@@ -4,6 +4,9 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 // const assert = require('node:assert/strict');
 
+/**
+ * @classdesc Writes response in FHIR
+ */
 class FhirResponseWriter {
     constructor() {
     }

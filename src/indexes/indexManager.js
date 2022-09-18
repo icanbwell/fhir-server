@@ -3,8 +3,6 @@
  */
 
 const async = require('async');
-const env = require('var');
-
 const {customIndexes} = require('./customIndexes');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
@@ -14,7 +12,7 @@ const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals} = require('../utils/assertType');
 
 /**
- * Manages indexes
+ * @classdesc Creates and deletes indexes
  */
 class IndexManager {
     /**
@@ -40,16 +38,8 @@ class IndexManager {
     async create_index_if_not_exists({db, indexConfig, collectionName}) {
         const properties_to_index = Object.keys(indexConfig.keys);
         let indexName = indexConfig.options.name;
-        // from https://docs.aws.amazon.com/documentdb/latest/developerguide/limits.html#limits.naming
-        // Index name: <col>$<index> :	 Length is [3–63] characters.
-        // total length combines both collection name and index name
-        const mex_fully_qualified_index_name_length = (env.MAX_FULLY_QUALIFIED_INDEX_NAME_LENGTH ?
-            parseInt(env.MAX_FULLY_QUALIFIED_INDEX_NAME_LENGTH) : 127) - collectionName.length - 1;
-        let mex_index_name_length = (env.MAX_INDEX_NAME_LENGTH ? parseInt(env.MAX_INDEX_NAME_LENGTH) : 63);
-        mex_index_name_length = Math.min(mex_index_name_length, mex_fully_qualified_index_name_length);
-        indexName = indexName.slice(0, mex_index_name_length - 1) ||
-            (properties_to_index.join('_1_') + '_1').slice(0, mex_index_name_length - 1);
         const columns = properties_to_index.join(',');
+        // limitations: https://www.mongodb.com/docs/manual/reference/limits/
         try {
             if (!await db.collection(collectionName).indexExists(indexName)) {
                 const message = 'Creating index ' + indexName + ' with columns: [' + columns + ']' +
