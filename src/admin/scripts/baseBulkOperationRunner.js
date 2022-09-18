@@ -1,4 +1,4 @@
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
@@ -10,8 +10,9 @@ const readline = require('readline');
 class BaseBulkOperationRunner extends BaseScriptRunner {
     /**
      * @param {MongoCollectionManager} mongoCollectionManager
+     * @param {number} batchSize
      */
-    constructor({mongoCollectionManager}) {
+    constructor({mongoCollectionManager, batchSize}) {
         super();
 
         /**
@@ -19,6 +20,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
          */
         this.mongoCollectionManager = mongoCollectionManager;
         assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
+
+        this.batchSize = batchSize;
+        assertIsValid(batchSize, `batchSize is not valid: ${batchSize}`);
     }
 
     /**
@@ -43,8 +47,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             ordered = false
         }
     ) {
-        const batchSize = process.env.BULK_BUFFER_SIZE || 10000;
-        const progressBatchSize = process.env.BULK_BUFFER_SIZE || 10000;
         let lastCheckedId = '';
 
         /**
@@ -89,7 +91,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 startFromIdContainer.skippedIdsForHavingAccessField === 0) {
                 currentDateTime = new Date();
                 console.log(`[${currentDateTime}] Started processing documents ` +
-                    `with batch size ${batchSize.toLocaleString('en-us')}`);
+                    `with batch size ${this.batchSize.toLocaleString('en-us')}`);
             }
             count += 1;
             readline.cursorTo(process.stdout, 0);
@@ -102,7 +104,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             }
 
             startFromIdContainer.convertedIds += 1;
-            if (startFromIdContainer.convertedIds % batchSize === 0) { // write every 100 items
+            if (startFromIdContainer.convertedIds % this.batchSize === 0) { // write every x items
                 currentDateTime = new Date();
                 console.log(`\n[${currentDateTime.toTimeString()}] ` +
                     `Writing ${operations.length.toLocaleString('en-US')} operations in bulk`);
@@ -113,7 +115,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
                 operations = [];
             }
-            if (startFromIdContainer.convertedIds % progressBatchSize === 0) { // show progress every 1000 items
+            if (startFromIdContainer.convertedIds % this.BatchSize === 0) { // show progress every x items
                 currentDateTime = new Date();
                 const message = `\n[${currentDateTime.toTimeString()}] ` +
                     `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +

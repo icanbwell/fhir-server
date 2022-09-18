@@ -13,6 +13,7 @@ const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const {createContainer} = require('../../createContainer');
 const {assertTypeEquals} = require('../../utils/assertType');
+const {CommandLineParser} = require('./commandLineParser');
 
 
 /**
@@ -24,9 +25,13 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {Date} recordedAfter
      * @param {Date} recordedBefore
+     * @param {number} batchSize
      */
-    constructor({mongoCollectionManager, recordedAfter, recordedBefore}) {
-        super({mongoCollectionManager: mongoCollectionManager});
+    constructor({
+                    mongoCollectionManager, recordedAfter, recordedBefore,
+                    batchSize
+                }) {
+        super({mongoCollectionManager, batchSize});
         /**
          * @type {Date}
          */
@@ -159,14 +164,16 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
  * @returns {Promise<void>}
  */
 async function main() {
-    const args = process.argv.slice(2);
-    console.log(...args);
+    /**
+     * @type {Object}
+     */
+    const parameters = CommandLineParser.parseCommandLine();
     let currentDateTime = new Date();
-    // let startFromId = args.length > 1 && args[1];
-    const recordedAfter = args.length > 0 ? new Date(args[0]) : new Date(2021, 6 - 1, 1);
-    const recordedBefore = args.length > 1 ? new Date(args[1]) : new Date(2022, 10 - 1, 1);
-    // const limit = args.length > 2 ? Number(args[2]) : 1000000;
-    console.log(`[${currentDateTime}] Running script with recordedAfter=${recordedAfter} to recordedBefore=${recordedBefore}`);
+    const recordedAfter = parameters.from ? new Date(`${parameters.from}T00:00:00Z`) : new Date(2021, 6 - 1, 1);
+    const recordedBefore = parameters.to ? new Date(`${parameters.to}T00:00:00Z`) : new Date(2022, 10 - 1, 1);
+    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    console.log(`[${currentDateTime}] ` +
+        `Running script from ${recordedAfter.toUTCString()} to ${recordedBefore.toUTCString()}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -175,7 +182,8 @@ async function main() {
     container.register('processAuditEventRunner', (c) => new PartitionAuditEventRunner({
         mongoCollectionManager: c.mongoCollectionManager,
         recordedAfter,
-        recordedBefore
+        recordedBefore,
+        batchSize
     }));
 
     /**
@@ -190,7 +198,7 @@ async function main() {
 /**
  * To run this:
  * nvm use 16.17.0
- * node src/admin/scripts/partitionAuditEvent.js 2022-08-01 2022-09-01
+ * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);
