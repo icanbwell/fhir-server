@@ -1,6 +1,7 @@
 const {assertTypeEquals} = require('../../utils/assertType');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {BaseScriptRunner} = require('./baseScriptRunner');
+const readline = require('readline');
 
 class BaseBulkOperationRunner extends BaseScriptRunner {
     /**
@@ -70,12 +71,16 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             .sort({id: 1})
             .maxTimeMS(60 * 60 * 1000);
 
+        let count = 0;
         while (await cursor.hasNext()) {
             /**
              * element
              * @type {import('mongodb').DefaultSchema}
              */
             const doc = await cursor.next();
+            count += 1;
+            readline.cursorTo(process.stdout, 0);
+            process.stdout.write(`${count}`);
             startFromIdContainer.startFromId = doc.id;
             lastCheckedId = doc.id;
             if (startFromIdContainer.skippedIdsForMissingAccessTags === 0 &&
@@ -93,6 +98,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             startFromIdContainer.convertedIds += 1;
             if (startFromIdContainer.convertedIds % batchSize === 0) { // write every 100 items
+                currentDateTime = new Date();
+                console.log(`\n[${currentDateTime.toTimeString()}] Writing ${operations.length} operations in bulk`);
                 const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
                 startFromIdContainer.nModified += bulkResult.nModified;
                 startFromIdContainer.nUpserted += bulkResult.nUpserted;
@@ -102,7 +109,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             }
             if (startFromIdContainer.convertedIds % progressBatchSize === 0) { // show progress every 1000 items
                 currentDateTime = new Date();
-                const message = `[${currentDateTime.toTimeString()}] Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
+                const message = `\n[${currentDateTime.toTimeString()}] Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
                     `modified: ${startFromIdContainer.nModified.toLocaleString()}, ` +
                     `upserted: ${startFromIdContainer.nUpserted.toLocaleString()}, ` +
                     `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
@@ -111,10 +118,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
         if (operations.length > 0) { // if any items left to write
             currentDateTime = new Date();
+            console.log(`\n[${currentDateTime.toTimeString()}] Final writing ${operations.length} operations in bulk`);
             const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
             startFromIdContainer.nModified += bulkResult.nModified;
             startFromIdContainer.nUpserted += bulkResult.nUpserted;
-            const message = `[${currentDateTime.toTimeString()}] Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
+            const message = `\n[${currentDateTime.toTimeString()}] Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
                 `modified: ${startFromIdContainer.nModified.toLocaleString()}, ` +
                 `upserted: ${startFromIdContainer.nUpserted.toLocaleString()} ` +
                 `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
