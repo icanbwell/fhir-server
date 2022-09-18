@@ -156,6 +156,9 @@ async function main() {
     process.exit(0);
 }
 
+/**
+ * To run this: node src/admin/scripts/partitionAuditEvent.js 2022-08-01 2022-09-01
+ */
 main().catch(reason => {
     console.error(reason);
 });
