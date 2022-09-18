@@ -166,7 +166,7 @@
     "jest-failure-reporter": "^1.0.1",
     "jest-matcher-utils": "^29.0.1",
     "jest-diff": "^29.0.1",
-    "jose": "<3",
+    "jose": "^2.0.6",
     "jshint": "^2.13.5",
     "jsonwebtoken": "^8.5.1",
     "mongodb-memory-server": "^8.9.1",
