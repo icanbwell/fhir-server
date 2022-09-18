@@ -115,7 +115,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
                 operations = [];
             }
-            if (startFromIdContainer.convertedIds % this.BatchSize === 0) { // show progress every x items
+            if (startFromIdContainer.convertedIds % this.batchSize === 0) { // show progress every x items
                 currentDateTime = new Date();
                 const message = `\n[${currentDateTime.toTimeString()}] ` +
                     `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
