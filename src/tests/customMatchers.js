@@ -4,7 +4,7 @@ const {diff} = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
 const {expect} = require('@jest/globals');
 const moment = require('moment-timezone');
-const {Partitioner} = require('../partitioners/partitioningManager');
+const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
 
 /**
  * @typedef JestUtils
@@ -19,7 +19,7 @@ function cleanMeta(resource) {
     /**
      * @type {string}
      */
-    const auditCollectionName = Partitioner.getPartitionNameFromYearMonth(
+    const auditCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
         {fieldValue: fieldDate.toString(), resourceWithBaseVersion: 'AuditEvent_4_0_0'}
     );
 

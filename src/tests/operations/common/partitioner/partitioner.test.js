@@ -5,6 +5,7 @@ const globals = require('../../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../../constants');
 const {ConfigManager} = require('../../../../utils/configManager');
 const moment = require('moment-timezone');
+const {YearMonthPartitioner} = require('../../../../partitioners/yearMonthPartitioner');
 
 class MockConfigManager extends ConfigManager {
     /**
@@ -62,7 +63,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = YearMonthPartitioner.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -96,7 +97,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = YearMonthPartitioner.getPartitionNameFromYearMonth({
                 resourceWithBaseVersion: 'AuditEvent_4_0_0',
                 fieldValue: fieldDate.toString()
             });
@@ -143,7 +144,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = YearMonthPartitioner.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -207,7 +208,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = YearMonthPartitioner.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -254,7 +255,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = YearMonthPartitioner.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -300,7 +301,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = YearMonthPartitioner.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });
@@ -346,7 +347,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName2 = PartitioningManager.getPartitionNameFromYearMonth({
+            const mongoCollectionName2 = YearMonthPartitioner.getPartitionNameFromYearMonth({
                 fieldValue: fieldDate.toString(),
                 resourceWithBaseVersion: 'AuditEvent_4_0_0'
             });

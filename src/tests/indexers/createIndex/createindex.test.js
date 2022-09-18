@@ -2,7 +2,7 @@ const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} =
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
-const {Partitioner} = require('../../../partitioners/partitioningManager');
+const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
 
 describe('Create Index Tests', () => {
     beforeEach(async () => {
@@ -240,7 +240,7 @@ describe('Create Index Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
-            const collectionName = Partitioner.getPartitionNameFromYearMonth(
+            const collectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: (new Date()).toString(),
                     resourceWithBaseVersion: 'AuditEvent_4_0_0'

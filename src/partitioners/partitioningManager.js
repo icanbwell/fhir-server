@@ -152,7 +152,7 @@ class PartitioningManager {
                 default:
                     assertFail(
                         {
-                            source: 'Partitioner.getPartition',
+                            source: 'PartitioningManager.getPartition',
                             message: `type: ${type} is not supported for partitioning type`,
                             args: {}
                         });
@@ -197,7 +197,7 @@ class PartitioningManager {
                 default:
                     assertFail(
                         {
-                            source: 'Partitioner.getPartition',
+                            source: 'PartitioningManager.getPartition',
                             message: `type: ${type} is not supported for partitioning type`,
                             args: {}
                         });

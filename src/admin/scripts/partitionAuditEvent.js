@@ -8,12 +8,12 @@ dotenv.config({
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {Partitioner} = require('../../partitioners/partitioningManager');
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const {createContainer} = require('../../createContainer');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {CommandLineParser} = require('./commandLineParser');
+const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
 
 
 /**
@@ -121,7 +121,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                  */
                 const recordedAfterForLoop = this.getFirstDateOfPreviousMonth(recordedBeforeForLoop);
                 console.log(`From=${recordedAfterForLoop.toUTCString()} to=${recordedBeforeForLoop.toUTCString()}`);
-                const destinationCollectionName = Partitioner.getPartitionNameFromYearMonth({
+                const destinationCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth({
                     fieldValue: recordedAfterForLoop.toString(),
                     resourceWithBaseVersion: sourceCollectionName
                 });

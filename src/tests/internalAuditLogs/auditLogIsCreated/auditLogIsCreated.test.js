@@ -20,7 +20,7 @@ const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 const env = require('var');
 const moment = require('moment-timezone');
-const {Partitioner} = require('../../../partitioners/partitioningManager');
+const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
 
 describe('InternalAuditLog Tests', () => {
     beforeEach(async () => {
@@ -64,7 +64,7 @@ describe('InternalAuditLog Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName = Partitioner.getPartitionNameFromYearMonth(
+            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: fieldDate.toString(),
                     resourceWithBaseVersion: `${collection_name}_${base_version}`,
