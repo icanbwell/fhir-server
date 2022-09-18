@@ -306,7 +306,7 @@ class UpdateOperation {
             // Insert/update our resource record
             // When using the $set operator, only the specified fields are updated
             /**
-             * @type {FindOneAndUpdateResult|null}
+             * @type {{error: import('mongodb').Document, created: boolean} | null}
              */
             const res = await this.databaseQueryFactory.createQuery(
                 {resourceType, base_version, useAtlas}

@@ -538,7 +538,7 @@ class SearchManager {
         if (args['_total'] === 'estimate') {
             return await this.databaseQueryFactory.createQuery(
                 {resourceType, base_version, useAtlas}
-            ).estimatedDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
+            ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
         } else {
             return await this.databaseQueryFactory.createQuery(
                 {resourceType, base_version, useAtlas}

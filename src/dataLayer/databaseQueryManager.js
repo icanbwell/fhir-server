@@ -61,8 +61,8 @@ class DatabaseQueryManager {
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
-     * @param {import('mongodb').WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {Promise<Resource|any>}
      */
     async findOneAsync({query, options = null}) {
@@ -85,10 +85,10 @@ class DatabaseQueryManager {
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
-     * @param {import('mongodb').UpdateQuery<import('mongodb').DefaultSchema> | any} update
-     * @param {import('mongodb').FindOneAndUpdateOption<import('mongodb').DefaultSchema> | null} options
-     * @return {Promise<FindOneAndUpdateResult | null>}
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {import('mongodb').UpdateFilter<import('mongodb').DefaultSchema> | any} update
+     * @param {import('mongodb').FindOneAndUpdateOptions<import('mongodb').DefaultSchema>} options
+     * @return {Promise<{error: import('mongodb').Document, created: boolean} | null>}
      */
     async findOneAndUpdateAsync({query, update, options = null}) {
         /**
@@ -97,7 +97,8 @@ class DatabaseQueryManager {
         const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
-             * @type {FindAndModifyWriteOpResultObject<import('mongodb').DefaultSchema>}
+             * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#findOneAndUpdate
+             * @type {ModifyResult<import('mongodb').DefaultSchema>}
              */
             const result = await collection.findOneAndUpdate(query, update, options);
             if (result.ok) {
@@ -135,8 +136,8 @@ class DatabaseQueryManager {
 
     /**
      * Returns a DatabasePartitionedCursor by executing the query
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
-     * @param {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>> | null} options
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {DatabasePartitionedCursor}
      */
     async findAsync({query, options = null}) {
@@ -145,12 +146,12 @@ class DatabaseQueryManager {
          */
         const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
         /**
-         * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
+         * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>[]}
          */
         const cursors = [];
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
-             * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>}
+             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
              */
             const cursor = collection.find(query, options);
             cursors.push(cursor);
@@ -161,12 +162,11 @@ class DatabaseQueryManager {
     }
 
     /**
-     * Gets estimated count
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>|null} query
-     * @param { import('mongodb').MongoCountPreferences|null} options
+     * Gets estimated count of ALL documents in a collection.  This does not accept a query
+     * @param {import('mongodb').EstimatedDocumentCountOptions} options
      * @return {Promise<*>}
      */
-    async estimatedDocumentCountAsync({query, options}) {
+    async estimatedDocumentCountAsync({options}) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
@@ -174,9 +174,10 @@ class DatabaseQueryManager {
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
+             * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#estimatedDocumentCount
              * @type {number}
              */
-            const countInCollection = await collection.estimatedDocumentCount(query, options);
+            const countInCollection = await collection.estimatedDocumentCount(options);
             count += countInCollection;
         }
         return count;
