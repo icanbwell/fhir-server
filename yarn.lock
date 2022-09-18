@@ -3741,10 +3741,10 @@
     "fastq" "^1.6.1"
     "queue-microtask" "^1.1.2"
 
-"aws-sdk@^2.1216.0":
-  "integrity" "sha512-sCgkIc9ZdFyf4dImsbRx+139gw9A6Xy924wwP4rAVrYeSbudBY0jDO4wJBAwUpPKqX5cxjSLmjP7gOi2CDwhjw=="
-  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1216.0.tgz"
-  "version" "2.1216.0"
+"aws-sdk@^2.1218.0":
+  "integrity" "sha512-oreF2jKfUZ8VKnIKh8TrOOOsdSfv87jHGtWQNAHdvfeyrYK5FrnvGkHUZ3bu6g6u1gHwu5FhTPiRMbgS8Re+NA=="
+  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1218.0.tgz"
+  "version" "2.1218.0"
   dependencies:
     "buffer" "4.9.2"
     "events" "1.1.1"
@@ -12668,10 +12668,10 @@
     "source-map-resolve" "^0.5.0"
     "use" "^3.1.0"
 
-"snyk@^1.1005.0":
-  "integrity" "sha512-pnH3qQvMoaY9SlXrIldZdW36z2uRatHP/Y5azmLbE0QRIF7FR+JQF87ujsXMh9MQ4OEt5T6T9l1P7UmHkvk6vg=="
-  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.1005.0.tgz"
-  "version" "1.1005.0"
+"snyk@^1.1006.0":
+  "integrity" "sha512-xnMLyyvRS0nbRrISiHOLYu7XCC/Hzk+Bvkt72ugmTH/gOc9EVqR5iCMdTo9iLoY/8lzINxsKeHZk8/eP5l2muA=="
+  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.1006.0.tgz"
+  "version" "1.1006.0"
 
 "socks-proxy-agent@^5.0.0", "socks-proxy-agent@5":
   "integrity" "sha512-vZdmnjb9a2Tz6WEQVIurybSwElwPxMZaIc7PzqbJTrezcKNznv6giT7J7tZDZ1BojVaa1jvO/UiUdhDVB0ACoQ=="
