@@ -26,7 +26,9 @@ process.on('message', async (params) => {
                 source: 'indexerTask',
                 message: 'Starting indexing in separate process',
             });
-            const collection_stats = await indexManager.indexAllCollectionsAsync({tableName});
+            const collection_stats = await indexManager.indexAllCollectionsAsync({
+                collectionRegex: tableName
+            });
             await errorReporter.reportMessageAsync({
                 source: 'indexerTask',
                 message: 'Finished indexing in separate process',
@@ -43,7 +45,9 @@ process.on('message', async (params) => {
                 source: 'indexerTask',
                 message: 'Starting deleting indexes in separate process',
             });
-            await indexManager.deleteIndexesInAllCollectionsAsync({tableName});
+            await indexManager.deleteIndexesInAllCollectionsAsync({
+                collectionRegex: tableName
+            });
             await errorReporter.reportMessageAsync({
                 source: 'indexerTask',
                 message: 'Finished deleting index in separate process',
@@ -53,7 +57,9 @@ process.on('message', async (params) => {
                 source: 'indexerTask',
                 message: 'Starting indexing in separate process',
             });
-            const collection_stats = await indexManager.indexAllCollectionsAsync({tableName});
+            const collection_stats = await indexManager.indexAllCollectionsAsync({
+                collectionRegex: tableName
+            });
             await errorReporter.reportMessageAsync({
                 source: 'indexerTask',
                 message: 'Finished indexing in separate process',

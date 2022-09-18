@@ -151,43 +151,57 @@ class IndexManager {
 
     /**
      * Indexes all the collections
-     * @param {string?} tableName
+     * @param {string|undefined} [collectionRegex]
      * @return {Promise<*>}
      */
-    async indexAllCollectionsAsync({tableName}) {
+    async indexAllCollectionsAsync({collectionRegex} = {}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
         const client = await createClientAsync(mongoConfig);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(CLIENT_DB);
         try {
-            /**
-             * @type {import('mongodb').Db}
-             */
-            const db = client.db(CLIENT_DB);
-            let collectionNames = [];
-            // const collections = await db.listCollections().toArray();
-
-            /**
-             * @type {import('mongodb').CommandCursor}
-             */
-            const commandCursor = db.listCollections();
-            await commandCursor.forEach(collection => {
-                if (collection.name.indexOf('system.') === -1) {
-                    collectionNames.push(collection.name);
-                }
+            return await this.indexAllCollectionsInDatabaseAsync({
+                db, collectionRegex
             });
-
-            if (tableName) {
-                collectionNames = collectionNames.filter(c => c === tableName);
-            }
-            // now add indices on id column for every collection
-            return async.map(
-                collectionNames,
-                async collectionName => await this.indexCollectionAsync({collectionName, db})
-            );
         } finally {
             await disconnectClientAsync(client);
         }
+    }
+
+    /**
+     * indexes all collections in this database
+     * @param {import('mongodb').Db} db
+     * @param {string|undefined} [collectionRegex]
+     * @returns {Promise<{indexes: {v: number, key: Object, name: string, unique: (boolean | undefined)}[], indexesCreated: number, name: string}[]>}
+     */
+    async indexAllCollectionsInDatabaseAsync({db, collectionRegex}) {
+        /**
+         * @type {string[]}
+         */
+        let collectionNames = [];
+        /**
+         * @type {import('mongodb').CommandCursor}
+         */
+        const commandCursor = db.listCollections();
+        await commandCursor.forEach(collection => {
+            if (collection.name.indexOf('system.') === -1) {
+                collectionNames.push(collection.name);
+            }
+        });
+
+        if (collectionRegex) {
+            collectionNames = collectionNames.filter(c => c.match(collectionRegex) !== null);
+        }
+        return async.map(
+            collectionNames,
+            async collectionName => await this.indexCollectionAsync({
+                collectionName, db
+            })
+        );
     }
 
     /**
@@ -249,40 +263,53 @@ class IndexManager {
 
     /**
      * Delete indexes on all the collections
-     * @param {string?} tableName
+     * @param {string|undefined} [collectionRegex]
      * @return {Promise<*>}
      */
-    async deleteIndexesInAllCollectionsAsync({tableName}) {
+    async deleteIndexesInAllCollectionsAsync({collectionRegex}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
         const client = await createClientAsync(mongoConfig);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(CLIENT_DB);
         try {
-            /**
-             * @type {import('mongodb').Db}
-             */
-            const db = client.db(CLIENT_DB);
-            let collectionNames = [];
-
-            for await (const collection of db.listCollections()) {
-                if (collection.name.indexOf('system.') === -1) {
-                    collectionNames.push(collection.name);
-                }
-            }
-
-            if (tableName) {
-                collectionNames = collectionNames.filter(c => c === tableName);
-            }
-
-            for await (const collectionName of collectionNames) {
-                console.log(JSON.stringify({message: 'Deleting all indexes in ' + collectionName}));
-                await this.deleteIndexesInCollectionAsync({collection_name: collectionName, db});
-            }
-
-            console.log(JSON.stringify({message: 'Finished deleteIndexesInAllCollections'}));
+            await this.deleteIndexesInAllCollectionsInDatabase({db, collectionRegex});
         } finally {
             await disconnectClientAsync(client);
         }
+    }
+
+    /**
+     * deletes all indexes in database where collection name starts with collectionNameStartsWith
+     * @param {import('mongodb').Db} db
+     * @param {string|undefined} [collectionRegex]
+     * @returns {Promise<void>}
+     */
+    async deleteIndexesInAllCollectionsInDatabase({db, collectionRegex}) {
+        /**
+         * @type {string[]}
+         */
+        let collectionNames = [];
+
+        for await (const collection of db.listCollections()) {
+            if (collection.name.indexOf('system.') === -1) {
+                collectionNames.push(collection.name);
+            }
+        }
+
+        if (collectionRegex) {
+            collectionNames = collectionNames.filter(c => c.match(collectionRegex) !== null);
+        }
+
+        for await (const collectionName of collectionNames) {
+            console.log(JSON.stringify({message: 'Deleting all indexes in ' + collectionName}));
+            await this.deleteIndexesInCollectionAsync({collection_name: collectionName, db});
+        }
+
+        console.log(JSON.stringify({message: 'Finished deleteIndexesInAllCollections'}));
     }
 }
 
