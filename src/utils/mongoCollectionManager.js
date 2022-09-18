@@ -8,7 +8,7 @@ const mutex = new Mutex();
 
 const {isTrue} = require('./isTrue');
 const env = require('var');
-const {IndexManager} = require('../indexes/index.util');
+const {IndexManager} = require('../indexes/indexManager');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
 
 class MongoCollectionManager {

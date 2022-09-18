@@ -3,7 +3,7 @@
  */
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
-const { IndexManager } = require('../indexes/index.util');
+const { IndexManager } = require('../indexes/indexManager');
 const { ErrorReporter } = require('../utils/slack.logger');
 const { getImageVersion } = require('../utils/getImageVersion');
 
