@@ -11,6 +11,7 @@ const {
     searchUtils,
 } = require('../utils/searchForm.util');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
+const sanitize = require('sanitize-filename');
 
 /**
  * middleware to render HTML
@@ -77,7 +78,8 @@ const htmlRenderer = (req, res, next) => {
                     if (req.url && req.url.includes('/_search')) {
                         return res.render(__dirname + '/../views/pages/SearchResult', options);
                     } else {
-                        return res.render(__dirname + '/../views/pages/' + resourceName, options);
+                        const filePath = __dirname + '/../views/pages/' + sanitize(resourceName);
+                        return res.render(filePath, options);
                     }
                 } else {
                     return res.render(__dirname + '/../views/pages/index', options);

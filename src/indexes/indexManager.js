@@ -3,8 +3,6 @@
  */
 
 const async = require('async');
-const env = require('var');
-
 const {customIndexes} = require('./customIndexes');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB} = require('../constants');
@@ -14,7 +12,7 @@ const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals} = require('../utils/assertType');
 
 /**
- * Manages indexes
+ * @classdesc Creates and deletes indexes
  */
 class IndexManager {
     /**
@@ -31,51 +29,48 @@ class IndexManager {
 
     /**
      * creates a multi key index if it does not exist
+     * https://www.mongodb.com/docs/manual/reference/method/db.collection.createIndex/
+     * https://www.mongodb.com/docs/drivers/node/current/fundamentals/indexes/
      * @param {import('mongodb').Db} db
-     * @param {string[]} properties_to_index
-     * @param {string} collection_name
-     * @param {string?} index_name
+     * @param {{keys:Object, options:Object, exclude: string[]}} indexConfig
+     * @param {string} collectionName
      * @return {Promise<boolean>}
      */
-    async create_index_if_not_exists(db, properties_to_index, collection_name, index_name) {
-        // from https://docs.aws.amazon.com/documentdb/latest/developerguide/limits.html#limits.naming
-        // Index name: <col>$<index> :	 Length is [3–63] characters.
-        // total length combines both collection name and index name
-        const mex_fully_qualified_index_name_length = (env.MAX_FULLY_QUALIFIED_INDEX_NAME_LENGTH ? parseInt(env.MAX_FULLY_QUALIFIED_INDEX_NAME_LENGTH) : 127) - collection_name.length - 1;
-        let mex_index_name_length = (env.MAX_INDEX_NAME_LENGTH ? parseInt(env.MAX_INDEX_NAME_LENGTH) : 63);
-        mex_index_name_length = Math.min(mex_index_name_length, mex_fully_qualified_index_name_length);
-        index_name = index_name.slice(0, mex_index_name_length - 1) || (properties_to_index.join('_1_') + '_1').slice(0, mex_index_name_length - 1);
+    async createIndexIfNotExistsAsync({db, indexConfig, collectionName}) {
+        const properties_to_index = Object.keys(indexConfig.keys);
+        let indexName = indexConfig.options.name;
         const columns = properties_to_index.join(',');
+        // limitations: https://www.mongodb.com/docs/manual/reference/limits/
         try {
-            if (!await db.collection(collection_name).indexExists(index_name)) {
-                const message = 'Creating index ' + index_name + ' with columns: [' + columns + ']' + ' in ' + collection_name;
+            if (!await db.collection(collectionName).indexExists(indexName)) {
+                const message = 'Creating index ' + indexName + ' with columns: [' + columns + ']' +
+                    ' in ' + collectionName;
                 await logSystemEventAsync(
                     {
                         event: 'createIndex',
                         message,
                         args: {
-                            index: index_name,
+                            index: indexName,
                             columns: columns,
-                            collection: collection_name
+                            collection: collectionName,
+                            indexColumnConfig: indexConfig
                         }
                     }
                 );
-                await this.errorReporter.reportMessageAsync({source: 'createIndex', message: message});
-                const my_dict = {};
-                for (const property_to_index of properties_to_index) {
-                    my_dict[String(property_to_index)] = 1;
-                }
-                await db.collection(collection_name).createIndex(my_dict, {name: index_name});
+                await this.errorReporter.reportMessageAsync(
+                    {source: 'createIndex', message: message});
+                await db.collection(collectionName).createIndex(indexConfig.keys, indexConfig.options);
                 return true;
             }
         } catch (e) {
-            const message1 = 'Error creating index: ' + index_name + ' for collection ' + collection_name + ': ' + JSON.stringify(e);
+            const message1 = 'Error creating index: ' + indexName + ' for collection ' + collectionName +
+                ': ' + JSON.stringify(e);
             await logSystemErrorAsync(
                 {
                     event: 'createIndex', message: message1, args: {
-                        index: index_name,
+                        index: indexName,
                         columns: columns,
-                        collection: collection_name
+                        collection: collectionName
                     },
                     error: e
                 }
@@ -87,40 +82,70 @@ class IndexManager {
 
     /**
      * creates indexes on a collection
-     * @param {string} collection_name
+     * @param {string} collectionName
      * @param {import('mongodb').Db} db
-     * @return {Promise<{indexes: *, createdIndex: boolean, name, count: *}>}
+     * @return {Promise<{indexes: {v:number,key:Object, name:string, unique:boolean|undefined}[], indexesCreated: number, name: string}>}
      */
-    async indexCollectionAsync(collection_name, db) {
+    async indexCollectionAsync({collectionName, db}) {
+        if (collectionName.includes('_History')) {
+            // don't index history collections
+            return {
+                name: collectionName,
+                indexesCreated: 0,
+                indexes: []
+            };
+        }
         // check if index exists
-        let createdIndex = false;
+        let indexesCreated = 0;
 
-        // now add custom indices
-        for (const [collection, indexesArray] of Object.entries(customIndexes)) {
-            if (collection === '*') {
-                for (const indexDefinition of indexesArray) {
-                    for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
-                        createdIndex = await this.create_index_if_not_exists(db, indexColumns, collection_name, indexName) || createdIndex;
+        const baseCollectionName = collectionName.endsWith('_4_0_0') ?
+            collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
+
+        // first add indexes that are set on all collections (except ones marked exlude)
+        for (const [indexCollectionName,
+            /** @type {{keys:Object, options:Object, exclude: string[]}[]} */ indexConfigs]
+            of Object.entries(customIndexes)) {
+            if (indexCollectionName === '*') {
+                for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
+                    if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                        const createdIndex = await this.createIndexIfNotExistsAsync(
+                            {
+                                db, indexConfig, collectionName
+                            }
+                        );
+                        if (createdIndex) {
+                            indexesCreated += 1;
+                        }
                     }
                 }
             }
         }
 
-        for (const [collection, indexesArray] of Object.entries(customIndexes)) {
-            if (collection_name.startsWith(collection)) {
-                for (const indexDefinition of indexesArray) {
-                    for (const [indexName, indexColumns] of Object.entries(indexDefinition)) {
-                        createdIndex = await this.create_index_if_not_exists(db, indexColumns, collection_name, indexName) || createdIndex;
+        // now add indexes for the specific collection
+        for (const [indexCollectionName,
+            /** @type {{keys:Object, options:Object, exclude: string[]}[]} */ indexConfigs]
+            of Object.entries(customIndexes)) {
+            if (baseCollectionName === indexCollectionName) {
+                for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
+                    if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                        const createdIndex = await this.createIndexIfNotExistsAsync(
+                            {
+                                db, indexConfig, collectionName
+                            }
+                        );
+                        if (createdIndex) {
+                            indexesCreated += 1;
+                        }
                     }
                 }
             }
         }
 
-        const indexes = await db.collection(collection_name).indexes();
+        const indexes = await db.collection(collectionName).indexes();
         return {
-            name: collection_name,
-            createdIndex: createdIndex,
-            indexes: indexes
+            name: collectionName,
+            indexesCreated,
+            indexes
         };
     }
 
@@ -129,7 +154,7 @@ class IndexManager {
      * @param {string?} tableName
      * @return {Promise<*>}
      */
-    async indexAllCollectionsAsync(tableName) {
+    async indexAllCollectionsAsync({tableName}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -139,7 +164,7 @@ class IndexManager {
              * @type {import('mongodb').Db}
              */
             const db = client.db(CLIENT_DB);
-            let collection_names = [];
+            let collectionNames = [];
             // const collections = await db.listCollections().toArray();
 
             /**
@@ -148,17 +173,17 @@ class IndexManager {
             const commandCursor = db.listCollections();
             await commandCursor.forEach(collection => {
                 if (collection.name.indexOf('system.') === -1) {
-                    collection_names.push(collection.name);
+                    collectionNames.push(collection.name);
                 }
             });
 
             if (tableName) {
-                collection_names = collection_names.filter(c => c === tableName);
+                collectionNames = collectionNames.filter(c => c === tableName);
             }
             // now add indices on id column for every collection
             return async.map(
-                collection_names,
-                async collection_name => await this.indexCollectionAsync(collection_name, db)
+                collectionNames,
+                async collectionName => await this.indexCollectionAsync({collectionName, db})
             );
         } finally {
             await disconnectClientAsync(client);
@@ -167,15 +192,15 @@ class IndexManager {
 
     /**
      * Gets the current indexes on the specified collection
-     * @param {string} collection_name
+     * @param {string} collectionName
      * @param {import('mongodb').Db} db
      * @return {Promise<{indexes: *, name}>}
      */
-    async getIndexesInCollectionAsync(collection_name, db) {
+    async getIndexesInCollectionAsync({collectionName, db}) {
         // check if index exists
-        const indexes = await db.collection(collection_name).indexes();
+        const indexes = await db.collection(collectionName).indexes();
         return {
-            name: collection_name,
+            name: collectionName,
             indexes: indexes
         };
     }
@@ -186,7 +211,7 @@ class IndexManager {
      * @param {import('mongodb').Db} db
      * @return {Promise<{indexes: *, name}>}
      */
-    async deleteIndexesInCollectionAsync(collection_name, db) {
+    async deleteIndexesInCollectionAsync({collection_name, db}) {
         await db.collection(collection_name).dropIndexes();
     }
 
@@ -215,7 +240,7 @@ class IndexManager {
             // now add indices on id column for every collection
             return await async.map(
                 collection_names,
-                async collection_name => await this.getIndexesInCollectionAsync(collection_name, db)
+                async collectionName => await this.getIndexesInCollectionAsync({collectionName, db})
             );
         } finally {
             await disconnectClientAsync(client);
@@ -227,7 +252,7 @@ class IndexManager {
      * @param {string?} tableName
      * @return {Promise<*>}
      */
-    async deleteIndexesInAllCollectionsAsync(tableName) {
+    async deleteIndexesInAllCollectionsAsync({tableName}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -237,21 +262,21 @@ class IndexManager {
              * @type {import('mongodb').Db}
              */
             const db = client.db(CLIENT_DB);
-            let collection_names = [];
+            let collectionNames = [];
 
             for await (const collection of db.listCollections()) {
                 if (collection.name.indexOf('system.') === -1) {
-                    collection_names.push(collection.name);
+                    collectionNames.push(collection.name);
                 }
             }
 
             if (tableName) {
-                collection_names = collection_names.filter(c => c === tableName);
+                collectionNames = collectionNames.filter(c => c === tableName);
             }
 
-            for await (const collection_name of collection_names) {
-                console.log(JSON.stringify({message: 'Deleting all indexes in ' + collection_name}));
-                await this.deleteIndexesInCollectionAsync(collection_name, db);
+            for await (const collectionName of collectionNames) {
+                console.log(JSON.stringify({message: 'Deleting all indexes in ' + collectionName}));
+                await this.deleteIndexesInCollectionAsync({collection_name: collectionName, db});
             }
 
             console.log(JSON.stringify({message: 'Finished deleteIndexesInAllCollections'}));
