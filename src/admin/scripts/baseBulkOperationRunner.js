@@ -39,8 +39,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             ordered = false
         }
     ) {
-        const batchSize = 10000;
-        const progressBatchSize = 10000;
+        const batchSize = process.env.BULK_BUFFER_SIZE || 10000;
+        const progressBatchSize = process.env.BULK_BUFFER_SIZE || 10000;
         let lastCheckedId = '';
 
         /**
@@ -78,9 +78,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
              * @type {import('mongodb').DefaultSchema}
              */
             const doc = await cursor.next();
-            count += 1;
-            readline.cursorTo(process.stdout, 0);
-            process.stdout.write(`${count}`);
             startFromIdContainer.startFromId = doc.id;
             lastCheckedId = doc.id;
             if (startFromIdContainer.skippedIdsForMissingAccessTags === 0 &&
@@ -89,6 +86,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 currentDateTime = new Date();
                 console.log(`[${currentDateTime}] Started processing documents`);
             }
+            count += 1;
+            readline.cursorTo(process.stdout, 0);
+            process.stdout.write(`${count.toLocaleString('en-US')} read from database...`);
 
             // call the function passed in to get the bulk operation based on this doc/record
             const bulkOperations = await fnCreateBulkOperationAsync(doc);
@@ -99,7 +99,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             startFromIdContainer.convertedIds += 1;
             if (startFromIdContainer.convertedIds % batchSize === 0) { // write every 100 items
                 currentDateTime = new Date();
-                console.log(`\n[${currentDateTime.toTimeString()}] Writing ${operations.length} operations in bulk`);
+                console.log(`\n[${currentDateTime.toTimeString()}] Writing ${operations.length.toLocaleString('en-US')} operations in bulk`);
                 const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
                 startFromIdContainer.nModified += bulkResult.nModified;
                 startFromIdContainer.nUpserted += bulkResult.nUpserted;
@@ -110,21 +110,21 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             if (startFromIdContainer.convertedIds % progressBatchSize === 0) { // show progress every 1000 items
                 currentDateTime = new Date();
                 const message = `\n[${currentDateTime.toTimeString()}] Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
-                    `modified: ${startFromIdContainer.nModified.toLocaleString()}, ` +
-                    `upserted: ${startFromIdContainer.nUpserted.toLocaleString()}, ` +
+                    `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                    `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
                     `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
                 console.log(message);
             }
         }
         if (operations.length > 0) { // if any items left to write
             currentDateTime = new Date();
-            console.log(`\n[${currentDateTime.toTimeString()}] Final writing ${operations.length} operations in bulk`);
+            console.log(`\n[${currentDateTime.toTimeString()}] Final writing ${operations.length.toLocaleString('en-US')} operations in bulk`);
             const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
             startFromIdContainer.nModified += bulkResult.nModified;
             startFromIdContainer.nUpserted += bulkResult.nUpserted;
             const message = `\n[${currentDateTime.toTimeString()}] Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
-                `modified: ${startFromIdContainer.nModified.toLocaleString()}, ` +
-                `upserted: ${startFromIdContainer.nUpserted.toLocaleString()} ` +
+                `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
                 `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
             console.log(message);
         }
