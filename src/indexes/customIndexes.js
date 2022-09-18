@@ -12,10 +12,7 @@ module.exports = {
                 options: {
                     unique: true,
                     name: 'id_1'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0'
-                ]
+                }
             },
             {
                 keys: {
@@ -35,7 +32,6 @@ module.exports = {
                 options: {
                     name: 'meta.source_1'
                 }
-
             },
             {
                 keys: {
