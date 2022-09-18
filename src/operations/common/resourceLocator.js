@@ -10,20 +10,20 @@ const {Partitioner} = require('./partitioner');
  */
 class ResourceLocator {
     /**
-     * @param {MongoCollectionManager} collectionManager
+     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string} resourceType
      * @param {string} base_version
      * @param {Partitioner} partitioner
      * @param {boolean|null} useAtlas
      */
-    constructor({collectionManager, resourceType, base_version, partitioner, useAtlas}) {
+    constructor({mongoCollectionManager, resourceType, base_version, partitioner, useAtlas}) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
-        assertTypeEquals(collectionManager, MongoCollectionManager);
+        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
         /**
          * @type {MongoCollectionManager}
          */
-        this.collectionManager = collectionManager;
+        this.mongoCollectionManager = mongoCollectionManager;
         /**
          * @type {string}
          * @private
@@ -76,6 +76,9 @@ class ResourceLocator {
      */
     async getFirstCollectionNameForQueryDebugOnlyAsync() {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        /**
+         * @type {string[]}
+         */
         const collectionNames = await this.partitioner.getAllPartitionsForResourceTypeAsync({
             resourceType: this._resourceType,
             base_version: this._base_version
@@ -90,6 +93,9 @@ class ResourceLocator {
      */
     async getHistoryCollectionNameAsync(resource) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
+        /**
+         * @type {string}
+         */
         const partition = await this.partitioner.getPartitionNameAsync({resource, base_version: this._base_version});
         return `${partition}_History`;
     }
@@ -128,7 +134,7 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = await this.getDatabaseConnectionAsync();
-        return await this.collectionManager.getOrCreateCollectionAsync(
+        return await this.mongoCollectionManager.getOrCreateCollectionAsync(
             {db, collectionName});
     }
 
@@ -160,7 +166,7 @@ class ResourceLocator {
          */
         const db = await this.getDatabaseConnectionAsync();
         return async.map(collectionNames,
-            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(
+            async collectionName => await this.mongoCollectionManager.getOrCreateCollectionAsync(
                 {db, collectionName}));
     }
 
@@ -179,7 +185,7 @@ class ResourceLocator {
          */
         const db = await this.getDatabaseConnectionAsync();
         return async.map(collectionNames,
-            async collectionName => await this.collectionManager.getOrCreateCollectionAsync(
+            async collectionName => await this.mongoCollectionManager.getOrCreateCollectionAsync(
                 {db, collectionName}));
     }
 
@@ -198,7 +204,7 @@ class ResourceLocator {
          * @type {import('mongodb').Db}
          */
         const db = await this.getDatabaseConnectionAsync();
-        return await this.collectionManager.getOrCreateCollectionAsync({db, collectionName});
+        return await this.mongoCollectionManager.getOrCreateCollectionAsync({db, collectionName});
     }
 }
 

@@ -37,13 +37,13 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ResourceManager} resourceManager
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ErrorReporter} errorReporter
-     * @param {MongoCollectionManager} collectionManager
+     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ChangeEventProducer} changeEventProducer
      */
     constructor({
                     resourceManager, postRequestProcessor, errorReporter,
-                    collectionManager, resourceLocatorFactory,
+                    mongoCollectionManager, resourceLocatorFactory,
                     changeEventProducer
                 }) {
         super();
@@ -69,8 +69,8 @@ class DatabaseBulkInserter extends EventEmitter {
         /**
          * @type {MongoCollectionManager}
          */
-        this.collectionManager = collectionManager;
-        assertTypeEquals(collectionManager, MongoCollectionManager);
+        this.mongoCollectionManager = mongoCollectionManager;
+        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
 
         /**
          * @type {ResourceLocatorFactory}

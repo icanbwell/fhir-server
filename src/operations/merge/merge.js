@@ -29,7 +29,7 @@ class MergeOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ChangeEventProducer} changeEventProducer
      * @param {DatabaseBulkLoader} databaseBulkLoader
-     * @param {MongoCollectionManager} collectionManager
+     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
@@ -44,7 +44,7 @@ class MergeOperation {
             databaseBulkInserter,
             changeEventProducer,
             databaseBulkLoader,
-            collectionManager,
+            mongoCollectionManager,
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
@@ -77,8 +77,8 @@ class MergeOperation {
         /**
          * @type {MongoCollectionManager}
          */
-        this.collectionManager = collectionManager;
-        assertTypeEquals(collectionManager, MongoCollectionManager);
+        this.mongoCollectionManager = mongoCollectionManager;
+        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
         /**
          * @type {PostRequestProcessor}
          */

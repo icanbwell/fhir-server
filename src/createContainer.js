@@ -110,7 +110,7 @@ const createContainer = function () {
             errorReporter: c.errorReporter
         })
     );
-    container.register('collectionManager', (c) => new MongoCollectionManager(
+    container.register('mongoCollectionManager', (c) => new MongoCollectionManager(
         {
             indexManager: c.indexManager
         }));
@@ -120,7 +120,7 @@ const createContainer = function () {
         }));
     container.register('resourceLocatorFactory', (c) => new ResourceLocatorFactory(
         {
-            collectionManager: c.collectionManager,
+            mongoCollectionManager: c.mongoCollectionManager,
             partitioner: c.partitioner
         }));
 
@@ -174,7 +174,7 @@ const createContainer = function () {
                 resourceManager: c.resourceManager,
                 postRequestProcessor: c.postRequestProcessor,
                 errorReporter: c.errorReporter,
-                collectionManager: c.collectionManager,
+                mongoCollectionManager: c.mongoCollectionManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 changeEventProducer: c.changeEventProducer
             }
@@ -278,7 +278,7 @@ const createContainer = function () {
         {
             mergeManager: c.mergeManager,
             postRequestProcessor: c.postRequestProcessor,
-            collectionManager: c.collectionManager,
+            mongoCollectionManager: c.mongoCollectionManager,
             changeEventProducer: c.changeEventProducer,
             databaseBulkLoader: c.databaseBulkLoader,
             databaseBulkInserter: c.databaseBulkInserter,

@@ -9,15 +9,15 @@ const {Partitioner} = require('./partitioner');
 class ResourceLocatorFactory {
     /**
      * Constructor
-     * @param {MongoCollectionManager} collectionManager
+     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {Partitioner} partitioner
      */
-    constructor({collectionManager, partitioner}) {
-        assertTypeEquals(collectionManager, MongoCollectionManager);
+    constructor({mongoCollectionManager, partitioner}) {
+        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
         /**
          * @type {MongoCollectionManager}
          */
-        this.collectionManager = collectionManager;
+        this.mongoCollectionManager = mongoCollectionManager;
         /**
          * @type {Partitioner}
          */
@@ -34,7 +34,7 @@ class ResourceLocatorFactory {
     createResourceLocator({resourceType, base_version, useAtlas}) {
         return new ResourceLocator(
             {
-                collectionManager: this.collectionManager, resourceType, base_version,
+                mongoCollectionManager: this.mongoCollectionManager, resourceType, base_version,
                 partitioner: this.partitioner,
                 useAtlas
             }
