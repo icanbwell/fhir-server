@@ -87,6 +87,14 @@ class IndexManager {
      * @return {Promise<{indexes: {v:number,key:Object, name:string, unique:boolean|undefined}[], indexesCreated: number, name: string}>}
      */
     async indexCollectionAsync({collectionName, db}) {
+        if (collectionName.includes('_History')) {
+            // don't index history collections
+            return {
+                name: collectionName,
+                indexesCreated: 0,
+                indexes: []
+            };
+        }
         // check if index exists
         let indexesCreated = 0;
 
