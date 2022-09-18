@@ -1,0 +1,160 @@
+const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
+const {Partitioner} = require('../../operations/common/partitioner');
+const globals = require('../../globals');
+const {AUDIT_EVENT_CLIENT_DB} = require('../../constants');
+const {createContainer} = require('../../createContainer');
+
+class PartitionAuditEventRunner extends BaseBulkOperationRunner {
+    /**
+     * constructor
+     * @param {MongoCollectionManager} mongoCollectionManager
+     * @param {Date} recordedAfter
+     * @param {Date} recordedBefore
+     */
+    constructor({mongoCollectionManager, recordedAfter, recordedBefore}) {
+        super({mongoCollectionManager: mongoCollectionManager});
+        /**
+         * @type {Date}
+         */
+        this.recordAfter = recordedAfter;
+        /**
+         * @type {Date}
+         */
+        this.recordBefore = recordedBefore;
+    }
+
+    getFirstDayOfNextMonth(date) {
+        return new Date(date.getUTCFullYear(), date.getUTCMonth() + 1, 1);
+    }
+
+    getFirstDateOfPreviousMonth(date) {
+        return new Date(date.getFullYear(), date.getMonth() - 1, 1);
+    }
+
+    /**
+     * returns the bulk operation for this doc
+     * @param {import('mongodb').DefaultSchema} doc
+     * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
+     */
+    async processRecordAsync(doc) {
+        const accessCodes = doc.meta.security.filter(s => s.system === 'https://www.icanbwell.com/access').map(s => s.code);
+        if (accessCodes.length > 0 && !doc['_access']) {
+            const _access = {};
+            for (const accessCode of accessCodes) {
+                _access[`${accessCode}`] = 1;
+            }
+            doc['_access'] = _access;
+        }
+        // console.log(doc);
+        // batch up the calls to update
+        /**
+         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
+         */
+        const result = {
+            replaceOne: {
+                filter: {id: doc.id},
+                replacement: doc,
+                upsert: true
+            }
+        };
+        return [
+            result
+        ];
+    }
+
+    /**
+     * Runs a loop to process all the documents
+     * @returns {Promise<void>}
+     */
+    async processAsync() {
+        const sourceCollectionName = 'AuditEvent_4_0_0';
+        try {
+            await this.init();
+            /**
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+
+            console.log(`Starting loop from ${this.recordedAfter} till ${this.recordedBefore}`);
+            /**
+             * @type {Date}
+             */
+            let recordedBeforeForLoop = this.getFirstDayOfNextMonth(this.recordedBefore);
+
+            // if there is an exception, continue processing from the last id
+            while (recordedBeforeForLoop > this.recordedAfter) {
+                this.startFromIdContainer.startFromId = '';
+                /**
+                 * @type {Date}
+                 */
+                const recordedAfterForLoop = this.getFirstDateOfPreviousMonth(recordedBeforeForLoop);
+                console.log(`From=${recordedAfterForLoop} to=${recordedBeforeForLoop}`);
+                const destinationCollectionName = Partitioner.getPartitionNameFromYearMonth({
+                    fieldValue: recordedAfterForLoop.toString(),
+                    resourceWithBaseVersion: sourceCollectionName
+                });
+                /**
+                 * @type {import('mongodb').Filter<import('mongodb').Document>}
+                 */
+                const query = {
+                    $and: [
+                        {'recorded': {$gt: recordedAfterForLoop}},
+                        {'recorded': {$lt: recordedBeforeForLoop}}
+                    ]
+                };
+                try {
+                    await this.runForQueryBatches(
+                        {
+                            db: fhirDb,
+                            sourceCollectionName,
+                            destinationCollectionName,
+                            query,
+                            startFromIdContainer: this.startFromIdContainer,
+                            fnCreateBulkOperation: this.processRecordAsync
+                        }
+                    );
+                } catch (e) {
+                    console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                }
+                recordedBeforeForLoop = recordedAfterForLoop;
+            }
+        } catch (e) {
+            console.log(`ERROR: ${e}`);
+        } finally {
+            await this.shutdown();
+        }
+    }
+}
+
+const main = async function () {
+    const args = process.argv.slice(2);
+    console.log(...args);
+    let currentDateTime = new Date();
+    // let startFromId = args.length > 1 && args[1];
+    const recordedAfter = args.length > 0 ? new Date(args[0]) : new Date(2021, 6 - 1, 1);
+    const recordedBefore = args.length > 1 ? new Date(args[1]) : new Date(2022, 10 - 1, 1);
+    // const limit = args.length > 2 ? Number(args[2]) : 1000000;
+    console.log(`[${currentDateTime}] Running script with recordedAfter=${recordedAfter} to recordedBefore=${recordedBefore}`);
+
+    // set up all the standard services in the container
+    const container = createContainer();
+
+    // now add our class
+    container.register('processAuditEventRunner', (c) => new PartitionAuditEventRunner({
+        mongoCollectionManager: c.mongoCollectionManager,
+        recordedAfter,
+        recordedBefore
+    }));
+
+    /**
+     * @type {PartitionAuditEventRunner}
+     */
+    const processAuditEventRunner = container.processAuditEventRunner;
+    await processAuditEventRunner.processAsync();
+
+    process.exit(0);
+};
+
+main().catch(reason => {
+    console.error(reason);
+});

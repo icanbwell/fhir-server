@@ -63,7 +63,6 @@ const createContainer = function () {
     // Note the order of registration does NOT matter
     const container = new SimpleContainer();
 
-
     container.register('configManager', () => new ConfigManager());
 
     container.register('scopesManager', () => new ScopesManager());
