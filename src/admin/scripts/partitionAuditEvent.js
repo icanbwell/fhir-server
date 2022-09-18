@@ -89,7 +89,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
              */
             const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
 
-            console.log(`Starting loop from ${this.recordedAfter} till ${this.recordedBefore}`);
+            console.log(`Starting loop from ${this.recordedAfter.toUTCString()} till ${this.recordedBefore.toUTCString()}`);
             /**
              * @type {Date}
              */
@@ -102,7 +102,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                  * @type {Date}
                  */
                 const recordedAfterForLoop = this.getFirstDateOfPreviousMonth(recordedBeforeForLoop);
-                console.log(`From=${recordedAfterForLoop} to=${recordedBeforeForLoop}`);
+                console.log(`From=${recordedAfterForLoop.toUTCString()} to=${recordedBeforeForLoop.toUTCString()}`);
                 const destinationCollectionName = Partitioner.getPartitionNameFromYearMonth({
                     fieldValue: recordedAfterForLoop.toString(),
                     resourceWithBaseVersion: sourceCollectionName
