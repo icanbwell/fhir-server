@@ -79,6 +79,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             .maxTimeMS(60 * 60 * 1000);
 
         let count = 0;
+        /**
+         * cache all the documents as the cursor can time out if open for a while
+         * @type {import('mongodb').DefaultSchem}[]}
+         */
+        const documents = [];
         while (await this.hasNext(cursor)) {
             /**
              * element
@@ -91,13 +96,16 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 startFromIdContainer.convertedIds === 0 &&
                 startFromIdContainer.skippedIdsForHavingAccessField === 0) {
                 currentDateTime = new Date();
-                console.log(`[${currentDateTime}] Started processing documents ` +
-                    `with batch size ${this.batchSize.toLocaleString('en-us')}`);
+                console.log(`[${currentDateTime}] Started reading documents`);
             }
             count += 1;
             readline.cursorTo(process.stdout, 0);
             process.stdout.write(`${count.toLocaleString('en-US')} read from database...`);
+            documents.push(doc);
+        }
 
+        // Now iterate through the docs
+        for (const /** @type {import('mongodb').DefaultSchema} */ doc of documents) {
             // call the function passed in to get the bulk operation based on this doc/record
             const bulkOperations = await fnCreateBulkOperationAsync(doc);
             for (const bulkOperation of bulkOperations) {
@@ -172,13 +180,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // eslint-disable-next-line no-loop-func
             async (bail, retryNumber) => {
                 if (retryNumber > 1) {
-                    console.log(`next retry number: ${retryNumber}`);
+                    console.log(`next() retry number: ${retryNumber}`);
                 }
                 return await cursor.next();
             },
             {
                 onRetry: (error) => {
-                    console.error(error);
+                    console.error(`ERROR in next(): ${error}`);
                 },
                 retries: 5,
             });
@@ -194,13 +202,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // eslint-disable-next-line no-loop-func
             async (bail, retryNumber) => {
                 if (retryNumber > 1) {
-                    console.log(`hasNext retry number: ${retryNumber}`);
+                    console.log(`hasNext() retry number: ${retryNumber}`);
                 }
                 return await cursor.hasNext();
             },
             {
                 onRetry: (error) => {
-                    console.error(error);
+                    console.error(`ERROR in hasNext(): ${error}`);
                 },
                 retries: 5,
             });
