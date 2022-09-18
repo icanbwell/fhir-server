@@ -38,14 +38,14 @@ class Partitioner {
 
     async loadPartitionsFromDatabaseAsync() {
         // if cache is still valid then just return
-        if (this.this.partitionCacheLastLoaded &&
+        if (this.partitionCacheLastLoaded &&
             !isUTCDayDifferent(this.partitionCacheLastLoaded, new Date())) {
             return;
         }
         const release = await mutex.acquire();
         try {
             // do this again inside the mutex lock since multiple callers may have been blocked on the mutex
-            if (this.this.partitionCacheLastLoaded &&
+            if (this.partitionCacheLastLoaded &&
                 !isUTCDayDifferent(this.partitionCacheLastLoaded, new Date())) {
                 return;
             }
