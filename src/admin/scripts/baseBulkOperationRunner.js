@@ -76,7 +76,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const cursor = await sourceCollection
             .find(query, {})
             .sort({id: 1})
-            .maxTimeMS(60 * 60 * 1000);
+            .maxTimeMS(60 * 60 * 1000)
+            .batchSize(1000);
 
         let count = 0;
         /**
