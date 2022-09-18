@@ -2,6 +2,7 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
+const retry = require('async-retry');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -105,15 +106,25 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             startFromIdContainer.convertedIds += 1;
             if (startFromIdContainer.convertedIds % this.batchSize === 0) { // write every x items
-                currentDateTime = new Date();
-                console.log(`\n[${currentDateTime.toTimeString()}] ` +
-                    `Writing ${operations.length.toLocaleString('en-US')} operations in bulk`);
-                const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
-                startFromIdContainer.nModified += bulkResult.nModified;
-                startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                // console.log(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
-                //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
-                operations = [];
+                // https://www.npmjs.com/package/async-retry
+                await retry(
+                    // eslint-disable-next-line no-loop-func
+                    async (bail, retryNumber) => {
+                        currentDateTime = new Date();
+                        console.log(`\n[${currentDateTime.toTimeString()}] ` +
+                            `Writing ${operations.length.toLocaleString('en-US')} operations in bulk` +
+                            `retry=${retryNumber}`);
+                        const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
+                        startFromIdContainer.nModified += bulkResult.nModified;
+                        startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                        // console.log(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
+                        //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
+                        operations = [];
+                    },
+                    {
+                        retries: 5,
+                    }
+                );
             }
             if (startFromIdContainer.convertedIds % this.batchSize === 0) { // show progress every x items
                 currentDateTime = new Date();
@@ -127,17 +138,26 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
         if (operations.length > 0) { // if any items left to write
             currentDateTime = new Date();
-            console.log(`\n[${currentDateTime.toTimeString()}] ` +
-                `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk`);
-            const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
-            startFromIdContainer.nModified += bulkResult.nModified;
-            startFromIdContainer.nUpserted += bulkResult.nUpserted;
-            const message = `\n[${currentDateTime.toTimeString()}] ` +
-                `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
-                `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
-                `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
-                `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
-            console.log(message);
+            await retry(
+                // eslint-disable-next-line no-loop-func
+                async (bail, retryNumber) => {
+                    console.log(`\n[${currentDateTime.toTimeString()}] ` +
+                        `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk. ` +
+                        `retry=${retryNumber}`);
+                    const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
+                    startFromIdContainer.nModified += bulkResult.nModified;
+                    startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                    const message = `\n[${currentDateTime.toTimeString()}] ` +
+                        `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
+                        `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                        `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
+                        `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
+                    console.log(message);
+                },
+                {
+                    retries: 5,
+                }
+            );
         }
         return lastCheckedId;
     }

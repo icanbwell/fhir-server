@@ -2888,7 +2888,7 @@
   dependencies:
     "tslib" "^2.3.1"
 
-"async-retry@^1.2.1":
+"async-retry@^1.2.1", "async-retry@^1.3.3":
   "integrity" "sha512-wfr/jstw9xNi/0teMHrRW7dsz3Lt5ARhYNZ2ewpadnhaIp5mbALhOAP+EAdsC7t4Z6wqsDVv9+W6gm1Dk9mEyw=="
   "resolved" "https://registry.npmjs.org/async-retry/-/async-retry-1.3.3.tgz"
   "version" "1.3.3"
