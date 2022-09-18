@@ -68,8 +68,8 @@ class DatabaseHistoryManager {
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
-     * @param { import('mongodb').WithoutProjection<FindOneOptions<import('mongodb').DefaultSchema>> | null} options
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {Promise<Resource|null>}
      */
     async findOneAsync({query, options = null}) {
@@ -92,8 +92,8 @@ class DatabaseHistoryManager {
 
     /**
      * Returns a DatabasePartitionedCursor by executing the query
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
-     * @param {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>> | null} options
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @return {DatabasePartitionedCursor}
      */
     async findAsync({query, options = null}) {
@@ -102,12 +102,12 @@ class DatabaseHistoryManager {
          */
         const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync();
         /**
-         * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
+         * @type {(import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>)[]}
          */
         const cursors = [];
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
-             * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>}
+             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
              */
             const cursor = collection.find(query, options);
             cursors.push(cursor);

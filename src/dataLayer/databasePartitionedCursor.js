@@ -9,11 +9,11 @@ class DatabasePartitionedCursor {
      * Constructor
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]} cursors
+     * @param {(import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>)[]} cursors
      */
     constructor({base_version, resourceType, cursors}) {
         /**
-         * @type {import('mongodb').Cursor<import('mongodb').DefaultSchema>[]}
+         * @type {(import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>)[]}
          * @private
          */
         this._cursors = cursors;

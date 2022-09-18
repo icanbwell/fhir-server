@@ -149,6 +149,9 @@ class PatchOperation {
             let doc = resource;
 
             // Insert/update our resource record
+            /**
+             * @type {{error: import('mongodb').Document, created: boolean} | null}
+             */
             let res;
             try {
                 doc = omitPropertyFromResource(doc, '_id');
