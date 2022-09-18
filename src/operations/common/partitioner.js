@@ -115,7 +115,7 @@ class Partitioner {
      * @param {string} base_version
      * @returns {string}
      */
-    async getPartitionNameAsync({resource, base_version}) {
+    async getPartitionNameByResourceAsync({resource, base_version}) {
         assertIsValid(resource, 'Resource is null');
 
         const resourceType = resource.resourceType;
@@ -164,6 +164,101 @@ class Partitioner {
         } else {
             await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
             return resourceWithBaseVersion;
+        }
+    }
+
+    /**
+     * returns the collection name for this resource
+     * @param {string} resourceType
+     * @param {string} base_version
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
+     * @returns {string[]}
+     */
+    async getPartitionNamesByQueryAsync({resourceType, base_version, query}) {
+        assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+
+        await this.loadPartitionsFromDatabaseAsync();
+
+        const resourceWithBaseVersion = `${resourceType}_${base_version}`;
+
+        // see if there is a partitionConfig defined for this resource
+        const partitionConfig = partitionConfiguration[`${resourceType}`];
+
+        // if partitionConfig found then use that to calculate the name of the partitionConfig
+        if (query && Object.keys(query).length !== 0 && partitionConfig && this.partitionResources.includes(resourceType)) {
+            const field = partitionConfig['field'];
+            const type = partitionConfig['type'];
+            switch (type) {
+                case 'year-month': {
+                    /**
+                     * @type {Object[]}
+                     */
+                    const andClauses = query.$and || [];
+                    /**
+                     * @type {Object[]}
+                     */
+                    const clausesForDate = andClauses.filter(c => c[`${field}`] !== undefined);
+
+                    /**
+                     * init to an initial value
+                     * @type {Date}
+                     */
+                    let greaterThan = new Date(2010, 1, 1);
+                    /**
+                     * init to an initial value
+                     * @type {Date}
+                     */
+                    let lessThan = new Date(2030, 1, 1);
+                    for (const clauseForDate of clausesForDate) {
+                        /**
+                         * @type {{$gt:[Date], $lt: [Date] }}
+                         */
+                        const value = clauseForDate[`${field}`];
+                        if (value.$gt) {
+                            greaterThan = value.$gt > greaterThan ? value.$gt : greaterThan;
+                        }
+                        if (value.$lt) {
+                            lessThan = value.$lt < lessThan ? value.$lt : lessThan;
+                        }
+                    }
+                    // now find partitions for the months in between greaterThan and lessThan
+                    let currentDate = lessThan;
+                    const partitions = [];
+                    while (currentDate > greaterThan) {
+                        /**
+                         * @type {string}
+                         */
+                        const partition = Partitioner.getPartitionNameFromYearMonth(
+                            {
+                                fieldValue: currentDate.toUTCString(), resourceWithBaseVersion
+                            }
+                        );
+                        if (this.partitionsCache.has(resourceType) && this.partitionsCache.get(resourceType).includes(partition)) {
+                            partitions.push(partition);
+                        }
+                        currentDate = currentDate.setUTCMonth(currentDate.getUTCMonth() - 1);
+                    }
+                    if (partitions.length > 0) {
+                        return partitions;
+                    } else {
+                        return [resourceWithBaseVersion];
+                    }
+                }
+                    // eslint-disable-next-line no-unreachable
+                    break;
+
+                default:
+                    assertFail(
+                        {
+                            source: 'Partitioner.getPartition',
+                            message: `type: ${type} is not supported for partitioning type`,
+                            args: {}
+                        });
+
+            }
+        } else {
+            await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
+            return [resourceWithBaseVersion];
         }
     }
 
