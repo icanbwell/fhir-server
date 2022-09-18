@@ -92,12 +92,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             const doc = await this.next(cursor);
             startFromIdContainer.startFromId = doc.id;
             lastCheckedId = doc.id;
-            if (startFromIdContainer.skippedIdsForMissingAccessTags === 0 &&
-                startFromIdContainer.convertedIds === 0 &&
-                startFromIdContainer.skippedIdsForHavingAccessField === 0) {
-                currentDateTime = new Date();
-                console.log(`[${currentDateTime}] Started reading documents`);
-            }
             count += 1;
             readline.cursorTo(process.stdout, 0);
             process.stdout.write(`${count.toLocaleString('en-US')} read from database...`);
