@@ -4,6 +4,7 @@ const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
 const {ConfigManager} = require('../../utils/configManager');
 const {isUTCDayDifferent} = require('../../utils/date.util');
+const moment = require('moment-timezone');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -201,42 +202,45 @@ class Partitioner {
 
                     /**
                      * init to an initial value
-                     * @type {Date}
+                     * @type {moment.Moment}
                      */
-                    let greaterThan = new Date(2010, 1, 1);
+                    let greaterThan = moment.utc(new Date(2010, 0, 1));
                     /**
                      * init to an initial value
-                     * @type {Date}
+                     * @type {moment.Moment}
                      */
-                    let lessThan = new Date(2030, 1, 1);
+                    let lessThan = moment.utc(new Date(2030, 0, 1));
                     for (const clauseForDate of clausesForDate) {
                         /**
                          * @type {{$gt:[Date], $lt: [Date] }}
                          */
                         const value = clauseForDate[`${field}`];
                         if (value.$gt) {
-                            greaterThan = value.$gt > greaterThan ? value.$gt : greaterThan;
+                            greaterThan = moment.utc(value.$gt).isAfter(greaterThan) ? moment.utc(value.$gt) : greaterThan;
                         }
                         if (value.$lt) {
-                            lessThan = value.$lt < lessThan ? value.$lt : lessThan;
+                            lessThan = moment.utc(value.$lt).isBefore(lessThan) ? moment.utc(value.$lt) : lessThan;
                         }
                     }
                     // now find partitions for the months in between greaterThan and lessThan
+                    /**
+                     * @type {moment.Moment}
+                     */
                     let currentDate = lessThan;
                     const partitions = [];
-                    while (currentDate > greaterThan) {
+                    while (currentDate.isAfter(greaterThan)) {
                         /**
                          * @type {string}
                          */
                         const partition = Partitioner.getPartitionNameFromYearMonth(
                             {
-                                fieldValue: currentDate.toUTCString(), resourceWithBaseVersion
+                                fieldValue: currentDate.utc().toISOString(), resourceWithBaseVersion
                             }
                         );
                         if (this.partitionsCache.has(resourceType) && this.partitionsCache.get(resourceType).includes(partition)) {
                             partitions.push(partition);
                         }
-                        currentDate = currentDate.setUTCMonth(currentDate.getUTCMonth() - 1);
+                        currentDate = currentDate.utc().subtract(1, 'months');
                     }
                     if (partitions.length > 0) {
                         return partitions;
