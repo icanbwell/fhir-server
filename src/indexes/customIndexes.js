@@ -10,7 +10,7 @@ module.exports = {
                     'id': 1
                 },
                 options: {
-                    unique: true,
+                    // unique: true,
                     name: 'id_1'
                 }
             },
