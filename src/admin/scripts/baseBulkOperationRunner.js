@@ -79,12 +79,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             .maxTimeMS(60 * 60 * 1000);
 
         let count = 0;
-        while (await cursor.hasNext()) {
+        while (await this.hasNext(cursor)) {
             /**
              * element
              * @type {import('mongodb').DefaultSchema}
              */
-            const doc = await cursor.next();
+            const doc = await this.next(cursor);
             startFromIdContainer.startFromId = doc.id;
             lastCheckedId = doc.id;
             if (startFromIdContainer.skippedIdsForMissingAccessTags === 0 &&
@@ -160,6 +160,38 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             );
         }
         return lastCheckedId;
+    }
+
+    /**
+     *
+     * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
+     * @returns {Promise<*>}
+     */
+    async next(cursor) {
+        return await retry(
+            // eslint-disable-next-line no-loop-func
+            async (bail, retryNumber) => {
+                if (retryNumber > 1) {
+                    console.log(`hasNext retry number: ${retryNumber}`);
+                }
+                return await cursor.next();
+            });
+    }
+
+    /**
+     *
+     * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
+     * @returns {Promise<unknown>}
+     */
+    async hasNext(cursor) {
+        return await retry(
+            // eslint-disable-next-line no-loop-func
+            async (bail, retryNumber) => {
+                if (retryNumber > 1) {
+                    console.log(`hasNext retry number: ${retryNumber}`);
+                }
+                return await cursor.hasNext();
+            });
     }
 }
 
