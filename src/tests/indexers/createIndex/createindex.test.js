@@ -13,6 +13,10 @@ describe('Create Index Tests', () => {
         await commonAfterEach();
     });
 
+    function delay(time) {
+        return new Promise(resolve => setTimeout(resolve, time));
+    }
+
     describe('CreateIndex Tests', () => {
         test('createIndex works for Patient', async () => {
             await createTestRequest();
@@ -43,6 +47,7 @@ describe('Create Index Tests', () => {
                 collectionName,
                 db: fhirDb
             });
+            await delay(3000); // sleep so indexes are done
             // check that indexes were created properly
             /**
              * @type {Object[]}

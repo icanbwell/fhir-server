@@ -30,12 +30,13 @@ class IndexManager {
     /**
      * creates a multi key index if it does not exist
      * https://www.mongodb.com/docs/manual/reference/method/db.collection.createIndex/
+     * https://www.mongodb.com/docs/drivers/node/current/fundamentals/indexes/
      * @param {import('mongodb').Db} db
      * @param {{keys:Object, options:Object, exclude: string[]}} indexConfig
      * @param {string} collectionName
      * @return {Promise<boolean>}
      */
-    async create_index_if_not_exists({db, indexConfig, collectionName}) {
+    async createIndexIfNotExistsAsync({db, indexConfig, collectionName}) {
         const properties_to_index = Object.keys(indexConfig.keys);
         let indexName = indexConfig.options.name;
         const columns = properties_to_index.join(',');
@@ -99,7 +100,7 @@ class IndexManager {
             if (indexCollectionName === '*') {
                 for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
                     if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
-                        const createdIndex = await this.create_index_if_not_exists(
+                        const createdIndex = await this.createIndexIfNotExistsAsync(
                             {
                                 db, indexConfig, collectionName
                             }
@@ -119,7 +120,7 @@ class IndexManager {
             if (baseCollectionName === indexCollectionName) {
                 for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
                     if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
-                        const createdIndex = await this.create_index_if_not_exists(
+                        const createdIndex = await this.createIndexIfNotExistsAsync(
                             {
                                 db, indexConfig, collectionName
                             }
