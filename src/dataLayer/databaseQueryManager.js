@@ -144,7 +144,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
         /**
          * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>[]}
          */

@@ -185,19 +185,26 @@ class Partitioner {
      * returns all the collection names for resourceType
      * @param {string} resourceType
      * @param {string} base_version
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {string[]}
      */
-    async getAllPartitionsForResourceTypeAsync({resourceType, base_version}) {
+    // eslint-disable-next-line no-unused-vars
+    async getAllPartitionsForResourceTypeAsync({resourceType, base_version, query}) {
         assertIsValid(resourceType, 'resourceType is empty');
 
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
         await this.loadPartitionsFromDatabaseAsync();
-        // if partition does not exist yet return default
-        if (!(this.partitionsCache.has(resourceType)) || this.partitionsCache.get(resourceType).length === 0) {
+        /**
+         * @type {string[]}
+         */
+        const partitions = this.partitionsCache.get(resourceType);
+        if (!(this.partitionsCache.has(resourceType)) || partitions.length === 0) {
+            // if partition does not exist yet return default
             return [`${resourceType}_${base_version}`];
         }
         // else return the partition from the cache
-        return this.partitionsCache.get(resourceType);
+        // TODO: try to match partitions to query
+        return partitions;
     }
 
     /**
