@@ -3,6 +3,7 @@ const {assertIsValid, assertFail, assertTypeEquals} = require('../../utils/asser
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
 const {ConfigManager} = require('../../utils/configManager');
+const {isUTCDayDifferent} = require('../../utils/date.util');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -29,15 +30,23 @@ class Partitioner {
         this.partitionsCache = new Map();
 
         /**
-         * @type {boolean}
+         * when the cache was last loaded
+         * @type {Date|null}
          */
-        this.isPartitionsCacheLoaded = false;
+        this.partitionCacheLastLoaded = null;
     }
 
     async loadPartitionsFromDatabaseAsync() {
+        // if cache is still valid then just return
+        if (this.partitionCacheLastLoaded &&
+            !isUTCDayDifferent(this.partitionCacheLastLoaded, new Date())) {
+            return;
+        }
         const release = await mutex.acquire();
         try {
-            if (this.isPartitionsCacheLoaded) {
+            // do this again inside the mutex lock since multiple callers may have been blocked on the mutex
+            if (this.partitionCacheLastLoaded &&
+                !isUTCDayDifferent(this.partitionCacheLastLoaded, new Date())) {
                 return;
             }
             for (const /** @type {string} */ resourceType of this.partitionResources) {
@@ -56,7 +65,7 @@ class Partitioner {
                     }
                 }
             }
-            this.isPartitionsCacheLoaded = true;
+            this.partitionCacheLastLoaded = new Date();
         } finally {
             release();
         }
