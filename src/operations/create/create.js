@@ -198,7 +198,8 @@ class CreateOperation {
             if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
                 if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
                     // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(new Error('ResourceCreator is missing a security access tag with system: https://www.icanbwell.com/access '));
+                    throw new BadRequestError(new Error(
+                        `${resourceType} is missing a security access tag with system: https://www.icanbwell.com/access `));
                 }
             }
 
