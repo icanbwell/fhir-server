@@ -3,6 +3,7 @@ const auditevent1Resource = require('./fixtures/AuditEvent/auditevent1.json');
 
 // expected
 const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
+const expectedMergeResponse = require('./fixtures/expected/expectedMergeResponse.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -16,8 +17,8 @@ describe('AuditEvent Tests', () => {
         await commonAfterEach();
     });
 
-    describe('AuditEvent mergeError Tests', () => {
-        test('mergeError works', async () => {
+    describe('AuditEvent mergeWithMissingId Tests', () => {
+        test('mergeWithMissingId works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -26,10 +27,9 @@ describe('AuditEvent Tests', () => {
                 .send(auditevent1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveResponse(expectedMergeResponse);
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right Person back
             resp = await request
                 .get('/4_0_0/AuditEvent/?_bundle=1')
                 .set(getHeaders());
