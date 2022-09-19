@@ -93,15 +93,20 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             /**
              * @type {moment.Moment}
              */
-            let recordedBeforeForLoop = this.recordedBefore.utc().clone().startOf('month');
+            let recordedBeforeForLoop = this.recordedBefore.clone().utc().startOf('month');
 
             // if there is an exception, continue processing from the last id
             while (recordedBeforeForLoop.isSameOrAfter(this.recordedAfter)) {
+
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {moment.Moment}
                  */
-                const recordedAfterForLoop = recordedBeforeForLoop.utc().subtract(1, 'month').startOf('month').clone();
+                const recordedAfterForLoop = recordedBeforeForLoop.clone().utc().subtract(1, 'month').startOf('month');
+
+                if (recordedAfterForLoop.isSame(recordedBeforeForLoop)) {
+                    break;
+                }
                 console.log(`From=${recordedAfterForLoop.utc().toISOString()} to=${recordedBeforeForLoop.utc().toISOString()}`);
                 const destinationCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth({
                     fieldValue: recordedAfterForLoop.utc().toISOString(),
@@ -131,7 +136,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 } catch (e) {
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
-                console.log(`Fiinished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}`);
+                console.log(`Finished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}`);
 
                 recordedBeforeForLoop = recordedAfterForLoop.clone();
             }
