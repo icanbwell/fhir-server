@@ -182,7 +182,7 @@ class PartitioningManager {
         const partitionConfig = partitionConfiguration[`${resourceType}`];
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
-        if (query && Object.keys(query).length !== 0 && partitionConfig && this.partitionResources.includes(resourceType)) {
+        if (partitionConfig && this.partitionResources.includes(resourceType)) {
             const field = partitionConfig['field'];
             const type = partitionConfig['type'];
             switch (type) {
