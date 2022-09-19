@@ -3,6 +3,7 @@ const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
 const retry = require('async-retry');
+const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -64,7 +65,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         let currentDateTime = new Date();
         console.log(`[${currentDateTime.toTimeString()}] ` +
-            `Sending query to Mongo: ${JSON.stringify(query)}. ` +
+            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
 
         if (startFromIdContainer.startFromId) {

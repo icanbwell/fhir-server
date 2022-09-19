@@ -14,7 +14,7 @@ const {createContainer} = require('../../createContainer');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {CommandLineParser} = require('./commandLineParser');
 const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
-
+const moment = require('moment-timezone');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -23,8 +23,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
     /**
      * constructor
      * @param {MongoCollectionManager} mongoCollectionManager
-     * @param {Date} recordedAfter
-     * @param {Date} recordedBefore
+     * @param {moment.Moment} recordedAfter
+     * @param {moment.Moment} recordedBefore
      * @param {number} batchSize
      */
     constructor({
@@ -33,33 +33,15 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 }) {
         super({mongoCollectionManager, batchSize});
         /**
-         * @type {Date}
+         * @type {moment.Moment}
          */
         this.recordedAfter = recordedAfter;
-        assertTypeEquals(recordedAfter, Date);
+        assertTypeEquals(recordedAfter, moment);
         /**
-         * @type {Date}
+         * @type {moment.Moment}
          */
         this.recordedBefore = recordedBefore;
-        assertTypeEquals(recordedBefore, Date);
-    }
-
-    /**
-     * gets first day of next month
-     * @param {Date} date
-     * @returns {Date}
-     */
-    getFirstDayOfNextMonth(date) {
-        return new Date(date.getUTCFullYear(), date.getUTCMonth() + 1, 1);
-    }
-
-    /**
-     * gets first day of previous month
-     * @param {Date} date
-     * @returns {Date}
-     */
-    getFirstDateOfPreviousMonth(date) {
-        return new Date(date.getFullYear(), date.getMonth() - 1, 1);
+        assertTypeEquals(recordedBefore, moment);
     }
 
     /**
@@ -107,22 +89,22 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
              */
             const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
 
-            console.log(`Starting loop from ${this.recordedAfter.toUTCString()} till ${this.recordedBefore.toUTCString()}`);
+            console.log(`Starting loop from ${this.recordedAfter.utc().toISOString()} till ${this.recordedBefore.utc().toISOString()}`);
             /**
-             * @type {Date}
+             * @type {moment.Moment}
              */
-            let recordedBeforeForLoop = this.getFirstDayOfNextMonth(this.recordedBefore);
+            let recordedBeforeForLoop = this.recordedBefore.utc().clone().startOf('month');
 
             // if there is an exception, continue processing from the last id
-            while (recordedBeforeForLoop > this.recordedAfter) {
+            while (recordedBeforeForLoop.isSameOrAfter(this.recordedAfter)) {
                 this.startFromIdContainer.startFromId = '';
                 /**
-                 * @type {Date}
+                 * @type {moment.Moment}
                  */
-                const recordedAfterForLoop = this.getFirstDateOfPreviousMonth(recordedBeforeForLoop);
-                console.log(`From=${recordedAfterForLoop.toUTCString()} to=${recordedBeforeForLoop.toUTCString()}`);
+                const recordedAfterForLoop = recordedBeforeForLoop.utc().subtract(1, 'month').startOf('month').clone();
+                console.log(`From=${recordedAfterForLoop.utc().toISOString()} to=${recordedBeforeForLoop.utc().toISOString()}`);
                 const destinationCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth({
-                    fieldValue: recordedAfterForLoop.toString(),
+                    fieldValue: recordedAfterForLoop.utc().toISOString(),
                     resourceWithBaseVersion: sourceCollectionName
                 });
                 /**
@@ -130,8 +112,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                  */
                 const query = {
                     $and: [
-                        {'recorded': {$gt: recordedAfterForLoop}},
-                        {'recorded': {$lt: recordedBeforeForLoop}}
+                        {'recorded': {$gt: recordedAfterForLoop.utc().toDate()}},
+                        {'recorded': {$lt: recordedBeforeForLoop.utc().toDate()}}
                     ]
                 };
                 try {
@@ -149,7 +131,9 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 } catch (e) {
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
-                recordedBeforeForLoop = recordedAfterForLoop;
+                console.log(`Fiinished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}`);
+
+                recordedBeforeForLoop = recordedAfterForLoop.clone();
             }
         } catch (e) {
             console.log(`ERROR: ${e}`);
@@ -179,12 +163,15 @@ async function main() {
     const container = createContainer();
 
     // now add our class
-    container.register('processAuditEventRunner', (c) => new PartitionAuditEventRunner({
-        mongoCollectionManager: c.mongoCollectionManager,
-        recordedAfter,
-        recordedBefore,
-        batchSize
-    }));
+    container.register('processAuditEventRunner', (c) => new PartitionAuditEventRunner(
+            {
+                mongoCollectionManager: c.mongoCollectionManager,
+                recordedAfter: moment.utc(recordedAfter),
+                recordedBefore: moment.utc(recordedBefore),
+                batchSize
+            }
+        )
+    );
 
     /**
      * @type {PartitionAuditEventRunner}
