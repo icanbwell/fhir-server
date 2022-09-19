@@ -223,6 +223,10 @@ class MergeManager {
          */
         let id = resourceToMerge.id;
 
+        if (!id) {
+            return;
+        }
+
         if (resourceToMerge.meta && resourceToMerge.meta.lastUpdated && typeof resourceToMerge.meta.lastUpdated !== 'string') {
             resourceToMerge.meta.lastUpdated = new Date(resourceToMerge.meta.lastUpdated).toISOString();
         }

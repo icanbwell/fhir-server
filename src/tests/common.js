@@ -1,20 +1,20 @@
-const { MongoClient } = require('mongodb');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+const {MongoClient} = require('mongodb');
+const {MongoMemoryServer} = require('mongodb-memory-server');
 
 const globals = require('../globals');
-const { CLIENT, CLIENT_DB, AUDIT_EVENT_CLIENT_DB } = require('../constants');
+const {CLIENT, CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../constants');
 
 const env = require('var');
 
 // const {getToken} = require('../../token');
-const { jwksEndpoint } = require('./mocks/jwks');
-const { publicKey, privateKey } = require('./mocks/keys');
-const { createToken } = require('./mocks/tokens');
+const {jwksEndpoint} = require('./mocks/jwks');
+const {publicKey, privateKey} = require('./mocks/keys');
+const {createToken} = require('./mocks/tokens');
 const nock = require('nock');
-const { createTestContainer } = require('./createTestContainer');
+const {createTestContainer} = require('./createTestContainer');
 const supertest = require('supertest');
-const { createApp } = require('../app');
-const { createServer } = require('../server');
+const {createApp} = require('../app');
+const {createServer} = require('../server');
 
 let connection;
 let db;
@@ -115,7 +115,7 @@ module.exports.commonBeforeEach = async () => {
     process.env.AUTH_ENABLED = '1';
     const urlObject = new URL(env.AUTH_JWKS_URL);
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
-        { pub: publicKey, kid: '123' },
+        {pub: publicKey, kid: '123'},
     ]);
     /**
      * @type {string[]}
@@ -315,6 +315,22 @@ module.exports.getHeadersPreferOperationOutcome = (scope) => {
         Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
         Host: 'localhost:3000',
         Prefer: 'return=OperationOutcome',
+    };
+};
+
+const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => {
+    return createToken(privateKey, '123', {
+        sub: 'john',
+        custom_client_id: 'my_custom_client_id',
+        groups: ['admin/*.*'],
+    });
+});
+
+module.exports.getHeadersWithAdminToken = () => {
+    return {
+        'Content-Type': 'application/fhir+json',
+        Accept: 'application/fhir+json',
+        Authorization: `Bearer ${getTokenWithAdminClaims()}`,
     };
 };
 
