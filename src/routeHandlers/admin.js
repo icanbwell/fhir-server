@@ -20,7 +20,18 @@ module.exports.handleAdmin = async (req, res) => {
         const home_options = {};
         const filePath = __dirname + '/../views/admin/pages/index';
         console.log(`file: ${filePath}.  scope: ${scope}`);
-        return res.render(filePath, home_options);
+        /**
+         * @type {string[]}
+         */
+        const scopes = scope.split(' ');
+        const adminScopes = scopes.filter(s => s.startsWith('admin/'));
+        if (adminScopes.length > 0) {
+            return res.render(filePath, home_options);
+        } else {
+            return res.status(403).json({
+                message: `Missing scopes for admin/*.read in ${scope}`
+            });
+        }
         // }
         //     res.status(200).json({
         //         success: true,
