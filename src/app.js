@@ -155,9 +155,9 @@ function createApp(fnCreateContainer) {
     const adminRouter = express.Router();
     adminRouter.use(passport.initialize({}));
     adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
-    // noinspection JSCheckFunctionSignatures
-    adminRouter.use(handleAdmin);
-    app.get('/admin', adminRouter);
+    adminRouter.get('/admin/:op?', handleAdmin);
+    adminRouter.post('/admin/:op?', handleAdmin);
+    app.use(adminRouter);
 
     app.get('/clean/:collection?', handleClean);
 

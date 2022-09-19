@@ -335,7 +335,7 @@ class MyFHIRServer {
                 OperationOutcome = resolveSchema(base, 'operationoutcome');
             } else {
                 // if it's a misplaced URL, just return an R4 OperationOutcome
-                OperationOutcome = resolveSchema('4_0_1', 'operationoutcome');
+                OperationOutcome = resolveSchema('4_0_0', 'operationoutcome');
             }
 
             // Get an operation outcome for this instance

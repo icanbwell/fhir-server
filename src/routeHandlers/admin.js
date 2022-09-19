@@ -6,6 +6,7 @@ const {mongoConfig} = require('../config');
 // const env = require('var');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {AdminLogManager} = require('../admin/adminLogManager');
+const sanitize = require('sanitize-filename');
 
 module.exports.handleAdmin = async (req, res) => {
     console.info('Running admin');
@@ -18,23 +19,41 @@ module.exports.handleAdmin = async (req, res) => {
          * @type {string}
          */
         const scope = req.authInfo && req.authInfo.scope;
-        const filePath = __dirname + '/../views/admin/pages/index';
-        console.log(`file: ${filePath}.  scope: ${scope}`);
+        // console.info('Running index');
+        const operation = req.params['op'];
+        console.log(`op=${operation}`);
+
+        // console.log(`file: ${filePath}.  scope: ${scope}`);
         /**
          * @type {string[]}
          */
         const scopes = scope.split(' ');
         const adminScopes = scopes.filter(s => s.startsWith('admin/'));
         if (adminScopes.length > 0) {
-            const home_options = {};
-            // console.log(`req.params: ${JSON.stringify(req.params)}`);
-            console.log(`req.query: ${JSON.stringify(req.query)}`);
-            const id = req.query['id'];
-            if (id) {
-                const json = await (new AdminLogManager()).getLogAsync(id);
-                return res.json(json);
+            switch (operation) {
+                case 'searchLog': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
+                case 'searchLogResults': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const id = req.query['id'];
+                    if (id) {
+                        const json = await (new AdminLogManager()).getLogAsync(id);
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: 'No id passed'
+                    });
+                }
+
+                default: {
+                    const filePath = __dirname + '/../views/admin/pages/index';
+                    return res.render(filePath, {});
+                }
             }
-            return res.render(filePath, home_options);
         } else {
             return res.status(403).json({
                 message: `Missing scopes for admin/*.read in ${scope}`
