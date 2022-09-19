@@ -69,7 +69,9 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+            query
+        });
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * @type { Promise<Resource|null>}
@@ -94,7 +96,9 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+            query
+        });
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#findOneAndUpdate
@@ -121,7 +125,9 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+            query
+        });
         let deletedCount = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -144,7 +150,7 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
         /**
          * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>[]}
          */
@@ -170,7 +176,9 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+            query: undefined
+        });
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
@@ -193,7 +201,9 @@ class DatabaseQueryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+            query: undefined
+        });
         let count = 0;
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**

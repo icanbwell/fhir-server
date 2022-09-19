@@ -18,7 +18,7 @@ class DatabasePartitionedCursor {
          */
         this._cursors = cursors;
         assertIsValid(cursors);
-        assertIsValid(cursors.length > 0);
+        assertIsValid(Array.isArray(cursors));
         /**
          * @type {string}
          * @private

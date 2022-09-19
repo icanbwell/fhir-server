@@ -279,7 +279,9 @@ class SearchStreamingOperation {
                         /**
                          * @type {string}
                          */
-                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
+                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                            query
+                        });
                         /**
                          * @type {Resource[]}
                          */
@@ -369,7 +371,9 @@ class SearchStreamingOperation {
                         /**
                          * @type {string}
                          */
-                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
+                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                            query
+                        });
                         /**
                          * @type {Bundle}
                          */
@@ -413,7 +417,9 @@ class SearchStreamingOperation {
             /**
              * @type {string}
              */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
+            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                query
+            });
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
@@ -427,7 +433,9 @@ class SearchStreamingOperation {
             /**
              * @type {string}
              */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync();
+            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                query
+            });
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,

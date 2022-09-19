@@ -1,9 +1,10 @@
 const partitionConfiguration = require('./partitions.json');
-const {assertIsValid, assertFail, assertTypeEquals} = require('../../utils/assertType');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
-const {ConfigManager} = require('../../utils/configManager');
-const {isUTCDayDifferent} = require('../../utils/date.util');
+const {assertIsValid, assertFail, assertTypeEquals} = require('../utils/assertType');
+const globals = require('../globals');
+const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../constants');
+const {ConfigManager} = require('../utils/configManager');
+const {isUTCDayDifferent} = require('../utils/date.util');
+const {YearMonthPartitioner} = require('./yearMonthPartitioner');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -11,7 +12,7 @@ const mutex = new Mutex();
 /**
  * @description This class implements partitioning for resource types
  */
-class Partitioner {
+class PartitioningManager {
     /**
      * Constructor
      * @param {ConfigManager} configManager
@@ -115,7 +116,7 @@ class Partitioner {
      * @param {string} base_version
      * @returns {string}
      */
-    async getPartitionNameAsync({resource, base_version}) {
+    async getPartitionNameByResourceAsync({resource, base_version}) {
         assertIsValid(resource, 'Resource is null');
 
         const resourceType = resource.resourceType;
@@ -131,31 +132,27 @@ class Partitioner {
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
         if (partitionConfig && this.partitionResources.includes(resourceType)) {
+            /**
+             * @type {string}
+             */
             const field = partitionConfig['field'];
+            /**
+             * @type {string}
+             */
             const type = partitionConfig['type'];
             switch (type) {
-                case 'year-month': {// get value of field
-                    const fieldValue = resource[`${field}`];
-                    if (!fieldValue) {
-                        await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
-                        return resourceWithBaseVersion;
-                    } else {
-                        /**
-                         * @type {string}
-                         */
-                        const partition = Partitioner.getPartitionNameFromYearMonth(
-                            {fieldValue, resourceWithBaseVersion});
-                        await this.addPartitionsToCacheAsync({resourceType, partition});
-                        return partition;
-                    }
+                case 'year-month': {
+                    const partition = await new YearMonthPartitioner().getPartitionByResourceAsync({
+                        resource, field, resourceType, resourceWithBaseVersion
+                    });
+                    await this.addPartitionsToCacheAsync({resourceType, partition});
+                    return partition;
                 }
-                    // eslint-disable-next-line no-unreachable
-                    break;
 
                 default:
                     assertFail(
                         {
-                            source: 'Partitioner.getPartition',
+                            source: 'PartitioningManager.getPartition',
                             message: `type: ${type} is not supported for partitioning type`,
                             args: {}
                         });
@@ -168,53 +165,72 @@ class Partitioner {
     }
 
     /**
-     * @param {string} fieldValue
-     * @param {string} resourceWithBaseVersion
-     * @returns {string}
-     */
-    static getPartitionNameFromYearMonth({fieldValue, resourceWithBaseVersion}) {
-        const fieldDate = new Date(fieldValue);
-        const year = fieldDate.getUTCFullYear();
-        const month = fieldDate.getUTCMonth() + 1; // 0 indexed
-        const monthFormatted = String(month).padStart(2, '0');
-        const partition = `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
-        return partition;
-    }
-
-    /**
-     * returns all the collection names for resourceType
+     * returns the collection name for this resource
      * @param {string} resourceType
      * @param {string} base_version
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {string[]}
      */
-    async getAllPartitionsForResourceTypeAsync({resourceType, base_version}) {
-        assertIsValid(resourceType, 'resourceType is empty');
-
+    async getPartitionNamesByQueryAsync({resourceType, base_version, query}) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+
         await this.loadPartitionsFromDatabaseAsync();
-        // if partition does not exist yet return default
-        if (!(this.partitionsCache.has(resourceType)) || this.partitionsCache.get(resourceType).length === 0) {
-            return [`${resourceType}_${base_version}`];
+
+        const resourceWithBaseVersion = `${resourceType}_${base_version}`;
+
+        // see if there is a partitionConfig defined for this resource
+        const partitionConfig = partitionConfiguration[`${resourceType}`];
+
+        // if partitionConfig found then use that to calculate the name of the partitionConfig
+        if (query && Object.keys(query).length !== 0 && partitionConfig && this.partitionResources.includes(resourceType)) {
+            const field = partitionConfig['field'];
+            const type = partitionConfig['type'];
+            switch (type) {
+                case 'year-month':
+                    return await new YearMonthPartitioner().getPartitionByQueryAsync(
+                        {
+                            resourceType,
+                            query,
+                            field,
+                            resourceWithBaseVersion,
+                            partitionsCache: this.partitionsCache
+                        }
+                    );
+
+                default:
+                    assertFail(
+                        {
+                            source: 'PartitioningManager.getPartition',
+                            message: `type: ${type} is not supported for partitioning type`,
+                            args: {}
+                        });
+
+            }
+        } else {
+            return [resourceWithBaseVersion];
         }
-        // else return the partition from the cache
-        return this.partitionsCache.get(resourceType);
     }
 
     /**
      * returns all the history collection names for resourceType
      * @param {string} resourceType
      * @param {string} base_version
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {string[]}
      */
-    async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version}) {
+    async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version, query}) {
         assertIsValid(resourceType, 'resourceType is empty');
 
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
-        const partitions = await this.getAllPartitionsForResourceTypeAsync({resourceType, base_version});
+        const partitions = await this.getPartitionNamesByQueryAsync(
+            {
+                resourceType, base_version,
+                query
+            });
         return partitions.map(partition => `${partition}_History`);
     }
 }
 
 module.exports = {
-    Partitioner
+    PartitioningManager
 };

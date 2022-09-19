@@ -9,10 +9,10 @@ const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expe
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
-const {Partitioner} = require('../../../operations/common/partitioner');
 const globals = require('../../../globals');
 const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../../constants');
 const {ConfigManager} = require('../../../utils/configManager');
+const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
 
 class MockConfigManager extends ConfigManager {
     /**
@@ -63,7 +63,7 @@ describe('AuditEvent Tests', () => {
             /**
              * @type {string}
              */
-            const mongoCollectionName = Partitioner.getPartitionNameFromYearMonth(
+            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: fieldDate.toString(),
                     resourceWithBaseVersion: 'AuditEvent_4_0_0',

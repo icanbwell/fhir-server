@@ -338,7 +338,10 @@ class SearchManager {
             // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 {resourceType, base_version, useAtlas});
-            const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync();
+            const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync(
+                {
+                    query
+                });
             const __ret = this.setIndexHint(
                 {
                     indexHint,

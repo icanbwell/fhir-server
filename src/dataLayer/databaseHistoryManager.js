@@ -76,7 +76,9 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync(
+            {query}
+        );
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
             /**
              * @type { Promise<Resource|null>}
@@ -100,7 +102,9 @@ class DatabaseHistoryManager {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */
-        const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync();
+        const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync(
+            {query}
+        );
         /**
          * @type {(import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>)[]}
          */
