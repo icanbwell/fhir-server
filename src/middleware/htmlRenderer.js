@@ -76,7 +76,7 @@ const htmlRenderer = (req, res, next) => {
 
                 if (resourceDefinition) {
                     if (req.url && req.url.includes('/_search')) {
-                        return res.render(__dirname + '/../views/pages/SearchResult', options);
+                        return res.status(200).render(__dirname + '/../views/pages/SearchResult', options);
                     } else {
                         const filePath = __dirname + '/../views/pages/' + sanitize(resourceName);
                         return res.render(filePath, options);

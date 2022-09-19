@@ -8,7 +8,7 @@ const {
     getHtmlHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('Patient UI Tests', () => {
     beforeEach(async () => {
@@ -61,6 +61,21 @@ describe('Patient UI Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Patient/_search')
+                .set(getHtmlHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
+
+            console.log('------- response Patient sorted ------------');
+            console.log(JSON.stringify(resp, null, 2));
+            console.log('------- end response sort ------------');
+            expect(resp.type).toStrictEqual('text/html');
+            expect(resp.body).toStrictEqual({});
+            expect(resp.text).not.toBeNull();
+            expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
+
+            resp = await request
+                .get('/4_0_0/Patient/_search')
                 .set(getHtmlHeaders());
 
             // noinspection JSUnresolvedFunction
