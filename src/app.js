@@ -120,24 +120,27 @@ function createApp(fnCreateContainer) {
         const resourceUrl = state ?
             encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
         // console.log(`Redirecting to ${resourceUrl}`);
+        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
         res.redirect(
             `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
-            `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${httpProtocol}://` +
-            `${req.headers.host}/authcallback&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
+            `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
+            `&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
         );
     });
 
     app.get('/fhir', (req, res) => {
         const resourceUrl = req.query.resource;
-        const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
-        res.redirect(redirectUrl);
+        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        res.redirect(`${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
+            `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
     });
 
     app.get('/health', (req, res) => res.json({status: 'ok'}));
     app.get('/version', handleVersion);
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
-        const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${env.HOST_SERVER}/logout`;
+        const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
+        const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
         res.redirect(logoutUrl);
     });
 
