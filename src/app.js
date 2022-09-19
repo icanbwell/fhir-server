@@ -28,6 +28,7 @@ const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration')
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 const {initialize} = require('./winstonInit');
+const {handleAdmin} = require('./routeHandlers/admin');
 
 if (isTrue(env.TRACING_ENABLED)) {
     require('./tracing');
@@ -179,6 +180,17 @@ function createApp(fnCreateContainer) {
         express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
+
+    // Set up admin routes
+    passport.use('adminStrategy', strategy);
+
+    // eslint-disable-next-line new-cap
+    const adminRouter = express.Router();
+    adminRouter.use(passport.initialize({}));
+    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    adminRouter.get('/admin/:op?', handleAdmin);
+    adminRouter.post('/admin/:op?', handleAdmin);
+    app.use(adminRouter);
 
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', strategy);

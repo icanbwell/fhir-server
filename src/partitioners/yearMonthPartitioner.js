@@ -45,7 +45,7 @@ class YearMonthPartitioner extends BasePartitioner {
     /**
      * Gets partitions by query
      * @param {string} resourceType
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>|undefined} [query]
      * @param {string} field
      * @param {string} resourceWithBaseVersion
      * @param {Map<string, string[]>} partitionsCache
@@ -60,7 +60,9 @@ class YearMonthPartitioner extends BasePartitioner {
             partitionsCache
         }
     ) {
-
+        if (!query || Object.keys(query).length === 0) {
+            return partitionsCache.get(resourceType);
+        }
         /**
          * @type {Object[]}
          */

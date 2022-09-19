@@ -32,7 +32,11 @@ class BaseScriptRunner {
     }
 
     async shutdown() {
-        await disconnectAsync();
+        try {
+            await disconnectAsync();
+        } catch (e) {
+            console.error(`Error shutting down: ${JSON.stringify(e)}`);
+        }
     }
 }
 

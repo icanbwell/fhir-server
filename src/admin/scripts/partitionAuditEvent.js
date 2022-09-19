@@ -140,10 +140,11 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
 
                 recordedBeforeForLoop = recordedAfterForLoop.clone();
             }
+            console.log('Finished script');
+            console.log('Shutting down');
+            await this.shutdown();
         } catch (e) {
             console.log(`ERROR: ${e}`);
-        } finally {
-            await this.shutdown();
         }
     }
 }
@@ -184,6 +185,7 @@ async function main() {
     const processAuditEventRunner = container.processAuditEventRunner;
     await processAuditEventRunner.processAsync();
 
+    console.log('Exiting process');
     process.exit(0);
 }
 

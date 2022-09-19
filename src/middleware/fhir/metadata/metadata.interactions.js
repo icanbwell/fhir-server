@@ -12,6 +12,8 @@ let generateInteractions = (resourceType) => {
 
     let interactions = []; // Test for the existence of a service method
 
+    // https://www.hl7.org/fhir/valueset-type-restful-interaction.html
+
     interactions.push({
         code: 'search-type'
     });
@@ -42,10 +44,6 @@ let generateInteractions = (resourceType) => {
 
     interactions.push({
         code: 'history-instance'
-    });
-
-    interactions.push({
-        code: 'expand'
     });
 
     // Save these interactions so we don't need to do this again

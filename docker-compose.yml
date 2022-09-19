@@ -22,6 +22,7 @@ services:
             AUTH_CONFIGURATION_URI: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/openid-configuration
             AUTH_JWKS_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD/.well-known/jwks.json
             AUTH_ISSUER: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD
+            AUTH_CODE_FLOW_URL: https://bwell-dev.auth.us-east-1.amazoncognito.com
             AUTH_ENABLED: 1
             CHECK_ACCESS_TAG_ON_SAVE: 1
             RENDER_HTML: 1
@@ -52,6 +53,8 @@ services:
             KAFKA_CLIENT_ID: 'fhir-server'
             KAFKA_URLS: 'kafka:9092'
             PARTITION_RESOURCES: 'AuditEvent'
+            AUTH_CUSTOM_GROUP: "cognito:groups"
+            AUTH_CUSTOM_SCOPE: "custom:scope"
         ports:
             - '3000:3000'
         volumes:
