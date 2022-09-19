@@ -96,7 +96,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             lastCheckedId = doc.id;
             count += 1;
             readline.cursorTo(process.stdout, 0);
-            process.stdout.write(`${count.toLocaleString('en-US')} read from database...`);
+            currentDateTime = new Date();
+            process.stdout.write(`[${currentDateTime.toTimeString()}] ` +
+                `${count.toLocaleString('en-US')} read from database...`);
             documents.push(doc);
         }
 
