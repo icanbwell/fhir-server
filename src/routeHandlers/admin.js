@@ -42,7 +42,13 @@ module.exports.handleAdmin = async (req, res) => {
                     const id = req.query['id'];
                     if (id) {
                         const json = await (new AdminLogManager()).getLogAsync(id);
+                        // const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                        // const parameters = {
+                        //     id,
+                        //     json
+                        // };
                         return res.json(json);
+                        // return res.render(filePath, parameters);
                     }
                     return res.json({
                         message: 'No id passed'
