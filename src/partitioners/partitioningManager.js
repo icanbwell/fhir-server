@@ -187,12 +187,15 @@ class PartitioningManager {
             const type = partitionConfig['type'];
             switch (type) {
                 case 'year-month':
-                    return await new YearMonthPartitioner().getPartitionByQueryAsync({
-                        resourceType,
-                        query,
-                        field,
-                        resourceWithBaseVersion
-                    });
+                    return await new YearMonthPartitioner().getPartitionByQueryAsync(
+                        {
+                            resourceType,
+                            query,
+                            field,
+                            resourceWithBaseVersion,
+                            partitionsCache: this.partitionsCache
+                        }
+                    );
 
                 default:
                     assertFail(

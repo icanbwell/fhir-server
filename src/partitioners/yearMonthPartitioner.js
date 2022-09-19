@@ -48,9 +48,18 @@ class YearMonthPartitioner extends BasePartitioner {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @param {string} field
      * @param {string} resourceWithBaseVersion
+     * @param {Map<string, string[]>} partitionsCache
      * @returns {Promise<*[]>}
      */
-    async getPartitionByQueryAsync({resourceType, query, field, resourceWithBaseVersion}) {
+    async getPartitionByQueryAsync(
+        {
+            resourceType,
+            query,
+            field,
+            resourceWithBaseVersion,
+            partitionsCache
+        }
+    ) {
 
         /**
          * @type {Object[]}
@@ -98,7 +107,7 @@ class YearMonthPartitioner extends BasePartitioner {
                     fieldValue: currentDate.utc().toISOString(), resourceWithBaseVersion
                 }
             );
-            if (this.partitionsCache.has(resourceType) && this.partitionsCache.get(resourceType).includes(partition)) {
+            if (partitionsCache.has(resourceType) && partitionsCache.get(resourceType).includes(partition)) {
                 partitions.push(partition);
             }
             currentDate = currentDate.utc().subtract(1, 'months');
