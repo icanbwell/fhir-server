@@ -47,6 +47,8 @@ Run `make up` to bring up the fhir server in docker on your local machine. Click
 
 [src/operations](src/operations): Each folder implements a particular operation in FHIR (e.g., get all resources, update a resource etc). [FHIR Spec](https://www.hl7.org/fhir/operations.html)
 
+[src/partitioners](src/partitioners): Code to support partitioned collections
+
 [src/routeHandlers](src/routeHandlers): Non-FHIR routes (e.g., logout, show stats)
 
 [src/searchParameters](src/searchParameters): Code-generated information about all the FHIR search parameters (https://www.hl7.org/fhir/searchparameter-registry.html). Called by r4.js to implement searching. Code-generation script: [src/searchParameters/generate_search_parameters.py](src/searchParameters/generate_search_parameters.py)
@@ -92,13 +94,16 @@ Run `make up` to bring up the fhir server in docker on your local machine. Click
 [package-lock.json](package-lock.json) and [yarn.lock](yarn.lock): Generated from package.json
 
 ## Indexing
+The process for adding/updating an index:
+1. Edit [src/indexes/customIndexes.js](src/indexes/customIndexes.js) to add your indexes
+2. Commit to main
+3. There are two ways to apply these indexes to Mongo:
+   1. For small collections, you can run indexing by going to `/index/run` url endpoint. To drop and create indexes use the `/index/rebuild` endpoint.
+   2. For larger collections, run the admin script [src/admin/scripts/indexCollections.js](src/admin/scripts/indexCollections.js) using the instructions in Admin Scripts section above.
+4. These will check for any missing indexes and add them to mongo.
 
-Indexes are defined here and you can add new ones:
-[customIndexes.js](src/indexes/customIndexes.js)
+Note: Indexes are automatically created when a new resource type is added to the server (if the `CREATE_INDEX_ON_COLLECTION_CREATION` environment variable is set).
 
-Indexes are automatically created when a new resource type is added to the server (if the `CREATE_INDEX_ON_COLLECTION_CREATION` environment variable is set).
-
-If you add a new index to an existing collection then you can run indexing by going to `/index/run` url endpoint. To drop and create indexes use the `/index/rebuild` endpoint.
 
 ## Index hinting
 
@@ -123,3 +128,115 @@ For testing, you can override the classes in the container in [src/tests/createT
 This allows you to test the code by swapping out classes with your mock classes.
 
 See MockKafka client for an example.
+
+## Admin Scripts
+This project has admin scripts in [src/admin/scripts](src/admin/scripts).
+
+To run the admin scripts, you can start on any linux machine.
+
+### First time setup
+
+#### 1. Install Git
+```shell
+sudo apt-get update
+sudo apt-get install git
+```
+
+#### 2. install NVM (Node Version Manager)
+```shell
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+```
+
+#### 3. restart your computer
+
+#### 4. install node
+```shell
+nvm install 16.17.0
+nvm use 16.17.0
+npm install -g npm@8.19.2
+```
+
+#### 5. Get code
+```shell
+git clone https://github.com/icanbwell/fhir-server.git
+cd fhir-server
+```
+
+#### 6. install npm packages
+```shell
+npm install
+```
+
+#### 7. set up credentials to connect to mongo
+```shell
+cp src/admin/scripts/.env.template src/admin/scripts/.env
+nano src/admin/scripts/.env
+```
+
+#### 8. Run the admin script e.g.,
+```shell
+node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000
+```
+
+### Getting latest from Github
+```shell
+git pull
+```
+
+#### if you have local changes  you can roll them back using
+```shell
+git reset --hard
+```
+
+#### if you want to use a branch different than main
+```shell
+git clone --branch separate_partitioners_into_classes --single-branch https://github.com/icanbwell/fhir-server.git
+```
+
+## Partitioning
+Partitioning means we can store a collection as multiple partitioned collections based on a partitioner.
+
+This is useful for really large tables and when the pattern of usage is specific.  Partitioning can result in faster performance.
+
+For example, the AuditEvent collection is partitioned by year-month of the recorded date.
+
+For a collection to be partitioned:
+1. You have to specify in [src/partitioners/partitions.json](src/partitioners/partitions.json) how you want the collection to be partitioned.
+2. If you need a new type of partitioner, then you can implement a sub-class of [src/partitioners/basePartitioner.js](src/partitioners/basePartitioner.js).  
+   1. For example: [src/partitioners/yearMonthPartitioner.js](src/partitioners/yearMonthPartitioner.js)
+3. If you added a new type of partitioner then you need to add calls to it from the PartitionManager in [src/partitioners/partitioningManager.js](src/partitioners/partitioningManager.js)
+4. In addition we use the environment variable `PARTITION_RESOURCES` to turn on /off partitioning for each environment
+   1. e.g., `PARTITION_RESOURCES: 'AuditEvent'`
+
+If you have existing data, you need to copy it into partitioned collections.  You can use an admin script like [src/admin/scripts/partitionAuditEvent.js](src/admin/scripts/partitionAuditEvent.js).  Once you are done copying it, you can drop the original collection.
+
+## Access indexes
+A number of queries include searching on security tags:
+
+https://fhir.staging.icanbwell.com/4_0_0/AuditEvent?_elements=id&_security=https://www.icanbwell.com/access%7Cmyhealth
+
+Since security tags is an array, Mongo is not able to figure out that this can be "covered" by the index (Each item in the array is stored as a separate entry in the index.)
+
+To optimize this, the FHIR server stores an extra field called `_access` with each resource.  In the case, above there would be a value of `_access.myhealth: 1` stored in Mongo for this resource.
+
+Note that for smaller tables the improvement is negligible so this technique is most beneficial for huge tables.
+
+First set this environment variable to enable using access indexes in an environment:
+```USE_ACCESS_INDEX: 1```
+
+To specify that the access index should be used for a collection, you add the resource type to the environment variable:
+```COLLECTIONS_ACCESS_INDEX: "AuditEvent"```
+
+Now the FHIR server will automatically rewrite the query for https://fhir.staging.icanbwell.com/4_0_0/AuditEvent?_elements=id&_security=https://www.icanbwell.com/access%7Cmyhealth from:
+```javascript
+db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
+```
+to:
+```javascript
+db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'_access.medstar':1}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
+```
+
+Since this will now use the _access field, it will be "covered" by our index so Mongo can return the ids completely from the index without needing to go to the actual data.
+
+If you have old data that did not have this _access field, then you can run an admin script to add this to existing data.
+    
