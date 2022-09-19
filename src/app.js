@@ -28,6 +28,7 @@ const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration')
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 const {initialize} = require('./winstonInit');
+const {handleAdmin} = require('./routeHandlers/admin');
 
 if (isTrue(env.TRACING_ENABLED)) {
     require('./tracing');
@@ -147,6 +148,8 @@ function createApp(fnCreateContainer) {
         };
         return res.render(__dirname + '/views/pages/home', home_options);
     });
+
+    app.get('/admin', handleAdmin);
 
     app.get('/clean/:collection?', handleClean);
 
