@@ -149,7 +149,15 @@ function createApp(fnCreateContainer) {
         return res.render(__dirname + '/views/pages/home', home_options);
     });
 
-    app.get('/admin', handleAdmin);
+    passport.use('adminStrategy', strategy);
+
+    // eslint-disable-next-line new-cap
+    const adminRouter = express.Router();
+    adminRouter.use(passport.initialize({}));
+    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    // noinspection JSCheckFunctionSignatures
+    adminRouter.use(handleAdmin);
+    app.get('/admin', adminRouter);
 
     app.get('/clean/:collection?', handleClean);
 

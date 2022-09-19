@@ -13,7 +13,6 @@ module.exports.handleAdmin = async (req, res) => {
      */
     const client = await createClientAsync(mongoConfig);
     try {
-        //     (req, res) => {
         const home_options = {};
         const filePath = __dirname + '/../views/admin/pages/index';
         console.log(`file: ${filePath}`);
