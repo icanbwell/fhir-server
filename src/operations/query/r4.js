@@ -14,11 +14,6 @@ const {filterByPartialText} = require('./filters/partialText');
 const {filterByCanonical} = require('./filters/canonical');
 const {filterBySecurityTag} = require('./filters/securityTag');
 
-// /**
-//  * @type {import('winston').logger}
-//  */
-// const logger = require('@asymmetrik/node-fhir-server-core').loggers.get();
-
 /**
  * Builds a mongo query for search parameters
  * @param {string} resourceType
