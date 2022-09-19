@@ -14,15 +14,17 @@ module.exports.handleAdmin = async (req, res) => {
     const client = await createClientAsync(mongoConfig);
     try {
         //     (req, res) => {
-        //     const home_options = {};
-        //     return res.render(__dirname + 'admin/views/pages', home_options);
+        const home_options = {};
+        const filePath = __dirname + '/../views/admin/pages/index';
+        console.log(`file: ${filePath}`);
+        return res.render(filePath, home_options);
         // }
         //     res.status(200).json({
         //         success: true,
         //         image: env.DOCKER_IMAGE || '',
         //     });
-        res.set('Content-Type', 'text/html');
-        res.send(Buffer.from('<html><body><h2>Test String</h2></body></html>'));
+        // res.set('Content-Type', 'text/html');
+        // res.send(Buffer.from('<html><body><h2>Test String</h2></body></html>'));
     } finally {
         await disconnectClientAsync(client);
     }
