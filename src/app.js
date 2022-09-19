@@ -149,16 +149,6 @@ function createApp(fnCreateContainer) {
         return res.render(__dirname + '/views/pages/home', home_options);
     });
 
-    passport.use('adminStrategy', strategy);
-
-    // eslint-disable-next-line new-cap
-    const adminRouter = express.Router();
-    adminRouter.use(passport.initialize({}));
-    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
-    adminRouter.get('/admin/:op?', handleAdmin);
-    adminRouter.post('/admin/:op?', handleAdmin);
-    app.use(adminRouter);
-
     app.get('/clean/:collection?', handleClean);
 
     app.get('/stats', handleStats);
@@ -190,6 +180,17 @@ function createApp(fnCreateContainer) {
         express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
+
+    // Set up admin routes
+    passport.use('adminStrategy', strategy);
+
+    // eslint-disable-next-line new-cap
+    const adminRouter = express.Router();
+    adminRouter.use(passport.initialize({}));
+    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    adminRouter.get('/admin/:op?', handleAdmin);
+    adminRouter.post('/admin/:op?', handleAdmin);
+    app.use(adminRouter);
 
     // noinspection JSCheckFunctionSignatures
     passport.use('graphqlStrategy', strategy);

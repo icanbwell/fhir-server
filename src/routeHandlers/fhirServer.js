@@ -140,6 +140,7 @@ class MyFHIRServer {
                 helmetConfig || {
                     // Needs https running first
                     hsts: this.env.USE_HTTPS,
+                    // crossOriginResourcePolicy: false,
                 }
             )
         ); // return self for chaining
@@ -257,7 +258,7 @@ class MyFHIRServer {
                 // get base from URL instead of params since it might not be forwarded
                 const base = req.url.split('/')[1];
                 const isValidBaseVersion = isValidVersion(base);
-                if (!isValidBaseVersion){
+                if (!isValidBaseVersion) {
                     res.status(404);
                     res.end();
                     return;
