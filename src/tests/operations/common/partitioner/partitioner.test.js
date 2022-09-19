@@ -178,7 +178,7 @@ describe('PartitioningManager Tests', () => {
             expect(partitions.length).toBe(1);
             expect(partitions[0]).toBe('Account_4_0_0');
         });
-        test('getPartitionNamesByQueryAsync works for AuditEvent with no query', async () => {
+        test('getPartitionNamesByQueryAsync works for AuditEvent without data & no query', async () => {
             const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
             expect(partitioner.partitionsCache.size).toBe(0);
             // noinspection JSValidateTypes
@@ -187,8 +187,34 @@ describe('PartitioningManager Tests', () => {
                 base_version: '4_0_0',
                 query: {}
             });
+            expect(partitions.length).toBe(0);
+        });
+        test('getPartitionNamesByQueryAsync works for AuditEvent with data & no query', async () => {
+            const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
+            expect(partitioner.partitionsCache.size).toBe(0);
+            // now add the Audit Event
+            const fieldDate = new Date(2022, 7 - 1, 10);
+            /**
+             * @type {string}
+             */
+            const mongoCollectionName2 = YearMonthPartitioner.getPartitionNameFromYearMonth({
+                fieldValue: fieldDate.toString(),
+                resourceWithBaseVersion: 'AuditEvent_4_0_0'
+            });
+            /**
+             * mongo connection
+             * @type {import('mongodb').Db}
+             */
+            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            // noinspection JSValidateTypes
+            const partitions = await partitioner.getPartitionNamesByQueryAsync({
+                resourceType: 'AuditEvent',
+                base_version: '4_0_0',
+                query: {}
+            });
             expect(partitions.length).toBe(1);
-            expect(partitions[0]).toBe('AuditEvent_4_0_0');
+            expect(partitions[0]).toBe('AuditEvent_4_0_0_2022_07');
         });
         test('getPartitionNamesByQueryAsync works for AuditEvent with query for both gt & lt', async () => {
             const partitioner = new PartitioningManager({configManager: new MockConfigManager()});
