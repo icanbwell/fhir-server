@@ -181,19 +181,25 @@ function createApp(fnCreateContainer) {
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
 
-    // Set up admin routes
-    passport.use('adminStrategy', strategy);
+    if (isTrue(env.AUTH_ENABLED)) {
+        // Set up admin routes
+        passport.use('adminStrategy', strategy);
+    }
 
     // eslint-disable-next-line new-cap
     const adminRouter = express.Router();
-    adminRouter.use(passport.initialize({}));
-    adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    if (isTrue(env.AUTH_ENABLED)) {
+        adminRouter.use(passport.initialize({}));
+        adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    }
     adminRouter.get('/admin/:op?', handleAdmin);
     adminRouter.post('/admin/:op?', handleAdmin);
     app.use(adminRouter);
 
-    // noinspection JSCheckFunctionSignatures
-    passport.use('graphqlStrategy', strategy);
+    if (isTrue(env.AUTH_ENABLED)) {
+        // noinspection JSCheckFunctionSignatures
+        passport.use('graphqlStrategy', strategy);
+    }
 
     // enable middleware for graphql
     if (isTrue(env.ENABLE_GRAPHQL)) {
@@ -204,8 +210,10 @@ function createApp(fnCreateContainer) {
                 .then((graphqlMiddleware) => {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
-                    router.use(passport.initialize({}));
-                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    if (isTrue(env.AUTH_ENABLED)) {
+                        router.use(passport.initialize({}));
+                        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    }
                     // noinspection JSCheckFunctionSignatures
                     router.use(graphqlMiddleware);
                     app.use('/graphqlv2', router);
@@ -216,8 +224,10 @@ function createApp(fnCreateContainer) {
                 .then((graphqlMiddlewareV1) => {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
-                    router1.use(passport.initialize({}));
-                    router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    if (isTrue(env.AUTH_ENABLED)) {
+                        router1.use(passport.initialize({}));
+                        router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    }
                     // noinspection JSCheckFunctionSignatures
                     router1.use(graphqlMiddlewareV1);
 
@@ -232,8 +242,10 @@ function createApp(fnCreateContainer) {
                 .then((graphqlMiddleware) => {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
-                    router.use(passport.initialize({}));
-                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    if (isTrue(env.AUTH_ENABLED)) {
+                        router.use(passport.initialize({}));
+                        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    }
                     // noinspection JSCheckFunctionSignatures
                     router.use(graphqlMiddleware);
                     app.use('/graphqlv2', router);
@@ -242,8 +254,10 @@ function createApp(fnCreateContainer) {
                 .then((graphqlMiddlewareV1) => {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
-                    router1.use(passport.initialize({}));
-                    router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    if (isTrue(env.AUTH_ENABLED)) {
+                        router1.use(passport.initialize({}));
+                        router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    }
                     // noinspection JSCheckFunctionSignatures
                     router1.use(graphqlMiddlewareV1);
 
