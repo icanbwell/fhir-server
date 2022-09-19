@@ -13,9 +13,13 @@ module.exports.handleAdmin = async (req, res) => {
      */
     const client = await createClientAsync(mongoConfig);
     try {
+        /**
+         * @type {string}
+         */
+        const scope = req.authInfo && req.authInfo.scope;
         const home_options = {};
         const filePath = __dirname + '/../views/admin/pages/index';
-        console.log(`file: ${filePath}`);
+        console.log(`file: ${filePath}.  scope: ${scope}`);
         return res.render(filePath, home_options);
         // }
         //     res.status(200).json({
