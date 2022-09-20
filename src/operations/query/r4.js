@@ -14,6 +14,12 @@ const {filterByPartialText} = require('./filters/partialText');
 const {filterByCanonical} = require('./filters/canonical');
 const {filterBySecurityTag} = require('./filters/securityTag');
 
+function isUrl(queryParameterValue) {
+    return queryParameterValue.startsWith('http://') ||
+        queryParameterValue.startsWith('https://') ||
+        queryParameterValue.startsWith('ftp://');
+}
+
 /**
  * Builds a mongo query for search parameters
  * @param {string} resourceType
@@ -97,11 +103,6 @@ module.exports.buildR4SearchQuery = ({resourceType, args, useAccessIndex}) => {
                         continue; // skip processing rest of this loop
                     }
                     switch (propertyObj.type) {
-                        case fhirFilterTypes.canonical:
-                            filterByCanonical({
-                                and_segments, propertyObj, queryParameterValue, columns
-                            });
-                            break;
                         case fhirFilterTypes.string:
                             filterByString({
                                 queryParameterValue, and_segments, propertyObj, columns
@@ -139,14 +140,20 @@ module.exports.buildR4SearchQuery = ({resourceType, args, useAccessIndex}) => {
                             }
                             break;
                         case fhirFilterTypes.reference:
-                            filterByReference(
-                                {
-                                    propertyObj,
-                                    and_segments,
-                                    queryParameterValue,
-                                    columns
-                                }
-                            );
+                            if (isUrl(queryParameterValue)) {
+                                filterByCanonical({
+                                    and_segments, propertyObj, queryParameterValue, columns
+                                });
+                            } else {
+                                filterByReference(
+                                    {
+                                        propertyObj,
+                                        and_segments,
+                                        queryParameterValue,
+                                        columns
+                                    }
+                                );
+                            }
                             break;
                         default:
                             throw new Error('Unknown type=' + propertyObj.type);

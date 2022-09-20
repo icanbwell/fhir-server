@@ -127,9 +127,6 @@ def write_search_parameter_dict(field_filter_regex, file2, sample_dict):
                 cleaned_description: Optional[str] = search_parameter_entries[0].description.replace('\n', '').replace(
                     '\r', '').replace("'", "")
                 file2.write(f"\t\t\t'description': '{cleaned_description}',\n")
-            if resource in ['QuestionnaireResponse'] and search_parameter == 'questionnaire':
-                file2.write(f"\t\t\t'type': 'canonical',\n")  # The FHIR schema is wrong for canonical search parameters
-            else:
                 file2.write(f"\t\t\t'type': '{search_parameter_entries[0].type_}',\n")  # we assume all are of same type
             # now figure out the fields
             if len(search_parameter_entries) == 1:  # simple case

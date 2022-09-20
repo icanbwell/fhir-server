@@ -31,7 +31,7 @@ describe('Consent Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Consent back
             resp = await request
-                .get('/4_0_0/Consent/?_bundle=1&?source-reference=QuestionnaireResponse/58c79dc2-23e8-40a7-9e9b-1ae1a5385f09')
+                .get('/4_0_0/Consent/?_bundle=1&source-reference=QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedConsentResources);
