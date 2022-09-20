@@ -7208,7 +7208,7 @@ search_parameter_queries = {
 		},
 		'questionnaire': {
 			'description': 'The questionnaire the answers are provided for',
-			'type': 'canonical',
+			'type': 'reference',
 			'field': 'questionnaire',
 			'target': ['Questionnaire'],
 		},
