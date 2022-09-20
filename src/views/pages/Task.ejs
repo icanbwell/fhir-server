@@ -78,6 +78,7 @@
                 <%- include('../partials/integer', {value: input.valuePositiveInt, name: "Value"}); %>
                 <%- include('../partials/nameValue', {value: input.valueString, name: "Value"}); %>
                 <%- include('../partials/time', {value: input.valueTime, name: "Value"}); %>
+                <%- include('../partials/reference', {references: input.valueReference, name: "Value"}); %>
                 <!-- TODO: Other properties -->
             <% }) %>
             <% res.output && res.output.forEach(function(output){ %>
@@ -96,6 +97,8 @@
                 <%- include('../partials/integer', {value: output.valuePositiveInt, name: "Value"}); %>
                 <%- include('../partials/nameValue', {value: output.valueString, name: "Value"}); %>
                 <%- include('../partials/time', {value: output.valueTime, name: "Value"}); %>
+                <%- include('../partials/reference', {references: output.valueReference, name: "Value"}); %>
+
                 <!-- TODO: Other properties -->
             <% }) %>
 
