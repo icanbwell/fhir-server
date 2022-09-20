@@ -1,4 +1,4 @@
-const { referenceQueryBuilder } = require('../../../utils/querybuilder.util');
+const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
 
 /**
  * Filters by reference
@@ -34,7 +34,7 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
             );
         }
     } else {
-        var field = propertyObj.fields ? `${propertyObj.fields[propertyObj.fields.length - 1]}` // set field to 'library' if propertyObj.fields
+        var field = propertyObj.fields ? `${propertyObj.fields[propertyObj.fields.length - 1]}.reference` // set field to 'library' if propertyObj.fields
             : `${propertyObj.field}.reference`;
         // handle multiple targets
         // if resourceType is specified then search for only those resources
@@ -60,9 +60,9 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
             });
         }
     }
-    columns.add(propertyObj.fields ? `${propertyObj.fields}` : `${propertyObj.field}.reference`);
+    columns.add(propertyObj.fields ? `${propertyObj.fields.map(f => `${f}.reference`)}` : `${propertyObj.field}.reference`);
 }
 
 module.exports = {
-    filterByReference: filterByReference
+    filterByReference
 };

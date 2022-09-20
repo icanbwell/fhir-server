@@ -9,6 +9,11 @@ const resourceDefinitions = [
         url: 'https://www.hl7.org/fhir/account.html'
     },
     {
+        name: 'ActivityDefinition',
+        description: 'An ActivityDefinition is a shareable, consumable description of some activity to be performed. It may be used to specify actions to be taken as part of a workflow, order set, or protocol, or it may be used independently as part of a catalog of activities such as orderables.',
+        url: 'https://www.hl7.org/fhir/activitydefinition.html'
+    },
+    {
         name: 'AllergyIntolerance',
         description: 'Risk of harmful or undesirable, physiological response which is unique to an individual and associated with exposure to a substance.',
         url: 'https://www.hl7.org/fhir/allergyintolerance.html'
@@ -32,6 +37,11 @@ const resourceDefinitions = [
         name: 'Condition',
         description: 'A clinical condition, problem, diagnosis, or other event, situation, issue, or clinical concept that has risen to a level of concern.',
         url: 'https://www.hl7.org/fhir/condition.html'
+    },
+    {
+        name: 'Consent',
+        description: 'A record of a healthcare consumer’s choices, which permits or denies identified recipient(s) or recipient role(s) to perform one or more actions within a given policy context, for specific purposes and periods of time.',
+        url: 'https://www.hl7.org/fhir/consent.html'
     },
     {
         name: 'Coverage',
@@ -151,7 +161,12 @@ const resourceDefinitions = [
     {
         name: 'Slot',
         description: 'A slot of time on a schedule that may be available for booking appointments.',
-        url: 'https://www.hl7.org/fhir/slot.html#Slot'
+        url: 'https://www.hl7.org/fhir/slot.html'
+    },
+    {
+        name: 'Task',
+        description: 'A task resource describes an activity that can be performed and tracks the state of completion of that activity. It is a representation that an activity should be or has been initiated, and eventually, represents the successful or unsuccessful completion of that activity.',
+        url: 'https://www.hl7.org/fhir/task.html'
     },
     {
         name: 'ValueSet',

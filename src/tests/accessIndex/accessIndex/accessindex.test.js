@@ -39,7 +39,7 @@ describe('AuditEvent Tests', () => {
                 return c;
             });
             // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders()).expect(200);
+            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 

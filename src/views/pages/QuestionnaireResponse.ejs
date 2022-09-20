@@ -39,7 +39,7 @@
                                         <% item.answer.forEach(function(answer){ %>
                                             <% if (answer) { %>
                                                 <% if (answer.valueBoolean) { %>
-                                                    <%= answer.valueBoolean %>
+                                                    <%= answer.valueBoolean ? 'True': 'False' %>
                                                 <% } else if (answer.valueDecimal) { %>
                                                     <%= answer.valueDecimal %>
                                                 <% } else if (answer.valueInteger) { %>

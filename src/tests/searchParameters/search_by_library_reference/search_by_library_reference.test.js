@@ -1,9 +1,7 @@
 // test file
-const libraryReference1Resource = require('./fixtures/Library_Reference/Library_Reference1.json');
+const measure1Resource = require('./fixtures/Measure/measure1.json');
 
-// expected
-const expectedUrl = 'https://fhir.dev.icanbwell.com/4_0_0/Measure/AWVCN';
-const expectedLibrary = 'Library/AWVCN001';
+const expectedMeasure1Resource = require('./fixtures/expected/expected_measure.json');
 
 const {
     commonBeforeEach,
@@ -11,7 +9,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('Measure Tests', () => {
     beforeEach(async () => {
@@ -29,21 +27,16 @@ describe('Measure Tests', () => {
             // add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/Measure/$merge')
-                .send(libraryReference1Resource)
+                .send(measure1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({ created: true });
-
-            resp = await request.get('/4_0_0/Measure?depends-on=AWVCN001').set(getHeaders());
-            expect(resp.body[0]['url']).toStrictEqual(expectedUrl);
-            expect(resp.body[0]['library'][0]).toStrictEqual(expectedLibrary);
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get('/4_0_0/Measure?depends-on=Library/AWVCN001')
+                .get('/4_0_0/Measure?depends-on=https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN&_bundle=1&_debug=1')
                 .set(getHeaders());
-            // console.log(resp);
-            expect(resp.body[0]['url']).toStrictEqual(expectedUrl);
-            expect(resp.body[0]['library'][0]).toStrictEqual(expectedLibrary);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMeasure1Resource);
         });
     });
 });

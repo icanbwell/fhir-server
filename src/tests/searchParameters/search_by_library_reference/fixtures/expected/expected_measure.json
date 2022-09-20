@@ -1,0 +1,76 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "definition": [
+          "Description provided by Clinical Team"
+        ],
+        "effectivePeriod": {
+          "start": "2022-01-01T00:00:00.000Z"
+        },
+        "id": "AWVCNE",
+        "library": [
+          "https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN"
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "source": "https://icanbwell.com",
+          "versionId": "1"
+        },
+        "name": "AnnualWellnessVisit",
+        "resourceType": "Measure",
+        "status": "draft",
+        "subjectCodeableConcept": {
+          "coding": [
+            {
+              "code": "Patient",
+              "id": "subject",
+              "system": "http://hl7.org/fhir/resource-types"
+            }
+          ]
+        },
+        "title": "Annual Wellness Visit",
+        "url": "https://fhir.dev.icanbwell.com/4_0_0/Measure/AWVCN"
+      }
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Measure_4_0_0.find({'$and':[{'$or':[{'relatedArtifact.resource':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'},{'library':'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'}]}]}, {}).sort({'id':1}).limit(100)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Measure_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'limit':100,'sort':{'id':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['relatedArtifact.resource,library','id']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

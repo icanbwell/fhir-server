@@ -1,0 +1,77 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "59284-0",
+                "system": "http://loinc.org"
+              }
+            ]
+          }
+        ],
+        "dateTime": "2022-09-08T14:05:07.350Z",
+        "id": "1167dbd7-b5de-4843-b3aa-3804b28a7573",
+        "meta": {
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "versionId": "1"
+        },
+        "patient": {
+          "reference": "Patient/000Dummy2"
+        },
+        "provision": {
+          "type": "permit"
+        },
+        "resourceType": "Consent",
+        "scope": {
+          "coding": [
+            {
+              "code": "patient-privacy",
+              "system": "http://terminology.hl7.org/CodeSystem/consentscope"
+            }
+          ]
+        },
+        "sourceReference": {
+          "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
+        },
+        "status": "active"
+      }
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Consent_4_0_0.find({'$and':[{'sourceReference.reference':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'}]}, {}).sort({'id':1}).limit(100)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Consent_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'limit':100,'sort':{'id':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['sourceAttachment.reference,sourceReference.reference','id']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
