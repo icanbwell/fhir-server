@@ -1,21 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <%- include('../partials/head'); %>
-    </head>
-    <body class="container-fluid p-0">
-        <%- include('../partials/header', {resources: resources}); %>
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
 
-        <main>
-            <% resources.forEach(function(res, index){ %>
-            <div class="resource-item">
-                <!-- prettier-ignore -->
-                <%- include('../partials/resourceHeader', {res: res}); %>
-                <%- include('../partials/json', {res: res, index: index}); %>
-            </div>
-            <% }) %>
-        </main>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
 
-        <%- include('../partials/footer', {url: url, meta: meta}); %>
-    </body>
+            <%- include('../partials/code', {value: res.status, name: "Status"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.scope, name: "Scope", searchParameter: ''}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.category, name: "Category", searchParameter: ''}); %>
+
+            <%- include('../partials/reference', {references: res.patient, name: "Patient"}); %>
+
+            <%- include('../partials/dateTime', {value: res.dateTime, name: "Date Time"}); %>
+
+            <%- include('../partials/reference', {references: res.performer, name: "Performer"}); %>
+            <%- include('../partials/reference', {references: res.organization, name: "Organization"}); %>
+
+            <!-- TODO: sourceAttachment-->
+            <%- include('../partials/reference', {references: res.sourceReference, name: "Source Reference"}); %>
+
+            <%- include('../partials/table', {columns:['authority','uri'], rows:res.policy, name: "Source Reference"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.policyRule, name: "Policy Rule", searchParameter: ''}); %>
+
+            <% if(res.provision) { %>
+                <h4>Provision</h4>
+                <%- include('../partials/code', {value: res.provision.type, name: "Type"}); %>
+                <%- include('../partials/period', {periods: res.provision.period, name: "Period"}); %>
+                <% res.provision.actor && res.provision.actor.forEach(function(actor){ %>
+                    <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: actor.role, name: "Actor Role", searchParameter: ''}); %>
+                    <%- include('../partials/reference', {references: actor.reference, name: "Actor Reference"}); %>
+                <% }) %>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.provision.action, name: "Action", searchParameter: ''}); %>
+                <%- include('../partials/coding', {resourceType: res.resourceType, codings: res.provision.securityLabel, name: "SecurityLabel", searchParameter: ''}); %>
+                <%- include('../partials/coding', {resourceType: res.resourceType, codings: res.provision.purpose, name: "Purpose", searchParameter: ''}); %>
+                <%- include('../partials/coding', {resourceType: res.resourceType, codings: res.provision.class, name: "Class", searchParameter: ''}); %>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.provision.code, name: "Code", searchParameter: ''}); %>
+                <%- include('../partials/period', {periods: res.provision.dataPeriod, name: "Data Period"}); %>
+
+                <% res.provision.data && res.provision.data.forEach(function(data){ %>
+                    <%- include('../partials/code', {value: data.meaning, name: "Meaning"}); %>
+                    <%- include('../partials/reference', {references: data.reference, name: "Reference"}); %>
+                <% }) %>
+            <% } %>
+
+            <%- include('../partials/json', {res: res, index: index}); %>
+
+
+        </div>
+    <% }) %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
 </html>

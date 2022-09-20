@@ -31,7 +31,7 @@ function cleanMeta(resource) {
             if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
                 tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', `db.${auditCollectionName}.`);
             }
-            if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code'] && tag['code'].startsWith('AuditEvent_4_0_0.')) {
+            if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code'] && tag['code'].startsWith('AuditEvent_4_0_0')) {
                 tag['code'] = `${auditCollectionName}`;
             }
         });
