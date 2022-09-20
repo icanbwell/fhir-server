@@ -1,0 +1,50 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "59284-0",
+                "system": "http://loinc.org"
+              }
+            ]
+          }
+        ],
+        "dateTime": "2022-09-08T14:05:07.350Z",
+        "id": "1167dbd7-b5de-4843-b3aa-3804b28a7573",
+        "meta": {
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "versionId": "1"
+        },
+        "patient": {
+          "reference": "Patient/000Dummy2"
+        },
+        "provision": {
+          "type": "permit"
+        },
+        "resourceType": "Consent",
+        "scope": {
+          "coding": [
+            {
+              "code": "patient-privacy",
+              "system": "http://terminology.hl7.org/CodeSystem/consentscope"
+            }
+          ]
+        },
+        "sourceReference": {
+          "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
+        },
+        "status": "active"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
