@@ -1,5 +1,6 @@
 // test file
 const consent1Resource = require('./fixtures/Consent/consent1.json');
+const consent2Resource = require('./fixtures/Consent/consent2.json');
 
 // expected
 const expectedConsentResources = require('./fixtures/expected/expected_Consent.json');
@@ -27,6 +28,19 @@ describe('Consent Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Consent/1/$merge?validate=true')
+                .send(consent2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Consent/?_bundle=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(2);
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Consent back
