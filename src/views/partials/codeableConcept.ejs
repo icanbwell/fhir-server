@@ -3,36 +3,42 @@
 } %>
 <% if (codeableConcepts && codeableConcepts.length > 0 && codeableConcepts[0]) { %>
     <div>
-        <h4><%= name ;%></h4>
+        <h4><%= name; %></h4>
         <table class="table">
             <thead>
             <tr>
                 <th scope="col">Id</th>
-                <th scope="col">Text</th>
+                <th scope="col">Text/Display</th>
                 <th scope="col">Code System</th>
                 <th scope="col">Code</th>
             </tr>
             </thead>
             <tbody>
             <% codeableConcepts.forEach(function(codeableConcept){ %>
-                <% if (codeableConcept && codeableConcept.coding) { %>
-                    <% codeableConcept.coding.forEach(function(coding){ %>
-                        <tr>
-                            <td><%= coding.id ;%></td>
-                            <td><%= codeableConcept.text || coding.display ;%></td>
-                            <% if (searchParameter) { %>
-                                <td>
-                                    <a href="/4_0_0/<%= resourceType ;%>?<%= searchParameter ;%>=<%= coding.system ;%>|"><%= coding.system ;%></a>
-                                </td>
-                                <td>
-                                    <a href="/4_0_0/<%= resourceType ;%>?<%= searchParameter ;%>=<%= coding.system ;%>|<%= coding.code ;%>"><%= coding.code ;%></a>
-                                </td>
-                            <% } else { %>
-                                <td><%= coding.system ;%></td>
-                                <td><%= coding.code ;%></td>
-                            <% } %>
-                        </tr>
-                    <% }); %>
+                <% codeableConcept.coding && codeableConcept.coding && codeableConcept.coding.forEach(function(coding){ %>
+                    <tr>
+                        <td><%= coding.id; %></td>
+                        <td><%= codeableConcept.text || coding.display; %></td>
+                        <% if (searchParameter) { %>
+                            <td>
+                                <a href="/4_0_0/<%= resourceType; %>?<%= searchParameter; %>=<%= coding.system; %>|"><%= coding.system; %></a>
+                            </td>
+                            <td>
+                                <a href="/4_0_0/<%= resourceType; %>?<%= searchParameter; %>=<%= coding.system; %>|<%= coding.code; %>"><%= coding.code; %></a>
+                            </td>
+                        <% } else { %>
+                            <td><%= coding.system; %></td>
+                            <td><%= coding.code; %></td>
+                        <% } %>
+                    </tr>
+                <% }); %>
+                <% if (codeableConcept.text) { %>
+                    <tr>
+                        <td></td>
+                        <td><%= codeableConcept.text %></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                 <% } %>
             <% }); %>
             </tbody>
