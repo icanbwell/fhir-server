@@ -8,13 +8,12 @@ dotenv.config({
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const {createContainer} = require('../../createContainer');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {CommandLineParser} = require('./commandLineParser');
 const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
 const moment = require('moment-timezone');
+const {auditEventMongoConfig} = require('../../config');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -84,10 +83,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         const sourceCollectionName = 'AuditEvent_4_0_0';
         try {
             await this.init();
-            /**
-             * @type {import('mongodb').Db}
-             */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
 
             console.log(`Starting loop from ${this.recordedAfter.utc().toISOString()} till ${this.recordedBefore.utc().toISOString()}`);
             /**
@@ -124,7 +119,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            db: auditEventDb,
+                            config: auditEventMongoConfig,
                             sourceCollectionName,
                             destinationCollectionName,
                             query,

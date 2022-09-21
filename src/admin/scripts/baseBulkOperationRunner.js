@@ -4,6 +4,7 @@ const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
 const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -29,7 +30,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
     /**
      * runs the query in batches and calls the fnCreateBulkOperation for each record
-     * @param {import('mongodb').Db} db
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} config
      * @param {string} sourceCollectionName
      * @param {string} destinationCollectionName
      * @param {import('mongodb').Filter<import('mongodb').Document>} query
@@ -40,7 +41,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      */
     async runForQueryBatchesAsync(
         {
-            db,
+            config,
             sourceCollectionName,
             destinationCollectionName,
             query,
@@ -50,7 +51,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
     ) {
         let lastCheckedId = '';
-
+        let db = await createClientAsync(config);
         /**
          * @type {import('mongodb').Collection<import('mongodb').Document>}
          */
@@ -59,6 +60,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 db, collectionName: destinationCollectionName
             }
         );
+        /**
+         * @type {import('mongodb').Collection}
+         */
         const sourceCollection = db.collection(sourceCollectionName);
 
         let operations = [];
@@ -101,6 +105,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 `${count.toLocaleString('en-US')} read from database...`);
             documents.push(doc);
         }
+
+        await disconnectClientAsync(db);
+
+        console.log(`Finished reading ${documents.length} documents`);
+
+        db = await createClientAsync(config);
+
+        console.log(`Started bulk write for ${documents.length} documents`);
 
         // Now iterate through the docs
         for (const /** @type {import('mongodb').DefaultSchema} */ doc of documents) {
@@ -165,6 +177,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             );
         }
+        await disconnectClientAsync(db);
         return lastCheckedId;
     }
 
