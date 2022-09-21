@@ -1,0 +1,18 @@
+<% if (!Array.isArray(value)) {
+    value = [value];
+} %>
+<% if (value && value.length > 0 && value[0]) { %>
+    <div>
+
+        <% value.forEach(function(contact){ %>
+            <h4><%= name; %></h4>
+            <%- include('../partials/codeableConcept', {resourceType: resourceType, codeableConcepts: contact.relationship, name: "Relationship", searchParameter: ''}); %>
+            <%- include('../partials/humanNames', {names: contact.name, resourceType: resourceType}); %>
+            <%- include('../partials/contactpoint', {contacts: contact.telecom, name: "Telecom", resourceType: resourceType}); %>
+            <%- include('../partials/address', {addresses: contact.address, name: "Address", resourceType: resourceType}); %>
+            <%- include('../partials/code', {value: contact.gender, name: "Gender", resourceType: resourceType}); %>
+            <%- include('../partials/reference', {references: contact.organization, name: "Organization", resourceType: resourceType}); %>
+            <%- include('../partials/period', {periods: contact.period, name: "Period", resourceType: resourceType}); %>
+        <% }); %>
+    </div>
+<% } %>

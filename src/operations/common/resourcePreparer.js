@@ -1,95 +1,112 @@
-const {isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
-const {removeNull} = require('../../utils/nullRemover');
 const {enrich} = require('../../enrich/enrich');
-const {resourceHasAccessIndex} = require('./resourceHasAccessIndex');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ScopesManager} = require('../security/scopesManager');
+const {AccessIndexManager} = require('./accessIndexManager');
 
-/**
- * handles selection of specific elements
- * @param {Object} args
- * @param {function(?Object): Resource} Resource
- * @param {Resource} element
- * @param {string} resourceName
- * @return {Resource}
- */
-function selectSpecificElements(args, Resource, element, resourceName) {
+class ResourcePreparer {
     /**
-     * @type {string}
+     * constructor
+     * @param {ScopesManager} scopesManager
+     * @param {AccessIndexManager} accessIndexManager
      */
-    const properties_to_return_as_csv = args['_elements'];
-    /**
-     * @type {string[]}
-     */
-    const properties_to_return_list = properties_to_return_as_csv.split(',');
-    /**
-     * @type {Resource}
-     */
-    const element_to_return = new Resource(null);
-    /**
-     * @type {string}
-     */
-    for (const property of properties_to_return_list) {
-        if (property in element_to_return) {
-            element_to_return[`${property}`] = element[`${property}`];
-        }
-    }
-    // this is a hack for the CQL Evaluator since it does not request these fields but expects them
-    if (resourceName === 'Library') {
-        element_to_return['id'] = element['id'];
-        element_to_return['url'] = element['url'];
-    }
-    return element_to_return;
-}
+    constructor({scopesManager, accessIndexManager}) {
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
 
-/**
- * Converts the Mongo document into a document we can return to the client
- * @param {string | null} user
- * @param {string | null} scope
- * @param {Object} args
- * @param {function(?Object): Resource} Resource
- * @param {Resource} element
- * @param {string} resourceName
- * @param {boolean} useAccessIndex
- * @returns {Promise<Resource[]>}
- */
-async function prepareResourceAsync(user, scope, args, Resource, element, resourceName, useAccessIndex) {
-    let resources = [];
-    if (args['_elements']) {
-        if (!useAccessIndex || !resourceHasAccessIndex(resourceName)) {
-            // if the whole resource is returned then we have security tags to check again to be double sure
-            if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
-                return [];
+        /**
+         * @type {AccessIndexManager}
+         */
+        this.accessIndexManager = accessIndexManager;
+        assertTypeEquals(accessIndexManager, AccessIndexManager);
+    }
+
+    /**
+     * handles selection of specific elements
+     * @param {Object} args
+     * @param {Resource} element
+     * @param {string} resourceType
+     * @return {Resource}
+     */
+    selectSpecificElements({args, element, resourceType}) {
+        /**
+         * @type {string}
+         */
+        const properties_to_return_as_csv = args['_elements'];
+        /**
+         * @type {string[]}
+         */
+        const properties_to_return_list = properties_to_return_as_csv.split(',');
+        /**
+         * @type {Resource}
+         */
+        const element_to_return = element.create({});
+        /**
+         * @type {string}
+         */
+        for (const property of properties_to_return_list) {
+            if (property in element_to_return) {
+                element_to_return[`${property}`] = element[`${property}`];
             }
         }
-
-        const element_to_return = selectSpecificElements(
-            args,
-            Resource,
-            element,
-            resourceName
-        );
-        resources.push(element_to_return);
-    } else {
-        // if the whole resource is returned then we have security tags to check again to be double sure
-        if (!isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
-            return [];
+        // this is a hack for the CQL Evaluator since it does not request these fields but expects them
+        if (resourceType === 'Library') {
+            element_to_return['id'] = element['id'];
+            element_to_return['url'] = element['url'];
         }
-        /**
-         * @type  {Resource}
-         */
-        const resource = new Resource(element);
-        /**
-         * @type {Object}
-         */
-        const cleanResource = removeNull(resource.toJSON());
-        /**
-         * @type {Resource[]}
-         */
-        const enrichedResources = await enrich([cleanResource], resourceName);
-        resources = resources.concat(enrichedResources);
+        return element_to_return;
     }
-    return resources;
+
+    /**
+     * Converts the Mongo document into a document we can return to the client
+     * @param {string | null} user
+     * @param {string | null} scope
+     * @param {Object} args
+     * @param {Resource} element
+     * @param {string} resourceType
+     * @param {boolean} useAccessIndex
+     * @returns {Promise<Resource[]>}
+     */
+    async prepareResourceAsync({
+                                   user, scope, args,
+                                   element, resourceType, useAccessIndex
+                               }) {
+        let resources = [];
+        if (args['_elements']) {
+            if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex(resourceType)) {
+                // if the whole resource is returned then we have security tags to check again to be double sure
+                if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+                    return [];
+                }
+            }
+            /**
+             * @type {Resource}
+             */
+            const element_to_return = this.selectSpecificElements(
+                {
+                    args,
+                    element,
+                    resourceType
+                }
+            );
+            resources.push(element_to_return);
+        } else {
+            // if the whole resource is returned then we have security tags to check again to be double sure
+            if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+                return [];
+            }
+            /**
+             * @type {Resource[]}
+             */
+            const enrichedResources = await enrich([element], resourceType);
+            resources = resources.concat(enrichedResources);
+        }
+        return resources;
+    }
 }
 
 module.exports = {
-    prepareResourceAsync: prepareResourceAsync,
+    ResourcePreparer
 };

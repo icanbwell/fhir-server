@@ -1,0 +1,15 @@
+query Allergies {
+    allergyIntolerance(_count: 25) {
+        entry {
+            resource {
+                id
+                patient {
+                    id
+                }
+                __typename
+            }
+            __typename
+        }
+        __typename
+    }
+}

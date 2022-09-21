@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const patientWithoutSecurityTagResource = require('./fixtures/patient/patient_without_security_tag.json');
 const patientWithSecurityTagResource = require('./fixtures/patient/patient_with_security_tag.json');
@@ -8,9 +5,14 @@ const patientWithSecurityTagResource = require('./fixtures/patient/patient_with_
 // expected
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
 const env = require('var');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('PractitionerUpdateSecurityTagTests', () => {
     beforeEach(async () => {
@@ -23,13 +25,12 @@ describe('PractitionerUpdateSecurityTagTests', () => {
 
     describe('Patient UpdateSecurityTag Tests', () => {
         test('UpdateSecurityTag works', async () => {
+            const request = await createTestRequest();
             const oldValue = env['CHECK_ACCESS_TAG_ON_SAVE'];
 
             // env['SLACK_TOKEN'] = '';
             // env['SLACK_CHANNEL'] = '#helix_pipeline_notifications_dev';
-            let resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeaders());
+            let resp = await request.get('/4_0_0/Patient').set(getHeaders());
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -62,9 +63,7 @@ describe('PractitionerUpdateSecurityTagTests', () => {
             expect(resp.body['created']).toBe(false);
             expect(resp.body['updated']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Patient/00100000000')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders());
 
             console.log('------- response Patient sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));

@@ -1,15 +1,16 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // test file
 const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.json');
 
 // expected
 const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {assertCompareBundles} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const {describe, beforeEach, afterEach, test } = require('@jest/globals');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -22,29 +23,37 @@ describe('Practitioner Tests', () => {
 
     describe('Practitioner update Tests', () => {
         test('update works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            await request
+            let resp = await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
-                .set(getHeaders())
-                .expect(201);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(201);
 
+            // get generated id from response
+            const location = resp.headers['content-location'];
+            const id = location.split('/').splice(5, 1)[0];
+
+            practitioner1Resource['id'] = id;
             practitioner1Resource['active'] = false;
 
-            await request
-                .put('/4_0_0/Practitioner/1679033641')
+            resp = await request
+                .put(`/4_0_0/Practitioner/${id}`)
                 .send(practitioner1Resource)
-                .set(getHeaders())
-                .expect(200);
-
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
+            expectedPractitionerResources.entry[0].resource.id = id;
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
-            let resp = await request
+            resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles(resp.body, expectedPractitionerResources);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResources);
         });
     });
 });

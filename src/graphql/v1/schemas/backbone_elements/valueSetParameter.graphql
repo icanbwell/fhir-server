@@ -5,7 +5,6 @@
 # import code from "../simple_types/code.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 
-
 """
 ValueSet.Parameter
     A ValueSet resource instance specifies a set of codes drawn from one or more
@@ -17,7 +16,7 @@ type ValueSetParameter {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -25,7 +24,7 @@ type ValueSetParameter {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -36,44 +35,44 @@ type ValueSetParameter {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Name of the input parameter to the $expand operation; may be a server-assigned
     name for additional default or other server-supplied parameters used to
     control the expansion process.
     """
-    name: String!        
+    name: String!
     """
     None
     """
-    valueString: String        
+    valueString: String
     """
     None
     """
-    valueBoolean: Boolean        
+    valueBoolean: Boolean
     """
     None
     """
-    valueInteger: Int        
+    valueInteger: Int
     """
     None
     """
-    valueDecimal: decimal        
+    valueDecimal: decimal
     """
     None
     """
-    valueUri: uri        
+    valueUri: uri
     """
     None
     """
-    valueCode: code        
+    valueCode: code
     """
     None
     """
-    valueDateTime: dateTime        
+    valueDateTime: dateTime
 }

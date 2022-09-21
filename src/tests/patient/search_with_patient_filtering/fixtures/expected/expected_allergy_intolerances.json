@@ -1,0 +1,12 @@
+[
+    {
+        "__typename": "AllergyIntoleranceBundleEntry",
+        "resource": {
+            "__typename": "AllergyIntolerance",
+            "id": "patient-123-b-allergy-intolerance",
+            "patient": {
+                "id": "patient-123-b"
+            }
+        }
+    }
+]

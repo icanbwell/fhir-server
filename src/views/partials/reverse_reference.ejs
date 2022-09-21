@@ -1,10 +1,14 @@
-<% if (reverseReferences) { %>
-<div>
-    <h4><%= name %></h4>
-    <% reverseReferences.forEach(function(reference){ %>
-    <% if (reference){%>
-    <a href="/4_0_0/<%= reference.target %>?<%= reference.property %>=<%= id %>">/4_0_0/<%= reference.target %>?<%= reference.property %>=<%= id %></a>
-    <%}%>
-    <%})%>
-</div>
-<%}%>
+<% if (!Array.isArray(reverseReferences)) {
+    reverseReferences = [reverseReferences];
+} %>
+<% if (reverseReferences && reverseReferences.length > 0 && reverseReferences[0]) { %>
+    <div>
+        <h4><%= name ;%></h4>
+        <% reverseReferences.forEach(function(reference){ %>
+            <% if (reference){ %>
+                <a href="/4_0_0/<%= reference.target ;%>?<%= reference.property ;%>=<%= id ;%>">/4_0_0/<%= reference.target ;%>
+                    ?<%= reference.property ;%>=<%= id ;%></a>
+            <% } %>
+        <% }); %>
+    </div>
+<% } %>

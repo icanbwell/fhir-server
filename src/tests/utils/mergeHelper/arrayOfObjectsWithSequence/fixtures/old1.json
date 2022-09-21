@@ -1,0 +1,13 @@
+{
+    "address": [
+        {
+            "sequence": 2,
+            "use": "home",
+            "type": "both",
+            "line": ["Line 1", "Line 2"],
+            "city": "City",
+            "state": "MD",
+            "postalCode": "12345"
+        }
+    ]
+}

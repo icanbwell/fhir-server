@@ -4,7 +4,6 @@
 # import canonical from "../simple_types/canonical.graphql"
 # import url from "../simple_types/url.graphql"
 
-
 """
 ImplementationGuide.Resource1
     A set of rules of how a particular interoperability or standards problem is
@@ -16,7 +15,7 @@ type ImplementationGuideResource1 {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,7 +23,7 @@ type ImplementationGuideResource1 {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -35,26 +34,26 @@ type ImplementationGuideResource1 {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Where this resource is found.
     """
-    reference: Resource!        
+    reference: Resource!
     """
     None
     """
-    exampleBoolean: Boolean        
+    exampleBoolean: Boolean
     """
     None
     """
-    exampleCanonical: canonical        
+    exampleCanonical: canonical
     """
     The relative path for primary page for this resource within the IG.
     """
-    relativePath: url        
+    relativePath: url
 }

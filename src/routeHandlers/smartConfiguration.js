@@ -3,27 +3,21 @@
  */
 
 const env = require('var');
-const https = require('https');
+const superagent = require('superagent');
 
-module.exports.handleSmartConfiguration = (req, res) => {
+module.exports.handleSmartConfiguration = async (req, res) => {
     if (env.AUTH_CONFIGURATION_URI) {
-        https.get(env.AUTH_CONFIGURATION_URI, (resp) => {
-            let data = '';
-
-            // A chunk of data has been received.
-            resp.on('data', (chunk) => {
-                data += chunk;
-            });
-
-            // The whole response has been received. Print out the result.
-            resp.on('end', () => {
-                res.json(JSON.parse(data));
-            });
-
-        }).on('error', (err) => {
-            console.log('Error: ' + err.message);
-            res.json({'error': err.message});
+        /**
+         * @type {*}
+         */
+        const response = await superagent.get(env.AUTH_CONFIGURATION_URI).set({
+            Accept: 'application/json',
         });
+        /**
+         * @type {Object}
+         */
+        const jsonResponse = JSON.parse(response.text);
+        res.json(jsonResponse);
     } else {
         return res.json();
     }

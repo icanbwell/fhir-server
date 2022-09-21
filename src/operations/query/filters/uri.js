@@ -6,7 +6,7 @@
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
  */
-function filterByUri(and_segments, propertyObj, queryParameterValue, columns) {
+function filterByUri({and_segments, propertyObj, queryParameterValue, columns}) {
     and_segments.push({[`${propertyObj.field}`]: queryParameterValue});
     columns.add(`${propertyObj.field}`);
 }

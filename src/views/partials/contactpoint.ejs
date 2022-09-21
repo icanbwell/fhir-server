@@ -1,4 +1,7 @@
-<% if (contacts) { %>
+<% if (!Array.isArray(contacts)) {
+    contacts = [contacts];
+} %>
+<% if (contacts && contacts.length > 0 && contacts[0]) { %>
 <div>
     <h4><%= name %></h4>
     <table class="table">

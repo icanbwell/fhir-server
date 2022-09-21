@@ -13,7 +13,7 @@ function jwksEndpoint(host, path, certs) {
         .persist()
         .get(`${path}`)
         .reply(200, {
-            keys: certs.map(cert => {
+            keys: certs.map((cert) => {
                 const parsed = jose.JWK.asKey(cert.pub).toJWK();
                 return {
                     alg: 'RS256',
@@ -21,12 +21,12 @@ function jwksEndpoint(host, path, certs) {
                     n: parsed.n,
                     kty: parsed.kty,
                     use: 'sig',
-                    kid: cert.kid
+                    kid: cert.kid,
                 };
-            })
+            }),
         });
 }
 
 module.exports = {
-    jwksEndpoint
+    jwksEndpoint,
 };

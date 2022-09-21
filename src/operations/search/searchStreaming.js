@@ -1,277 +1,458 @@
-/* eslint-disable no-unused-vars */
-const globals = require('../../globals');
-const {CLIENT_DB, ATLAS_CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../constants');
 const env = require('var');
 const {MongoError} = require('../../utils/mongoErrors');
-const {
-    verifyHasValidScopes,
-} = require('../security/scopes');
-const {getResource} = require('../common/getResource');
-const {logRequest, logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
-const {searchOld} = require('./searchOld');
-const {getCursorForQueryAsync} = require('./getCursorForQuery');
-const {createBundle} = require('./createBundle');
-const {constructQuery} = require('./constructQuery');
-const {streamResourcesFromCursorAsync} = require('./streamResourcesFromCursor');
-const {streamBundleFromCursorAsync} = require('./streamBundleFromCursor');
 const {fhirContentTypes} = require('../../utils/contentTypes');
-const {logErrorToSlackAsync} = require('../../utils/slack.logger');
+const {fhirRequestTimer} = require('../../utils/prometheus.utils');
+const {mongoQueryAndOptionsStringify} = require('../../utils/mongoQueryStringify');
+const moment = require('moment-timezone');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {SearchManager} = require('./searchManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const {AuditLogger} = require('../../utils/auditLogger');
+const {ErrorReporter} = require('../../utils/slack.logger');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
+const {BundleManager} = require('../common/bundleManager');
 
 
-/**
- * does a FHIR Search
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {import('http').ServerResponse} res
- * @param {Object} args
- * @param {string} resourceName
- * @param {string} collection_name
- * @return {Resource[] | {entry:{resource: Resource}[]}} array of resources or a bundle
- */
-module.exports.searchStreaming = async (requestInfo, res, args, resourceName, collection_name) => {
-    if (isTrue(env.OLD_SEARCH) || isTrue(args['_useOldSearch'])) {
-        return searchOld(requestInfo, args, resourceName, collection_name);
+class SearchStreamingOperation {
+    /**
+     * constructor
+     * @param {SearchManager} searchManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {AuditLogger} auditLogger
+     * @param {ErrorReporter} errorReporter
+     * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
+     * @param {BundleManager} bundleManager
+     */
+    constructor(
+        {
+            searchManager,
+            resourceLocatorFactory,
+            auditLogger,
+            errorReporter,
+            fhirLoggingManager,
+            scopesValidator,
+            bundleManager
+        }
+    ) {
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+
+        /**
+         * @type {ErrorReporter}
+         */
+        this.errorReporter = errorReporter;
+        assertTypeEquals(errorReporter, ErrorReporter);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
+
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
     }
-    /**
-     * @type {number}
-     */
-    const startTime = Date.now();
-    /**
-     * @type {string | null}
-     */
-    const user = requestInfo.user;
-    /**
-     * @type {string | null}
-     */
-    const scope = requestInfo.scope;
-    /**
-     * @type {string | null}
-     */
-    const url = requestInfo.originalUrl;
-    logRequest(user, resourceName + ' >>> search' + ' scope:' + scope);
-    // logRequest('user: ' + req.user);
-    // logRequest('scope: ' + req.authInfo.scope);
-    verifyHasValidScopes(resourceName, 'read', user, scope);
-    logRequest(user, '---- args ----');
-    logRequest(user, JSON.stringify(args));
-    logRequest(user, '--------');
 
     /**
-     * @type {boolean}
+     * does a FHIR Search
+     * @param {FhirRequestInfo} requestInfo
+     * @param {import('http').ServerResponse} res
+     * @param {Object} args
+     * @param {string} resourceType
+     * @param {boolean} filter
+     * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
-    const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
-
-    let {
-        /** @type {string} **/
-        base_version,
-        /** @type {import('mongodb').Document}**/
-        query,
-        /** @type {Set} **/
-        columns
-    } = constructQuery(user, scope, args, resourceName, collection_name, useAccessIndex);
-
-    /**
-     * @type {boolean}
-     */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-    // Grab an instance of our DB and collection
-    // noinspection JSValidateTypes
-    /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
-     */
-    let db = (resourceName === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-    /**
-     * @type {string}
-     */
-    const mongoCollectionName = `${collection_name}_${base_version}`;
-    /**
-     * mongo collection
-     * @type {import('mongodb').Collection}
-     */
-    let collection = db.collection(mongoCollectionName);
-    /**
-     * @type {function(?Object): Resource}
-     */
-    let Resource = getResource(base_version, resourceName);
-
-    logDebug(user, '---- query ----');
-    logDebug(user, JSON.stringify(query));
-    logDebug(user, '--------');
-
-    /**
-     * @type {import('mongodb').FindOneOptions}
-     */
-    let options = {};
-
-    // Query our collection for this observation
-    /**
-     * @type {number}
-     */
-    const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
-
-    try {
-        /** @type {GetCursorResult} **/
-        const __ret = await getCursorForQueryAsync(args, columns, resourceName, options, query, useAtlas, collection,
-            maxMongoTimeMS, user, mongoCollectionName, true, useAccessIndex);
-        /**
-         * @type {Set}
-         */
-        columns = __ret.columns;
-        // options = __ret.options;
-        // query = __ret.query;
-        /**
-         * @type {import('mongodb').Document[]}
-         */
-        let originalQuery = __ret.originalQuery;
-        /**
-         * @type {import('mongodb').FindOneOptions[]}
-         */
-        let originalOptions = __ret.originalOptions;
-        /**
-         * @type {boolean}
-         */
-        const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
-        /**
-         * @type {Resource[]}
-         */
-        let resources = __ret.resources;
-        /**
-         * @type {number | null}
-         */
-        let total_count = __ret.total_count;
-        /**
-         * @type {string | null}
-         */
-        let indexHint = __ret.indexHint;
-        /**
-         * @type {Number}
-         */
-        let cursorBatchSize = __ret.cursorBatchSize;
-        /**
-         * @type {import('mongodb').Cursor<import('mongodb').WithId<import('mongodb').Document>>}
-         */
-        let cursor = __ret.cursor;
-
+    async searchStreaming(
+        requestInfo, res, args, resourceType,
+        filter = true) {
+        const currentOperationName = 'searchStreaming';
+        // Start the FHIR request timer, saving a reference to the returned method
+        const timer = fhirRequestTimer.startTimer();
         /**
          * @type {number}
          */
-        const stopTime = Date.now();
+        const startTime = Date.now();
 
-        /**
-         * @type {boolean}
-         */
-        const useNdJson = requestInfo.accept.includes(fhirContentTypes.ndJson);
+        const {
+            /** @type {string | null} */
+            user,
+            /** @type {string | null} */
+            scope,
+            /** @type {string | null} */
+            originalUrl,
+            /** @type {string | null} */
+            protocol,
+            /** @type {string | null} */
+            host,
+            /** @type {string[] | null} */
+            patients = [],
+            /** @type {string} */
+            fhirPersonId,
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            requestId
+        } = requestInfo;
 
-        /**
-         * @type {string[]}
-         */
-        let resourceIds = [];
-        /**
-         * @type {number}
-         */
-        const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
-
-        if (cursor !== null) { // usually means the two-step optimization found no results
-            if (useNdJson) {
-                resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args, Resource, resourceName,
-                    useAccessIndex,
-                    fhirContentTypes.ndJson, batchObjectCount);
-            } else {
-                // if env.RETURN_BUNDLE is set then return as a Bundle
-                if (env.RETURN_BUNDLE || args['_bundle']) {
-                    resourceIds = await streamBundleFromCursorAsync(cursor, url,
-                        (last_id, stopTime1) => createBundle(
-                            url,
-                            last_id,
-                            [],
-                            base_version,
-                            total_count,
-                            args,
-                            originalQuery,
-                            mongoCollectionName,
-                            originalOptions,
-                            columns,
-                            stopTime1,
-                            startTime,
-                            useTwoStepSearchOptimization,
-                            indexHint,
-                            cursorBatchSize,
-                            user,
-                            useAtlas
-                        ),
-                        res, user, scope, args, Resource, resourceName, useAccessIndex, batchObjectCount);
-                } else {
-                    resourceIds = await streamResourcesFromCursorAsync(cursor, res, user, scope, args,
-                        Resource, resourceName,
-                        useAccessIndex,
-                        fhirContentTypes.fhirJson,
-                        batchObjectCount);
-                }
+        await this.scopesValidator.verifyHasValidScopesAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                action: currentOperationName,
+                accessRequested: 'read'
             }
-            if (resourceIds.length > 0) {
-                // don't write audit log for just looking up ids since no PHI is shown
-                if (resourceName !== 'AuditEvent' && args['_elements'] !== 'id') {
-                    try {
-                        // log access to audit logs
-                        await logAuditEntryAsync(
+        );
+
+        /**
+         * @type {boolean}
+         */
+        const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
+
+        /**
+         * @type {boolean}
+         */
+        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+        const {/** @type {string} **/base_version} = args;
+
+        const allPatients = patients.concat(await this.searchManager.getLinkedPatientsAsync(
+                {
+                    base_version, useAtlas, isUser, fhirPersonId
+                }
+            )
+        );
+
+        /** @type {import('mongodb').Document}**/
+        let query = {};
+        /** @type {Set} **/
+        let columns = new Set();
+
+        try {
+            ({
+                /** @type {import('mongodb').Document}**/
+                query,
+                /** @type {Set} **/
+                columns
+            } = this.searchManager.constructQuery(
+                {
+                    user, scope, isUser, patients: allPatients, args, resourceType, useAccessIndex, filter
+                }));
+        } catch (e) {
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
+            throw e;
+        }
+        /**
+         * @type {import('mongodb').FindOneOptions}
+         */
+        let options = {};
+
+        // Query our collection for this observation
+        /**
+         * @type {number}
+         */
+        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : 30 * 1000;
+        /**
+         * @type {ResourceLocator}
+         */
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+            {resourceType, base_version, useAtlas});
+        try {
+            /** @type {GetCursorResult} **/
+            const __ret = await this.searchManager.getCursorForQueryAsync(
+                {
+                    resourceType, base_version, useAtlas,
+                    args, columns, options, query,
+                    maxMongoTimeMS, user, isStreaming: true, useAccessIndex
+                }
+            );
+            /**
+             * @type {Set}
+             */
+            columns = __ret.columns;
+            // options = __ret.options;
+            // query = __ret.query;
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            let originalQuery = __ret.originalQuery;
+            /**
+             * @type {import('mongodb').FindOneOptions[]}
+             */
+            let originalOptions = __ret.originalOptions;
+            /**
+             * @type {boolean}
+             */
+            const useTwoStepSearchOptimization = __ret.useTwoStepSearchOptimization;
+            /**
+             * @type {Resource[]}
+             */
+            let resources = __ret.resources;
+            /**
+             * @type {number | null}
+             */
+            let total_count = __ret.total_count;
+            /**
+             * @type {string | null}
+             */
+            let indexHint = __ret.indexHint;
+            /**
+             * @type {number}
+             */
+            let cursorBatchSize = __ret.cursorBatchSize;
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = __ret.cursor;
+
+            /**
+             * @type {number}
+             */
+            const stopTime = Date.now();
+
+            /**
+             * @type {boolean}
+             */
+            const useNdJson = requestInfo.accept.includes(fhirContentTypes.ndJson);
+
+            /**
+             * @type {string[]}
+             */
+            let resourceIds = [];
+            /**
+             * @type {number}
+             */
+            const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
+
+            if (cursor !== null) { // usually means the two-step optimization found no results
+                if (useNdJson) {
+                    resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
+                        {
+                            requestId,
+                            cursor,
+                            res,
+                            user,
+                            scope,
+                            args,
+                            resourceType,
+                            useAccessIndex,
+                            contentType: fhirContentTypes.ndJson,
+                            batchObjectCount
+                        });
+                } else {
+                    // if env.RETURN_BUNDLE is set then return as a Bundle
+                    if (env.RETURN_BUNDLE || args['_bundle']) {
+                        /**
+                         * @type {string}
+                         */
+                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                            query
+                        });
+                        /**
+                         * @type {Resource[]}
+                         */
+                        const resources1 = [];
+                        /**
+                         * bundle
+                         * @param {string|null} last_id
+                         * @param {number} stopTime1
+                         * @return {Bundle}
+                         */
+                        const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
+                            {
+                                type: 'searchset',
+                                originalUrl,
+                                host,
+                                protocol,
+                                last_id,
+                                resources: resources1,
+                                base_version,
+                                total_count,
+                                args,
+                                originalQuery,
+                                collectionName,
+                                originalOptions,
+                                columns,
+                                stopTime: stopTime1,
+                                startTime,
+                                useTwoStepSearchOptimization,
+                                indexHint,
+                                cursorBatchSize,
+                                user,
+                                useAtlas
+                            }
+                        );
+                        resourceIds = await this.searchManager.streamBundleFromCursorAsync(
+                            {
+                                requestId,
+                                cursor,
+                                url: originalUrl,
+                                fnBundle,
+                                res,
+                                user,
+                                scope,
+                                args,
+                                resourceType,
+                                useAccessIndex,
+                                batchObjectCount
+                            });
+                    } else {
+                        resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
+                            {
+                                requestId,
+                                cursor, res, user, scope, args,
+                                resourceType,
+                                useAccessIndex,
+                                contentType: fhirContentTypes.fhirJson,
+                                batchObjectCount
+                            });
+                    }
+                }
+                if (resourceIds.length > 0) {
+                    // log access to audit logs
+                    await this.auditLogger.logAuditEntryAsync(
+                        {
                             requestInfo,
                             base_version,
-                            resourceName,
-                            'read',
+                            resourceType,
+                            operation: 'read',
                             args,
-                            resourceIds
+                            ids: resourceIds
+                        }
+                    );
+                    const currentDate = moment.utc().format('YYYY-MM-DD');
+                    await this.auditLogger.flushAsync({requestId, currentDate});
+                }
+            } else { // no records found
+                if (useNdJson) {
+                    if (requestId && !res.headersSent) {
+                        res.setHeader('X-Request-ID', String(requestId));
+                    }
+                    // empty response
+                    res.type(fhirContentTypes.ndJson);
+                    res.status(200).end();
+                } else {
+                    // return empty bundle
+                    if (env.RETURN_BUNDLE || args['_bundle']) {
+                        /**
+                         * @type {string}
+                         */
+                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                            query
+                        });
+                        /**
+                         * @type {Bundle}
+                         */
+                        const bundle = this.bundleManager.createBundle(
+                            {
+                                type: 'searchset',
+                                originalUrl,
+                                host,
+                                protocol,
+                                last_id: null,
+                                resources,
+                                base_version,
+                                total_count,
+                                args,
+                                originalQuery,
+                                collectionName,
+                                originalOptions,
+                                columns,
+                                stopTime,
+                                startTime,
+                                useTwoStepSearchOptimization,
+                                indexHint,
+                                cursorBatchSize,
+                                user,
+                                useAtlas
+                            }
                         );
-                    } catch (e) {
-                        await logErrorToSlackAsync(`searchStreaming: Error writing AuditEvent for resource ${resourceName}`, e);
+                        if (requestId && !res.headersSent) {
+                            res.setHeader('X-Request-ID', String(requestId));
+                        }
+                        // noinspection JSUnresolvedFunction
+                        res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
+                    } else {
+                        if (requestId && !res.headersSent) {
+                            res.setHeader('X-Request-ID', String(requestId));
+                        }
+                        res.type(fhirContentTypes.fhirJson).json([]);
                     }
                 }
             }
-        } else { // no records found
-            if (useNdJson) {
-                // empty response
-                res.type(fhirContentTypes.ndJson);
-                res.status(200).end();
-            } else {
-                // return empty bundle
-                if (env.RETURN_BUNDLE || args['_bundle']) {
-                    /**
-                     * @type {Resource}
-                     */
-                    const bundle = createBundle(
-                        url,
-                        null,
-                        resources,
-                        base_version,
-                        total_count,
-                        args,
-                        originalQuery,
-                        mongoCollectionName,
-                        originalOptions,
-                        columns,
-                        stopTime,
-                        startTime,
-                        useTwoStepSearchOptimization,
-                        indexHint,
-                        cursorBatchSize,
-                        user,
-                        useAtlas
-                    );
-                    res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
-                } else {
-                    res.type(fhirContentTypes.fhirJson).json([]);
-                }
-            }
+            /**
+             * @type {string}
+             */
+            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                query
+            });
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    query: mongoQueryAndOptionsStringify(collectionName, query, options)
+                });
+        } catch (e) {
+            /**
+             * @type {string}
+             */
+            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                query
+            });
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e,
+                    query: mongoQueryAndOptionsStringify(collectionName, query, options)
+                });
+            throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
+        } finally {
+            timer({action: currentOperationName, resourceType});
         }
-    } catch (e) {
-        /**
-         * @type {number}
-         */
-        const stopTime1 = Date.now();
-        throw new MongoError(e.message, e, mongoCollectionName, query, (stopTime1 - startTime), options);
     }
+}
+
+module.exports = {
+    SearchStreamingOperation
 };

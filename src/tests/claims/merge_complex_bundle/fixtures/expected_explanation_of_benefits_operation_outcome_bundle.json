@@ -1,0 +1,58 @@
+{
+    "resourceType": "Bundle",
+    "type": "batch-response",
+    "timestamp": "2022-08-29T02:45:31.3131Z",
+    "total": 2,
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://localhost:3000/4_0_0/ExplanationOfBenefit/1/$merge"
+        }
+    ],
+    "entry": [
+        {
+            "resource": {
+                "id": "WPS-Claim-20A078097100",
+                "resourceType": "OperationOutcome",
+                "issue": [
+                    {
+                        "severity": "information",
+                        "code": "informational",
+                        "details": {
+                            "coding": [
+                                {
+                                    "system": "https://www.rfc-editor.org/rfc/rfc9110.html",
+                                    "code": "201",
+                                    "display": "Created"
+                                }
+                            ]
+                        },
+                        "expression": ["ExplanationOfBenefit/WPS-Claim-20A078097100"]
+                    }
+                ]
+            }
+        },
+        {
+            "resource": {
+                "id": "WPS-Claim-20A078097100",
+                "resourceType": "OperationOutcome",
+                "issue": [
+                    {
+                        "severity": "information",
+                        "code": "informational",
+                        "details": {
+                            "coding": [
+                                {
+                                    "system": "https://www.rfc-editor.org/rfc/rfc9110.html",
+                                    "code": "200",
+                                    "display": "Updated"
+                                }
+                            ]
+                        },
+                        "expression": ["ExplanationOfBenefit/WPS-Claim-20A078097100"]
+                    }
+                ]
+            }
+        }
+    ]
+}

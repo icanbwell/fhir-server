@@ -1,11 +1,11 @@
 /**
- * @description TAKEN FROM: https://community.tibco.com/wiki/monitoring-your-nodejs-apps-prometheus
+ * @description TAKEN FROM: https://stackabuse.com/nodejs-application-monitoring-with-prometheus-and-grafana/
  * The other prometheus libraries for express returned errors on Buffers.
  */
 const client = require('prom-client');
 const Register = require('prom-client').register;
 const Counter = require('prom-client').Counter;
-// const Histogram = require('prom-client').Histogram;
+const Histogram = require('prom-client').Histogram;
 const Summary = require('prom-client').Summary;
 const responseTime = require('response-time');
 /**
@@ -36,13 +36,25 @@ module.exports.pathsTaken = pathsTaken;
  * A Prometheus counter that counts the invocations with different paths
  * e.g. /foo and /bar will be counted as 2 different paths
  */
-const validationsFailed = new Counter({
+const validationsFailedCounter = new Counter({
     name: 'validationsFailed',
     help: 'validationsFailed',
-    labelNames: ['validationsFailed'],
+    labelNames: ['action', 'resourceType']
 });
 
-module.exports.validationsFailed = validationsFailed;
+module.exports.validationsFailedCounter = validationsFailedCounter;
+
+/**
+ * A Prometheus counter that counts the invocations with different paths
+ * e.g. /foo and /bar will be counted as 2 different paths
+ */
+const authorizationFailedCounter = new Counter({
+    name: 'authorizationFailed',
+    help: 'authorizationFailed',
+    labelNames: ['action', 'resourceType']
+});
+
+module.exports.authorizationFailedCounter = authorizationFailedCounter;
 
 /**
  * A Prometheus summary to record the HTTP method, path, response code and response time
@@ -54,6 +66,27 @@ const responses = new Summary({
 });
 
 module.exports.responses = responses;
+
+// Create a custom histogram metric
+const fhirRequestTimer = new Histogram({
+    name: 'fhir_request_duration_seconds',
+    help: 'Duration of FHIR requests in seconds',
+    labelNames: ['action', 'resourceType'],
+    buckets: [0.01, 5, 25, 50, 75, 100, 125] // histogram buckets in seconds
+});
+
+module.exports.fhirRequestTimer = fhirRequestTimer;
+
+
+// Create a histogram metric
+const httpRequestDurationMicroseconds = new Histogram({
+    name: 'http_request_duration_seconds',
+    help: 'Duration of HTTP requests in seconds',
+    labelNames: ['method', 'route', 'code'],
+    buckets: [0.01, 5, 25, 50, 75, 100, 125] // histogram buckets in seconds
+});
+
+module.exports.httpRequestDurationMicroseconds = httpRequestDurationMicroseconds;
 
 /**
  * This function will start the collection of metrics and should be called from within in the main js file
@@ -85,12 +118,23 @@ const responseCounters = responseTime(function (req, res, time) {
         responses.labels(req.method, req.path, res.statusCode).observe(time);
         // console.info('res.StatusCode=' + res.statusCode);
         if (res.statusCode === 404) {
-            validationsFailed.inc(1);
+            validationsFailedCounter.inc(1);
         }
     }
 });
 
 module.exports.responseCounters = responseCounters;
+
+const httpRequestTimer = responseTime(function (
+    /** @type {import('http').IncomingMessage} */req,
+    /** @type {import('http').ServerResponse} */ res,
+    time) {
+    if (req.url !== '/metrics') {
+        httpRequestDurationMicroseconds.labels(req.method, req.path, res.statusCode).observe(time);
+    }
+});
+
+module.exports.httpRequestTimer = httpRequestTimer;
 
 /**
  * In order to have Prometheus get the data from this app a specific URL is registered

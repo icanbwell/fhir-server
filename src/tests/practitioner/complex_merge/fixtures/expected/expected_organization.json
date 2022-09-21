@@ -49,6 +49,15 @@
         "value": "-733797173"
       }
     ],
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
     "name": "MedStar Medical Group Dermatology at Honeygo",
     "partOf": {
       "display": "MedStar Medical Group",
@@ -104,6 +113,15 @@
         "value": "AETNA"
       }
     ],
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
     "resourceType": "Organization",
     "type": [
       {
@@ -133,6 +151,15 @@
         "value": "MWHC"
       }
     ],
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
     "resourceType": "Organization",
     "type": [
       {
@@ -148,6 +175,15 @@
   },
   {
     "id": "MedStar-Medical-Group",
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
     "name": "MedStar Medical Group",
     "resourceType": "Organization",
     "type": [
@@ -165,6 +201,15 @@
   },
   {
     "id": "Stanford-Medical-School",
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "versionId": "1"
+    },
     "name": "Stanford Medical School",
     "resourceType": "Organization",
     "type": [

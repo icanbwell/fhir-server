@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.clinicalStatus, name: "Clinical Status", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.verificationStatus, name: "Verification Status", searchParameter: ''}); %>
+
+
+            <%- include('../partials/code', {value: res.type, name: "Type"}); %>
+            <%- include('../partials/code', {value: res.category, name: "Category"}); %>
+            <%- include('../partials/code', {value: res.criticality, name: "Criticality"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.code, name: "Code", searchParameter: ''}); %>
+
+            <%- include('../partials/reference', {references: res.patient, name: "Patient"}); %>
+            <%- include('../partials/reference', {references: res.encounter, name: "Encounter"}); %>
+
+            <%- include('../partials/dateTime', {value: res.onsetDateTime, name: "Onset Date"}); %>
+            <%- include('../partials/period', {periods: res.onsetPeriod, name: "Onset Period"}); %>
+            <%- include('../partials/nameValue', {value: res.onsetAge, name: "Onset Age"}); %>
+
+            <%- include('../partials/dateTime', {value: res.recordedDate, name: "Recorded Date"}); %>
+            <%- include('../partials/reference', {references: res.recorder, name: "Recorder"}); %>
+            <%- include('../partials/reference', {references: res.asserter, name: "Asserter"}); %>
+
+            <%- include('../partials/dateTime', {value: res.lastOccurrence	, name: "Last Occurence"}); %>
+
+            <%- include('../partials/annotation', {annotations: res.note, name: "Notes"}); %>
+
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }); %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
+</html>

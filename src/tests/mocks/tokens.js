@@ -5,7 +5,7 @@ const env = require('var');
  * Creates and signs a token
  * @param {string} key
  * @param {string} kid
- * @param {{noTimestamp: boolean, algorithm: string, header: { alg: string, kid: string}}} payload
+ * @param {string | Buffer | object} payload
  * @return {string}
  */
 function createToken(key, kid, payload) {
@@ -13,7 +13,7 @@ function createToken(key, kid, payload) {
         noTimestamp: true,
         algorithm: 'RS256',
         issuer: env.AUTH_ISSUER,
-        header: {alg: 'RS256', kid}
+        header: { alg: 'RS256', kid },
     });
 }
 
@@ -28,11 +28,11 @@ function createSymmetricToken(key, payload) {
         noTimestamp: true,
         algorithm: 'HS256',
         issuer: env.AUTH_ISSUER,
-        header: {alg: 'HS256'}
+        header: { alg: 'HS256' },
     });
 }
 
 module.exports = {
     createToken,
-    createSymmetricToken
+    createSymmetricToken,
 };

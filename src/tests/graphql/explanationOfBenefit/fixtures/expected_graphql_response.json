@@ -600,7 +600,7 @@
     "meta": {
       "tag": [
         {
-          "display": "[[{\"$and\":[{\"id\":{\"$in\":[\"WPS-Claim-230916613369\",\"WPS-Claim-429017018331\"]}}]},{\"id\":{\"$in\":[\"WPS-Claim-230916613369\",\"WPS-Claim-429017018331\"]}}],{\"$and\":[{\"id\":{\"$in\":[\"WPS-0559166162\",\"WPS-5458231534\"]}}]},{\"$and\":[{\"id\":{\"$in\":[\"WPS-0559166162\",\"WPS-5458231534\"]}}]},{\"$and\":[{\"id\":{\"$in\":[\"WPS-Health\",\"733797173\"]}}]}]",
+          "display": "[db.ExplanationOfBenefit_4_0_0.find({'$and':[{'id':{'$in':['WPS-Claim-230916613369','WPS-Claim-429017018331']}}]}, {}).sort({'id':1}).limit(2),db.Coverage_4_0_0.find({'$and':[{'id':{'$in':['WPS-0559166162','WPS-5458231534']}}]}, {}).sort({'id':1}).limit(10000),db.Patient_4_0_0.find({'$and':[{'id':{'$in':['WPS-0559166162','WPS-5458231534']}}]}, {}).sort({'id':1}).limit(10000),db.Organization_4_0_0.find({'$and':[{'id':{'$in':['WPS-Health','733797173']}}]}, {}).sort({'id':1}).limit(10000)]",
           "system": "https://www.icanbwell.com/query"
         },
         {
@@ -608,18 +608,19 @@
           "system": "https://www.icanbwell.com/queryCollection"
         },
         {
-          "display": "[[{\"sort\":{\"id\":1},\"limit\":2,\"projection\":{\"_id\":0,\"id\":1}},{}],{\"sort\":{\"id\":1}},{\"sort\":{\"id\":1}},{\"sort\":{\"id\":1}}]",
+          "display": "[{'sort':{'id':1},'limit':2},{'limit':10000,'sort':{'id':1}},{'limit':10000,'sort':{'id':1}},{'limit':10000,'sort':{'id':1}}]",
           "system": "https://www.icanbwell.com/queryOptions"
         },
         {
-          "display": "[[\"id\"],[\"id\"],[\"id\"],[\"id\"]]",
+          "display": "[['id'],['id'],['id'],['id']]",
           "system": "https://www.icanbwell.com/queryFields"
         },
         {
+          "display": "[0.01,0.014,0.021,0.026]",
           "system": "https://www.icanbwell.com/queryTime"
         },
         {
-          "display": "[{'useTwoStepSearchOptimization':true},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
+          "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
           "system": "https://www.icanbwell.com/queryOptimization"
         }
       ]

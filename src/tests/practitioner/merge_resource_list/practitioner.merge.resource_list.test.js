@@ -1,13 +1,13 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 const practitionerBundleResource = require('./fixtures/providers/practitioner_bundle.json');
 const expectedPractitionerBundleResource = require('./fixtures/providers/expected_practitioner_bundle.json');
-const async = require('async');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('Practitioner Merge Resource List Tests', () => {
     beforeEach(async () => {
@@ -20,9 +20,8 @@ describe('Practitioner Merge Resource List Tests', () => {
 
     describe('Practitioner Merge Resource List', () => {
         test('Multiple calls to Practitioner merge resource list properly', async () => {
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
+            const request = await createTestRequest();
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -36,9 +35,7 @@ describe('Practitioner Merge Resource List Tests', () => {
             console.log('------- response 2 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 2  ------------');
-            resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
+            resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
 
             // clear out the lastUpdated column since that changes
             let body = resp.body;
@@ -46,11 +43,11 @@ describe('Practitioner Merge Resource List Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 5  ------------');
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedPractitionerBundleResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }

@@ -1,0 +1,26 @@
+<% if (!Array.isArray(rows)) {
+    rows = [rows];
+} %>
+<% if (rows && rows.length > 0 && rows[0]) { %>
+    <div>
+        <h4><%= name %></h4>
+        <table class="table">
+            <thead>
+            <tr>
+                <% column.forEach(function(column) { %>
+                    <th scope="col"><%= column %>></th>
+                <% }) %>
+            </tr>
+            </thead>
+            <tbody>
+            <% rows.forEach(function(row){ %>
+                <tr>
+                    <% column.forEach(function(column) { %>
+                        <td><%= row[column] %></td>
+                    <% }) %>
+                </tr>
+            <% }) %>
+            </tbody>
+        </table>
+    </div>
+<% } %>

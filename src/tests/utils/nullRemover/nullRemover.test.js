@@ -1,9 +1,10 @@
 const input = require('./fixtures/input.json');
-const {removeNull} = require('../../../utils/nullRemover');
+const { removeNull } = require('../../../utils/nullRemover');
+const { describe, expect, test } = require('@jest/globals');
 
 describe('nullRemover Tests', () => {
     describe('nullRemover Tests', () => {
-        test('nullRemover works', async () => {
+        test('nullRemover works', () => {
             const result = removeNull(input);
             expect(result).toStrictEqual(input);
         });

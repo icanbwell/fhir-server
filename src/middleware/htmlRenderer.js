@@ -11,6 +11,7 @@ const {
     searchUtils,
 } = require('../utils/searchForm.util');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
+const sanitize = require('sanitize-filename');
 
 /**
  * middleware to render HTML
@@ -20,7 +21,7 @@ const {shouldReturnHtml} = require('../utils/requestHelpers');
  */
 const htmlRenderer = (req, res, next) => {
     const parts = req.url.split(/[/?,&]+/);
-    if (parts && (parts.length > 2) && !parts.includes('raw=1') && parts[1] === '4_0_0') {
+    if (parts && parts.length > 2 && !parts.includes('raw=1') && parts[1] === '4_0_0') {
         const resourceName = parts[2];
         // If the request is from a browser for HTML then return HTML page instead of json
         if (shouldReturnHtml(req)) {
@@ -36,11 +37,13 @@ const htmlRenderer = (req, res, next) => {
                 if (parsedData.meta) {
                     meta = parsedData.meta;
                 }
-                if (parsedData.entry) {
-                    parsedData = parsedData.entry.map((entry) => entry.resource);
+                if (parsedData.resourceType === 'Bundle') {
+                    // unbundle
+                    parsedData = parsedData.entry ? parsedData.entry.map((entry) => entry.resource) : [];
                 } else if (!Array.isArray(parsedData)) {
                     parsedData = [parsedData];
                 }
+
                 res.json = oldJson; // set function back to avoid the 'double-send'
                 res.set('Content-Type', 'text/html');
                 res.set('Cache-Control', 'no-cache, no-store, must-revalidate'); // HTTP 1.1.
@@ -64,8 +67,8 @@ const htmlRenderer = (req, res, next) => {
                     advSearchFormData: advSearchFormData(req, resourceName),
                     resourceName: resourceName,
                     currentYear: new Date().getFullYear(),
-                    lastUpdateStart: lastUpdateStart(req, 'above'),
-                    lastUpdateEnd: lastUpdateEnd(req, 'below'),
+                    lastUpdateStart: lastUpdateStart(req, 0),
+                    lastUpdateEnd: lastUpdateEnd(req, 1),
                     limit: limit,
                     searchUtils: searchUtils,
                     searchMethod: req.method,
@@ -73,9 +76,10 @@ const htmlRenderer = (req, res, next) => {
 
                 if (resourceDefinition) {
                     if (req.url && req.url.includes('/_search')) {
-                        return res.render(__dirname + '/../views/pages/SearchResult', options);
+                        return res.status(200).render(__dirname + '/../views/pages/SearchResult', options);
                     } else {
-                        return res.render(__dirname + '/../views/pages/' + resourceName, options);
+                        const filePath = __dirname + '/../views/pages/' + sanitize(resourceName);
+                        return res.render(filePath, options);
                     }
                 } else {
                     return res.render(__dirname + '/../views/pages/index', options);

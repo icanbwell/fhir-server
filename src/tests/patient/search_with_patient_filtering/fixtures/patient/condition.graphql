@@ -1,0 +1,15 @@
+query Condition {
+    condition(_count: 25) {
+        entry {
+            resource {
+                id
+                subject {
+                    id
+                }
+                __typename
+            }
+            __typename
+        }
+        __typename
+    }
+}

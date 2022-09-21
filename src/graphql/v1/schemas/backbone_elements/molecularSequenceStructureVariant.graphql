@@ -4,7 +4,6 @@
 # import MolecularSequenceOuter from "../backbone_elements/molecularSequenceOuter.graphql"
 # import MolecularSequenceInner from "../backbone_elements/molecularSequenceInner.graphql"
 
-
 """
 MolecularSequence.StructureVariant
     Raw data describing a biological sequence.
@@ -13,7 +12,7 @@ type MolecularSequenceStructureVariant {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -21,7 +20,7 @@ type MolecularSequenceStructureVariant {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -32,31 +31,31 @@ type MolecularSequenceStructureVariant {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Information about chromosome structure variation DNA change type.
     """
-    variantType: CodeableConcept        
+    variantType: CodeableConcept
     """
     Used to indicate if the outer and inner start-end values have the same
     meaning.
     """
-    exact: Boolean        
+    exact: Boolean
     """
     Length of the variant chromosome.
     """
-    length: Int        
+    length: Int
     """
     Structural variant outer.
     """
-    outer: MolecularSequenceOuter        
+    outer: MolecularSequenceOuter
     """
     Structural variant inner.
     """
-    inner: MolecularSequenceInner        
+    inner: MolecularSequenceInner
 }

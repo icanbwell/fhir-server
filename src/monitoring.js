@@ -1,7 +1,7 @@
-/* monitoring.js */
-'use strict';
-
-const {MeterProvider, ConsoleMetricExporter} = require('@opentelemetry/metrics');
+/**
+ * monitoring.js
+ */
+const { MeterProvider, ConsoleMetricExporter } = require('@opentelemetry/metrics');
 
 const meter = new MeterProvider({
     exporter: new ConsoleMetricExporter(),
@@ -9,7 +9,7 @@ const meter = new MeterProvider({
 }).getMeter('your-meter-name');
 
 const requestCount = meter.createCounter('requests', {
-    description: 'Count all incoming requests'
+    description: 'Count all incoming requests',
 });
 
 const boundInstruments = new Map();
@@ -17,7 +17,8 @@ const boundInstruments = new Map();
 module.exports.countAllRequests = () => {
     return (req, res, next) => {
         if (!boundInstruments.has(req.path)) {
-            const labels = {route: req.path};
+            const labels = { route: req.path };
+            // noinspection JSUnresolvedFunction
             const boundCounter = requestCount.bind(labels);
             boundInstruments.set(req.path, boundCounter);
         }

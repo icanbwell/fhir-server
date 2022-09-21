@@ -1,38 +1,20 @@
 /**
- * @typedef Meta
- * @type {object}
- * @property {string} versionId - an ID.
- * @property {Date} lastUpdated
- * @property {string} source
- * @property {{system: string, code: string, display: string}[]} tag
- */
-
-/**
- * @typedef Resource
- * @type {object}
- * @property {string} id - an ID.
- * @property {Meta} meta
+ * @typedef MergeResultEntry
+ * @type {Object}
+ * @property {OperationOutcome|undefined} [operationOutcome]
+ * @property {OperationOutcomeIssue|undefined} [issue]
+ * @property {boolean} created
+ * @property {string} id
  * @property {string} resourceType
- * @property {Object} _access
+ * @property {boolean} updated
  */
 
-// from https://www.hl7.org/fhir/operationoutcome.html
 /**
- * @typedef OperationOutcome
- * @type {object}
- * @property {string} resourceType
- * @property {?[{severity: string, code: string, details: {text: string}, diagnostics: string, expression:[string]}]} issue
- */
-
-
-/**
- * @typedef SearchParameterDefinition
- * @type {object}
- * @property {string | null} field
- * @property {string[] | null} fields
- * @property {string | null} fieldFilter
- * @property {string | null} description
- * @property {string | null} type
- * @property {string[] | null} target
+ * @typedef GraphQLContext
+ * @type {Object}
+ * @property {import('http').IncomingMessage} req
+ * @property {import('http').ServerResponse} res
+ * @property {FhirRequestInfo} fhirRequestInfo
+ * @property {FhirDataSource} dataApi
  */
 

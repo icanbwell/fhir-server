@@ -4,7 +4,6 @@
 # import code from "../simple_types/code.graphql"
 # import uri from "../simple_types/uri.graphql"
 
-
 """
 Expression
     A expression that is evaluated in a specified context and returns a value. The
@@ -17,7 +16,7 @@ type Expression {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -25,27 +24,27 @@ type Expression {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     A brief, natural language description of the condition that effectively
     communicates the intended semantics.
     """
-    description: String        
+    description: String
     """
     A short name assigned to the expression to allow for multiple reuse of the
     expression in the context where it is defined.
     """
-    name: id        
+    name: id
     """
     The media type of the language for the expression.
     """
-    language: code!        
+    language: code!
     """
     An expression in the specified language that returns a value.
     """
-    expression: String        
+    expression: String
     """
     A URI that defines where the expression is found.
     """
-    reference: uri        
+    reference: uri
 }

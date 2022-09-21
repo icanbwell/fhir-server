@@ -3,6 +3,6 @@
  */
 
 module.exports.handleLogout = (req, res) => {
-  res.clearCookie('jwt');
-  res.redirect('/');
+    res.clearCookie('jwt');
+    res.redirect('/');
 };

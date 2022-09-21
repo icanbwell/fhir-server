@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
+
+            <%- include('../partials/code', {value: res.status, name: "Status"}); %>
+
+            <!-- prettier-ignore -->
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.statusReason, name: "Status Reason", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.vaccineCode, name: "Code", searchParameter: ''}); %>
+
+            <%- include('../partials/reference', {references: res.patient, name: "Patient"}); %>
+
+            <%- include('../partials/reference', {references: res.encounter, name: "Encounter"}); %>
+            <%- include('../partials/reference', {references: res.location, name: "Location"}); %>
+
+            <%- include('../partials/dateTime', {value: res.occurrenceDateTime, name: "Occurrence Date"}); %>
+            <%- include('../partials/nameValue', {value: res.occurrenceString, name: "Occurrence"}); %>
+
+            <%- include('../partials/dateTime', {value: res.recorded, name: "Recorded Date"}); %>
+            <%- include('../partials/nameValue', {value: res.primarySource, name: "Primary Source"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reportOrigin, name: "Report Origin", searchParameter: ''}); %>
+
+            <%- include('../partials/nameValue', {value: res.lotNumber, name: "Lot Number"}); %>
+            <%- include('../partials/dateTime', {value: res.expirationDate, name: "Expiration Date"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.site, name: "Site", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.route, name: "Route", searchParameter: ''}); %>
+
+            <%- include('../partials/dateTime', {value: res.expirationDate, name: "Expiration Date"}); %>
+            <%- include('../partials/quantity', {value: res.doseQuantity, name: "Dose Quantity"}); %>
+
+            <%- include('../partials/performer', {performers: res.performer, name: "Performers"}); %>
+
+            <%- include('../partials/annotation', {annotations: res.note, name: "Notes"}); %>
+
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }); %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
+</html>

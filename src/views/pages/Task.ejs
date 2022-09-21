@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
+
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
+
+            <%- include('../partials/canonical', {value: res.instantiatesCanonical, name: "Instantiates"}); %>
+            <%- include('../partials/uri', {value: res.instantiatesUri, name: "Instantiates"}); %>
+
+            <%- include('../partials/reference', {references: res.basedOn, name: "Based On"}); %>
+
+            <%- include('../partials/identifier', {resourceType: res.resourceType, identifiers: res.groupIdentifier, name: "Group Identifier"}); %>
+            <%- include('../partials/reference', {references: res.partOf, name: "Part Of"}); %>
+
+            <%- include('../partials/code', {value: res.status, name: "Status"}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.statusReason, name: "Status Reason", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.businessStatus, name: "Business Status", searchParameter: ''}); %>
+
+            <%- include('../partials/code', {value: res.intent, name: "Intent"}); %>
+            <%- include('../partials/code', {value: res.priority, name: "Priority"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.code, name: "Code", searchParameter: ''}); %>
+
+            <%- include('../partials/nameValue', {value: res.description, name: "Description"}); %>
+
+            <%- include('../partials/reference', {references: res.focus, name: "Focus"}); %>
+            <%- include('../partials/reference', {references: res.for, name: "For"}); %>
+            <%- include('../partials/reference', {references: res.encounter, name: "Encounter"}); %>
+
+            <%- include('../partials/period', {periods: res.executionPeriod, name: "Execution Period"}); %>
+
+            <%- include('../partials/dateTime', {value: res.authoredOn, name: "Authored On"}); %>
+            <%- include('../partials/dateTime', {value: res.lastModified, name: "Last Modified"}); %>
+
+            <%- include('../partials/reference', {references: res.requester, name: "Requester"}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.performerType, name: "Performer Type", searchParameter: ''}); %>
+
+            <%- include('../partials/reference', {references: res.owner, name: "Owner"}); %>
+            <%- include('../partials/reference', {references: res.location, name: "Location"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.reasonCode, name: "Reason Code", searchParameter: ''}); %>
+
+            <%- include('../partials/reference', {references: res.reasonReference, name: "Reason Reference"}); %>
+            <%- include('../partials/reference', {references: res.insurance, name: "Insurance"}); %>
+
+            <%- include('../partials/annotation', {annotations: res.note, name: "Note"}); %>
+
+            <%- include('../partials/reference', {references: res.relevantHistory, name: "Relevant History"}); %>
+
+            <% if(res.restriction){ %>
+                <h4>Restriction</h4>
+                <%- include('../partials/nameValue', {value: res.restriction.repetitions, name: "Repetitions"}); %>
+                <%- include('../partials/period', {periods: res.restriction.period, name: "Period"}); %>
+                <%- include('../partials/reference', {references: res.restriction.recipient, name: "Recipient"}); %>
+            <% } %>
+
+            <% res.input && res.input.forEach(function(input){ %>
+                <h4>Input</h4>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: input.type, name: "Type", searchParameter: ''}); %>
+                <%- include('../partials/boolean', {value: input.valueBoolean, name: "Value"}); %>
+                <%- include('../partials/canonical', {value: input.valueCanonical, name: "Value"}); %>
+                <%- include('../partials/code', {value: input.valueCode, name: "Value"}); %>
+                <%- include('../partials/dateTime', {value: input.valueDate, name: "Value"}); %>
+                <%- include('../partials/dateTime', {value: input.valueDateTime, name: "Value"}); %>
+                <%- include('../partials/decimal', {value: input.valueDecimal, name: "Value"}); %>
+                <%- include('../partials/nameValue', {value: input.valueId, name: "Value"}); %>
+                <%- include('../partials/instant', {value: input.valueInstant, name: "Value"}); %>
+                <%- include('../partials/integer', {value: input.valueInteger, name: "Value"}); %>
+                <%- include('../partials/markdown', {value: input.valueMarkdown, name: "Value"}); %>
+                <%- include('../partials/integer', {value: input.valuePositiveInt, name: "Value"}); %>
+                <%- include('../partials/nameValue', {value: input.valueString, name: "Value"}); %>
+                <%- include('../partials/time', {value: input.valueTime, name: "Value"}); %>
+                <%- include('../partials/reference', {references: input.valueReference, name: "Value"}); %>
+                <!-- TODO: Other properties -->
+            <% }) %>
+            <% res.output && res.output.forEach(function(output){ %>
+                <h4>Output</h4>
+                <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: output.type, name: "Type", searchParameter: ''}); %>
+                <%- include('../partials/boolean', {value: output.valueBoolean, name: "Value"}); %>
+                <%- include('../partials/canonical', {value: output.valueCanonical, name: "Value"}); %>
+                <%- include('../partials/code', {value: output.valueCode, name: "Value"}); %>
+                <%- include('../partials/dateTime', {value: output.valueDate, name: "Value"}); %>
+                <%- include('../partials/dateTime', {value: output.valueDateTime, name: "Value"}); %>
+                <%- include('../partials/decimal', {value: output.valueDecimal, name: "Value"}); %>
+                <%- include('../partials/nameValue', {value: output.valueId, name: "Value"}); %>
+                <%- include('../partials/instant', {value: output.valueInstant, name: "Value"}); %>
+                <%- include('../partials/integer', {value: output.valueInteger, name: "Value"}); %>
+                <%- include('../partials/markdown', {value: output.valueMarkdown, name: "Value"}); %>
+                <%- include('../partials/integer', {value: output.valuePositiveInt, name: "Value"}); %>
+                <%- include('../partials/nameValue', {value: output.valueString, name: "Value"}); %>
+                <%- include('../partials/time', {value: output.valueTime, name: "Value"}); %>
+                <%- include('../partials/reference', {references: output.valueReference, name: "Value"}); %>
+
+                <!-- TODO: Other properties -->
+            <% }) %>
+
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }) %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
+</html>

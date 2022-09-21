@@ -1,6 +1,3 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const observation1Resource = require('./fixtures/observation/observation1.json');
 const observation2Resource = require('./fixtures/observation/observation2.json');
@@ -8,9 +5,13 @@ const observation2Resource = require('./fixtures/observation/observation2.json')
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {assertCompareBundles, assertMergeIsSuccessful} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const {describe, beforeEach, afterEach, test } = require('@jest/globals');
 
 describe('ObservationReturnIdTests', () => {
     beforeEach(async () => {
@@ -23,43 +24,48 @@ describe('ObservationReturnIdTests', () => {
 
     describe('Observation Search By token Tests', () => {
         test('search by single token works', async () => {
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation1Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
-                .set(getHeaders())
-                .expect(200);
-            assertMergeIsSuccessful(resp.body);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right observation back
             resp = await request
-                .get('/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library|BMI001&_setIndexHint=1&_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles(resp.body, expectedObservationResources);
+                .get(
+                    '/4_0_0/Observation/?code=http://www.icanbwell.com/cql/library|BMI001&_setIndexHint=1&_bundle=1'
+                )
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources);
 
             // search by just token code and make sure we get the right observation back
             resp = await request
                 .get('/4_0_0/Observation/?code=BMI001&_setIndexHint=1&_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles(resp.body, expectedObservationResources);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources);
 
             // search by just token system and make sure we get the right observation back
             resp = await request
-                .get('/4_0_0/Observation/?code=http://www.icanbwell.com/cql/libraryVersion|&_bundle=1')
-                .set(getHeaders())
-                .expect(200);
-            assertCompareBundles(resp.body, expectedObservationResources);
+                .get(
+                    '/4_0_0/Observation/?code=http://www.icanbwell.com/cql/libraryVersion|&_bundle=1'
+                )
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources);
         });
     });
 });

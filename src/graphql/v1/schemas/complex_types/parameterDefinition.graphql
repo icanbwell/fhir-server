@@ -3,7 +3,6 @@
 # import code from "../simple_types/code.graphql"
 # import canonical from "../simple_types/canonical.graphql"
 
-
 """
 ParameterDefinition
     The parameters to the module. This collection specifies both the input and
@@ -16,7 +15,7 @@ type ParameterDefinition {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -24,38 +23,38 @@ type ParameterDefinition {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     The name of the parameter used to allow access to the value of the parameter
     in evaluation contexts.
     """
-    name: code        
+    name: code
     """
     Whether the parameter is input or output for the module.
     """
-    use: code!        
+    use: code!
     """
     The minimum number of times this parameter SHALL appear in the request or
     response.
     """
-    min: Int        
+    min: Int
     """
     The maximum number of times this element is permitted to appear in the request
     or response.
     """
-    max: String        
+    max: String
     """
     A brief discussion of what the parameter is for and how it is used by the
     module.
     """
-    documentation: String        
+    documentation: String
     """
     The type of the parameter.
     """
-    type: code!        
+    type: code!
     """
     If specified, this indicates a profile that the input data must conform to, or
     that the output data will conform to.
     """
-    profile: canonical        
+    profile: canonical
 }

@@ -1,4 +1,4 @@
-const {searchParameterQueries} = require('./searchParameters');
+const { searchParameterQueries } = require('./searchParameters');
 
 /**
  * Returns the field in resource corresponding to search parameter
@@ -20,5 +20,5 @@ function getFieldNameForSearchParameter(searchResourceType, searchParameterName)
 }
 
 module.exports = {
-    getFieldNameForSearchParameter: getFieldNameForSearchParameter
+    getFieldNameForSearchParameter: getFieldNameForSearchParameter,
 };

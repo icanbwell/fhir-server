@@ -1,15 +1,16 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const auditEventResource = require('./fixtures/auditEvents.json');
 
 // expected
 const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
-const {assertCompareBundles} = require('../../fhirAsserts');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('AuditEventLastUpdatedTests', () => {
     beforeEach(async () => {
@@ -22,33 +23,37 @@ describe('AuditEventLastUpdatedTests', () => {
 
     describe('AuditEvent Last Updated Tests', () => {
         test('search by last updated works', async () => {
+            const request = await createTestRequest();
             // first confirm there are no AuditEvent
-            let resp = await request
-                .get('/4_0_0/AuditEvent')
-                .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             // now add a record
             resp = await request
                 .post('/4_0_0/AuditEvent/1/$merge?validate=true')
                 .send(auditEventResource)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response AuditEvent ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // now check that we get the right record back
             resp = await request
-                .get('/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_debug=1&date=gt2021-06-01&_bundle=1&streamResponse=1')
-                .set(getHeaders())
-                .expect(200);
+                .get(
+                    '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_debug=1&date=gt2021-06-01&_bundle=1&streamResponse=1'
+                )
+                .set(getHeaders());
 
-            assertCompareBundles(resp.body, expectedAuditEventResource);
+            expectedAuditEventResource.meta.tag.forEach((tag) => {
+                if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
+                    tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', 'db.AuditEvent_4_0_0_2021_09.');
+                }
+                if (tag['system'] === 'https://www.icanbwell.com/queryCollection' && tag['code']) {
+                    tag['code'] = 'AuditEvent_4_0_0_2021_09';
+                }
+            });
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedAuditEventResource);
         });
     });
 });

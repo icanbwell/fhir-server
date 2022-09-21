@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // practice
 const practiceHealthcareServiceResource = require('./fixtures/practice/healthcare_service.json');
 const practiceOrganizationResource = require('./fixtures/practice/practice_organization.json');
@@ -12,8 +8,13 @@ const practiceLocationResource = require('./fixtures/practice/location.json');
 const expectedOrganizationResource = require('./fixtures/expected/expected_organization.json');
 const expectedEverythingResource = require('./fixtures/expected/expected_everything.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('Organization Everything Tests', () => {
     beforeEach(async () => {
@@ -26,10 +27,8 @@ describe('Organization Everything Tests', () => {
 
     describe('Everything Tests', () => {
         test('Everything works properly', async () => {
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders())
-                .expect(200);
+            const request = await createTestRequest();
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -79,10 +78,7 @@ describe('Organization Everything Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Organization')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Organization').set(getHeaders()).expect(200);
 
             console.log('------- response Practitioner ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -90,11 +86,11 @@ describe('Organization Everything Tests', () => {
             // clear out the lastUpdated column since that changes
             let body = resp.body;
             expect(body.length).toBe(2);
-            body.forEach(element => {
+            body.forEach((element) => {
                 delete element['meta']['lastUpdated'];
             });
             let expected = expectedOrganizationResource;
-            expected.forEach(element => {
+            expected.forEach((element) => {
                 if ('meta' in element) {
                     delete element['meta']['lastUpdated'];
                 }
@@ -115,13 +111,13 @@ describe('Organization Everything Tests', () => {
             console.log('------- end response  ------------');
             body = resp.body;
             delete body['timestamp'];
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['fullUrl'];
                 delete element['resource']['meta']['lastUpdated'];
             });
             expected = expectedEverythingResource;
             delete expected['timestamp'];
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete element['fullUrl'];
                 if ('meta' in element['resource']) {
                     delete element['resource']['meta']['lastUpdated'];

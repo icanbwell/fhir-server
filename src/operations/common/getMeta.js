@@ -1,4 +1,4 @@
-const {resolveSchema} = require('@asymmetrik/node-fhir-server-core');
+const {resolveSchema} = require('../../middleware/fhir/utils/schema.utils');
 
 /**
  * Gets class for Meta
@@ -6,5 +6,6 @@ const {resolveSchema} = require('@asymmetrik/node-fhir-server-core');
  * @returns {function({Object}):Meta} Meta class
  */
 module.exports.getMeta = (base_version) => {
+    // noinspection JSValidateTypes
     return resolveSchema(base_version, 'Meta');
 };

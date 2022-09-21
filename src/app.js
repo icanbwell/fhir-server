@@ -26,47 +26,22 @@ const {handleIndex} = require('./routeHandlers/index');
 const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
+const cookieParser = require('cookie-parser');
+const {initialize} = require('./winstonInit');
+const {handleAdmin} = require('./routeHandlers/admin');
 
 if (isTrue(env.TRACING_ENABLED)) {
     require('./tracing');
 }
 
-const swaggerUi = require('swagger-ui-express');
-// eslint-disable-next-line security/detect-non-literal-require
-const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
-
-const app = express();
-
-const cookieParser = require('cookie-parser');
-const {handleFixDates} = require('./routeHandlers/fixDates');
-
-const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
-
-// middleware to parse cookies
-app.use(cookieParser());
-
-// middleware to parse user agent string
-app.use(useragent.express());
-
-// middleware for oAuth
-app.use(passport.initialize({}));
-
-// helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
-app.use(helmet());
-
-// prometheus tracks the metrics
-app.use(Prometheus.requestCounters);
-// noinspection JSCheckFunctionSignatures
-app.use(Prometheus.responseCounters);
-Prometheus.injectMetricsRoute(app);
-Prometheus.startCollection();
-
-// Set EJS as templating engine
-app.set('views', path.join(__dirname, '/views'));
-app.set('view engine', 'ejs');
-
-function createFhirApp(app1) {
-    return new MyFHIRServer(fhirServerConfig, app1)
+/**
+ * Creates the FHIR app
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {import('express').Express} app1
+ * @return {MyFHIRServer}
+ */
+function createFhirApp(fnCreateContainer, app1) {
+    return new MyFHIRServer(fnCreateContainer, fhirServerConfig, app1)
         .configureMiddleware()
         .configureSession()
         .configureHelmet()
@@ -78,149 +53,249 @@ function createFhirApp(app1) {
         .setErrorRoutes();
 }
 
+/**
+ * Creates the app
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @return {import('express').Express}
+ */
+function createApp(fnCreateContainer) {
+    initialize();
+    const swaggerUi = require('swagger-ui-express');
+    // eslint-disable-next-line security/detect-non-literal-require
+    const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
-app.use(handleSecurityPolicy);
+    /**
+     * @type {Express}
+     */
+    const app = express();
 
-// noinspection SpellCheckingInspection
-const options = {
-    explorer: true,
-    swaggerOptions: {
-        oauth2RedirectUrl: env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
-        oauth: {
-            appName: 'Swagger Doc',
-            usePkceWithAuthorizationCodeGrant: true,
+    const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
+
+    // middleware to parse cookies
+    app.use(cookieParser());
+
+    // middleware to parse user agent string
+    app.use(useragent.express());
+
+    // middleware for oAuth
+    app.use(passport.initialize({}));
+
+    // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
+    app.use(helmet());
+
+    // prometheus tracks the metrics
+    app.use(Prometheus.requestCounters);
+    // noinspection JSCheckFunctionSignatures
+    app.use(Prometheus.responseCounters);
+    app.use(Prometheus.httpRequestTimer);
+    Prometheus.injectMetricsRoute(app);
+    Prometheus.startCollection();
+
+    // Set EJS as templating engine
+    app.set('views', path.join(__dirname, '/views'));
+    app.set('view engine', 'ejs');
+
+    app.use(handleSecurityPolicy);
+
+    // noinspection SpellCheckingInspection
+    const options = {
+        explorer: true,
+        swaggerOptions: {
+            oauth2RedirectUrl: env.HOST_SERVER + '/api-docs/oauth2-redirect.html',
+            oauth: {
+                appName: 'Swagger Doc',
+                usePkceWithAuthorizationCodeGrant: true,
+            },
         },
-    },
-};
-
-// noinspection JSCheckFunctionSignatures
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
-
-app.use(express.static(path.join(__dirname, 'oauth')));
-
-// handles when the user is redirected by the OpenIDConnect/OAuth provider
-app.get('/authcallback', (req, res) => {
-    res.redirect(
-        `/callback.html?code=${req.query.code}&resourceUrl=${req.query.state}&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${httpProtocol}://${req.headers.host}/authcallback&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
-    );
-});
-
-app.get('/fhir', (req, res) => {
-    const resourceUrl = req.query.resource;
-    const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
-    res.redirect(redirectUrl);
-});
-
-app.get('/health', (req, res) => res.json({status: 'ok'}));
-app.get('/version', handleVersion);
-app.get('/logout', handleLogout);
-app.get('/logout_action', (req, res) => {
-    const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${env.HOST_SERVER}/logout`;
-    res.redirect(logoutUrl);
-});
-
-// render the home page
-app.get('/', (req, res) => {
-    const home_options = {
-        resources: resourceDefinitions,
     };
-    return res.render(__dirname + '/views/pages/home', home_options);
-});
 
-app.get('/clean/:collection?', handleClean);
+    // noinspection JSCheckFunctionSignatures
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
-app.get('/stats', handleStats);
+    app.use(express.static(path.join(__dirname, 'oauth')));
 
-app.get('/index/:op?/:table?', handleIndex);
+    // handles when the user is redirected by the OpenIDConnect/OAuth provider
+    app.get('/authcallback', (req, res) => {
+        const state = req.query.state;
+        const resourceUrl = state ?
+            encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
+        // console.log(`Redirecting to ${resourceUrl}`);
+        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        res.redirect(
+            `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
+            `&clientId=${env.AUTH_CODE_FLOW_CLIENT_ID}&redirectUri=${redirectUrl}` +
+            `&tokenUrl=${env.AUTH_CODE_FLOW_URL}/oauth2/token`
+        );
+    });
 
-app.get('/fixDates/:table?/:batchSize?', handleFixDates);
+    app.get('/fhir', (req, res) => {
+        const resourceUrl = req.query.resource;
+        const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
+        res.redirect(`${env.AUTH_CODE_FLOW_URL}/login?response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
+            `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
+    });
 
-app.get('/.well-known/smart-configuration', handleSmartConfiguration);
+    app.get('/health', (req, res) => res.json({status: 'ok'}));
+    app.get('/version', handleVersion);
+    app.get('/logout', handleLogout);
+    app.get('/logout_action', (req, res) => {
+        const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
+        const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
+        res.redirect(logoutUrl);
+    });
 
-app.get('/alert', handleAlert);
+    // render the home page
+    app.get('/', (req, res) => {
+        const home_options = {
+            resources: resourceDefinitions,
+        };
+        return res.render(__dirname + '/views/pages/home', home_options);
+    });
 
-app.use('/images', express.static(path.join(__dirname, 'images')));
+    app.get('/clean/:collection?', handleClean);
 
-app.use('/favicon.ico', express.static(path.join(__dirname, 'images/favicon.ico')));
+    app.get('/stats', handleStats);
 
-app.use('/css', express.static(path.join(__dirname, 'dist/css')));
-app.use('/js', express.static(path.join(__dirname, 'dist/js')));
-app.use(
-    '/js',
-    express.static(path.join(__dirname, './../node_modules/vanillajs-datepicker/dist/js'))
-);
-app.use(
-    '/css',
-    express.static(path.join(__dirname, './../node_modules/vanillajs-datepicker/dist/css'))
-);
-app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css')));
-app.use('/css', express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/css')));
-app.use('/fonts', express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts')));
-app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
+    app.get('/index/:op?/:table?', handleIndex);
 
-// noinspection JSCheckFunctionSignatures
-passport.use('graphqlStrategy', strategy);
+    app.get('/.well-known/smart-configuration', handleSmartConfiguration);
 
-// enable middleware for graphql
-if (isTrue(env.ENABLE_GRAPHQL)) {
-    app.use(cors(fhirServerConfig.server.corsOptions));
-    const useGraphQLv2 = isTrue(env.USE_GRAPHQL_v2);
-    if (useGraphQLv2) {
-        graphql()
-            .then((graphqlMiddleware) => {
-                // eslint-disable-next-line new-cap
-                const router = express.Router();
-                router.use(passport.initialize({}));
-                router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                router.use(graphqlMiddleware);
-                app.use('/graphqlv2', router);
+    app.get('/alert', handleAlert);
 
-                app.use('/graphql', router);
-            })
-            .then((_) => graphqlv1())
-            .then((graphqlMiddlewareV1) => {
-                // eslint-disable-next-line new-cap
-                const router1 = express.Router();
-                router1.use(passport.initialize({}));
-                router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                router1.use(graphqlMiddlewareV1);
+    app.use('/images', express.static(path.join(__dirname, 'images')));
 
-                app.use('/graphqlv1', router1);
-            })
-            .then((_) => {
-                // app.use(fhirApp.app);
-                createFhirApp(app);
-            });
-    } else {
-        graphql()
-            .then((graphqlMiddleware) => {
-                // eslint-disable-next-line new-cap
-                const router = express.Router();
-                router.use(passport.initialize({}));
-                router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                router.use(graphqlMiddleware);
-                app.use('/graphqlv2', router);
-            })
-            .then((_) => graphqlv1())
-            .then((graphqlMiddlewareV1) => {
-                // eslint-disable-next-line new-cap
-                const router1 = express.Router();
-                router1.use(passport.initialize({}));
-                router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                router1.use(graphqlMiddlewareV1);
+    app.use('/favicon.ico', express.static(path.join(__dirname, 'images/favicon.ico')));
 
-                app.use('/graphqlv1', router1);
-                app.use('/graphql', router1);
-            })
-            .then((_) => {
-                // app.use(fhirApp.app);
-                createFhirApp(app);
-            });
+    app.use('/css', express.static(path.join(__dirname, 'dist/css')));
+    app.use('/js', express.static(path.join(__dirname, 'dist/js')));
+    app.use(
+        '/js',
+        express.static(path.join(__dirname, './../node_modules/vanillajs-datepicker/dist/js'))
+    );
+    app.use(
+        '/css',
+        express.static(path.join(__dirname, './../node_modules/vanillajs-datepicker/dist/css'))
+    );
+    app.use('/css', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/css')));
+    app.use('/css', express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/css')));
+    app.use(
+        '/fonts',
+        express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
+    );
+    app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
+
+    if (isTrue(env.AUTH_ENABLED)) {
+        // Set up admin routes
+        passport.use('adminStrategy', strategy);
     }
-} else {
-    // app.use(fhirApp.app);
-    createFhirApp(app);
-}
-app.locals.currentYear = new Date().getFullYear();
 
-module.exports = {app};
+    // eslint-disable-next-line new-cap
+    const adminRouter = express.Router();
+    if (isTrue(env.AUTH_ENABLED)) {
+        adminRouter.use(passport.initialize({}));
+        adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    }
+    adminRouter.get('/admin/:op?', handleAdmin);
+    adminRouter.post('/admin/:op?', handleAdmin);
+    app.use(adminRouter);
+
+    if (isTrue(env.AUTH_ENABLED)) {
+        // noinspection JSCheckFunctionSignatures
+        passport.use('graphqlStrategy', strategy);
+    }
+
+    // enable middleware for graphql
+    if (isTrue(env.ENABLE_GRAPHQL)) {
+        app.use(cors(fhirServerConfig.server.corsOptions));
+        const useGraphQLv2 = isTrue(env.USE_GRAPHQL_v2);
+        if (useGraphQLv2) {
+            graphql(fnCreateContainer)
+                .then((graphqlMiddleware) => {
+                    // eslint-disable-next-line new-cap
+                    const router = express.Router();
+                    if (isTrue(env.AUTH_ENABLED)) {
+                        router.use(passport.initialize({}));
+                        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    }
+                    // noinspection JSCheckFunctionSignatures
+                    router.use(graphqlMiddleware);
+                    app.use('/graphqlv2', router);
+
+                    app.use('/graphql', router);
+                })
+                .then((_) => graphqlv1(fnCreateContainer))
+                .then((graphqlMiddlewareV1) => {
+                    // eslint-disable-next-line new-cap
+                    const router1 = express.Router();
+                    if (isTrue(env.AUTH_ENABLED)) {
+                        router1.use(passport.initialize({}));
+                        router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    }
+                    // noinspection JSCheckFunctionSignatures
+                    router1.use(graphqlMiddlewareV1);
+
+                    app.use('/graphqlv1', router1);
+                })
+                .then((_) => {
+                    // app.use(fhirApp.app);
+                    createFhirApp(fnCreateContainer, app);
+                });
+        } else {
+            graphql(fnCreateContainer)
+                .then((graphqlMiddleware) => {
+                    // eslint-disable-next-line new-cap
+                    const router = express.Router();
+                    if (isTrue(env.AUTH_ENABLED)) {
+                        router.use(passport.initialize({}));
+                        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    }
+                    // noinspection JSCheckFunctionSignatures
+                    router.use(graphqlMiddleware);
+                    app.use('/graphqlv2', router);
+                })
+                .then((_) => graphqlv1(fnCreateContainer))
+                .then((graphqlMiddlewareV1) => {
+                    // eslint-disable-next-line new-cap
+                    const router1 = express.Router();
+                    if (isTrue(env.AUTH_ENABLED)) {
+                        router1.use(passport.initialize({}));
+                        router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                    }
+                    // noinspection JSCheckFunctionSignatures
+                    router1.use(graphqlMiddlewareV1);
+
+                    app.use('/graphqlv1', router1);
+                    app.use('/graphql', router1);
+                })
+                .then((_) => {
+                    // app.use(fhirApp.app);
+                    createFhirApp(fnCreateContainer, app);
+                });
+        }
+    } else {
+        createFhirApp(fnCreateContainer, app);
+    }
+    app.locals.currentYear = new Date().getFullYear();
+
+    // enables access to reverse proxy information
+    // https://expressjs.com/en/guide/behind-proxies.html
+    app.enable('trust proxy');
+
+    return app;
+}
+
+/**
+ *
+ * @param {import('express').Express} app
+ * @return {boolean}
+ */
+function unmountRoutes(app) {
+    // eslint-disable-next-line new-cap
+    app.use('/graphqlv1', express.Router());
+    // eslint-disable-next-line new-cap
+    app.use('/graphql', express.Router());
+    // eslint-disable-next-line new-cap
+    app.use('/graphqlv2', express.Router());
+}
+
+module.exports = {createApp, unmountRoutes};

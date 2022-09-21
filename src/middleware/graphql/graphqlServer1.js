@@ -12,9 +12,13 @@ const {
     // ApolloServerPluginLandingPageDisabled
 } = require('apollo-server-core');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
+const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 
-
-const graphql = async () => {
+/**
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @return {Promise<e.Router>}
+ */
+const graphql = async (fnCreateContainer) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v1/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
     // create the Apollo graphql middleware
@@ -24,6 +28,7 @@ const graphql = async () => {
             typeDefs: typeDefs,
             resolvers: resolvers,
             introspection: true,
+            cache: 'bounded',
             plugins: [
                 // request.credentials is set so we receive cookies
                 // https://github.com/graphql/graphql-playground#settings
@@ -38,23 +43,27 @@ const graphql = async () => {
                         faviconUrl: '',
                     }
                 ),
-                getApolloServerLoggingPlugin('graphqlv1')
+                getApolloServerLoggingPlugin('graphqlv1'),
+                getGraphqlContainerPlugin()
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
                 return {
                     req,
                     res,
-                    user: (req.authInfo && req.authInfo.context && req.authInfo.context.username)
-                        || (req.authInfo && req.authInfo.context && req.authInfo.context.subject)
-                        || req.user,
+                    user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
+                        (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
+                        ((!req.user || typeof req.user === 'string') ? req.user : req.user.id),
                     scope: req.authInfo && req.authInfo.scope,
                     remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                    requestId: req.id,
                     protocol: req.protocol,
                     originalUrl: req.originalUrl,
                     path: req.path,
                     host: req.hostname,
-                    body: req.body
+                    body: req.body,
+                    headers: req.headers,
+                    container: fnCreateContainer()
                 };
             }
         });

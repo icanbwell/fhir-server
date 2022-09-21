@@ -1,4 +1,6 @@
 {
-  "esversion": 9,
-  "sub": true
+  "esversion": 11,
+  "sub": true,
+  "-W083": false,
+  "node": true
 }

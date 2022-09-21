@@ -1,91 +1,215 @@
-const {logRequest, logDebug, logError} = require('../common/logging');
-const {verifyHasValidScopes, isAccessToResourceAllowedBySecurityTags} = require('../security/scopes');
-const globals = require('../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
-const {getResource} = require('../common/getResource');
+// noinspection ExceptionCaughtLocallyJS
+
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
+const moment = require('moment-timezone');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {SearchManager} = require('../search/searchManager');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {AuditLogger} = require('../../utils/auditLogger');
+const {SecurityTagManager} = require('../common/securityTagManager');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
 
-/**
- * does a FHIR Search By Id
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} resource_name
- * @param {string} collection_name
- * @return {Resource}
- */
-// eslint-disable-next-line no-unused-vars
-module.exports.searchById = async (requestInfo, args, resource_name, collection_name) => {
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
-    logRequest(user, `${resource_name} >>> searchById`);
-    logDebug(user, JSON.stringify(args));
-
-    verifyHasValidScopes(resource_name, 'read', user, scope);
-
-    // Common search params
-    let {id} = args;
-    let {base_version} = args;
-
-    logDebug(user, `id: ${id}`);
-    logDebug(user, `base_version: ${base_version}`);
-
-    // Search Result param
+class SearchByIdOperation {
     /**
-     * @type {Object}
+     * constructor
+     * @param {SearchManager} searchManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {AuditLogger} auditLogger
+     * @param {SecurityTagManager} securityTagManager
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
      */
-    let query = {};
-    query.id = id;
+    constructor(
+        {
+            searchManager,
+            databaseQueryFactory,
+            auditLogger,
+            securityTagManager,
+            scopesManager,
+            fhirLoggingManager,
+            scopesValidator
+        }
+    ) {
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+        /**
+         * @type {SecurityTagManager}
+         */
+        this.securityTagManager = securityTagManager;
+        assertTypeEquals(securityTagManager, SecurityTagManager);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
-    /**
-     * @type {boolean}
-     */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-    /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
-     */
-    let db = (resource_name === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-
-    let collection = db.collection(`${collection_name}_${base_version}`);
-    let Resource = getResource(base_version, resource_name);
-
-    /**
-     * @type {Promise<Resource> | *}
-     */
-    let resource;
-    try {
-        resource = await collection.findOne({id: id.toString()});
-    } catch (e) {
-        logError(user, `Error with ${resource_name}.searchById: {e}`);
-        throw new BadRequestError(e);
     }
 
+    /**
+     * does a FHIR Search By Id
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     * @param {boolean} filter
+     * @return {Resource}
+     */
+    async searchById(requestInfo, args, resourceType,
+                     filter = true) {
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
+        const currentOperationName = 'searchById';
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
+        const {
+            /** @type {string[]} */
+            patients = [],
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            fhirPersonId,
+            /** @type {string | null} */
+            user,
+            /** @type {string | null} */
+            scope,
+            /** @type {string} */
+            requestId
+        } = requestInfo;
 
-    if (resource) {
-        if (!(isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
-            throw new ForbiddenError(
-                'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                resource.resourceType + ' with id ' + id);
-        }
-        // remove any nulls or empty objects or arrays
-        resource = removeNull(resource);
+        await this.scopesValidator.verifyHasValidScopesAsync({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            action: currentOperationName,
+            accessRequested: 'read'
+        });
 
-        // run any enrichment
-        resource = (await enrich([resource], resource_name))[0];
-        if (resource_name !== 'AuditEvent') {
-            // log access to audit logs
-            await logAuditEntryAsync(requestInfo, base_version, resource_name, 'read', args, [resource['id']]);
+        try {
+
+            // Common search params
+            let {id} = args;
+            let {base_version} = args;
+
+            // Search Result param
+            /**
+             * @type {Object}
+             */
+            let query = {};
+            query.id = id;
+
+
+            /**
+             * @type {boolean}
+             */
+            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+            /**
+             * @type {Promise<Resource> | *}
+             */
+            let resource;
+            query = {id: id.toString()};
+            if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
+                const allPatients = patients.concat(
+                    await this.searchManager.getPatientIdsByPersonIdentifiersAsync(
+                        {
+                            base_version, useAtlas, fhirPersonId
+                        }));
+                query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
+            }
+            try {
+                resource = await this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version, useAtlas}
+                ).findOneAsync({query});
+            } catch (e) {
+                throw new BadRequestError(e);
+            }
+
+
+            if (resource) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                    throw new ForbiddenError(
+                        'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
+                        resource.resourceType + ' with id ' + id);
+                }
+
+                // remove any nulls or empty objects or arrays
+                resource = removeNull(resource);
+
+                // run any enrichment
+                resource = (await enrich([resource], resourceType))[0];
+                if (resourceType !== 'AuditEvent') {
+                    // log access to audit logs
+                    await this.auditLogger.logAuditEntryAsync(
+                        {
+                            requestInfo, base_version, resourceType,
+                            operation: 'read', args, ids: [resource['id']]
+                        }
+                    );
+                    const currentDate = moment.utc().format('YYYY-MM-DD');
+                    await this.auditLogger.flushAsync({requestId, currentDate});
+                }
+                await this.fhirLoggingManager.logOperationSuccessAsync(
+                    {
+                        requestInfo,
+                        args,
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
+                return resource;
+            } else {
+                throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+            }
+        } catch (e) {
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
+            throw e;
         }
-        return new Resource(resource);
-    } else {
-        throw new NotFoundError(`Not Found: ${resource_name}.searchById: ${id.toString()}`);
     }
+}
+
+module.exports = {
+    SearchByIdOperation
 };
+
+

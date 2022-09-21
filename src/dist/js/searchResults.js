@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedFunction
+
 const searchResultRows = document.querySelectorAll('.row-click');
 searchResultRows.forEach((row) => {
     row.addEventListener('click', rowClick);
@@ -21,10 +23,8 @@ tableHeaders.forEach((th) => {
 function sortByField(fieldName) {
     const sortElement = document.querySelector('input[name=_sort]');
     sortElement.value =
-        sortElement.value === fieldName
-            ? `-${fieldName}`
-            : sortElement.value === `-${fieldName}`
-            ? ''
-            : fieldName;
+        sortElement.value === fieldName ?
+            `-${fieldName}` :
+            sortElement.value === `-${fieldName}` ? '' : fieldName;
     submitSearchForm();
 }

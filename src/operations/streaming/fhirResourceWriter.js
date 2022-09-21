@@ -5,7 +5,7 @@ class FhirResourceWriter extends Transform {
      * Streams the incoming data as json
      * @param {AbortSignal} signal
      */
-    constructor(signal) {
+    constructor({signal}) {
         super({objectMode: true});
         /**
          * @type {boolean}
@@ -46,7 +46,28 @@ class FhirResourceWriter extends Transform {
                 }
             }
         } catch (e) {
-            throw new AggregateError([e], 'FhirResourceWriter _transform: error');
+            // don't let error past this since we're streaming so we can't send errors to http client
+            const operationOutcome = {
+                resourceType: 'OperationOutcome',
+                issue: [
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        details: {
+                            text: 'Error streaming bundle'
+                        },
+                        diagnostics: e.toString()
+                    }
+                ]
+            };
+            if (this._first) {
+                // write the beginning json
+                this._first = false;
+                this.push(operationOutcome, encoding);
+            } else {
+                // add comma at the beginning to make it legal json
+                this.push(',' + operationOutcome, encoding);
+            }
         }
         callback();
     }
@@ -67,5 +88,5 @@ class FhirResourceWriter extends Transform {
 }
 
 module.exports = {
-    FhirResourceWriter: FhirResourceWriter
+    FhirResourceWriter
 };

@@ -1,11 +1,14 @@
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders, getHtmlHeaders} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    getHtmlHeaders,
+    createTestRequest,
+} = require('../../common');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('Patient UI Tests', () => {
     beforeEach(async () => {
@@ -18,10 +21,8 @@ describe('Patient UI Tests', () => {
 
     describe('Patient Search By Id Tests', () => {
         test('search by single id works', async () => {
-            let resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(200);
+            const request = await createTestRequest();
+            let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
@@ -39,10 +40,7 @@ describe('Patient UI Tests', () => {
             console.log('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
-            resp = await request
-                .get('/4_0_0/Patient')
-                .set(getHeaders())
-                .expect(200);
+            resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
             console.log('------- response 3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
@@ -52,6 +50,36 @@ describe('Patient UI Tests', () => {
                 .get('/4_0_0/Patient/00100000000')
                 .set(getHtmlHeaders())
                 .expect(200);
+
+            console.log('------- response Patient sorted ------------');
+            console.log(JSON.stringify(resp, null, 2));
+            console.log('------- end response sort ------------');
+            expect(resp.type).toStrictEqual('text/html');
+            expect(resp.body).toStrictEqual({});
+            expect(resp.text).not.toBeNull();
+            expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
+
+            resp = await request
+                .post('/4_0_0/Patient/_search')
+                .set(getHtmlHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
+
+            console.log('------- response Patient sorted ------------');
+            console.log(JSON.stringify(resp, null, 2));
+            console.log('------- end response sort ------------');
+            expect(resp.type).toStrictEqual('text/html');
+            expect(resp.body).toStrictEqual({});
+            expect(resp.text).not.toBeNull();
+            expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
+
+            resp = await request
+                .get('/4_0_0/Patient/_search')
+                .set(getHtmlHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
 
             console.log('------- response Patient sorted ------------');
             console.log(JSON.stringify(resp, null, 2));

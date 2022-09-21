@@ -3,7 +3,6 @@
 # import code from "../simple_types/code.graphql"
 # import uri from "../simple_types/uri.graphql"
 
-
 """
 Count
     A measured amount (or an amount that can potentially be measured). Note that
@@ -17,23 +16,23 @@ type Count {
     The value of the measured amount. The value includes an implicit precision in
     the presentation of the value.
     """
-    value: decimal        
+    value: decimal
     """
     How the value should be understood and represented - whether the actual value
     is greater or less than the stated value due to measurement issues; e.g. if
     the comparator is "<" , then the real value is < stated value.
     """
-    comparator: code        
+    comparator: code
     """
     A human-readable form of the unit.
     """
-    unit: String        
+    unit: String
     """
     The identification of the system that provides the coded form of the unit.
     """
-    system: uri        
+    system: uri
     """
     A computer processable form of the unit in some unit representation system.
     """
-    code: code        
+    code: code
 }

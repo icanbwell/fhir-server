@@ -1,4 +1,4 @@
-NODE_VERSION=16.15.0
+NODE_VERSION=16.17.0
 
 .PHONY:build
 build:
@@ -20,11 +20,20 @@ up:
 	echo "\nwaiting for Mongo server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_mongo_1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_mongo_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_mongo_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_mongo_1 =========\n" && exit 1; fi
+	echo "waiting for ElasticSearch server to become healthy" && \
+	while [ "`docker inspect --format {{.State.Health.Status}} elasticsearch`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} elasticsearch`" != "failed" ]; do printf "." && sleep 2; done && \
+	if [ "`docker inspect --format {{.State.Health.Status}} elasticsearch`" != "healthy" ]; then printf "ERROR: Container did not start. Run docker logs elasticsearch\n" && exit 1; fi  && \
 	echo "\nwaiting for FHIR server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev_fhir_1`" != "restarting" ]; do printf "." && sleep 2; done && \
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_fhir_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_fhir_1 =========\n" && exit 1; fi
+	@echo "\nElastic Search Kibana: http://localhost:5601/ (admin:admin)" && \
+	echo "Elastic Search: https://localhost:9200/fhir-logs-*/_search (admin:admin)" && \
 	echo FHIR server GraphQL: http://localhost:3000/graphql && \
-	echo FHIR server: http://localhost:3000/
+	echo FHIR server Metrics: http://localhost:3000/metrics && \
+	echo Prometheus: http://localhost:9090 && \
+	echo Grafana: http://localhost:3010 && \
+	echo Kafka UI: http://localhost:9000 && \
+	echo FHIR server: http://localhost:3000
 
 .PHONY:up-offline
 up-offline:
@@ -44,6 +53,9 @@ clean: down
 	docker image rm imranq2/node-fhir-server-mongo -f
 	docker image rm node-fhir-server-mongo_fhir -f
 	docker volume rm fhir-dev_mongo_data -f
+ifneq ($(shell docker volume ls | grep "fhir-dev"| awk '{print $$2}'),)
+	docker volume ls | grep "fhir-dev" | awk '{print $$2}' | xargs docker volume rm
+endif
 
 .PHONY:init
 init:
@@ -52,7 +64,7 @@ init:
 	brew install yarn
 	brew install kompose
 	#brew install nvm
-	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.37.2/install.sh | zsh
+	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | zsh
 	nvm install ${NODE_VERSION}
 	make update
 
@@ -67,7 +79,7 @@ init:
 .PHONY:update
 update:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	npm install --global yarn && \
+	npm install --location=global yarn && \
 	yarn install --no-optional && \
 	npm i --package-lock-only
 
@@ -104,8 +116,13 @@ tests_graphql:
 .PHONY:lint
 lint:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	npm run test:lint && \
-	npm run test:ejslint
+	npm run lint
+
+.PHONY:fix-lint
+fix-lint:
+	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
+	npm run fix_lint && \
+	npm run lint
 
 .PHONY:generate
 generate:
@@ -134,9 +151,15 @@ graphqlv1:
 
 .PHONY:graphql
 graphql:
-	python3 src/graphql/v2/generator/generate_classes.py && \
+	python3 src/graphql/v2/generator/generate_graphql_classes.py && \
 	graphql-schema-linter src/graphql/v2/**/*.graphql
 
+.PHONY:classes
+classes:
+	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
+	python3 src/graphql/v2/generator/generate_classes.py && \
+	python3 src/graphql/v2/generator/generate_classes_index.py && \
+	eslint --fix "src/fhir/classes/**/*.js"
 
 .PHONY:searchParameters
 searchParameters:

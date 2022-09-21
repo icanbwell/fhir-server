@@ -9,7 +9,14 @@
 # import Device from "../resources/device.graphql"
 # import AdverseEventCausality from "../backbone_elements/adverseEventCausality.graphql"
 
-union AdverseEventSuspectEntityInstance = Immunization | Procedure | Substance | Medication | MedicationAdministration | MedicationStatement | Device
+union AdverseEventSuspectEntityInstance =
+      Immunization
+    | Procedure
+    | Substance
+    | Medication
+    | MedicationAdministration
+    | MedicationStatement
+    | Device
 
 """
 AdverseEvent.SuspectEntity
@@ -22,7 +29,7 @@ type AdverseEventSuspectEntity {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -30,7 +37,7 @@ type AdverseEventSuspectEntity {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -41,20 +48,20 @@ type AdverseEventSuspectEntity {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Identifies the actual instance of what caused the adverse event.  May be a
     substance, medication, medication administration, medication statement or a
     device.
     """
-    instance: AdverseEventSuspectEntityInstance!        
+    instance: AdverseEventSuspectEntityInstance!
     """
     Information on the possible cause of the event.
     """
-    causality: [AdverseEventCausality]        
+    causality: [AdverseEventCausality]
 }

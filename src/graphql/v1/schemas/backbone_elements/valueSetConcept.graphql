@@ -3,7 +3,6 @@
 # import code from "../simple_types/code.graphql"
 # import ValueSetDesignation from "../backbone_elements/valueSetDesignation.graphql"
 
-
 """
 ValueSet.Concept
     A ValueSet resource instance specifies a set of codes drawn from one or more
@@ -15,7 +14,7 @@ type ValueSetConcept {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -23,7 +22,7 @@ type ValueSetConcept {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -34,26 +33,26 @@ type ValueSetConcept {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Specifies a code for the concept to be included or excluded.
     """
-    code: code!        
+    code: code!
     """
     The text to display to the user for this concept in the context of this
     valueset. If no display is provided, then applications using the value set use
     the display specified for the code by the system.
     """
-    display: String        
+    display: String
     """
     Additional representations for this concept when used in this value set -
     other languages, aliases, specialized purposes, used for particular purposes,
     etc.
     """
-    designation: [ValueSetDesignation]        
+    designation: [ValueSetDesignation]
 }

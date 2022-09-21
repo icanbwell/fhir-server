@@ -1,4 +1,7 @@
-<% if (positions) { %>
+<% if (!Array.isArray(positions)) {
+    positions = [positions];
+} %>
+<% if (positions && positions.length > 0 && positions[0]) { %>
 <div>
     <h4><%= name %></h4>
     <table class="table">

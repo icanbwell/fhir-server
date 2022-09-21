@@ -1,227 +1,225 @@
 {
-  "entry": [
-    {
-      "resource": {
-        "active": true,
-        "communication": [
-          {
-            "coding": [
-              {
-                "code": "en",
-                "system": "urn:ietf:bcp:47"
-              }
-            ]
-          }
-        ],
-        "contained": [
-          {
-            "id": "123456",
-            "meta": {
-              "security": [
-                {
-                  "code": "medstar",
-                  "system": "https://www.icanbwell.com/access"
-                }
-              ],
-              "versionId": "1"
-            },
-            "name": "MedStar Medical Group",
-            "resourceType": "Organization",
-            "type": [
-              {
-                "coding": [
-                  {
-                    "code": "prov",
-                    "display": "Healthcare Provider",
-                    "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                  }
+    "entry": [
+        {
+            "resource": {
+                "active": true,
+                "communication": [
+                    {
+                        "coding": [
+                            {
+                                "code": "en",
+                                "system": "urn:ietf:bcp:47"
+                            }
+                        ]
+                    }
                 ],
-                "text": "Healthcare Organization"
-              }
-            ]
-          },
-          {
-            "active": true,
-            "code": [
-              {
-                "coding": [
-                  {
-                    "code": "doctor",
-                    "display": "Doctor",
-                    "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
-                  }
+                "contained": [
+                    {
+                        "id": "123456",
+                        "meta": {
+                            "security": [
+                                {
+                                    "code": "medstar",
+                                    "system": "https://www.icanbwell.com/access"
+                                }
+                            ],
+                            "versionId": "1"
+                        },
+                        "name": "MedStar Medical Group",
+                        "resourceType": "Organization",
+                        "type": [
+                            {
+                                "coding": [
+                                    {
+                                        "code": "prov",
+                                        "display": "Healthcare Provider",
+                                        "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+                                    }
+                                ],
+                                "text": "Healthcare Organization"
+                            }
+                        ]
+                    },
+                    {
+                        "active": true,
+                        "code": [
+                            {
+                                "coding": [
+                                    {
+                                        "code": "doctor",
+                                        "display": "Doctor",
+                                        "system": "http://terminology.hl7.org/CodeSystem/practitioner-role"
+                                    }
+                                ],
+                                "text": "Doctor"
+                            }
+                        ],
+                        "extension": [
+                            {
+                                "extension": [
+                                    {
+                                        "id": "acceptingpatients",
+                                        "url": "acceptingPatients",
+                                        "valueCodeableConcept": {
+                                            "coding": [
+                                                {
+                                                    "code": "existptonly",
+                                                    "system": "https://build.fhir.org/ig/HL7/davinci-pdex-plan-net/CodeSystem-AcceptingPatientsCS.html"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "id": "agerange",
+                                        "url": "ageRange",
+                                        "valueRange": {
+                                            "high": {
+                                                "unit": "years"
+                                            },
+                                            "low": {
+                                                "unit": "years",
+                                                "value": 0
+                                            }
+                                        }
+                                    }
+                                ],
+                                "id": "new-patients-1",
+                                "url": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/newpatients"
+                            }
+                        ],
+                        "id": "1881603751",
+                        "location": [
+                            {
+                                "reference": "Location/Medstar-Alias-ABC"
+                            }
+                        ],
+                        "meta": {
+                            "security": [
+                                {
+                                    "code": "medstar",
+                                    "system": "https://www.icanbwell.com/access"
+                                },
+                                {
+                                    "code": "medstar",
+                                    "system": "https://www.icanbwell.com/owner"
+                                }
+                            ],
+                            "source": "http://medstarhealth.org/provider",
+                            "versionId": "1"
+                        },
+                        "organization": {
+                            "reference": "Organization/Medstar-Alias-ABC"
+                        },
+                        "practitioner": {
+                            "reference": "Practitioner/1679033641"
+                        },
+                        "resourceType": "PractitionerRole"
+                    }
                 ],
-                "text": "Doctor"
-              }
-            ],
-            "extension": [
-              {
-                "extension": [
-                  {
-                    "id": "acceptingpatients",
-                    "url": "acceptingPatients",
-                    "valueCodeableConcept": {
-                      "coding": [
+                "gender": "unknown",
+                "id": "1679033641",
+                "identifier": [
+                    {
+                        "system": "http://medstarhealth.org",
+                        "type": {
+                            "coding": [
+                                {
+                                    "code": "PRN",
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                                }
+                            ]
+                        },
+                        "use": "usual",
+                        "value": "4657"
+                    },
+                    {
+                        "system": "http://hl7.org/fhir/sid/us-npi",
+                        "type": {
+                            "coding": [
+                                {
+                                    "code": "NPI",
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                                }
+                            ]
+                        },
+                        "use": "official",
+                        "value": "1679033641"
+                    }
+                ],
+                "meta": {
+                    "security": [
                         {
-                          "code": "existptonly",
-                          "system": "https://build.fhir.org/ig/HL7/davinci-pdex-plan-net/CodeSystem-AcceptingPatientsCS.html"
+                            "code": "medstar",
+                            "system": "https://www.icanbwell.com/access"
                         }
-                      ]
-                    }
-                  },
-                  {
-                    "id": "agerange",
-                    "url": "ageRange",
-                    "valueRange": {
-                      "high": {
-                        "unit": "years"
-                      },
-                      "low": {
-                        "unit": "years",
-                        "value": 0
-                      }
-                    }
-                  }
-                ],
-                "id": "new-patients-1",
-                "url": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/newpatients"
-              }
-            ],
-            "id": "1881603751",
-            "location": [
-              {
-                "reference": "Location/Medstar-Alias-ABC"
-              }
-            ],
-            "meta": {
-              "security": [
-                {
-                  "code": "medstar",
-                  "system": "https://www.icanbwell.com/access"
+                    ],
+                    "versionId": "1"
                 },
-                {
-                  "code": "medstar",
-                  "system": "https://www.icanbwell.com/owner"
-                }
-              ],
-              "source": "http://medstarhealth.org/provider",
-              "versionId": "1"
-            },
-            "organization": {
-              "reference": "Organization/Medstar-Alias-ABC"
-            },
-            "practitioner": {
-              "reference": "Practitioner/1679033641"
-            },
-            "resourceType": "PractitionerRole"
-          }
-        ],
-        "gender": "unknown",
-        "id": "1679033641",
-        "identifier": [
-          {
-            "system": "http://medstarhealth.org",
-            "type": {
-              "coding": [
-                {
-                  "code": "PRN",
-                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                }
-              ]
-            },
-            "use": "usual",
-            "value": "4657"
-          },
-          {
-            "system": "http://hl7.org/fhir/sid/us-npi",
-            "type": {
-              "coding": [
-                {
-                  "code": "NPI",
-                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                }
-              ]
-            },
-            "use": "official",
-            "value": "1679033641"
-          }
-        ],
-        "meta": {
-          "security": [
-            {
-              "code": "medstar",
-              "system": "https://www.icanbwell.com/access"
+                "name": [
+                    {
+                        "family": "NAJJAR  MD",
+                        "given": ["SAMER S."],
+                        "text": "SAMER S. NAJJAR  MD",
+                        "use": "usual"
+                    }
+                ],
+                "qualification": [
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "code": "MD",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                                }
+                            ]
+                        },
+                        "issuer": {
+                            "reference": "Organization/123456"
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "code": "MD",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                                }
+                            ]
+                        },
+                        "issuer": {
+                            "reference": "Organization/123456"
+                        },
+                        "period": {
+                            "end": "2021-12-11",
+                            "start": "1960-01-01"
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "code": "MD",
+                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                                }
+                            ]
+                        },
+                        "issuer": {
+                            "display": "the person who issued it"
+                        }
+                    }
+                ],
+                "resourceType": "Practitioner",
+                "telecom": [
+                    {
+                        "system": "email",
+                        "use": "work",
+                        "value": "foo@foo.com"
+                    }
+                ]
             }
-          ],
-          "versionId": "1"
-        },
-        "name": [
-          {
-            "family": "NAJJAR  MD",
-            "given": [
-              "SAMER S."
-            ],
-            "text": "SAMER S. NAJJAR  MD",
-            "use": "usual"
-          }
-        ],
-        "qualification": [
-          {
-            "code": {
-              "coding": [
-                {
-                  "code": "MD",
-                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
-                }
-              ]
-            },
-            "issuer": {
-              "reference": "Organization/123456"
-            }
-          },
-          {
-            "code": {
-              "coding": [
-                {
-                  "code": "MD",
-                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
-                }
-              ]
-            },
-            "issuer": {
-              "reference": "Organization/123456"
-            },
-            "period": {
-              "end": "2021-12-11",
-              "start": "1960-01-01"
-            }
-          },
-          {
-            "code": {
-              "coding": [
-                {
-                  "code": "MD",
-                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
-                }
-              ]
-            },
-            "issuer": {
-              "display": "the person who issued it"
-            }
-          }
-        ],
-        "resourceType": "Practitioner",
-        "telecom": [
-          {
-            "system": "email",
-            "use": "work",
-            "value": "foo@foo.com"
-          }
-        ]
-      }
-    }
-  ],
-  "id": "bundle-example",
-  "resourceType": "Bundle",
-  "type": "collection"
+        }
+    ],
+    "id": "bundle-example",
+    "resourceType": "Bundle",
+    "type": "collection"
 }

@@ -11,9 +11,31 @@
 # import unsignedInt from "../simple_types/unsignedInt.graphql"
 
 union ContractActionContext = Encounter | EpisodeOfCare
-union ContractActionRequester = Patient | RelatedPerson | Practitioner | PractitionerRole | Device | Group | Organization
-union ContractActionPerformer = RelatedPerson | Patient | Practitioner | PractitionerRole | CareTeam | Device | Substance | Organization | Location
-union ContractActionReasonReference = Condition | Observation | DiagnosticReport | DocumentReference | Questionnaire | QuestionnaireResponse
+union ContractActionRequester =
+      Patient
+    | RelatedPerson
+    | Practitioner
+    | PractitionerRole
+    | Device
+    | Group
+    | Organization
+union ContractActionPerformer =
+      RelatedPerson
+    | Patient
+    | Practitioner
+    | PractitionerRole
+    | CareTeam
+    | Device
+    | Substance
+    | Organization
+    | Location
+union ContractActionReasonReference =
+      Condition
+    | Observation
+    | DiagnosticReport
+    | DocumentReference
+    | Questionnaire
+    | QuestionnaireResponse
 
 """
 Contract.Action
@@ -24,7 +46,7 @@ type ContractAction {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -32,7 +54,7 @@ type ContractAction {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -43,113 +65,113 @@ type ContractAction {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     True if the term prohibits the  action.
     """
-    doNotPerform: Boolean        
+    doNotPerform: Boolean
     """
     Activity or service obligation to be done or not done, performed or not
     performed, effectuated or not by this Contract term.
     """
-    type: CodeableConcept!        
+    type: CodeableConcept!
     """
     Entity of the action.
     """
-    subject: [ContractSubject]        
+    subject: [ContractSubject]
     """
     Reason or purpose for the action stipulated by this Contract Provision.
     """
-    intent: CodeableConcept!        
+    intent: CodeableConcept!
     """
     Id [identifier??] of the clause or question text related to this action in the
     referenced form or QuestionnaireResponse.
     """
-    linkId: [String]        
+    linkId: [String]
     """
     Current state of the term action.
     """
-    status: CodeableConcept!        
+    status: CodeableConcept!
     """
     Encounter or Episode with primary association to specified term activity.
     """
-    context: ContractActionContext        
+    context: ContractActionContext
     """
     Id [identifier??] of the clause or question text related to the requester of
     this action in the referenced form or QuestionnaireResponse.
     """
-    contextLinkId: [String]        
+    contextLinkId: [String]
     """
     None
     """
-    occurrenceDateTime: dateTime        
+    occurrenceDateTime: dateTime
     """
     None
     """
-    occurrencePeriod: Period        
+    occurrencePeriod: Period
     """
     None
     """
-    occurrenceTiming: Timing        
+    occurrenceTiming: Timing
     """
     Who or what initiated the action and has responsibility for its activation.
     """
-    requester: [ContractActionRequester]        
+    requester: [ContractActionRequester]
     """
     Id [identifier??] of the clause or question text related to the requester of
     this action in the referenced form or QuestionnaireResponse.
     """
-    requesterLinkId: [String]        
+    requesterLinkId: [String]
     """
     The type of individual that is desired or required to perform or not perform
     the action.
     """
-    performerType: [CodeableConcept]        
+    performerType: [CodeableConcept]
     """
     The type of role or competency of an individual desired or required to perform
     or not perform the action.
     """
-    performerRole: CodeableConcept        
+    performerRole: CodeableConcept
     """
     Indicates who or what is being asked to perform (or not perform) the ction.
     """
-    performer: ContractActionPerformer        
+    performer: ContractActionPerformer
     """
     Id [identifier??] of the clause or question text related to the reason type or
     reference of this  action in the referenced form or QuestionnaireResponse.
     """
-    performerLinkId: [String]        
+    performerLinkId: [String]
     """
     Rationale for the action to be performed or not performed. Describes why the
     action is permitted or prohibited.
     """
-    reasonCode: [CodeableConcept]        
+    reasonCode: [CodeableConcept]
     """
     Indicates another resource whose existence justifies permitting or not
     permitting this action.
     """
-    reasonReference: [ContractActionReasonReference]        
+    reasonReference: [ContractActionReasonReference]
     """
     Describes why the action is to be performed or not performed in textual form.
     """
-    reason: [String]        
+    reason: [String]
     """
     Id [identifier??] of the clause or question text related to the reason type or
     reference of this  action in the referenced form or QuestionnaireResponse.
     """
-    reasonLinkId: [String]        
+    reasonLinkId: [String]
     """
     Comments made about the term action made by the requester, performer, subject
     or other participants.
     """
-    note: [Annotation]        
+    note: [Annotation]
     """
     Security labels that protects the action.
     """
-    securityLabelNumber: [unsignedInt]        
+    securityLabelNumber: [unsignedInt]
 }

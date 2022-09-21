@@ -1,4 +1,7 @@
-<% if (periods) { %>
+<% if (!Array.isArray(periods)) {
+    periods = [periods];
+} %>
+<% if (periods && periods.length > 0 && periods[0]) { %>
 <div>
     <h4><%= name %></h4>
     <table class="table">

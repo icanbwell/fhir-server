@@ -74,6 +74,18 @@ function getOrganizationForm(params) {
     return formElements;
 }
 
+function getEncounterForm(params) {
+    const formElements = [];
+    formElements.push({
+        columnHeader: 'Period',
+        label: 'Date',
+        name: 'date',
+        sortField: 'period',
+        value: params.date ? params.date : '',
+    });
+    return formElements;
+}
+
 const getFormData = (req, resourceName) => {
     const params = getModifierParams(req);
     let formData = [];
@@ -88,6 +100,9 @@ const getFormData = (req, resourceName) => {
         case 'Organization':
             formData = formData.concat(getOrganizationForm(params));
             break;
+        case 'Encounter':
+            formData = formData.concat(getEncounterForm(params));
+            break;
     }
 
     formData.push({
@@ -95,6 +110,14 @@ const getFormData = (req, resourceName) => {
         name: '_source',
         sortField: 'meta.source',
         value: params._source ? params._source : '',
+    });
+
+    formData.push({
+        label: 'Id',
+        name: 'id',
+        sortField: 'id',
+        value: params.id ? params.id : '',
+        useExactMatch: true
     });
 
     return formData;
@@ -141,15 +164,9 @@ const getHasNext = (res) => {
     return res.resources.length === searchLimit;
 };
 
-const getLastUpdate = function (req, modifier) {
+const getLastUpdate = function (req, index) {
     const searchParams = getSearchParams(req);
-    let dateString = '';
-    Object.keys(searchParams).forEach((key) => {
-        if (key.includes('_lastUpdated') && key.includes(modifier)) {
-            dateString = searchParams[`${key}`];
-        }
-    });
-    return dateString;
+    return searchParams['_lastUpdated'] ? searchParams['_lastUpdated'].at(index) : '';
 };
 
 const zeroPad = (number) => {
@@ -190,6 +207,8 @@ const getFieldValue = (res, name) => {
             return res.name ? res.name.map((n) => n.family).join(', ') : '';
         case 'name':
             return res.name ? res.name : '';
+        case 'id':
+            return res.id ? res.id : '';
     }
     return '';
 };

@@ -1,0 +1,47 @@
+<% if (!Array.isArray(performers)) {
+    performers = [performers];
+} %>
+<% if (performers && performers.length > 0 && performers[0]) { %>
+    <div>
+        <h4><%= name; %></h4>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Actor</th>
+                <th scope="col">Text</th>
+                <th scope="col">Code System</th>
+                <th scope="col">Code</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% performers.forEach(function(performer){ %>
+                <% if (performer.function) { %>
+                    <% performer.function.forEach(function(type){ %>
+                        <% if (type.coding) { %>
+                            <% type.coding.forEach(function(coding){ %>
+                                <tr>
+                                    <td>
+                                        <a href="/4_0_0/<%= performer.actor.reference; %>"><%= performer.actor.reference; %></a>
+                                    </td>
+                                    <td><%= performer.function.text; %></td>
+                                    <td><%= coding.system; %></td>
+                                    <td><%= coding.code; %></td>
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td>
+                            <a href="/4_0_0/<%= performer.actor.reference; %>"><%= performer.actor.reference; %></a>
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                <% } %>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+<% } %>

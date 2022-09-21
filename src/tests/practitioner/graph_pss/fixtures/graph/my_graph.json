@@ -1,87 +1,87 @@
 {
-  "resourceType": "GraphDefinition",
-  "id": "o",
-  "name": "provider_everything",
-  "status": "active",
-  "start": "Practitioner",
-  "link": [
-    {
-      "description": "Practitioner Roles for this Practitioner",
-      "target": [
+    "resourceType": "GraphDefinition",
+    "id": "o",
+    "name": "provider_everything",
+    "status": "active",
+    "start": "Practitioner",
+    "link": [
         {
-          "type": "PractitionerRole",
-          "params": "practitioner={ref}&_security=https://www.icanbwell.com/access|myhealthsystem",
-          "link": [
-            {
-              "path": "organization",
-              "target": [
+            "description": "Practitioner Roles for this Practitioner",
+            "target": [
                 {
-                  "type": "Organization"
-                }
-              ]
-            },
-            {
-              "path": "location[x]",
-              "target": [
-                {
-                  "type": "Location"
-                }
-              ]
-            },
-            {
-              "path": "healthcareService[x]",
-              "target": [
-                {
-                  "type": "HealthcareService"
-                }
-              ]
-            },
-            {
-              "path": "extension.extension:url=plan",
-              "target": [
-                {
-                  "link": [
-                    {
-                      "path": "valueReference",
-                      "target": [
+                    "type": "PractitionerRole",
+                    "params": "practitioner={ref}&_security=https://www.icanbwell.com/access|myhealthsystem",
+                    "link": [
                         {
-                          "type": "InsurancePlan"
+                            "path": "organization",
+                            "target": [
+                                {
+                                    "type": "Organization"
+                                }
+                            ]
+                        },
+                        {
+                            "path": "location[x]",
+                            "target": [
+                                {
+                                    "type": "Location"
+                                }
+                            ]
+                        },
+                        {
+                            "path": "healthcareService[x]",
+                            "target": [
+                                {
+                                    "type": "HealthcareService"
+                                }
+                            ]
+                        },
+                        {
+                            "path": "extension.extension:url=plan",
+                            "target": [
+                                {
+                                    "link": [
+                                        {
+                                            "path": "valueReference",
+                                            "target": [
+                                                {
+                                                    "type": "InsurancePlan"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "target": [
+                                {
+                                    "type": "Schedule",
+                                    "params": "actor={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
+                                }
+                            ]
                         }
-                      ]
-                    }
-                  ]
+                    ]
                 }
-              ]
-            },
-            {
-              "target": [
+            ]
+        },
+        {
+            "description": "Group",
+            "target": [
                 {
-                  "type": "Schedule",
-                  "params": "actor={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
+                    "type": "Group",
+                    "params": "member={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
                 }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "description": "Group",
-      "target": [
+            ]
+        },
         {
-          "type": "Group",
-          "params": "member={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
+            "description": "Review score for the practitioner",
+            "target": [
+                {
+                    "type": "MeasureReport",
+                    "params": "subject={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "description": "Review score for the practitioner",
-      "target": [
-        {
-          "type": "MeasureReport",
-          "params": "subject={ref}&_security=https://www.icanbwell.com/access|myhealthsystem"
-        }
-      ]
-    }
-  ]
+    ]
 }

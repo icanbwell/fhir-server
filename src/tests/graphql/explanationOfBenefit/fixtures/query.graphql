@@ -1,9 +1,7 @@
 query {
-    explanationOfBenefit (
-        _id: {
-            values: ["WPS-Claim-230916613369", "WPS-Claim-429017018331"]
-        },
-        _sort: ["id"],
+    explanationOfBenefit(
+        _id: { values: ["WPS-Claim-230916613369", "WPS-Claim-429017018331"] }
+        _sort: ["id"]
         _count: 2
     ) {
         meta {

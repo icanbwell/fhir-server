@@ -47,7 +47,6 @@
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import Meta from "../complex_types/meta.graphql"
 
-
 """
 Task.Input
     A task to be performed.
@@ -56,7 +55,7 @@ type TaskInput {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -64,7 +63,7 @@ type TaskInput {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -75,215 +74,215 @@ type TaskInput {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     A code or description indicating how the input is intended to be used as part
     of the task execution.
     """
-    type: CodeableConcept!        
+    type: CodeableConcept!
     """
     None
     """
-    valueBase64Binary: base64Binary        
+    valueBase64Binary: base64Binary
     """
     None
     """
-    valueBoolean: Boolean        
+    valueBoolean: Boolean
     """
     None
     """
-    valueCanonical: canonical        
+    valueCanonical: canonical
     """
     None
     """
-    valueCode: code        
+    valueCode: code
     """
     None
     """
-    valueDate: date        
+    valueDate: date
     """
     None
     """
-    valueDateTime: dateTime        
+    valueDateTime: dateTime
     """
     None
     """
-    valueDecimal: decimal        
+    valueDecimal: decimal
     """
     None
     """
-    valueId: id        
+    valueId: id
     """
     None
     """
-    valueInstant: instant        
+    valueInstant: instant
     """
     None
     """
-    valueInteger: Int        
+    valueInteger: Int
     """
     None
     """
-    valueMarkdown: markdown        
+    valueMarkdown: markdown
     """
     None
     """
-    valueOid: oid        
+    valueOid: oid
     """
     None
     """
-    valuePositiveInt: Int        
+    valuePositiveInt: Int
     """
     None
     """
-    valueString: String        
+    valueString: String
     """
     None
     """
-    valueTime: time        
+    valueTime: time
     """
     None
     """
-    valueUnsignedInt: unsignedInt        
+    valueUnsignedInt: unsignedInt
     """
     None
     """
-    valueUri: uri        
+    valueUri: uri
     """
     None
     """
-    valueUrl: url        
+    valueUrl: url
     """
     None
     """
-    valueUuid: uuid        
+    valueUuid: uuid
     """
     None
     """
-    valueAddress: Address        
+    valueAddress: Address
     """
     None
     """
-    valueAge: Quantity        
+    valueAge: Quantity
     """
     None
     """
-    valueAnnotation: Annotation        
+    valueAnnotation: Annotation
     """
     None
     """
-    valueAttachment: Attachment        
+    valueAttachment: Attachment
     """
     None
     """
-    valueCodeableConcept: CodeableConcept        
+    valueCodeableConcept: CodeableConcept
     """
     None
     """
-    valueCoding: Coding        
+    valueCoding: Coding
     """
     None
     """
-    valueContactPoint: ContactPoint        
+    valueContactPoint: ContactPoint
     """
     None
     """
-    valueCount: Quantity        
+    valueCount: Quantity
     """
     None
     """
-    valueDistance: Quantity        
+    valueDistance: Quantity
     """
     None
     """
-    valueDuration: Quantity        
+    valueDuration: Quantity
     """
     None
     """
-    valueHumanName: HumanName        
+    valueHumanName: HumanName
     """
     None
     """
-    valueIdentifier: Identifier        
+    valueIdentifier: Identifier
     """
     None
     """
-    valueMoney: Money        
+    valueMoney: Money
     """
     None
     """
-    valuePeriod: Period        
+    valuePeriod: Period
     """
     None
     """
-    valueQuantity: Quantity        
+    valueQuantity: Quantity
     """
     None
     """
-    valueRange: Range        
+    valueRange: Range
     """
     None
     """
-    valueRatio: Ratio        
+    valueRatio: Ratio
     """
     None
     """
-    valueReference: Resource        
+    valueReference: Resource
     """
     None
     """
-    valueSampledData: SampledData        
+    valueSampledData: SampledData
     """
     None
     """
-    valueSignature: Signature        
+    valueSignature: Signature
     """
     None
     """
-    valueTiming: Timing        
+    valueTiming: Timing
     """
     None
     """
-    valueContactDetail: ContactDetail        
+    valueContactDetail: ContactDetail
     """
     None
     """
-    valueContributor: Contributor        
+    valueContributor: Contributor
     """
     None
     """
-    valueDataRequirement: DataRequirement        
+    valueDataRequirement: DataRequirement
     """
     None
     """
-    valueExpression: Expression        
+    valueExpression: Expression
     """
     None
     """
-    valueParameterDefinition: ParameterDefinition        
+    valueParameterDefinition: ParameterDefinition
     """
     None
     """
-    valueRelatedArtifact: RelatedArtifact        
+    valueRelatedArtifact: RelatedArtifact
     """
     None
     """
-    valueTriggerDefinition: TriggerDefinition        
+    valueTriggerDefinition: TriggerDefinition
     """
     None
     """
-    valueUsageContext: UsageContext        
+    valueUsageContext: UsageContext
     """
     None
     """
-    valueDosage: Dosage        
+    valueDosage: Dosage
     """
     None
     """
-    valueMeta: Meta        
+    valueMeta: Meta
 }

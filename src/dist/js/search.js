@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedFunction
+
 const formElement = document.getElementById('searchForm');
 const advSearchFormElement = document.getElementById('advSearchForm');
 const resetButtonElement = document.getElementById('resetFormButton');
@@ -5,12 +7,19 @@ resetButtonElement.addEventListener('click', resetSubmit);
 formElement.addEventListener('submit', submitSearchForm);
 
 const dateRangeElement = document.getElementById('_lastUpdateRange');
-const datepicker = new DateRangePicker(dateRangeElement, {
+const dateRangePicker = new DateRangePicker(dateRangeElement, {
     autohide: true,
     format: 'yyyy-mm-dd',
     clearBtn: true,
     allowOneSidedRange: true,
 });
+
+const dateElement = document.getElementById('datePicker');
+const datePicker = dateElement ? new Datepicker(dateElement, {
+    autohide: true,
+    format: 'yyyy-mm-dd',
+    clearBtn: true,
+}) : null;
 
 function advSearch(event) {
     if (event) {

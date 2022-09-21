@@ -1,7 +1,5 @@
-const { dateQueryBuilder, dateQueryBuilderNative } = require('../../../utils/querybuilder.util');
-const { isColumnDateType } = require('../../common/isColumnDateType');
-const { searchParameterQueries } = require('../../../searchParameters/searchParameters');
-const { fhirFilterTypes } = require('../customQueries');
+const {dateQueryBuilder, dateQueryBuilderNative} = require('../../../utils/querybuilder.util');
+const {isColumnDateType} = require('../../common/isColumnDateType');
 
 function isPeriodField(fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod';
@@ -13,32 +11,34 @@ function isPeriodField(fieldString) {
  * @param {string | string[]} queryParameterValue
  * @param {import('../common/types').SearchParameterDefinition} propertyObj
  * @param {Object[]} and_segments
- * @param {string} resourceName
+ * @param {string} resourceType
  * @param {Set} columns
  * @returns {*[]}
  */
-function filterByDateTime(queryParameterValue, propertyObj, and_segments, resourceName, columns) {
+function filterByDateTime({queryParameterValue, propertyObj, and_segments, resourceType, columns}) {
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
+    }
+    if (queryParameterValue.join('').trim() === '') {
+        return [];
     }
     for (const dateQueryItem of queryParameterValue) {
         // prettier-ignore
         // eslint-disable-next-line security/detect-object-injection
-        const resourceSearch = searchParameterQueries[resourceName];
-        const hasDateParam = resourceSearch[fhirFilterTypes.date];
-        const isDateSearchingPeriod = hasDateParam ? isPeriodField(hasDateParam['field']) : false;
+        const isDateSearchingPeriod = isPeriodField(propertyObj.field);
         const dateRangeSegments = (fieldName, appendArray) => {
+            const alphaLength = dateQueryItem.replace(/[^a-z]/gi, '').length;
             const rangeArray = appendArray ? appendArray : [];
             rangeArray.push({
                 [`${fieldName}.start`]: dateQueryBuilder(
-                    `le${dateQueryItem.slice(2)}`,
+                    `le${dateQueryItem.slice(alphaLength)}`,
                     propertyObj.type,
                     ''
                 ),
             });
             rangeArray.push({
                 [`${fieldName}.end`]: dateQueryBuilder(
-                    `ge${dateQueryItem.slice(2)}`,
+                    `ge${dateQueryItem.slice(alphaLength)}`,
                     propertyObj.type,
                     ''
                 ),
@@ -53,16 +53,16 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
             // if there are multiple fields
             and_segments.push({
                 $or: propertyObj.fields.map((f) => {
-                    return isPeriodField(f)
-                        ? { $and: dateRangeSegments('effectivePeriod', null) }
-                        : {
-                              [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
-                          };
+                    return isPeriodField(f) ?
+                        {$and: dateRangeSegments('effectivePeriod')} :
+                        {
+                            [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
+                        };
                 }),
             });
         } else if (
             propertyObj.field === 'meta.lastUpdated' ||
-            isColumnDateType(resourceName, propertyObj.field)
+            isColumnDateType(resourceType, propertyObj.field)
         ) {
             // if this of native Date type
             // this field stores the date as a native date, so we can do faster queries
@@ -85,5 +85,5 @@ function filterByDateTime(queryParameterValue, propertyObj, and_segments, resour
 }
 
 module.exports = {
-    filterByDateTime: filterByDateTime,
+    filterByDateTime,
 };

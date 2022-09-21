@@ -11,8 +11,14 @@
 # import instant from "../simple_types/instant.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
-union AppointmentResponseActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
-
+union AppointmentResponseActor =
+      Patient
+    | Practitioner
+    | PractitionerRole
+    | RelatedPerson
+    | Device
+    | HealthcareService
+    | Location
 
 """
 AppointmentResponse
@@ -26,24 +32,24 @@ type AppointmentResponse {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: id        
+    id: id
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
     version changes to the resource.
     """
-    meta: Meta        
+    meta: Meta
     """
     A reference to a set of rules that were followed when the resource was
     constructed, and which must be understood when processing the content. Often,
     this is a reference to an implementation guide that defines the special rules
     along with other profiles etc.
     """
-    implicitRules: uri        
+    implicitRules: uri
     """
     The base language in which the resource is written.
     """
-    language: code        
+    language: code
     """
     A human-readable narrative that contains a summary of the resource and can be
     used to represent the content of the resource to a human. The narrative need
@@ -52,13 +58,13 @@ type AppointmentResponse {
     Resource definitions may define what content should be represented in the
     narrative to ensure clinical safety.
     """
-    text: Narrative        
+    text: Narrative
     """
     These resources do not have an independent existence apart from the resource
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]        
+    contained: [ResourceContainer]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,
@@ -66,7 +72,7 @@ type AppointmentResponse {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -77,41 +83,41 @@ type AppointmentResponse {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     This records identifiers associated with this appointment response concern
     that are defined by business processes and/ or used to refer to it when a
     direct URL reference to the resource itself is not appropriate.
     """
-    identifier: [Identifier]        
+    identifier: [Identifier]
     """
     Appointment that this response is replying to.
     """
-    appointment: Appointment!        
+    appointment: Appointment!
     """
     Date/Time that the appointment is to take place, or requested new start time.
     """
-    start: instant        
+    start: instant
     """
     This may be either the same as the appointment request to confirm the details
     of the appointment, or alternately a new time to request a re-negotiation of
     the end time.
     """
-    end: instant        
+    end: instant
     """
     Role of participant in the appointment.
     """
-    participantType: [CodeableConcept]        
+    participantType: [CodeableConcept]
     """
     A Person, Location, HealthcareService, or Device that is participating in the
     appointment.
     """
-    actor: AppointmentResponseActor        
+    actor: AppointmentResponseActor
     """
     Participation status of the participant. When the status is declined or
     tentative if the start/end times are different to the appointment, then these
@@ -119,9 +125,9 @@ type AppointmentResponse {
     accepted, the times can either be the time of the appointment (as a
     confirmation of the time) or can be empty.
     """
-    participantStatus: code!        
+    participantStatus: code!
     """
     Additional comments about the appointment.
     """
-    comment: String        
+    comment: String
 }

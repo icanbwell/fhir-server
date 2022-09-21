@@ -1,31 +1,29 @@
 {
-  "resourceType": "Patient",
-  "id": "3",
-  "meta": {
-    "source": "http://medstarhealth.org/providerBad",
-    "security": [
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
-      },
-      {
-        "system": "https://www.icanbwell.com/owner",
-        "code": "medstar2"
-      }
+    "resourceType": "Patient",
+    "id": "3",
+    "meta": {
+        "source": "http://medstarhealth.org/providerBad",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "medstar2"
+            }
+        ]
+    },
+    "birthDate": "2017-01-01",
+    "gender": "female",
+    "name": [
+        {
+            "use": "usual",
+            "text": "t",
+            "family": "PATIENT1",
+            "given": ["SHYLA"],
+            "prefix": [],
+            "suffix": []
+        }
     ]
-  },
-  "birthDate": "2017-01-01",
-  "gender": "female",
-  "name": [
-    {
-      "use": "usual",
-      "text": "t",
-      "family": "PATIENT1",
-      "given": [
-        "SHYLA"
-      ],
-      "prefix": [],
-      "suffix": []
-    }
-  ]
 }

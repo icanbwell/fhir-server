@@ -2,7 +2,6 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
-
 """
 SubstanceSourceMaterial.Hybrid
     Source material shall capture information on the taxonomic and anatomical
@@ -24,7 +23,7 @@ type SubstanceSourceMaterialHybrid {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -32,7 +31,7 @@ type SubstanceSourceMaterialHybrid {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the element and that modifies the understanding of the element
@@ -43,37 +42,37 @@ type SubstanceSourceMaterialHybrid {
     implementer can define an extension, there is a set of requirements that SHALL
     be met as part of the definition of the extension. Applications processing a
     resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     The identifier of the maternal species constituting the hybrid organism shall
     be specified based on a controlled vocabulary. For plants, the parents aren’t
     always known, and it is unlikely that it will be known which is maternal and
     which is paternal.
     """
-    maternalOrganismId: String        
+    maternalOrganismId: String
     """
     The name of the maternal species constituting the hybrid organism shall be
     specified. For plants, the parents aren’t always known, and it is unlikely
     that it will be known which is maternal and which is paternal.
     """
-    maternalOrganismName: String        
+    maternalOrganismName: String
     """
     The identifier of the paternal species constituting the hybrid organism shall
     be specified based on a controlled vocabulary.
     """
-    paternalOrganismId: String        
+    paternalOrganismId: String
     """
     The name of the paternal species constituting the hybrid organism shall be
     specified.
     """
-    paternalOrganismName: String        
+    paternalOrganismName: String
     """
     The hybrid type of an organism shall be specified.
     """
-    hybridType: CodeableConcept        
+    hybridType: CodeableConcept
 }

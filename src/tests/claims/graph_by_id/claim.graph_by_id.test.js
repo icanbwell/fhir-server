@@ -1,7 +1,3 @@
-/* eslint-disable no-unused-vars */
-const supertest = require('supertest');
-
-const {app} = require('../../../app');
 // claim
 const claimResource = require('./fixtures/claim/explanation_of_benefits.json');
 const practitionerResource = require('./fixtures/claim/practitioner.json');
@@ -14,8 +10,13 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 const expectedResource_230916613368 = require('./fixtures/expected/expected-WPS-Claim-230916613368.json');
 const expectedResource_230916613369 = require('./fixtures/expected/expected-WPS-Claim-230916613369.json');
 
-const request = supertest(app);
-const {commonBeforeEach, commonAfterEach, getHeaders} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+} = require('../../common');
+const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
 describe('Claim Graph By Id Contained Tests', () => {
     beforeEach(async () => {
@@ -28,6 +29,7 @@ describe('Claim Graph By Id Contained Tests', () => {
 
     describe('Graph By Id Contained Tests', () => {
         test('Graph contained with multiple targets works properly', async () => {
+            const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
                 .set(getHeaders())
@@ -40,11 +42,14 @@ describe('Claim Graph By Id Contained Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1376656959/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
             console.log('------- response practitionerResource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
+            expect(resp.body.errors).toBeUndefined();
+            expect(resp.body.issue).toBeUndefined();
             expect(resp.body['created']).toBe(true);
 
             resp = await request
@@ -88,18 +93,18 @@ describe('Claim Graph By Id Contained Tests', () => {
             console.log('------- end response  ------------');
             let body = resp.body;
             delete body['timestamp'];
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['fullUrl'];
                 delete element['resource']['meta']['lastUpdated'];
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }
             });
             let expected = expectedResource_230916613368;
             delete expected['timestamp'];
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete element['fullUrl'];
                 if ('meta' in element['resource']) {
                     delete element['resource']['meta']['lastUpdated'];
@@ -109,7 +114,7 @@ describe('Claim Graph By Id Contained Tests', () => {
                     delete element['$schema'];
                 }
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }
@@ -127,18 +132,18 @@ describe('Claim Graph By Id Contained Tests', () => {
             console.log('------- end response  ------------');
             body = resp.body;
             delete body['timestamp'];
-            body.entry.forEach(element => {
+            body.entry.forEach((element) => {
                 delete element['fullUrl'];
                 delete element['resource']['meta']['lastUpdated'];
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }
             });
             expected = expectedResource_230916613369;
             delete expected['timestamp'];
-            expected.entry.forEach(element => {
+            expected.entry.forEach((element) => {
                 delete element['fullUrl'];
                 if ('meta' in element['resource']) {
                     delete element['resource']['meta']['lastUpdated'];
@@ -148,7 +153,7 @@ describe('Claim Graph By Id Contained Tests', () => {
                     delete element['$schema'];
                 }
                 if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach(containedElement => {
+                    element['resource']['contained'].forEach((containedElement) => {
                         delete containedElement['meta']['lastUpdated'];
                     });
                 }

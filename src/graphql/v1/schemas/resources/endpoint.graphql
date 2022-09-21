@@ -14,8 +14,6 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import url from "../simple_types/url.graphql"
 
-
-
 """
 Endpoint
     The technical details of an endpoint that can be used for electronic services,
@@ -29,24 +27,24 @@ type Endpoint {
     The logical id of the resource, as used in the URL for the resource. Once
     assigned, this value never changes.
     """
-    id: id        
+    id: id
     """
     The metadata about the resource. This is content that is maintained by the
     infrastructure. Changes to the content might not always be associated with
     version changes to the resource.
     """
-    meta: Meta        
+    meta: Meta
     """
     A reference to a set of rules that were followed when the resource was
     constructed, and which must be understood when processing the content. Often,
     this is a reference to an implementation guide that defines the special rules
     along with other profiles etc.
     """
-    implicitRules: uri        
+    implicitRules: uri
     """
     The base language in which the resource is written.
     """
-    language: code        
+    language: code
     """
     A human-readable narrative that contains a summary of the resource and can be
     used to represent the content of the resource to a human. The narrative need
@@ -55,13 +53,13 @@ type Endpoint {
     Resource definitions may define what content should be represented in the
     narrative to ensure clinical safety.
     """
-    text: Narrative        
+    text: Narrative
     """
     These resources do not have an independent existence apart from the resource
     that contains them - they cannot be identified independently, and nor can they
     have their own independent transaction scope.
     """
-    contained: [ResourceContainer]        
+    contained: [ResourceContainer]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource. To make the use of extensions safe and manageable,
@@ -69,7 +67,7 @@ type Endpoint {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     May be used to represent additional information that is not part of the basic
     definition of the resource and that modifies the understanding of the element
@@ -80,63 +78,63 @@ type Endpoint {
     implementer is allowed to define an extension, there is a set of requirements
     that SHALL be met as part of the definition of the extension. Applications
     processing a resource are required to check for modifier extensions.
-    
+
     Modifier extensions SHALL NOT change the meaning of any elements on Resource
     or DomainResource (including cannot change the meaning of modifierExtension
     itself).
     """
-    modifierExtension: [Extension]        
+    modifierExtension: [Extension]
     """
     Identifier for the organization that is used to identify the endpoint across
     multiple disparate systems.
     """
-    identifier: [Identifier]        
+    identifier: [Identifier]
     """
     active | suspended | error | off | test.
     """
-    status: code!        
+    status: code!
     """
     A coded value that represents the technical details of the usage of this
     endpoint, such as what WSDLs should be used in what way. (e.g.
     XDS.b/DICOM/cds-hook).
     """
-    connectionType: Coding!        
+    connectionType: Coding!
     """
     A friendly name that this endpoint can be referred to with.
     """
-    name: String        
+    name: String
     """
     The organization that manages this endpoint (even if technically another
     organization is hosting this in the cloud, it is the organization associated
     with the data).
     """
-    managingOrganization: Organization        
+    managingOrganization: Organization
     """
     Contact details for a human to contact about the subscription. The primary use
     of this for system administrator troubleshooting.
     """
-    contact: [ContactPoint]        
+    contact: [ContactPoint]
     """
     The interval during which the endpoint is expected to be operational.
     """
-    period: Period        
+    period: Period
     """
     The payload type describes the acceptable content that can be communicated on
     the endpoint.
     """
-    payloadType: [CodeableConcept]!        
+    payloadType: [CodeableConcept]!
     """
     The mime type to send the payload in - e.g. application/fhir+xml,
     application/fhir+json. If the mime type is not specified, then the sender
     could send any content (including no content depending on the connectionType).
     """
-    payloadMimeType: [code]        
+    payloadMimeType: [code]
     """
     The uri that describes the actual end-point to connect to.
     """
-    address: url!        
+    address: url!
     """
     Additional headers / information to send as part of the notification.
     """
-    header: [String]        
+    header: [String]
 }

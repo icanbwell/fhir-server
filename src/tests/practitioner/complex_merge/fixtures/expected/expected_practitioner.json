@@ -5,12 +5,12 @@
         "meta": {
             "versionId": "2",
             "lastUpdated": "2020-11-29T02:53:21+00:00",
-      "security": [
-        {
-          "system": "https://www.icanbwell.com/access",
-          "code": "medstar"
-        }
-      ]
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "medstar"
+                }
+            ]
         },
         "identifier": [
             {
@@ -46,17 +46,13 @@
                 "use": "usual",
                 "text": "SAMER S. NAJJAR  MD",
                 "family": "NAJJAR  MD",
-                "given": [
-                    "SAMER S."
-                ]
+                "given": ["SAMER S."]
             },
             {
                 "use": "usual",
                 "text": "NAJJAR  MD, SAMER S.",
                 "family": "NAJJAR  MD",
-                "given": [
-                    "SAMER S."
-                ]
+                "given": ["SAMER S."]
             }
         ],
         "telecom": [

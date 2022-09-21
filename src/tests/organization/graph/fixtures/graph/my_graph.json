@@ -1,33 +1,33 @@
 {
-  "resourceType": "GraphDefinition",
-  "id": "o",
-  "name": "organization_everything",
-  "status": "active",
-  "start": "Organization",
-  "link": [
-    {
-      "target": [
+    "resourceType": "GraphDefinition",
+    "id": "o",
+    "name": "organization_everything",
+    "status": "active",
+    "start": "Organization",
+    "link": [
         {
-          "type": "Location",
-          "params": "organization={ref}"
-        }
-      ]
-    },
-    {
-      "target": [
+            "target": [
+                {
+                    "type": "Location",
+                    "params": "organization={ref}"
+                }
+            ]
+        },
         {
-          "type": "HealthcareService",
-          "params": "organization={ref}"
-        }
-      ]
-    },
-    {
-      "target": [
+            "target": [
+                {
+                    "type": "HealthcareService",
+                    "params": "organization={ref}"
+                }
+            ]
+        },
         {
-          "type": "OrganizationAffiliation",
-          "params": "participating-organization={ref}"
+            "target": [
+                {
+                    "type": "OrganizationAffiliation",
+                    "params": "participating-organization={ref}"
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

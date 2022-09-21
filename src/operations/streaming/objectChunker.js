@@ -8,7 +8,7 @@ class ObjectChunker extends Transform {
      * @param {number} chunkSize
      * @param {AbortSignal} signal
      */
-    constructor(chunkSize, signal) {
+    constructor({chunkSize, signal}) {
         super({objectMode: true});
         this._buffer = [];
         this._chunkSize = chunkSize;
@@ -36,7 +36,7 @@ class ObjectChunker extends Transform {
             for (const chunk1 of chunks) {
                 if (this._chunkSize === 0 || this._buffer.length === this._chunkSize) {
                     if (isTrue(env.LOG_STREAM_STEPS)) {
-                        console.log('ObjectChunker: _transform: write buffer to output');
+                        console.log(JSON.stringify({message: 'ObjectChunker: _transform: write buffer to output'}));
                     }
                     this.push(this._buffer);
                     this._buffer = [];
@@ -55,7 +55,7 @@ class ObjectChunker extends Transform {
      */
     _flush(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log('ObjectChunker: _flush');
+            console.log(JSON.stringify({message: 'ObjectChunker: _flush'}));
         }
         try {
             if (this._buffer.length > 0) {
@@ -69,5 +69,5 @@ class ObjectChunker extends Transform {
 }
 
 module.exports = {
-    ObjectChunker: ObjectChunker
+    ObjectChunker
 };

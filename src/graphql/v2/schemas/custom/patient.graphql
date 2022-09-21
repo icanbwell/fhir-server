@@ -12,22 +12,23 @@ extend type Patient {
 }
 
 """
-    updateGeneralPractitioner
-        mutation to update or remove a general practitioner for a patient
+updateGeneralPractitioner
+    mutation to update or remove a general practitioner for a patient
 """
 type Mutation {
     updateGeneralPractitioner(
         """
         patientId String the target for the general practitioner to be updated
         """
-        patientId: String,
+        patientId: String
         """
         practitionerId String the targeted practitioner id for the patient
         """
-        practitionerId: String,
-         """
+        practitionerId: String
+        """
         remove
         optional Boolean parameter to mark the request to remove the practitioner id as the patients general practitioner
         """
-        remove: Boolean): Patient
+        remove: Boolean
+    ): Patient
 }

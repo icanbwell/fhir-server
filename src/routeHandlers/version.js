@@ -3,11 +3,12 @@
  */
 
 const env = require('var');
+const { getImageVersion } = require('../utils/getImageVersion');
 module.exports.handleVersion = (req, res) => {
     const image = env.DOCKER_IMAGE || '';
     if (image) {
-        return res.json({version: image.slice(image.lastIndexOf(':') + 1), image: image});
+        return res.json({ version: getImageVersion(), image: image });
     } else {
-        return res.json({version: 'unknown', image: 'unknown'});
+        return res.json({ version: 'unknown', image: 'unknown' });
     }
 };

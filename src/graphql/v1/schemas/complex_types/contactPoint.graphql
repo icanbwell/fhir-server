@@ -3,7 +3,6 @@
 # import code from "../simple_types/code.graphql"
 # import Period from "../complex_types/period.graphql"
 
-
 """
 ContactPoint
     Details for all kinds of technology mediated contact points for a person or
@@ -15,7 +14,7 @@ type ContactPoint {
     """
     None
     """
-    id: String        
+    id: String
     """
     May be used to represent additional information that is not part of the basic
     definition of the element. To make the use of extensions safe and manageable,
@@ -23,28 +22,28 @@ type ContactPoint {
     extensions. Though any implementer can define an extension, there is a set of
     requirements that SHALL be met as part of the definition of the extension.
     """
-    extension: [Extension]        
+    extension: [Extension]
     """
     Telecommunications form for contact point - what communications system is
     required to make use of the contact.
     """
-    system: code        
+    system: code
     """
     The actual contact point details, in a form that is meaningful to the
     designated communication system (i.e. phone number or email address).
     """
-    value: String        
+    value: String
     """
     Identifies the purpose for the contact point.
     """
-    use: code        
+    use: code
     """
     Specifies a preferred order in which to use a set of contacts. ContactPoints
     with lower rank values are more preferred than those with higher rank values.
     """
-    rank: Int        
+    rank: Int
     """
     Time period when the contact point was/is in use.
     """
-    period: Period        
+    period: Period
 }

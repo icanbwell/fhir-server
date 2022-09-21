@@ -1,127 +1,225 @@
-const {logRequest, logError} = require('../common/logging');
-const {verifyHasValidScopes, getAccessCodesFromScopes} = require('../security/scopes');
-const globals = require('../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB} = require('../../constants');
+// noinspection ExceptionCaughtLocallyJS
+
 const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
 const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
-const {logAuditEntryAsync} = require('../../utils/auditLogger');
 const {isTrue} = require('../../utils/isTrue');
-const {VERSIONS} = require('@asymmetrik/node-fhir-server-core').constants;
-/**
- * does a FHIR Remove (DELETE)
- * @param {import('../../utils/requestInfo').RequestInfo} requestInfo
- * @param {Object} args
- * @param {string} resourceName
- * @param {string} collection_name
- */
-// eslint-disable-next-line no-unused-vars
-module.exports.remove = async (requestInfo, args, resourceName, collection_name) => {
-    const user = requestInfo.user;
-    const scope = requestInfo.scope;
+const moment = require('moment-timezone');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {AuditLogger} = require('../../utils/auditLogger');
+const {ScopesManager} = require('../security/scopesManager');
+const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ScopesValidator} = require('../security/scopesValidator');
+const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {ConfigManager} = require('../../utils/configManager');
 
-    logRequest(user, `${resourceName} >>> remove`);
+class RemoveOperation {
+    /**
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {AuditLogger} auditLogger
+     * @param {ScopesManager} scopesManager
+     * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ScopesValidator} scopesValidator
+     * @param {ConfigManager} configManager
+     */
+    constructor(
+        {
+            databaseQueryFactory,
+            auditLogger,
+            scopesManager,
+            fhirLoggingManager,
+            scopesValidator,
+            configManager
+        }
+    ) {
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {AuditLogger}
+         */
+        this.auditLogger = auditLogger;
+        assertTypeEquals(auditLogger, AuditLogger);
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
+        /**
+         * @type {FhirLoggingManager}
+         */
+        this.fhirLoggingManager = fhirLoggingManager;
+        assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ScopesValidator}
+         */
+        this.scopesValidator = scopesValidator;
+        assertTypeEquals(scopesValidator, ScopesValidator);
 
-    if (args['id'] === '0') {
-        delete args['id'];
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
-     * @type {string[]}
+     * does a FHIR Remove (DELETE)
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
      */
-    let securityTags = [];
-    // add any access codes from scopes
-    const accessCodes = getAccessCodesFromScopes('read', user, scope);
-    if (env.AUTH_ENABLED === '1') {
-        // fail if there are no access codes
-        if (accessCodes.length === 0) {
-            let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
-            throw new ForbiddenError(errorMessage);
-        }
-        // see if we have the * access code
-        else if (accessCodes.includes('*')) {
-            // no security check since user has full access to everything
-        } else {
-            securityTags = accessCodes;
-        }
-    }
-    verifyHasValidScopes(resourceName, 'write', user, scope);
+    async remove(requestInfo, args, resourceType) {
+        assertIsValid(requestInfo !== undefined);
+        assertIsValid(args !== undefined);
+        assertIsValid(resourceType !== undefined);
+        const currentOperationName = 'remove';
 
-    let {base_version} = args;
-    /**
-     * @type {import('mongodb').Document}
-     */
-    let query = {};
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
+        const {user, scope, /** @type {string|null} */ requestId} = requestInfo;
 
-    // eslint-disable-next-line no-useless-catch
-    try {
-        if (base_version === VERSIONS['3_0_1']) {
-            query = buildStu3SearchQuery(args);
-        } else if (base_version === VERSIONS['1_0_2']) {
-            query = buildDstu2SearchQuery(args);
-        } else {
-            ({query} = buildR4SearchQuery(resourceName, args));
+        if (args['id'] === '0') {
+            delete args['id'];
         }
-    } catch (e) {
-        throw e;
-    }
+        /**
+         * @type {string[]}
+         */
+        let securityTags = [];
+        // add any access codes from scopes
+        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
+        if (env.AUTH_ENABLED === '1') {
+            // fail if there are no access codes
+            if (accessCodes.length === 0) {
+                let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
+                throw new ForbiddenError(errorMessage);
+            }
+            // see if we have the * access code
+            else if (accessCodes.includes('*')) {
+                // no security check since user has full access to everything
+            } else {
+                securityTags = accessCodes;
+            }
+        }
+        await this.scopesValidator.verifyHasValidScopesAsync({
+            requestInfo,
+            args,
+            resourceType,
+            startTime,
+            action: currentOperationName,
+            accessRequested: 'write'
+        });
 
-    // add in $and statements for security tags
-    if (securityTags && securityTags.length > 0) {
-        // add as a separate $and statement
-        if (query.$and === undefined) {
-            query.$and = [];
-        }
-        query.$and.push(
-            {
-                'meta.security': {
-                    '$elemMatch': {
-                        'system': 'https://www.icanbwell.com/access',
-                        'code': {
-                            '$in': securityTags
+        try {
+            let {base_version} = args;
+            /**
+             * @type {import('mongodb').Document}
+             */
+            let query = {};
+
+            // eslint-disable-next-line no-useless-catch
+            try {
+                if (base_version === VERSIONS['3_0_1']) {
+                    query = buildStu3SearchQuery(args);
+                } else if (base_version === VERSIONS['1_0_2']) {
+                    query = buildDstu2SearchQuery(args);
+                } else {
+                    ({query} = buildR4SearchQuery(
+                        {
+                            resourceType, args,
+                            useAccessIndex: this.configManager.useAccessIndex
+                        }));
+                }
+            } catch (e) {
+                throw e;
+            }
+
+            // add in $and statements for security tags
+            if (securityTags && securityTags.length > 0) {
+                // add as a separate $and statement
+                if (query.$and === undefined) {
+                    query.$and = [];
+                }
+                query.$and.push(
+                    {
+                        'meta.security': {
+                            '$elemMatch': {
+                                'system': 'https://www.icanbwell.com/access',
+                                'code': {
+                                    '$in': securityTags
+                                }
+                            }
                         }
                     }
-                }
+                );
             }
-        );
+
+            if (Object.keys(query).length === 0) {
+                // don't delete everything
+                return {deleted: 0};
+            }
+
+            /**
+             * @type {boolean}
+             */
+            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
+
+            // Delete our resource record
+            let res;
+            try {
+                /**
+                 * @type {DeleteManyResult}
+                 */
+                res = await this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version, useAtlas}
+                ).deleteManyAsync({query});
+
+                // log access to audit logs
+                await this.auditLogger.logAuditEntryAsync(
+                    {
+                        requestInfo, base_version, resourceType,
+                        operation: 'delete', args, ids: []
+                    }
+                );
+                const currentDate = moment.utc().format('YYYY-MM-DD');
+                await this.auditLogger.flushAsync({requestId, currentDate});
+
+            } catch (e) {
+                throw new NotAllowedError(e.message);
+            }
+
+            await this.fhirLoggingManager.logOperationSuccessAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
+            return {deleted: res.deletedCount};
+        } catch (e) {
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
+            throw e;
+        }
     }
+}
 
-    logRequest(user, `Deleting ${JSON.stringify(query)}`);
-
-    if (Object.keys(query).length === 0) {
-        // don't delete everything
-        return {deleted: 0};
-    }
-
-    /**
-     * @type {boolean}
-     */
-    const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-    // Grab an instance of our DB and collection
-    // noinspection JSValidateTypes
-    /**
-     * mongo db connection
-     * @type {import('mongodb').Db}
-     */
-    let db = (resourceName === 'AuditEvent') ?
-        globals.get(AUDIT_EVENT_CLIENT_DB) : (useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-            globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
-    let collection = db.collection(`${collection_name}_${base_version}`);
-    // Delete our resource record
-    let res;
-    try {
-        res = await collection.deleteMany(query);
-
-        // log access to audit logs
-        await logAuditEntryAsync(requestInfo, base_version, resourceName, 'delete', args, []);
-
-    } catch (e) {
-        logError(user, `Error with ${resourceName}.remove`);
-        throw new NotAllowedError(e.message);
-    }
-
-    return {deleted: res.deletedCount};
+module.exports = {
+    RemoveOperation
 };
+
