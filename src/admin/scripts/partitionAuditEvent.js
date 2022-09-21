@@ -138,6 +138,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             console.log('Finished script');
             console.log('Shutting down');
             await this.shutdown();
+            console.log('Shutdown finished');
         } catch (e) {
             console.log(`ERROR: ${e}`);
         }
