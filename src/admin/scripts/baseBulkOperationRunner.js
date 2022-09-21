@@ -51,7 +51,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
     ) {
         let lastCheckedId = '';
-        let db = await createClientAsync(config);
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        let client = await createClientAsync(config);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        let db = client.db(config.db_name);
         /**
          * @type {import('mongodb').Collection<import('mongodb').Document>}
          */
@@ -106,11 +113,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             documents.push(doc);
         }
 
-        await disconnectClientAsync(db);
+        await disconnectClientAsync(client);
 
         console.log(`Finished reading ${documents.length} documents`);
 
-        db = await createClientAsync(config);
+        client = await createClientAsync(config);
+        db = client.db(config.db_name);
 
         console.log(`Started bulk write for ${documents.length} documents`);
 
