@@ -4,7 +4,7 @@
 
 ## Intro
 
-This projects implements the Helix FHIR Server. It was initially forked from https://github.com/Asymmetrik/node-fhir-server-mongo and then most of the internals were re-written to support the missing FHIR functionality.
+This projects implements the Helix FHIR Server which is a highly scalable FHIR server implementation with real-time data streaming, change event tracking and modern APIs such as GraphQL.
 
 For example:
 
