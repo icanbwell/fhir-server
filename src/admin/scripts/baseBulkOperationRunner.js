@@ -112,7 +112,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             readline.cursorTo(process.stdout, 0);
             currentDateTime = new Date();
             process.stdout.write(`[${currentDateTime.toTimeString()}] ` +
-                `${count.toLocaleString('en-US')} of ${numberOfDocuments.toLocaleString('en-US')} read from database...`);
+                `${count.toLocaleString('en-US')} of ${numberOfDocuments.toLocaleString('en-US')}`);
             documents.push(doc);
         }
 
