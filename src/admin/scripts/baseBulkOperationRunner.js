@@ -93,15 +93,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const cursor = await sourceCollection
             .find(query, {})
             .sort({id: 1})
-            .maxTimeMS(10 * 60 * 60 * 1000)
+            .maxTimeMS(20 * 60 * 60 * 1000) // 20 hours
             .batchSize(batchSize);
 
         let count = 0;
-        /**
-         * cache all the documents as the cursor can time out if open for a while
-         * @type {import('mongodb').DefaultSchem}[]}
-         */
-        const documents = [];
         while (await this.hasNext(cursor)) {
             /**
              * element
@@ -115,21 +110,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             currentDateTime = new Date();
             process.stdout.write(`[${currentDateTime.toTimeString()}] ` +
                 `${count.toLocaleString('en-US')} of ${numberOfDocuments.toLocaleString('en-US')}`);
-            documents.push(doc);
-        }
-
-        await disconnectClientAsync(client);
-
-        console.log(`Finished reading ${documents.length} documents`);
-
-        client = await createClientAsync(config);
-        db = client.db(config.db_name);
-
-        console.log(`Started bulk write for ${documents.length} documents`);
-
-        // Now iterate through the docs
-        for (const /** @type {import('mongodb').DefaultSchema} */ doc of documents) {
-            // call the function passed in to get the bulk operation based on this doc/record
             const bulkOperations = await fnCreateBulkOperationAsync(doc);
             for (const bulkOperation of bulkOperations) {
                 operations.push(bulkOperation);
@@ -167,6 +147,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 console.log(message);
             }
         }
+
+        // now write out any remaining items
         if (operations.length > 0) { // if any items left to write
             currentDateTime = new Date();
             await retry(
@@ -190,6 +172,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             );
         }
+
+        // disconnect from db
         await disconnectClientAsync(db);
         return lastCheckedId;
     }
