@@ -41,6 +41,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
          */
         this.recordedBefore = recordedBefore;
         assertTypeEquals(recordedBefore, moment);
+
+        this.batchSize = batchSize;
     }
 
     /**
@@ -125,7 +127,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             query,
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                            ordered: false
+                            ordered: false,
+                            batchSize: this.batchSize
                         }
                     );
                 } catch (e) {

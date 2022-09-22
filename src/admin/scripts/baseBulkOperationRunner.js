@@ -37,6 +37,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {StartFromIdContainer} startFromIdContainer
      * @param {function(document: import('mongodb').DefaultSchema):Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>} fnCreateBulkOperationAsync
      * @param {boolean|undefined} [ordered]
+     * @param {number} batchSize
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -47,7 +48,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             query,
             startFromIdContainer,
             fnCreateBulkOperationAsync,
-            ordered = false
+            ordered = false,
+            batchSize
         }
     ) {
         let lastCheckedId = '';
@@ -92,7 +94,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             .find(query, {})
             .sort({id: 1})
             .maxTimeMS(10 * 60 * 60 * 1000)
-            .batchSize(1000);
+            .batchSize(batchSize);
 
         let count = 0;
         /**
