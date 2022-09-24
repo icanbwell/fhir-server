@@ -1,9 +1,6 @@
 // provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
 
-// expected
-const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
-
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -31,31 +28,36 @@ describe('PatientReturnIdTests', () => {
             expect(resp).toHaveResourceCount(0);
 
 
+            const headers = getHeaders();
+            headers['Content-Type'] = 'application/json';
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
-                .set(getHeaders());
+                .set(headers);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveStatusCode(400);
+            expect(resp.body).toStrictEqual(
+                {
+                    'message':
+                        'Content Type application/json is not supported. Please use one of: application/fhir+json,application/json+fhir'
+                }
+            );
 
+            resp = await request
+                .get('/4_0_0/Patient')
+                .set(headers);
 
-            resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+            expect(resp).toHaveStatusCode(200);
 
+            resp = await request
+                .get('/4_0_0/Patient/_search')
+                .set(headers);
 
-            resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedSinglePatientResource[0]);
-
-            resp = await request.post('/4_0_0/Patient/_search?id=00100000000').set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedSinglePatientResource[0]);
-
-            resp = await request.get('/4_0_0/Patient/_search').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
+
         });
     });
 });

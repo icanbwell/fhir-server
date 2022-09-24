@@ -5,6 +5,7 @@
 </head>
 <body class="container-fluid p-0">
 <%- include('../partials/header', {resources: resources}); %>
+
 <main>
     <% resources.forEach(function(res, index){ %>
         <div class="resource-item">
@@ -15,17 +16,32 @@
             <%- include('../partials/nameValue', {value: res.version, name: "Version"}); %>
             <%- include('../partials/nameValue', {value: res.name, name: "Name"}); %>
             <%- include('../partials/nameValue', {value: res.title, name: "Title"}); %>
+            <%- include('../partials/nameValue', {value: res.subtitle, name: "Subtitle"}); %>
 
             <%- include('../partials/code', {value: res.status, name: "Status"}); %>
-
-            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type", searchParameter: ''}); %>
 
             <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.subjectCodeableConcept, name: "Subject", searchParameter: ''}); %>
             <%- include('../partials/reference', {references: res.subjectReference, name: "Subject"}); %>
 
             <%- include('../partials/dateTime', {value: res.date, name: "Date"}); %>
 
-            <%- include('../partials/attachment', {value: res.content}); %>
+            <%- include('../partials/markdown', {value: res.markdown, name: "Markdown"}); %>
+
+            <%- include('../partials/dateTime', {value: res.approvalDate, name: "Approval Date"}); %>
+            <%- include('../partials/dateTime', {value: res.lastReviewDate, name: "Last Review Date"}); %>
+
+            <%- include('../partials/period', {periods: res.effectivePeriod, name: "Effective Period"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.topic, name: "Topic", searchParameter: ''}); %>
+
+            <%- include('../partials/uri', {value: res.library, name: "URL"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.scoring, name: "Scoring", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.compositeScoring, name: "Composite Scoring", searchParameter: ''}); %>
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type", searchParameter: ''}); %>
+
+            <%- include('../partials/markdown', {value: res.definition, name: "Definition"}); %>
+
 
             <%- include('../partials/json', {res: res, index: index}); %>
         </div>

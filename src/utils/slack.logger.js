@@ -219,6 +219,11 @@ class ErrorReporter {
                 title: 'Status Code',
                 value: error.statusCode,
                 short: true
+            },
+            {
+                title: 'version',
+                value: this.imageVersion,
+                short: true
             }
         ];
         if (args) {
@@ -255,7 +260,8 @@ class ErrorReporter {
          */
         const text = [
             {
-                title: 'Error:', code: error.toString()
+                title: 'Error:',
+                code: Object.hasOwn(error, 'toString') ? error.toString() : JSON.stringify(error)
             },
             {
                 title: 'Stack trace:', code: error.stack

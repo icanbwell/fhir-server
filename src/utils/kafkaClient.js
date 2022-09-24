@@ -126,6 +126,87 @@ class KafkaClient {
             await producer.disconnect();
         }
     }
+
+    /**
+     * Receives a message to Kafka
+     * @param {string} topic
+     * @return {Promise<void>}
+     */
+    async receiveMessagesAsync(topic) {
+        /**
+         * @type {import('kafkajs').Consumer}
+         */
+        const consumer = this.client.consumer({groupId: 'my-group'});
+
+        await consumer.connect();
+        try {
+            await consumer.subscribe({topics: [topic], fromBeginning: true});
+            await consumer.run({
+                // eslint-disable-next-line no-unused-vars
+                eachMessage: async ({topic1, partition, message, heartbeat, pause}) => {
+                    console.log({
+                        key: message.key.toString(),
+                        value: message.value.toString(),
+                        headers: message.headers,
+                    });
+                },
+            });
+        } catch (e) {
+            await logSystemErrorAsync({
+                event: 'kafkaClient',
+                message: 'Error sending message',
+                args: {clientId: this.clientId, brokers: this.brokers, ssl: this.ssl},
+                error: e
+            });
+            throw e;
+        } finally {
+            await consumer.disconnect();
+        }
+    }
+
+    /**
+     * Receives a message to Kafka
+     * @param {string} topic
+     * @param {number} limit
+     * @return {Promise<void>}
+     */
+    // async receiveLastXMessagesAsync(topic, limit) {
+    //     /**
+    //      * @type {import('kafkajs').Admin}
+    //      */
+    //     const admin = this.client.admin();
+    //
+    //     await admin.connect();
+    //     try {
+    //         /**
+    //          * @type {string[]}
+    //          */
+    //         const topics = await admin.listTopics();
+    //         /**
+    //          * @type {Array<{high: string, low: string}>}
+    //          */
+    //         const offsets = await admin.fetchTopicOffsets(topic);
+    //         /**
+    //          * @type {{brokers: Array<{nodeId: number, host: string, port: number}>, controller: number | null, clusterId: string}}
+    //          */
+    //         const cluster = await admin.describeCluster();
+    //         /**
+    //          * @type {{groups: import('kafkajs').GroupOverview[]}}
+    //          */
+    //         const groups = await admin.listGroups();
+    //
+    //     } catch (e) {
+    //         await logSystemErrorAsync({
+    //             event: 'kafkaClient',
+    //             message: 'Error sending message',
+    //             args: {clientId: this.clientId, brokers: this.brokers, ssl: this.ssl},
+    //             error: e
+    //         });
+    //         throw e;
+    //     } finally {
+    //         await admin.disconnect();
+    //     }
+    // }
 }
 
 module.exports = {

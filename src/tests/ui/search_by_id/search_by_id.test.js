@@ -6,7 +6,7 @@ const {
     commonAfterEach,
     getHeaders,
     getHtmlHeaders,
-    createTestRequest,
+    createTestRequest, getHtmlHeadersWithForm,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
@@ -61,7 +61,7 @@ describe('Patient UI Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Patient/_search')
-                .set(getHtmlHeaders());
+                .set(getHtmlHeadersWithForm());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();

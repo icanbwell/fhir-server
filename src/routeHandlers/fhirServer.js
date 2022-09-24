@@ -21,6 +21,7 @@ const {FhirRouter} = require('../middleware/fhir/router');
 const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
+const contentType = require('content-type');
 
 class MyFHIRServer {
     /**
@@ -84,6 +85,43 @@ class MyFHIRServer {
             })
         );
 
+        const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
+
+        // reject any requests that don't have correct content type
+        this.app.use(function (req, res, next) {
+            // if methods are for GET or DELETE then no need to check content-type
+            if (req.method && (req.method.toLowerCase() === 'get' || req.method.toLowerCase() === 'delete')) {
+                next();
+                return;
+            }
+            try {
+                // http://www.hl7.org/implement/standards/fhir/http.html#mime-type
+                // http://www.hl7.org/implement/standards/fhir/http.html#summary
+                /**
+                 * @type {import('content-type').ContentType}
+                 */
+                const contentTypeHeader = contentType.parse(req.headers['content-type']);
+                if (allowedContentTypes.includes(contentTypeHeader.type) ||
+                    contentTypeHeader.type === 'application/x-www-form-urlencoded') {
+                    next();
+                } else {
+                    return res.status(400).json(
+                        {
+                            message: `Content Type ${req.headers['content-type']} is not supported. ` +
+                                `Please use one of: ${allowedContentTypes.join(',')}`
+                        }
+                    );
+                }
+            } catch (e) {
+                return res.status(400).json(
+                    {
+                        message: `Content Type ${req.headers['content-type']} is not supported. ` +
+                            `Please use one of: ${allowedContentTypes.join(',')}`
+                    }
+                );
+            }
+        });
+
         // Enable the body parser
         this.app.use(
             bodyParser.urlencoded({
@@ -94,7 +132,7 @@ class MyFHIRServer {
         );
         this.app.use(
             bodyParser.json({
-                type: ['application/fhir+json', 'application/json+fhir'],
+                type: allowedContentTypes,
                 limit: '50mb',
             })
         );

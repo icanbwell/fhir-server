@@ -1,0 +1,38 @@
+<% if (!Array.isArray(value)) {
+    value = [value];
+} %>
+<% if (value && value.length > 0 && value[0]) { %>
+    <% value.forEach(function(item, index){ %>
+        <p></p>
+        <div class="accordion" id="accordianContent<%= index %>">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseContent"
+                            aria-expanded="false"
+                            aria-controls="collapseContent"
+                    >
+                        Content: <%= item.contentType %>
+                    </button>
+                </h2>
+                <div
+                        id="collapseContent"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="headingOne"
+                        data-bs-parent="#accordianContent<%= index %>"
+                >
+                    <div class="accordion-body">
+                        <pre>
+                            <code>
+<%= item.data ? new Buffer(item.data, 'base64').toString('ascii') : '' %>
+                            </code>
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% }) %>
+<% } %>

@@ -1,0 +1,15 @@
+{
+  "collections": [
+    {
+      "count": 1,
+      "name": "Patient_4_0_0"
+    },
+    {
+      "count": 1,
+      "name": "Patient_4_0_0_History"
+    }
+  ],
+  "database": "fhir",
+  "image": "",
+  "success": true
+}
