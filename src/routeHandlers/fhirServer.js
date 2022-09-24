@@ -89,6 +89,11 @@ class MyFHIRServer {
 
         // reject any requests that don't have correct content type
         this.app.use(function (req, res, next) {
+            // if body is empty then we don't care about content types
+            if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+                next();
+                return;
+            }
             try {
                 /**
                  * @type {import('content-type').ContentType}

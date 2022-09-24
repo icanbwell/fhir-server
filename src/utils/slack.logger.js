@@ -260,7 +260,8 @@ class ErrorReporter {
          */
         const text = [
             {
-                title: 'Error:', code: error.toString()
+                title: 'Error:',
+                code: Object.hasOwn(error, 'toString') ? error.toString() : JSON.stringify(error)
             },
             {
                 title: 'Stack trace:', code: error.stack
