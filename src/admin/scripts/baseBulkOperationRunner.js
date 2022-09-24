@@ -4,6 +4,7 @@ const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
 const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -29,28 +30,37 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
     /**
      * runs the query in batches and calls the fnCreateBulkOperation for each record
-     * @param {import('mongodb').Db} db
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} config
      * @param {string} sourceCollectionName
      * @param {string} destinationCollectionName
      * @param {import('mongodb').Filter<import('mongodb').Document>} query
      * @param {StartFromIdContainer} startFromIdContainer
      * @param {function(document: import('mongodb').DefaultSchema):Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>} fnCreateBulkOperationAsync
      * @param {boolean|undefined} [ordered]
+     * @param {number} batchSize
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
         {
-            db,
+            config,
             sourceCollectionName,
             destinationCollectionName,
             query,
             startFromIdContainer,
             fnCreateBulkOperationAsync,
-            ordered = false
+            ordered = false,
+            batchSize
         }
     ) {
         let lastCheckedId = '';
-
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        let client = await createClientAsync(config);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        let db = client.db(config.db_name);
         /**
          * @type {import('mongodb').Collection<import('mongodb').Document>}
          */
@@ -59,6 +69,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 db, collectionName: destinationCollectionName
             }
         );
+        /**
+         * @type {import('mongodb').Collection}
+         */
         const sourceCollection = db.collection(sourceCollectionName);
 
         let operations = [];
@@ -67,6 +80,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         console.log(`[${currentDateTime.toTimeString()}] ` +
             `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
+
+        // first get the count
+        const numberOfDocuments = await sourceCollection.countDocuments(query, {});
 
         if (startFromIdContainer.startFromId) {
             query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
@@ -77,15 +93,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const cursor = await sourceCollection
             .find(query, {})
             .sort({id: 1})
-            .maxTimeMS(60 * 60 * 1000)
-            .batchSize(1000);
+            .maxTimeMS(20 * 60 * 60 * 1000) // 20 hours
+            .batchSize(batchSize);
 
         let count = 0;
-        /**
-         * cache all the documents as the cursor can time out if open for a while
-         * @type {import('mongodb').DefaultSchem}[]}
-         */
-        const documents = [];
         while (await this.hasNext(cursor)) {
             /**
              * element
@@ -98,13 +109,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             readline.cursorTo(process.stdout, 0);
             currentDateTime = new Date();
             process.stdout.write(`[${currentDateTime.toTimeString()}] ` +
-                `${count.toLocaleString('en-US')} read from database...`);
-            documents.push(doc);
-        }
-
-        // Now iterate through the docs
-        for (const /** @type {import('mongodb').DefaultSchema} */ doc of documents) {
-            // call the function passed in to get the bulk operation based on this doc/record
+                `${count.toLocaleString('en-US')} of ${numberOfDocuments.toLocaleString('en-US')}`);
             const bulkOperations = await fnCreateBulkOperationAsync(doc);
             for (const bulkOperation of bulkOperations) {
                 operations.push(bulkOperation);
@@ -142,6 +147,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 console.log(message);
             }
         }
+
+        // now write out any remaining items
         if (operations.length > 0) { // if any items left to write
             currentDateTime = new Date();
             await retry(
@@ -165,6 +172,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             );
         }
+
+        // disconnect from db
+        await disconnectClientAsync(db);
         return lastCheckedId;
     }
 

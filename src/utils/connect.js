@@ -113,9 +113,13 @@ const disconnectClientAsync = async function (client) {
  */
 const disconnectAsync = async function () {
     const awsClient = globals.get(CLIENT);
-    await disconnectClientAsync(awsClient);
+    if (awsClient) {
+        await disconnectClientAsync(awsClient);
+    }
     const atlasClient = globals.get(ATLAS_CLIENT);
-    await disconnectClientAsync(atlasClient);
+    if (atlasClient) {
+        await disconnectClientAsync(atlasClient);
+    }
 };
 
 module.exports = {

@@ -175,7 +175,7 @@ nano src/admin/scripts/.env
 
 #### 8. Run the admin script e.g.,
 ```shell
-node --max-old-space-size=8096 src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000
+NODE_OPTIONS=--max_old_space_size=1609600 node --max-old-space-size=1609600 src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000
 ```
 
 ### Getting latest from Github
