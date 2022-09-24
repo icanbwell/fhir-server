@@ -15,7 +15,7 @@
                             aria-expanded="false"
                             aria-controls="collapseContent"
                     >
-                        Content
+                        Content: <%= item.contentType %>
                     </button>
                 </h2>
                 <div
@@ -25,11 +25,11 @@
                         data-bs-parent="#accordianContent<%= index %>"
                 >
                     <div class="accordion-body">
-                                <pre>
-                                    <code>
-                                    <%= item.data ? new Buffer(item.data, 'base64').toString('ascii') : '' %>
-                                    </code>
-                                </pre>
+                        <pre>
+                            <code>
+<%= item.data ? new Buffer(item.data, 'base64').toString('ascii') : '' %>
+                            </code>
+                        </pre>
                     </div>
                 </div>
             </div>

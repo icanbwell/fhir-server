@@ -10,6 +10,23 @@
         <div class="resource-item">
             <!-- prettier-ignore -->
             <%- include('../partials/resourceHeader', {res: res}); %>
+
+            <%- include('../partials/uri', {value: res.url, name: "URL"}); %>
+            <%- include('../partials/nameValue', {value: res.version, name: "Version"}); %>
+            <%- include('../partials/nameValue', {value: res.name, name: "Name"}); %>
+            <%- include('../partials/nameValue', {value: res.title, name: "Title"}); %>
+
+            <%- include('../partials/code', {value: res.status, name: "Status"}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.type, name: "Type", searchParameter: ''}); %>
+
+            <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.subjectCodeableConcept, name: "Subject", searchParameter: ''}); %>
+            <%- include('../partials/reference', {references: res.subjectReference, name: "Subject"}); %>
+
+            <%- include('../partials/dateTime', {value: res.date, name: "Date"}); %>
+
+
+
             <%- include('../partials/attachment', {value: res.content}); %>
 
             <%- include('../partials/json', {res: res, index: index}); %>
