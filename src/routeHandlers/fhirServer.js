@@ -90,7 +90,7 @@ class MyFHIRServer {
         // reject any requests that don't have correct content type
         this.app.use(function (req, res, next) {
             // if methods are for GET or DELETE then no need to check content-type
-            if (req.method && (req.method.toLowerCase() === 'GET' || req.method.toLowerCase() === 'DELETE')) {
+            if (req.method && (req.method.toLowerCase() === 'get' || req.method.toLowerCase() === 'delete')) {
                 next();
                 return;
             }
@@ -99,7 +99,8 @@ class MyFHIRServer {
                  * @type {import('content-type').ContentType}
                  */
                 const contentTypeHeader = contentType.parse(req.headers['content-type']);
-                if (allowedContentTypes.includes(contentTypeHeader.type)) {
+                if (allowedContentTypes.includes(contentTypeHeader.type) ||
+                    contentTypeHeader.type === 'application/x-www-form-urlencoded') {
                     next();
                 } else {
                     return res.status(400).json(

@@ -43,7 +43,21 @@ describe('PatientReturnIdTests', () => {
                         'Content Type application/json is not supported. Please use one of: application/fhir+json,application/json+fhir'
                 }
             );
-        })
-        ;
+
+            resp = await request
+                .get('/4_0_0/Patient')
+                .set(headers);
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+
+            resp = await request
+                .get('/4_0_0/Patient/_search')
+                .set(headers);
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+
+        });
     });
 });

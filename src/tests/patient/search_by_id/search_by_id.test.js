@@ -10,7 +10,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('PatientReturnIdTests', () => {
     beforeEach(async () => {
@@ -48,6 +48,14 @@ describe('PatientReturnIdTests', () => {
             resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource[0]);
+
+            resp = await request.post('/4_0_0/Patient/_search?id=00100000000').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedSinglePatientResource[0]);
+
+            resp = await request.get('/4_0_0/Patient/_search').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(404);
         });
     });
 });
