@@ -56,7 +56,7 @@ describe('PatientReturnIdTests', () => {
                 .set(headers);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(200);
+            expect(resp).toHaveStatusCode(404);
 
         });
     });
