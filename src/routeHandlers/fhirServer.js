@@ -89,8 +89,8 @@ class MyFHIRServer {
 
         // reject any requests that don't have correct content type
         this.app.use(function (req, res, next) {
-            // if body is empty then we don't care about content types
-            if (!req.body || (req.body.constructor === Object && Object.keys(req.body).length === 0)) {
+            // if methods are for GET or DELETE then no need to check content-type
+            if (req.method && (req.method.toLowerCase() === 'GET' || req.method.toLowerCase() === 'DELETE')) {
                 next();
                 return;
             }
