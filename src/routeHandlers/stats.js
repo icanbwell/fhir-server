@@ -2,11 +2,12 @@
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
 
-const { mongoConfig } = require('../config');
+const {mongoConfig} = require('../config');
 const async = require('async');
 const env = require('var');
-const { createClientAsync, disconnectClientAsync } = require('../utils/connect');
-const { CLIENT_DB } = require('../constants');
+const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
+const {CLIENT_DB} = require('../constants');
+const globals = require('../globals');
 
 module.exports.handleStats = async (req, res) => {
     console.info('Running stats');
@@ -21,27 +22,29 @@ module.exports.handleStats = async (req, res) => {
         console.log(collection_name);
         const count = await db.collection(collection_name).estimatedDocumentCount();
         console.log(['Found: ', count, ' documents in ', collection_name].join(''));
-        return { name: collection_name, count: count };
+        return {name: collection_name, count: count};
     }
 
     /**
-     * @type {import("mongodb").MongoClient}
+     * @type {import('mongodb').MongoClient}
      */
     const client = await createClientAsync(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = client.db(CLIENT_DB);
+        const db = globals.get(CLIENT_DB);
         let collection_names = [];
         // const collections = await db.listCollections().toArray();
 
-        for await (const collection of db.listCollections()) {
-            console.log(collection.name);
+        for await (const /** @type {{name: string, type: string}} */ collection of db.listCollections(
+            {}, {nameOnly: true})) {
             if (collection.name.indexOf('system.') === -1) {
                 collection_names.push(collection.name);
             }
         }
+
+        collection_names = collection_names.sort((a, b) => a.localeCompare(b));
 
         console.info('Collection_names:' + collection_names);
         const collection_stats = await async.map(

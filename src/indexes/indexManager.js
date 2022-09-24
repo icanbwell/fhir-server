@@ -10,6 +10,7 @@ const {mongoConfig} = require('../config');
 const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals} = require('../utils/assertType');
+const globals = require('../globals');
 
 /**
  * @classdesc Creates and deletes indexes
@@ -162,7 +163,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = client.db(CLIENT_DB);
+        const db = globals.get(CLIENT_DB);
         try {
             return await this.indexAllCollectionsInDatabaseAsync({
                 db, collectionRegex
@@ -242,7 +243,7 @@ class IndexManager {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = client.db(CLIENT_DB);
+            const db = globals.get(CLIENT_DB);
             const collection_names = [];
             // const collections = await db.listCollections().toArray();
 
@@ -274,7 +275,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = client.db(CLIENT_DB);
+        const db = globals.get(CLIENT_DB);
         try {
             await this.deleteIndexesInAllCollectionsInDatabase({db, collectionRegex});
         } finally {
