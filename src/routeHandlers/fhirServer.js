@@ -95,6 +95,8 @@ class MyFHIRServer {
                 return;
             }
             try {
+                // http://www.hl7.org/implement/standards/fhir/http.html#mime-type
+                // http://www.hl7.org/implement/standards/fhir/http.html#summary
                 /**
                  * @type {import('content-type').ContentType}
                  */
