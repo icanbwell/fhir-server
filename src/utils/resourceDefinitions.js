@@ -89,6 +89,11 @@ const resourceDefinitions = [
         url: 'https://www.hl7.org/fhir/medication.html'
     },
     {
+        name: 'Measure',
+        description: 'The Measure resource represents a structured, computable definition of a health-related measure such as a clinical quality measure, public health indicator, or population analytics measure.',
+        url: 'http://www.hl7.org/fhir/measure.html'
+    },
+    {
         name: 'MeasureReport',
         description: 'The MeasureReport resource contains the results of the calculation of a measure; and optionally a reference to the resources involved in that calculation.',
         url: 'https://www.hl7.org/fhir/measurereport.html'
