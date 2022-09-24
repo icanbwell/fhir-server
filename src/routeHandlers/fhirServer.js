@@ -21,6 +21,7 @@ const {FhirRouter} = require('../middleware/fhir/router');
 const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
+const contentType = require('content-type');
 
 class MyFHIRServer {
     /**
@@ -88,16 +89,29 @@ class MyFHIRServer {
 
         // reject any requests that don't have correct content type
         this.app.use(function (req, res, next) {
-            var contentType = req.headers['content-type'];
-            if (!contentType || !allowedContentTypes.includes(contentType)) {
+            try {
+                /**
+                 * @type {import('content-type').ContentType}
+                 */
+                const contentTypeHeader = contentType.parse(req.headers['content-type']);
+                if (allowedContentTypes.includes(contentTypeHeader.type)) {
+                    next();
+                } else {
+                    return res.status(400).json(
+                        {
+                            message: `Content Type ${req.headers['content-type']} is not supported. ` +
+                                `Please use one of: ${allowedContentTypes.join(',')}`
+                        }
+                    );
+                }
+            } catch (e) {
                 return res.status(400).json(
                     {
-                        message: `Content Type ${contentType} is not supported. ` +
+                        message: `Content Type ${req.headers['content-type']} is not supported. ` +
                             `Please use one of: ${allowedContentTypes.join(',')}`
                     }
                 );
             }
-            next();
         });
 
         // Enable the body parser
