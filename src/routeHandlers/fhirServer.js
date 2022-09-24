@@ -84,6 +84,22 @@ class MyFHIRServer {
             })
         );
 
+        const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
+
+        // reject any requests that don't have correct content type
+        this.app.use(function (req, res, next) {
+            var contentType = req.headers['content-type'];
+            if (!contentType || !allowedContentTypes.includes(contentType)) {
+                return res.status(400).json(
+                    {
+                        message: `Content Type ${contentType} is not supported. ` +
+                            `Please use one of: ${allowedContentTypes.join(',')}`
+                    }
+                );
+            }
+            next();
+        });
+
         // Enable the body parser
         this.app.use(
             bodyParser.urlencoded({
@@ -94,7 +110,7 @@ class MyFHIRServer {
         );
         this.app.use(
             bodyParser.json({
-                type: ['application/fhir+json', 'application/json+fhir'],
+                type: allowedContentTypes,
                 limit: '50mb',
             })
         );

@@ -219,6 +219,11 @@ class ErrorReporter {
                 title: 'Status Code',
                 value: error.statusCode,
                 short: true
+            },
+            {
+                title: 'version',
+                value: this.imageVersion,
+                short: true
             }
         ];
         if (args) {
