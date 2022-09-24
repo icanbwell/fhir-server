@@ -80,6 +80,7 @@
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Procedure', property:'patient'}], id:res.id, name: "Procedure" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'patient'}], id:res.id, name: "Schedule" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ServiceRequest', property:'patient'}], id:res.id, name: "ServiceRequest" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Task', property:'patient'}], id:res.id, name: "Task" }); %>
 
             <%- include('../partials/json', {res: res, index: index}); %>
         </div>

@@ -1,21 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <%- include('../partials/head'); %>
-    </head>
-    <body class="container-fluid p-0">
-        <%- include('../partials/header', {resources: resources}); %>
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<%- include('../partials/header', {resources: resources}); %>
 
-        <main>
-            <% resources.forEach(function(res, index){ %>
-            <div class="resource-item">
-                <!-- prettier-ignore -->
-                <%- include('../partials/resourceHeader', {res: res}); %>
-                <%- include('../partials/json', {res: res, index: index}); %>
-            </div>
-            <% }) %>
-        </main>
+<main>
+    <% resources.forEach(function(res, index){ %>
+        <div class="resource-item">
+            <!-- prettier-ignore -->
+            <%- include('../partials/resourceHeader', {res: res}); %>
 
-        <%- include('../partials/footer', {url: url, meta: meta}); %>
-    </body>
+            <%- include('../partials/nameValue', {value: res.name, name: "Name"}); %>
+            <%- include('../partials/nameValue', {value: res.description, name: "Description"}); %>
+
+            <%- include('../partials/dateTime', {value: res.approvalDate, name: "Approval Date"}); %>
+
+            <%- include('../partials/nameValue', {value: res.library, name: "Library"}); %>
+
+
+            <%- include('../partials/json', {res: res, index: index}); %>
+        </div>
+    <% }) %>
+</main>
+
+<%- include('../partials/footer', {url: url, meta: meta}); %>
+</body>
 </html>
