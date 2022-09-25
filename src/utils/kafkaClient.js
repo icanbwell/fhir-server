@@ -128,23 +128,31 @@ class KafkaClient {
     }
 
     /**
-     * Receives a message to Kafka
+     * Receives a message from Kafka
+     * @param {string} groupId
      * @param {string} topic
+     * @param {boolean} [fromBeginning]
+     * @param {function(message: {key: string, value: string, headers: Object}): Promise<void>} onMessageAsync
      * @return {Promise<void>}
      */
-    async receiveMessagesAsync(topic) {
+    async receiveMessagesAsync({groupId, topic, fromBeginning = false, onMessageAsync}) {
         /**
          * @type {import('kafkajs').Consumer}
          */
-        const consumer = this.client.consumer({groupId: 'my-group'});
+        const consumer = this.client.consumer({groupId: groupId});
 
         await consumer.connect();
         try {
-            await consumer.subscribe({topics: [topic], fromBeginning: true});
+            await consumer.subscribe({topics: [topic], fromBeginning: fromBeginning});
             await consumer.run({
                 // eslint-disable-next-line no-unused-vars
                 eachMessage: async ({topic1, partition, message, heartbeat, pause}) => {
-                    console.log({
+                    // console.log({
+                    //     key: message.key.toString(),
+                    //     value: message.value.toString(),
+                    //     headers: message.headers,
+                    // });
+                    await onMessageAsync({
                         key: message.key.toString(),
                         value: message.value.toString(),
                         headers: message.headers,
