@@ -181,11 +181,11 @@ class KafkaClient {
                     });
                 },
             });
-            await this.waitForConsumerToJoinGroupAsync(consumer);
+            // await this.waitForConsumerToJoinGroupAsync(consumer);
         } catch (e) {
             await logSystemErrorAsync({
                 event: 'kafkaClient',
-                message: 'Error sending message',
+                message: 'Error receiving message',
                 args: {clientId: this.clientId, brokers: this.brokers, ssl: this.ssl},
                 error: e
             });
