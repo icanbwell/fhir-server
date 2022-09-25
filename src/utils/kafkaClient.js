@@ -159,7 +159,7 @@ class KafkaClient {
      * @param {import('kafkajs').Consumer} consumer
      * @param {string} topic
      * @param {boolean} [fromBeginning]
-     * @param {function(message: {key: string, value: string, headers: Object}): Promise<void>} onMessageAsync
+     * @param {function(message: {key: string, value: string, headers: {key: string, value: string}[]}): Promise<void>} onMessageAsync
      * @return {Promise<void>}
      */
     async receiveMessagesAsync({consumer, topic, fromBeginning = false, onMessageAsync}) {
@@ -177,7 +177,13 @@ class KafkaClient {
                     await onMessageAsync({
                         key: message.key.toString(),
                         value: message.value.toString(),
-                        headers: message.headers,
+                        headers: Object.entries(message.headers).map(([k, v]) => {
+                                return {
+                                    key: k,
+                                    value: v ? v.toString() : ''
+                                };
+                            }
+                        ),
                     });
                 },
             });
