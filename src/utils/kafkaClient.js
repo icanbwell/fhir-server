@@ -128,19 +128,41 @@ class KafkaClient {
     }
 
     /**
+     * waits for consumer to join group
+     * @param consumer
+     * @param maxWait
+     * @param label
+     * @returns {Promise<unknown>}
+     */
+    waitForConsumerToJoinGroupAsync(consumer, {maxWait = 10000, label = ''} = {}) {
+        return new Promise((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+                consumer.disconnect().then(() => {
+                    reject(new Error(`Timeout ${label}`.trim()));
+                });
+            }, maxWait);
+            consumer.on(consumer.events.GROUP_JOIN, event => {
+                clearTimeout(timeoutId);
+                resolve(event);
+            });
+            consumer.on(consumer.events.CRASH, event => {
+                clearTimeout(timeoutId);
+                consumer.disconnect().then(() => {
+                    reject(event.payload.error);
+                });
+            });
+        });
+    }
+
+    /**
      * Receives a message from Kafka
-     * @param {string} groupId
+     * @param {import('kafkajs').Consumer} consumer
      * @param {string} topic
      * @param {boolean} [fromBeginning]
      * @param {function(message: {key: string, value: string, headers: Object}): Promise<void>} onMessageAsync
      * @return {Promise<void>}
      */
-    async receiveMessagesAsync({groupId, topic, fromBeginning = false, onMessageAsync}) {
-        /**
-         * @type {import('kafkajs').Consumer}
-         */
-        const consumer = this.client.consumer({groupId: groupId});
-
+    async receiveMessagesAsync({consumer, topic, fromBeginning = false, onMessageAsync}) {
         await consumer.connect();
         try {
             await consumer.subscribe({topics: [topic], fromBeginning: fromBeginning});
@@ -159,6 +181,7 @@ class KafkaClient {
                     });
                 },
             });
+            await this.waitForConsumerToJoinGroupAsync(consumer);
         } catch (e) {
             await logSystemErrorAsync({
                 event: 'kafkaClient',
@@ -167,9 +190,24 @@ class KafkaClient {
                 error: e
             });
             throw e;
-        } finally {
-            await consumer.disconnect();
         }
+    }
+
+    /**
+     * disconnects consumer
+     * @param {import('kafkajs').Consumer} consumer
+     * @returns {Promise<void>}
+     */
+    async removeConsumerAsync({consumer}) {
+        await consumer.disconnect();
+    }
+
+    /**
+     * @param {string} groupId
+     * @returns {Promise<import('kafkajs').Consumer>}
+     */
+    async createConsumerAsync({groupId}) {
+        return this.client.consumer({groupId: groupId});
     }
 
     /**
