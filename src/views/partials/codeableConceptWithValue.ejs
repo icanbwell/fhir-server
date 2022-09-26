@@ -29,7 +29,21 @@
                                     </td>
                                 <% } else { %>
                                     <td><%= coding.system %></td>
-                                    <td><%= coding.code %></td>
+                                    <td>
+                                        <% if (coding.system === 'http://www.ama-assn.org/go/cpt'){ %>
+                                            <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/CPT/version/2022/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                        <% } else  if (coding.system === 'http://snomed.info/sct') { %>
+                                            <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/SNOMEDCT/version/2022-03/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                        <% } else if (coding.system === 'http://hl7.org/fhir/sid/cvx') { %>
+                                            <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/CVX/version/2022-08-17/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                        <% } else if (coding.system === 'http://hl7.org/fhir/sid/icd-10-cm' || coding.system === 'http://hl7.org/fhir/sid/icd-10'){ %>
+                                            <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/ICD10CM/version/2023/code/<%= (coding.code.includes('.') || coding.code.length < 4) ? coding.code : coding.code.substr(0, 3) + '.' + coding.code.substr(3, 10) %>/info"><%= coding.code %></a>
+                                        <% } else if (coding.system === 'http://www.nlm.nih.gov/research/umls/rxnorm'){ %>
+                                            <a href="https://mor.nlm.nih.gov/RxNav/search?searchBy=RXCUI&searchTerm=<%= coding.code %>"><%= coding.code %></a>
+                                        <% } else { %>
+                                            <%= coding.code; %>
+                                        <% } %>
+                                    </td>
                                 <% } %>
                                 <td>
                                     <% if (codeableConceptWithValue.valueQuantity) { %>
