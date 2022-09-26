@@ -85,7 +85,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
         console.log(`Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-            `desintation: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+            `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
 
         // get latest id from destination
         const lastIdFromDestinationList = await destinationCollection.find({}).sort({'id': -1}).project(
