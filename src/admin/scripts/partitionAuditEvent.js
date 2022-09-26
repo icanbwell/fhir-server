@@ -66,10 +66,14 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
          */
         const result = {
-            replaceOne: {
+            updateOne: {
                 filter: {id: doc.id},
-                replacement: doc,
-                upsert: true
+                update: {
+                    $setOnInsert: doc
+                },
+                options: {
+                    upsert: true
+                }
             }
         };
         return [

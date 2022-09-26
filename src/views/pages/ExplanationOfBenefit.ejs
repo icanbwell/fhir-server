@@ -49,7 +49,11 @@
                                     <!-- prettier-ignore -->
                                     <% if (diagnosisItem.diagnosisCodeableConcept){ %>
                                         <% diagnosisItem.diagnosisCodeableConcept.coding.forEach(function(coding) { %>
-                                            <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
+                                            <% if (coding.system === 'http://hl7.org/fhir/sid/icd-10-cm' || coding.system === 'http://hl7.org/fhir/sid/icd-10'){ %>
+                                                <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/ICD10CM/version/2023/code/<%= (coding.code.includes('.') || coding.code.length < 4) ? coding.code : coding.code.substr(0, 3) + '.' + coding.code.substr(3, 10) %>/info"><%= coding.code %></a>
+                                            <% }else{ %>
+                                                <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
+                                            <% } %>
                                         <% }); %>
                                     <% } %>
                                 </td>
@@ -87,7 +91,18 @@
                                     <!-- prettier-ignore -->
                                     <% if (procedure.procedureCodeableConcept){ %>
                                         <% procedure.procedureCodeableConcept.coding.forEach(function(coding) { %>
-                                            <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
+                                            <% if (coding.system === 'http://www.ama-assn.org/go/cpt'){ %>
+                                                <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/CPT/version/2022/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                            <% } else  if (coding.system === 'http://snomed.info/sct') { %>
+                                                <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/SNOMEDCT/version/2022-03/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                            <% } else if (coding.system === 'http://hl7.org/fhir/sid/cvx') { %>
+                                                <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/CVX/version/2022-08-17/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                            <% } else if (coding.system === 'http://hl7.org/fhir/sid/icd-10-cm' || coding.system === 'http://hl7.org/fhir/sid/icd-10'){ %>
+                                                <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/ICD10CM/version/2023/code/<%= (coding.code.includes('.') || coding.code.length < 4) ? coding.code : coding.code.substr(0, 3) + '.' + coding.code.substr(3, 10) %>/info"><%= coding.code %></a>
+                                            <% } else { %>
+                                                <%= coding.code; %>
+                                            <% } %>
+                                            (<%= coding.system.split('/').pop(); %>)
                                         <% }); %>
                                     <% } %>
                                 </td>
@@ -140,7 +155,15 @@
                                     <!-- prettier-ignore -->
                                     <% if (item.productOrService) { %>
                                         <% item.productOrService.coding.forEach(function(coding){ %>
-                                            <%= coding.code; %>
+                                            <% if (coding.system === 'http://www.ama-assn.org/go/cpt'){ %>
+                                                <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/CPT/version/2022/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                            <% } else  if (coding.system === 'http://snomed.info/sct') { %>
+                                                <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/SNOMEDCT/version/2022-03/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                            <% } else  if (coding.system === 'http://hl7.org/fhir/sid/cvx') { %>
+                                                <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/CVX/version/2022-08-17/code/<%= coding.code %>/info"><%= coding.code %></a>
+                                            <% } else { %>
+                                                <%= coding.code; %>
+                                            <% } %>
                                             (<%= coding.system.split('/').pop(); %>)
                                         <% }); %>
                                     <% } %>
@@ -436,6 +459,7 @@
                         <tr>
                             <th scope="col">id</th>
                             <th scope="col">Code</th>
+                            <th scope="col">Currency</th>
                             <th scope="col">Amount</th>
                         </tr>
                         </thead>
@@ -449,6 +473,12 @@
                                         <% total.category.coding.forEach(function(coding){ %>
                                             <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
                                         <% }); %>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <!-- prettier-ignore -->
+                                    <% if (total.amount) { %>
+                                        <%= total.amount.currency; %>
                                     <% } %>
                                 </td>
                                 <td>
