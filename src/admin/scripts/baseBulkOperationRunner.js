@@ -82,11 +82,30 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
 
         // first get the count
-        const numberOfDocuments = await sourceCollection.countDocuments(query, {});
+        const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+        const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+        console.log(`Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+            `desintation: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+
+        // get latest id from destination
+        const lastIdFromDestinationList = await destinationCollection.find({}).sort({'id': -1}).project(
+            {
+                id: 1,
+                _id: 0
+            }
+        ).map(p => p.id).toArray();
+
+        if (!startFromIdContainer.startFromId && lastIdFromDestinationList && lastIdFromDestinationList.length === 0) {
+            startFromIdContainer.startFromId = lastIdFromDestinationList[0];
+        }
 
         if (startFromIdContainer.startFromId) {
             query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
         }
+
+        console.log(`[${currentDateTime.toTimeString()}] ` +
+            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+            `From ${sourceCollectionName} to ${destinationCollectionName}`);
         /**
          * @type {FindCursor<WithId<import('mongodb').Document>>}
          */
@@ -109,7 +128,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             readline.cursorTo(process.stdout, 0);
             currentDateTime = new Date();
             process.stdout.write(`[${currentDateTime.toTimeString()}] ` +
-                `${count.toLocaleString('en-US')} of ${numberOfDocuments.toLocaleString('en-US')}`);
+                `${count.toLocaleString('en-US')} of ${numberOfSourceDocuments.toLocaleString('en-US')}`);
             const bulkOperations = await fnCreateBulkOperationAsync(doc);
             for (const bulkOperation of bulkOperations) {
                 operations.push(bulkOperation);
