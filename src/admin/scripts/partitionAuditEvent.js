@@ -128,7 +128,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
-                            batchSize: this.batchSize
+                            batchSize: this.batchSize,
+                            skipExistingIds: true
                         }
                     );
                 } catch (e) {
