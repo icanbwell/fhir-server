@@ -209,7 +209,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
 
         // disconnect from db
-        await disconnectClientAsync(db);
+        await disconnectClientAsync(client);
         return lastCheckedId;
     }
 
