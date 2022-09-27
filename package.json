@@ -79,7 +79,7 @@
     "@asymmetrik/sof-scope-checker": "^1.0.7",
     "@elastic/elasticsearch": "^8.4.0",
     "@graphql-eslint/eslint-plugin": "^3.10.7",
-    "@graphql-tools/graphql-file-loader": "^7.5.3",
+    "@graphql-tools/graphql-file-loader": "^7.5.4",
     "@graphql-tools/load": "^7.7.7",
     "@graphql-tools/load-files": "^6.6.1",
     "@graphql-tools/merge": "^8.3.6",
