@@ -151,7 +151,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             }
 
             startFromIdContainer.convertedIds += 1;
-            if (operations.length % this.batchSize === 0) { // write every x items
+            if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
                 // https://www.npmjs.com/package/async-retry
                 await retry(
                     // eslint-disable-next-line no-loop-func
@@ -172,7 +172,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     }
                 );
             }
-            if (operations.length % this.batchSize === 0) { // show progress every x items
+            if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // show progress every x items
                 currentDateTime = new Date();
                 const message = `\n[${currentDateTime.toTimeString()}] ` +
                     `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
