@@ -10,7 +10,7 @@ console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
-const {auditEventMongoConfig} = require('../../config');
+const {mongoConfig} = require('../../config');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -91,7 +91,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: auditEventMongoConfig,
+                            config: mongoConfig,
                             sourceCollectionName: collection,
                             destinationCollectionName: collection,
                             query,
