@@ -4,7 +4,7 @@ const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
 const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
+const {createClientAsync} = require('../../utils/connect');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -211,7 +211,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         console.log('Disconnecting from client');
 
         // disconnect from db
-        await disconnectClientAsync(client);
+        // await disconnectClientAsync(client); // remove this as it hangs
         return lastCheckedId;
     }
 
