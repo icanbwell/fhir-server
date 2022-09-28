@@ -208,6 +208,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             );
         }
 
+        console.log('Disconnecting from client');
+
         // disconnect from db
         await disconnectClientAsync(client);
         return lastCheckedId;
