@@ -103,7 +103,7 @@ const connectAsync = async function () {
  */
 const disconnectClientAsync = async function (client) {
     if (client) {
-        await client.close();
+        await client.close(true);
     }
 };
 
