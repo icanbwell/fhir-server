@@ -98,7 +98,7 @@ const connectAsync = async function () {
 
 /**
  * disconnects a client
- * @param client
+ * @param {import('mongodb').MongoClient} client
  * @returns {Promise<void>}
  */
 const disconnectClientAsync = async function (client) {

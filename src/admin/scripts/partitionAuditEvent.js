@@ -66,14 +66,10 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
          */
         const result = {
-            updateOne: {
+            replaceOne: {
                 filter: {id: doc.id},
-                update: {
-                    $setOnInsert: doc
-                },
-                options: {
-                    upsert: true
-                }
+                replacement: doc,
+                upsert: true
             }
         };
         return [
@@ -132,7 +128,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
-                            batchSize: this.batchSize
+                            batchSize: this.batchSize,
+                            skipExistingIds: true
                         }
                     );
                 } catch (e) {

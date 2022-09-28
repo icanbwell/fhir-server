@@ -34,10 +34,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {string} sourceCollectionName
      * @param {string} destinationCollectionName
      * @param {import('mongodb').Filter<import('mongodb').Document>} query
+     * @param {import('mongodb').Collection<import('mongodb').Document>|undefined} [projection]
      * @param {StartFromIdContainer} startFromIdContainer
      * @param {function(document: import('mongodb').DefaultSchema):Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>} fnCreateBulkOperationAsync
      * @param {boolean|undefined} [ordered]
      * @param {number} batchSize
+     * @param {boolean} skipExistingIds
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -46,10 +48,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             sourceCollectionName,
             destinationCollectionName,
             query,
+            projection,
             startFromIdContainer,
             fnCreateBulkOperationAsync,
             ordered = false,
-            batchSize
+            batchSize,
+            skipExistingIds
         }
     ) {
         let lastCheckedId = '';
@@ -82,19 +86,47 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
 
         // first get the count
-        const numberOfDocuments = await sourceCollection.countDocuments(query, {});
+        const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+        const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+        console.log(`Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+            `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+
+        if (skipExistingIds) {
+            // get latest id from destination
+            const lastIdFromDestinationList = await destinationCollection.find({}).sort({'id': -1}).project(
+                {
+                    id: 1,
+                    _id: 0
+                }
+            ).map(p => p.id).toArray();
+
+            if (!startFromIdContainer.startFromId &&
+                lastIdFromDestinationList &&
+                lastIdFromDestinationList.length === 0
+            ) {
+                startFromIdContainer.startFromId = lastIdFromDestinationList[0];
+            }
+        }
 
         if (startFromIdContainer.startFromId) {
             query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
         }
+
+        console.log(`[${currentDateTime.toTimeString()}] ` +
+            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+            `From ${sourceCollectionName} to ${destinationCollectionName}`);
         /**
          * @type {FindCursor<WithId<import('mongodb').Document>>}
          */
-        const cursor = await sourceCollection
+        let cursor = await sourceCollection
             .find(query, {})
             .sort({id: 1})
             .maxTimeMS(20 * 60 * 60 * 1000) // 20 hours
             .batchSize(batchSize);
+
+        if (projection) {
+            cursor = cursor.project(projection);
+        }
 
         let count = 0;
         while (await this.hasNext(cursor)) {
@@ -109,14 +141,17 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             readline.cursorTo(process.stdout, 0);
             currentDateTime = new Date();
             process.stdout.write(`[${currentDateTime.toTimeString()}] ` +
-                `${count.toLocaleString('en-US')} of ${numberOfDocuments.toLocaleString('en-US')}`);
+                `${count.toLocaleString('en-US')} of ${numberOfSourceDocuments.toLocaleString('en-US')}`);
+            /**
+             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+             */
             const bulkOperations = await fnCreateBulkOperationAsync(doc);
             for (const bulkOperation of bulkOperations) {
                 operations.push(bulkOperation);
             }
 
             startFromIdContainer.convertedIds += 1;
-            if (startFromIdContainer.convertedIds % this.batchSize === 0) { // write every x items
+            if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
                 // https://www.npmjs.com/package/async-retry
                 await retry(
                     // eslint-disable-next-line no-loop-func
@@ -137,7 +172,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     }
                 );
             }
-            if (startFromIdContainer.convertedIds % this.batchSize === 0) { // show progress every x items
+            if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // show progress every x items
                 currentDateTime = new Date();
                 const message = `\n[${currentDateTime.toTimeString()}] ` +
                     `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
@@ -173,8 +208,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             );
         }
 
+        console.log('Disconnecting from client');
+
         // disconnect from db
-        await disconnectClientAsync(db);
+        await disconnectClientAsync(client);
         return lastCheckedId;
     }
 
