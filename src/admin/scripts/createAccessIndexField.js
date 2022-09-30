@@ -90,6 +90,8 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                  */
                 const db = client.db(config.db_name);
                 this.collections = await this.mongoCollectionManager.getAllCollectionNames({db: db});
+                // exclude history tables since we always search by id on those
+                this.collections = this.collections.filter(c => !c.includes('_History'));
             }
 
             await this.init();
