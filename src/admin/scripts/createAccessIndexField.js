@@ -6,6 +6,7 @@ dotenv.config({
     path: pathToEnv
 });
 console.log(`Reading config from ${pathToEnv}`);
+console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {createContainer} = require('../../createContainer');
@@ -134,7 +135,7 @@ async function main() {
      */
     let collections = parameters.collections ? parameters.collections.split(',').map(x => x.trim()) : [];
     const dbName = parameters.db;
-    if (parameters.collections === '*') {
+    if (parameters.collections === 'all') {
         const config = parameters.audit ? auditEventMongoConfig : mongoConfig;
         /**
          * @type {import('mongodb').MongoClient}
@@ -177,7 +178,9 @@ async function main() {
  * To run this:
  * nvm use 16.17.0
  * node src/admin/scripts/createAccessIndexField.js --collections Practitioner_4_0_0 --batchSize=10000
- * node src/admin/scripts/createAccessIndexField.js --collections * --db fhir --audit --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections all --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections all --audit --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections all --db fhir --audit --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);
