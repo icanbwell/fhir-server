@@ -23,11 +23,13 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
+     * @param {boolean} useAuditDatabase
      */
     constructor({
                     mongoCollectionManager,
                     collections,
-                    batchSize
+                    batchSize,
+                    useAuditDatabase
                 }) {
         super({mongoCollectionManager, batchSize});
         /**
@@ -38,6 +40,11 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
          * @type {number}
          */
         this.batchSize = batchSize;
+
+        /**
+         * @type {boolean}
+         */
+        this.useAuditDatabase = useAuditDatabase;
     }
 
     /**
@@ -72,6 +79,19 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      */
     async processAsync() {
         try {
+            if (this.collections.length > 0 && this.collections[0] === 'all') {
+                const config = this.useAuditDatabase ? auditEventMongoConfig : mongoConfig;
+                /**
+                 * @type {import('mongodb').MongoClient}
+                 */
+                const client = await createClientAsync(config);
+                /**
+                 * @type {import('mongodb').Db}
+                 */
+                const db = client.db(config.db_name);
+                this.collections = await this.mongoCollectionManager.getAllCollectionNames({db: db});
+            }
+
             await this.init();
 
             console.log(`Starting loop for ${this.collections.join(',')}`);
@@ -134,18 +154,8 @@ async function main() {
      * @type {string[]}
      */
     let collections = parameters.collections ? parameters.collections.split(',').map(x => x.trim()) : [];
-    const dbName = parameters.db;
     if (parameters.collections === 'all') {
-        const config = parameters.audit ? auditEventMongoConfig : mongoConfig;
-        /**
-         * @type {import('mongodb').MongoClient}
-         */
-        const client = await createClientAsync(config);
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const db = client.db(dbName || config.db_name);
-        collections = await this.mongoCollectionManager.getAllCollectionNames({db: db});
+        collections = ['all'];
     }
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     console.log(`[${currentDateTime}] ` +
@@ -159,7 +169,8 @@ async function main() {
             {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections: collections,
-                batchSize
+                batchSize,
+                useAuditDatabase: parameters.audit ? true : false
             }
         )
     );
@@ -180,7 +191,7 @@ async function main() {
  * node src/admin/scripts/createAccessIndexField.js --collections Practitioner_4_0_0 --batchSize=10000
  * node src/admin/scripts/createAccessIndexField.js --collections all --batchSize=10000
  * node src/admin/scripts/createAccessIndexField.js --collections all --audit --batchSize=10000
- * node src/admin/scripts/createAccessIndexField.js --collections all --db fhir --audit --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections AuditEvent_4_0_0 --audit --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);
