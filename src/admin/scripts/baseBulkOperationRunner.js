@@ -60,11 +60,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        let client = await createClientAsync(config);
+        const client = await createClientAsync(config);
         /**
          * @type {import('mongodb').Db}
          */
-        let db = client.db(config.db_name);
+        const db = client.db(config.db_name);
         /**
          * @type {import('mongodb').Collection<import('mongodb').Document>}
          */

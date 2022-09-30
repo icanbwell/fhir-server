@@ -10,7 +10,8 @@ console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
-const {mongoConfig} = require('../../config');
+const {mongoConfig, auditEventMongoConfig} = require('../../config');
+const {createClientAsync} = require('../../utils/connect');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -131,7 +132,20 @@ async function main() {
     /**
      * @type {string[]}
      */
-    const collections = parameters.collections ? parameters.collections.split(',').map(x => x.trim()) : [];
+    let collections = parameters.collections ? parameters.collections.split(',').map(x => x.trim()) : [];
+    const dbName = parameters.db;
+    if (parameters.collections === '*') {
+        const config = parameters.audit ? auditEventMongoConfig : mongoConfig;
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        const client = await createClientAsync(config);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(dbName || config.db_name);
+        collections = await this.mongoCollectionManager.getAllCollectionNames({db: db});
+    }
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     console.log(`[${currentDateTime}] ` +
         `Running script for collections: ${collections.join(',')}`);
@@ -163,6 +177,7 @@ async function main() {
  * To run this:
  * nvm use 16.17.0
  * node src/admin/scripts/createAccessIndexField.js --collections Practitioner_4_0_0 --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections * --db fhir --audit --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);

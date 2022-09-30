@@ -46,6 +46,26 @@ class MongoCollectionManager {
         });
         return db.collection(collectionName);
     }
+
+    /**
+     * Gets or creates a collection
+     * @param {import('mongodb').Db} db
+     * @return {Promise<string[]>}
+     */
+    async getAllCollectionNames({db}) {
+        /**
+         * @type {string[]}
+         */
+        const collectionNames = [];
+        for await (const /** @type {{name: string, type: string}} */ collection of db.listCollections(
+            {}, {nameOnly: true})) {
+            if (collection.name.indexOf('system.') === -1) {
+                collectionNames.push(collection.name);
+            }
+        }
+
+        return collectionNames;
+    }
 }
 
 module.exports = {
