@@ -6,7 +6,7 @@
         "id": "MixP-0001r5i3yr8g2cuj",
         "meta": {
           "versionId": "1",
-          "lastUpdated": "2022-09-15T18:48:10.000Z",
+          "lastUpdated": "2022-09-30T17:39:38.000Z",
           "source": "https://data.medstar.com/api/2.0",
           "security": [
             {
@@ -220,17 +220,45 @@
     }
   ],
   "resourceType": "Bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "https://www.icanbwell.com/query",
+        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z')}},{'recorded':{'$gte':ISODate('2021-09-19T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {}).sort({'id':1}).limit(2)"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryCollection",
+        "code": "AuditEvent_4_0_0_2021_09"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptions",
+        "display": "{'skip':0,'limit':2,'sort':{'id':1}}"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields",
+        "display": "['recorded','meta.security.system','meta.security.code','id']"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime",
+        "display": "0.022"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryOptimization",
+        "display": "{'useTwoStepSearchOptimization':undefined}"
+      }
+    ]
+  },
   "type": "searchset",
-  "timestamp": "2022-09-15T06:48:17.1717Z",
+  "timestamp": "2022-09-30T05:39:39.3939Z",
   "total": 0,
   "link": [
     {
       "relation": "self",
-      "url": "http://localhost:3000/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z"
+      "url": "http://localhost:3000/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1"
     },
     {
       "relation": "next",
-      "url": "http://localhost:3000/4_0_0/AuditEvent/?_bundle=1&_count=2&_security=https%3A%2F%2Fwww.icanbwell.com%2Faccess%7Cmedstar&date=lt2021-09-22T00%3A00%3A00Z&date=ge2021-09-19T00%3A00%3A00Z&id%3Aabove=MixP-0001r5i3yr8g2cuj"
+      "url": "http://localhost:3000/4_0_0/AuditEvent/?_bundle=1&_count=2&_security=https%3A%2F%2Fwww.icanbwell.com%2Faccess%7Cmedstar&date=lt2021-09-22T00%3A00%3A00Z&date=ge2021-09-19T00%3A00%3A00Z&_debug=1&id%3Aabove=MixP-0001r5i3yr8g2cuj"
     }
   ]
 }
