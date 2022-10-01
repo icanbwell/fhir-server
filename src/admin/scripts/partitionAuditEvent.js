@@ -11,6 +11,7 @@ const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const moment = require('moment-timezone');
 const {PartitionAuditEventRunner} = require('../runners/partitionAuditEventRunner');
+const {AdminLogger} = require('../adminLogger');
 
 /**
  * main function
@@ -40,7 +41,8 @@ async function main() {
                 batchSize,
                 skipExistingIds: parameters.skipExistingIds ? true : false,
                 useAuditDatabase: parameters.audit ? true : false,
-                dropDestinationIfCountIsDifferent: parameters.dropDestinationIfCountIsDifferent ? true : false
+                dropDestinationIfCountIsDifferent: parameters.dropDestinationIfCountIsDifferent ? true : false,
+                adminLogger: new AdminLogger()
             }
         )
     );

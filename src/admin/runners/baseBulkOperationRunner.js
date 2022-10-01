@@ -6,6 +6,7 @@ const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
+const {AdminLogger} = require('../adminLogger');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -15,8 +16,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
     /**
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {number} batchSize
+     * @param {AdminLogger} adminLogger
      */
-    constructor({mongoCollectionManager, batchSize}) {
+    constructor(
+        {
+            mongoCollectionManager,
+            batchSize,
+            adminLogger
+        }) {
         super();
 
         /**
@@ -27,6 +34,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         this.batchSize = batchSize;
         assertIsValid(batchSize, `batchSize is not valid: ${batchSize}`);
+
+        /**
+         * @type {AdminLogger}
+         */
+        this.adminLogger = adminLogger;
+        assertTypeEquals(adminLogger, AdminLogger);
     }
 
     /**
@@ -86,23 +99,23 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         let operations = [];
 
         let currentDateTime = new Date();
-        console.log(`[${currentDateTime.toTimeString()}] ` +
+        this.adminLogger.logTrace(`[${currentDateTime.toTimeString()}] ` +
             `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
 
         // first get the count
         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
-        console.log(`Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+        this.adminLogger.log(`Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
 
         if (numberOfSourceDocuments === numberOfDestinationDocuments) {
             if (skipWhenCountIsSame) {
-                console.log(`Count matched and skipWhenCountIsSame is set so skipping collection ${destinationCollectionName}`);
+                this.adminLogger.log(`Count matched and skipWhenCountIsSame is set so skipping collection ${destinationCollectionName}`);
                 return '';
             }
         } else if (dropDestinationIfCountIsDifferent) {
-            console.log(`dropDestinationIfCountIsDifferent is set so deleting all records in ${destinationCollectionName}`);
+            this.adminLogger.log(`dropDestinationIfCountIsDifferent is set so deleting all records in ${destinationCollectionName}`);
             await destinationCollection.deleteMany({});
         }
 
@@ -127,7 +140,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
         }
 
-        console.log(`[${currentDateTime.toTimeString()}] ` +
+        this.adminLogger.logTrace(`[${currentDateTime.toTimeString()}] ` +
             `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
         /**
@@ -172,7 +185,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     // eslint-disable-next-line no-loop-func
                     async (bail, retryNumber) => {
                         currentDateTime = new Date();
-                        console.log(`\n[${currentDateTime.toTimeString()}] ` +
+                        this.adminLogger.logTrace(`\n[${currentDateTime.toTimeString()}] ` +
                             `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                             (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                         const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
@@ -194,7 +207,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                     `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
                     `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
-                console.log(message);
+                this.adminLogger.log(message);
             }
         }
 
@@ -204,7 +217,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             await retry(
                 // eslint-disable-next-line no-loop-func
                 async (bail, retryNumber) => {
-                    console.log(`\n[${currentDateTime.toTimeString()}] ` +
+                    this.adminLogger.logTrace(`\n[${currentDateTime.toTimeString()}] ` +
                         `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                         (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                     const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
@@ -215,7 +228,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                         `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
                         `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
-                    console.log(message);
+                    this.adminLogger.log(message);
                 },
                 {
                     retries: 5,
@@ -226,10 +239,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         // get the count at the end
         const numberOfSourceDocumentsAtEnd = await sourceCollection.countDocuments(query, {});
         const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(query, {});
-        console.log(`Finished with count in source: ${numberOfSourceDocumentsAtEnd.toLocaleString('en-US')}, ` +
+        this.adminLogger.log(`Finished with count in source: ${numberOfSourceDocumentsAtEnd.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`);
 
-        console.log('Disconnecting from client...');
+        this.adminLogger.logTrace('Disconnecting from client...');
 
         // disconnect from db
         await disconnectClientAsync(client);
@@ -246,13 +259,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // eslint-disable-next-line no-loop-func
             async (bail, retryNumber) => {
                 if (retryNumber > 1) {
-                    console.log(`next() retry number: ${retryNumber}`);
+                    this.adminLogger.logTrace(`next() retry number: ${retryNumber}`);
                 }
                 return await cursor.next();
             },
             {
                 onRetry: (error) => {
-                    console.error(`ERROR in next(): ${error}`);
+                    this.adminLogger.logError(`ERROR in next(): ${error}`);
                 },
                 retries: 5,
             });
@@ -268,13 +281,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // eslint-disable-next-line no-loop-func
             async (bail, retryNumber) => {
                 if (retryNumber > 1) {
-                    console.log(`hasNext() retry number: ${retryNumber}`);
+                    this.adminLogger.logTrace(`hasNext() retry number: ${retryNumber}`);
                 }
                 return await cursor.hasNext();
             },
             {
                 onRetry: (error) => {
-                    console.error(`ERROR in hasNext(): ${error}`);
+                    this.adminLogger.logError(`ERROR in hasNext(): ${error}`);
                 },
                 retries: 5,
             });

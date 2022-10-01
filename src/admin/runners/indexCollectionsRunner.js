@@ -3,6 +3,7 @@ const {IndexManager} = require('../../indexes/indexManager');
 const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
 const {BaseScriptRunner} = require('./baseScriptRunner');
+const {AdminLogger} = require('../adminLogger');
 
 
 /**
@@ -16,6 +17,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [dropIndexes]
      * @param {boolean|undefined} [useAuditDatabase]
      * @param {boolean} includeHistoryCollections
+     * @param {AdminLogger} adminLogger
      */
     constructor(
         {
@@ -23,7 +25,8 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             collections,
             dropIndexes,
             useAuditDatabase,
-            includeHistoryCollections
+            includeHistoryCollections,
+            adminLogger
         }
     ) {
         super();
@@ -52,6 +55,9 @@ class IndexCollectionsRunner extends BaseScriptRunner {
          * @type {boolean}
          */
         this.includeHistoryCollections = includeHistoryCollections;
+
+        this.adminLogger = adminLogger;
+        assertTypeEquals(adminLogger, AdminLogger);
     }
 
     /**
@@ -89,7 +95,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                 });
             }
         } catch (e) {
-            console.log(`ERROR: ${e}`);
+            this.adminLogger.logError(`ERROR: ${e}`);
         } finally {
             await this.shutdown();
         }

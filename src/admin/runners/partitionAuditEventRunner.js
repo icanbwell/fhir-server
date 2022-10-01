@@ -17,6 +17,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {boolean} skipExistingIds
      * @param {boolean} useAuditDatabase
      * @param {boolean} dropDestinationIfCountIsDifferent
+     * @param {AdminLogger} adminLogger
      */
     constructor({
                     mongoCollectionManager,
@@ -25,9 +26,14 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     batchSize,
                     skipExistingIds,
                     useAuditDatabase,
-                    dropDestinationIfCountIsDifferent
+                    dropDestinationIfCountIsDifferent,
+                    adminLogger
                 }) {
-        super({mongoCollectionManager, batchSize});
+        super({
+            mongoCollectionManager,
+            batchSize,
+            adminLogger
+        });
         /**
          * @type {moment.Moment}
          */

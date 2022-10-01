@@ -10,6 +10,7 @@ console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {IndexCollectionsRunner} = require('../runners/indexCollectionsRunner');
+const {AdminLogger} = require('../adminLogger');
 
 /**
  * main function
@@ -30,7 +31,8 @@ async function main() {
             collections: parameters.collections,
             dropIndexes: parameters.drop,
             useAuditDatabase: parameters.audit ? true : false,
-            includeHistoryCollections: parameters.includeHistoryCollections ? true : false
+            includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
+            adminLogger: new AdminLogger()
         }));
 
     /**

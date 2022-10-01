@@ -11,6 +11,7 @@ console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {CreateAccessIndexRunner} = require('../runners/createAccessIndexFieldRunner');
+const {AdminLogger} = require('../adminLogger');
 
 /**
  * main function
@@ -42,7 +43,8 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections: collections,
                 batchSize,
-                useAuditDatabase: parameters.audit ? true : false
+                useAuditDatabase: parameters.audit ? true : false,
+                adminLogger: new AdminLogger()
             }
         )
     );

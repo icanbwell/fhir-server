@@ -11,14 +11,21 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {boolean} useAuditDatabase
+     * @param {AdminLogger} adminLogger
      */
-    constructor({
-                    mongoCollectionManager,
-                    collections,
-                    batchSize,
-                    useAuditDatabase
-                }) {
-        super({mongoCollectionManager, batchSize});
+    constructor(
+        {
+            mongoCollectionManager,
+            collections,
+            batchSize,
+            useAuditDatabase,
+            adminLogger
+        }) {
+        super({
+            mongoCollectionManager,
+            batchSize,
+            adminLogger
+        });
         /**
          * @type {string[]}
          */
@@ -53,7 +60,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
-            // batch up the calls to update
+                // batch up the calls to update
             const result = {updateOne: {filter: {_id: doc._id}, update: {$set: setCommand}}};
             operations.push(result);
         }
