@@ -74,13 +74,18 @@ async function handleAdmin(
                 }
 
                 case 'showIndexes': {
-                    // now add our class
+                    console.log(`showIndexes: req.query: ${JSON.stringify(req.query)}`);
+
                     /**
                      * @type {IndexManager}
                      */
                     const indexManager = container.indexManager;
                     const json = await indexManager.getIndexesInAllCollectionsAsync();
-                    return res.json(json);
+                    const filePath = __dirname + '/../views/admin/pages/indexes';
+                    return res.render(filePath, {
+                        collections: json
+                    });
+                    // return res.json(json);
                 }
 
                 default: {

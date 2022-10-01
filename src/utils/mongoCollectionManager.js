@@ -93,9 +93,10 @@ class MongoCollectionManager {
                 }
             ]
         );
-        console.log(`Aggregation result=${JSON.stringify(result)}`);
+        /**
+         * @type {import('mongodb').Document[]}
+         */
         const documents = await result.toArray();
-        console.log(`Aggregation result array=${JSON.stringify(documents)}`);
         return documents[0]['total'];
     }
 
@@ -119,7 +120,11 @@ class MongoCollectionManager {
                 }
             ]
         );
-        return result ? parseInt(result['total']) : null;
+        /**
+         * @type {import('mongodb').Document[]}
+         */
+        const documents = await result.toArray();
+        return documents[0]['total'];
     }
 
     /**
@@ -166,7 +171,13 @@ class MongoCollectionManager {
                 allowDiskUse: true // sorting can be expensive
             }
         );
-        return result ? result.toArray() : null;
+        /**
+         * @type {import('mongodb').Document[]}
+         */
+        const documents = await result.toArray();
+        return documents.map(x => {
+            return {name: x.name, count: x.count};
+        });
     }
 }
 

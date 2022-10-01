@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title><%= id ;%></title>
+    <%- include('../partials/head'); %>
 </head>
 <body class="container-fluid p-0">
 <main>
-    <div> Results for id <%= id ;%></div>
-    <pre>
-        <code>
-        <%= JSON.stringify(json, null, 4); %>
-        </code>
-    </pre>
+    <% collections.forEach(function(collection){ %>
+        <div> <%= collection.name; %></div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">name</th>
+                <th scope="col">key</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% collection.indexes.forEach(function(row){ %>
+                <tr>
+                    <td><%= row.name %></td>
+                    <td><%= row.key %></td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    <% }) %>
 </main>
 
 </body>

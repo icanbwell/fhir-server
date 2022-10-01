@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <title>
-  Helix FHIR Server | <% if (locals.resourceDefinition) { %> <%= resourceDefinition.name %><% } %>
+  Helix FHIR Server | <% if (locals && locals.resourceDefinition) { %> <%= resourceDefinition.name %><% } %>
 </title>
 
 <link rel="stylesheet" href="/css/bootstrap.min.css" />
