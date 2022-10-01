@@ -25,10 +25,14 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {moment.Moment} recordedAfter
      * @param {moment.Moment} recordedBefore
      * @param {number} batchSize
+     * @param {boolean} skipExistingIds
      */
     constructor({
-                    mongoCollectionManager, recordedAfter, recordedBefore,
-                    batchSize
+                    mongoCollectionManager,
+                    recordedAfter,
+                    recordedBefore,
+                    batchSize,
+                    skipExistingIds
                 }) {
         super({mongoCollectionManager, batchSize});
         /**
@@ -43,6 +47,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         assertTypeEquals(recordedBefore, moment);
 
         this.batchSize = batchSize;
+        this.skipExistingIds = skipExistingIds;
     }
 
     /**
@@ -129,7 +134,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
                             batchSize: this.batchSize,
-                            skipExistingIds: true
+                            skipExistingIds: this.skipExistingIds,
+                            skipWhenCountIsSame: true
                         }
                     );
                 } catch (e) {
@@ -174,7 +180,8 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 recordedAfter: moment.utc(recordedAfter),
                 recordedBefore: moment.utc(recordedBefore),
-                batchSize
+                batchSize,
+                skipExistingIds: parameters.skipExistingIds ? true : false
             }
         )
     );
@@ -192,7 +199,7 @@ async function main() {
 /**
  * To run this:
  * nvm use 16.17.0
- * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000
+ * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000 --skipExistingIds
  */
 main().catch(reason => {
     console.error(reason);

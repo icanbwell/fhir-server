@@ -40,6 +40,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [ordered]
      * @param {number} batchSize
      * @param {boolean} skipExistingIds
+     * @param {boolean|undefined} [skipWhenCountIsSame]
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -53,7 +54,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             fnCreateBulkOperationAsync,
             ordered = false,
             batchSize,
-            skipExistingIds
+            skipExistingIds,
+            skipWhenCountIsSame
         }
     ) {
         let lastCheckedId = '';
@@ -90,6 +92,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
         console.log(`Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+
+        if (skipWhenCountIsSame && (numberOfSourceDocuments === numberOfDestinationDocuments)) {
+            return '';
+        }
 
         if (skipExistingIds) {
             // get latest id from destination
@@ -211,7 +217,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         console.log('Disconnecting from client');
 
         // disconnect from db
-        await disconnectClientAsync(client); // remove this as it hangs
+        await disconnectClientAsync(client);
         return lastCheckedId;
     }
 
