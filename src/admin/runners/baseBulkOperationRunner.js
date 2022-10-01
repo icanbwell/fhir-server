@@ -275,7 +275,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
 
         // get the count at the end
-        this.adminLogger.logTrace(`Getting count afterward: ${mongoQueryStringify(originalQuery)}`);
+        this.adminLogger.logTrace(`Getting count afterward in ${sourceCollectionName} and ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`);
         const numberOfSourceDocumentsAtEnd = await sourceCollection.countDocuments(originalQuery, {});
         const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
         this.adminLogger.log(`Finished with count in source: ${numberOfSourceDocumentsAtEnd.toLocaleString('en-US')}, ` +
