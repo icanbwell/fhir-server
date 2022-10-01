@@ -110,9 +110,25 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         // first get the count
         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+        /**
+         * @type {number}
+         */
+        const numberOfSourceDocumentsWithDistinctId = await sourceCollection.aggregate((
+            [
+                {
+                    $group: {
+                        _id: 'id'
+                    }
+                },
+                {
+                    $count: 'total'
+                }
+            ]
+        ))['total'];
         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
         this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
             `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+            `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
 
         if (numberOfSourceDocuments === numberOfDestinationDocuments) {
