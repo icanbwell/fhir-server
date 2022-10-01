@@ -218,7 +218,8 @@ const createContainer = function () {
                 errorReporter: c.errorReporter,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
-                bundleManager: c.bundleManager
+                bundleManager: c.bundleManager,
+                configManager: c.configManager
             }
         )
     );
@@ -230,7 +231,8 @@ const createContainer = function () {
                 errorReporter: c.errorReporter,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
-                bundleManager: c.bundleManager
+                bundleManager: c.bundleManager,
+                configManager: c.configManager
             }
         )
     );

@@ -13,6 +13,7 @@ const {ErrorReporter} = require('../../utils/slack.logger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
+const {ConfigManager} = require('../../utils/configManager');
 
 
 class SearchStreamingOperation {
@@ -25,6 +26,7 @@ class SearchStreamingOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -34,7 +36,8 @@ class SearchStreamingOperation {
             errorReporter,
             fhirLoggingManager,
             scopesValidator,
-            bundleManager
+            bundleManager,
+            configManager
         }
     ) {
         /**
@@ -76,6 +79,12 @@ class SearchStreamingOperation {
          */
         this.bundleManager = bundleManager;
         assertTypeEquals(bundleManager, BundleManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -133,7 +142,7 @@ class SearchStreamingOperation {
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (isTrue(env.USE_ACCESS_INDEX) || isTrue(args['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
 
         /**
          * @type {boolean}

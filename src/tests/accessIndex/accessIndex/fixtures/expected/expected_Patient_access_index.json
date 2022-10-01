@@ -1,0 +1,66 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "00100000000",
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "source": "http://medstarhealth.org/provider",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ],
+            "text": "t",
+            "use": "usual"
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Patient_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {}).sort({'id':1}).limit(2)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Patient_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'skip':0,'limit':2,'sort':{'id':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['meta.security.system','meta.security.code','id']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
