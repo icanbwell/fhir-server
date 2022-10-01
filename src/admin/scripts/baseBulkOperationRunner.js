@@ -41,6 +41,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {number} batchSize
      * @param {boolean} skipExistingIds
      * @param {boolean|undefined} [skipWhenCountIsSame]
+     * @param {boolean|undefined} [dropDestinationIfCountIsDifferent]
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -55,7 +56,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             ordered = false,
             batchSize,
             skipExistingIds,
-            skipWhenCountIsSame
+            skipWhenCountIsSame,
+            dropDestinationIfCountIsDifferent
         }
     ) {
         let lastCheckedId = '';
@@ -112,6 +114,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             ) {
                 startFromIdContainer.startFromId = lastIdFromDestinationList[0];
             }
+        } else if (dropDestinationIfCountIsDifferent) {
+            console.log(`Deleting all records in ${destinationCollectionName}`);
+            await destinationCollection.deleteMany({});
         }
 
         if (startFromIdContainer.startFromId) {

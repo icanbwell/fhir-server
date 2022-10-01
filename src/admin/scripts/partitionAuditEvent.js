@@ -27,6 +27,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {number} batchSize
      * @param {boolean} skipExistingIds
      * @param {boolean} useAuditDatabase
+     * @param {boolean} dropDestinationIfCountIsDifferent
      */
     constructor({
                     mongoCollectionManager,
@@ -34,7 +35,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     recordedBefore,
                     batchSize,
                     skipExistingIds,
-                    useAuditDatabase
+                    useAuditDatabase,
+                    dropDestinationIfCountIsDifferent
                 }) {
         super({mongoCollectionManager, batchSize});
         /**
@@ -52,6 +54,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         this.skipExistingIds = skipExistingIds;
 
         this.useAuditDatabase = useAuditDatabase;
+
+        this.dropDestinationIfCountIsDifferent = dropDestinationIfCountIsDifferent;
     }
 
     /**
@@ -139,7 +143,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             ordered: false,
                             batchSize: this.batchSize,
                             skipExistingIds: this.skipExistingIds,
-                            skipWhenCountIsSame: true
+                            skipWhenCountIsSame: true,
+                            dropDestinationIfCountIsDifferent: this.dropDestinationIfCountIsDifferent
                         }
                     );
                 } catch (e) {
@@ -186,7 +191,8 @@ async function main() {
                 recordedBefore: moment.utc(recordedBefore),
                 batchSize,
                 skipExistingIds: parameters.skipExistingIds ? true : false,
-                useAuditDatabase: parameters.audit ? true : false
+                useAuditDatabase: parameters.audit ? true : false,
+                dropDestinationIfCountIsDifferent: parameters.dropDestinationIfCountIsDifferent ? true : false
             }
         )
     );
@@ -206,6 +212,7 @@ async function main() {
  * nvm use 16.17.0
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000 --skipExistingIds
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds
+ * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds --dropDestinationIfCountIsDifferent
  */
 main().catch(reason => {
     console.error(reason);
