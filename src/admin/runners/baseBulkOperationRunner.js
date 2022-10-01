@@ -196,7 +196,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         let count = 0;
         var refreshTimestamp = moment(); // take note of time at operation start
-        while (await this.hasNext(cursor)) {
+        const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
+        while (await this.hasNext(cursor, fnRefreshSessionAsync)) {
             // Check if more than 5 minutes have passed since the last refresh
             const numberOfSecondsBetweenSessionRefreshes = 60;
             if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
@@ -338,9 +339,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
     /**
      *
      * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
+     * @param {function(): Promise<void>| undefined} [fnRefreshSessionAsync]
      * @returns {Promise<unknown>}
      */
-    async hasNext(cursor) {
+    async hasNext(cursor, fnRefreshSessionAsync) {
         return await retry(
             // eslint-disable-next-line no-loop-func
             async (bail, retryNumber) => {
@@ -351,8 +353,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 return await cursor.hasNext();
             },
             {
-                onRetry: (error) => {
+                onRetry: async (error) => {
                     this.adminLogger.logError(`ERROR in hasNext(): ${error}`);
+                    if (fnRefreshSessionAsync) {
+                        await fnRefreshSessionAsync();
+                    }
                 },
                 retries: 5,
             });
