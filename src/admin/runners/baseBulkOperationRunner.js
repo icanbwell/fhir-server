@@ -356,6 +356,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 onRetry: async (error) => {
                     this.adminLogger.logError(`ERROR in hasNext(): ${error}`);
                     if (fnRefreshSessionAsync) {
+                        this.adminLogger.logTrace('Refreshing session');
                         await fnRefreshSessionAsync();
                     }
                 },
