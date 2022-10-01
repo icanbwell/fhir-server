@@ -180,13 +180,16 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
 
+        // pass session to find query per:
+        // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
+        const maxTimeMS = 20 * 60 * 60 * 1000;
         /**
          * @type {FindCursor<WithId<import('mongodb').Document>>}
          */
         let cursor = await sourceCollection
-            .find(query, {})
+            .find(query, {session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS})
             .sort({id: 1})
-            .maxTimeMS(20 * 60 * 60 * 1000) // 20 hours
+            .maxTimeMS(maxTimeMS) // 20 hours
             .batchSize(batchSize)
             .addCursorFlag('noCursorTimeout', true);
 
