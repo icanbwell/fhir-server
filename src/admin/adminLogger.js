@@ -1,6 +1,6 @@
 class AdminLogger {
     async logTrace(message) {
-        console.trace(message);
+        console.log(message);
     }
 
     async log(message) {
