@@ -94,7 +94,8 @@ class MongoCollectionManager {
             ]
         );
         console.log(`Aggregation result=${result}`);
-        return result['total'];
+        console.log(`Aggregation result array=${result.toArray()}`);
+        return result.toArray()[0]['total'];
     }
 
     /**
