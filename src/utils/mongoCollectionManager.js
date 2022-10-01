@@ -66,6 +66,34 @@ class MongoCollectionManager {
 
         return collectionNames;
     }
+
+    /**
+     * Does a distinct count
+     * @param {import('mongodb').Collection} collection
+     * @param {import('mongodb').Filter<import('mongodb').Document>} query
+     * @returns {Promise<*>}
+     */
+    async distinctCount({collection, query}) {
+        const result = await collection.aggregate((
+            [
+                {
+                    $filter: {
+                        cond: query
+                    }
+                },
+                {
+                    $group: {
+                        _id: 'id'
+                    }
+                },
+                {
+                    $count: 'total'
+                }
+            ]
+        ));
+        return result['total'];
+    }
+
 }
 
 module.exports = {

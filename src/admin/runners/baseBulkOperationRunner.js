@@ -10,6 +10,7 @@ const {AdminLogger} = require('../adminLogger');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 
+
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
  *              create bulk operations and then sending the bulk operations once batch size has been reached
@@ -113,18 +114,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {number}
          */
-        const numberOfSourceDocumentsWithDistinctId = await sourceCollection.aggregate((
-            [
-                {
-                    $group: {
-                        _id: 'id'
-                    }
-                },
-                {
-                    $count: 'total'
-                }
-            ]
-        ))['total'];
+        const numberOfSourceDocumentsWithDistinctId = await this.mongoCollectionManager.distinctCount(
+            {
+                collection: sourceCollection,
+                query
+            });
         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
         this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
             `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
@@ -297,20 +291,21 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         // get the count at the end
         this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-            `Getting count afterward in ${sourceCollectionName} and ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`);
-        const numberOfSourceDocumentsAtEnd = await sourceCollection.countDocuments(originalQuery, {});
+            `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`);
         const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
         this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
-            `Finished with count in source: ${numberOfSourceDocumentsAtEnd.toLocaleString('en-US')}, ` +
+            `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+            `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`);
-
 
         // end session
         this.adminLogger.logTrace(`Ending session ${JSON.stringify(sessionId)}...`);
         await session.endSession();
+
         // disconnect from db
         this.adminLogger.logTrace('Disconnecting from client...');
         await disconnectClientAsync(client);
+
         return lastCheckedId;
     }
 
