@@ -20,7 +20,8 @@ class AccessIndexManager {
      * @returns {boolean}
      */
     resourceHasAccessIndex(collection_name) {
-        return this.configManager.resourcesWithAccessIndex.includes(collection_name);
+        return this.configManager.resourcesWithAccessIndex.includes(collection_name) ||
+            this.configManager.resourcesWithAccessIndex.includes('all');
     }
 }
 
