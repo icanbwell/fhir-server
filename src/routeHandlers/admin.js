@@ -8,27 +8,37 @@ const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 
-module.exports.handleAdmin = async (req, res) => {
+/**
+ * Gets admin scopes from the request
+ * @param {import('http').IncomingMessage} req
+ * @returns {{adminScopes: string[], scope: string}}
+ */
+function getAdminScopes({req}) {
+    /**
+     * @type {string}
+     */
+    const scope = req.authInfo && req.authInfo.scope;
+    /**
+     * @type {string[]}
+     */
+    const scopes = scope.split(' ');
+    const adminScopes = scopes.filter(s => s.startsWith('admin/'));
+    return {scope, adminScopes};
+}
+
+async function handleAdmin(
+    /** @type {import('http').IncomingMessage} **/ req,
+    /** @type {import('http').ServerResponse} **/ res
+) {
     console.info('Running admin');
     /**
      * @type {import('mongodb').MongoClient}
      */
     const client = await createClientAsync(mongoConfig);
     try {
-        /**
-         * @type {string}
-         */
-        const scope = req.authInfo && req.authInfo.scope;
-        // console.info('Running index');
         const operation = req.params['op'];
         console.log(`op=${operation}`);
-
-        // console.log(`file: ${filePath}.  scope: ${scope}`);
-        /**
-         * @type {string[]}
-         */
-        const scopes = scope.split(' ');
-        const adminScopes = scopes.filter(s => s.startsWith('admin/'));
+        const {scope, adminScopes} = getAdminScopes({req});
         if (adminScopes.length > 0) {
             switch (operation) {
                 case 'searchLog': {
@@ -54,7 +64,6 @@ module.exports.handleAdmin = async (req, res) => {
                         message: 'No id passed'
                     });
                 }
-
                 default: {
                     const filePath = __dirname + '/../views/admin/pages/index';
                     return res.render(filePath, {});
@@ -75,4 +84,10 @@ module.exports.handleAdmin = async (req, res) => {
     } finally {
         await disconnectClientAsync(client);
     }
+}
+
+module.exports = {
+    handleAdmin,
+    getAdminScopes
 };
+

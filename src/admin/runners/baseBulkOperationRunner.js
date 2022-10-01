@@ -146,6 +146,16 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         this.adminLogger.logTrace(`[${currentDateTime.toTimeString()}] ` +
             `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
+
+        /**
+         * @type {import('mongodb').ClientSession}
+         */
+        const session = client.startSession();
+        /**
+         * @type {import('mongodb').ServerSessionId}
+         */
+        const sessionId = session.serverSession.id;
+        this.adminLogger.logTrace(`Starting session ${sessionId}`);
         /**
          * @type {FindCursor<WithId<import('mongodb').Document>>}
          */
@@ -153,14 +163,22 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             .find(query, {})
             .sort({id: 1})
             .maxTimeMS(20 * 60 * 60 * 1000) // 20 hours
-            .batchSize(batchSize);
+            .batchSize(batchSize)
+            .addCursorFlag('noCursorTimeout', true);
 
         if (projection) {
             cursor = cursor.project(projection);
         }
 
         let count = 0;
+        var refreshTimestamp = new Date(); // take note of time at operation start
         while (await this.hasNext(cursor)) {
+            // Check if more than 5 minutes have passed since the last refresh
+            if ((new Date() - refreshTimestamp) / 1000 > 300) {
+                this.adminLogger.logTrace(`refreshing session with sessionId: ${sessionId}`);
+                await db.admin().command({'refreshSessions': [sessionId]});
+                refreshTimestamp = new Date();
+            }
             /**
              * element
              * @type {import('mongodb').DefaultSchema}
@@ -197,6 +215,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         // console.log(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
                         //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
                         operations = [];
+                        // await session.commitTransaction();
                     },
                     {
                         retries: 5,
@@ -224,6 +243,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                         (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                     const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
+                    // await session.commitTransaction();
                     startFromIdContainer.nModified += bulkResult.nModified;
                     startFromIdContainer.nUpserted += bulkResult.nUpserted;
                     const message = `\n[${currentDateTime.toTimeString()}] ` +
