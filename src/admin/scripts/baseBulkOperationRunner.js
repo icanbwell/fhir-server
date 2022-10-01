@@ -223,7 +223,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             );
         }
 
-        console.log('Disconnecting from client');
+        // get the count at the end
+        const numberOfSourceDocumentsAtEnd = await sourceCollection.countDocuments(query, {});
+        const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(query, {});
+        console.log(`Finished with count in source: ${numberOfSourceDocumentsAtEnd.toLocaleString('en-US')}, ` +
+            `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`);
+
+        console.log('Disconnecting from client...');
 
         // disconnect from db
         await disconnectClientAsync(client);
