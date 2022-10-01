@@ -132,7 +132,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             if (!startFromIdContainer.startFromId &&
                 lastIdFromDestinationList &&
-                lastIdFromDestinationList.length === 0
+                lastIdFromDestinationList.length >= 0
             ) {
                 startFromIdContainer.startFromId = lastIdFromDestinationList[0];
                 this.adminLogger.logTrace(`Setting last id to ${startFromIdContainer.startFromId}`);
