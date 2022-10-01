@@ -12,7 +12,6 @@ const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {mongoConfig, auditEventMongoConfig} = require('../../config');
-const {createClientAsync} = require('../../utils/connect');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -66,7 +65,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
-                // batch up the calls to update
+            // batch up the calls to update
             const result = {updateOne: {filter: {_id: doc._id}, update: {$set: setCommand}}};
             operations.push(result);
         }
@@ -80,18 +79,8 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
     async processAsync() {
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
-                const config = this.useAuditDatabase ? auditEventMongoConfig : mongoConfig;
-                /**
-                 * @type {import('mongodb').MongoClient}
-                 */
-                const client = await createClientAsync(config);
-                /**
-                 * @type {import('mongodb').Db}
-                 */
-                const db = client.db(config.db_name);
-                this.collections = await this.mongoCollectionManager.getAllCollectionNames({db: db});
-                // exclude history tables since we always search by id on those
-                this.collections = this.collections.filter(c => !c.includes('_History'));
+                this.collections = await this.getAllCollectionNamesAsync(
+                    {useAuditDatabase: this.useAuditDatabase});
             }
 
             await this.init();
@@ -99,7 +88,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             console.log(`Starting loop for ${this.collections.join(',')}`);
 
             // if there is an exception, continue processing from the last id
-            for (const collection of this.collections) {
+            for (const collectionName of this.collections) {
 
                 this.startFromIdContainer.startFromId = '';
                 /**
@@ -115,9 +104,9 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: mongoConfig,
-                            sourceCollectionName: collection,
-                            destinationCollectionName: collection,
+                            config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
+                            sourceCollectionName: collectionName,
+                            destinationCollectionName: collectionName,
                             query,
                             projection,
                             startFromIdContainer: this.startFromIdContainer,
@@ -130,7 +119,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 } catch (e) {
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
-                console.log(`Finished loop ${collection}`);
+                console.log(`Finished loop ${collectionName}`);
             }
             console.log('Finished script');
             console.log('Shutting down');
@@ -190,10 +179,10 @@ async function main() {
 /**
  * To run this:
  * nvm use 16.17.0
- * node src/admin/scripts/createAccessIndexField.js --collections Practitioner_4_0_0 --batchSize=10000
- * node src/admin/scripts/createAccessIndexField.js --collections all --batchSize=10000
- * node src/admin/scripts/createAccessIndexField.js --collections all --audit --batchSize=10000
- * node src/admin/scripts/createAccessIndexField.js --collections AuditEvent_4_0_0 --audit --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections=Practitioner_4_0_0 --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections=all --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections=all --audit --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);

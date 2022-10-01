@@ -23,16 +23,18 @@ class IndexCollectionsRunner extends BaseScriptRunner {
     /**
      * constructor
      * @param {IndexManager} indexManager
-     * @param {string|undefined} [collectionName]
+     * @param {string[]|undefined} [collections]
      * @param {boolean|undefined} [dropIndexes]
-     * @param {string|undefined} [dbName]
+     * @param {boolean|undefined} [useAuditDatabase]
+     * @param {boolean} includeHistoryCollections
      */
     constructor(
         {
             indexManager,
-            collectionName,
+            collections,
             dropIndexes,
-            dbName
+            useAuditDatabase,
+            includeHistoryCollections
         }
     ) {
         super();
@@ -43,9 +45,9 @@ class IndexCollectionsRunner extends BaseScriptRunner {
         assertTypeEquals(indexManager, IndexManager);
 
         /**
-         * @type {string|undefined}
+         * @type {string[]|undefined}
          */
-        this.collectionName = collectionName;
+        this.collections = collections;
 
         /**
          * @type {boolean|undefined}
@@ -53,9 +55,14 @@ class IndexCollectionsRunner extends BaseScriptRunner {
         this.dropIndexes = dropIndexes;
 
         /**
-         * @type {string|undefined}
+         * @type {boolean|undefined}
          */
-        this.dbName = dbName;
+        this.useAuditDatabase = useAuditDatabase;
+
+        /**
+         * @type {boolean}
+         */
+        this.includeHistoryCollections = includeHistoryCollections;
     }
 
     /**
@@ -68,21 +75,30 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             /**
              * @type {string}
              */
-            const dbName = this.dbName === 'audit-event' ? AUDIT_EVENT_CLIENT_DB : CLIENT_DB;
+            const dbName = this.useAuditDatabase ? AUDIT_EVENT_CLIENT_DB : CLIENT_DB;
             /**
              * @type {import('mongodb').Db}
              */
             const db = globals.get(dbName);
-            if (this.dropIndexes) {
-                await this.indexManager.deleteIndexesInAllCollectionsInDatabase({
+            if (this.collections.length > 0 && this.collections[0] === 'all') {
+                this.collections = await this.getAllCollectionNamesAsync(
+                    {
+                        useAuditDatabase: this.useAuditDatabase,
+                        includeHistoryCollections: this.includeHistoryCollections
+                    });
+            }
+            for (const collectionName of this.collections) {
+                if (this.dropIndexes) {
+                    await this.indexManager.deleteIndexesInAllCollectionsInDatabase({
+                        db,
+                        collectionRegex: collectionName
+                    });
+                }
+                await this.indexManager.indexAllCollectionsInDatabaseAsync({
                     db,
-                    collectionRegex: this.collectionName
+                    collectionRegex: collectionName
                 });
             }
-            await this.indexManager.indexAllCollectionsInDatabaseAsync({
-                db,
-                collectionRegex: this.collectionName
-            });
         } catch (e) {
             console.log(`ERROR: ${e}`);
         } finally {
@@ -104,12 +120,14 @@ async function main() {
     const container = createContainer();
 
     // now add our class
-    container.register('indexCollectionsRunner', (c) => new IndexCollectionsRunner({
-        indexManager: c.indexManager,
-        collectionName: parameters.collection,
-        dropIndexes: parameters.drop,
-        dbName: parameters.db
-    }));
+    container.register('indexCollectionsRunner', (c) => new IndexCollectionsRunner(
+        {
+            indexManager: c.indexManager,
+            collections: parameters.collections,
+            dropIndexes: parameters.drop,
+            useAuditDatabase: parameters.audit ? true : false,
+            includeHistoryCollections: parameters.includeHistoryCollections ? true : false
+        }));
 
     /**
      * @type {IndexCollectionsRunner}
@@ -123,8 +141,9 @@ async function main() {
 /**
  * To run this:
  * nvm use 16.17.0
- * node src/admin/scripts/indexCollections --collection=Patient_4_0_0 --drop --db=fhir
- * node src/admin/scripts/indexCollections --collection=AuditEvent_4_0_0 --drop --db=audit-event
+ * node src/admin/scripts/indexCollections --collection=Patient_4_0_0 --drop
+ * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit
+ * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * collection can be a regex
  */
 main().catch(reason => {

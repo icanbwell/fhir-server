@@ -5,6 +5,7 @@ const readline = require('readline');
 const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
+const {auditEventMongoConfig, mongoConfig} = require('../../config');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -271,6 +272,34 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 },
                 retries: 5,
             });
+    }
+
+    /**
+     * gets all collection names
+     * @param {boolean} useAuditDatabase
+     * @param {boolean|undefined} [includeHistoryCollections]
+     * @returns {Promise<string[]>}
+     */
+    async getAllCollectionNamesAsync({useAuditDatabase, includeHistoryCollections}) {
+        const config = useAuditDatabase ? auditEventMongoConfig : mongoConfig;
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        const client = await createClientAsync(config);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(config.db_name);
+        /**
+         * @type {string[]}
+         */
+        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({db: db});
+        // exclude history tables since we always search by id on those
+        if (!includeHistoryCollections) {
+            collectionNames = collectionNames.filter(c => !c.includes('_History'));
+        }
+        await disconnectClientAsync(client);
+        return collectionNames;
     }
 }
 
