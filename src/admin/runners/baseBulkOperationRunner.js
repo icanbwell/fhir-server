@@ -8,6 +8,7 @@ const {createClientAsync, disconnectClientAsync} = require('../../utils/connect'
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {AdminLogger} = require('../adminLogger');
 const deepcopy = require('deepcopy');
+const moment = require('moment-timezone');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -99,8 +100,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         let operations = [];
 
-        let currentDateTime = new Date();
-        this.adminLogger.logTrace(`[${currentDateTime.toTimeString()}] ` +
+        /**
+         * @type {moment.Moment}
+         */
+        let currentDateTime = moment();
+        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
             `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
             `for ${sourceCollectionName} and ${destinationCollectionName}`);
 
@@ -155,7 +159,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const sessionId = session.serverSession.id;
         this.adminLogger.logTrace(`Started session ${JSON.stringify(sessionId)}`);
 
-        this.adminLogger.logTrace(`[${currentDateTime.toTimeString()}] ` +
+        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
             `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
             `From ${sourceCollectionName} to ${destinationCollectionName}`);
 
@@ -199,8 +203,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             lastCheckedId = doc.id;
             count += 1;
             readline.cursorTo(process.stdout, 0);
-            currentDateTime = new Date();
-            process.stdout.write(`[${currentDateTime.toTimeString()}] ` +
+            currentDateTime = moment();
+            process.stdout.write(`[${currentDateTime.toISOString()}] ` +
                 `${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')}`);
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
@@ -216,8 +220,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 await retry(
                     // eslint-disable-next-line no-loop-func
                     async (bail, retryNumber) => {
-                        currentDateTime = new Date();
-                        this.adminLogger.logTrace(`\n[${currentDateTime.toTimeString()}] ` +
+                        currentDateTime = moment();
+                        this.adminLogger.logTrace(`\n[${currentDateTime.toISOString()}] ` +
                             `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                             (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                         const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
@@ -234,8 +238,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 );
             }
             if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // show progress every x items
-                currentDateTime = new Date();
-                const message = `\n[${currentDateTime.toTimeString()}] ` +
+                currentDateTime = moment();
+                const message = `\n[${currentDateTime.toISOString()}] ` +
                     `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
                     `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                     `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
@@ -246,18 +250,18 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         // now write out any remaining items
         if (operations.length > 0) { // if any items left to write
-            currentDateTime = new Date();
+            currentDateTime = moment();
             await retry(
                 // eslint-disable-next-line no-loop-func
                 async (bail, retryNumber) => {
-                    this.adminLogger.logTrace(`\n[${currentDateTime.toTimeString()}] ` +
+                    this.adminLogger.logTrace(`\n[${currentDateTime.toISOString()}] ` +
                         `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                         (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                     const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
                     // await session.commitTransaction();
                     startFromIdContainer.nModified += bulkResult.nModified;
                     startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                    const message = `\n[${currentDateTime.toTimeString()}] ` +
+                    const message = `\n[${currentDateTime.toISOString()}] ` +
                         `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
                         `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                         `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
