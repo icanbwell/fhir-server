@@ -13,7 +13,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {CommandLineParser} = require('./commandLineParser');
 const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
 const moment = require('moment-timezone');
-const {auditEventMongoConfig} = require('../../config');
+const {auditEventMongoConfig, mongoConfig} = require('../../config');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -26,13 +26,15 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {moment.Moment} recordedBefore
      * @param {number} batchSize
      * @param {boolean} skipExistingIds
+     * @param {boolean} useAuditDatabase
      */
     constructor({
                     mongoCollectionManager,
                     recordedAfter,
                     recordedBefore,
                     batchSize,
-                    skipExistingIds
+                    skipExistingIds,
+                    useAuditDatabase
                 }) {
         super({mongoCollectionManager, batchSize});
         /**
@@ -48,6 +50,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
 
         this.batchSize = batchSize;
         this.skipExistingIds = skipExistingIds;
+
+        this.useAuditDatabase = useAuditDatabase;
     }
 
     /**
@@ -126,7 +130,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: auditEventMongoConfig,
+                            config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
                             sourceCollectionName,
                             destinationCollectionName,
                             query,
@@ -181,7 +185,8 @@ async function main() {
                 recordedAfter: moment.utc(recordedAfter),
                 recordedBefore: moment.utc(recordedBefore),
                 batchSize,
-                skipExistingIds: parameters.skipExistingIds ? true : false
+                skipExistingIds: parameters.skipExistingIds ? true : false,
+                useAuditDatabase: parameters.audit ? true : false
             }
         )
     );
@@ -200,6 +205,7 @@ async function main() {
  * To run this:
  * nvm use 16.17.0
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000 --skipExistingIds
+ * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds
  */
 main().catch(reason => {
     console.error(reason);
