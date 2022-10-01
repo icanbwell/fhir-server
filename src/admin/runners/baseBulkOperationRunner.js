@@ -100,8 +100,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         let currentDateTime = new Date();
         this.adminLogger.logTrace(`[${currentDateTime.toTimeString()}] ` +
-            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
-            `From ${sourceCollectionName} to ${destinationCollectionName}`);
+            `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+            `for ${sourceCollectionName} and ${destinationCollectionName}`);
 
         // first get the count
         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
@@ -126,7 +126,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     id: 1,
                     _id: 0
                 }
-            ).map(p => p.id).toArray();
+            ).limit(1).map(p => p.id).toArray();
 
             this.adminLogger.logTrace(`Received last id ${JSON.stringify(lastIdFromDestinationList)} from ${destinationCollectionName}`);
 
