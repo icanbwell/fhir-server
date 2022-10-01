@@ -111,7 +111,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         // first get the count
         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
-        this.adminLogger.log(`Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+        this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
+            `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
 
         if (numberOfSourceDocuments === numberOfDestinationDocuments) {
@@ -133,11 +134,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             ).limit(1).map(p => p.id).toArray();
 
-            this.adminLogger.logTrace(`Received last id ${JSON.stringify(lastIdFromDestinationList)} from ${destinationCollectionName}`);
+            this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+                `Received last id ${JSON.stringify(lastIdFromDestinationList)} from ${destinationCollectionName}`);
 
             if (!startFromIdContainer.startFromId &&
                 lastIdFromDestinationList &&
-                lastIdFromDestinationList.length >= 0
+                lastIdFromDestinationList.length >= 0 &&
+                lastIdFromDestinationList[0]
             ) {
                 startFromIdContainer.startFromId = lastIdFromDestinationList[0];
                 this.adminLogger.logTrace(`Setting last id to ${startFromIdContainer.startFromId}`);
@@ -183,12 +186,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // Check if more than 5 minutes have passed since the last refresh
             const numberOfSecondsBetweenSessionRefreshes = 300;
             if ((new Date() - refreshTimestamp) / 1000 > numberOfSecondsBetweenSessionRefreshes) {
-                this.adminLogger.logTrace(`refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
+                this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+                    `refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
                 /**
                  * @type {import('mongodb').Document}
                  */
                 const adminResult = await db.admin().command({'refreshSessions': [sessionId]});
-                this.adminLogger.logTrace(`result from refreshing session: ${JSON.stringify(adminResult)}`);
+                this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+                    `result from refreshing session: ${JSON.stringify(adminResult)}`);
                 refreshTimestamp = new Date();
             }
             /**
@@ -275,15 +280,20 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
 
         // get the count at the end
-        this.adminLogger.logTrace(`Getting count afterward in ${sourceCollectionName} and ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`);
+        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+            `Getting count afterward in ${sourceCollectionName} and ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`);
         const numberOfSourceDocumentsAtEnd = await sourceCollection.countDocuments(originalQuery, {});
         const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
-        this.adminLogger.log(`Finished with count in source: ${numberOfSourceDocumentsAtEnd.toLocaleString('en-US')}, ` +
+        this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
+            `Finished with count in source: ${numberOfSourceDocumentsAtEnd.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`);
 
-        this.adminLogger.logTrace('Disconnecting from client...');
 
+        // end session
+        this.adminLogger.logTrace(`Ending session ${JSON.stringify(sessionId)}...`);
+        await session.endSession();
         // disconnect from db
+        this.adminLogger.logTrace('Disconnecting from client...');
         await disconnectClientAsync(client);
         return lastCheckedId;
     }

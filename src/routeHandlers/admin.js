@@ -64,6 +64,17 @@ async function handleAdmin(
                         message: 'No id passed'
                     });
                 }
+
+                case 'showIndexes': {
+                    /**
+                     * @type {*}
+                     */
+                    // const collection_stats = await new IndexManager({
+                    //     errorReporter: new ErrorReporter(getImageVersion()),
+                    // }).getIndexesInAllCollectionsAsync();
+                    break;
+                }
+
                 default: {
                     const filePath = __dirname + '/../views/admin/pages/index';
                     return res.render(filePath, {});
