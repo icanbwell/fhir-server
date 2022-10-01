@@ -173,7 +173,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     async (bail, retryNumber) => {
                         currentDateTime = new Date();
                         console.log(`\n[${currentDateTime.toTimeString()}] ` +
-                            `Writing ${operations.length.toLocaleString('en-US')} operations in bulk. ` +
+                            `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                             (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                         const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
                         startFromIdContainer.nModified += bulkResult.nModified;
@@ -205,7 +205,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 // eslint-disable-next-line no-loop-func
                 async (bail, retryNumber) => {
                     console.log(`\n[${currentDateTime.toTimeString()}] ` +
-                        `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk. ` +
+                        `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                         (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                     const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
                     startFromIdContainer.nModified += bulkResult.nModified;
