@@ -71,19 +71,21 @@ class MongoCollectionManager {
      * Does a distinct count
      * @param {import('mongodb').Collection} collection
      * @param {import('mongodb').Filter<import('mongodb').Document>} query
+     * @param {string} groupKey
      * @returns {Promise<*>}
      */
-    async distinctCount({collection, query}) {
+    async distinctCountAsync({collection, query, groupKey}) {
+        /**
+         * @type {import('mongodb').AggregationCursor<import('mongodb').Document>}
+         */
         const result = await collection.aggregate((
             [
                 {
-                    $filter: {
-                        cond: query
-                    }
+                    $match: query
                 },
                 {
                     $group: {
-                        _id: 'id'
+                        _id: '$' + `${groupKey}`
                     }
                 },
                 {
@@ -92,6 +94,29 @@ class MongoCollectionManager {
             ]
         ));
         return result['total'];
+    }
+
+    /**
+     * Does a count of records after applying the filter
+     * @param {import('mongodb').Collection} collection
+     * @param {import('mongodb').Filter<import('mongodb').Document>} query
+     * @returns {Promise<number|null>}
+     */
+    async countDocumentsWithFilterAsync({collection, query}) {
+        /**
+         * @type {import('mongodb').AggregationCursor<import('mongodb').Document>}
+         */
+        const result = await collection.aggregate((
+            [
+                {
+                    $match: query
+                },
+                {
+                    $count: 'total'
+                }
+            ]
+        ));
+        return result ? parseInt(result['total']) : null;
     }
 
 }

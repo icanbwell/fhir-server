@@ -7,6 +7,7 @@ const {mongoConfig} = require('../config');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
+const {createContainer} = require('../createContainer');
 
 /**
  * Gets admin scopes from the request
@@ -39,6 +40,13 @@ async function handleAdmin(
         const operation = req.params['op'];
         console.log(`op=${operation}`);
         const {scope, adminScopes} = getAdminScopes({req});
+
+        // set up all the standard services in the container
+        /**
+         * @type {SimpleContainer}
+         */
+        const container = createContainer();
+
         if (adminScopes.length > 0) {
             switch (operation) {
                 case 'searchLog': {
@@ -66,13 +74,13 @@ async function handleAdmin(
                 }
 
                 case 'showIndexes': {
+                    // now add our class
                     /**
-                     * @type {*}
+                     * @type {IndexManager}
                      */
-                    // const collection_stats = await new IndexManager({
-                    //     errorReporter: new ErrorReporter(getImageVersion()),
-                    // }).getIndexesInAllCollectionsAsync();
-                    break;
+                    const indexManager = container.indexManager;
+                    const json = await indexManager.getIndexesInAllCollectionsAsync();
+                    return res.json(json);
                 }
 
                 default: {

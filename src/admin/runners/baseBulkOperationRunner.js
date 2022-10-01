@@ -114,10 +114,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {number}
          */
-        const numberOfSourceDocumentsWithDistinctId = await this.mongoCollectionManager.distinctCount(
+        const numberOfSourceDocumentsWithDistinctId = await this.mongoCollectionManager.distinctCountAsync(
             {
                 collection: sourceCollection,
-                query
+                query,
+                groupKey: 'id'
             });
         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
         this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
@@ -343,6 +344,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 if (retryNumber > 1) {
                     this.adminLogger.logTrace(`hasNext() retry number: ${retryNumber}`);
                 }
+                // noinspection JSDeprecatedSymbols,JSCheckFunctionSignatures
                 return await cursor.hasNext();
             },
             {
