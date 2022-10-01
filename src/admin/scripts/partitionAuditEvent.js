@@ -32,7 +32,7 @@ async function main() {
     // set up all the standard services in the container
     const container = createContainer();
 
-    console.log(`Parameters: ${parameters}`);
+    console.log(`Parameters: ${JSON.stringify(parameters)}`);
     // now add our class
     container.register('processAuditEventRunner', (c) => new PartitionAuditEventRunner(
             {
