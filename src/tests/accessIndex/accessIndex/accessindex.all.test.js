@@ -4,7 +4,6 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 // expected
 const expectedAuditEventResources = require('./fixtures/expected/expected_AuditEvent.json');
-const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
@@ -15,23 +14,15 @@ const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../../constants');
 const {ConfigManager} = require('../../../utils/configManager');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
 
-class MockConfigManager extends ConfigManager {
+class MockConfigManagerWithAllPartitionedResources extends ConfigManager {
     /**
      * @returns {string[]}
      */
     get partitionResources() {
-        return ['Account', 'AuditEvent'];
+        return ['all'];
     }
 }
 
-class MockConfigManagerWithNoPartitionedResources extends ConfigManager {
-    /**
-     * @returns {string[]}
-     */
-    get partitionResources() {
-        return [];
-    }
-}
 
 describe('AuditEvent Tests', () => {
     beforeEach(async () => {
@@ -42,10 +33,10 @@ describe('AuditEvent Tests', () => {
         await commonAfterEach();
     });
 
-    describe('AuditEvent accessIndex Tests', () => {
-        test('accessIndex works', async () => {
+    describe('AuditEvent accessIndex Tests when all is set', () => {
+        test('accessIndex works for audit event when all is set', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
+                c.register('configManager', () => new MockConfigManagerWithAllPartitionedResources());
                 return c;
             });
             // first confirm there are no AuditEvent
@@ -114,9 +105,9 @@ describe('AuditEvent Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
-        test('accessIndex works even for resources not on partitionResources', async () => {
+        test('accessIndex works for other resources when all is set', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
+                c.register('configManager', () => new MockConfigManagerWithAllPartitionedResources());
                 return c;
             });
             // first confirm there are no AuditEvent
@@ -158,49 +149,6 @@ describe('AuditEvent Tests', () => {
              */
             const patientEntries = await patientCollection.find({}).toArray();
             expect(patientEntries[0]._access.medstar).toBe(1);
-        });
-    });
-
-    describe('AuditEvent accessIndex Tests', () => {
-        test('accessIndex is not used if resource not in partitionResources', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithNoPartitionedResources());
-                return c;
-            });
-            // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
-
-            // ARRANGE
-            // add the resources to FHIR server
-            resp = await request
-                .post('/4_0_0/AuditEvent/1/$merge?validate=true')
-                .send(auditevent1Resource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
-
-            /**
-             * @type {PostRequestProcessor}
-             */
-            const postRequestProcessor = getTestContainer().postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
-
-            // ACT & ASSERT
-            // search by token system and code and make sure we get the right AuditEvent back
-            resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedAuditEventResources);
-
-            // search by token system and code and make sure we get the right AuditEvent back
-            resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedAuditEventWithoutAccessIndexResources);
         });
     });
 });

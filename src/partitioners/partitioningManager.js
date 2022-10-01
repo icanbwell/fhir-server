@@ -131,7 +131,7 @@ class PartitioningManager {
         const partitionConfig = partitionConfiguration[`${resourceType}`];
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
-        if (partitionConfig && this.partitionResources.includes(resourceType)) {
+        if (partitionConfig && this.isResourcePartitioned(resourceType)) {
             /**
              * @type {string}
              */
@@ -164,6 +164,11 @@ class PartitioningManager {
         }
     }
 
+    isResourcePartitioned(resourceType) {
+        return this.partitionResources.includes(resourceType) ||
+            this.partitionResources.includes('all');
+    }
+
     /**
      * returns the collection name for this resource
      * @param {string} resourceType
@@ -182,7 +187,7 @@ class PartitioningManager {
         const partitionConfig = partitionConfiguration[`${resourceType}`];
 
         // if partitionConfig found then use that to calculate the name of the partitionConfig
-        if (partitionConfig && this.partitionResources.includes(resourceType)) {
+        if (partitionConfig && this.isResourcePartitioned(resourceType)) {
             const field = partitionConfig['field'];
             const type = partitionConfig['type'];
             switch (type) {
