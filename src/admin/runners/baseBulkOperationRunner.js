@@ -169,11 +169,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').ClientSession}
          */
-        const session = client.startSession();
+        let session = client.startSession();
         /**
          * @type {import('mongodb').ServerSessionId}
          */
-        const sessionId = session.serverSession.id;
+        let sessionId = session.serverSession.id;
         this.adminLogger.logTrace(`Started session ${JSON.stringify(sessionId)}`);
 
         this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
@@ -196,7 +196,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         let count = 0;
         var refreshTimestamp = moment(); // take note of time at operation start
-        const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
+        // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
+        const fnRefreshSessionAsync = async () => {
+            session = client.startSession();
+            sessionId = session.serverSession.id;
+            console.log(`Restarted session ${JSON.stringify(sessionId)}`);
+        };
         while (await this.hasNext(cursor, fnRefreshSessionAsync)) {
             // Check if more than 5 minutes have passed since the last refresh
             const numberOfSecondsBetweenSessionRefreshes = 60;
@@ -356,7 +361,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 onRetry: async (error) => {
                     this.adminLogger.logError(`ERROR in hasNext(): ${error}`);
                     if (fnRefreshSessionAsync) {
-                        this.adminLogger.logTrace('Refreshing session');
+                        this.adminLogger.logTrace('Refreshing session in hasNext()');
                         await fnRefreshSessionAsync();
                     }
                 },
