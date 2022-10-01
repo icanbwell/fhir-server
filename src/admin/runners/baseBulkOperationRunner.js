@@ -7,6 +7,7 @@ const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {AdminLogger} = require('../adminLogger');
+const deepcopy = require('deepcopy');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -139,6 +140,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             }
         }
 
+        const originalQuery = deepcopy(query);
+
         if (startFromIdContainer.startFromId) {
             query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
         }
@@ -174,9 +177,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         var refreshTimestamp = new Date(); // take note of time at operation start
         while (await this.hasNext(cursor)) {
             // Check if more than 5 minutes have passed since the last refresh
-            if ((new Date() - refreshTimestamp) / 1000 > 300) {
-                this.adminLogger.logTrace(`refreshing session with sessionId: ${sessionId}`);
-                await db.admin().command({'refreshSessions': [sessionId]});
+            const numberOfSecondsBetweenSessionRefreshes = 300;
+            if ((new Date() - refreshTimestamp) / 1000 > numberOfSecondsBetweenSessionRefreshes) {
+                this.adminLogger.logTrace(`refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
+                /**
+                 * @type {import('mongodb').Document}
+                 */
+                const adminResult = await db.admin().command({'refreshSessions': [sessionId]});
+                this.adminLogger.logTrace(`result from refreshing session: ${JSON.stringify(adminResult)}`);
                 refreshTimestamp = new Date();
             }
             /**
@@ -185,12 +193,15 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
              */
             const doc = await this.next(cursor);
             startFromIdContainer.startFromId = doc.id;
+            const numberOfDocumentsToCopy = skipExistingIds ?
+                numberOfSourceDocuments - numberOfDestinationDocuments :
+                numberOfSourceDocuments;
             lastCheckedId = doc.id;
             count += 1;
             readline.cursorTo(process.stdout, 0);
             currentDateTime = new Date();
             process.stdout.write(`[${currentDateTime.toTimeString()}] ` +
-                `${count.toLocaleString('en-US')} of ${numberOfSourceDocuments.toLocaleString('en-US')}`);
+                `${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')}`);
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
              */
@@ -260,8 +271,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
 
         // get the count at the end
-        const numberOfSourceDocumentsAtEnd = await sourceCollection.countDocuments(query, {});
-        const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(query, {});
+        this.adminLogger.logTrace('Getting count afterward...');
+        const numberOfSourceDocumentsAtEnd = await sourceCollection.countDocuments(originalQuery, {});
+        const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
         this.adminLogger.log(`Finished with count in source: ${numberOfSourceDocumentsAtEnd.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`);
 
