@@ -32,7 +32,7 @@ class MockConfigManagerWithAllPartitionedResources extends ConfigManager {
 }
 
 
-describe('AuditEvent Tests', () => {
+describe('AuditEvent when all is set Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
