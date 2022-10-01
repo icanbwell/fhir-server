@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <%- include('../partials/head'); %>
+    <%- include('../../partials/head'); %>
 </head>
 <body class="container-fluid p-0">
 <main>
     <% collections.forEach(function(collection){ %>
-        <div> <%= collection.name; %></div>
+        <h3><%= collection.name; %></h3>
         <table class="table">
             <thead>
             <tr>
@@ -18,7 +18,7 @@
             <% collection.indexes.forEach(function(row){ %>
                 <tr>
                     <td><%= row.name %></td>
-                    <td><%= row.key %></td>
+                    <td><%= JSON.stringify(row.key) %></td>
                 </tr>
             <% }); %>
             </tbody>

@@ -195,11 +195,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
 
         let count = 0;
-        var refreshTimestamp = new Date(); // take note of time at operation start
+        var refreshTimestamp = moment(); // take note of time at operation start
         while (await this.hasNext(cursor)) {
             // Check if more than 5 minutes have passed since the last refresh
-            const numberOfSecondsBetweenSessionRefreshes = 300;
-            if ((new Date() - refreshTimestamp) / 1000 > numberOfSecondsBetweenSessionRefreshes) {
+            const numberOfSecondsBetweenSessionRefreshes = 60;
+            if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
                 this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
                     `refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
                 /**
@@ -208,7 +208,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 const adminResult = await db.admin().command({'refreshSessions': [sessionId]});
                 this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
                     `result from refreshing session: ${JSON.stringify(adminResult)}`);
-                refreshTimestamp = new Date();
+                refreshTimestamp = moment();
             }
             /**
              * element
