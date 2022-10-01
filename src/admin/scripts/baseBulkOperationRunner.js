@@ -95,8 +95,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         console.log(`Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
             `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
 
-        if (skipWhenCountIsSame && (numberOfSourceDocuments === numberOfDestinationDocuments)) {
-            return '';
+        if (numberOfSourceDocuments === numberOfDestinationDocuments) {
+            if (skipWhenCountIsSame) {
+                console.log(`Count matched and skipWhenCountIsSame is set so skipping collection ${destinationCollectionName}`);
+                return '';
+            }
+        } else if (dropDestinationIfCountIsDifferent) {
+            console.log(`dropDestinationIfCountIsDifferent is set so deleting all records in ${destinationCollectionName}`);
+            await destinationCollection.deleteMany({});
         }
 
         if (skipExistingIds) {
@@ -114,9 +120,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             ) {
                 startFromIdContainer.startFromId = lastIdFromDestinationList[0];
             }
-        } else if (dropDestinationIfCountIsDifferent) {
-            console.log(`Deleting all records in ${destinationCollectionName}`);
-            await destinationCollection.deleteMany({});
         }
 
         if (startFromIdContainer.startFromId) {
