@@ -128,11 +128,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             ).map(p => p.id).toArray();
 
+            this.adminLogger.logTrace(`Received last id ${JSON.stringify(lastIdFromDestinationList)} from ${destinationCollectionName}`);
+
             if (!startFromIdContainer.startFromId &&
                 lastIdFromDestinationList &&
                 lastIdFromDestinationList.length === 0
             ) {
                 startFromIdContainer.startFromId = lastIdFromDestinationList[0];
+                this.adminLogger.logTrace(`Setting last id to ${startFromIdContainer.startFromId}`);
             }
         }
 

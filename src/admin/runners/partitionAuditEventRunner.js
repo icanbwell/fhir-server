@@ -137,7 +137,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
                             batchSize: this.batchSize,
-                            skipExistingIds: this.skipExistingIds,
+                            skipExistingIds: this.skipExistingIds ? true : false,
                             skipWhenCountIsSame: true,
                             dropDestinationIfCountIsDifferent: this.dropDestinationIfCountIsDifferent
                         }
