@@ -142,11 +142,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         if (startFromIdContainer.startFromId) {
             query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
         }
-
-        this.adminLogger.logTrace(`[${currentDateTime.toTimeString()}] ` +
-            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
-            `From ${sourceCollectionName} to ${destinationCollectionName}`);
-
         /**
          * @type {import('mongodb').ClientSession}
          */
@@ -155,7 +150,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
          * @type {import('mongodb').ServerSessionId}
          */
         const sessionId = session.serverSession.id;
-        this.adminLogger.logTrace(`Starting session ${sessionId}`);
+        this.adminLogger.logTrace(`Started session ${JSON.stringify(sessionId)}`);
+
+        this.adminLogger.logTrace(`[${currentDateTime.toTimeString()}] ` +
+            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+            `From ${sourceCollectionName} to ${destinationCollectionName}`);
+
         /**
          * @type {FindCursor<WithId<import('mongodb').Document>>}
          */
