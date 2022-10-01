@@ -93,9 +93,10 @@ class MongoCollectionManager {
                 }
             ]
         );
-        console.log(`Aggregation result=${result}`);
-        console.log(`Aggregation result array=${result.toArray()}`);
-        return result.toArray()[0]['total'];
+        console.log(`Aggregation result=${JSON.stringify(result)}`);
+        const documents = await result.toArray();
+        console.log(`Aggregation result array=${JSON.stringify(documents)}`);
+        return documents[0]['total'];
     }
 
     /**

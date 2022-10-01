@@ -111,6 +111,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         // first get the count
         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+            `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
+            `for ${sourceCollectionName} and ${destinationCollectionName}`);
         /**
          * @type {number}
          */
