@@ -72,13 +72,13 @@ class MongoCollectionManager {
      * @param {import('mongodb').Collection} collection
      * @param {import('mongodb').Filter<import('mongodb').Document>} query
      * @param {string} groupKey
-     * @returns {Promise<*>}
+     * @returns {Promise<number>}
      */
     async distinctCountAsync({collection, query, groupKey}) {
         /**
          * @type {import('mongodb').AggregationCursor<import('mongodb').Document>}
          */
-        const result = await collection.aggregate((
+        const result = await collection.aggregate(
             [
                 {
                     $match: query
@@ -92,7 +92,8 @@ class MongoCollectionManager {
                     $count: 'total'
                 }
             ]
-        ));
+        );
+        console.log(`Aggregation result=${result}`);
         return result['total'];
     }
 
@@ -106,7 +107,7 @@ class MongoCollectionManager {
         /**
          * @type {import('mongodb').AggregationCursor<import('mongodb').Document>}
          */
-        const result = await collection.aggregate((
+        const result = await collection.aggregate(
             [
                 {
                     $match: query
@@ -115,10 +116,56 @@ class MongoCollectionManager {
                     $count: 'total'
                 }
             ]
-        ));
+        );
         return result ? parseInt(result['total']) : null;
     }
 
+    /**
+     * Gets duplicate items by groupKey
+     * @param {import('mongodb').Collection} collection
+     * @param {import('mongodb').Filter<import('mongodb').Document>} query
+     * @param {string} groupKey
+     * @param {number|undefined} [limit]
+     * @returns {Promise<{name: string, count: number}[]>}
+     */
+    async getDuplicateItems({collection, query, groupKey, limit = 100000000}) {
+        /**
+         * @type {import('mongodb').AggregationCursor<import('mongodb').Document>}
+         */
+        const result = await collection.aggregate(
+            [
+                {
+                    $match: query
+                },
+                {
+                    $limit: limit
+                },
+                {
+                    $group: {
+                        _id: '$' + `${groupKey}`,
+                        count: {$sum: 1}
+                    }
+                },
+                {
+                    $match: {
+                        _id: {$ne: null},
+                        count: {$gt: 1}
+                    }
+                },
+                {
+                    $project: {
+                        name: '$_id',
+                        count: '$count',
+                        _id: 0
+                    }
+                }
+            ],
+            {
+                allowDiskUse: true // sorting can be expensive
+            }
+        );
+        return result ? result.toArray() : null;
+    }
 }
 
 module.exports = {
