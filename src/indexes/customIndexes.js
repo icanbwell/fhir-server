@@ -54,10 +54,7 @@ module.exports = {
                 options: {
                     // unique: true,
                     name: 'id_1'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0'
-                ]
+                }
             }
         ],
         'ExplanationOfBenefit_4_0_0': [
