@@ -79,49 +79,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
     ) {
         let lastCheckedId = '';
-        /**
-         * @type {import('mongodb').MongoClient}
-         */
-        const sourceClient = await createClientAsync(config);
-        /**
-         * @type {import('mongodb').MongoClient}
-         */
-        const destinationClient = await createClientAsync(config);
-        /**
-         * @type {import('mongodb').ClientSession}
-         */
-        let session = sourceClient.startSession();
-        /**
-         * @type {import('mongodb').ServerSessionId}
-         */
-        let sessionId = session.serverSession.id;
-        this.adminLogger.logTrace(`Started session ${JSON.stringify(sessionId)}`);
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const sourceDb = sourceClient.db(config.db_name);
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const destinationDb = sourceClient.db(config.db_name);
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').Document>}
-         */
-        const destinationCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            {
-                db: destinationDb, collectionName: destinationCollectionName
-            }
-        );
-        /**
-         * @type {import('mongodb').Collection}
-         */
-        const sourceCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
-            {
-                db: sourceDb, collectionName: sourceCollectionName
-            }
-        );
-
-        let operations = [];
+        let {
+            sourceClient,
+            destinationClient,
+            session,
+            sessionId,
+            destinationCollection,
+            sourceCollection
+        } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
 
         /**
          * @type {moment.Moment}
@@ -184,11 +149,87 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
 
         const originalQuery = deepcopy(query);
+        lastCheckedId = await this.runLoopAsync(
+            {
+                startFromIdContainer,
+                query,
+                config,
+                destinationCollectionName,
+                sourceCollectionName,
+                currentDateTime,
+                batchSize,
+                projection,
+                skipExistingIds,
+                numberOfSourceDocuments,
+                numberOfDestinationDocuments,
+                lastCheckedId,
+                fnCreateBulkOperationAsync,
+                ordered
+            });
+
+        // get the count at the end
+        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+            `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`);
+        const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+        this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
+            `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+            `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
+            `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`);
+
+        // end session
+        this.adminLogger.logTrace(`Ending session ${JSON.stringify(sessionId)}...`);
+        await session.endSession();
+
+        // disconnect from db
+        this.adminLogger.logTrace('Disconnecting from sourceClient...');
+        await disconnectClientAsync(sourceClient);
+        await disconnectClientAsync(destinationClient);
+
+        return lastCheckedId;
+    }
+
+    /**
+     * runs the loop
+     * @param startFromIdContainer
+     * @param query
+     * @param config
+     * @param destinationCollectionName
+     * @param sourceCollectionName
+     * @param currentDateTime
+     * @param batchSize
+     * @param projection
+     * @param skipExistingIds
+     * @param numberOfSourceDocuments
+     * @param numberOfDestinationDocuments
+     * @param lastCheckedId
+     * @param fnCreateBulkOperationAsync
+     * @param operations
+     * @param ordered
+     * @returns {Promise<*>}
+     */
+    async runLoopAsync(
+        {
+            startFromIdContainer,
+            query,
+            config,
+            destinationCollectionName,
+            sourceCollectionName,
+            currentDateTime,
+            batchSize,
+            projection,
+            skipExistingIds,
+            numberOfSourceDocuments,
+            numberOfDestinationDocuments,
+            lastCheckedId,
+            fnCreateBulkOperationAsync,
+            ordered
+        }) {
         const maxTimeMS = 20 * 60 * 60 * 1000;
         const numberOfSecondsBetweenSessionRefreshes = 30;
         let loopRetryNumber = 0;
         const maxLoopRetries = 5;
         let continueLoop = true;
+        let operations = [];
 
         while (continueLoop && (loopRetryNumber < maxLoopRetries)) {
             if (startFromIdContainer.startFromId) {
@@ -198,6 +239,17 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             loopRetryNumber += 1;
 
             try {
+                let {
+                    session,
+                    sessionId,
+                    sourceDb,
+                    destinationCollection,
+                    sourceCollection
+                } = await this.createConnectionAsync(
+                    {
+                        config, destinationCollectionName, sourceCollectionName
+                    });
+
                 this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
                 `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
                 `From ${sourceCollectionName} to ${destinationCollectionName}` +
@@ -335,26 +387,52 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             }
         }
-
-        // get the count at the end
-        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-            `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`);
-        const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
-        this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
-            `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-            `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-            `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`);
-
-        // end session
-        this.adminLogger.logTrace(`Ending session ${JSON.stringify(sessionId)}...`);
-        await session.endSession();
-
-        // disconnect from db
-        this.adminLogger.logTrace('Disconnecting from sourceClient...');
-        await disconnectClientAsync(sourceClient);
-        await disconnectClientAsync(destinationClient);
-
         return lastCheckedId;
+    }
+
+    async createConnectionAsync({config, destinationCollectionName, sourceCollectionName}) {
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        let sourceClient = await createClientAsync(config);
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        let destinationClient = await createClientAsync(config);
+        /**
+         * @type {import('mongodb').ClientSession}
+         */
+        let session = sourceClient.startSession();
+        /**
+         * @type {import('mongodb').ServerSessionId}
+         */
+        let sessionId = session.serverSession.id;
+        this.adminLogger.logTrace(`Started session ${JSON.stringify(sessionId)}`);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const sourceDb = sourceClient.db(config.db_name);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const destinationDb = sourceClient.db(config.db_name);
+        /**
+         * @type {import('mongodb').Collection<import('mongodb').Document>}
+         */
+        const destinationCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
+            {
+                db: destinationDb, collectionName: destinationCollectionName
+            }
+        );
+        /**
+         * @type {import('mongodb').Collection}
+         */
+        const sourceCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
+            {
+                db: sourceDb, collectionName: sourceCollectionName
+            }
+        );
+        return {sourceClient, destinationClient, session, sessionId, sourceDb, destinationCollection, sourceCollection};
     }
 
     /**

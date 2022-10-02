@@ -17,7 +17,7 @@ const globals = require('../globals');
  * @typedef IndexConfig
  * @type {object}
  * @property {number} v
- * @property {Object} key
+ * @property {Object} keys
  * @property {string} name
  * @property {boolean|undefined} unique
  */
