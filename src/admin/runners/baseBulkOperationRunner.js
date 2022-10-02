@@ -345,6 +345,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
                             `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
                         this.adminLogger.log(message);
+                        this.adminLogger.logTrace(process.memoryUsage());
                     }
                 }
 
