@@ -91,7 +91,10 @@ class MongoCollectionManager {
                 {
                     $count: 'total'
                 }
-            ]
+            ],
+            {
+                allowDiskUse: true // sorting can be expensive
+            }
         );
         /**
          * @type {import('mongodb').Document[]}
@@ -118,7 +121,10 @@ class MongoCollectionManager {
                 {
                     $count: 'total'
                 }
-            ]
+            ],
+            {
+                allowDiskUse: true // sorting can be expensive
+            }
         );
         /**
          * @type {import('mongodb').Document[]}
