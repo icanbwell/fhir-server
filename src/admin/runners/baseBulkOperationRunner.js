@@ -82,6 +82,16 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
          * @type {import('mongodb').MongoClient}
          */
         const client = await createClientAsync(config);
+
+        /**
+         * @type {import('mongodb').ClientSession}
+         */
+        let session = client.startSession();
+        /**
+         * @type {import('mongodb').ServerSessionId}
+         */
+        let sessionId = session.serverSession.id;
+        this.adminLogger.logTrace(`Started session ${JSON.stringify(sessionId)}`);
         /**
          * @type {import('mongodb').Db}
          */
@@ -166,15 +176,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         if (startFromIdContainer.startFromId) {
             query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
         }
-        /**
-         * @type {import('mongodb').ClientSession}
-         */
-        let session = client.startSession();
-        /**
-         * @type {import('mongodb').ServerSessionId}
-         */
-        let sessionId = session.serverSession.id;
-        this.adminLogger.logTrace(`Started session ${JSON.stringify(sessionId)}`);
 
         this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
             `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
@@ -199,12 +200,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         let count = 0;
         var refreshTimestamp = moment(); // take note of time at operation start
-        // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
-        const fnRefreshSessionAsync = async () => {
-            session = client.startSession();
-            sessionId = session.serverSession.id;
-            console.log(`Restarted session ${JSON.stringify(sessionId)}`);
-        };
+        const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
+        // const fnRefreshSessionAsync = async () => {
+        //     session = client.startSession();
+        //     sessionId = session.serverSession.id;
+        //     console.log(`Restarted session ${JSON.stringify(sessionId)}`);
+        // };
         while (await this.hasNext(cursor, fnRefreshSessionAsync)) {
             // Check if more than 5 minutes have passed since the last refresh
             const numberOfSecondsBetweenSessionRefreshes = 60;
@@ -362,7 +363,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             },
             {
                 onRetry: async (error) => {
-                    this.adminLogger.logError(`ERROR in hasNext(): ${error}`);
+                    this.adminLogger.logError(`ERROR in hasNext(): ${JSON.stringify(error)}`);
                     if (fnRefreshSessionAsync) {
                         this.adminLogger.logTrace('Refreshing session in hasNext()');
                         await fnRefreshSessionAsync();

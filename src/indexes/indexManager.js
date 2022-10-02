@@ -48,7 +48,11 @@ class IndexManager {
      * @return {Promise<boolean>}
      */
     async createIndexIfNotExistsAsync({db, indexConfig, collectionName}) {
-        const properties_to_index = Object.keys(indexConfig.keys);
+        /**
+         * @type {import('mongodb').IndexSpecification}
+         */
+        const indexSpec = indexConfig.key;
+        const properties_to_index = Object.keys(indexSpec);
         let indexName = indexConfig.options.name;
         const columns = properties_to_index.join(',');
         // limitations: https://www.mongodb.com/docs/manual/reference/limits/
@@ -70,7 +74,7 @@ class IndexManager {
                 );
                 await this.errorReporter.reportMessageAsync(
                     {source: 'createIndex', message: message});
-                await db.collection(collectionName).createIndex(indexConfig.keys, indexConfig.options);
+                await db.collection(collectionName).createIndex(indexSpec, indexConfig.options);
                 return true;
             }
         } catch (e) {
@@ -106,23 +110,29 @@ class IndexManager {
                 indexes: []
             };
         }
+
+        /**
+         * @type {{collectionName: string, indexConfig: IndexConfig[]}[]}
+         */
         const indexesToCreate = await this.getIndexesToCreateAsync({collectionName});
 
         // check if index exists
         let indexesCreated = 0;
         for (
-            const /** @type {{collection:string, indexConfig: IndexConfig}} **/
+            const /** @type {{collectionName:string, indexConfig: IndexConfig[]}} **/
             indexToCreate of indexesToCreate
             ) {
-            const createdIndex = await this.createIndexIfNotExistsAsync(
-                {
-                    db,
-                    indexConfig: indexToCreate.indexConfig,
-                    collectionName: indexToCreate.collection
+            for (const /** @type {IndexConfig} */ indexConfig of indexToCreate.indexConfig) {
+                const createdIndex = await this.createIndexIfNotExistsAsync(
+                    {
+                        db,
+                        indexConfig: indexConfig,
+                        collectionName: indexToCreate.collectionName
+                    }
+                );
+                if (createdIndex) {
+                    indexesCreated += 1;
                 }
-            );
-            if (createdIndex) {
-                indexesCreated += 1;
             }
         }
 
@@ -186,7 +196,15 @@ class IndexManager {
             }
         }
 
-        return [...indexesToCreate];
+        return Array.from(
+            indexesToCreate,
+            ([key, value]) => {
+                return {
+                    collectionName: key,
+                    indexConfig: value
+                };
+            }
+        );
     }
 
     /**
@@ -280,7 +298,8 @@ class IndexManager {
              * @type {{indexes: IndexConfig[], collectionName: string}}
              */
             const currentIndexesForCollection = await this.getIndexesInCollectionAsync({
-                collectionName
+                collectionName,
+                db
             });
             /**
              * @type {{collectionName: string, indexConfig: IndexConfig[]}[]}
