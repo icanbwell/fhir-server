@@ -437,6 +437,7 @@ class IndexManager {
                     })
             );
             return collectionIndexes
+                .filter(c => !filterToProblems || c.indexes.length > 0)
                 .sort(
                     (a, b) =>
                         a.collectionName.localeCompare(b.collectionName));
