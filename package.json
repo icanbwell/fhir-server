@@ -1,9 +1,9 @@
 {
   "name": "bwell-fhir-server",
   "version": "0.0.1",
-  "description": "R4 compliant FHIR SERVER built on top of @asymmetrik/node-fhir-server-core",
+  "description": "R4 compliant FHIR SERVER",
   "main": "src/index.js",
-  "repository": "https://github.com/icanbwell/node-fhir-server",
+  "repository": "https://github.com/icanbwell/fhir-server",
   "license": "MIT",
   "engines": {
     "node": "16.17.x"
