@@ -274,5 +274,53 @@ describe('Missing Index Tests', () => {
                 }
             );
         });
+        test('no missingIndex after Patient and Practitioner collection is indexed', async () => {
+            await createTestRequest();
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {IndexManager}
+             */
+            const indexManager = container.indexManager;
+
+            // create collection
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = globals.get(CLIENT_DB);
+            const patientCollectionName = 'Patient_4_0_0';
+            const practitionerCollectionName = 'Practitioner_4_0_0';
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            const patientCollection = fhirDb.collection(patientCollectionName);
+            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+            // run indexManager
+            await indexManager.indexCollectionAsync({
+                collectionName: patientCollectionName, db: fhirDb
+            });
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            const practitionerCollection = fhirDb.collection(practitionerCollectionName);
+            await practitionerCollection.insertOne({id: '1', resourceType: 'Practitioner'});
+            // run indexManager
+            await indexManager.indexCollectionAsync({
+                collectionName: practitionerCollectionName, db: fhirDb
+            });
+            /**
+             * @type {{collectionName: string, indexes: IndexConfig[]}[]}
+             */
+            const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({});
+            expect(missingIndexes.length).toStrictEqual(2);
+            expect(missingIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+            expect(missingIndexes[1].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+        });
+
     });
 });

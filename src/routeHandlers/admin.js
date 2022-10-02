@@ -9,6 +9,7 @@ const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {createContainer} = require('../createContainer');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
+const {isTrue} = require('../utils/isTrue');
 
 /**
  * Gets admin scopes from the request
@@ -33,41 +34,23 @@ function getAdminScopes({req}) {
  * @param {import('http').IncomingMessage} req
  * @param {SimpleContainer} container
  * @param {import('http').ServerResponse} res
+ * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
-async function showIndexesAsync({req, container, res}) {
+async function showIndexesAsync({req, container, res,
+                                filterToProblems}) {
     console.log(`showIndexes: req.query: ${JSON.stringify(req.query)}`);
     /**
      * @type {IndexManager}
      */
     const indexManager = container.indexManager;
-    const json = await indexManager.getIndexesInAllCollectionsAsync();
+    const json = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
+        {
+            filterToProblems: filterToProblems
+        }
+    );
     if (shouldReturnHtml(req)) {
         const filePath = __dirname + '/../views/admin/pages/indexes';
-        return res.render(filePath, {
-            collections: json
-        });
-    } else {
-        return res.json(json);
-    }
-}
-
-/**
- * shows missing indexes
- * @param {import('http').IncomingMessage} req
- * @param {SimpleContainer} container
- * @param {import('http').ServerResponse} res
- * @returns {Promise<*>}
- */
-async function missingIndexesAsync({req, container, res}) {
-    console.log(`missingIndexes: req.query: ${JSON.stringify(req.query)}`);
-    /**
-     * @type {IndexManager}
-     */
-    const indexManager = container.indexManager;
-    const json = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync();
-    if (shouldReturnHtml(req)) {
-        const filePath = __dirname + '/../views/admin/pages/missingIndexes';
         return res.render(filePath, {
             collections: json
         });
@@ -123,11 +106,16 @@ async function handleAdmin(
                 }
 
                 case 'indexes': {
-                    return await showIndexesAsync({req, container, res});
-                }
-
-                case 'missingIndexes': {
-                    return await missingIndexesAsync({req, container, res});
+                    // noinspection JSValidateTypes
+                    /**
+                     * @type {string|number|undefined}
+                     */
+                    const filterToProblems = req.query['problems'];
+                    return await showIndexesAsync(
+                        {
+                            req, container, res,
+                            filterToProblems: isTrue(filterToProblems)
+                        });
                 }
 
                 default: {

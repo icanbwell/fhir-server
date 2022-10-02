@@ -251,10 +251,16 @@ class IndexManager {
     /**
      * indexes all collections in this database
      * @param {import('mongodb').Db} db
-     * @param {string|undefined} [collectionRegex]
+     * @param {string} collectionRegex
+     * @param {boolean|undefined} filterToProblems
      * @returns {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]>}
      */
-    async compareCurrentIndexesWithConfigurationInCollectionAsync({db, collectionRegex}) {
+    async compareCurrentIndexesWithConfigurationInCollectionAsync(
+        {
+            db,
+            collectionRegex,
+            filterToProblems
+        }) {
         /**
          * @type {string[]}
          */
@@ -323,12 +329,23 @@ class IndexManager {
                 if (!compareIndexesMap.has(collectionName)) {
                     compareIndexesMap.set(collectionName, []);
                 }
-                compareIndexesMap.get(collectionName).push(
-                    {
-                        indexConfig: indexConfig,
-                        extra: indexesMatchingByName.length === 0 && indexConfig.options.name !== '_id_',
+                if (indexesMatchingByName.length >= 0 || indexConfig.options.name === '_id_') {
+                    if (!filterToProblems) {
+                        compareIndexesMap.get(collectionName).push(
+                            {
+                                indexConfig: indexConfig,
+                            }
+                        );
                     }
-                );
+                } else {
+                    compareIndexesMap.get(collectionName).push(
+                        {
+                            indexConfig: indexConfig,
+                            extra: true,
+                        }
+                    );
+                }
+
             }
         }
 
@@ -417,9 +434,10 @@ class IndexManager {
 
     /**
      * Gets missingindexes on all the collections
+     * @param {boolean|undefined} filterToProblems
      * @return {Promise<{collectionName: string, indexes: IndexConfig[]}[]>}
      */
-    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync() {
+    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync({filterToProblems}) {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -442,7 +460,12 @@ class IndexManager {
              */
             const collectionIndexes = await async.flatMap(
                 collection_names,
-                async collectionName => await this.compareCurrentIndexesWithConfigurationInCollectionAsync({collectionName, db})
+                async collectionName => await this.compareCurrentIndexesWithConfigurationInCollectionAsync(
+                    {
+                        collectionRegex: collectionName,
+                        db,
+                        filterToProblems
+                    })
             );
             return collectionIndexes
                 .sort(

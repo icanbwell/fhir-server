@@ -15,18 +15,22 @@
                     <th scope="col">name</th>
                     <th scope="col">key</th>
                     <th scope="col">options</th>
+                    <th scope="col">missing</th>
+                    <th scope="col">extra</th>
                 </tr>
                 </thead>
                 <tbody>
                 <% collection.indexes.forEach(function(row){ %>
                     <tr>
-                        <td><%= row.options.name %></td>
-                        <td><%= JSON.stringify(row.keys) %></td>
+                        <td><%= row.indexConfig.options.name %></td>
+                        <td><%= JSON.stringify(row.indexConfig.keys) %></td>
                         <td>
-                            <%= row.options.unique ? 'unique  ' : '' %>
-                            <%= row.options.sparse ? 'sparse  ' : '' %>
-                            <%= row.options.partialFilterExpression ? `partialFilterExpression: ${JSON.stringify(row.options.partialFilterExpression)}  ` : '' %>
+                            <%= row.indexConfig.options.unique ? 'unique  ' : '' %>
+                            <%= row.indexConfig.options.sparse ? 'sparse  ' : '' %>
+                            <%= row.indexConfig.options.partialFilterExpression ? `partialFilterExpression: ${JSON.stringify(row.indexConfig.options.partialFilterExpression)}  ` : '' %>
                         </td>
+                        <td><%= row.missing ? 'Yes' : '' %></td>
+                        <td><%= row.extra ? 'Yes' : '' %></td>
                     </tr>
                 <% }); %>
                 </tbody>
