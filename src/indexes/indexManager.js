@@ -294,7 +294,7 @@ class IndexManager {
 
         for (const collectionName of collectionNames) {
             // now get the current indexes on these collections
-            /**ƒ
+            /**
              * @type {{indexes: IndexConfig[], collectionName: string}}
              */
             const currentIndexesForCollection = await this.getIndexesInCollectionAsync({
@@ -308,9 +308,12 @@ class IndexManager {
             for (
                 const /** @type {{collectionName: string, indexConfig: IndexConfig[]}} */
                 indexToCreate of indexesToCreate) {
-                for (const indexConfig of indexToCreate.indexConfig) {
+                for (const /** @type {IndexConfig} */ indexConfig of indexToCreate.indexConfig) {
+                    /**
+                     * @type {IndexConfig[]}
+                     */
                     const indexesMatchingByName = currentIndexesForCollection.indexes.filter(
-                        i => i.name === indexConfig.name
+                        i => i.name === indexConfig.options.name
                     );
                     if (indexesMatchingByName.length === 0) {
                         if (!missingIndexes.has(collectionName)) {
@@ -322,7 +325,15 @@ class IndexManager {
             }
         }
 
-        return [...missingIndexes];
+        return Array.from(
+            missingIndexes,
+            ([key, value]) => {
+                return {
+                    collectionName: key,
+                    indexes: value
+                };
+            }
+        );
     }
 
     /**
