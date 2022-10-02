@@ -4,6 +4,7 @@ const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner'
 const moment = require('moment-timezone');
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
+const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -175,7 +176,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             await db.dropCollection(destinationCollectionName);
                         }
                         this.adminLogger.log(`Running aggregation pipeline with: ${JSON.stringify(pipeline)}`);
-                        const aggregationResult = await db.collection(sourceCollectionName).aggregate(
+                        const sourceCollection = db.collection(sourceCollectionName);
+                        const aggregationResult = await sourceCollection.aggregate(
                             pipeline,
                             {
                                 allowDiskUse: true // sorting can be expensive
@@ -185,7 +187,17 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                          * @type {import('mongodb').Document[]}
                          */
                         const documents = await aggregationResult.toArray();
-                        this.adminLogger.log(JSON.stringify(documents));
+                        this.adminLogger.log(`result=${JSON.stringify(documents)}`);
+                        // first get the count
+                        this.adminLogger.logTrace(`[${moment().toISOString()}] ` +
+                            `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                            `for ${sourceCollectionName} and ${destinationCollectionName}`);
+                        const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+                        const destinationCollection = db.collection(destinationCollectionName);
+                        const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+                        this.adminLogger.log(`[${moment().toISOString()}] ` +
+                            `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                            `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
                         await disconnectClientAsync(client);
                     } else {
                         await this.runForQueryBatchesAsync(
