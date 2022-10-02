@@ -285,6 +285,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
                         this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
                             `refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
+                        const memoryUsage = process.memoryUsage();
+                        const memoryManager = new MemoryManager();
+                        this.adminLogger.logTrace(`Memory used (RSS): ${memoryManager.formatBytes(memoryUsage.rss)}`);
                         /**
                          * @type {import('mongodb').Document}
                          */
