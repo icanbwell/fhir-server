@@ -5,20 +5,28 @@
 </head>
 <body class="container-fluid p-0">
 <main>
+    <h1>Missing Indexes</h1>
+
     <% collections.forEach(function(collection){ %>
-        <h3><%= collection.name; %></h3>
+        <h3><%= collection.collectionName; %></h3>
         <table class="table">
             <thead>
             <tr>
                 <th scope="col">name</th>
                 <th scope="col">key</th>
+                <th scope="col">options</th>
             </tr>
             </thead>
             <tbody>
             <% collection.indexes.forEach(function(row){ %>
                 <tr>
-                    <td><%= row.name %></td>
-                    <td><%= JSON.stringify(row.key) %></td>
+                    <td><%= row.options.name %></td>
+                    <td><%= JSON.stringify(row.keys) %></td>
+                    <td>
+                        <%= row.options.unique ? 'unique  ' : '' %>
+                        <%= row.options.sparse ? 'sparse  ' : '' %>
+                        <%= row.options.partialFilterExpression ? `partialFilterExpression: ${JSON.stringify(row.options.partialFilterExpression)}  ` : '' %>
+                    </td>
                 </tr>
             <% }); %>
             </tbody>

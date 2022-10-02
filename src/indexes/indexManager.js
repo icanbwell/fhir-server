@@ -368,10 +368,17 @@ class IndexManager {
                 }
             }
             // now add indices on id column for every collection
-            return await async.map(
+            /**
+             * @type {{indexes: IndexConfig[], collectionName: string}[]}
+             */
+            const collectionIndexes = await async.map(
                 collection_names,
                 async collectionName => await this.getIndexesInCollectionAsync({collectionName, db})
             );
+            return collectionIndexes
+                .sort(
+                    (a, b) =>
+                        a.collectionName.localeCompare(b.collectionName));
         } finally {
             await disconnectClientAsync(client);
         }
@@ -400,13 +407,16 @@ class IndexManager {
             }
             // now add indices on id column for every collection
             /**
-             * @type {Promise<{indexes: IndexConfig[], collectionName: string}[]>}
+             * @type {{indexes: IndexConfig[], collectionName: string}[]}
              */
-            const result = await async.flatMap(
+            const collectionIndexes = await async.flatMap(
                 collection_names,
                 async collectionName => await this.getMissingIndexesInCollectionsAsync({collectionName, db})
             );
-            return result;
+            return collectionIndexes
+                .sort(
+                    (a, b) =>
+                        a.collectionName.localeCompare(b.collectionName));
         } finally {
             await disconnectClientAsync(client);
         }
