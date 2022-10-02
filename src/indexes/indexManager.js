@@ -51,7 +51,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').IndexSpecification}
          */
-        const indexSpec = indexConfig.key;
+        const indexSpec = indexConfig.keys;
         const properties_to_index = Object.keys(indexSpec);
         let indexName = indexConfig.options.name;
         const columns = properties_to_index.join(',');

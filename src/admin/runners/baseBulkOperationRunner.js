@@ -195,14 +195,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
             }
 
-            this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
-            `From ${sourceCollectionName} to ${destinationCollectionName}` +
-            loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : '');
-
             loopRetryNumber += 1;
 
             try {
+                this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+                `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `From ${sourceCollectionName} to ${destinationCollectionName}` +
+                loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : '');
+
                 // pass session to find query per:
                 // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
                 /**
@@ -286,8 +286,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 retries: 5,
                             }
                         );
-                    }
-                    if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // show progress every x items
                         currentDateTime = moment();
                         const message = `\n[${currentDateTime.toISOString()}] ` +
                             `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
