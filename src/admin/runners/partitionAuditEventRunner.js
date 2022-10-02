@@ -3,6 +3,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
 const moment = require('moment-timezone');
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
+const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -18,6 +19,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {boolean} useAuditDatabase
      * @param {boolean} dropDestinationIfCountIsDifferent
      * @param {AdminLogger} adminLogger
+     * @param {boolean} useAggregationMethod
      */
     constructor({
                     mongoCollectionManager,
@@ -27,7 +29,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     skipExistingIds,
                     useAuditDatabase,
                     dropDestinationIfCountIsDifferent,
-                    adminLogger
+                    adminLogger,
+                    useAggregationMethod
                 }) {
         super({
             mongoCollectionManager,
@@ -45,12 +48,29 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         this.recordedBefore = recordedBefore;
         assertTypeEquals(recordedBefore, moment);
 
+        /**
+         * @type {number}
+         */
         this.batchSize = batchSize;
+        /**
+         * @type {boolean}
+         */
         this.skipExistingIds = skipExistingIds;
 
+        /**
+         * @type {boolean}
+         */
         this.useAuditDatabase = useAuditDatabase;
 
+        /**
+         * @type {boolean}
+         */
         this.dropDestinationIfCountIsDifferent = dropDestinationIfCountIsDifferent;
+
+        /**
+         * @type {boolean}
+         */
+        this.useAggregationMethod = useAggregationMethod;
     }
 
     /**
@@ -127,21 +147,63 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     ]
                 };
                 try {
-                    await this.runForQueryBatchesAsync(
-                        {
-                            config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
-                            sourceCollectionName,
-                            destinationCollectionName,
-                            query,
-                            startFromIdContainer: this.startFromIdContainer,
-                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                            ordered: false,
-                            batchSize: this.batchSize,
-                            skipExistingIds: this.skipExistingIds ? true : false,
-                            skipWhenCountIsSame: true,
-                            dropDestinationIfCountIsDifferent: this.dropDestinationIfCountIsDifferent
+
+                    const config = this.useAuditDatabase ? auditEventMongoConfig : mongoConfig;
+                    if (this.useAggregationMethod) {
+                        /**
+                         * @type {import('mongodb').MongoClient}
+                         */
+                        const client = await createClientAsync(config);
+                        /**
+                         * @type {import('mongodb').Db}
+                         */
+                        const db = client.db(config.db_name);
+                        const pipeline = [
+                            {
+                                $match: query
+                            },
+                            {
+                                $out: destinationCollectionName
+                            }
+                        ];
+                        const destinationCollectionExists = await db.listCollections(
+                            {name: destinationCollectionName},
+                            {nameOnly: true}
+                        ).hasNext();
+                        if (destinationCollectionExists) {
+                            this.adminLogger.log(`Destination ${destinationCollectionName} already exists so dropping it`);
+                            await db.dropCollection(destinationCollectionName);
                         }
-                    );
+                        this.adminLogger.log(`Running aggregation pipeline with: ${JSON.stringify(pipeline)}`);
+                        const aggregationResult = await db.collection(sourceCollectionName).aggregate(
+                            pipeline,
+                            {
+                                allowDiskUse: true // sorting can be expensive
+                            }
+                        );
+                        /**
+                         * @type {import('mongodb').Document[]}
+                         */
+                        const documents = await aggregationResult.toArray();
+                        this.adminLogger.log(JSON.stringify(documents));
+                        await disconnectClientAsync(client);
+                    } else {
+                        await this.runForQueryBatchesAsync(
+                            {
+                                config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
+                                sourceCollectionName,
+                                destinationCollectionName,
+                                query,
+                                startFromIdContainer: this.startFromIdContainer,
+                                fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                                ordered: false,
+                                batchSize: this.batchSize,
+                                skipExistingIds: this.skipExistingIds ? true : false,
+                                skipWhenCountIsSame: true,
+                                dropDestinationIfCountIsDifferent: this.dropDestinationIfCountIsDifferent
+                            }
+                        );
+                    }
                 } catch (e) {
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }

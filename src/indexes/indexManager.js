@@ -542,6 +542,10 @@ class IndexManager {
      * @returns {Promise<void>}
      */
     async synchronizeIndexesWithConfig() {
+        // /**
+        //  * @type {{indexes: {indexConfig: IndexConfig, created?: boolean, dropped?: boolean}[], collectionName: string}[]}
+        //  */
+        // const result = [];
         /**
          * @type {import('mongodb').Db}
          */
