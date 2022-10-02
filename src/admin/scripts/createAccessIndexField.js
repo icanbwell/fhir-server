@@ -61,7 +61,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 16.17.0
+ * nvm use 16.17.1
  * node src/admin/scripts/createAccessIndexField.js --collections=Practitioner_4_0_0 --batchSize=10000
  * node src/admin/scripts/createAccessIndexField.js --collections=all --batchSize=10000
  * node src/admin/scripts/createAccessIndexField.js --collections=all --audit --batchSize=10000

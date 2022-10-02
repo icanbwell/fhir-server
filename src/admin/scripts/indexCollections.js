@@ -46,7 +46,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 16.17.0
+ * nvm use 16.17.1
  * node src/admin/scripts/indexCollections --collection=Patient_4_0_0 --drop
  * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit
  * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
