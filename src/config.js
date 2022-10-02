@@ -34,7 +34,11 @@ const options = {
     // https://www.mongodb.com/developer/products/mongodb/mongodb-network-compression/
     compressors: ['zstd'],
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
-    minPoolSize: 100
+    minPoolSize: 100,
+    keepAliveInitialDelay: 0,
+    heartbeatFrequencyMS: 30 * 1000,
+    serverSelectionTimeoutMS: 30 * 1000,
+    waitQueueTimeoutMS: 30 * 1000
 };
 /**
  * @name mongoConfig
