@@ -9,6 +9,7 @@ const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {AdminLogger} = require('../adminLogger');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
+const {MongoNetworkTimeoutError} = require('mongodb');
 
 
 /**
@@ -172,135 +173,158 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         }
 
         const originalQuery = deepcopy(query);
-
-        if (startFromIdContainer.startFromId) {
-            query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
-        }
-
-        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
-            `From ${sourceCollectionName} to ${destinationCollectionName}`);
-
-        // pass session to find query per:
-        // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
         const maxTimeMS = 20 * 60 * 60 * 1000;
-        /**
-         * @type {FindCursor<WithId<import('mongodb').Document>>}
-         */
-        let cursor = await sourceCollection
-            .find(query, {session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS})
-            .sort({id: 1})
-            .maxTimeMS(maxTimeMS) // 20 hours
-            .batchSize(batchSize)
-            .addCursorFlag('noCursorTimeout', true);
+        const numberOfSecondsBetweenSessionRefreshes = 30;
+        let loopRetryNumber = 0;
+        const maxLoopRetries = 5;
+        let continueLoop = true;
 
-        if (projection) {
-            cursor = cursor.project(projection);
-        }
+        while (continueLoop && (loopRetryNumber < maxLoopRetries)) {
+            if (startFromIdContainer.startFromId) {
+                query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
+            }
 
-        let count = 0;
-        var refreshTimestamp = moment(); // take note of time at operation start
-        const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
-        // const fnRefreshSessionAsync = async () => {
-        //     session = client.startSession();
-        //     sessionId = session.serverSession.id;
-        //     console.log(`Restarted session ${JSON.stringify(sessionId)}`);
-        // };
-        while (await this.hasNext(cursor, fnRefreshSessionAsync)) {
-            // Check if more than 5 minutes have passed since the last refresh
-            const numberOfSecondsBetweenSessionRefreshes = 60;
-            if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
-                this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-                    `refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
+            this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+            `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+            `From ${sourceCollectionName} to ${destinationCollectionName}` +
+            loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : '');
+
+            loopRetryNumber += 1;
+
+            try {
+                // pass session to find query per:
+                // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
                 /**
-                 * @type {import('mongodb').Document}
+                 * @type {FindCursor<WithId<import('mongodb').Document>>}
                  */
-                const adminResult = await db.admin().command({'refreshSessions': [sessionId]});
-                this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-                    `result from refreshing session: ${JSON.stringify(adminResult)}`);
-                refreshTimestamp = moment();
-            }
-            /**
-             * element
-             * @type {import('mongodb').DefaultSchema}
-             */
-            const doc = await this.next(cursor);
-            startFromIdContainer.startFromId = doc.id;
-            const numberOfDocumentsToCopy = skipExistingIds ?
-                numberOfSourceDocuments - numberOfDestinationDocuments :
-                numberOfSourceDocuments;
-            lastCheckedId = doc.id;
-            count += 1;
-            readline.cursorTo(process.stdout, 0);
-            currentDateTime = moment();
-            process.stdout.write(`[${currentDateTime.toISOString()}] ` +
-                `${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')}`);
-            /**
-             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
-             */
-            const bulkOperations = await fnCreateBulkOperationAsync(doc);
-            for (const bulkOperation of bulkOperations) {
-                operations.push(bulkOperation);
-            }
+                let cursor = await sourceCollection
+                    .find(query, {session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS})
+                    .sort({id: 1})
+                    .maxTimeMS(maxTimeMS) // 20 hours
+                    .batchSize(batchSize)
+                    .addCursorFlag('noCursorTimeout', true);
 
-            startFromIdContainer.convertedIds += 1;
-            if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
-                // https://www.npmjs.com/package/async-retry
-                await retry(
-                    // eslint-disable-next-line no-loop-func
-                    async (bail, retryNumber) => {
-                        currentDateTime = moment();
-                        this.adminLogger.logTrace(`\n[${currentDateTime.toISOString()}] ` +
-                            `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
-                            (retryNumber > 1 ? `retry=${retryNumber}` : ''));
-                        const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
-                        startFromIdContainer.nModified += bulkResult.nModified;
-                        startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                        // console.log(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
-                        //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
-                        operations = [];
-                        // await session.commitTransaction();
-                    },
-                    {
-                        retries: 5,
-                    }
-                );
-            }
-            if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // show progress every x items
-                currentDateTime = moment();
-                const message = `\n[${currentDateTime.toISOString()}] ` +
-                    `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
-                    `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
-                    `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
-                    `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
-                this.adminLogger.log(message);
-            }
-        }
-
-        // now write out any remaining items
-        if (operations.length > 0) { // if any items left to write
-            currentDateTime = moment();
-            await retry(
-                // eslint-disable-next-line no-loop-func
-                async (bail, retryNumber) => {
-                    this.adminLogger.logTrace(`\n[${currentDateTime.toISOString()}] ` +
-                        `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
-                        (retryNumber > 1 ? `retry=${retryNumber}` : ''));
-                    const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
-                    // await session.commitTransaction();
-                    startFromIdContainer.nModified += bulkResult.nModified;
-                    startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                    const message = `\n[${currentDateTime.toISOString()}] ` +
-                        `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
-                        `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
-                        `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
-                        `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
-                    this.adminLogger.log(message);
-                },
-                {
-                    retries: 5,
+                if (projection) {
+                    cursor = cursor.project(projection);
                 }
-            );
+
+                let count = 0;
+                var refreshTimestamp = moment(); // take note of time at operation start
+                // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
+                // const fnRefreshSessionAsync = async () => {
+                //     session = client.startSession();
+                //     sessionId = session.serverSession.id;
+                //     console.log(`Restarted session ${JSON.stringify(sessionId)}`);
+                // };
+                while (await this.hasNext(cursor)) {
+                    // Check if more than 5 minutes have passed since the last refresh
+                    if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
+                        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+                            `refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
+                        /**
+                         * @type {import('mongodb').Document}
+                         */
+                        const adminResult = await db.admin().command({'refreshSessions': [sessionId]});
+                        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+                            `result from refreshing session: ${JSON.stringify(adminResult)}`);
+                        refreshTimestamp = moment();
+                    }
+                    /**
+                     * element
+                     * @type {import('mongodb').DefaultSchema}
+                     */
+                    const doc = await this.next(cursor);
+                    startFromIdContainer.startFromId = doc.id;
+                    const numberOfDocumentsToCopy = skipExistingIds ?
+                        numberOfSourceDocuments - numberOfDestinationDocuments :
+                        numberOfSourceDocuments;
+                    lastCheckedId = doc.id;
+                    count += 1;
+                    readline.cursorTo(process.stdout, 0);
+                    currentDateTime = moment();
+                    process.stdout.write(`[${currentDateTime.toISOString()}] ` +
+                        `${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')}`);
+                    /**
+                     * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+                     */
+                    const bulkOperations = await fnCreateBulkOperationAsync(doc);
+                    for (const bulkOperation of bulkOperations) {
+                        operations.push(bulkOperation);
+                    }
+
+                    startFromIdContainer.convertedIds += 1;
+                    if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
+                        // https://www.npmjs.com/package/async-retry
+                        await retry(
+                            // eslint-disable-next-line no-loop-func
+                            async (bail, retryNumber) => {
+                                currentDateTime = moment();
+                                this.adminLogger.logTrace(`\n[${currentDateTime.toISOString()}] ` +
+                                    `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
+                                    (retryNumber > 1 ? `retry=${retryNumber}` : ''));
+                                const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
+                                startFromIdContainer.nModified += bulkResult.nModified;
+                                startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                                startFromIdContainer.startFromId = lastCheckedId;
+                                // console.log(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
+                                //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
+                                operations = [];
+                                // await session.commitTransaction();
+                            },
+                            {
+                                retries: 5,
+                            }
+                        );
+                    }
+                    if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // show progress every x items
+                        currentDateTime = moment();
+                        const message = `\n[${currentDateTime.toISOString()}] ` +
+                            `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
+                            `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                            `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
+                            `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
+                        this.adminLogger.log(message);
+                    }
+                }
+
+                // now write out any remaining items
+                if (operations.length > 0) { // if any items left to write
+                    currentDateTime = moment();
+                    await retry(
+                        // eslint-disable-next-line no-loop-func
+                        async (bail, retryNumber) => {
+                            this.adminLogger.logTrace(`\n[${currentDateTime.toISOString()}] ` +
+                                `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
+                                (retryNumber > 1 ? `retry=${retryNumber}` : ''));
+                            const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
+                            // await session.commitTransaction();
+                            startFromIdContainer.nModified += bulkResult.nModified;
+                            startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                            startFromIdContainer.startFromId = lastCheckedId;
+                            const message = `\n[${currentDateTime.toISOString()}] ` +
+                                `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
+                                `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                                `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
+                                `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
+                            this.adminLogger.log(message);
+                        },
+                        {
+                            retries: 5,
+                        }
+                    );
+                }
+                continueLoop = false; // done
+            } catch (e) {
+                if (e instanceof MongoNetworkTimeoutError) {
+                    // statements to handle TypeError exceptions
+                    console.error(`Caught MongoNetworkTimeoutError: ${e}: ${JSON.stringify(e)}`);
+                    continueLoop = true;
+                } else {
+                    console.error(`Caught UnKnown error: ${e}: ${JSON.stringify(e)}`);
+                    // statements to handle any unspecified exceptions
+                    throw (e); // pass exception object to error handler
+                }
+            }
         }
 
         // get the count at the end
@@ -348,29 +372,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
     /**
      *
      * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
-     * @param {function(): Promise<void>| undefined} [fnRefreshSessionAsync]
      * @returns {Promise<unknown>}
      */
-    async hasNext(cursor, fnRefreshSessionAsync) {
-        return await retry(
-            // eslint-disable-next-line no-loop-func
-            async (bail, retryNumber) => {
-                if (retryNumber > 1) {
-                    this.adminLogger.logTrace(`hasNext() retry number: ${retryNumber}`);
-                }
-                // noinspection JSDeprecatedSymbols,JSCheckFunctionSignatures
-                return await cursor.hasNext();
-            },
-            {
-                onRetry: async (error) => {
-                    this.adminLogger.logError(`ERROR in hasNext(): ${JSON.stringify(error)}`);
-                    if (fnRefreshSessionAsync) {
-                        this.adminLogger.logTrace('Refreshing session in hasNext()');
-                        await fnRefreshSessionAsync();
-                    }
-                },
-                retries: 5,
-            });
+    async hasNext(cursor) {
+        // noinspection JSDeprecatedSymbols,JSCheckFunctionSignatures
+        return await cursor.hasNext();
     }
 
     /**
