@@ -110,15 +110,6 @@ class IndexManager {
      * @return {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}>}
      */
     async indexCollectionAsync({collectionName, db}) {
-        if (collectionName.includes('_History')) {
-            // don't index history collections
-            return {
-                collectionName,
-                indexesCreated: 0,
-                indexes: []
-            };
-        }
-
         /**
          * @type {{collectionName: string, indexConfig: IndexConfig[]}}
          */
