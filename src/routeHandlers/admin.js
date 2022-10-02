@@ -87,7 +87,7 @@ async function synchronizeIndexesAsync(
     res.send(Buffer.from(htmlContent));
     res.end();
     // res.json({message: 'Started Synchronizing indexes'}).end();
-    await indexManager.synchronizeIndexesWithConfig();
+    await indexManager.synchronizeIndexesWithConfigAsync();
     return;
 }
 

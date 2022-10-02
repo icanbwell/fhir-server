@@ -45,7 +45,7 @@ describe('Synchronize Index Tests', () => {
             await indexManager.indexCollectionAsync({
                 collectionName, db: fhirDb
             });
-            const missingIndexesResult = await indexManager.synchronizeIndexesWithConfig();
+            const missingIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync();
             expect(missingIndexesResult.indexes.filter(ia => ia.missing).length).toStrictEqual(0);
         });
         test('missingIndex if Patient collection is missing indexes', async () => {

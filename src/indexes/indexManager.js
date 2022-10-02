@@ -539,13 +539,17 @@ class IndexManager {
 
     /**
      * adds any indexes missing from config and removes any indexes not in config
-     * @returns {Promise<void>}
+     * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[],dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async synchronizeIndexesWithConfig() {
-        // /**
-        //  * @type {{indexes: {indexConfig: IndexConfig, created?: boolean, dropped?: boolean}[], collectionName: string}[]}
-        //  */
-        // const result = [];
+    async synchronizeIndexesWithConfigAsync() {
+        /**
+         * @type {{indexes: IndexConfig[], collectionName: string}[]}
+         */
+        const collectionIndexesCreated = [];
+        /**
+         * @type {{indexes: IndexConfig[], collectionName: string}[]}
+         */
+        const collectionIndexesDropped = [];
         /**
          * @type {import('mongodb').Db}
          */
@@ -587,6 +591,12 @@ class IndexManager {
                     }
                 );
             }
+            collectionIndexesCreated.push(
+                {
+                    collectionName: indexesToCreate.collectionName,
+                    indexes: indexesToCreate.indexes.map(a => a.indexConfig)
+                }
+            );
         }
 
         // indexes to remove
@@ -616,7 +626,18 @@ class IndexManager {
                     db: db
                 });
             }
+            collectionIndexesDropped.push(
+                {
+                    collectionName: indexesToRemove.collectionName,
+                    indexes: indexesToCreate.indexes.map(a => a.indexConfig)
+                }
+            );
         }
+
+        return {
+            created: collectionIndexesCreated,
+            dropped: collectionIndexesDropped
+        };
     }
 }
 

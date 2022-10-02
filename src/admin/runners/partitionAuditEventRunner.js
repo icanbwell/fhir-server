@@ -196,8 +196,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         const destinationCollection = db.collection(destinationCollectionName);
                         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
                         this.adminLogger.log(`[${moment().toISOString()}] ` +
-                            `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-                            `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+                            `Count in source ${sourceCollectionName}: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                            `destination ${destinationCollectionName}: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
                         await disconnectClientAsync(client);
                     } else {
                         await this.runForQueryBatchesAsync(
