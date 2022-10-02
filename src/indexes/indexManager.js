@@ -156,6 +156,11 @@ class IndexManager {
         const baseCollectionName = collectionName.endsWith('_4_0_0') ?
             collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
+        // if this is a history collection then we only create an index on id
+        /**
+         * @type {boolean}
+         */
+        const isHistoryTable = collectionName.includes('_History');
         /**
          * @type {IndexConfig[]}
          */
@@ -165,17 +170,27 @@ class IndexManager {
         for (const [indexCollectionName,
             /** @type {IndexConfig[]} */ indexConfigs]
             of Object.entries(customIndexes)) {
-            if (indexCollectionName === '*') {
-                for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
-                    if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
-                        indexesToCreate.push(indexConfig);
+            if (isHistoryTable) {
+                if (indexCollectionName === '*_History') {
+                    for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
+                        if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                            indexesToCreate.push(indexConfig);
+                        }
                     }
                 }
-            }
-            if (baseCollectionName === indexCollectionName) {
-                for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
-                    if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
-                        indexesToCreate.push(indexConfig);
+            } else {
+                if (indexCollectionName === '*') {
+                    for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
+                        if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                            indexesToCreate.push(indexConfig);
+                        }
+                    }
+                }
+                if (baseCollectionName === indexCollectionName) {
+                    for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
+                        if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                            indexesToCreate.push(indexConfig);
+                        }
                     }
                 }
             }

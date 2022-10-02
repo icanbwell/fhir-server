@@ -121,7 +121,7 @@ class HistoryOperation {
 
         // noinspection JSValidateTypes
         /**
-         * @type {import('mongodb').WithoutProjection<import('mongodb').FindOptions<import('mongodb').DefaultSchema>>}
+         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
          */
         const options = {
             sort: [

@@ -345,7 +345,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
                             `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
                         this.adminLogger.log(message);
-                        this.adminLogger.logTrace(process.memoryUsage());
+                        // https://nodejs.org/api/process.html#process_process_memoryusage
+                        // heapTotal and heapUsed refer to V8's memory usage.
+                        // external refers to the memory usage of C++ objects bound to JavaScript objects managed by V8.
+                        // rss, Resident Set Size, is the amount of space occupied in the main memory device (that is a subset of the total allocated memory) for the process, including all C++ and JavaScript objects and code.
+                        // arrayBuffers refers to memory allocated for ArrayBuffers and SharedArrayBuffers, including all Node.js Buffers. This is also included in the external value. When Node.js is used as an embedded library, this value may be 0 because allocations for ArrayBuffers may not be tracked in that case.
+                        const memoryUsage = process.memoryUsage();
+                        this.adminLogger.logTrace(`Memory used (RSS): ${memoryUsage.rss.toLocaleString()}`);
                     }
                 }
 
