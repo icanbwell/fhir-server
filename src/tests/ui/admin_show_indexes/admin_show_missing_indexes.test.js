@@ -2,7 +2,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getHeadersWithAdminToken, getTestContainer,
+    createTestRequest, getTestContainer, getHtmlHeadersWithAdminToken,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const globals = require('../../../globals');
@@ -54,7 +54,7 @@ describe('Show Indexes UI Tests', () => {
                 db: fhirDb
             });
 
-            let resp = await request.get('/admin/missingIndexes?id=1').set(getHeadersWithAdminToken());
+            let resp = await request.get('/admin/missingIndexes?id=1').set(getHtmlHeadersWithAdminToken());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
 

@@ -336,11 +336,20 @@ const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => 
     });
 });
 
-module.exports.getHeadersWithAdminToken = () => {
+module.exports.getJsonHeadersWithAdminToken = () => {
     return {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
         Authorization: `Bearer ${getTokenWithAdminClaims()}`,
+    };
+};
+
+module.exports.getHtmlHeadersWithAdminToken = () => {
+    return {
+        'Content-Type': 'application/fhir+json',
+        Accept: 'text/html',
+        Authorization: `Bearer ${getTokenWithAdminClaims()}`,
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
     };
 };
 

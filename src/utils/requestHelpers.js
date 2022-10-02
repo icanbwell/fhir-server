@@ -13,7 +13,7 @@ const jsonMimeTypes = ['application/fhir+json', 'application/json', 'json'];
  */
 function hasJsonMimeTypeInFormatQuery({query}) {
     const urlParams = new URLSearchParams(query);
-    return !urlParams.has('_format') || !jsonMimeTypes.includes(urlParams.get('_format'));
+    return urlParams.has('_format') && jsonMimeTypes.includes(urlParams.get('_format'));
 }
 
 /**
@@ -36,7 +36,7 @@ const shouldReturnHtml = (req) => {
     return (
         (req.accepts('text/html') && !hasJsonMimeTypeInAcceptsHeader({req})) && // if the request is for HTML
         (req.method === 'GET' || req.method === 'POST') && // and this is a GET or a POST
-        !hasJsonMimeTypeInFormatQuery(req.query) &&
+        !hasJsonMimeTypeInFormatQuery({query: req.query}) &&
         (req.useragent && req.useragent.isDesktop) // Postman sends */* so we need this to avoid sending html to Postman
     );
 };
