@@ -21,6 +21,7 @@ function hasJsonMimeTypeInFormatQuery({query}) {
  * @param {import('http').IncomingMessage} req
  * @returns {boolean}
  */
+// eslint-disable-next-line no-unused-vars
 function hasJsonMimeTypeInAcceptsHeader({req}) {
     // https://www.npmjs.com/package/accepts
     const acceptHeader = accepts(req);
@@ -34,9 +35,9 @@ function hasJsonMimeTypeInAcceptsHeader({req}) {
  */
 const shouldReturnHtml = (req) => {
     return (
-        (req.accepts('text/html') && !hasJsonMimeTypeInAcceptsHeader({req})) && // if the request is for HTML
+        (req.accepts('text/html') /*&& !hasJsonMimeTypeInAcceptsHeader({req})*/) && // if the request is for HTML
         (req.method === 'GET' || req.method === 'POST') && // and this is a GET or a POST
-        !hasJsonMimeTypeInFormatQuery({query: req.query}) &&
+        !hasJsonMimeTypeInFormatQuery({query: req.query}) && // and does not have _format=json
         (req.useragent && req.useragent.isDesktop) // Postman sends */* so we need this to avoid sending html to Postman
     );
 };
