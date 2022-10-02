@@ -82,12 +82,15 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(config);
-
+        const sourceClient = await createClientAsync(config);
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        const destinationClient = await createClientAsync(config);
         /**
          * @type {import('mongodb').ClientSession}
          */
-        let session = client.startSession();
+        let session = sourceClient.startSession();
         /**
          * @type {import('mongodb').ServerSessionId}
          */
@@ -96,19 +99,27 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = client.db(config.db_name);
+        const sourceDb = sourceClient.db(config.db_name);
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const destinationDb = sourceClient.db(config.db_name);
         /**
          * @type {import('mongodb').Collection<import('mongodb').Document>}
          */
         const destinationCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
             {
-                db, collectionName: destinationCollectionName
+                db: destinationDb, collectionName: destinationCollectionName
             }
         );
         /**
          * @type {import('mongodb').Collection}
          */
-        const sourceCollection = db.collection(sourceCollectionName);
+        const sourceCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
+            {
+                db: sourceDb, collectionName: sourceCollectionName
+            }
+        );
 
         let operations = [];
 
@@ -212,7 +223,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 var refreshTimestamp = moment(); // take note of time at operation start
                 // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
                 // const fnRefreshSessionAsync = async () => {
-                //     session = client.startSession();
+                //     session = sourceClient.startSession();
                 //     sessionId = session.serverSession.id;
                 //     console.log(`Restarted session ${JSON.stringify(sessionId)}`);
                 // };
@@ -224,7 +235,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         /**
                          * @type {import('mongodb').Document}
                          */
-                        const adminResult = await db.admin().command({'refreshSessions': [sessionId]});
+                        const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
                         this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
                             `result from refreshing session: ${JSON.stringify(adminResult)}`);
                         refreshTimestamp = moment();
@@ -341,8 +352,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         await session.endSession();
 
         // disconnect from db
-        this.adminLogger.logTrace('Disconnecting from client...');
-        await disconnectClientAsync(client);
+        this.adminLogger.logTrace('Disconnecting from sourceClient...');
+        await disconnectClientAsync(sourceClient);
+        await disconnectClientAsync(destinationClient);
 
         return lastCheckedId;
     }
