@@ -364,6 +364,46 @@ class IndexManager {
     }
 
     /**
+     * Deletes the provided index on the specified collection
+     * @param {string} collectionName
+     * @param {import('mongodb').Db} db
+     * @param {string} indexName
+     * @return {Promise<{indexes:IndexConfig[], name}>}
+     */
+    async deleteIndexInCollectionAsync({collectionName, db, indexName}) {
+        const message = `Dropping index ${indexName} from ${collectionName} `;
+        await logSystemEventAsync(
+            {
+                event: 'dropIndex',
+                message,
+                args: {
+                    index: indexName,
+                    collection: collectionName,
+                    indexName: indexName
+                }
+            }
+        );
+        await this.errorReporter.reportMessageAsync(
+            {source: 'dropIndex', message: message});
+        try {
+            await db.collection(collectionName).dropIndex(indexName);
+        } catch (e) {
+            const message1 = 'Error dropping index: ' + indexName + ' for collection ' + collectionName +
+                ': ' + JSON.stringify(e);
+            await logSystemErrorAsync(
+                {
+                    event: 'createIndex', message: message1, args: {
+                        index: indexName,
+                        collection: collectionName
+                    },
+                    error: e
+                }
+            );
+            await this.errorReporter.reportMessageAsync({source: 'dropIndex', message: message1});
+        }
+    }
+
+    /**
      * Gets indexes on all the collections
      * @return {Promise<{collectionName: string, indexes: IndexConfig[]}[]>}
      */
@@ -404,7 +444,7 @@ class IndexManager {
     /**
      * Gets missingindexes on all the collections
      * @param {boolean|undefined} filterToProblems
-     * @return {Promise<{collectionName: string, indexes: IndexConfig[]}[]>}
+     * @return {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]>}
      */
     async compareCurrentIndexesWithConfigurationInAllCollectionsAsync({filterToProblems}) {
         /**
@@ -425,7 +465,7 @@ class IndexManager {
             }
             // now add indices on id column for every collection
             /**
-             * @type {{indexes: IndexConfig[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
              */
             const collectionIndexes = await async.map(
                 collection_names,
@@ -495,6 +535,84 @@ class IndexManager {
         }
 
         console.log(JSON.stringify({message: 'Finished deleteIndexesInAllCollections'}));
+    }
+
+    /**
+     * adds any indexes missing from config and removes any indexes not in config
+     * @returns {Promise<void>}
+     */
+    async synchronizeIndexesWithConfig() {
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = globals.get(CLIENT_DB);
+        /**
+         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
+         */
+        const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
+            {
+                filterToProblems: true
+            }
+        );
+        // indexes to create
+        /**
+         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
+         */
+        const indexesToCreate = indexProblems.map(
+            c => {
+                return {
+                    collectionName: c.collectionName,
+                    indexes: c.indexes.filter(
+                        i => i.missing
+                    )
+                };
+            }
+        ).filter(c => c.indexes.length >= 0);
+
+        for (
+            const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}} */
+            indexToCreate of indexesToCreate
+            ) {
+            for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
+            index of indexToCreate.indexes) {
+                await this.createIndexIfNotExistsAsync(
+                    {
+                        db,
+                        collectionName: indexesToCreate.collectionName,
+                        indexConfig: index.indexConfig
+                    }
+                );
+            }
+        }
+
+        // indexes to remove
+        /**
+         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
+         */
+        const indexesToRemove = indexProblems.map(
+            c => {
+                return {
+                    collectionName: c.collectionName,
+                    indexes: c.indexes.filter(
+                        i => i.extra
+                    )
+                };
+            }
+        ).filter(c => c.indexes.length >= 0);
+
+        for (
+            const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}} */
+            indexToRemove of indexesToRemove
+            ) {
+            for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
+            index of indexToRemove.indexes) {
+                await this.deleteIndexInCollectionAsync({
+                    collectionName: indexToRemove.collectionName,
+                    indexName: index.indexConfig.options.name,
+                    db: db
+                });
+            }
+        }
     }
 }
 

@@ -37,8 +37,10 @@ function getAdminScopes({req}) {
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
-async function showIndexesAsync({req, container, res,
-                                filterToProblems}) {
+async function showIndexesAsync({
+                                    req, container, res,
+                                    filterToProblems
+                                }) {
     console.log(`showIndexes: req.query: ${JSON.stringify(req.query)}`);
     /**
      * @type {IndexManager}
@@ -56,6 +58,70 @@ async function showIndexesAsync({req, container, res,
         });
     } else {
         return res.json(json);
+    }
+}
+
+/**
+ * shows indexes
+ * @param {import('http').IncomingMessage} req
+ * @param {SimpleContainer} container
+ * @param {import('http').ServerResponse} res
+ * @returns {Promise<void>}
+ */
+async function synchronizeIndexesAsync(
+    {
+        req,
+        container,
+        res
+    }
+) {
+    console.log(`showIndexes: req.query: ${JSON.stringify(req.query)}`);
+    /**
+     * @type {IndexManager}
+     */
+    const indexManager = container.indexManager;
+
+    // return response and then continue processing
+    const htmlContent = '<!DOCTYPE html><html><body><script>setTimeout(function(){window.location.href = "/admin/indexes?problems=1";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>';
+    res.set('Content-Type', 'text/html');
+    res.send(Buffer.from(htmlContent));
+    res.end();
+    // res.json({message: 'Started Synchronizing indexes'}).end();
+    await indexManager.synchronizeIndexesWithConfig();
+    return;
+}
+
+/**
+ * handles index operations
+ * @param {import('http').IncomingMessage} req
+ * @param {SimpleContainer} container
+ * @param {import('http').ServerResponse} res
+ * @returns {Promise<void>}
+ */
+async function handleIndexAsync({req, container, res}) {
+    // noinspection JSValidateTypes
+    /**
+     * @type {string|number|undefined}
+     */
+    const filterToProblems = req.query['problems'];
+    /**
+     * @type {string|number|undefined}
+     */
+    const synchronize = req.query['synchronize'];
+    if (synchronize) {
+        return await synchronizeIndexesAsync(
+            {
+                req,
+                container,
+                res
+            }
+        );
+    } else {
+        return await showIndexesAsync(
+            {
+                req, container, res,
+                filterToProblems: isTrue(filterToProblems)
+            });
     }
 }
 
@@ -106,16 +172,7 @@ async function handleAdmin(
                 }
 
                 case 'indexes': {
-                    // noinspection JSValidateTypes
-                    /**
-                     * @type {string|number|undefined}
-                     */
-                    const filterToProblems = req.query['problems'];
-                    return await showIndexesAsync(
-                        {
-                            req, container, res,
-                            filterToProblems: isTrue(filterToProblems)
-                        });
+                    return await handleIndexAsync({req, container, res});
                 }
 
                 default: {
