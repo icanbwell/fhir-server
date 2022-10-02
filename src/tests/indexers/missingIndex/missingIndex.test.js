@@ -166,57 +166,106 @@ describe('Create Index Tests', () => {
              */
             const auditEventCollection = auditEventDb.collection(collectionName);
             await auditEventCollection.insertOne({id: '1', resourceType: 'AuditEvent'});
-            // run indexManager
-            await indexManager.indexCollectionAsync({
-                collectionName, db: auditEventDb
+            /**
+             *
+             * @type {import('mongodb').CreateIndexesOptions}
+             */
+            const options = {
+                // unique: true,
+                name: 'id_1'
+            };
+            /**
+             * @type {import('mongodb').IndexSpecification}
+             */
+            const indexSpec = {
+                'id': 1
+            };
+            const indexResult = await auditEventCollection.createIndex(indexSpec, options);
+            expect(indexResult).toStrictEqual('id_1');
+            /**
+             * @type {{indexes: IndexConfig[], collectionName: string}[]}
+             */
+            const missingIndexes = await indexManager.getAllMissingIndexes({
+                db: auditEventDb, collectionRegex: collectionName
             });
-            // check that indexes were created properly
+            expect(missingIndexes.length).toStrictEqual(1);
             /**
              * @type {Object[]}
              */
-            const indexes = await auditEventCollection.indexes();
-            const sortedIndexes = indexes.sort((a, b) => (a.name > b.name) ? 1 : -1);
-            expect(sortedIndexes.length).toBe(8);
-            expect(sortedIndexes[0]).toStrictEqual({
-                'v': 2, 'key': {
-                    '_id': 1
-                }, 'name': '_id_'
-            });
-            expect(sortedIndexes[1]).toStrictEqual({
-                'v': 2, 'key': {
-                    'meta.security.system': 1, 'meta.security.code': 1, 'id': 1, 'recorded': 1
-                }, 'name': 'helix_auditEvent_recorded'
-            });
-            expect(sortedIndexes[2]).toStrictEqual({
-                'v': 2, 'key': {
-                    '_access.medstar': 1, 'id': 1, 'recorded': 1
-                }, 'name': 'helix_auditEvent_recorded_access_medstar'
-            });
-            expect(sortedIndexes[3]).toStrictEqual({
-                'v': 2, 'key': {
-                    '_access.medstar': 1, 'id': 1, 'meta.lastUpdated': 1
-                }, 'name': 'helix_auditEvent_security_access_medstar'
-            });
-            expect(sortedIndexes[4]).toStrictEqual({
-                'v': 2, 'key': {
-                    'meta.security.system': 1, 'meta.security.code': 1, 'id': 1, 'meta.lastUpdated': 1
-                }, 'name': 'helix_audit_event_security'
-            });
-            expect(sortedIndexes[5]).toStrictEqual({
-                'v': 2, 'key': {
-                    'id': 1
-                }, 'name': 'id_1', // 'unique': true
-            });
-            expect(sortedIndexes[6]).toStrictEqual({
-                'v': 2, 'key': {
-                    'meta.source': 1
-                }, 'name': 'meta.source_1'
-            });
-            expect(sortedIndexes[7]).toStrictEqual({
-                'v': 2, 'key': {
-                    'meta.security.system': 1, 'meta.security.code': 1
-                }, 'name': 'security.system_code_1'
-            });
+            const indexes = missingIndexes[0].indexes;
+            const sortedIndexes = indexes.sort((a, b) => (a.options.name > b.options.name) ? 1 : -1);
+            expect(sortedIndexes.length).toBe(6);
+            expect(sortedIndexes[0]).toStrictEqual(
+                {
+                    'keys': {
+                        'meta.security.system': 1,
+                        'meta.security.code': 1,
+                        'id': 1,
+                        'recorded': 1
+                    },
+                    'options': {
+                        'name': 'helix_auditEvent_recorded'
+                    }
+                }
+            );
+            expect(sortedIndexes[1]).toStrictEqual(
+                {
+                    'keys': {
+                        '_access.medstar': 1,
+                        'id': 1,
+                        'recorded': 1
+                    },
+                    'options': {
+                        'name': 'helix_auditEvent_recorded_access_medstar'
+                    }
+                }
+            );
+            expect(sortedIndexes[2]).toStrictEqual(
+                {
+                    'keys': {
+                        '_access.medstar': 1,
+                        'id': 1,
+                        'meta.lastUpdated': 1
+                    },
+                    'options': {
+                        'name': 'helix_auditEvent_security_access_medstar'
+                    }
+                }
+            );
+            expect(sortedIndexes[3]).toStrictEqual(
+                {
+                    'keys': {
+                        'meta.security.system': 1,
+                        'meta.security.code': 1,
+                        'id': 1,
+                        'meta.lastUpdated': 1
+                    },
+                    'options': {
+                        'name': 'helix_audit_event_security'
+                    }
+                }
+            );
+            expect(sortedIndexes[4]).toStrictEqual(
+                {
+                    'keys': {
+                        'meta.source': 1
+                    },
+                    'options': {
+                        'name': 'meta.source_1'
+                    }
+                }
+            );
+            expect(sortedIndexes[5]).toStrictEqual(
+                {
+                    'keys': {
+                        'meta.security.system': 1,
+                        'meta.security.code': 1
+                    },
+                    'options': {
+                        'name': 'security.system_code_1'
+                    }
+                }
+            );
         });
     });
 });
