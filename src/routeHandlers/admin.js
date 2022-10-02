@@ -65,7 +65,7 @@ async function missingIndexesAsync({req, container, res}) {
      * @type {IndexManager}
      */
     const indexManager = container.indexManager;
-    const json = await indexManager.getMissingIndexesInAllCollectionsAsync();
+    const json = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync();
     if (shouldReturnHtml(req)) {
         const filePath = __dirname + '/../views/admin/pages/missingIndexes';
         return res.render(filePath, {

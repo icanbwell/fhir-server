@@ -111,13 +111,13 @@ class IndexManager {
      */
     async indexCollectionAsync({collectionName, db}) {
         /**
-         * @type {{collectionName: string, indexConfig: IndexConfig[]}}
+         * @type {{collectionName: string, indexes: IndexConfig[]}}
          */
         const createIndexResult = await this.getIndexesToCreateForCollectionAsync({collectionName});
 
         // check if index exists
         let indexesCreated = 0;
-        for (const /** @type {IndexConfig} */ indexConfig of createIndexResult.indexConfig) {
+        for (const /** @type {IndexConfig} */ indexConfig of createIndexResult.indexes) {
             const createdIndex = await this.createIndexIfNotExistsAsync(
                 {
                     db,
@@ -141,7 +141,7 @@ class IndexManager {
     /**
      * Gets indexes to create for the collection requested
      * @param {string} collectionName
-     * @returns {Promise<{collectionName: string, indexConfig: IndexConfig[]}>}
+     * @returns {Promise<{collectionName: string, indexes: IndexConfig[]}>}
      */
     async getIndexesToCreateForCollectionAsync({collectionName}) {
         const baseCollectionName = collectionName.endsWith('_4_0_0') ?
@@ -189,7 +189,7 @@ class IndexManager {
 
         return {
             collectionName: collectionName,
-            indexConfig: indexesToCreate
+            indexes: indexesToCreate
         };
     }
 
@@ -252,9 +252,9 @@ class IndexManager {
      * indexes all collections in this database
      * @param {import('mongodb').Db} db
      * @param {string|undefined} [collectionRegex]
-     * @returns {Promise<{indexes: IndexConfig[], collectionName: string}[]>}
+     * @returns {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]>}
      */
-    async getMissingIndexesInCollectionsAsync({db, collectionRegex}) {
+    async compareCurrentIndexesWithConfigurationInCollectionAsync({db, collectionRegex}) {
         /**
          * @type {string[]}
          */
@@ -274,9 +274,9 @@ class IndexManager {
         }
 
         /**
-         * @type {Map<string, IndexConfig[]>}
+         * @type {Map<string, {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[]>}
          */
-        const missingIndexes = new Map();
+        const compareIndexesMap = new Map();
 
         for (const collectionName of collectionNames) {
             // now get the current indexes on these collections
@@ -287,11 +287,13 @@ class IndexManager {
                 collectionName,
                 db
             });
+            // find missing indexes
             /**
-             * @type {{collectionName: string, indexConfig: IndexConfig[]}}
+             * @type {{collectionName: string, indexes: IndexConfig[]}}
              */
             const indexesToCreate = await this.getIndexesToCreateForCollectionAsync({collectionName});
-            for (const /** @type {IndexConfig} */ indexConfig of indexesToCreate.indexConfig) {
+            // find indexes to create that are not present currently
+            for (const /** @type {IndexConfig} */ indexConfig of indexesToCreate.indexes) {
                 /**
                  * @type {IndexConfig[]}
                  */
@@ -299,17 +301,40 @@ class IndexManager {
                     i => i.options.name === indexConfig.options.name
                 );
                 if (indexesMatchingByName.length === 0) {
-                    if (!missingIndexes.has(collectionName)) {
-                        missingIndexes.set(collectionName, []);
+                    if (!compareIndexesMap.has(collectionName)) {
+                        compareIndexesMap.set(collectionName, []);
                     }
-                    missingIndexes.get(collectionName).push(indexConfig);
+                    compareIndexesMap.get(collectionName).push(
+                        {
+                            indexConfig: indexConfig,
+                            missing: true
+                        }
+                    );
                 }
+            }
+            // find indexes to remove that are present currently but not in configuration
+            for (const /** @type {IndexConfig} */ indexConfig of currentIndexesForCollection.indexes) {
+                /**
+                 * @type {IndexConfig[]}
+                 */
+                const indexesMatchingByName = indexesToCreate.indexes.filter(
+                    i => i.options.name === indexConfig.options.name
+                );
+                if (!compareIndexesMap.has(collectionName)) {
+                    compareIndexesMap.set(collectionName, []);
+                }
+                compareIndexesMap.get(collectionName).push(
+                    {
+                        indexConfig: indexConfig,
+                        extra: indexesMatchingByName.length === 0 && indexConfig.options.name !== '_id_',
+                    }
+                );
             }
         }
 
-        return missingIndexes.size > 0 ?
+        return compareIndexesMap.size > 0 ?
             Array.from(
-                missingIndexes,
+                compareIndexesMap,
                 ([key, value]) => {
                     return {
                         collectionName: key,
@@ -394,7 +419,7 @@ class IndexManager {
      * Gets missingindexes on all the collections
      * @return {Promise<{collectionName: string, indexes: IndexConfig[]}[]>}
      */
-    async getMissingIndexesInAllCollectionsAsync() {
+    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync() {
         /**
          * @type {import('mongodb').MongoClient}
          */
@@ -417,7 +442,7 @@ class IndexManager {
              */
             const collectionIndexes = await async.flatMap(
                 collection_names,
-                async collectionName => await this.getMissingIndexesInCollectionsAsync({collectionName, db})
+                async collectionName => await this.compareCurrentIndexesWithConfigurationInCollectionAsync({collectionName, db})
             );
             return collectionIndexes
                 .sort(

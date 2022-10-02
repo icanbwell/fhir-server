@@ -46,12 +46,13 @@ describe('Missing Index Tests', () => {
                 collectionName, db: fhirDb
             });
             /**
-             * @type {{indexes: IndexConfig[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
              */
-            const missingIndexes = await indexManager.getMissingIndexesInCollectionsAsync({
+            const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
                 db: fhirDb, collectionRegex: collectionName
             });
-            expect(missingIndexes.length).toStrictEqual(0);
+            expect(missingIndexes.length).toStrictEqual(1);
+            expect(missingIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
         });
         test('missingIndex if Patient collection is missing indexes', async () => {
             await createTestRequest();
@@ -95,16 +96,19 @@ describe('Missing Index Tests', () => {
             const indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
             /**
-             * @type {{indexes: IndexConfig[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
              */
-            const missingIndexes = await indexManager.getMissingIndexesInCollectionsAsync({
+            const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
                 db: fhirDb, collectionRegex: collectionName
             });
             expect(missingIndexes.length).toStrictEqual(1);
             /**
-             * @type {Object[]}
+             * @type {IndexConfig[]}
              */
-            const indexes = missingIndexes[0].indexes;
+            const indexes = missingIndexes[0].indexes.filter(ia => ia.missing).map(ia => ia.indexConfig);
+            /**
+             * @type {IndexConfig[]}
+             */
             const sortedIndexes = indexes.sort((a, b) => (a.options.name > b.options.name) ? 1 : -1);
             expect(sortedIndexes.length).toBe(3);
             expect(sortedIndexes[0]).toStrictEqual(
@@ -183,16 +187,19 @@ describe('Missing Index Tests', () => {
             const indexResult = await auditEventCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
             /**
-             * @type {{indexes: IndexConfig[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
              */
-            const missingIndexes = await indexManager.getMissingIndexesInCollectionsAsync({
+            const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
                 db: auditEventDb, collectionRegex: collectionName
             });
             expect(missingIndexes.length).toStrictEqual(1);
             /**
-             * @type {Object[]}
+             * @type {IndexConfig[]}
              */
-            const indexes = missingIndexes[0].indexes;
+            const indexes = missingIndexes[0].indexes.filter(ia => ia.missing).map(ia => ia.indexConfig);
+            /**
+             * @type {IndexConfig[]}
+             */
             const sortedIndexes = indexes.sort((a, b) => (a.options.name > b.options.name) ? 1 : -1);
             expect(sortedIndexes.length).toBe(6);
             expect(sortedIndexes[0]).toStrictEqual(
