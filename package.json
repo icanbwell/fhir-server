@@ -17,7 +17,7 @@
     "test:lint": "eslint \"src/**/*.js\"",
     "test:ejslint": "ejslint \"src/**/*.ejs\"",
     "test:jshint": "jshint \"src/\"",
-    "test:jest": "NODE_ENV=test NODE_OPTIONS=--max_old_space_size=2048 node --max-old-space-size=2048 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman -logHeapUsage  --forceExit .",
+    "test:jest": "NODE_ENV=test NODE_OPTIONS=--max_old_space_size=2048 node --use_strict --max-old-space-size=2048 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman -logHeapUsage  --forceExit .",
     "test:jestInspect": "NODE_ENV=test NODE_OPTIONS=--max_old_space_size=12328 node --max-old-space-size=12328 --inspect-brk --expose-gc ./node_modules/.bin/jest --no-watchman --silent --useStderr --logHeapUsage --detectOpenHandles -i src/tests/practitioner/complex_merge src/tests/patient/search_with_patient_filtering/search_with_patient_filtering.test.js",
     "test:integration": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/complex_merge",
     "test:specific": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/patient/search_with_patient_filtering/search_with_patient_filtering.test.js",
