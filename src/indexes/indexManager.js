@@ -251,114 +251,83 @@ class IndexManager {
     /**
      * indexes all collections in this database
      * @param {import('mongodb').Db} db
-     * @param {string} collectionRegex
+     * @param {string} collectionName
      * @param {boolean|undefined} filterToProblems
-     * @returns {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]>}
+     * @returns {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}>}
      */
     async compareCurrentIndexesWithConfigurationInCollectionAsync(
         {
             db,
-            collectionRegex,
+            collectionName,
             filterToProblems
         }) {
+
         /**
-         * @type {string[]}
+         * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
          */
-        let collectionNames = [];
+        const compareIndexesResult = {
+            collectionName: collectionName,
+            indexes: []
+        };
+
+        // now get the current indexes on these collections
         /**
-         * @type {import('mongodb').CommandCursor}
+         * @type {{indexes: IndexConfig[], collectionName: string}}
          */
-        const commandCursor = db.listCollections();
-        await commandCursor.forEach(collection => {
-            if (collection.name.indexOf('system.') === -1) {
-                collectionNames.push(collection.name);
-            }
+        const currentIndexesForCollection = await this.getIndexesInCollectionAsync({
+            collectionName,
+            db
         });
-
-        if (collectionRegex) {
-            collectionNames = collectionNames.filter(c => c.match(collectionRegex) !== null);
-        }
-
+        // find missing indexes
         /**
-         * @type {Map<string, {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[]>}
+         * @type {{collectionName: string, indexes: IndexConfig[]}}
          */
-        const compareIndexesMap = new Map();
-
-        for (const collectionName of collectionNames) {
-            // now get the current indexes on these collections
+        const indexesToCreate = await this.getIndexesToCreateForCollectionAsync({collectionName});
+        // find indexes to create that are not present currently
+        for (const /** @type {IndexConfig} */ indexConfig of indexesToCreate.indexes) {
             /**
-             * @type {{indexes: IndexConfig[], collectionName: string}}
+             * @type {IndexConfig[]}
              */
-            const currentIndexesForCollection = await this.getIndexesInCollectionAsync({
-                collectionName,
-                db
-            });
-            // find missing indexes
-            /**
-             * @type {{collectionName: string, indexes: IndexConfig[]}}
-             */
-            const indexesToCreate = await this.getIndexesToCreateForCollectionAsync({collectionName});
-            // find indexes to create that are not present currently
-            for (const /** @type {IndexConfig} */ indexConfig of indexesToCreate.indexes) {
-                /**
-                 * @type {IndexConfig[]}
-                 */
-                const indexesMatchingByName = currentIndexesForCollection.indexes.filter(
-                    i => i.options.name === indexConfig.options.name
-                );
-                if (indexesMatchingByName.length === 0) {
-                    if (!compareIndexesMap.has(collectionName)) {
-                        compareIndexesMap.set(collectionName, []);
+            const indexesMatchingByName = currentIndexesForCollection.indexes.filter(
+                i => i.options.name === indexConfig.options.name
+            );
+            if (indexesMatchingByName.length === 0) {
+                compareIndexesResult.indexes.push(
+                    {
+                        indexConfig: indexConfig,
+                        missing: true
                     }
-                    compareIndexesMap.get(collectionName).push(
-                        {
-                            indexConfig: indexConfig,
-                            missing: true
-                        }
-                    );
-                }
-            }
-            // find indexes to remove that are present currently but not in configuration
-            for (const /** @type {IndexConfig} */ indexConfig of currentIndexesForCollection.indexes) {
-                /**
-                 * @type {IndexConfig[]}
-                 */
-                const indexesMatchingByName = indexesToCreate.indexes.filter(
-                    i => i.options.name === indexConfig.options.name
                 );
-                if (!compareIndexesMap.has(collectionName)) {
-                    compareIndexesMap.set(collectionName, []);
-                }
-                if (indexesMatchingByName.length >= 0 || indexConfig.options.name === '_id_') {
-                    if (!filterToProblems) {
-                        compareIndexesMap.get(collectionName).push(
-                            {
-                                indexConfig: indexConfig,
-                            }
-                        );
-                    }
-                } else {
-                    compareIndexesMap.get(collectionName).push(
-                        {
-                            indexConfig: indexConfig,
-                            extra: true,
-                        }
-                    );
-                }
-
             }
         }
-
-        return compareIndexesMap.size > 0 ?
-            Array.from(
-                compareIndexesMap,
-                ([key, value]) => {
-                    return {
-                        collectionName: key,
-                        indexes: value
-                    };
+        // find indexes to remove that are present currently but not in configuration
+        for (const /** @type {IndexConfig} */ indexConfig of currentIndexesForCollection.indexes) {
+            /**
+             * @type {IndexConfig[]}
+             */
+            const indexesMatchingByName = indexesToCreate.indexes.filter(
+                i => i.options.name === indexConfig.options.name
+            );
+            if (indexesMatchingByName.length >= 0 || indexConfig.options.name === '_id_') {
+                if (!filterToProblems) {
+                    compareIndexesResult.indexes.push(
+                        {
+                            indexConfig: indexConfig,
+                        }
+                    );
                 }
-            ) : [];
+            } else {
+                compareIndexesResult.indexes.push(
+                    {
+                        indexConfig: indexConfig,
+                        extra: true,
+                    }
+                );
+            }
+
+        }
+
+        return compareIndexesResult;
     }
 
     /**
@@ -458,11 +427,11 @@ class IndexManager {
             /**
              * @type {{indexes: IndexConfig[], collectionName: string}[]}
              */
-            const collectionIndexes = await async.flatMap(
+            const collectionIndexes = await async.map(
                 collection_names,
                 async collectionName => await this.compareCurrentIndexesWithConfigurationInCollectionAsync(
                     {
-                        collectionRegex: collectionName,
+                        collectionName,
                         db,
                         filterToProblems
                     })

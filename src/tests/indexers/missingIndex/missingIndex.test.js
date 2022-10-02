@@ -46,13 +46,12 @@ describe('Missing Index Tests', () => {
                 collectionName, db: fhirDb
             });
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
              */
-            const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
-                db: fhirDb, collectionRegex: collectionName
+            const missingIndexesResult = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
+                db: fhirDb, collectionName
             });
-            expect(missingIndexes.length).toStrictEqual(1);
-            expect(missingIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+            expect(missingIndexesResult.indexes.filter(ia => ia.missing).length).toStrictEqual(0);
         });
         test('missingIndex if Patient collection is missing indexes', async () => {
             await createTestRequest();
@@ -96,16 +95,15 @@ describe('Missing Index Tests', () => {
             const indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
              */
-            const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
-                db: fhirDb, collectionRegex: collectionName
+            const missingIndexesResult = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
+                db: fhirDb, collectionName
             });
-            expect(missingIndexes.length).toStrictEqual(1);
             /**
              * @type {IndexConfig[]}
              */
-            const indexes = missingIndexes[0].indexes.filter(ia => ia.missing).map(ia => ia.indexConfig);
+            const indexes = missingIndexesResult.indexes.filter(ia => ia.missing).map(ia => ia.indexConfig);
             /**
              * @type {IndexConfig[]}
              */
@@ -187,16 +185,15 @@ describe('Missing Index Tests', () => {
             const indexResult = await auditEventCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
              */
-            const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
-                db: auditEventDb, collectionRegex: collectionName
+            const missingIndexesResult = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
+                db: auditEventDb, collectionName
             });
-            expect(missingIndexes.length).toStrictEqual(1);
             /**
              * @type {IndexConfig[]}
              */
-            const indexes = missingIndexes[0].indexes.filter(ia => ia.missing).map(ia => ia.indexConfig);
+            const indexes = missingIndexesResult.indexes.filter(ia => ia.missing).map(ia => ia.indexConfig);
             /**
              * @type {IndexConfig[]}
              */
@@ -292,6 +289,7 @@ describe('Missing Index Tests', () => {
              */
             const fhirDb = globals.get(CLIENT_DB);
             const patientCollectionName = 'Patient_4_0_0';
+            const patientHistoryCollectionName = 'Patient_4_0_0_History';
             const practitionerCollectionName = 'Practitioner_4_0_0';
             /**
              * mongo collection
@@ -307,6 +305,16 @@ describe('Missing Index Tests', () => {
              * mongo collection
              * @type {import('mongodb').Collection}
              */
+            const patientHistoryCollection = fhirDb.collection(patientHistoryCollectionName);
+            await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
+            // run indexManager
+            await indexManager.indexCollectionAsync({
+                collectionName: patientHistoryCollectionName, db: fhirDb
+            });
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
             const practitionerCollection = fhirDb.collection(practitionerCollectionName);
             await practitionerCollection.insertOne({id: '1', resourceType: 'Practitioner'});
             // run indexManager
@@ -317,9 +325,10 @@ describe('Missing Index Tests', () => {
              * @type {{collectionName: string, indexes: IndexConfig[]}[]}
              */
             const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({});
-            expect(missingIndexes.length).toStrictEqual(2);
+            expect(missingIndexes.length).toStrictEqual(3);
             expect(missingIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
             expect(missingIndexes[1].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+            expect(missingIndexes[2].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
         });
 
     });
