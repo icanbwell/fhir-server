@@ -258,10 +258,23 @@ describe('Create Index Tests', () => {
                 db: auditEventDb
             });
             // check that indexes were created properly
+
+            /**
+             * @type {(import('mongodb').Document)[]}
+             */
+            const indexesFromMongo = await auditEventCollection.indexes();
             /**
              * @type {{v:number,key:Object, name:string, unique:boolean|undefined}[]}
              */
-            const indexes = await auditEventCollection.indexes();
+            const indexes = indexesFromMongo.map(
+                doc => {
+                    return {
+                        v: doc.v,
+                        key: doc.key,
+                        name: doc.name
+                    };
+                }
+            );
             const sortedIndexes = indexes.sort((a, b) => (a.name > b.name) ? 1 : -1);
             expect(sortedIndexes.length).toBe(8);
             expect(sortedIndexes[0]).toStrictEqual(
