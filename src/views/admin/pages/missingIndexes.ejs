@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<main>
+    <% collections.forEach(function(collection){ %>
+        <h3><%= collection.name; %></h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">name</th>
+                <th scope="col">key</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% collection.indexes.forEach(function(row){ %>
+                <tr>
+                    <td><%= row.name %></td>
+                    <td><%= JSON.stringify(row.key) %></td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    <% }) %>
+</main>
+
+</body>
+</html>

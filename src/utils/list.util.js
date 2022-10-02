@@ -125,6 +125,14 @@ const getFirstElementOrNull = (sourceArray) => sourceArray.length === 0 ? null :
  */
 const getFirstResourceOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
 
+/**
+ * @param {(*[])[]} array_of_arrays
+ * @returns {Promise<*>}
+ */
+async function removeEmptyEntries(array_of_arrays) {
+    return array_of_arrays.filter(a => a.length > 0);
+}
+
 module.exports = {
     findDuplicates,
     findDuplicateResources,
@@ -133,5 +141,6 @@ module.exports = {
     groupBy,
     groupByLambda,
     getFirstElementOrNull,
-    getFirstResourceOrNull
+    getFirstResourceOrNull,
+    removeEmptyEntries
 };

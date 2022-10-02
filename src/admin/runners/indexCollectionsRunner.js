@@ -84,7 +84,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             }
             for (const collectionName of this.collections) {
                 if (this.dropIndexes) {
-                    await this.indexManager.deleteIndexesInAllCollectionsInDatabase({
+                    await this.indexManager.deleteIndexesInAllCollectionsInDatabaseAsync({
                         db,
                         collectionRegex: collectionName
                     });

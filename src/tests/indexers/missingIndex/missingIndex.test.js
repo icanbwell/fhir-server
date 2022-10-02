@@ -3,7 +3,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 
-describe('Create Index Tests', () => {
+describe('Missing Index Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -48,7 +48,7 @@ describe('Create Index Tests', () => {
             /**
              * @type {{indexes: IndexConfig[], collectionName: string}[]}
              */
-            const missingIndexes = await indexManager.getAllMissingIndexes({
+            const missingIndexes = await indexManager.getMissingIndexesInCollectionsAsync({
                 db: fhirDb, collectionRegex: collectionName
             });
             expect(missingIndexes.length).toStrictEqual(0);
@@ -97,7 +97,7 @@ describe('Create Index Tests', () => {
             /**
              * @type {{indexes: IndexConfig[], collectionName: string}[]}
              */
-            const missingIndexes = await indexManager.getAllMissingIndexes({
+            const missingIndexes = await indexManager.getMissingIndexesInCollectionsAsync({
                 db: fhirDb, collectionRegex: collectionName
             });
             expect(missingIndexes.length).toStrictEqual(1);
@@ -185,7 +185,7 @@ describe('Create Index Tests', () => {
             /**
              * @type {{indexes: IndexConfig[], collectionName: string}[]}
              */
-            const missingIndexes = await indexManager.getAllMissingIndexes({
+            const missingIndexes = await indexManager.getMissingIndexesInCollectionsAsync({
                 db: auditEventDb, collectionRegex: collectionName
             });
             expect(missingIndexes.length).toStrictEqual(1);

@@ -16,10 +16,9 @@ const globals = require('../globals');
 /**
  * @typedef IndexConfig
  * @type {object}
- * @property {number} v
  * @property {Object} keys
- * @property {string} name
- * @property {boolean|undefined} unique
+ * @property {{name: string, [unique]: boolean|undefined}} options
+ * @property {string[]|undefined} [exclude]
  */
 
 /**
@@ -52,13 +51,22 @@ class IndexManager {
          * @type {import('mongodb').IndexSpecification}
          */
         const indexSpec = indexConfig.keys;
+        /**
+         * @type {string[]}
+         */
         const properties_to_index = Object.keys(indexSpec);
+        /**
+         * @type {string}
+         */
         let indexName = indexConfig.options.name;
-        const columns = properties_to_index.join(',');
+        /**
+         * @type {string}
+         */
+        const columnsText = properties_to_index.join(',');
         // limitations: https://www.mongodb.com/docs/manual/reference/limits/
         try {
             if (!await db.collection(collectionName).indexExists(indexName)) {
-                const message = 'Creating index ' + indexName + ' with columns: [' + columns + ']' +
+                const message = 'Creating index ' + indexName + ' with columnsText: [' + columnsText + ']' +
                     ' in ' + collectionName;
                 await logSystemEventAsync(
                     {
@@ -66,7 +74,7 @@ class IndexManager {
                         message,
                         args: {
                             index: indexName,
-                            columns: columns,
+                            columns: columnsText,
                             collection: collectionName,
                             indexColumnConfig: indexConfig
                         }
@@ -84,7 +92,7 @@ class IndexManager {
                 {
                     event: 'createIndex', message: message1, args: {
                         index: indexName,
-                        columns: columns,
+                        columns: columnsText,
                         collection: collectionName
                     },
                     error: e
@@ -112,59 +120,46 @@ class IndexManager {
         }
 
         /**
-         * @type {{collectionName: string, indexConfig: IndexConfig[]}[]}
+         * @type {{collectionName: string, indexConfig: IndexConfig[]}}
          */
-        const indexesToCreate = await this.getIndexesToCreateAsync({collectionName});
+        const createIndexResult = await this.getIndexesToCreateForCollectionAsync({collectionName});
 
         // check if index exists
         let indexesCreated = 0;
-        for (
-            const /** @type {{collectionName:string, indexConfig: IndexConfig[]}} **/
-            indexToCreate of indexesToCreate
-            ) {
-            for (const /** @type {IndexConfig} */ indexConfig of indexToCreate.indexConfig) {
-                const createdIndex = await this.createIndexIfNotExistsAsync(
-                    {
-                        db,
-                        indexConfig: indexConfig,
-                        collectionName: indexToCreate.collectionName
-                    }
-                );
-                if (createdIndex) {
-                    indexesCreated += 1;
+        for (const /** @type {IndexConfig} */ indexConfig of createIndexResult.indexConfig) {
+            const createdIndex = await this.createIndexIfNotExistsAsync(
+                {
+                    db,
+                    indexConfig,
+                    collectionName
                 }
+            );
+            if (createdIndex) {
+                indexesCreated += 1;
             }
         }
 
-        const indexResult = await this.getIndexesInCollectionAsync({collectionName, db});
+        const currentIndexResult = await this.getIndexesInCollectionAsync({collectionName, db});
         return {
-            collectionName: indexResult.collectionName,
+            collectionName: currentIndexResult.collectionName,
             indexesCreated,
-            indexes: indexResult.indexes.map(i => {
-                return {
-                    v: i.v,
-                    key: i.key,
-                    name: i.name,
-                    unique: i.unique
-                };
-            })
+            indexes: currentIndexResult.indexes
         };
     }
 
     /**
      * Gets indexes to create for the collection requested
      * @param {string} collectionName
-     * @returns {Promise<{collectionName: string, indexConfig: IndexConfig[]}[]>}
+     * @returns {Promise<{collectionName: string, indexConfig: IndexConfig[]}>}
      */
-    async getIndexesToCreateAsync({collectionName}) {
+    async getIndexesToCreateForCollectionAsync({collectionName}) {
         const baseCollectionName = collectionName.endsWith('_4_0_0') ?
             collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
         /**
-         * <collectionName: string, indexConfigs: IndexConfig[]>
-         * @type {Map<string, IndexConfig[]>}
+         * @type {IndexConfig[]}
          */
-        const indexesToCreate = new Map();
+        const indexesToCreate = [];
 
         // first add indexes that are set on all collections (except ones marked exlude)
         for (const [indexCollectionName,
@@ -173,44 +168,29 @@ class IndexManager {
             if (indexCollectionName === '*') {
                 for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
                     if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
-                        if (!indexesToCreate.has(collectionName)) {
-                            indexesToCreate.set(collectionName, []);
-                        }
-                        indexesToCreate.get(collectionName).push(
-                            indexConfig
-                        );
+                        indexesToCreate.push(indexConfig);
                     }
                 }
             }
             if (baseCollectionName === indexCollectionName) {
                 for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
                     if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
-                        if (!indexesToCreate.has(collectionName)) {
-                            indexesToCreate.set(collectionName, []);
-                        }
-                        indexesToCreate.get(collectionName).push(
-                            indexConfig
-                        );
+                        indexesToCreate.push(indexConfig);
                     }
                 }
             }
         }
 
-        return Array.from(
-            indexesToCreate,
-            ([key, value]) => {
-                return {
-                    collectionName: key,
-                    indexConfig: value
-                };
-            }
-        );
+        return {
+            collectionName: collectionName,
+            indexConfig: indexesToCreate
+        };
     }
 
     /**
      * Indexes all the collections
      * @param {string|undefined} [collectionRegex]
-     * @return {Promise<*>}
+     * @return {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}[]>}
      */
     async indexAllCollectionsAsync({collectionRegex} = {}) {
         /**
@@ -234,7 +214,7 @@ class IndexManager {
      * indexes all collections in this database
      * @param {import('mongodb').Db} db
      * @param {string|undefined} [collectionRegex]
-     * @returns {Promise<{indexes: IndexConfig[], indexesCreated: number, name: string}[]>}
+     * @returns {Promise<{indexes: IndexConfig[], indexesCreated: number, collectionName: string}[]>}
      */
     async indexAllCollectionsInDatabaseAsync({db, collectionRegex}) {
         /**
@@ -268,7 +248,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @returns {Promise<{indexes: IndexConfig[], collectionName: string}[]>}
      */
-    async getAllMissingIndexes({db, collectionRegex}) {
+    async getMissingIndexesInCollectionsAsync({db, collectionRegex}) {
         /**
          * @type {string[]}
          */
@@ -302,38 +282,35 @@ class IndexManager {
                 db
             });
             /**
-             * @type {{collectionName: string, indexConfig: IndexConfig[]}[]}
+             * @type {{collectionName: string, indexConfig: IndexConfig[]}}
              */
-            const indexesToCreate = await this.getIndexesToCreateAsync({collectionName});
-            for (
-                const /** @type {{collectionName: string, indexConfig: IndexConfig[]}} */
-                indexToCreate of indexesToCreate) {
-                for (const /** @type {IndexConfig} */ indexConfig of indexToCreate.indexConfig) {
-                    /**
-                     * @type {IndexConfig[]}
-                     */
-                    const indexesMatchingByName = currentIndexesForCollection.indexes.filter(
-                        i => i.name === indexConfig.options.name
-                    );
-                    if (indexesMatchingByName.length === 0) {
-                        if (!missingIndexes.has(collectionName)) {
-                            missingIndexes.set(collectionName, []);
-                        }
-                        missingIndexes.get(collectionName).push(indexConfig);
+            const indexesToCreate = await this.getIndexesToCreateForCollectionAsync({collectionName});
+            for (const /** @type {IndexConfig} */ indexConfig of indexesToCreate.indexConfig) {
+                /**
+                 * @type {IndexConfig[]}
+                 */
+                const indexesMatchingByName = currentIndexesForCollection.indexes.filter(
+                    i => i.options.name === indexConfig.options.name
+                );
+                if (indexesMatchingByName.length === 0) {
+                    if (!missingIndexes.has(collectionName)) {
+                        missingIndexes.set(collectionName, []);
                     }
+                    missingIndexes.get(collectionName).push(indexConfig);
                 }
             }
         }
 
-        return Array.from(
-            missingIndexes,
-            ([key, value]) => {
-                return {
-                    collectionName: key,
-                    indexes: value
-                };
-            }
-        );
+        return missingIndexes.size > 0 ?
+            Array.from(
+                missingIndexes,
+                ([key, value]) => {
+                    return {
+                        collectionName: key,
+                        indexes: value
+                    };
+                }
+            ) : [];
     }
 
     /**
@@ -349,10 +326,11 @@ class IndexManager {
             collectionName,
             indexes: indexes.map(i => {
                 return {
-                    v: i.v,
-                    key: i.key,
-                    name: i.name,
-                    unique: i.unique
+                    keys: i.key,
+                    options: {
+                        name: i.name,
+                        unique: i.unique
+                    }
                 };
             })
         };
@@ -400,6 +378,41 @@ class IndexManager {
     }
 
     /**
+     * Gets missingindexes on all the collections
+     * @return {Promise<{collectionName: string, indexes: IndexConfig[]}[]>}
+     */
+    async getMissingIndexesInAllCollectionsAsync() {
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        const client = await createClientAsync(mongoConfig);
+        try {
+            /**
+             * @type {import('mongodb').Db}
+             */
+            const db = globals.get(CLIENT_DB);
+            const collection_names = [];
+
+            for await (const collection of db.listCollections()) {
+                if (collection.name.indexOf('system.') === -1) {
+                    collection_names.push(collection.name);
+                }
+            }
+            // now add indices on id column for every collection
+            /**
+             * @type {Promise<{indexes: IndexConfig[], collectionName: string}[]>}
+             */
+            const result = await async.flatMap(
+                collection_names,
+                async collectionName => await this.getMissingIndexesInCollectionsAsync({collectionName, db})
+            );
+            return result;
+        } finally {
+            await disconnectClientAsync(client);
+        }
+    }
+
+    /**
      * Delete indexes on all the collections
      * @param {string|undefined} [collectionRegex]
      * @return {Promise<*>}
@@ -414,7 +427,7 @@ class IndexManager {
          */
         const db = globals.get(CLIENT_DB);
         try {
-            await this.deleteIndexesInAllCollectionsInDatabase({db, collectionRegex});
+            await this.deleteIndexesInAllCollectionsInDatabaseAsync({db, collectionRegex});
         } finally {
             await disconnectClientAsync(client);
         }
@@ -426,7 +439,7 @@ class IndexManager {
      * @param {string|undefined} [collectionRegex]
      * @returns {Promise<void>}
      */
-    async deleteIndexesInAllCollectionsInDatabase({db, collectionRegex}) {
+    async deleteIndexesInAllCollectionsInDatabaseAsync({db, collectionRegex}) {
         /**
          * @type {string[]}
          */

@@ -8,6 +8,7 @@ const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {createContainer} = require('../createContainer');
+const {shouldReturnHtml} = require('../utils/requestHelpers');
 
 /**
  * Gets admin scopes from the request
@@ -25,6 +26,54 @@ function getAdminScopes({req}) {
     const scopes = scope.split(' ');
     const adminScopes = scopes.filter(s => s.startsWith('admin/'));
     return {scope, adminScopes};
+}
+
+/**
+ * shows indexes
+ * @param {import('http').IncomingMessage} req
+ * @param {SimpleContainer} container
+ * @param {import('http').ServerResponse} res
+ * @returns {Promise<*>}
+ */
+async function showIndexesAsync({req, container, res}) {
+    console.log(`showIndexes: req.query: ${JSON.stringify(req.query)}`);
+    /**
+     * @type {IndexManager}
+     */
+    const indexManager = container.indexManager;
+    const json = await indexManager.getIndexesInAllCollectionsAsync();
+    if (shouldReturnHtml(req)) {
+        const filePath = __dirname + '/../views/admin/pages/indexes';
+        return res.render(filePath, {
+            collections: json
+        });
+    } else {
+        return res.json(json);
+    }
+}
+
+/**
+ * shows missing indexes
+ * @param {import('http').IncomingMessage} req
+ * @param {SimpleContainer} container
+ * @param {import('http').ServerResponse} res
+ * @returns {Promise<*>}
+ */
+async function missingIndexesAsync({req, container, res}) {
+    console.log(`missingIndexes: req.query: ${JSON.stringify(req.query)}`);
+    /**
+     * @type {IndexManager}
+     */
+    const indexManager = container.indexManager;
+    const json = await indexManager.getMissingIndexesInAllCollectionsAsync();
+    if (shouldReturnHtml(req)) {
+        const filePath = __dirname + '/../views/admin/pages/missingIndexes';
+        return res.render(filePath, {
+            collections: json
+        });
+    } else {
+        return res.json(json);
+    }
 }
 
 async function handleAdmin(
@@ -74,18 +123,11 @@ async function handleAdmin(
                 }
 
                 case 'showIndexes': {
-                    console.log(`showIndexes: req.query: ${JSON.stringify(req.query)}`);
+                    return await showIndexesAsync({req, container, res});
+                }
 
-                    /**
-                     * @type {IndexManager}
-                     */
-                    const indexManager = container.indexManager;
-                    const json = await indexManager.getIndexesInAllCollectionsAsync();
-                    const filePath = __dirname + '/../views/admin/pages/indexes';
-                    return res.render(filePath, {
-                        collections: json
-                    });
-                    // return res.json(json);
+                case 'missingIndexes': {
+                    return await missingIndexesAsync({req, container, res});
                 }
 
                 default: {
