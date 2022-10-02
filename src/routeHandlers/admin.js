@@ -122,7 +122,7 @@ async function handleAdmin(
                     });
                 }
 
-                case 'showIndexes': {
+                case 'indexes': {
                     return await showIndexesAsync({req, container, res});
                 }
 

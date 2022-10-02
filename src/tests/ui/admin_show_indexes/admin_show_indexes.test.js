@@ -20,7 +20,7 @@ describe('Show Indexes UI Tests', () => {
     describe('Show Indexes Tests', () => {
         test('admin search fails without scope', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/admin/showIndexes?id=1').set(getHeaders());
+            let resp = await request.get('/admin/indexes?id=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(403);
         });
@@ -54,7 +54,7 @@ describe('Show Indexes UI Tests', () => {
                 db: fhirDb
             });
 
-            let resp = await request.get('/admin/showIndexes?id=1').set(getHtmlHeadersWithAdminToken());
+            let resp = await request.get('/admin/indexes?id=1').set(getHtmlHeadersWithAdminToken());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
 
