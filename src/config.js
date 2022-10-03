@@ -3,7 +3,7 @@
  */
 const env = require('var');
 const Sentry = require('./middleware/sentry');
-const { profiles } = require('./profiles');
+const {profiles} = require('./profiles');
 // const {MongoClientOptions} = require('mongodb');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
@@ -27,14 +27,14 @@ mongoUrl = encodeURI(mongoUrl);
 const options = {
     appName: 'fhir',
     keepAlive: true,
-    connectTimeoutMS: 60 * 60 * 1000,
-    socketTimeoutMS: 60 * 60 * 1000,
+    connectTimeoutMS: env.MONGO_CONNECT_TIMEOUT ? parseInt(env.MONGO_CONNECT_TIMEOUT) : 60 * 60 * 1000,
+    socketTimeoutMS: env.MONGO_SOCKET_TIMEOUT ? parseInt(env.MONGO_SOCKET_TIMEOUT) : 60 * 60 * 1000,
     retryReads: true,
-    maxIdleTimeMS: 60 * 60 * 1000,
+    maxIdleTimeMS: env.MONGO_IDLE_TIMEOUT ? parseInt(env.MONGO_IDLE_TIMEOUT) : 60 * 60 * 1000,
     // https://www.mongodb.com/developer/products/mongodb/mongodb-network-compression/
     compressors: ['zstd'],
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
-    minPoolSize: env.MONGO_MIN_POOL_SIZE || 10,
+    minPoolSize: env.MONGO_MIN_POOL_SIZE ? parseInt(env.MONGO_MIN_POOL_SIZE) : 10,
     // keepAliveInitialDelay: 0,
     // heartbeatFrequencyMS: 30 * 1000,
     // serverSelectionTimeoutMS: 30 * 1000,
