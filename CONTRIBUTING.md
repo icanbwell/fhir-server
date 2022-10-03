@@ -240,3 +240,17 @@ Since this will now use the _access field, it will be "covered" by our index so 
 
 If you have old data that did not have this _access field, then you can run an admin script to add this to existing data.
     
+## Admin UI
+This FHIR server provides an admin UI at `/admin`.  There are various tools here for administration.
+
+To access the admin tools you need the `admin/*.read` scopes in your OAuth login.
+
+### Log Lookup Admin UI
+Here you can enter the X-Request_Id the FHIR server returns and be able to see the logs relating to that request.
+
+### Index Management UI
+Here you can see:
+1. What the current indexes are
+2. Which indexes are mismatched between the config [src/indexes/customIndexes.js](src/indexes/customIndexes.js) and the underlying databases.
+3. Synchronize the indexes between the config and the databases by creating any missing indexes and removing any extraneous indexes.
+
