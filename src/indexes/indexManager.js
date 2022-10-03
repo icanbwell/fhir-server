@@ -443,14 +443,20 @@ class IndexManager {
 
     /**
      * Gets missingindexes on all the collections
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} config
      * @param {boolean|undefined} filterToProblems
      * @return {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]>}
      */
-    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync({filterToProblems}) {
+    async compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
+        {
+            config,
+            filterToProblems
+        }
+    ) {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(mongoConfig);
+        const client = await createClientAsync(config);
         try {
             /**
              * @type {import('mongodb').Db}
@@ -539,9 +545,10 @@ class IndexManager {
 
     /**
      * adds any indexes missing from config and removes any indexes not in config
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} config
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[],dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async synchronizeIndexesWithConfigAsync() {
+    async synchronizeIndexesWithConfigAsync({config}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -559,6 +566,7 @@ class IndexManager {
          */
         const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
             {
+                config,
                 filterToProblems: true
             }
         );
@@ -591,12 +599,14 @@ class IndexManager {
                     }
                 );
             }
-            collectionIndexesCreated.push(
-                {
-                    collectionName: indexesToCreate.collectionName,
-                    indexes: indexesToCreate.indexes.map(a => a.indexConfig)
-                }
-            );
+            if (indexToCreate.indexes && indexToCreate.indexes.length > 0) {
+                collectionIndexesCreated.push(
+                    {
+                        collectionName: indexesToCreate.collectionName,
+                        indexes: indexToCreate.indexes.map(a => a.indexConfig)
+                    }
+                );
+            }
         }
 
         // indexes to remove
@@ -626,12 +636,14 @@ class IndexManager {
                     db: db
                 });
             }
-            collectionIndexesDropped.push(
-                {
-                    collectionName: indexesToRemove.collectionName,
-                    indexes: indexesToCreate.indexes.map(a => a.indexConfig)
-                }
-            );
+            if (indexToRemove.indexes && indexToRemove.indexes.length > 0) {
+                collectionIndexesDropped.push(
+                    {
+                        collectionName: indexesToRemove.collectionName,
+                        indexes: indexToRemove.indexes.map(a => a.indexConfig)
+                    }
+                );
+            }
         }
 
         return {

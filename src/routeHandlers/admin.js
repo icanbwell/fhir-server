@@ -48,6 +48,7 @@ async function showIndexesAsync({
     const indexManager = container.indexManager;
     const json = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
         {
+            config: mongoConfig,
             filterToProblems: filterToProblems
         }
     );
@@ -87,7 +88,9 @@ async function synchronizeIndexesAsync(
     res.send(Buffer.from(htmlContent));
     res.end();
     // res.json({message: 'Started Synchronizing indexes'}).end();
-    await indexManager.synchronizeIndexesWithConfigAsync();
+    await indexManager.synchronizeIndexesWithConfigAsync({
+        config: mongoConfig
+    });
     return;
 }
 

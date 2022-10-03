@@ -2,6 +2,7 @@ const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} =
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
+const {mongoConfig, auditEventMongoConfig} = require('../../../config');
 
 describe('Synchronize Index Tests', () => {
     beforeEach(async () => {
@@ -17,7 +18,7 @@ describe('Synchronize Index Tests', () => {
     // }
 
     describe('Synchronize Index Tests', () => {
-        test('no missingIndex after Patient collection is indexed', async () => {
+        test('no synchronizeIndex after Patient collection is indexed', async () => {
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -45,10 +46,13 @@ describe('Synchronize Index Tests', () => {
             await indexManager.indexCollectionAsync({
                 collectionName, db: fhirDb
             });
-            const missingIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync();
-            expect(missingIndexesResult.indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+            const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
+                config: mongoConfig
+            });
+            expect(synchronizeIndexesResult.created.length).toStrictEqual(0);
+            expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
         });
-        test('missingIndex if Patient collection is missing indexes', async () => {
+        test('synchronizeIndex if Patient collection is missing indexes', async () => {
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -90,15 +94,17 @@ describe('Synchronize Index Tests', () => {
             const indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
+             * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
              */
-            const missingIndexesResult = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
-                db: fhirDb, collectionName
+            const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
+                config: mongoConfig
             });
+            expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
+            expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
             /**
              * @type {IndexConfig[]}
              */
-            const indexes = missingIndexesResult.indexes.filter(ia => ia.missing).map(ia => ia.indexConfig);
+            const indexes = synchronizeIndexesResult.created[0].indexes;
             /**
              * @type {IndexConfig[]}
              */
@@ -139,7 +145,7 @@ describe('Synchronize Index Tests', () => {
                 }
             );
         });
-        test('missingIndex works for AuditEvent', async () => {
+        test('synchronizeIndex works for AuditEvent', async () => {
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -180,15 +186,17 @@ describe('Synchronize Index Tests', () => {
             const indexResult = await auditEventCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
+             * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
              */
-            const missingIndexesResult = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
-                db: auditEventDb, collectionName
+            const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
+                config: auditEventMongoConfig
             });
+            expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
+            expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
             /**
              * @type {IndexConfig[]}
              */
-            const indexes = missingIndexesResult.indexes.filter(ia => ia.missing).map(ia => ia.indexConfig);
+            const indexes = synchronizeIndexesResult.created[0].indexes;
             /**
              * @type {IndexConfig[]}
              */
@@ -266,7 +274,7 @@ describe('Synchronize Index Tests', () => {
                 }
             );
         });
-        test('no missingIndex after Patient and Practitioner collection is indexed', async () => {
+        test('no synchronizeIndex after Patient and Practitioner collection is indexed', async () => {
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -317,13 +325,15 @@ describe('Synchronize Index Tests', () => {
                 collectionName: practitionerCollectionName, db: fhirDb
             });
             /**
-             * @type {{collectionName: string, indexes: IndexConfig[]}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
              */
-            const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({});
-            expect(missingIndexes.length).toStrictEqual(3);
-            expect(missingIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
-            expect(missingIndexes[1].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
-            expect(missingIndexes[2].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+            const synchronizeIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
+                config: mongoConfig
+            });
+            expect(synchronizeIndexes.length).toStrictEqual(3);
+            expect(synchronizeIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+            expect(synchronizeIndexes[1].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+            expect(synchronizeIndexes[2].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
         });
 
     });

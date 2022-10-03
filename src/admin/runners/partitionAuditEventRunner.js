@@ -177,6 +177,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         }
                         this.adminLogger.log(`Running aggregation pipeline with: ${JSON.stringify(pipeline)}`);
                         const sourceCollection = db.collection(sourceCollectionName);
+                        // https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/
                         const aggregationResult = await sourceCollection.aggregate(
                             pipeline,
                             {
@@ -190,7 +191,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         this.adminLogger.log(`result=${JSON.stringify(documents)}`);
                         // first get the count
                         this.adminLogger.logTrace(`[${moment().toISOString()}] ` +
-                            `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                            `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
                             `for ${sourceCollectionName} and ${destinationCollectionName}`);
                         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
                         const destinationCollection = db.collection(destinationCollectionName);
