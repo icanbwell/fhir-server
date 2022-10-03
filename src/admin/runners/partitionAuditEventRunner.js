@@ -253,7 +253,9 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                                 config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
                                 sourceCollectionName: destinationCollectionName,
                                 destinationCollectionName,
-                                query: {}, // update all records in destination collection
+                                query: {
+                                    _access: null
+                                }, // update all records in destination collection that don't have an _access index
                                 startFromIdContainer: this.startFromIdContainer,
                                 fnCreateBulkOperationAsync: async (doc) => await this.setAccessIndexRecordAsync(doc),
                                 ordered: false,

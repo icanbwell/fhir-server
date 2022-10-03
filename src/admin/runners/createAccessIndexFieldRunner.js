@@ -89,7 +89,9 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                const query = {};
+                const query = {
+                    _access: null
+                };
                 const projection = {
                     'id': 1,
                     'meta.security.system': 1,
