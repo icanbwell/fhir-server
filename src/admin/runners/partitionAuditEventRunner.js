@@ -85,8 +85,10 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async copyRecordAsync(doc) {
+        const operations = [];
         const accessCodes = doc.meta.security.filter(s => s.system === 'https://www.icanbwell.com/access').map(s => s.code);
+
         if (accessCodes.length > 0 && !doc['_access']) {
             const _access = {};
             for (const accessCode of accessCodes) {
@@ -94,22 +96,47 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             }
             doc['_access'] = _access;
         }
-        // delete _id so it does not cause a conflict in replace
-        // e.g., 'Got error MongoBulkWriteError: After applying the update, the (immutable) field '_id' was found to have been altered to _id'
-        delete doc._id;
         /**
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
          */
         const result = {
             replaceOne: {
-                filter: {id: doc.id},
+                filter: {_id: doc._id},
                 replacement: doc,
                 upsert: true
             }
         };
-        return [
-            result
-        ];
+        operations.push(result);
+
+        return operations;
+    }
+
+    /**
+     * returns the bulk operation for this doc
+     * @param {import('mongodb').DefaultSchema} doc
+     * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
+     */
+    async setAccessIndexRecordAsync(doc) {
+        const operations = [];
+        const accessCodes = doc.meta.security.filter(s => s.system === 'https://www.icanbwell.com/access').map(s => s.code);
+
+        if (accessCodes.length > 0 && !doc['_access']) {
+            const _access = {};
+            for (const accessCode of accessCodes) {
+                _access[`${accessCode}`] = 1;
+            }
+            // update only the necessary field in the document
+            const setCommand = {};
+            setCommand['_access'] = _access;
+            /**
+             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
+             */
+                // batch up the calls to update
+            const result = {updateOne: {filter: {_id: doc._id}, update: {$set: setCommand}}};
+            operations.push(result);
+        }
+
+        return operations;
     }
 
     /**
@@ -154,7 +181,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     ]
                 };
                 try {
-
                     const config = this.useAuditDatabase ? auditEventMongoConfig : mongoConfig;
                     if (this.useAggregationMethod) {
                         /**
@@ -219,6 +245,27 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             collectionName: destinationCollectionName
                         });
                         this.adminLogger.log(`Finished creating indexes for ${destinationCollectionName}`);
+
+                        // now update the _accessIndex
+                        this.adminLogger.log(`Updating _access fields for ${destinationCollectionName}`);
+
+                        await this.runForQueryBatchesAsync(
+                            {
+                                config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
+                                sourceCollectionName: destinationCollectionName,
+                                destinationCollectionName,
+                                query: {}, // update all records in destination collection
+                                startFromIdContainer: this.startFromIdContainer,
+                                fnCreateBulkOperationAsync: async (doc) => await this.setAccessIndexRecordAsync(doc),
+                                ordered: false,
+                                batchSize: this.batchSize,
+                                skipExistingIds: false,
+                                skipWhenCountIsSame: false,
+                                dropDestinationIfCountIsDifferent: false
+                            }
+                        );
+                        this.adminLogger.log(`Finished Updating _access fields for ${destinationCollectionName}`);
+
                         await disconnectClientAsync(client);
                     } else {
                         await this.runForQueryBatchesAsync(
@@ -228,7 +275,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                                 destinationCollectionName,
                                 query,
                                 startFromIdContainer: this.startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                                fnCreateBulkOperationAsync: async (doc) => await this.copyRecordAsync(doc),
                                 ordered: false,
                                 batchSize: this.batchSize,
                                 skipExistingIds: this.skipExistingIds ? true : false,
