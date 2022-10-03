@@ -9,7 +9,6 @@ const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {createContainer} = require('../createContainer');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
-const {isTrue} = require('../utils/isTrue');
 
 /**
  * Gets admin scopes from the request
@@ -83,7 +82,7 @@ async function synchronizeIndexesAsync(
     const indexManager = container.indexManager;
 
     // return response and then continue processing
-    const htmlContent = '<!DOCTYPE html><html><body><script>setTimeout(function(){window.location.href = "/admin/indexes?problems=1";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>';
+    const htmlContent = '<!DOCTYPE html><html><body><script>setTimeout(function(){window.location.href = "/admin/indexProblems";}, 5000);</script><p>Started Synchronizing indexes. Web page redirects after 5 seconds.</p></body></html>';
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from(htmlContent));
     res.end();
@@ -92,40 +91,6 @@ async function synchronizeIndexesAsync(
         config: mongoConfig
     });
     return;
-}
-
-/**
- * handles index operations
- * @param {import('http').IncomingMessage} req
- * @param {SimpleContainer} container
- * @param {import('http').ServerResponse} res
- * @returns {Promise<void>}
- */
-async function handleIndexAsync({req, container, res}) {
-    // noinspection JSValidateTypes
-    /**
-     * @type {string|number|undefined}
-     */
-    const filterToProblems = req.query['problems'];
-    /**
-     * @type {string|number|undefined}
-     */
-    const synchronize = req.query['synchronize'];
-    if (synchronize) {
-        return await synchronizeIndexesAsync(
-            {
-                req,
-                container,
-                res
-            }
-        );
-    } else {
-        return await showIndexesAsync(
-            {
-                req, container, res,
-                filterToProblems: isTrue(filterToProblems)
-            });
-    }
 }
 
 async function handleAdmin(
@@ -175,7 +140,31 @@ async function handleAdmin(
                 }
 
                 case 'indexes': {
-                    return await handleIndexAsync({req, container, res});
+                    return await showIndexesAsync(
+                        {
+                            req, container, res,
+                            filterToProblems: false
+                        }
+                    );
+                }
+
+                case 'indexProblems': {
+                    return await showIndexesAsync(
+                        {
+                            req, container, res,
+                            filterToProblems: true
+                        }
+                    );
+                }
+
+                case 'synchronizeIndexes': {
+                    return await synchronizeIndexesAsync(
+                        {
+                            req,
+                            container,
+                            res
+                        }
+                    );
                 }
 
                 default: {
