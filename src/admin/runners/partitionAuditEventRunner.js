@@ -203,10 +203,10 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             `for ${sourceCollectionName} and ${destinationCollectionName}`);
                         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
                         const destinationCollection = db.collection(destinationCollectionName);
-                        const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+                        const numberOfDestinationDocuments = await destinationCollection.countDocuments({}, {});
                         this.adminLogger.log(`[${moment().toISOString()}] ` +
-                            `Count in source ${sourceCollectionName}: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-                            `destination ${destinationCollectionName}: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+                            `Count in source matching query ${sourceCollectionName}: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                            `Count in destination ${destinationCollectionName}: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
 
                         // create indexes
                         this.adminLogger.log(`Creating indexes for ${destinationCollectionName}`);

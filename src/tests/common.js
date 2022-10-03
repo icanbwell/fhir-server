@@ -78,6 +78,10 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
     return tester;
 };
 
+/**
+ * Gets test connection string
+ * @returns {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
 module.exports.getTestAuditEventMongoConfig = () => {
     return {
         connection: process.env.MONGO_URL,
@@ -86,6 +90,10 @@ module.exports.getTestAuditEventMongoConfig = () => {
     };
 };
 
+/**
+ * Gets test connection string
+ * @returns {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
 module.exports.getTestMongoConfig = () => {
     return {
         connection: process.env.MONGO_URL,

@@ -461,7 +461,7 @@ class IndexManager {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = globals.get(CLIENT_DB);
+            const db = client.db(config.db_name);
             const collection_names = [];
 
             for await (const collection of db.listCollections()) {
