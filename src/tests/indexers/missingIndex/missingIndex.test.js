@@ -1,8 +1,13 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    createTestRequest,
+    getTestContainer,
+    getTestMongoConfig
+} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
-const {mongoConfig} = require('../../../config');
 
 describe('Missing Index Tests', () => {
     beforeEach(async () => {
@@ -326,7 +331,8 @@ describe('Missing Index Tests', () => {
              * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
              */
             const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
-                config: mongoConfig
+                config: getTestMongoConfig(),
+                filterToProblems: true
             });
             expect(missingIndexes.length).toStrictEqual(0);
         });
