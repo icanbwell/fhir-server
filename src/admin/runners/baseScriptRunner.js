@@ -20,7 +20,11 @@ class BaseScriptRunner {
          * For reporting progress
          * @type {StartFromIdContainer}
          */
-        this.startFromIdContainer = {
+        this.startFromIdContainer = this.createStartFromIdContainer();
+    }
+
+    createStartFromIdContainer() {
+        return {
             startFromId: '',
             skippedIdsForHavingAccessField: 0,
             skippedIdsForMissingSecurityTags: 0,

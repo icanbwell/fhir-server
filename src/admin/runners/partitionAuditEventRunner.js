@@ -156,8 +156,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
 
             // if there is an exception, continue processing from the last id
             while (recordedBeforeForLoop.isSameOrAfter(this.recordedAfter)) {
-
-                this.startFromIdContainer.startFromId = '';
+                this.startFromIdContainer = this.createStartFromIdContainer();
                 /**
                  * @type {moment.Moment}
                  */
