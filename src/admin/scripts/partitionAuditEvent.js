@@ -45,7 +45,8 @@ async function main() {
                 useAuditDatabase: parameters.audit ? true : false,
                 dropDestinationIfCountIsDifferent: parameters.dropDestinationIfCountIsDifferent ? true : false,
                 adminLogger: new AdminLogger(),
-                useAggregationMethod: useAggregationMethod
+                useAggregationMethod: useAggregationMethod,
+                indexManager: c.indexManager
             }
         )
     );
