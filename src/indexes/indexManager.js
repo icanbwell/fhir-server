@@ -9,7 +9,7 @@ const {CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
 const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
-const {assertTypeEquals} = require('../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const globals = require('../globals');
 
 
@@ -47,6 +47,7 @@ class IndexManager {
      * @return {Promise<boolean>}
      */
     async createIndexIfNotExistsAsync({db, indexConfig, collectionName}) {
+        assertIsValid(collectionName);
         /**
          * @type {import('mongodb').IndexSpecification}
          */
@@ -591,10 +592,11 @@ class IndexManager {
             ) {
             for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
             index of indexToCreate.indexes) {
+                assertIsValid(indexToCreate.collectionName);
                 await this.createIndexIfNotExistsAsync(
                     {
                         db,
-                        collectionName: indexesToCreate.collectionName,
+                        collectionName: indexToCreate.collectionName,
                         indexConfig: index.indexConfig
                     }
                 );
@@ -630,6 +632,7 @@ class IndexManager {
             ) {
             for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
             index of indexToRemove.indexes) {
+                assertIsValid(indexToRemove.collectionName);
                 await this.deleteIndexInCollectionAsync({
                     collectionName: indexToRemove.collectionName,
                     indexName: index.indexConfig.options.name,
