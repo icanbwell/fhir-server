@@ -602,7 +602,7 @@ class IndexManager {
             if (indexToCreate.indexes && indexToCreate.indexes.length > 0) {
                 collectionIndexesCreated.push(
                     {
-                        collectionName: indexesToCreate.collectionName,
+                        collectionName: indexToCreate.collectionName,
                         indexes: indexToCreate.indexes.map(a => a.indexConfig)
                     }
                 );
@@ -639,7 +639,7 @@ class IndexManager {
             if (indexToRemove.indexes && indexToRemove.indexes.length > 0) {
                 collectionIndexesDropped.push(
                     {
-                        collectionName: indexesToRemove.collectionName,
+                        collectionName: indexToRemove.collectionName,
                         indexes: indexToRemove.indexes.map(a => a.indexConfig)
                     }
                 );

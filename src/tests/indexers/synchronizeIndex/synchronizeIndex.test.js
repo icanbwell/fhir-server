@@ -1,4 +1,5 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestAuditEventMongoConfig,
+const {
+    commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestAuditEventMongoConfig,
     getTestMongoConfig
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -275,7 +276,7 @@ describe('Synchronize Index Tests', () => {
                 }
             );
         });
-        test('no synchronizeIndex after Patient and Practitioner collection is indexed', async () => {
+        test('synchronizeIndex after Patient and Practitioner collection is indexed', async () => {
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -336,6 +337,46 @@ describe('Synchronize Index Tests', () => {
             expect(synchronizeIndexes[1].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
             expect(synchronizeIndexes[2].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
         });
+        test('synchronizeIndex after Patient history collection is indexed', async () => {
+            await createTestRequest();
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {IndexManager}
+             */
+            const indexManager = container.indexManager;
 
+            // create collection
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = globals.get(CLIENT_DB);
+            const collectionName = 'Patient_4_0_0_History';
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            const patientHistoryCollection = fhirDb.collection(collectionName);
+            await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
+            const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
+                config: getTestMongoConfig()
+            });
+            expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
+            expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
+            expect(synchronizeIndexesResult.created[0].collectionName).toStrictEqual('Patient_4_0_0_History');
+            const indexes = synchronizeIndexesResult.created[0].indexes;
+            expect(indexes.length).toStrictEqual(1);
+            expect(indexes[0]).toStrictEqual({
+                'keys': {
+                    'id': 1
+                },
+                'options': {
+                    'name': 'id_1'
+                }
+            });
+        });
     });
 });

@@ -40,7 +40,7 @@ async function showIndexesAsync({
                                     req, container, res,
                                     filterToProblems
                                 }) {
-    console.log(`showIndexes: req.query: ${JSON.stringify(req.query)}`);
+    console.log(`showIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
     /**
      * @type {IndexManager}
      */
@@ -62,7 +62,7 @@ async function showIndexesAsync({
 }
 
 /**
- * shows indexes
+ * synchronizes indexes
  * @param {import('http').IncomingMessage} req
  * @param {SimpleContainer} container
  * @param {import('http').ServerResponse} res
@@ -75,7 +75,7 @@ async function synchronizeIndexesAsync(
         res
     }
 ) {
-    console.log(`showIndexes: req.query: ${JSON.stringify(req.query)}`);
+    console.log(`synchronizeIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
     /**
      * @type {IndexManager}
      */

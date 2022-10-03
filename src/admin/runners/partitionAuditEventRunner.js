@@ -198,16 +198,20 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
 
 
                         // get the count
-                        this.adminLogger.logTrace(`[${moment().toISOString()}] ` +
+                        this.adminLogger.logTrace(
                             `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
                             `for ${sourceCollectionName} and ${destinationCollectionName}`);
                         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
                         const destinationCollection = db.collection(destinationCollectionName);
                         const numberOfDestinationDocuments = await destinationCollection.countDocuments({}, {});
-                        this.adminLogger.log(`[${moment().toISOString()}] ` +
+                        this.adminLogger.log(
                             `Count in source matching query ${sourceCollectionName}: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
                             `Count in destination ${destinationCollectionName}: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
-
+                        if (numberOfSourceDocuments === numberOfDestinationDocuments) {
+                            this.adminLogger.log(`======= COUNT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
+                        } else {
+                            this.adminLogger.logError('======= ERROR: COUNT NOT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======');
+                        }
                         // create indexes
                         this.adminLogger.log(`Creating indexes for ${destinationCollectionName}`);
                         await this.indexManager.indexCollectionAsync({
@@ -234,18 +238,18 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         );
                     }
                 } catch (e) {
-                    console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                    this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
-                console.log(`Finished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}`);
+                this.adminLogger.log(`Finished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}\n\n`);
 
                 recordedBeforeForLoop = recordedAfterForLoop.clone();
             }
-            console.log('Finished script');
-            console.log('Shutting down');
+            this.adminLogger.log('Finished script');
+            this.adminLogger.log('Shutting down');
             await this.shutdown();
-            console.log('Shutdown finished');
+            this.adminLogger.log('Shutdown finished');
         } catch (e) {
-            console.log(`ERROR: ${e}`);
+            this.adminLogger.logError(`ERROR: ${e}`);
         }
     }
 }

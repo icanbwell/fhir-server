@@ -283,7 +283,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 while (await this.hasNext(cursor)) {
                     // Check if more than 5 minutes have passed since the last refresh
                     if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
-                        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+                        this.adminLogger.logTrace(
                             `refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
                         const memoryUsage = process.memoryUsage();
                         const memoryManager = new MemoryManager();
@@ -292,7 +292,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                          * @type {import('mongodb').Document}
                          */
                         const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
-                        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+                        this.adminLogger.logTrace(
                             `result from refreshing session: ${JSON.stringify(adminResult)}`);
                         refreshTimestamp = moment();
                     }
@@ -308,8 +308,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     lastCheckedId = doc.id;
                     count += 1;
                     readline.cursorTo(process.stdout, 0);
-                    currentDateTime = moment();
-                    process.stdout.write(`[${currentDateTime.toISOString()}] ` +
+                    process.stdout.write(`[${moment().toISOString()}] ` +
                         `${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')}`);
                     /**
                      * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
@@ -326,7 +325,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             // eslint-disable-next-line no-loop-func
                             async (bail, retryNumber) => {
                                 currentDateTime = moment();
-                                this.adminLogger.logTrace(`\n[${currentDateTime.toISOString()}] ` +
+                                this.adminLogger.logTrace('\n' +
                                     `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                     (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                                 const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
@@ -343,7 +342,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             }
                         );
                         currentDateTime = moment();
-                        const message = `\n[${currentDateTime.toISOString()}] ` +
+                        const message = '\n' +
                             `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
                             `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                             `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
@@ -366,7 +365,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     await retry(
                         // eslint-disable-next-line no-loop-func
                         async (bail, retryNumber) => {
-                            this.adminLogger.logTrace(`\n[${currentDateTime.toISOString()}] ` +
+                            this.adminLogger.logTrace('\n' +
                                 `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                 (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                             const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
@@ -374,7 +373,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             startFromIdContainer.nModified += bulkResult.nModified;
                             startFromIdContainer.nUpserted += bulkResult.nUpserted;
                             startFromIdContainer.startFromId = lastCheckedId;
-                            const message = `\n[${currentDateTime.toISOString()}] ` +
+                            const message = '\n' +
                                 `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
                                 `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                                 `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
@@ -390,10 +389,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions
-                    console.error(`Caught MongoNetworkTimeoutError: ${e}: ${JSON.stringify(e)}`);
+                    this.adminLogger.logError(`Caught MongoNetworkTimeoutError: ${e}: ${JSON.stringify(e)}`);
                     continueLoop = true;
                 } else {
-                    console.error(`Caught UnKnown error: ${e}: ${JSON.stringify(e)}`);
+                    this.adminLogger.logError(`Caught UnKnown error: ${e}: ${JSON.stringify(e)}`);
                     // statements to handle any unspecified exceptions
                     throw (e); // pass exception object to error handler
                 }
@@ -453,20 +452,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @returns {Promise<*>}
      */
     async next(cursor) {
-        return await retry(
-            // eslint-disable-next-line no-loop-func
-            async (bail, retryNumber) => {
-                if (retryNumber > 1) {
-                    this.adminLogger.logTrace(`next() retry number: ${retryNumber}`);
-                }
-                return await cursor.next();
-            },
-            {
-                onRetry: (error) => {
-                    this.adminLogger.logError(`ERROR in next(): ${error}`);
-                },
-                retries: 5,
-            });
+        return await cursor.next();
     }
 
     /**
