@@ -235,7 +235,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         if (numberOfSourceDocuments === numberOfDestinationDocuments) {
                             this.adminLogger.log(`======= COUNT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
                         } else {
-                            this.adminLogger.logError('======= ERROR: COUNT NOT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======');
+                            this.adminLogger.logError(`======= ERROR: COUNT NOT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
                         }
                         // create indexes
                         this.adminLogger.log(`Creating indexes for ${destinationCollectionName}`);
