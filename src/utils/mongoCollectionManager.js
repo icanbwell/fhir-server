@@ -100,7 +100,7 @@ class MongoCollectionManager {
          * @type {import('mongodb').Document[]}
          */
         const documents = await result.toArray();
-        return documents[0]['total'];
+        return documents.length > 0 ? documents[0]['total'] : 0;
     }
 
     /**
@@ -130,7 +130,7 @@ class MongoCollectionManager {
          * @type {import('mongodb').Document[]}
          */
         const documents = await result.toArray();
-        return documents[0]['total'];
+        return documents.length > 0 ? documents[0]['total'] : 0;
     }
 
     /**
