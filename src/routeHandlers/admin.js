@@ -1,7 +1,6 @@
 /**
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
-
 const {mongoConfig} = require('../config');
 // const env = require('var');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
@@ -9,6 +8,8 @@ const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {createContainer} = require('../createContainer');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
+const env = require('var');
+const {isTrue} = require('../utils/isTrue');
 
 /**
  * Gets admin scopes from the request
@@ -20,6 +21,9 @@ function getAdminScopes({req}) {
      * @type {string}
      */
     const scope = req.authInfo && req.authInfo.scope;
+    if (!scope) {
+        return {scope, adminScopes: []};
+    }
     /**
      * @type {string[]}
      */
@@ -36,10 +40,11 @@ function getAdminScopes({req}) {
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
-async function showIndexesAsync({
-                                    req, container, res,
-                                    filterToProblems
-                                }) {
+async function showIndexesAsync(
+    {
+        req, container, res,
+        filterToProblems
+    }) {
     console.log(`showIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
     /**
      * @type {IndexManager}
@@ -113,7 +118,7 @@ async function handleAdmin(
          */
         const container = createContainer();
 
-        if (adminScopes.length > 0) {
+        if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
                 case 'searchLog': {
                     const parameters = {};
