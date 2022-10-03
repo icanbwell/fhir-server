@@ -5,7 +5,7 @@
 const async = require('async');
 const {customIndexes} = require('./customIndexes');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
-const {CLIENT_DB} = require('../constants');
+const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
 const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
@@ -459,10 +459,11 @@ class IndexManager {
          */
         const client = await createClientAsync(config);
         try {
+            // TODO: This is a hacky way to check.  We should instead inject these paramatersvia our IoC container
             /**
              * @type {import('mongodb').Db}
              */
-            const db = client.db(config.db_name);
+            const db = config.db_name === 'audit-event' ? globals.get(AUDIT_EVENT_CLIENT_DB) : globals.get(CLIENT_DB);
             const collection_names = [];
 
             for await (const collection of db.listCollections()) {

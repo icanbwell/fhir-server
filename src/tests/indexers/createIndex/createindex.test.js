@@ -526,7 +526,7 @@ describe('Create Index Tests', () => {
              */
             const indexes = await patientHistoryCollection.indexes();
             const sortedIndexes = indexes.sort((a, b) => (a.name > b.name) ? 1 : -1);
-            expect(sortedIndexes.length).toBe(1);
+            expect(sortedIndexes.length).toBe(2);
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
@@ -534,6 +534,15 @@ describe('Create Index Tests', () => {
                         '_id': 1
                     },
                     'name': '_id_'
+                }
+            );
+            expect(sortedIndexes[1]).toStrictEqual(
+                {
+                    'v': 2,
+                    'key': {
+                        'id': 1
+                    },
+                    'name': 'id_1'
                 }
             );
         });

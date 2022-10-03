@@ -328,10 +328,7 @@ describe('Missing Index Tests', () => {
             const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
                 config: mongoConfig
             });
-            expect(missingIndexes.length).toStrictEqual(3);
-            expect(missingIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
-            expect(missingIndexes[1].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
-            expect(missingIndexes[2].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
+            expect(missingIndexes.length).toStrictEqual(0);
         });
 
     });

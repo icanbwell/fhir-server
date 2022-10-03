@@ -325,7 +325,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             // eslint-disable-next-line no-loop-func
                             async (bail, retryNumber) => {
                                 currentDateTime = moment();
-                                this.adminLogger.logTrace('\n' +
+                                this.adminLogger.logTrace('\n');
+                                this.adminLogger.logTrace(
                                     `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                     (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                                 const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
@@ -342,11 +343,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             }
                         );
                         currentDateTime = moment();
-                        const message = '\n' +
+                        const message =
                             `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
                             `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                             `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
                             `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
+                        this.adminLogger.log('\n');
                         this.adminLogger.log(message);
                         // https://nodejs.org/api/process.html#process_process_memoryusage
                         // heapTotal and heapUsed refer to V8's memory usage.
@@ -365,7 +367,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     await retry(
                         // eslint-disable-next-line no-loop-func
                         async (bail, retryNumber) => {
-                            this.adminLogger.logTrace('\n' +
+                            this.adminLogger.logTrace('\n');
+                            this.adminLogger.logTrace(
                                 `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                 (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                             const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
@@ -373,11 +376,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             startFromIdContainer.nModified += bulkResult.nModified;
                             startFromIdContainer.nUpserted += bulkResult.nUpserted;
                             startFromIdContainer.startFromId = lastCheckedId;
-                            const message = '\n' +
+                            const message =
                                 `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
                                 `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                                 `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
                                 `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
+                            this.adminLogger.log('\n');
                             this.adminLogger.log(message);
                         },
                         {

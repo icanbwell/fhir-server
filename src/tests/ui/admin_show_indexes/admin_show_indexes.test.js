@@ -56,7 +56,7 @@ describe('Show Indexes UI Tests', () => {
                 db: fhirDb
             });
 
-            let resp = await request.get('/admin/indexes?id=1').set(getJsonHeadersWithAdminToken());
+            let resp = await request.get('/admin/indexes').set(getJsonHeadersWithAdminToken());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
             expect(resp.body).toStrictEqual(expectedIndexResource);
