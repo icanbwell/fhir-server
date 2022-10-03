@@ -32,7 +32,8 @@ async function main() {
             dropIndexes: parameters.drop,
             useAuditDatabase: parameters.audit ? true : false,
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
-            adminLogger: new AdminLogger()
+            adminLogger: new AdminLogger(),
+            synchronizeIndexes: parameters.synchronize ? true : false
         }));
 
     /**
@@ -48,7 +49,9 @@ async function main() {
  * To run this:
  * nvm use 16.17.1
  * node src/admin/scripts/indexCollections --collection=Patient_4_0_0 --drop
- * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit
+ * node src/admin/scripts/indexCollections --collections=all
+ * node src/admin/scripts/indexCollections --synchronize
+ * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * collection can be a regex
  */
