@@ -63,14 +63,15 @@ when possible, to always implement the better patterns since the data size may i
 1. Send your query filter but only request the ids of the resources that match your filter.
    This can be done via the `_elements` query parameter.
    In many cases, this request can be fulfilled from data store indexes.
-2. Use parallel processing (e.g., threads) so you are making multiple requests at a time.  
+2. Use data streaming [streaming.md](streaming.md)
+3. Or instead of data streaming, use parallel processing (e.g., threads) so you are making multiple requests at a time.  
    For example, you can request pages 1,2 and 3 at the same time.  
    We recommend setting a page size of 10,000 in your requests.
    We recommend doing 10 parallel requests. Too few will not give you a lot of benefit. Too many will slow down your system and result in timeouts.
-3. Use an async pattern so you're not blocking. This will give you better throughput.
-4. Once you have the ids, divide up the ids into chunks.  
+4. Use an async pattern so you're not blocking. This will give you better throughput.
+5. Once you have the ids, divide up the ids into chunks.  
    We recommend a chunk size of 100 due to HTTP url limitations.
-5. You can now send parallel requests just to retrieve a chunk of ids (no need to pass filter again).  
+6. You can now send parallel requests just to retrieve a chunk of ids (no need to pass filter again).  
    Note that you can request a list of ids in each call.
    We recommend doing 10 parallel requests. Too few will not give you a lot of benefit. Too many will slow down your system and result in timeouts.
 

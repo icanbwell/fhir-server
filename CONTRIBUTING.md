@@ -227,6 +227,9 @@ First set this environment variable to enable using access indexes in an environ
 To specify that the access index should be used for a collection, you add the resource type to the environment variable:
 ```COLLECTIONS_ACCESS_INDEX: "AuditEvent"```
 
+You can specify "all" if you want to apply this to all.  See [src/admin/scripts/createAccessIndexField.js](src/admin/scripts/createAccessIndexField.js) admin script to create the _access fields in old data.
+
+
 Now the FHIR server will automatically rewrite the query for https://fhir.staging.icanbwell.com/4_0_0/AuditEvent?_elements=id&_security=https://www.icanbwell.com/access%7Cmyhealth from:
 ```javascript
 db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$lt':ISODate('2022-09-14T00:00:00.000Z')}},{'meta.lastUpdated':{'$gte':ISODate('2022-09-13T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {'id':1,'_id':0}).sort({'id':1}).limit(200)
