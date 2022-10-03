@@ -85,7 +85,7 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
 module.exports.getTestAuditEventMongoConfig = () => {
     return {
         connection: process.env.MONGO_URL,
-        db_name: 'audit_events',
+        db_name: 'audit-event',
         options: {}
     };
 };
@@ -125,7 +125,7 @@ module.exports.commonBeforeEach = async () => {
 
     connection = await MongoClient.connect(process.env.MONGO_URL);
     db = connection.db('fhir');
-    const auditEventDb = connection.db('audit_events');
+    const auditEventDb = connection.db('audit-event');
 
     globals.set(CLIENT, connection);
     globals.set(CLIENT_DB, db);
