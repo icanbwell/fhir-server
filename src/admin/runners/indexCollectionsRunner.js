@@ -4,6 +4,7 @@ const globals = require('../../globals');
 const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const {AdminLogger} = require('../adminLogger');
+const {auditEventMongoConfig, mongoConfig} = require('../../config');
 
 
 /**
@@ -18,6 +19,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [useAuditDatabase]
      * @param {boolean} includeHistoryCollections
      * @param {AdminLogger} adminLogger
+     * @param {boolean} synchronizeIndexes
      */
     constructor(
         {
@@ -26,7 +28,8 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             dropIndexes,
             useAuditDatabase,
             includeHistoryCollections,
-            adminLogger
+            adminLogger,
+            synchronizeIndexes
         }
     ) {
         super();
@@ -58,6 +61,11 @@ class IndexCollectionsRunner extends BaseScriptRunner {
 
         this.adminLogger = adminLogger;
         assertTypeEquals(adminLogger, AdminLogger);
+
+        /**
+         * @type {boolean}
+         */
+        this.synchronizeIndexes = synchronizeIndexes;
     }
 
     /**
@@ -75,24 +83,32 @@ class IndexCollectionsRunner extends BaseScriptRunner {
              * @type {import('mongodb').Db}
              */
             const db = globals.get(dbName);
-            if (this.collections.length > 0 && this.collections[0] === 'all') {
-                this.collections = await this.getAllCollectionNamesAsync(
+            if (this.synchronizeIndexes) {
+                await this.indexManager.synchronizeIndexesWithConfigAsync(
                     {
-                        useAuditDatabase: this.useAuditDatabase,
-                        includeHistoryCollections: this.includeHistoryCollections
-                    });
-            }
-            for (const collectionName of this.collections) {
-                if (this.dropIndexes) {
-                    await this.indexManager.deleteIndexesInAllCollectionsInDatabaseAsync({
+                        config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig
+                    }
+                );
+            } else {
+                if (this.collections.length > 0 && this.collections[0] === 'all') {
+                    this.collections = await this.getAllCollectionNamesAsync(
+                        {
+                            useAuditDatabase: this.useAuditDatabase,
+                            includeHistoryCollections: this.includeHistoryCollections
+                        });
+                }
+                for (const collectionName of this.collections) {
+                    if (this.dropIndexes) {
+                        await this.indexManager.deleteIndexesInAllCollectionsInDatabaseAsync({
+                            db,
+                            collectionRegex: collectionName
+                        });
+                    }
+                    await this.indexManager.indexAllCollectionsInDatabaseAsync({
                         db,
                         collectionRegex: collectionName
                     });
                 }
-                await this.indexManager.indexAllCollectionsInDatabaseAsync({
-                    db,
-                    collectionRegex: collectionName
-                });
             }
         } catch (e) {
             this.adminLogger.logError(`ERROR: ${e}`);
