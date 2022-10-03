@@ -1,8 +1,9 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
+const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestAuditEventMongoConfig,
+    getTestMongoConfig
+} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
-const {mongoConfig, auditEventMongoConfig} = require('../../../config');
 
 describe('Synchronize Index Tests', () => {
     beforeEach(async () => {
@@ -47,7 +48,7 @@ describe('Synchronize Index Tests', () => {
                 collectionName, db: fhirDb
             });
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: mongoConfig
+                config: getTestMongoConfig()
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(0);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
@@ -97,7 +98,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
              */
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: mongoConfig
+                config: getTestMongoConfig()
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
@@ -189,7 +190,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
              */
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: auditEventMongoConfig
+                config: getTestAuditEventMongoConfig()
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
@@ -328,7 +329,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
              */
             const synchronizeIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
-                config: mongoConfig
+                config: getTestMongoConfig()
             });
             expect(synchronizeIndexes.length).toStrictEqual(3);
             expect(synchronizeIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);

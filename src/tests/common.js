@@ -78,6 +78,21 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
     return tester;
 };
 
+module.exports.getTestAuditEventMongoConfig = () => {
+    return {
+        connection: process.env.MONGO_URL,
+        db_name: 'audit_events',
+        options: {}
+    };
+};
+
+module.exports.getTestMongoConfig = () => {
+    return {
+        connection: process.env.MONGO_URL,
+        db_name: 'fhir',
+        options: {}
+    };
+};
 /**
  * sets up the mongo db and token endpoint
  * @return {Promise<void>}
@@ -100,11 +115,8 @@ module.exports.commonBeforeEach = async () => {
     process.env.MONGO_URL = mongo.getUri();
     // process.env.MONGO_DB = mongo.getdb.getDbName();
 
-    connection = await MongoClient.connect(process.env.MONGO_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
-    db = connection.db();
+    connection = await MongoClient.connect(process.env.MONGO_URL);
+    db = connection.db('fhir');
     const auditEventDb = connection.db('audit_events');
 
     globals.set(CLIENT, connection);

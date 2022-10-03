@@ -5,6 +5,7 @@ const moment = require('moment-timezone');
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const {IndexManager} = require('../../indexes/indexManager');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -21,6 +22,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {boolean} dropDestinationIfCountIsDifferent
      * @param {AdminLogger} adminLogger
      * @param {boolean} useAggregationMethod
+     * @param {IndexManager} indexManager
      */
     constructor({
                     mongoCollectionManager,
@@ -31,7 +33,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     useAuditDatabase,
                     dropDestinationIfCountIsDifferent,
                     adminLogger,
-                    useAggregationMethod
+                    useAggregationMethod,
+                    indexManager
                 }) {
         super({
             mongoCollectionManager,
@@ -72,6 +75,9 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         this.useAggregationMethod = useAggregationMethod;
+
+        this.indexManager = indexManager;
+        assertTypeEquals(indexManager, IndexManager);
     }
 
     /**
@@ -188,8 +194,10 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                          * @type {import('mongodb').Document[]}
                          */
                         const documents = await aggregationResult.toArray();
-                        this.adminLogger.log(`result=${JSON.stringify(documents)}`);
-                        // first get the count
+                        this.adminLogger.log(`Aggregation Result=${JSON.stringify(documents)}`);
+
+
+                        // get the count
                         this.adminLogger.logTrace(`[${moment().toISOString()}] ` +
                             `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
                             `for ${sourceCollectionName} and ${destinationCollectionName}`);
@@ -199,6 +207,14 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         this.adminLogger.log(`[${moment().toISOString()}] ` +
                             `Count in source ${sourceCollectionName}: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
                             `destination ${destinationCollectionName}: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+
+                        // create indexes
+                        this.adminLogger.log(`Creating indexes for ${destinationCollectionName}`);
+                        await this.indexManager.indexCollectionAsync({
+                            db,
+                            collectionName: destinationCollectionName
+                        });
+                        this.adminLogger.log(`Finished creating indexes for ${destinationCollectionName}`);
                         await disconnectClientAsync(client);
                     } else {
                         await this.runForQueryBatchesAsync(
