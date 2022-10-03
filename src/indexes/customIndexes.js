@@ -46,6 +46,17 @@ module.exports = {
                 }
             }
         ],
+        '*_History': [
+            {
+                keys: {
+                    'id': 1
+                },
+                options: {
+                    // unique: true,
+                    name: 'id_1'
+                }
+            }
+        ],
         'ExplanationOfBenefit_4_0_0': [
             {
                 keys: {

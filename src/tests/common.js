@@ -79,6 +79,29 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
 };
 
 /**
+ * Gets test connection string
+ * @returns {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+module.exports.getTestAuditEventMongoConfig = () => {
+    return {
+        connection: process.env.MONGO_URL,
+        db_name: 'audit-event',
+        options: {}
+    };
+};
+
+/**
+ * Gets test connection string
+ * @returns {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+module.exports.getTestMongoConfig = () => {
+    return {
+        connection: process.env.MONGO_URL,
+        db_name: 'fhir',
+        options: {}
+    };
+};
+/**
  * sets up the mongo db and token endpoint
  * @return {Promise<void>}
  */
@@ -100,12 +123,9 @@ module.exports.commonBeforeEach = async () => {
     process.env.MONGO_URL = mongo.getUri();
     // process.env.MONGO_DB = mongo.getdb.getDbName();
 
-    connection = await MongoClient.connect(process.env.MONGO_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
-    db = connection.db();
-    const auditEventDb = connection.db('audit_events');
+    connection = await MongoClient.connect(process.env.MONGO_URL);
+    db = connection.db('fhir');
+    const auditEventDb = connection.db('audit-event');
 
     globals.set(CLIENT, connection);
     globals.set(CLIENT_DB, db);
@@ -336,11 +356,19 @@ const getTokenWithAdminClaims = (module.exports.getTokenWithAdminClaims = () => 
     });
 });
 
-module.exports.getHeadersWithAdminToken = () => {
+module.exports.getJsonHeadersWithAdminToken = () => {
     return {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
         Authorization: `Bearer ${getTokenWithAdminClaims()}`,
+    };
+};
+
+module.exports.getHtmlHeadersWithAdminToken = () => {
+    return {
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        Authorization: `Bearer ${getTokenWithAdminClaims()}`,
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'
     };
 };
 

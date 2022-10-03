@@ -22,4 +22,4 @@ Currently we use the EJS template rendering engine in Node Express but this can 
 
 [src/middleware/htmlRenderer.js](src/middleware/htmlRenderer.js)
 
-To bypass the html, just append raw=1 to your url.
+To bypass the html, just append _format=json to your url.

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../../partials/head'); %>
+</head>
+<body class="container-fluid p-0">
+<main>
+    <h1>Current Indexes</h1>
+    <% collections.forEach(function(collection){ %>
+        <div class="resource-item">
+            <h3><%= collection.collectionName; %></h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">name</th>
+                    <th scope="col">key</th>
+                    <th scope="col">options</th>
+                    <th scope="col">missing</th>
+                    <th scope="col">extra</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% collection.indexes.forEach(function(row){ %>
+                    <tr>
+                        <td><%= row.indexConfig.options.name %></td>
+                        <td><%= JSON.stringify(row.indexConfig.keys) %></td>
+                        <td>
+                            <%= row.indexConfig.options.unique ? 'unique  ' : '' %>
+                            <%= row.indexConfig.options.sparse ? 'sparse  ' : '' %>
+                            <%= row.indexConfig.options.partialFilterExpression ? `partialFilterExpression: ${JSON.stringify(row.indexConfig.options.partialFilterExpression)}  ` : '' %>
+                        </td>
+                        <td><%= row.missing ? 'Yes' : '' %></td>
+                        <td><%= row.extra ? 'Yes' : '' %></td>
+                    </tr>
+                <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% }) %>
+</main>
+
+</body>
+</html>

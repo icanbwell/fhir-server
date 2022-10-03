@@ -27,14 +27,18 @@ mongoUrl = encodeURI(mongoUrl);
 const options = {
     appName: 'fhir',
     keepAlive: true,
-    connectTimeoutMS: 360000,
-    socketTimeoutMS: 360000,
+    connectTimeoutMS: 60 * 60 * 1000,
+    socketTimeoutMS: 60 * 60 * 1000,
     retryReads: true,
-    maxIdleTimeMS: 60000,
+    maxIdleTimeMS: 60 * 60 * 1000,
     // https://www.mongodb.com/developer/products/mongodb/mongodb-network-compression/
     compressors: ['zstd'],
     // https://medium.com/@kyle_martin/mongodb-in-production-how-connection-pool-size-can-bottleneck-application-scale-439c6e5a8424
     minPoolSize: 100,
+    // keepAliveInitialDelay: 0,
+    // heartbeatFrequencyMS: 30 * 1000,
+    // serverSelectionTimeoutMS: 30 * 1000,
+    // waitQueueTimeoutMS: 30 * 1000
 };
 /**
  * @name mongoConfig

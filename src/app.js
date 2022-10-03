@@ -156,8 +156,6 @@ function createApp(fnCreateContainer) {
 
     app.get('/stats', handleStats);
 
-    app.get('/index/:op?/:table?', handleIndex);
-
     app.get('/.well-known/smart-configuration', handleSmartConfiguration);
 
     app.get('/alert', handleAlert);
@@ -195,6 +193,7 @@ function createApp(fnCreateContainer) {
         adminRouter.use(passport.initialize({}));
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     }
+    adminRouter.get('/admin/index/:op?/:table?', handleIndex);
     adminRouter.get('/admin/:op?', handleAdmin);
     adminRouter.post('/admin/:op?', handleAdmin);
     app.use(adminRouter);

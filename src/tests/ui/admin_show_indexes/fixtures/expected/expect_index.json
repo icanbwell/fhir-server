@@ -1,0 +1,58 @@
+[
+  {
+    "collectionName": "Patient_4_0_0",
+    "indexes": [
+      {
+        "indexConfig": {
+          "keys": {
+            "_id": 1
+          },
+          "options": {
+            "name": "_id_"
+          }
+        }
+      },
+      {
+        "indexConfig": {
+          "keys": {
+            "id": 1
+          },
+          "options": {
+            "name": "id_1"
+          }
+        }
+      },
+      {
+        "indexConfig": {
+          "keys": {
+            "meta.lastUpdated": 1
+          },
+          "options": {
+            "name": "meta.lastUpdated_1"
+          }
+        }
+      },
+      {
+        "indexConfig": {
+          "keys": {
+            "meta.source": 1
+          },
+          "options": {
+            "name": "meta.source_1"
+          }
+        }
+      },
+      {
+        "indexConfig": {
+          "keys": {
+            "meta.security.code": 1,
+            "meta.security.system": 1
+          },
+          "options": {
+            "name": "security.system_code_1"
+          }
+        }
+      }
+    ]
+  }
+]

@@ -124,6 +124,8 @@
 //    "require-await": "error",
     "security/detect-non-literal-fs-filename": "off",
     "node/no-unpublished-require": "off",
-    "no-undef": "error"
+    "no-undef": "error",
+    // https://blog.appsignal.com/2020/05/06/avoiding-memory-leaks-in-nodejs-best-practices-for-performance.html
+    "no-invalid-this": "error"
   }
 }

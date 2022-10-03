@@ -8,88 +8,9 @@ dotenv.config({
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
-const {assertTypeEquals} = require('../../utils/assertType');
 const {CommandLineParser} = require('./commandLineParser');
-const {BaseScriptRunner} = require('./baseScriptRunner');
-const {IndexManager} = require('../../indexes/indexManager');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
-
-
-/**
- * @classdesc Copies documents from source collection into the appropriate partitioned collection
- */
-class IndexCollectionsRunner extends BaseScriptRunner {
-    /**
-     * constructor
-     * @param {IndexManager} indexManager
-     * @param {string|undefined} [collectionName]
-     * @param {boolean|undefined} [dropIndexes]
-     * @param {string|undefined} [dbName]
-     */
-    constructor(
-        {
-            indexManager,
-            collectionName,
-            dropIndexes,
-            dbName
-        }
-    ) {
-        super();
-        /**
-         * @type {IndexManager}
-         */
-        this.indexManager = indexManager;
-        assertTypeEquals(indexManager, IndexManager);
-
-        /**
-         * @type {string|undefined}
-         */
-        this.collectionName = collectionName;
-
-        /**
-         * @type {boolean|undefined}
-         */
-        this.dropIndexes = dropIndexes;
-
-        /**
-         * @type {string|undefined}
-         */
-        this.dbName = dbName;
-    }
-
-    /**
-     * Runs a loop to process all the documents
-     * @returns {Promise<void>}
-     */
-    async processAsync() {
-        try {
-            await this.init();
-            /**
-             * @type {string}
-             */
-            const dbName = this.dbName === 'audit-event' ? AUDIT_EVENT_CLIENT_DB : CLIENT_DB;
-            /**
-             * @type {import('mongodb').Db}
-             */
-            const db = globals.get(dbName);
-            if (this.dropIndexes) {
-                await this.indexManager.deleteIndexesInAllCollectionsInDatabase({
-                    db,
-                    collectionRegex: this.collectionName
-                });
-            }
-            await this.indexManager.indexAllCollectionsInDatabaseAsync({
-                db,
-                collectionRegex: this.collectionName
-            });
-        } catch (e) {
-            console.log(`ERROR: ${e}`);
-        } finally {
-            await this.shutdown();
-        }
-    }
-}
+const {IndexCollectionsRunner} = require('../runners/indexCollectionsRunner');
+const {AdminLogger} = require('../adminLogger');
 
 /**
  * main function
@@ -104,12 +25,15 @@ async function main() {
     const container = createContainer();
 
     // now add our class
-    container.register('indexCollectionsRunner', (c) => new IndexCollectionsRunner({
-        indexManager: c.indexManager,
-        collectionName: parameters.collection,
-        dropIndexes: parameters.drop,
-        dbName: parameters.db
-    }));
+    container.register('indexCollectionsRunner', (c) => new IndexCollectionsRunner(
+        {
+            indexManager: c.indexManager,
+            collections: parameters.collections,
+            dropIndexes: parameters.drop,
+            useAuditDatabase: parameters.audit ? true : false,
+            includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
+            adminLogger: new AdminLogger()
+        }));
 
     /**
      * @type {IndexCollectionsRunner}
@@ -122,9 +46,10 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 16.17.0
- * node src/admin/scripts/indexCollections --collection=Patient_4_0_0 --drop --db=fhir
- * node src/admin/scripts/indexCollections --collection=AuditEvent_4_0_0 --drop --db=audit-event
+ * nvm use 16.17.1
+ * node src/admin/scripts/indexCollections --collection=Patient_4_0_0 --drop
+ * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit
+ * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * collection can be a regex
  */
 main().catch(reason => {

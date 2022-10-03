@@ -117,11 +117,11 @@ class DatabaseQueryManager {
 
     /**
      * Finds one resource by looking in multiple partitions of a resource type
-     * @param {import('mongodb').FilterQuery<import('mongodb').DefaultSchema>} query
-     * @param {import('mongodb').CommonOptions | null} options
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {import('mongodb').DeleteOptions} options
      * @return {Promise<DeleteManyResult>}
      */
-    async deleteManyAsync({query, options = null}) {
+    async deleteManyAsync({query, options = {}}) {
         /**
          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
          */

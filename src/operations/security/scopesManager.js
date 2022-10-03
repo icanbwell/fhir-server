@@ -140,6 +140,24 @@ class ScopesManager {
             resource.meta.security.some(s => s.system === 'https://www.icanbwell.com/access')
         );
     }
+
+    /**
+     * Gets admin scopes from the request
+     * @param {import('http').IncomingMessage} req
+     * @returns {{adminScopes: string[], scope: string}}
+     */
+    getAdminScopes({req}) {
+        /**
+         * @type {string}
+         */
+        const scope = req.authInfo && req.authInfo.scope;
+        /**
+         * @type {string[]}
+         */
+        const scopes = scope.split(' ');
+        const adminScopes = scopes.filter(s => s.startsWith('admin/'));
+        return {scope, adminScopes};
+    }
 }
 
 module.exports = {

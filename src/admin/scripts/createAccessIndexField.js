@@ -6,117 +6,12 @@ dotenv.config({
     path: pathToEnv
 });
 console.log(`Reading config from ${pathToEnv}`);
+console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
-const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
-const {mongoConfig} = require('../../config');
-
-/**
- * @classdesc Copies documents from source collection into the appropriate partitioned collection
- */
-class CreateAccessIndexRunner extends BaseBulkOperationRunner {
-    /**
-     * constructor
-     * @param {MongoCollectionManager} mongoCollectionManager
-     * @param {string[]} collections
-     * @param {number} batchSize
-     */
-    constructor({
-                    mongoCollectionManager,
-                    collections,
-                    batchSize
-                }) {
-        super({mongoCollectionManager, batchSize});
-        /**
-         * @type {string[]}
-         */
-        this.collections = collections;
-        /**
-         * @type {number}
-         */
-        this.batchSize = batchSize;
-    }
-
-    /**
-     * returns the bulk operation for this doc
-     * @param {import('mongodb').DefaultSchema} doc
-     * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
-     */
-    async processRecordAsync(doc) {
-        const operations = [];
-        const accessCodes = doc.meta.security.filter(s => s.system === 'https://www.icanbwell.com/access').map(s => s.code);
-        if (accessCodes.length > 0 && !doc['_access']) {
-            const _access = {};
-            for (const accessCode of accessCodes) {
-                _access[`${accessCode}`] = 1;
-            }
-            // update only the necessary field in the document
-            const setCommand = {};
-            setCommand['_access'] = _access;
-            /**
-             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
-             */
-                // batch up the calls to update
-            const result = {updateOne: {filter: {_id: doc._id}, update: {$set: setCommand}}};
-            operations.push(result);
-        }
-        return operations;
-    }
-
-    /**
-     * Runs a loop to process all the documents
-     * @returns {Promise<void>}
-     */
-    async processAsync() {
-        try {
-            await this.init();
-
-            console.log(`Starting loop for ${this.collections.join(',')}`);
-
-            // if there is an exception, continue processing from the last id
-            for (const collection of this.collections) {
-
-                this.startFromIdContainer.startFromId = '';
-                /**
-                 * @type {import('mongodb').Filter<import('mongodb').Document>}
-                 */
-                const query = {};
-                const projection = {
-                    'id': 1,
-                    'meta.security.system': 1,
-                    'meta.security.code': 1,
-                    '_access': 1
-                };
-                try {
-                    await this.runForQueryBatchesAsync(
-                        {
-                            config: mongoConfig,
-                            sourceCollectionName: collection,
-                            destinationCollectionName: collection,
-                            query,
-                            projection,
-                            startFromIdContainer: this.startFromIdContainer,
-                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                            ordered: false,
-                            batchSize: this.batchSize,
-                            skipExistingIds: false
-                        }
-                    );
-                } catch (e) {
-                    console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
-                }
-                console.log(`Finished loop ${collection}`);
-            }
-            console.log('Finished script');
-            console.log('Shutting down');
-            await this.shutdown();
-            console.log('Shutdown finished');
-        } catch (e) {
-            console.log(`ERROR: ${e}`);
-        }
-    }
-}
+const {CreateAccessIndexRunner} = require('../runners/createAccessIndexFieldRunner');
+const {AdminLogger} = require('../adminLogger');
 
 /**
  * main function
@@ -131,7 +26,10 @@ async function main() {
     /**
      * @type {string[]}
      */
-    const collections = parameters.collections ? parameters.collections.split(',').map(x => x.trim()) : [];
+    let collections = parameters.collections ? parameters.collections.split(',').map(x => x.trim()) : [];
+    if (parameters.collections === 'all') {
+        collections = ['all'];
+    }
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     console.log(`[${currentDateTime}] ` +
         `Running script for collections: ${collections.join(',')}`);
@@ -144,7 +42,9 @@ async function main() {
             {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections: collections,
-                batchSize
+                batchSize,
+                useAuditDatabase: parameters.audit ? true : false,
+                adminLogger: new AdminLogger()
             }
         )
     );
@@ -161,8 +61,11 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 16.17.0
- * node src/admin/scripts/createAccessIndexField.js --collections Practitioner_4_0_0 --batchSize=10000
+ * nvm use 16.17.1
+ * node src/admin/scripts/createAccessIndexField.js --collections=Practitioner_4_0_0 --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections=all --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections=all --audit --batchSize=10000
+ * node src/admin/scripts/createAccessIndexField.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);

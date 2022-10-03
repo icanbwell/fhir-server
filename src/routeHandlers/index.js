@@ -3,12 +3,20 @@
  */
 // eslint-disable-next-line security/detect-child-process
 const childProcess = require('child_process');
-const { IndexManager } = require('../indexes/indexManager');
-const { ErrorReporter } = require('../utils/slack.logger');
-const { getImageVersion } = require('../utils/getImageVersion');
+const {IndexManager} = require('../indexes/indexManager');
+const {ErrorReporter} = require('../utils/slack.logger');
+const {getImageVersion} = require('../utils/getImageVersion');
+const {getAdminScopes} = require('./admin');
 
 module.exports.handleIndex = async (req, res) => {
     // console.info('Running index');
+
+    const {scope, adminScopes} = getAdminScopes({req});
+    if (adminScopes.length === 0) {
+        return res.status(403).json({
+            message: `Missing scopes for admin/*.read in ${scope}`
+        });
+    }
     const operation = req.params['op'];
     const tableName = req.params['table'];
 
