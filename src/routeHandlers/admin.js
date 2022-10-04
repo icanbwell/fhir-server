@@ -3,13 +3,13 @@
  */
 const {mongoConfig} = require('../config');
 // const env = require('var');
-const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {createContainer} = require('../createContainer');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
+const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 /**
  * Gets admin scopes from the request
@@ -105,10 +105,11 @@ async function handleAdmin(
     /** @type {import('http').ServerResponse} **/ res
 ) {
     console.info('Running admin');
+    const mongoDatabaseManager = new MongoDatabaseManager();
     /**
      * @type {import('mongodb').MongoClient}
      */
-    const client = await createClientAsync(mongoConfig);
+    const client = await mongoDatabaseManager.createClientAsync(mongoConfig);
     try {
         const operation = req.params['op'];
         console.log(`op=${operation}`);
@@ -192,7 +193,7 @@ async function handleAdmin(
         // res.set('Content-Type', 'text/html');
         // res.send(Buffer.from('<html><body><h2>Test String</h2></body></html>'));
     } finally {
-        await disconnectClientAsync(client);
+        await mongoDatabaseManager.disconnectClientAsync(client);
     }
 }
 

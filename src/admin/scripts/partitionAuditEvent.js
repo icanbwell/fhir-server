@@ -36,6 +36,7 @@ async function main() {
     // now add our class
     container.register('processAuditEventRunner', (c) => new PartitionAuditEventRunner(
             {
+                mongoDatabaseManager: c.mongoDatabaseManager,
                 mongoCollectionManager: c.mongoCollectionManager,
                 recordedAfter: moment.utc(recordedAfter),
                 recordedBefore: moment.utc(recordedBefore),

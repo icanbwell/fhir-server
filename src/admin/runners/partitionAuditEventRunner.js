@@ -3,9 +3,9 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
 const moment = require('moment-timezone');
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
-const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {IndexManager} = require('../../indexes/indexManager');
+const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -13,6 +13,7 @@ const {IndexManager} = require('../../indexes/indexManager');
 class PartitionAuditEventRunner extends BaseBulkOperationRunner {
     /**
      * constructor
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {moment.Moment} recordedAfter
      * @param {moment.Moment} recordedBefore
@@ -25,6 +26,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {string} sourceCollection
      */
     constructor({
+                    mongoDatabaseManager,
                     mongoCollectionManager,
                     recordedAfter,
                     recordedBefore,
@@ -37,6 +39,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     sourceCollection
                 }) {
         super({
+            mongoDatabaseManager,
             mongoCollectionManager,
             batchSize,
             adminLogger
@@ -78,6 +81,12 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
          * @type {string}
          */
         this.sourceCollection = sourceCollection;
+
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
     /**
@@ -184,7 +193,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     /**
                      * @type {import('mongodb').MongoClient}
                      */
-                    const client = await createClientAsync(config);
+                    const client = await this.mongoDatabaseManager.createClientAsync(config);
                     /**
                      * @type {import('mongodb').Db}
                      */
@@ -286,7 +295,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     } else {
                         this.adminLogger.log(`No documents matched in  ${sourceCollectionName}`);
                     }
-                    await disconnectClientAsync(client);
+                    await this.mongoDatabaseManager.disconnectClientAsync(client);
 
                 } catch (e) {
                     this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);

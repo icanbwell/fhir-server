@@ -1,4 +1,3 @@
-const { connectAsync } = require('./utils/connect');
 const { createApp } = require('./app');
 const { fhirServerConfig } = require('./config');
 const env = require('var');
@@ -6,6 +5,7 @@ const { logSystemEventAsync } = require('./operations/common/logging');
 const { createHttpTerminator } = require('http-terminator');
 const http = require('http');
 const { getImageVersion } = require('./utils/getImageVersion');
+const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 
 /**
  * Creates the http server
@@ -13,7 +13,7 @@ const { getImageVersion } = require('./utils/getImageVersion');
  * @return {Promise<import('http').Server>}
  */
 async function createServer(fnCreateContainer) {
-    await connectAsync();
+    await new MongoDatabaseManager().connectAsync();
 
     const app = createApp(fnCreateContainer);
 

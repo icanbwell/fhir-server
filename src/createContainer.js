@@ -436,7 +436,8 @@ const createContainer = function () {
     );
 
     container.register('accessIndexManager', (c) => new AccessIndexManager({
-        configManager: c.configManager
+        configManager: c.configManager,
+        indexProvider: c.indexProvider
     }));
 
     return container;

@@ -3,7 +3,6 @@
  */
 
 const async = require('async');
-const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {mongoConfig} = require('../config');
 const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
@@ -221,7 +220,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
         /**
          * @type {import('mongodb').Db}
          */
@@ -231,7 +230,7 @@ class IndexManager {
                 db, collectionRegex
             });
         } finally {
-            await disconnectClientAsync(client);
+            await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
     }
 
@@ -430,7 +429,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
         try {
             /**
              * @type {import('mongodb').Db}
@@ -456,7 +455,7 @@ class IndexManager {
                     (a, b) =>
                         a.collectionName.localeCompare(b.collectionName));
         } finally {
-            await disconnectClientAsync(client);
+            await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
     }
 
@@ -515,7 +514,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
         /**
          * @type {import('mongodb').Db}
          */
@@ -523,7 +522,7 @@ class IndexManager {
         try {
             await this.deleteIndexesInAllCollectionsInDatabaseAsync({db, collectionRegex});
         } finally {
-            await disconnectClientAsync(client);
+            await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
     }
 

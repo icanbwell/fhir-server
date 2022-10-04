@@ -4,8 +4,7 @@
 
 const env = require('var');
 const async = require('async');
-const { disconnectClientAsync, createClientAsync } = require('../utils/connect');
-const { mongoConfig } = require('../config');
+const {mongoConfig} = require('../config');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 module.exports.handleClean = async (req, res) => {
@@ -13,11 +12,11 @@ module.exports.handleClean = async (req, res) => {
     // return res.status(200).json(req.params);
     if (!env.DISABLE_CLEAN_ENDPOINT) {
         console.info('Running clean');
-
+        const mongoDatabaseManager = new MongoDatabaseManager();
         /**
-         * @type {import("mongodb").MongoClient}
+         * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(mongoConfig);
+        const client = await mongoDatabaseManager.createClientAsync(mongoConfig);
         try {
             /**
              * @type {import('mongodb').Db}
@@ -60,7 +59,7 @@ module.exports.handleClean = async (req, res) => {
                 async (collection_name) => await db.collection(collection_name).deleteMany({})
             );
         } finally {
-            await disconnectClientAsync(client);
+            await mongoDatabaseManager.disconnectClientAsync(client);
         }
     } else {
         res.status(403).json();

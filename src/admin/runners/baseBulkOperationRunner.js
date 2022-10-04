@@ -4,13 +4,13 @@ const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
 const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {AdminLogger} = require('../adminLogger');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const {MongoNetworkTimeoutError} = require('mongodb');
 const {MemoryManager} = require('../../utils/memoryManager');
+const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 
 /**
@@ -22,12 +22,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {number} batchSize
      * @param {AdminLogger} adminLogger
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      */
     constructor(
         {
             mongoCollectionManager,
             batchSize,
-            adminLogger
+            adminLogger,
+            mongoDatabaseManager
         }) {
         super();
 
@@ -45,6 +47,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
          */
         this.adminLogger = adminLogger;
         assertTypeEquals(adminLogger, AdminLogger);
+
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
     /**
@@ -183,8 +191,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
         // disconnect from db
         this.adminLogger.logTrace('Disconnecting from sourceClient...');
-        await disconnectClientAsync(sourceClient);
-        await disconnectClientAsync(destinationClient);
+        await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
+        await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
 
         return lastCheckedId;
     }
@@ -409,11 +417,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        let sourceClient = await createClientAsync(config);
+        let sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
         /**
          * @type {import('mongodb').MongoClient}
          */
-        let destinationClient = await createClientAsync(config);
+        let destinationClient = await this.mongoDatabaseManager.createClientAsync(config);
         /**
          * @type {import('mongodb').ClientSession}
          */
@@ -480,7 +488,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(config);
+        const client = await this.mongoDatabaseManager.createClientAsync(config);
         /**
          * @type {import('mongodb').Db}
          */
@@ -493,7 +501,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         if (!includeHistoryCollections) {
             collectionNames = collectionNames.filter(c => !c.includes('_History'));
         }
-        await disconnectClientAsync(client);
+        await this.mongoDatabaseManager.disconnectClientAsync(client);
         return collectionNames;
     }
 }
