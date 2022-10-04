@@ -22,7 +22,6 @@ const {handleSecurityPolicy} = require('./routeHandlers/contentSecurityPolicy');
 const {handleVersion} = require('./routeHandlers/version');
 const {handleLogout} = require('./routeHandlers/logout');
 const {handleClean} = require('./routeHandlers/clean');
-const {handleIndex} = require('./routeHandlers/index');
 const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
@@ -193,7 +192,6 @@ function createApp(fnCreateContainer) {
         adminRouter.use(passport.initialize({}));
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     }
-    adminRouter.get('/admin/index/:op?/:table?', handleIndex);
     adminRouter.get('/admin/:op?', handleAdmin);
     adminRouter.post('/admin/:op?', handleAdmin);
     app.use(adminRouter);
