@@ -3,7 +3,6 @@
  */
 
 const async = require('async');
-const {customIndexes} = require('./customIndexes');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
@@ -11,6 +10,7 @@ const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common
 const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const globals = require('../globals');
+const {IndexProvider} = require('./indexProvider');
 
 
 /**
@@ -28,13 +28,21 @@ class IndexManager {
     /**
      * constructor
      * @param {ErrorReporter} errorReporter
+     * @param {IndexProvider} indexProvider
      */
-    constructor({errorReporter}) {
+    constructor({errorReporter,
+                indexProvider}) {
         assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {ErrorReporter}
          */
         this.errorReporter = errorReporter;
+
+        /**
+         * @type {IndexProvider}
+         */
+        this.indexProvider = indexProvider;
+        assertTypeEquals(indexProvider, IndexProvider);
     }
 
     /**
@@ -159,9 +167,10 @@ class IndexManager {
         const indexesToCreate = [];
 
         // first add indexes that are set on all collections (except ones marked exlude)
+        const indexes = this.indexProvider.getIndexes();
         for (const [indexCollectionName,
             /** @type {IndexConfig[]} */ indexConfigs]
-            of Object.entries(customIndexes)) {
+            of Object.entries(indexes)) {
             if (isHistoryTable) {
                 if (indexCollectionName === '*_History') {
                     for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {

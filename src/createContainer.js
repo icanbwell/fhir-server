@@ -54,6 +54,7 @@ const {ConfigManager} = require('./utils/configManager');
 const {AccessIndexManager} = require('./operations/common/accessIndexManager');
 const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
 const {IndexHinter} = require('./indexes/indexHinter');
+const {IndexProvider} = require('./indexes/indexProvider');
 
 /**
  * Creates a container and sets up all the services
@@ -106,9 +107,11 @@ const createContainer = function () {
     container.register('partitioningManager', (c) => new PartitioningManager(
         {configManager: c.configManager}));
     container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
+    container.register('indexProvider', () => new IndexProvider());
     container.register('indexManager', (c) => new IndexManager(
         {
-            errorReporter: c.errorReporter
+            errorReporter: c.errorReporter,
+            indexProvider: c.indexProvider
         })
     );
     container.register('mongoCollectionManager', (c) => new MongoCollectionManager(
@@ -139,7 +142,9 @@ const createContainer = function () {
         }));
 
     container.register('resourceManager', () => new ResourceManager());
-    container.register('indexHinter', () => new IndexHinter());
+    container.register('indexHinter', (c) => new IndexHinter({
+        indexProvider: c.indexProvider
+    }));
 
     container.register('searchManager', (c) => new SearchManager(
             {

@@ -1,10 +1,26 @@
+const {assertTypeEquals} = require('../utils/assertType');
+const {IndexProvider} = require('./indexProvider');
+
 /**
  * This file implements adding index hints to mongo db queries
  */
-
-const {customIndexes} = require('./customIndexes');
-
 class IndexHinter {
+    /**
+     * constructor
+     * @param {IndexProvider} indexProvider
+     */
+    constructor(
+        {
+            indexProvider
+        }
+    ) {
+        /**
+         * @type {IndexProvider}
+         */
+        this.indexProvider = indexProvider;
+        assertTypeEquals(indexProvider, IndexProvider);
+    }
+
     /**
      * returns whether two sets are the same (regardless of sorting)
      * @param {Set} as
@@ -47,9 +63,10 @@ class IndexHinter {
         const baseCollectionName = collectionName.endsWith('_4_0_0') ?
             collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
+        const indexes = this.indexProvider.getIndexes();
         for (const [indexCollectionName,
             /** @type {{keys:Object, options:Object, exclude: string[]}[]} */ indexConfigs]
-            of Object.entries(customIndexes)) {
+            of Object.entries(indexes)) {
             if (indexCollectionName === '*' || baseCollectionName === indexCollectionName) {
                 for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
                     if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {

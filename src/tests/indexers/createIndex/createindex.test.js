@@ -3,6 +3,15 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
+const {IndexProvider} = require('../../../indexes/indexProvider');
+
+const {customIndexes} = require('./mockCustomIndexes');
+
+class MockIndexProvider extends IndexProvider{
+    getIndexes() {
+        return customIndexes;
+    }
+}
 
 describe('Create Index Tests', () => {
     beforeEach(async () => {
@@ -19,7 +28,10 @@ describe('Create Index Tests', () => {
 
     describe('CreateIndex Tests', () => {
         test('createIndex works for Patient', async () => {
-            await createTestRequest();
+            await createTestRequest((c) => {
+                c.register('indexProvider', () => new MockIndexProvider());
+                return c;
+            });
             /**
              * @type {SimpleContainer}
              */
