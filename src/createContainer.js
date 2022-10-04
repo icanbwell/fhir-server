@@ -131,7 +131,8 @@ const createContainer = function () {
     container.register('resourceLocatorFactory', (c) => new ResourceLocatorFactory(
         {
             mongoCollectionManager: c.mongoCollectionManager,
-            partitioningManager: c.partitioningManager
+            partitioningManager: c.partitioningManager,
+            mongoDatabaseManager: c.mongoDatabaseManager
         }));
 
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
