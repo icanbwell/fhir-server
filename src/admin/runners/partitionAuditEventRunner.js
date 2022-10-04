@@ -19,7 +19,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {number} batchSize
      * @param {boolean} skipExistingIds
      * @param {boolean} useAuditDatabase
-     * @param {boolean} dropDestinationIfCountIsDifferent
+     * @param {boolean} dropDestinationCollection
      * @param {AdminLogger} adminLogger
      * @param {boolean} useAggregationMethod
      * @param {IndexManager} indexManager
@@ -31,7 +31,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     batchSize,
                     skipExistingIds,
                     useAuditDatabase,
-                    dropDestinationIfCountIsDifferent,
+                    dropDestinationCollection,
                     adminLogger,
                     useAggregationMethod,
                     indexManager
@@ -69,7 +69,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         /**
          * @type {boolean}
          */
-        this.dropDestinationIfCountIsDifferent = dropDestinationIfCountIsDifferent;
+        this.dropDestinationCollection = dropDestinationCollection;
 
         /**
          * @type {boolean}
@@ -189,7 +189,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                      * @type {import('mongodb').Db}
                      */
                     const db = client.db(config.db_name);
-                    if (this.dropDestinationIfCountIsDifferent) {
+                    if (this.dropDestinationCollection) {
                         const destinationCollectionExists = await db.listCollections(
                             {name: destinationCollectionName},
                             {nameOnly: true}

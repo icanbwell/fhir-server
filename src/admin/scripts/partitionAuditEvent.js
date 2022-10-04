@@ -43,7 +43,7 @@ async function main() {
                 batchSize,
                 skipExistingIds: parameters.skipExistingIds ? true : false,
                 useAuditDatabase: parameters.audit ? true : false,
-                dropDestinationIfCountIsDifferent: parameters.dropDestinationIfCountIsDifferent ? true : false,
+                dropDestinationCollection: parameters.dropDestinationCollection ? true : false,
                 adminLogger: new AdminLogger(),
                 useAggregationMethod: useAggregationMethod,
                 indexManager: c.indexManager
@@ -67,7 +67,7 @@ async function main() {
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000 --skipExistingIds
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --useAggregationMethod
- * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds --dropDestinationIfCountIsDifferent
+ * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds --dropDestinationCollection
  */
 main().catch(reason => {
     console.error(reason);
