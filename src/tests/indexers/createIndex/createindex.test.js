@@ -7,7 +7,7 @@ const {IndexProvider} = require('../../../indexes/indexProvider');
 
 const {customIndexes} = require('./mockCustomIndexes');
 
-class MockIndexProvider extends IndexProvider{
+class MockIndexProvider extends IndexProvider {
     getIndexes() {
         return customIndexes;
     }
@@ -16,6 +16,10 @@ class MockIndexProvider extends IndexProvider{
 describe('Create Index Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        await createTestRequest((c) => {
+            c.register('indexProvider', () => new MockIndexProvider());
+            return c;
+        });
     });
 
     afterEach(async () => {
@@ -28,10 +32,6 @@ describe('Create Index Tests', () => {
 
     describe('CreateIndex Tests', () => {
         test('createIndex works for Patient', async () => {
-            await createTestRequest((c) => {
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
-            });
             /**
              * @type {SimpleContainer}
              */
@@ -115,7 +115,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -236,7 +235,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent partitioned table', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -375,7 +373,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent twice', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -503,7 +500,6 @@ describe('Create Index Tests', () => {
     });
     describe('CreateIndex Tests for history tables', () => {
         test('createIndex works for Patient History', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -559,7 +555,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -615,7 +610,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent partitioned table', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -689,7 +683,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent twice', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */

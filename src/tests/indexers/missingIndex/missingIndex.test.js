@@ -8,10 +8,22 @@ const {
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const globals = require('../../../globals');
 const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
+const {customIndexes} = require('./mockCustomIndexes');
+const {IndexProvider} = require('../../../indexes/indexProvider');
+
+class MockIndexProvider extends IndexProvider {
+    getIndexes() {
+        return customIndexes;
+    }
+}
 
 describe('Missing Index Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        await createTestRequest((c) => {
+            c.register('indexProvider', () => new MockIndexProvider());
+            return c;
+        });
     });
 
     afterEach(async () => {
@@ -24,7 +36,6 @@ describe('Missing Index Tests', () => {
 
     describe('Missing Index Tests', () => {
         test('no missingIndex after Patient collection is indexed', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -60,7 +71,6 @@ describe('Missing Index Tests', () => {
             expect(missingIndexesResult.indexes.filter(ia => ia.missing).length).toStrictEqual(0);
         });
         test('missingIndex if Patient collection is missing indexes', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -151,7 +161,6 @@ describe('Missing Index Tests', () => {
             );
         });
         test('missingIndex works for AuditEvent', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -278,7 +287,6 @@ describe('Missing Index Tests', () => {
             );
         });
         test('no missingIndex after Patient and Practitioner collection is indexed', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -336,6 +344,5 @@ describe('Missing Index Tests', () => {
             });
             expect(missingIndexes.length).toStrictEqual(0);
         });
-
     });
 });
