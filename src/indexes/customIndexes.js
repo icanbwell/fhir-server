@@ -150,17 +150,6 @@ module.exports = {
             },
             {
                 keys: {
-                    'meta.security.system': 1,
-                    'meta.security.code': 1,
-                    'id': 1,
-                    'meta.lastUpdated': 1,
-                },
-                options: {
-                    name: 'helix_audit_event_security'
-                }
-            },
-            {
-                keys: {
                     '_access.medstar': 1,
                     'id': 1,
                     'meta.lastUpdated': 1,
@@ -177,17 +166,6 @@ module.exports = {
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_access_medstar'
-                }
-            },
-            {
-                keys: {
-                    'meta.security.system': 1,
-                    'meta.security.code': 1,
-                    'id': 1,
-                    'recorded': 1,
-                },
-                options: {
-                    name: 'helix_auditEvent_recorded'
                 }
             },
         ],

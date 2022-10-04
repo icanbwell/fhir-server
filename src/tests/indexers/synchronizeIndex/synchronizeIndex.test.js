@@ -1,6 +1,5 @@
 const {
-    commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestAuditEventMongoConfig,
-    getTestMongoConfig
+    commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
@@ -50,7 +49,7 @@ describe('Synchronize Index Tests', () => {
                 collectionName, db: fhirDb
             });
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: getTestMongoConfig()
+                audit: false
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(0);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
@@ -103,7 +102,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
              */
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: getTestMongoConfig()
+                audit: false
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
@@ -198,7 +197,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
              */
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: getTestAuditEventMongoConfig()
+                audit: true
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
@@ -340,7 +339,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
              */
             const synchronizeIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
-                config: getTestMongoConfig()
+                audit: false
             });
             expect(synchronizeIndexes.length).toStrictEqual(3);
             expect(synchronizeIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
@@ -375,7 +374,7 @@ describe('Synchronize Index Tests', () => {
             const patientHistoryCollection = fhirDb.collection(collectionName);
             await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: getTestMongoConfig()
+                audit: false
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);

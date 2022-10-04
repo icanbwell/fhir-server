@@ -2,7 +2,6 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {IndexManager} = require('../../indexes/indexManager');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const {AdminLogger} = require('../adminLogger');
-const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 
@@ -90,7 +89,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             if (this.synchronizeIndexes) {
                 await this.indexManager.synchronizeIndexesWithConfigAsync(
                     {
-                        config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig
+                        audit: this.useAuditDatabase
                     }
                 );
             } else {

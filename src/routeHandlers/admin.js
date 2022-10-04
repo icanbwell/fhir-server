@@ -46,13 +46,14 @@ async function showIndexesAsync(
         filterToProblems
     }) {
     console.log(`showIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
+    const audit = req.query['audit'];
     /**
      * @type {IndexManager}
      */
     const indexManager = container.indexManager;
     const json = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
         {
-            config: mongoConfig,
+            audit: audit ? true : false,
             filterToProblems: filterToProblems
         }
     );
@@ -81,6 +82,7 @@ async function synchronizeIndexesAsync(
     }
 ) {
     console.log(`synchronizeIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
+    const audit = req.query['audit'];
     /**
      * @type {IndexManager}
      */
@@ -93,7 +95,7 @@ async function synchronizeIndexesAsync(
     res.end();
     // res.json({message: 'Started Synchronizing indexes'}).end();
     await indexManager.synchronizeIndexesWithConfigAsync({
-        config: mongoConfig
+        audit: audit
     });
     return;
 }
