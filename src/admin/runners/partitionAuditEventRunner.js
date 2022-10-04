@@ -181,23 +181,15 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 };
                 try {
                     const config = this.useAuditDatabase ? auditEventMongoConfig : mongoConfig;
-                    if (this.useAggregationMethod) {
-                        /**
-                         * @type {import('mongodb').MongoClient}
-                         */
-                        const client = await createClientAsync(config);
-                        /**
-                         * @type {import('mongodb').Db}
-                         */
-                        const db = client.db(config.db_name);
-                        const pipeline = [
-                            {
-                                $match: query
-                            },
-                            {
-                                $out: destinationCollectionName
-                            }
-                        ];
+                    /**
+                     * @type {import('mongodb').MongoClient}
+                     */
+                    const client = await createClientAsync(config);
+                    /**
+                     * @type {import('mongodb').Db}
+                     */
+                    const db = client.db(config.db_name);
+                    if (this.dropDestinationIfCountIsDifferent) {
                         const destinationCollectionExists = await db.listCollections(
                             {name: destinationCollectionName},
                             {nameOnly: true}
@@ -206,85 +198,82 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             this.adminLogger.log(`Destination ${destinationCollectionName} already exists so dropping it`);
                             await db.dropCollection(destinationCollectionName);
                         }
-                        this.adminLogger.log(`Running aggregation pipeline with: ${JSON.stringify(pipeline)}`);
-                        const sourceCollection = db.collection(sourceCollectionName);
-                        // https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/
-                        const aggregationResult = await sourceCollection.aggregate(
-                            pipeline,
-                            {
-                                allowDiskUse: true // sorting can be expensive
-                            }
-                        );
-                        /**
-                         * @type {import('mongodb').Document[]}
-                         */
-                        const documents = await aggregationResult.toArray();
-                        this.adminLogger.log(`Aggregation Result=${JSON.stringify(documents)}`);
-
-
-                        // get the count
-                        this.adminLogger.logTrace(
-                            `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-                            `for ${sourceCollectionName} and ${destinationCollectionName}`);
-                        const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
-                        const destinationCollection = db.collection(destinationCollectionName);
-                        const numberOfDestinationDocuments = await destinationCollection.countDocuments({}, {});
-                        this.adminLogger.log(
-                            `Count in source matching query ${sourceCollectionName}: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-                            `Count in destination ${destinationCollectionName}: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
-                        if (numberOfSourceDocuments === numberOfDestinationDocuments) {
-                            this.adminLogger.log(`======= COUNT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
-                        } else {
-                            this.adminLogger.logError(`======= ERROR: COUNT NOT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
-                        }
-                        // create indexes
-                        this.adminLogger.log(`Creating indexes for ${destinationCollectionName}`);
-                        await this.indexManager.indexCollectionAsync({
-                            db,
-                            collectionName: destinationCollectionName
-                        });
-                        this.adminLogger.log(`Finished creating indexes for ${destinationCollectionName}`);
-
-                        // now update the _accessIndex
-                        this.adminLogger.log(`Updating _access fields for ${destinationCollectionName}`);
-
-                        await this.runForQueryBatchesAsync(
-                            {
-                                config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
-                                sourceCollectionName: destinationCollectionName,
-                                destinationCollectionName,
-                                query: {
-                                    _access: null
-                                }, // update all records in destination collection that don't have an _access index
-                                startFromIdContainer: this.startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) => await this.setAccessIndexRecordAsync(doc),
-                                ordered: false,
-                                batchSize: this.batchSize,
-                                skipExistingIds: false,
-                                skipWhenCountIsSame: false,
-                                dropDestinationIfCountIsDifferent: false
-                            }
-                        );
-                        this.adminLogger.log(`Finished Updating _access fields for ${destinationCollectionName}`);
-
-                        await disconnectClientAsync(client);
-                    } else {
-                        await this.runForQueryBatchesAsync(
-                            {
-                                config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
-                                sourceCollectionName,
-                                destinationCollectionName,
-                                query,
-                                startFromIdContainer: this.startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) => await this.copyRecordAsync(doc),
-                                ordered: false,
-                                batchSize: this.batchSize,
-                                skipExistingIds: this.skipExistingIds ? true : false,
-                                skipWhenCountIsSame: true,
-                                dropDestinationIfCountIsDifferent: this.dropDestinationIfCountIsDifferent
-                            }
-                        );
                     }
+                    const pipeline = [
+                        {
+                            $match: query
+                        },
+                        {
+                            $merge: {
+                                'into': destinationCollectionName,
+                                'on': '_id',
+                                whenMatched: 'keepExisting',
+                                whenNotMatched: 'insert'
+                            }
+                        }
+                    ];
+                    this.adminLogger.log(`Running aggregation pipeline with: ${JSON.stringify(pipeline)}`);
+                    const sourceCollection = db.collection(sourceCollectionName);
+                    // https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/
+                    const aggregationResult = await sourceCollection.aggregate(
+                        pipeline,
+                        {
+                            allowDiskUse: true // sorting can be expensive
+                        }
+                    );
+                    /**
+                     * @type {import('mongodb').Document[]}
+                     */
+                    const documents = await aggregationResult.toArray();
+                    this.adminLogger.log(`Aggregation Result=${JSON.stringify(documents)}`);
+
+                    // get the count
+                    this.adminLogger.logTrace(
+                        `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                        `for ${sourceCollectionName} and ${destinationCollectionName}`);
+                    const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+                    const destinationCollection = db.collection(destinationCollectionName);
+                    const numberOfDestinationDocuments = await destinationCollection.countDocuments({}, {});
+                    this.adminLogger.log(
+                        `Count in source matching query ${sourceCollectionName}: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                        `Count in destination ${destinationCollectionName}: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+                    if (numberOfSourceDocuments === numberOfDestinationDocuments) {
+                        this.adminLogger.log(`======= COUNT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
+                    } else {
+                        this.adminLogger.logError(`======= ERROR: COUNT NOT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
+                    }
+                    // create indexes
+                    this.adminLogger.log(`Creating indexes for ${destinationCollectionName}`);
+                    await this.indexManager.indexCollectionAsync({
+                        db,
+                        collectionName: destinationCollectionName
+                    });
+                    this.adminLogger.log(`Finished creating indexes for ${destinationCollectionName}`);
+
+                    // now update the _accessIndex
+                    this.adminLogger.log(`Updating _access fields for ${destinationCollectionName}`);
+
+                    await this.runForQueryBatchesAsync(
+                        {
+                            config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
+                            sourceCollectionName: destinationCollectionName,
+                            destinationCollectionName,
+                            query: {
+                                _access: null
+                            }, // update all records in destination collection that don't have an _access index
+                            startFromIdContainer: this.startFromIdContainer,
+                            fnCreateBulkOperationAsync: async (doc) => await this.setAccessIndexRecordAsync(doc),
+                            ordered: false,
+                            batchSize: this.batchSize,
+                            skipExistingIds: false,
+                            skipWhenCountIsSame: false,
+                            dropDestinationIfCountIsDifferent: false
+                        }
+                    );
+                    this.adminLogger.log(`Finished Updating _access fields for ${destinationCollectionName}`);
+
+                    await disconnectClientAsync(client);
+
                 } catch (e) {
                     this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
