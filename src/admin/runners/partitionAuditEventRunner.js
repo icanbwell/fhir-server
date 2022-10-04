@@ -168,7 +168,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 console.log(`From=${recordedAfterForLoop.utc().toISOString()} to=${recordedBeforeForLoop.utc().toISOString()}`);
                 const destinationCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth({
                     fieldValue: recordedAfterForLoop.utc().toISOString(),
-                    resourceWithBaseVersion: sourceCollectionName
+                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
                 });
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
