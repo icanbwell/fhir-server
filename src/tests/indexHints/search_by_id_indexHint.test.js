@@ -7,6 +7,15 @@ const expectedAuditEventResource = require('./fixtures/expectedAuditEvents.json'
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
+const {customIndexes} = require('./mockCustomIndexes');
+const {IndexProvider} = require('../../indexes/indexProvider');
+
+class MockIndexProvider extends IndexProvider {
+    getIndexes() {
+        return customIndexes;
+    }
+}
+
 describe('AuditEventReturnIdTests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -18,7 +27,10 @@ describe('AuditEventReturnIdTests', () => {
 
     describe('AuditEvent Search By Id Tests', () => {
         test('search by single id works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('indexProvider', () => new MockIndexProvider());
+                return c;
+            });
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
