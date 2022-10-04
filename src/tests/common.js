@@ -81,7 +81,10 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
     }
 
     async dropDatabasesAsync() {
-        (await this.getClientDbAsync()).dropDatabase();
+        const db = await this.getClientDbAsync();
+        db.dropDatabase();
+        const auditDb = await this.getAuditDbAsync();
+        auditDb.dropDatabase();
     }
 }
 
@@ -155,23 +158,8 @@ module.exports.commonAfterEach = async () => {
         await postRequestProcessor.waitTillDoneAsync(20);
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
     }
-    // globals.delete(CLIENT);
-    // globals.delete(CLIENT_DB);
     nock.cleanAll();
     nock.restore();
-    // if (db) {
-    //     await db.dropDatabase();
-    //     db = null;
-    // }
-    // const auditDatabase = globals.get(AUDIT_EVENT_CLIENT_DB);
-    // if (auditDatabase) {
-    //     await auditDatabase.dropDatabase();
-    //     globals.delete(AUDIT_EVENT_CLIENT_DB);
-    // }
-    // if (connection) {
-    //     await connection.close();
-    //     connection = null;
-    // }
     if (mongo) {
         await mongo.stop();
         mongo = null;

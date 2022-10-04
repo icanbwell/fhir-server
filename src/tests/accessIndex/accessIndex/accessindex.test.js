@@ -41,12 +41,12 @@ describe('AuditEvent Tests', () => {
     });
 
     describe('AuditEvent accessIndex Tests', () => {
-        const container = getTestContainer();
         test('accessIndex works', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
+            const container = getTestContainer();
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -135,6 +135,7 @@ describe('AuditEvent Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
+            const container = getTestContainer();
 
             /**
              * @type {PostRequestProcessor}
