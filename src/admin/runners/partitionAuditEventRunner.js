@@ -148,7 +148,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             let recordedBeforeForLoop = this.recordedBefore.clone().utc().startOf('month');
 
             // if there is an exception, continue processing from the last id
-            while (recordedBeforeForLoop.isSameOrAfter(this.recordedAfter)) {
+            while (recordedBeforeForLoop.isAfter(this.recordedAfter)) {
                 this.startFromIdContainer = this.createStartFromIdContainer();
                 /**
                  * @type {moment.Moment}
