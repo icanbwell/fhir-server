@@ -22,6 +22,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {boolean} dropDestinationCollection
      * @param {AdminLogger} adminLogger
      * @param {IndexManager} indexManager
+     * @param {string} sourceCollection
      */
     constructor({
                     mongoCollectionManager,
@@ -32,7 +33,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     useAuditDatabase,
                     dropDestinationCollection,
                     adminLogger,
-                    indexManager
+                    indexManager,
+                    sourceCollection
                 }) {
         super({
             mongoCollectionManager,
@@ -71,6 +73,11 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
 
         this.indexManager = indexManager;
         assertTypeEquals(indexManager, IndexManager);
+
+        /**
+         * @type {string}
+         */
+        this.sourceCollection = sourceCollection;
     }
 
     /**
@@ -137,7 +144,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @returns {Promise<void>}
      */
     async processAsync() {
-        const sourceCollectionName = 'AuditEvent_4_0_0';
+        const sourceCollectionName = this.sourceCollection;
         try {
             await this.init();
 

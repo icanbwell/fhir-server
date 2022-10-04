@@ -44,7 +44,8 @@ async function main() {
                 useAuditDatabase: parameters.audit ? true : false,
                 dropDestinationCollection: parameters.dropDestinationCollection ? true : false,
                 adminLogger: new AdminLogger(),
-                indexManager: c.indexManager
+                indexManager: c.indexManager,
+                sourceCollection: parameters.source || 'AuditEvent_4_0_0'
             }
         )
     );
@@ -65,6 +66,7 @@ async function main() {
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000 --skipExistingIds
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit
+ * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --source=backup_AuditEvent_4_0_0
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds --dropDestinationCollection
  */
 main().catch(reason => {
