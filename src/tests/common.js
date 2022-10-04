@@ -67,7 +67,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
     getClientConfig() {
         return {
             connection: process.env.MONGO_URL,
-            db_name: 'audit-event',
+            db_name: 'fhir',
             options: {}
         };
     }
@@ -75,7 +75,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
     getAuditConfig() {
         return {
             connection: process.env.MONGO_URL,
-            db_name: 'fhir',
+            db_name: 'audit-event',
             options: {}
         };
     }

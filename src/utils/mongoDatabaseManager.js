@@ -135,20 +135,16 @@ class MongoDatabaseManager {
         // globals.set(CLIENT, client);
         clientDb = client.db(clientConfig.db_name);
 
-        if (env.AUDIT_EVENT_MONGO_URL) {
-            const auditConfig = this.getAuditConfig();
-            const auditEventClient = await this.createClientAsync(auditConfig);
-            // auditConnection = auditEventClient;
-            auditClientDb = auditEventClient.db(auditConfig.db_name);
-        } else {
-            // auditConnection = client;
-            auditClientDb = client.db(clientConfig.db_name);
-        }
+        const auditConfig = this.getAuditConfig();
+        const auditEventClient = await this.createClientAsync(auditConfig);
+        // auditConnection = auditEventClient;
+        auditClientDb = auditEventClient.db(auditConfig.db_name);
     }
 
     async dropDatabasesAsync() {
         // not implemented for production but can be implemented by sub-classes for tests
     }
+
     /**
      * disconnects a client
      * @param {import('mongodb').MongoClient} client
