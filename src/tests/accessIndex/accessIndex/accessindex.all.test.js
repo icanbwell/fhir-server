@@ -40,12 +40,13 @@ describe('AuditEvent when all is set Tests', () => {
     });
 
     describe('AuditEvent accessIndex Tests when all is set', () => {
-        const container = getTestContainer();
         test('accessIndex works for audit event when all is set', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithAllPartitionedResources());
                 return c;
             });
+            const container = getTestContainer();
+
             // first confirm there are no AuditEvent
             let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -128,6 +129,8 @@ describe('AuditEvent when all is set Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
+            const container = getTestContainer();
+
 
             /**
              * @type {PostRequestProcessor}
