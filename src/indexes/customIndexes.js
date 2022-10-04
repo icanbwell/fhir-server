@@ -43,8 +43,22 @@ module.exports = {
                 },
                 options: {
                     name: 'security.system_code_1'
-                }
-            }
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
+            },
+            {
+                keys: {
+                    '_access.medstar': 1,
+                },
+                options: {
+                    name: 'security._access_medstar'
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
+            },
         ],
         '*_History': [
             {
@@ -165,26 +179,6 @@ module.exports = {
                     name: 'helix_auditEvent_recorded'
                 }
             },
-            // 'helix_auditEvent_index_type': [
-            //     'type.system',
-            //     'type.code',
-            //     'id',
-            //     'meta.lastUpdated',
-            // ],
-            // 'helix_auditEvent_index_who': [
-            //     'type.system',
-            //     'type.code',
-            //     'agent.who.reference',
-            //     'id',
-            //     'meta.lastUpdated',
-            // ],
-            // 'helix_auditEvent_index_entity': [
-            //     'type.system',
-            //     'type.code',
-            //     'entity.what.reference',
-            //     'id',
-            //     'meta.lastUpdated',
-            // ]
         ],
         'Observation_4_0_0': [
             {
