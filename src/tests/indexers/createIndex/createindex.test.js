@@ -1,7 +1,5 @@
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const globals = require('../../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
 const {IndexProvider} = require('../../../indexes/indexProvider');
 
@@ -40,13 +38,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -123,13 +124,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0';
             /**
              * mongo collection
@@ -243,13 +247,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: (new Date()).toString(),
@@ -381,13 +388,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0';
             /**
              * mongo collection
@@ -508,13 +518,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0_History';
             /**
              * mongo collection
@@ -563,13 +576,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0_History';
             /**
              * mongo collection
@@ -618,13 +634,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: (new Date()).toString(),
@@ -691,13 +710,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0_History';
             /**
              * mongo collection

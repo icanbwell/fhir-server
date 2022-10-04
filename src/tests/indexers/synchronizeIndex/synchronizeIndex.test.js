@@ -3,8 +3,6 @@ const {
     getTestMongoConfig
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const globals = require('../../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 
 describe('Synchronize Index Tests', () => {
     beforeEach(async () => {
@@ -30,13 +28,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -64,13 +65,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -157,13 +161,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0';
             /**
              * mongo collection
@@ -286,13 +293,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const patientCollectionName = 'Patient_4_0_0';
             const patientHistoryCollectionName = 'Patient_4_0_0_History';
             const practitionerCollectionName = 'Practitioner_4_0_0';
@@ -347,13 +357,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0_History';
             /**
              * mongo collection

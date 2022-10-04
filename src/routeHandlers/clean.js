@@ -5,9 +5,8 @@
 const env = require('var');
 const async = require('async');
 const { disconnectClientAsync, createClientAsync } = require('../utils/connect');
-const { CLIENT_DB } = require('../constants');
 const { mongoConfig } = require('../config');
-const globals = require('../globals');
+const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 module.exports.handleClean = async (req, res) => {
     // const query_args_array = Object.entries(req.query);
@@ -23,7 +22,7 @@ module.exports.handleClean = async (req, res) => {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = globals.get(CLIENT_DB);
+            const db = await new MongoDatabaseManager().getClientDbAsync();
             let collection_names = [];
             // const collections = await db.listCollections().toArray();
 

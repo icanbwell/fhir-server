@@ -4,13 +4,12 @@
 
 const async = require('async');
 const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
 const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const globals = require('../globals');
 const {IndexProvider} = require('./indexProvider');
+const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 
 /**
@@ -29,9 +28,11 @@ class IndexManager {
      * constructor
      * @param {ErrorReporter} errorReporter
      * @param {IndexProvider} indexProvider
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      */
     constructor({errorReporter,
-                indexProvider}) {
+                indexProvider,
+                mongoDatabaseManager}) {
         assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {ErrorReporter}
@@ -43,6 +44,12 @@ class IndexManager {
          */
         this.indexProvider = indexProvider;
         assertTypeEquals(indexProvider, IndexProvider);
+
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
     /**
@@ -216,7 +223,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = globals.get(CLIENT_DB);
+        const db = await this.mongoDatabaseManager.getClientDbAsync();
         try {
             return await this.indexAllCollectionsInDatabaseAsync({
                 db, collectionRegex
@@ -426,7 +433,7 @@ class IndexManager {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = globals.get(CLIENT_DB);
+            const db = await this.mongoDatabaseManager.getClientDbAsync();
             const collection_names = [];
 
             for await (const collection of db.listCollections()) {
@@ -472,7 +479,9 @@ class IndexManager {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = config.db_name === 'audit-event' ? globals.get(AUDIT_EVENT_CLIENT_DB) : globals.get(CLIENT_DB);
+            const db = config.db_name === 'audit-event' ?
+                await this.mongoDatabaseManager.getAuditDbAsync() :
+                await this.mongoDatabaseManager.getClientDbAsync();
             const collection_names = [];
 
             for await (const collection of db.listCollections()) {
@@ -516,7 +525,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = globals.get(CLIENT_DB);
+        const db = await this.mongoDatabaseManager.getClientDbAsync();
         try {
             await this.deleteIndexesInAllCollectionsInDatabaseAsync({db, collectionRegex});
         } finally {
@@ -571,7 +580,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = globals.get(CLIENT_DB);
+        const db = await this.mongoDatabaseManager.getClientDbAsync();
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
          */

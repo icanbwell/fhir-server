@@ -1,22 +1,25 @@
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, ATLAS_CLIENT_DB, CLIENT_DB} = require('../../constants');
 const async = require('async');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {PartitioningManager} = require('../../partitioners/partitioningManager');
+const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 /**
  * This class returns collections that contain the requested resourceType
  */
 class ResourceLocator {
     /**
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string} resourceType
      * @param {string} base_version
      * @param {PartitioningManager} partitioningManager
      * @param {boolean|null} useAtlas
      */
-    constructor({mongoCollectionManager, resourceType, base_version, partitioningManager, useAtlas}) {
+    constructor({
+                    mongoDatabaseManager,
+                    mongoCollectionManager, resourceType, base_version, partitioningManager, useAtlas
+                }) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
         assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
@@ -44,6 +47,13 @@ class ResourceLocator {
          */
         this.partitioningManager = partitioningManager;
         assertTypeEquals(partitioningManager, PartitioningManager);
+
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
+
     }
 
     /**
@@ -127,9 +137,10 @@ class ResourceLocator {
      */
     async getDatabaseConnectionAsync() {
         // noinspection JSValidateTypes
-        return (this._resourceType === 'AuditEvent') ?
-            globals.get(AUDIT_EVENT_CLIENT_DB) : (this._useAtlas && globals.has(ATLAS_CLIENT_DB)) ?
-                globals.get(ATLAS_CLIENT_DB) : globals.get(CLIENT_DB);
+        return this.mongoDatabaseManager.getDatabaseForResource(
+            {
+                resourceType: this._resourceType
+            });
     }
 
     /**

@@ -23,9 +23,7 @@ const {
     createTestRequest,
     getTestContainer,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
-const globals = require('../../../globals');
-const { AUDIT_EVENT_CLIENT_DB } = require('../../../constants');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
 
@@ -41,18 +39,23 @@ describe('GraphQL Patient Tests', () => {
     describe('GraphQL Update General Practitioner', () => {
         test('GraphQL Update General Practitioner for Patient', async () => {
             const request = await createTestRequest();
+            const container = getTestContainer();
             /**
              * @type {PostRequestProcessor}
              */
-            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            const postRequestProcessor = container.postRequestProcessor;
             const graphqlQueryText = updatePractitionerQuery.replace(/\\n/g, '');
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
 
             // noinspection JSValidateTypes
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const base_version = '4_0_0';
             const collection_name = env.INTERNAL_AUDIT_TABLE || 'AuditEvent';
             const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));

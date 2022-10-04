@@ -10,8 +10,6 @@ const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expe
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
-const globals = require('../../../globals');
-const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../../constants');
 const {ConfigManager} = require('../../../utils/configManager');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
 
@@ -43,6 +41,7 @@ describe('AuditEvent Tests', () => {
     });
 
     describe('AuditEvent accessIndex Tests', () => {
+        const container = getTestContainer();
         test('accessIndex works', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
@@ -65,8 +64,12 @@ describe('AuditEvent Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            const postRequestProcessor = container.postRequestProcessor;
             await postRequestProcessor.waitTillDoneAsync();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
 
             // read from database to make sure the _accessIndex property was set
             const fieldDate = new Date(moment.utc('2021-09-20').format('YYYY-MM-DDTHH:mm:ssZ'));
@@ -82,7 +85,7 @@ describe('AuditEvent Tests', () => {
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             /**
              * mongo collection
              * @type {import('mongodb').Collection}
@@ -136,8 +139,13 @@ describe('AuditEvent Tests', () => {
             /**
              * @type {PostRequestProcessor}
              */
-            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            const postRequestProcessor = container.postRequestProcessor;
             await postRequestProcessor.waitTillDoneAsync();
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
 
             /**
              * @type {string}
@@ -147,7 +155,7 @@ describe('AuditEvent Tests', () => {
              * mongo fhirDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             /**
              * mongo collection
              * @type {import('mongodb').Collection}

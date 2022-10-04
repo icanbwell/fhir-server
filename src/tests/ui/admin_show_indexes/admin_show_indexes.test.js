@@ -5,8 +5,6 @@ const {
     createTestRequest, getTestContainer, getHtmlHeadersWithAdminToken, getJsonHeadersWithAdminToken,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const globals = require('../../../globals');
-const {CLIENT_DB} = require('../../../constants');
 // expected
 const expectedIndexResource = require('./fixtures/expected/expect_index.json');
 
@@ -36,13 +34,16 @@ describe('Show Indexes UI Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -71,13 +72,16 @@ describe('Show Indexes UI Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
