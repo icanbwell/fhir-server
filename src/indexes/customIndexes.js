@@ -59,6 +59,17 @@ module.exports = {
                     'AuditEvent_4_0_0'
                 ]
             },
+            {
+                keys: {
+                    '_access.Thedacare': 1,
+                },
+                options: {
+                    name: 'security._access_Thedacare'
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
+            },
         ],
         '*_History': [
             {
