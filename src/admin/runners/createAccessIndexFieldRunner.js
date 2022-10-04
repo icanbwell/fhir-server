@@ -48,6 +48,9 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      */
     async processRecordAsync(doc) {
         const operations = [];
+        if (!doc.meta || !doc.meta.security){
+            return operations;
+        }
         const accessCodes = doc.meta.security.filter(s => s.system === 'https://www.icanbwell.com/access').map(s => s.code);
         if (accessCodes.length > 0 && !doc['_access']) {
             const _access = {};
