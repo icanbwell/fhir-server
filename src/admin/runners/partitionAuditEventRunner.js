@@ -21,7 +21,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @param {boolean} useAuditDatabase
      * @param {boolean} dropDestinationCollection
      * @param {AdminLogger} adminLogger
-     * @param {boolean} useAggregationMethod
      * @param {IndexManager} indexManager
      */
     constructor({
@@ -33,7 +32,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     useAuditDatabase,
                     dropDestinationCollection,
                     adminLogger,
-                    useAggregationMethod,
                     indexManager
                 }) {
         super({
@@ -70,11 +68,6 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         this.dropDestinationCollection = dropDestinationCollection;
-
-        /**
-         * @type {boolean}
-         */
-        this.useAggregationMethod = useAggregationMethod;
 
         this.indexManager = indexManager;
         assertTypeEquals(indexManager, IndexManager);

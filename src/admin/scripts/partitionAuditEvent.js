@@ -26,7 +26,6 @@ async function main() {
     const recordedAfter = parameters.from ? new Date(`${parameters.from}T00:00:00Z`) : new Date(2021, 6 - 1, 1);
     const recordedBefore = parameters.to ? new Date(`${parameters.to}T00:00:00Z`) : new Date(2022, 10 - 1, 1);
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
-    const useAggregationMethod = parameters.useAggregationMethod ? true : false;
     console.log(`[${currentDateTime}] ` +
         `Running script from ${recordedAfter.toUTCString()} to ${recordedBefore.toUTCString()}`);
 
@@ -45,7 +44,6 @@ async function main() {
                 useAuditDatabase: parameters.audit ? true : false,
                 dropDestinationCollection: parameters.dropDestinationCollection ? true : false,
                 adminLogger: new AdminLogger(),
-                useAggregationMethod: useAggregationMethod,
                 indexManager: c.indexManager
             }
         )
@@ -66,7 +64,7 @@ async function main() {
  * nvm use 16.17.1
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --batchSize=10000 --skipExistingIds
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds
- * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --useAggregationMethod
+ * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds --dropDestinationCollection
  */
 main().catch(reason => {
