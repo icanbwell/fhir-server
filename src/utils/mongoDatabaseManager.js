@@ -69,17 +69,17 @@ class MongoDatabaseManager {
 
     /**
      * Creates a new connection
-     * @param {Object} mongoConfig1
+     * @param {Object} clientConfig
      * @returns {Promise<import('mongodb').MongoClient>}
      */
-    async createClientAsync(mongoConfig1) {
+    async createClientAsync(clientConfig) {
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
-            mongoConfig1.options.monitorCommands = true;
+            clientConfig.options.monitorCommands = true;
             await logSystemEventAsync(
                 {
                     event: 'dbConnect',
-                    message: `Connecting to ${mongoConfig1.connection}`,
-                    args: {db: mongoConfig1.db_name}
+                    message: `Connecting to ${clientConfig.connection}`,
+                    args: {db: clientConfig.db_name}
                 }
             );
         }
@@ -87,25 +87,25 @@ class MongoDatabaseManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = new MongoClient(mongoConfig1.connection, mongoConfig1.options);
+        const client = new MongoClient(clientConfig.connection, clientConfig.options);
 
         try {
             await client.connect();
         } catch (e) {
-            console.error(JSON.stringify({message: `Failed to connect to ${mongoConfig1.connection}: ${e}`}));
+            console.error(JSON.stringify({message: `Failed to connect to ${clientConfig.connection}: ${e}`}));
             throw e;
         }
         try {
             await client.db('admin').command({ping: 1});
         } catch (e) {
-            console.error(JSON.stringify({message: `Failed to execute ping on ${mongoConfig1.connection}: ${e}`}));
+            console.error(JSON.stringify({message: `Failed to execute ping on ${clientConfig.connection}: ${e}`}));
             throw e;
         }
         await logSystemEventAsync(
             {
                 event: 'dbConnect',
                 message: 'Successfully connected to database',
-                args: {db: mongoConfig1.db_name}
+                args: {db: clientConfig.db_name}
             }
         );
 
@@ -128,22 +128,27 @@ class MongoDatabaseManager {
         if (clientConnection) {
             return;
         }
-        const client = await this.createClientAsync(mongoConfig);
+        const clientConfig = this.getClientConfig();
+        const client = await this.createClientAsync(clientConfig);
 
         clientConnection = client;
         // globals.set(CLIENT, client);
-        clientDb = client.db(mongoConfig.db_name);
+        clientDb = client.db(clientConfig.db_name);
 
         if (env.AUDIT_EVENT_MONGO_URL) {
-            const auditEventClient = await this.createClientAsync(auditEventMongoConfig);
+            const auditConfig = this.getAuditConfig();
+            const auditEventClient = await this.createClientAsync(auditConfig);
             // auditConnection = auditEventClient;
-            auditClientDb = auditEventClient.db(auditEventMongoConfig.db_name);
+            auditClientDb = auditEventClient.db(auditConfig.db_name);
         } else {
             // auditConnection = client;
-            auditClientDb = client.db(mongoConfig.db_name);
+            auditClientDb = client.db(clientConfig.db_name);
         }
     }
 
+    async dropDatabasesAsync() {
+        // not implemented for production but can be implemented by sub-classes for tests
+    }
     /**
      * disconnects a client
      * @param {import('mongodb').MongoClient} client
