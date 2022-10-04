@@ -182,17 +182,18 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                      * @type {import('mongodb').Db}
                      */
                     const db = client.db(config.db_name);
+                    let destinationCollectionExists = await db.listCollections(
+                        {name: destinationCollectionName},
+                        {nameOnly: true}
+                    ).hasNext();
                     if (this.dropDestinationCollection) {
-                        const destinationCollectionExists = await db.listCollections(
-                            {name: destinationCollectionName},
-                            {nameOnly: true}
-                        ).hasNext();
                         if (destinationCollectionExists) {
                             this.adminLogger.log(`Destination ${destinationCollectionName} already exists so dropping it`);
                             await db.dropCollection(destinationCollectionName);
                         }
+                        destinationCollectionExists = false;
                     }
-                    const pipeline = [
+                    const pipeline = destinationCollectionExists ? [
                         {
                             $match: query
                         },
@@ -203,6 +204,13 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                                 whenMatched: 'keepExisting',
                                 whenNotMatched: 'insert'
                             }
+                        }
+                    ] : [ // copy is more efficient if destination collection does not exist
+                        {
+                            $match: query
+                        },
+                        {
+                            $out: destinationCollectionName
                         }
                     ];
                     this.adminLogger.log(`Running aggregation pipeline with: ${JSON.stringify(pipeline)}`);
