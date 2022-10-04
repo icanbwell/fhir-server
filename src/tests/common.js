@@ -11,7 +11,7 @@ const {createTestContainer} = require('./createTestContainer');
 const supertest = require('supertest');
 const {createApp} = require('../app');
 const {createServer} = require('../server');
-const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
+const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
 
 // let connection;
 // let db;
@@ -61,32 +61,6 @@ module.exports.createTestApp = (fnUpdateContainer) => {
 module.exports.createTestServer = async () => {
     return createServer(() => createTestContainer());
 };
-
-
-class TestMongoDatabaseManager extends MongoDatabaseManager {
-    getClientConfig() {
-        return {
-            connection: process.env.MONGO_URL,
-            db_name: 'fhir',
-            options: {}
-        };
-    }
-
-    getAuditConfig() {
-        return {
-            connection: process.env.MONGO_URL,
-            db_name: 'audit-event',
-            options: {}
-        };
-    }
-
-    async dropDatabasesAsync() {
-        const db = await this.getClientDbAsync();
-        db.dropDatabase();
-        const auditDb = await this.getAuditDbAsync();
-        auditDb.dropDatabase();
-    }
-}
 
 /**
  * @param {(SimpleContainer) => SimpleContainer} [fnUpdateContainer]

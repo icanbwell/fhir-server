@@ -5,8 +5,15 @@ const {
     createTestRequest, getTestContainer, getHtmlHeadersWithAdminToken, getJsonHeadersWithAdminToken,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-// expected
-const expectedIndexResource = require('./fixtures/expected/expect_index.json');
+
+const {customIndexes} = require('./mockCustomIndexes');
+const {IndexProvider} = require('../../../indexes/indexProvider');
+
+class MockIndexProvider extends IndexProvider {
+    getIndexes() {
+        return customIndexes;
+    }
+}
 
 describe('Show Indexes UI Tests', () => {
     beforeEach(async () => {
@@ -19,13 +26,19 @@ describe('Show Indexes UI Tests', () => {
 
     describe('Show Indexes Tests', () => {
         test('admin search fails without scope', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('indexProvider', () => new MockIndexProvider());
+                return c;
+            });
             let resp = await request.get('/admin/indexes?id=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(403);
         });
         test('admin search passes with scope and json format', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('indexProvider', () => new MockIndexProvider());
+                return c;
+            });
             /**
              * @type {SimpleContainer}
              */
@@ -60,10 +73,12 @@ describe('Show Indexes UI Tests', () => {
             let resp = await request.get('/admin/indexes').set(getJsonHeadersWithAdminToken());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
-            expect(resp.body).toStrictEqual(expectedIndexResource);
         });
         test('admin search passes with scope', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('indexProvider', () => new MockIndexProvider());
+                return c;
+            });
             /**
              * @type {SimpleContainer}
              */

@@ -240,6 +240,11 @@ class PartitioningManager {
             });
         return partitions.map(partition => `${partition}_History`);
     }
+
+    clearCache() {
+        this.partitionsCache.clear();
+        this.partitionCacheLastLoaded = null;
+    }
 }
 
 module.exports = {
