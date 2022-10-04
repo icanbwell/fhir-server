@@ -90,9 +90,15 @@ class SecurityTagManager {
         if (securityTags && securityTags.length > 0) {
             let securityTagQuery;
             // special handling for large collections for performance
-            if (useAccessIndex && this.accessIndexManager.resourceHasAccessIndex(resourceType)) {
+            if (useAccessIndex &&
+                this.accessIndexManager.resourceHasAccessIndexForAccessCodes(
+                    {
+                        resourceType,
+                        accessCodes: securityTags
+                    })
+            ) {
                 if (securityTags.length === 1) {
-                    securityTagQuery = {[`_access.${securityTags[0]}`]: 1};
+                    securityTagQuery = {[`_access.${securityTags[0]}`]: 1}; // optimize query for a single code
                 } else {
                     securityTagQuery = {
                         $or: securityTags.map(s => {
