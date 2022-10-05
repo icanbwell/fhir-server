@@ -235,6 +235,11 @@ class SearchBundleOperation {
              */
             let cursor = __ret.cursor;
 
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
+
             if (cursor !== null) { // usually means the two-step optimization found no results
                 logDebug({
                     user, args: {
@@ -286,10 +291,6 @@ class SearchBundleOperation {
              * @type {?string}
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
-            /**
-             * @type {import('mongodb').Document[]}
-             */
-            const explanations = (args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
             /**
              * @type {Bundle}
              */

@@ -41,7 +41,7 @@ services:
             #      SLACK_CHANNEL: "#helix_pipeline_notifications_dev"
             #      HASH_REFERENCE: 1
             RETURN_BUNDLE: '1'
-            USE_TWO_STEP_SEARCH_OPTIMIZATION: '1'
+            USE_TWO_STEP_SEARCH_OPTIMIZATION: '0'
             STREAM_RESPONSE: '1'
             LOG_ELASTIC_SEARCH_ENABLE: '1'
             LOG_ELASTIC_SEARCH_URL: 'https://elasticsearch:9200/'

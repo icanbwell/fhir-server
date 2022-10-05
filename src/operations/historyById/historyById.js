@@ -149,6 +149,11 @@ class HistoryByIdOperation {
                 throw new BadRequestError(e);
             }
             /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
+
+            /**
              * @type {Resource[]}
              */
             const resources = [];
@@ -184,10 +189,6 @@ class HistoryByIdOperation {
              */
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 {resourceType, base_version, useAtlas});
-            /**
-             * @type {import('mongodb').Document[]}
-             */
-            const explanations = (args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
 
             // https://hl7.org/fhir/http.html#history
             // The return content is a Bundle with type set to history containing the specified version history,
