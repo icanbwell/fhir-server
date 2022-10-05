@@ -23,10 +23,7 @@ module.exports = {
                 },
                 options: {
                     name: 'meta.lastUpdated_1'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0'
-                ]
+                }
             },
             {
                 keys: {
