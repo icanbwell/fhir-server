@@ -54,6 +54,8 @@ const {ConfigManager} = require('./utils/configManager');
 const {AccessIndexManager} = require('./operations/common/accessIndexManager');
 const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
 const {IndexHinter} = require('./indexes/indexHinter');
+const {IndexProvider} = require('./indexes/indexProvider');
+const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 
 /**
  * Creates a container and sets up all the services
@@ -104,11 +106,18 @@ const createContainer = function () {
     ));
 
     container.register('partitioningManager', (c) => new PartitioningManager(
-        {configManager: c.configManager}));
+        {
+            configManager: c.configManager,
+            mongoDatabaseManager: c.mongoDatabaseManager
+        }));
     container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
+    container.register('indexProvider', () => new IndexProvider());
+    container.register('mongoDatabaseManager', () => new MongoDatabaseManager());
     container.register('indexManager', (c) => new IndexManager(
         {
-            errorReporter: c.errorReporter
+            errorReporter: c.errorReporter,
+            indexProvider: c.indexProvider,
+            mongoDatabaseManager: c.mongoDatabaseManager
         })
     );
     container.register('mongoCollectionManager', (c) => new MongoCollectionManager(
@@ -122,7 +131,8 @@ const createContainer = function () {
     container.register('resourceLocatorFactory', (c) => new ResourceLocatorFactory(
         {
             mongoCollectionManager: c.mongoCollectionManager,
-            partitioningManager: c.partitioningManager
+            partitioningManager: c.partitioningManager,
+            mongoDatabaseManager: c.mongoDatabaseManager
         }));
 
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
@@ -139,7 +149,9 @@ const createContainer = function () {
         }));
 
     container.register('resourceManager', () => new ResourceManager());
-    container.register('indexHinter', () => new IndexHinter());
+    container.register('indexHinter', (c) => new IndexHinter({
+        indexProvider: c.indexProvider
+    }));
 
     container.register('searchManager', (c) => new SearchManager(
             {
@@ -425,7 +437,8 @@ const createContainer = function () {
     );
 
     container.register('accessIndexManager', (c) => new AccessIndexManager({
-        configManager: c.configManager
+        configManager: c.configManager,
+        indexProvider: c.indexProvider
     }));
 
     return container;

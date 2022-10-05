@@ -1,8 +1,4 @@
-const {MongoClient} = require('mongodb');
 const {MongoMemoryServer} = require('mongodb-memory-server');
-
-const globals = require('../globals');
-const {CLIENT, CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../constants');
 
 const env = require('var');
 
@@ -15,9 +11,10 @@ const {createTestContainer} = require('./createTestContainer');
 const supertest = require('supertest');
 const {createApp} = require('../app');
 const {createServer} = require('../server');
+const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
 
-let connection;
-let db;
+// let connection;
+// let db;
 let mongo;
 /**
  * @type {import('http').Server}
@@ -70,42 +67,6 @@ module.exports.createTestServer = async () => {
  * @return {import('supertest').Test}
  */
 module.exports.createTestRequest = async (fnUpdateContainer) => {
-    if (!app) {
-        app = await module.exports.createTestApp(fnUpdateContainer);
-    }
-    // noinspection JSCheckFunctionSignatures
-    tester = supertest(app);
-    return tester;
-};
-
-/**
- * Gets test connection string
- * @returns {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
- */
-module.exports.getTestAuditEventMongoConfig = () => {
-    return {
-        connection: process.env.MONGO_URL,
-        db_name: 'audit-event',
-        options: {}
-    };
-};
-
-/**
- * Gets test connection string
- * @returns {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
- */
-module.exports.getTestMongoConfig = () => {
-    return {
-        connection: process.env.MONGO_URL,
-        db_name: 'fhir',
-        options: {}
-    };
-};
-/**
- * sets up the mongo db and token endpoint
- * @return {Promise<void>}
- */
-module.exports.commonBeforeEach = async () => {
     // https://levelup.gitconnected.com/testing-your-node-js-application-with-an-in-memory-mongodb-976c1da1288f
     /**
      * 1.1
@@ -114,22 +75,26 @@ module.exports.commonBeforeEach = async () => {
     if (!mongo) {
         mongo = await MongoMemoryServer.create();
     }
-    /**
-     * 1.2
-     * Set the MongoDB host and DB name as environment variables,
-     * because the application expect it as ENV vars.
-     * The values are being created by the in-memory MongoDB
-     */
-    process.env.MONGO_URL = mongo.getUri();
-    // process.env.MONGO_DB = mongo.getdb.getDbName();
 
-    connection = await MongoClient.connect(process.env.MONGO_URL);
-    db = connection.db('fhir');
-    const auditEventDb = connection.db('audit-event');
+    if (!app) {
+        app = await module.exports.createTestApp((c) => {
+            c.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());
+            if (fnUpdateContainer) {
+                fnUpdateContainer(c);
+            }
+            return c;
+        });
+    }
+    // noinspection JSCheckFunctionSignatures
+    tester = supertest(app);
+    return tester;
+};
 
-    globals.set(CLIENT, connection);
-    globals.set(CLIENT_DB, db);
-    globals.set(AUDIT_EVENT_CLIENT_DB, auditEventDb);
+/**
+ * sets up the mongo db and token endpoint
+ * @return {Promise<void>}
+ */
+module.exports.commonBeforeEach = async () => {
     jest.setTimeout(30000);
     env['VALIDATE_SCHEMA'] = true;
     process.env.AUTH_ENABLED = '1';
@@ -165,24 +130,12 @@ module.exports.commonAfterEach = async () => {
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
         await postRequestProcessor.waitTillDoneAsync(20);
+        await testContainer.mongoDatabaseManager.dropDatabasesAsync();
     }
-    globals.delete(CLIENT);
-    globals.delete(CLIENT_DB);
     nock.cleanAll();
     nock.restore();
-    if (db) {
-        await db.dropDatabase();
-        db = null;
-    }
-    const auditDatabase = globals.get(AUDIT_EVENT_CLIENT_DB);
-    if (auditDatabase) {
-        await auditDatabase.dropDatabase();
-        globals.delete(AUDIT_EVENT_CLIENT_DB);
-    }
-    if (connection) {
-        await connection.close();
-        connection = null;
-    }
+    await new TestMongoDatabaseManager().dropDatabasesAsync();
+
     if (mongo) {
         await mongo.stop();
         mongo = null;
@@ -194,7 +147,7 @@ module.exports.commonAfterEach = async () => {
     tester = null;
     // app = null;
     // global.gc();
-    globals.clear();
+    // globals.clear();
 };
 
 /**

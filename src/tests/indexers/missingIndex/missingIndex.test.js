@@ -2,16 +2,25 @@ const {
     commonBeforeEach,
     commonAfterEach,
     createTestRequest,
-    getTestContainer,
-    getTestMongoConfig
+    getTestContainer
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const globals = require('../../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
+const {customIndexes} = require('./mockCustomIndexes');
+const {IndexProvider} = require('../../../indexes/indexProvider');
+
+class MockIndexProvider extends IndexProvider {
+    getIndexes() {
+        return customIndexes;
+    }
+}
 
 describe('Missing Index Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        await createTestRequest((c) => {
+            c.register('indexProvider', () => new MockIndexProvider());
+            return c;
+        });
     });
 
     afterEach(async () => {
@@ -24,7 +33,6 @@ describe('Missing Index Tests', () => {
 
     describe('Missing Index Tests', () => {
         test('no missingIndex after Patient collection is indexed', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -34,12 +42,17 @@ describe('Missing Index Tests', () => {
              */
             const indexManager = container.indexManager;
 
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -60,7 +73,6 @@ describe('Missing Index Tests', () => {
             expect(missingIndexesResult.indexes.filter(ia => ia.missing).length).toStrictEqual(0);
         });
         test('missingIndex if Patient collection is missing indexes', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -69,13 +81,16 @@ describe('Missing Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -151,7 +166,6 @@ describe('Missing Index Tests', () => {
             );
         });
         test('missingIndex works for AuditEvent', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -160,13 +174,16 @@ describe('Missing Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0';
             /**
              * mongo collection
@@ -278,7 +295,6 @@ describe('Missing Index Tests', () => {
             );
         });
         test('no missingIndex after Patient and Practitioner collection is indexed', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -287,13 +303,16 @@ describe('Missing Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const patientCollectionName = 'Patient_4_0_0';
             const patientHistoryCollectionName = 'Patient_4_0_0_History';
             const practitionerCollectionName = 'Practitioner_4_0_0';
@@ -331,11 +350,10 @@ describe('Missing Index Tests', () => {
              * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
              */
             const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
-                config: getTestMongoConfig(),
+                audit: false,
                 filterToProblems: true
             });
             expect(missingIndexes.length).toStrictEqual(0);
         });
-
     });
 });

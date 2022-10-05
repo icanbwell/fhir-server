@@ -3,14 +3,12 @@
  */
 
 const async = require('async');
-const {customIndexes} = require('./customIndexes');
-const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../constants');
 const {mongoConfig} = require('../config');
 const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
-const globals = require('../globals');
+const {IndexProvider} = require('./indexProvider');
+const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 
 /**
@@ -28,13 +26,31 @@ class IndexManager {
     /**
      * constructor
      * @param {ErrorReporter} errorReporter
+     * @param {IndexProvider} indexProvider
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({errorReporter}) {
+    constructor({
+                    errorReporter,
+                    indexProvider,
+                    mongoDatabaseManager
+                }) {
         assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {ErrorReporter}
          */
         this.errorReporter = errorReporter;
+
+        /**
+         * @type {IndexProvider}
+         */
+        this.indexProvider = indexProvider;
+        assertTypeEquals(indexProvider, IndexProvider);
+
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
     /**
@@ -159,9 +175,10 @@ class IndexManager {
         const indexesToCreate = [];
 
         // first add indexes that are set on all collections (except ones marked exlude)
+        const indexes = this.indexProvider.getIndexes();
         for (const [indexCollectionName,
             /** @type {IndexConfig[]} */ indexConfigs]
-            of Object.entries(customIndexes)) {
+            of Object.entries(indexes)) {
             if (isHistoryTable) {
                 if (indexCollectionName === '*_History') {
                     for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
@@ -203,17 +220,17 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
         /**
          * @type {import('mongodb').Db}
          */
-        const db = globals.get(CLIENT_DB);
+        const db = await this.mongoDatabaseManager.getClientDbAsync();
         try {
             return await this.indexAllCollectionsInDatabaseAsync({
                 db, collectionRegex
             });
         } finally {
-            await disconnectClientAsync(client);
+            await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
     }
 
@@ -412,12 +429,12 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
         try {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = globals.get(CLIENT_DB);
+            const db = await this.mongoDatabaseManager.getClientDbAsync();
             const collection_names = [];
 
             for await (const collection of db.listCollections()) {
@@ -438,60 +455,54 @@ class IndexManager {
                     (a, b) =>
                         a.collectionName.localeCompare(b.collectionName));
         } finally {
-            await disconnectClientAsync(client);
+            await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
     }
 
     /**
      * Gets missingindexes on all the collections
-     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} config
+     * @param {boolean} audit
      * @param {boolean|undefined} filterToProblems
      * @return {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]>}
      */
     async compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
         {
-            config,
+            audit,
             filterToProblems
         }
     ) {
         /**
-         * @type {import('mongodb').MongoClient}
+         * @type {import('mongodb').Db}
          */
-        const client = await createClientAsync(config);
-        try {
-            // TODO: This is a hacky way to check.  We should instead inject these paramatersvia our IoC container
-            /**
-             * @type {import('mongodb').Db}
-             */
-            const db = config.db_name === 'audit-event' ? globals.get(AUDIT_EVENT_CLIENT_DB) : globals.get(CLIENT_DB);
-            const collection_names = [];
+        const db = audit ?
+            await this.mongoDatabaseManager.getAuditDbAsync() :
+            await this.mongoDatabaseManager.getClientDbAsync();
+        const collection_names = [];
 
-            for await (const collection of db.listCollections()) {
-                if (collection.name.indexOf('system.') === -1) {
-                    collection_names.push(collection.name);
-                }
+        for await (const collection of db.listCollections()) {
+            if (collection.name.indexOf('system.') === -1) {
+                collection_names.push(collection.name);
             }
-            // now add indices on id column for every collection
-            /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
-             */
-            const collectionIndexes = await async.map(
-                collection_names,
-                async collectionName => await this.compareCurrentIndexesWithConfigurationInCollectionAsync(
-                    {
-                        collectionName,
-                        db,
-                        filterToProblems
-                    })
-            );
-            return collectionIndexes
-                .filter(c => !filterToProblems || c.indexes.length > 0)
-                .sort(
-                    (a, b) =>
-                        a.collectionName.localeCompare(b.collectionName));
-        } finally {
-            await disconnectClientAsync(client);
         }
+        // now add indices on id column for every collection
+        /**
+         * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
+         */
+        const collectionIndexes = await async.map(
+            collection_names,
+            async collectionName => await this.compareCurrentIndexesWithConfigurationInCollectionAsync(
+                {
+                    collectionName,
+                    db,
+                    filterToProblems
+                })
+        );
+        return collectionIndexes
+            .filter(c => !filterToProblems || c.indexes.length > 0)
+            .sort(
+                (a, b) =>
+                    a.collectionName.localeCompare(b.collectionName));
+
     }
 
     /**
@@ -503,15 +514,15 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
         /**
          * @type {import('mongodb').Db}
          */
-        const db = globals.get(CLIENT_DB);
+        const db = await this.mongoDatabaseManager.getClientDbAsync();
         try {
             await this.deleteIndexesInAllCollectionsInDatabaseAsync({db, collectionRegex});
         } finally {
-            await disconnectClientAsync(client);
+            await this.mongoDatabaseManager.disconnectClientAsync(client);
         }
     }
 
@@ -547,10 +558,10 @@ class IndexManager {
 
     /**
      * adds any indexes missing from config and removes any indexes not in config
-     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} config
+     * @param {boolean} [audit]
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[],dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async synchronizeIndexesWithConfigAsync({config}) {
+    async synchronizeIndexesWithConfigAsync({audit = false}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -562,13 +573,15 @@ class IndexManager {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = globals.get(CLIENT_DB);
+        const db = audit ?
+            await this.mongoDatabaseManager.getAuditDbAsync() :
+            await this.mongoDatabaseManager.getClientDbAsync();
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
          */
         const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
             {
-                config,
+                audit,
                 filterToProblems: true
             }
         );

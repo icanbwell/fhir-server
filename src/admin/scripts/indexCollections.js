@@ -51,6 +51,7 @@ async function main() {
  * node src/admin/scripts/indexCollections --collection=Patient_4_0_0 --drop
  * node src/admin/scripts/indexCollections --collections=all
  * node src/admin/scripts/indexCollections --synchronize
+ * node src/admin/scripts/indexCollections --audit --synchronize
  * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * collection can be a regex

@@ -1,14 +1,24 @@
 const {
-    commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer, getTestAuditEventMongoConfig,
-    getTestMongoConfig
+    commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const globals = require('../../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
+
+const {customIndexes} = require('./mockCustomIndexes');
+const {IndexProvider} = require('../../../indexes/indexProvider');
+
+class MockIndexProvider extends IndexProvider {
+    getIndexes() {
+        return customIndexes;
+    }
+}
 
 describe('Synchronize Index Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        await createTestRequest((c) => {
+            c.register('indexProvider', () => new MockIndexProvider());
+            return c;
+        });
     });
 
     afterEach(async () => {
@@ -30,13 +40,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -49,8 +62,9 @@ describe('Synchronize Index Tests', () => {
                 collectionName, db: fhirDb
             });
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: getTestMongoConfig()
+                audit: false
             });
+            console.log(`created: ${JSON.stringify(synchronizeIndexesResult.created)}`);
             expect(synchronizeIndexesResult.created.length).toStrictEqual(0);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
         });
@@ -64,13 +78,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -99,7 +116,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
              */
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: getTestMongoConfig()
+                audit: false
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
@@ -157,13 +174,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0';
             /**
              * mongo collection
@@ -191,7 +211,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
              */
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: getTestAuditEventMongoConfig()
+                audit: true
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
@@ -286,13 +306,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const patientCollectionName = 'Patient_4_0_0';
             const patientHistoryCollectionName = 'Patient_4_0_0_History';
             const practitionerCollectionName = 'Practitioner_4_0_0';
@@ -330,7 +353,7 @@ describe('Synchronize Index Tests', () => {
              * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
              */
             const synchronizeIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
-                config: getTestMongoConfig()
+                audit: false
             });
             expect(synchronizeIndexes.length).toStrictEqual(3);
             expect(synchronizeIndexes[0].indexes.filter(ia => ia.missing).length).toStrictEqual(0);
@@ -347,13 +370,16 @@ describe('Synchronize Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0_History';
             /**
              * mongo collection
@@ -362,7 +388,7 @@ describe('Synchronize Index Tests', () => {
             const patientHistoryCollection = fhirDb.collection(collectionName);
             await patientHistoryCollection.insertOne({id: '1', resourceType: 'Patient'});
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
-                config: getTestMongoConfig()
+                audit: false
             });
             expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);

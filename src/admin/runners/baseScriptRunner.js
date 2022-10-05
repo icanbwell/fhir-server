@@ -1,5 +1,3 @@
-const {connectAsync, disconnectAsync} = require('../../utils/connect');
-
 /**
  * @typedef StartFromIdContainer
  * @property {string | null} startFromId
@@ -15,7 +13,6 @@ const {connectAsync, disconnectAsync} = require('../../utils/connect');
  */
 class BaseScriptRunner {
     async init() {
-        await connectAsync();
         /**
          * For reporting progress
          * @type {StartFromIdContainer}
@@ -36,11 +33,6 @@ class BaseScriptRunner {
     }
 
     async shutdown() {
-        try {
-            await disconnectAsync();
-        } catch (e) {
-            console.error(`Error shutting down: ${JSON.stringify(e)}`);
-        }
     }
 }
 

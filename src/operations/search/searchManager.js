@@ -408,7 +408,7 @@ class SearchManager {
                 {resourceType: 'Person', base_version, useAtlas})
                 .findOneAsync({query: {id: fhirPersonId}});
             // Finds Patients by platform member ids and returns an array with the found patient ids
-            if (person.identifier && person.identifier.length > 0) {
+            if (person && person.identifier && person.identifier.length > 0) {
                 let memberId = person.identifier.filter(identifier => {
                     return identifier.type.coding.some(coding => {
                             return coding.system === 'https://www.icanbwell.com' && coding.code === 'member_id';

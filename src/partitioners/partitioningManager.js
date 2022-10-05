@@ -1,10 +1,9 @@
 const partitionConfiguration = require('./partitions.json');
 const {assertIsValid, assertFail, assertTypeEquals} = require('../utils/assertType');
-const globals = require('../globals');
-const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../constants');
 const {ConfigManager} = require('../utils/configManager');
 const {YearMonthPartitioner} = require('./yearMonthPartitioner');
 const moment = require('moment-timezone');
+const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -16,8 +15,9 @@ class PartitioningManager {
     /**
      * Constructor
      * @param {ConfigManager} configManager
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({configManager}) {
+    constructor({configManager, mongoDatabaseManager}) {
         assertTypeEquals(configManager, ConfigManager);
         /**
          * @type {string[]}
@@ -35,6 +35,13 @@ class PartitioningManager {
          * @type {moment.Moment|null}
          */
         this.partitionCacheLastLoaded = null;
+
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
+
     }
 
     async loadPartitionsFromDatabaseAsync() {
@@ -106,8 +113,7 @@ class PartitioningManager {
      */
     async getDatabaseConnectionAsync({resourceType}) {
         // noinspection JSValidateTypes
-        return (resourceType === 'AuditEvent') ?
-            globals.get(AUDIT_EVENT_CLIENT_DB) : globals.get(CLIENT_DB);
+        return this.mongoDatabaseManager.getDatabaseForResource({resourceType});
     }
 
     /**
@@ -233,6 +239,11 @@ class PartitioningManager {
                 query
             });
         return partitions.map(partition => `${partition}_History`);
+    }
+
+    clearCache() {
+        this.partitionsCache.clear();
+        this.partitionCacheLastLoaded = null;
     }
 }
 

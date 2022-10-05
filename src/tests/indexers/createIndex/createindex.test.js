@@ -1,12 +1,23 @@
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const globals = require('../../../globals');
-const {CLIENT_DB, AUDIT_EVENT_CLIENT_DB} = require('../../../constants');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
+const {IndexProvider} = require('../../../indexes/indexProvider');
+
+const {customIndexes} = require('./mockCustomIndexes');
+
+class MockIndexProvider extends IndexProvider {
+    getIndexes() {
+        return customIndexes;
+    }
+}
 
 describe('Create Index Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        await createTestRequest((c) => {
+            c.register('indexProvider', () => new MockIndexProvider());
+            return c;
+        });
     });
 
     afterEach(async () => {
@@ -19,7 +30,6 @@ describe('Create Index Tests', () => {
 
     describe('CreateIndex Tests', () => {
         test('createIndex works for Patient', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -28,13 +38,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0';
             /**
              * mongo collection
@@ -58,6 +71,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         '_id': 1
                     },
@@ -67,6 +81,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         'id': 1
                     },
@@ -76,6 +91,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[2]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         'meta.lastUpdated': 1
                     },
@@ -85,6 +101,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         'meta.source': 1
                     },
@@ -94,6 +111,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[4]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1
@@ -103,7 +121,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -112,13 +129,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0';
             /**
              * mongo collection
@@ -141,6 +161,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_id': 1
                     },
@@ -150,6 +171,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
@@ -162,6 +184,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[2]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_access.medstar': 1,
                         'id': 1,
@@ -173,6 +196,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_access.medstar': 1,
                         'id': 1,
@@ -184,6 +208,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[4]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
@@ -196,6 +221,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[5]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'id': 1
                     },
@@ -206,6 +232,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[6]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.source': 1
                     },
@@ -215,6 +242,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[7]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1
@@ -224,7 +252,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent partitioned table', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -233,13 +260,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: (new Date()).toString(),
@@ -363,7 +393,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent twice', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -372,13 +401,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0';
             /**
              * mongo collection
@@ -406,6 +438,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_id': 1
                     },
@@ -415,6 +448,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
@@ -427,6 +461,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[2]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_access.medstar': 1,
                         'id': 1,
@@ -438,6 +473,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_access.medstar': 1,
                         'id': 1,
@@ -449,6 +485,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[4]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
@@ -461,6 +498,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[5]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'id': 1
                     },
@@ -471,6 +509,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[6]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.source': 1
                     },
@@ -480,6 +519,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[7]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1
@@ -491,7 +531,6 @@ describe('Create Index Tests', () => {
     });
     describe('CreateIndex Tests for history tables', () => {
         test('createIndex works for Patient History', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -500,13 +539,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             const collectionName = 'Patient_4_0_0_History';
             /**
              * mongo collection
@@ -530,6 +572,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'fhir.Patient_4_0_0_History',
                     'key': {
                         '_id': 1
                     },
@@ -539,6 +582,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'fhir.Patient_4_0_0_History',
                     'key': {
                         'id': 1
                     },
@@ -547,7 +591,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -556,13 +599,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0_History';
             /**
              * mongo collection
@@ -585,6 +631,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0_History',
                     'key': {
                         '_id': 1
                     },
@@ -594,6 +641,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0_History',
                     'key': {
                         'id': 1
                     },
@@ -603,7 +651,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent partitioned table', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -612,13 +659,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {
                     fieldValue: (new Date()).toString(),
@@ -677,7 +727,6 @@ describe('Create Index Tests', () => {
             );
         });
         test('createIndex works for AuditEvent twice', async () => {
-            await createTestRequest();
             /**
              * @type {SimpleContainer}
              */
@@ -686,13 +735,16 @@ describe('Create Index Tests', () => {
              * @type {IndexManager}
              */
             const indexManager = container.indexManager;
-
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             // create collection
             /**
              * mongo auditEventDb connection
              * @type {import('mongodb').Db}
              */
-            const auditEventDb = globals.get(AUDIT_EVENT_CLIENT_DB);
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
             const collectionName = 'AuditEvent_4_0_0_History';
             /**
              * mongo collection
@@ -720,6 +772,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0_History',
                     'key': {
                         '_id': 1
                     },
@@ -729,6 +782,7 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
+                    'ns': 'audit-event.AuditEvent_4_0_0_History',
                     'key': {
                         'id': 1
                     },

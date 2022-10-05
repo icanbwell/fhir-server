@@ -5,9 +5,7 @@
 const {mongoConfig} = require('../config');
 const async = require('async');
 const env = require('var');
-const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
-const {CLIENT_DB} = require('../constants');
-const globals = require('../globals');
+const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 module.exports.handleStats = async (req, res) => {
     console.info('Running stats');
@@ -24,16 +22,16 @@ module.exports.handleStats = async (req, res) => {
         console.log(['Found: ', count, ' documents in ', collection_name].join(''));
         return {name: collection_name, count: count};
     }
-
+    const mongoDatabaseManager = new MongoDatabaseManager();
     /**
      * @type {import('mongodb').MongoClient}
      */
-    const client = await createClientAsync(mongoConfig);
+    const client = await mongoDatabaseManager.createClientAsync(mongoConfig);
     try {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = globals.get(CLIENT_DB);
+        const db = await new MongoDatabaseManager().getClientDbAsync();
         let collection_names = [];
         // const collections = await db.listCollections().toArray();
 
@@ -58,6 +56,6 @@ module.exports.handleStats = async (req, res) => {
             collections: collection_stats,
         });
     } finally {
-        await disconnectClientAsync(client);
+        await mongoDatabaseManager.disconnectClientAsync(client);
     }
 };

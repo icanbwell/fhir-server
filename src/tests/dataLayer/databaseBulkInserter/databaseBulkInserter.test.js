@@ -1,10 +1,8 @@
 const patient = require('./fixtures/patient.json');
 const observation = require('./fixtures/observation.json');
-const {describe, expect, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, expect, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {commonBeforeEach, commonAfterEach} = require('../../common');
-const globals = require('../../../globals');
-const {CLIENT_DB} = require('../../../constants');
 const {createTestContainer} = require('../../createTestContainer');
 const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
 const env = require('var');
@@ -112,12 +110,15 @@ describe('databaseBulkInserter Tests', () => {
                 useAtlas: false,
             });
 
-            // noinspection JSValidateTypes
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             /**
              * mongo connection
              * @type {import('mongodb').Db}
              */
-            const fhirDb = globals.get(CLIENT_DB);
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
             // check patients
             const patientCollection = `Patient_${base_version}`;
             const patients = await fhirDb.collection(patientCollection).find().toArray();

@@ -3,13 +3,13 @@
  */
 const {mongoConfig} = require('../config');
 // const env = require('var');
-const {createClientAsync, disconnectClientAsync} = require('../utils/connect');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {createContainer} = require('../createContainer');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
+const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 /**
  * Gets admin scopes from the request
@@ -46,13 +46,14 @@ async function showIndexesAsync(
         filterToProblems
     }) {
     console.log(`showIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
+    const audit = req.query['audit'];
     /**
      * @type {IndexManager}
      */
     const indexManager = container.indexManager;
     const json = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
         {
-            config: mongoConfig,
+            audit: audit ? true : false,
             filterToProblems: filterToProblems
         }
     );
@@ -81,6 +82,7 @@ async function synchronizeIndexesAsync(
     }
 ) {
     console.log(`synchronizeIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
+    const audit = req.query['audit'];
     /**
      * @type {IndexManager}
      */
@@ -93,7 +95,7 @@ async function synchronizeIndexesAsync(
     res.end();
     // res.json({message: 'Started Synchronizing indexes'}).end();
     await indexManager.synchronizeIndexesWithConfigAsync({
-        config: mongoConfig
+        audit: audit
     });
     return;
 }
@@ -103,10 +105,11 @@ async function handleAdmin(
     /** @type {import('http').ServerResponse} **/ res
 ) {
     console.info('Running admin');
+    const mongoDatabaseManager = new MongoDatabaseManager();
     /**
      * @type {import('mongodb').MongoClient}
      */
-    const client = await createClientAsync(mongoConfig);
+    const client = await mongoDatabaseManager.createClientAsync(mongoConfig);
     try {
         const operation = req.params['op'];
         console.log(`op=${operation}`);
@@ -190,7 +193,7 @@ async function handleAdmin(
         // res.set('Content-Type', 'text/html');
         // res.send(Buffer.from('<html><body><h2>Test String</h2></body></html>'));
     } finally {
-        await disconnectClientAsync(client);
+        await mongoDatabaseManager.disconnectClientAsync(client);
     }
 }
 

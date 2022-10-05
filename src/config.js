@@ -75,7 +75,7 @@ let atlasMongoConfig = {
     options: options,
 };
 
-let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL;
+let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL || env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
     auditEventMongoUrl = auditEventMongoUrl.replace(
         'mongodb://',

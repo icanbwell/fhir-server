@@ -1,14 +1,12 @@
-const { commonBeforeEach, commonAfterEach } = require('../common');
-const globals = require('../../globals');
-const { CLIENT_DB } = require('../../constants');
+const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../common');
 const graphSimpleReverseDefinition = require('./fixtures/graphSimpleReverse.json');
 const graphSimpleForwardDefinition = require('./fixtures/graphSimpleForward.json');
 const graphDefinition = require('./fixtures/graph.json');
 const graphWithExtensionDefinition = require('./fixtures/graphWithExtension.json');
 const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithExtension.json');
-const { FhirRequestInfo } = require('../../utils/fhirRequestInfo');
-const { createTestContainer } = require('../createTestContainer');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
+const {createTestContainer} = require('../createTestContainer');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 /**
  * Gets graph helper
@@ -23,11 +21,23 @@ describe('graphHelper Tests', () => {
     const base_version = '4_0_0';
     beforeEach(async () => {
         await commonBeforeEach();
-        let db = globals.get(CLIENT_DB);
+        await createTestRequest();
+        /**
+         * @type {SimpleContainer}
+         */
+        const container = getTestContainer();
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        const mongoDatabaseManager = container.mongoDatabaseManager;
+        let db = await mongoDatabaseManager.getClientDbAsync();
         const resourceType = 'Practitioner';
+        /**
+         * @type {import('mongodb').Collection<import('mongodb').Document>}
+         */
         const collection = db.collection(`${resourceType}_${base_version}`);
 
-        await collection.insertOne({ _id: '1', id: '1', resourceType: 'Practitioner' });
+        await collection.insertOne({_id: '1', id: '1', resourceType: 'Practitioner'});
         // const doc = await collection.findOne({id: '1'});
     });
 
@@ -76,11 +86,20 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             const resourceType = 'Practitioner';
             const collection = db.collection(`${resourceType}_${base_version}`);
 
-            await collection.insertOne({ _id: '2', id: '2', resourceType: 'Practitioner' });
+            await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -116,14 +135,23 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level reverse nesting works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'PractitionerRole';
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 _id: '10',
                 id: '10',
                 resourceType: resourceType,
-                practitioner: { reference: 'Practitioner/1' },
+                practitioner: {reference: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -165,14 +193,23 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level reverse nesting works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'PractitionerRole';
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 _id: '10',
                 id: '10',
                 resourceType: resourceType,
-                practitioner: { reference: 'Practitioner/1' },
+                practitioner: {reference: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -214,14 +251,23 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and contained works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'PractitionerRole';
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 _id: '10',
                 id: '10',
                 resourceType: resourceType,
-                practitioner: { reference: 'Practitioner/1' },
+                practitioner: {reference: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -262,14 +308,23 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'PractitionerRole';
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 _id: '10',
                 id: '10',
                 resourceType: resourceType,
-                practitioner: { reference: 'Practitioner/1' },
+                practitioner: {reference: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -310,7 +365,16 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             // add a PractitionerRole
             let resourceType = 'PractitionerRole';
             let collection = db.collection(`${resourceType}_${base_version}`);
@@ -328,7 +392,7 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({ _id: '100', id: '100', resourceType: resourceType });
+            await collection.insertOne({_id: '100', id: '100', resourceType: resourceType});
 
             resourceType = 'PractitionerRole';
             const result = await getGraphHelper().processGraphAsync({
@@ -372,14 +436,23 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'PractitionerRole';
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 _id: '10',
                 id: '10',
                 resourceType: resourceType,
-                practitioner: { reference: 'Practitioner/1' },
+                practitioner: {reference: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -420,7 +493,16 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 2 level nesting works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             // add a PractitionerRole
             let resourceType = 'PractitionerRole';
             let collection = db.collection(`${resourceType}_${base_version}`);
@@ -438,7 +520,7 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({ _id: '100', id: '100', resourceType: resourceType });
+            await collection.insertOne({_id: '100', id: '100', resourceType: resourceType});
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync({
@@ -489,10 +571,19 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({ _id: '2', id: '2', resourceType: 'Practitioner' });
+            await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
@@ -522,8 +613,8 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({ _id: '100', id: '100', resourceType: resourceType });
-            await collection.insertOne({ _id: '200', id: '200', resourceType: resourceType });
+            await collection.insertOne({_id: '100', id: '100', resourceType: resourceType});
+            await collection.insertOne({_id: '200', id: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync({
@@ -601,10 +692,19 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and contained works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({ _id: '2', id: '2', resourceType: 'Practitioner' });
+            await collection.insertOne({_id: '2', id: '2', resourceType: 'Practitioner'});
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
@@ -634,8 +734,8 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({ _id: '100', id: '100', resourceType: resourceType });
-            await collection.insertOne({ _id: '200', id: '200', resourceType: resourceType });
+            await collection.insertOne({_id: '100', id: '100', resourceType: resourceType});
+            await collection.insertOne({_id: '200', id: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
             const result = await getGraphHelper().processGraphAsync({
@@ -705,7 +805,16 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and extension works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             // add a PractitionerRole
             let resourceType = 'PractitionerRole';
             let collection = db.collection(`${resourceType}_${base_version}`);
@@ -828,7 +937,16 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
@@ -903,8 +1021,8 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({ _id: '100', id: '100', resourceType: resourceType });
-            await collection.insertOne({ _id: '200', id: '200', resourceType: resourceType });
+            await collection.insertOne({_id: '100', id: '100', resourceType: resourceType});
+            await collection.insertOne({_id: '200', id: '200', resourceType: resourceType});
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
@@ -1039,7 +1157,16 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works', async () => {
-            const db = globals.get(CLIENT_DB);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
@@ -1114,8 +1241,8 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({ _id: '100', id: '100', resourceType: resourceType });
-            await collection.insertOne({ _id: '200', id: '200', resourceType: resourceType });
+            await collection.insertOne({_id: '100', id: '100', resourceType: resourceType});
+            await collection.insertOne({_id: '200', id: '200', resourceType: resourceType});
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';

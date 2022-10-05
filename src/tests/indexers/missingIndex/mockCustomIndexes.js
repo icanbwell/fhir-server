@@ -23,7 +23,10 @@ module.exports = {
                 },
                 options: {
                     name: 'meta.lastUpdated_1'
-                }
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
             },
             {
                 keys: {
@@ -40,33 +43,8 @@ module.exports = {
                 },
                 options: {
                     name: 'security.system_code_1'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0'
-                ]
-            },
-            {
-                keys: {
-                    '_access.medstar': 1,
-                },
-                options: {
-                    name: 'security._access_medstar'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0'
-                ]
-            },
-            {
-                keys: {
-                    '_access.Thedacare': 1,
-                },
-                options: {
-                    name: 'security._access_Thedacare'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0'
-                ]
-            },
+                }
+            }
         ],
         '*_History': [
             {
@@ -147,6 +125,17 @@ module.exports = {
             },
             {
                 keys: {
+                    'meta.security.system': 1,
+                    'meta.security.code': 1,
+                    'id': 1,
+                    'meta.lastUpdated': 1,
+                },
+                options: {
+                    name: 'helix_audit_event_security'
+                }
+            },
+            {
+                keys: {
                     '_access.medstar': 1,
                     'id': 1,
                     'meta.lastUpdated': 1,
@@ -165,6 +154,37 @@ module.exports = {
                     name: 'helix_auditEvent_recorded_access_medstar'
                 }
             },
+            {
+                keys: {
+                    'meta.security.system': 1,
+                    'meta.security.code': 1,
+                    'id': 1,
+                    'recorded': 1,
+                },
+                options: {
+                    name: 'helix_auditEvent_recorded'
+                }
+            },
+            // 'helix_auditEvent_index_type': [
+            //     'type.system',
+            //     'type.code',
+            //     'id',
+            //     'meta.lastUpdated',
+            // ],
+            // 'helix_auditEvent_index_who': [
+            //     'type.system',
+            //     'type.code',
+            //     'agent.who.reference',
+            //     'id',
+            //     'meta.lastUpdated',
+            // ],
+            // 'helix_auditEvent_index_entity': [
+            //     'type.system',
+            //     'type.code',
+            //     'entity.what.reference',
+            //     'id',
+            //     'meta.lastUpdated',
+            // ]
         ],
         'Observation_4_0_0': [
             {

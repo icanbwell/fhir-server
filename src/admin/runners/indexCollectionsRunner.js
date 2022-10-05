@@ -1,10 +1,8 @@
 const {assertTypeEquals} = require('../../utils/assertType');
 const {IndexManager} = require('../../indexes/indexManager');
-const globals = require('../../globals');
-const {AUDIT_EVENT_CLIENT_DB, CLIENT_DB} = require('../../constants');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const {AdminLogger} = require('../adminLogger');
-const {auditEventMongoConfig, mongoConfig} = require('../../config');
+const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 
 /**
@@ -20,6 +18,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {boolean} includeHistoryCollections
      * @param {AdminLogger} adminLogger
      * @param {boolean} synchronizeIndexes
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      */
     constructor(
         {
@@ -29,7 +28,8 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             useAuditDatabase,
             includeHistoryCollections,
             adminLogger,
-            synchronizeIndexes
+            synchronizeIndexes,
+            mongoDatabaseManager
         }
     ) {
         super();
@@ -66,6 +66,12 @@ class IndexCollectionsRunner extends BaseScriptRunner {
          * @type {boolean}
          */
         this.synchronizeIndexes = synchronizeIndexes;
+
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
     /**
@@ -76,17 +82,14 @@ class IndexCollectionsRunner extends BaseScriptRunner {
         try {
             await this.init();
             /**
-             * @type {string}
-             */
-            const dbName = this.useAuditDatabase ? AUDIT_EVENT_CLIENT_DB : CLIENT_DB;
-            /**
              * @type {import('mongodb').Db}
              */
-            const db = globals.get(dbName);
+            const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
+                await this.mongoDatabaseManager.getClientDbAsync();
             if (this.synchronizeIndexes) {
                 await this.indexManager.synchronizeIndexesWithConfigAsync(
                     {
-                        config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig
+                        audit: this.useAuditDatabase
                     }
                 );
             } else {

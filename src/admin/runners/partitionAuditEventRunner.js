@@ -3,9 +3,9 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
 const moment = require('moment-timezone');
 const {auditEventMongoConfig, mongoConfig} = require('../../config');
-const {createClientAsync, disconnectClientAsync} = require('../../utils/connect');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {IndexManager} = require('../../indexes/indexManager');
+const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -13,30 +13,33 @@ const {IndexManager} = require('../../indexes/indexManager');
 class PartitionAuditEventRunner extends BaseBulkOperationRunner {
     /**
      * constructor
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {moment.Moment} recordedAfter
      * @param {moment.Moment} recordedBefore
      * @param {number} batchSize
      * @param {boolean} skipExistingIds
      * @param {boolean} useAuditDatabase
-     * @param {boolean} dropDestinationIfCountIsDifferent
+     * @param {boolean} dropDestinationCollection
      * @param {AdminLogger} adminLogger
-     * @param {boolean} useAggregationMethod
      * @param {IndexManager} indexManager
+     * @param {string} sourceCollection
      */
     constructor({
+                    mongoDatabaseManager,
                     mongoCollectionManager,
                     recordedAfter,
                     recordedBefore,
                     batchSize,
                     skipExistingIds,
                     useAuditDatabase,
-                    dropDestinationIfCountIsDifferent,
+                    dropDestinationCollection,
                     adminLogger,
-                    useAggregationMethod,
-                    indexManager
+                    indexManager,
+                    sourceCollection
                 }) {
         super({
+            mongoDatabaseManager,
             mongoCollectionManager,
             batchSize,
             adminLogger
@@ -69,15 +72,21 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         /**
          * @type {boolean}
          */
-        this.dropDestinationIfCountIsDifferent = dropDestinationIfCountIsDifferent;
-
-        /**
-         * @type {boolean}
-         */
-        this.useAggregationMethod = useAggregationMethod;
+        this.dropDestinationCollection = dropDestinationCollection;
 
         this.indexManager = indexManager;
         assertTypeEquals(indexManager, IndexManager);
+
+        /**
+         * @type {string}
+         */
+        this.sourceCollection = sourceCollection;
+
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
     /**
@@ -144,7 +153,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
      * @returns {Promise<void>}
      */
     async processAsync() {
-        const sourceCollectionName = 'AuditEvent_4_0_0';
+        const sourceCollectionName = this.sourceCollection;
         try {
             await this.init();
 
@@ -155,7 +164,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
             let recordedBeforeForLoop = this.recordedBefore.clone().utc().startOf('month');
 
             // if there is an exception, continue processing from the last id
-            while (recordedBeforeForLoop.isSameOrAfter(this.recordedAfter)) {
+            while (recordedBeforeForLoop.isAfter(this.recordedAfter)) {
                 this.startFromIdContainer = this.createStartFromIdContainer();
                 /**
                  * @type {moment.Moment}
@@ -168,7 +177,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 console.log(`From=${recordedAfterForLoop.utc().toISOString()} to=${recordedBeforeForLoop.utc().toISOString()}`);
                 const destinationCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth({
                     fieldValue: recordedAfterForLoop.utc().toISOString(),
-                    resourceWithBaseVersion: sourceCollectionName
+                    resourceWithBaseVersion: 'AuditEvent_4_0_0'
                 });
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -181,33 +190,52 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 };
                 try {
                     const config = this.useAuditDatabase ? auditEventMongoConfig : mongoConfig;
-                    if (this.useAggregationMethod) {
-                        /**
-                         * @type {import('mongodb').MongoClient}
-                         */
-                        const client = await createClientAsync(config);
-                        /**
-                         * @type {import('mongodb').Db}
-                         */
-                        const db = client.db(config.db_name);
-                        const pipeline = [
-                            {
-                                $match: query
-                            },
-                            {
-                                $out: destinationCollectionName
-                            }
-                        ];
-                        const destinationCollectionExists = await db.listCollections(
-                            {name: destinationCollectionName},
-                            {nameOnly: true}
-                        ).hasNext();
+                    /**
+                     * @type {import('mongodb').MongoClient}
+                     */
+                    const client = await this.mongoDatabaseManager.createClientAsync(config);
+                    /**
+                     * @type {import('mongodb').Db}
+                     */
+                    const db = client.db(config.db_name);
+                    let destinationCollectionExists = await db.listCollections(
+                        {name: destinationCollectionName},
+                        {nameOnly: true}
+                    ).hasNext();
+                    if (this.dropDestinationCollection) {
                         if (destinationCollectionExists) {
                             this.adminLogger.log(`Destination ${destinationCollectionName} already exists so dropping it`);
                             await db.dropCollection(destinationCollectionName);
                         }
-                        this.adminLogger.log(`Running aggregation pipeline with: ${JSON.stringify(pipeline)}`);
-                        const sourceCollection = db.collection(sourceCollectionName);
+                        destinationCollectionExists = false;
+                    }
+                    const pipeline = destinationCollectionExists ? [
+                        {
+                            $match: query
+                        },
+                        {
+                            $merge: {
+                                'into': destinationCollectionName,
+                                'on': '_id',
+                                whenMatched: 'keepExisting',
+                                whenNotMatched: 'insert'
+                            }
+                        }
+                    ] : [ // copy is more efficient if destination collection does not exist
+                        {
+                            $match: query
+                        },
+                        {
+                            $out: destinationCollectionName
+                        }
+                    ];
+                    this.adminLogger.log(`Running aggregation pipeline with: ${JSON.stringify(pipeline)}`);
+                    const sourceCollection = db.collection(sourceCollectionName);
+                    this.adminLogger.logTrace(
+                        `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                        `for ${sourceCollectionName} and ${destinationCollectionName}`);
+                    const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+                    if (numberOfSourceDocuments > 0) {
                         // https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/
                         const aggregationResult = await sourceCollection.aggregate(
                             pipeline,
@@ -221,12 +249,10 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                         const documents = await aggregationResult.toArray();
                         this.adminLogger.log(`Aggregation Result=${JSON.stringify(documents)}`);
 
-
                         // get the count
                         this.adminLogger.logTrace(
                             `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
                             `for ${sourceCollectionName} and ${destinationCollectionName}`);
-                        const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
                         const destinationCollection = db.collection(destinationCollectionName);
                         const numberOfDestinationDocuments = await destinationCollection.countDocuments({}, {});
                         this.adminLogger.log(
@@ -266,25 +292,11 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             }
                         );
                         this.adminLogger.log(`Finished Updating _access fields for ${destinationCollectionName}`);
-
-                        await disconnectClientAsync(client);
                     } else {
-                        await this.runForQueryBatchesAsync(
-                            {
-                                config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
-                                sourceCollectionName,
-                                destinationCollectionName,
-                                query,
-                                startFromIdContainer: this.startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) => await this.copyRecordAsync(doc),
-                                ordered: false,
-                                batchSize: this.batchSize,
-                                skipExistingIds: this.skipExistingIds ? true : false,
-                                skipWhenCountIsSame: true,
-                                dropDestinationIfCountIsDifferent: this.dropDestinationIfCountIsDifferent
-                            }
-                        );
+                        this.adminLogger.log(`No documents matched in  ${sourceCollectionName}`);
                     }
+                    await this.mongoDatabaseManager.disconnectClientAsync(client);
+
                 } catch (e) {
                     this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
