@@ -76,6 +76,8 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
         mongo = await MongoMemoryServer.create();
     }
 
+    await new TestMongoDatabaseManager().dropDatabasesAsync();
+
     if (!app) {
         app = await module.exports.createTestApp((c) => {
             c.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());

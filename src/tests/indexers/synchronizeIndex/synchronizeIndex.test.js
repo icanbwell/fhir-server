@@ -64,6 +64,7 @@ describe('Synchronize Index Tests', () => {
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
                 audit: false
             });
+            console.log(`created: ${JSON.stringify(synchronizeIndexesResult.created)}`);
             expect(synchronizeIndexesResult.created.length).toStrictEqual(0);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
         });
