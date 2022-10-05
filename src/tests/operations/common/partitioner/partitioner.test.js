@@ -48,6 +48,7 @@ describe('PartitioningManager Tests', () => {
              */
             const mongoCollectionName = 'Account_4_0_0';
             await fhirDb.collection(mongoCollectionName).insertOne({foo: 1});
+            partitioner.clearCache();
             await partitioner.loadPartitionsFromDatabaseAsync();
             expect(partitioner.partitionsCache.size).toBe(2);
             const partitions = partitioner.partitionsCache.get('Account');
@@ -93,7 +94,11 @@ describe('PartitioningManager Tests', () => {
              * @type {import('mongodb').Db}
              */
             const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
-            await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            await auditEventDb.collection(mongoCollectionName2).insertOne({
+                    bar: 1
+                }
+            );
+            partitioner.clearCache();
             await partitioner.loadPartitionsFromDatabaseAsync();
             expect(partitioner.partitionsCache.size).toBe(2);
             const partitions = partitioner.partitionsCache.get('AuditEvent');
@@ -133,6 +138,7 @@ describe('PartitioningManager Tests', () => {
                 fieldValue: fieldDate.toString()
             });
             await auditEventDb.collection(mongoCollectionName2).insertOne({bar: 1});
+            partitioner.clearCache();
             await partitioner.loadPartitionsFromDatabaseAsync();
             expect(partitioner.partitionsCache.size).toBe(2);
             const partitions = partitioner.partitionsCache.get('AuditEvent');
