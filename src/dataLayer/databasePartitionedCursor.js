@@ -123,7 +123,7 @@ class DatabasePartitionedCursor {
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
     async toArray() {
-        return await async.map(this._cursors, async (c) => await c.toArray());
+        return await async.flatMap(this._cursors, async (c) => await c.toArray());
     }
 
     /**
