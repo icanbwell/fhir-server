@@ -462,6 +462,9 @@
       {
         "code": "helix_audit_event_security",
         "system": "https://www.icanbwell.com/queryIndexHint"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
       }
     ]
   },

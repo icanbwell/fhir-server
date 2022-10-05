@@ -67,6 +67,9 @@
       {
         "display": "{'useTwoStepSearchOptimization':undefined}",
         "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
       }
     ]
   },
