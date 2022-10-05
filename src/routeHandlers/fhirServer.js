@@ -122,6 +122,18 @@ class MyFHIRServer {
             }
         });
 
+        // generate a unique ID for each request.  Use X-REQUEST-ID in header if sent.
+        this.app.use(
+            (
+                /** @type {import('http').IncomingMessage} **/ req,
+                /** @type {import('http').ServerResponse} **/ res,
+                next
+            ) => {
+                req.id = req.headers['X-REQUEST-ID'] || generateUUID();
+                next();
+            }
+        );
+
         // Enable the body parser
         this.app.use(
             bodyParser.urlencoded({
@@ -135,18 +147,6 @@ class MyFHIRServer {
                 type: allowedContentTypes,
                 limit: '50mb',
             })
-        );
-
-        // generate a unique ID for each request.  Use X-REQUEST-ID in header if sent.
-        this.app.use(
-            (
-                /** @type {import('http').IncomingMessage} **/ req,
-                /** @type {import('http').ServerResponse} **/ res,
-                next
-            ) => {
-                req.id = req.headers['X-REQUEST-ID'] || generateUUID();
-                next();
-            }
         );
 
         // add container to request

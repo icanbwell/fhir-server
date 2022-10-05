@@ -477,7 +477,8 @@ class MergeOperation {
                         stopTime,
                         startTime,
                         user,
-                        useAtlas
+                        useAtlas,
+                        explanations: []
                     }
                 );
                 return bundle;

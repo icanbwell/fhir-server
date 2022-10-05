@@ -287,6 +287,10 @@ class SearchBundleOperation {
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
             /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
+            /**
              * @type {Bundle}
              */
             const bundle = this.bundleManager.createBundle(
@@ -310,7 +314,8 @@ class SearchBundleOperation {
                     indexHint,
                     cursorBatchSize,
                     user,
-                    useAtlas
+                    useAtlas,
+                    explanations
                 }
             );
             await this.fhirLoggingManager.logOperationSuccessAsync(

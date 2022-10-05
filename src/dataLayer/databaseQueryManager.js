@@ -163,7 +163,8 @@ class DatabaseQueryManager {
             cursors.push(cursor);
         }
         return new DatabasePartitionedCursor({
-            base_version: this._base_version, resourceType: this._resourceType, cursors
+            base_version: this._base_version, resourceType: this._resourceType, cursors,
+            query
         });
     }
 
