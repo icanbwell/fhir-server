@@ -19,6 +19,11 @@ const friendlyDescriptionOfStages = {
  * @property {Object} [filter]
  * @property {string} [indexName]
  * @property {Step[]} [children]
+ * @property {number} [docsExamined]
+ * @property {number} [keysExamined]
+ * @property {number} [numReads]
+ * @property {number} [executionTimeMillisEstimate]
+ * @property {number} [nReturned]
  */
 
 /**
@@ -46,24 +51,28 @@ class MongoExplainPlanHelper {
      * inspired by: https://medium.com/mongodb-performance-tuning/getting-started-with-mongodb-explain-8a3d0c6c7e68
      * @param {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} explanation
      * @param {import('mongodb').Document} query
-     * @return {ExplainResult}}
+     * @return {ExplainResult}
      */
-    quick_explain({explanation, query }) {
+    quick_explain({explanation, query}) {
+        // https://www.mongodb.com/docs/manual/reference/explain-results/
         /**
+         * if there are execution stages then use those since they have timing information
          * @type {{stage: string, transformBy: Object, inputStage: Object}}
          */
-        const winningPlan = explanation.queryPlanner.winningPlan;
+        const winningPlan = explanation.executionStats && explanation.executionStats.executionStages ?
+            explanation.executionStats.executionStages :
+            explanation.queryPlanner.winningPlan;
 
         const executionStats = explanation.executionStats;
         /**
          * @type {ExplainExecutionStats}
          */
-        const myExecutionStats = {
+        const myExecutionStats = executionStats ? {
             nReturned: executionStats.nReturned,
             executionTimeMillis: executionStats.executionTimeMillis,
             totalKeysExamined: executionStats.totalKeysExamined,
             totalDocsExamined: executionStats.totalDocsExamined
-        };
+        } : {};
 
         var stepNo = 1;
 
@@ -118,6 +127,12 @@ class MongoExplainPlanHelper {
         }
         if ('numReads' in step) {
             simplePlanItem.numReads = step.numReads;
+        }
+        if ('nReturned' in step) {
+            simplePlanItem.nReturned = step.nReturned;
+        }
+        if ('executionTimeMillisEstimate' in step) {
+            simplePlanItem.executionTimeMillisEstimate = step.executionTimeMillisEstimate;
         }
         result.step = simplePlanItem;
 
