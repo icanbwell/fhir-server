@@ -4,7 +4,6 @@
 const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
 const env = require('var');
-const moment = require('moment-timezone');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
 const {assertTypeEquals} = require('../../utils/assertType');
@@ -15,8 +14,8 @@ const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained
 const {ScopesManager} = require('../security/scopesManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const {ConfigManager} = require('../../utils/configManager');
+const {BundleManager} = require('../common/bundleManager');
 
 /**
  * This class helps with creating graph responses
@@ -28,6 +27,7 @@ class GraphHelper {
      * @param {ScopesManager} scopesManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
+     * @param {BundleManager} bundleManager
      */
     constructor(
         {
@@ -35,7 +35,8 @@ class GraphHelper {
             securityTagManager,
             scopesManager,
             scopesValidator,
-            configManager
+            configManager,
+            bundleManager
         }
     ) {
         /**
@@ -65,6 +66,12 @@ class GraphHelper {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
     }
 
     /**
@@ -818,20 +825,29 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {string[]} idList
-     * @return {Promise<BundleEntry[]>}
+     * @param args
+     * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}>}
      */
     async processMultipleIdsAsync(
         {
-            base_version, useAtlas, requestInfo,
-            resourceType, graphDefinition,
-            contained, hash_references,
-            idList
+            base_version,
+            useAtlas,
+            requestInfo,
+            resourceType,
+            graphDefinition,
+            contained,
+            hash_references,
+            idList,
+            args
         }
     ) {
         /**
          * @type {BundleEntry[]}
          */
         let entries = [];
+        /**
+         * @type {import('mongodb').Document}
+         */
         let query = {
             'id': {
                 $in: idList
@@ -861,6 +877,11 @@ class GraphHelper {
         const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
 
         /**
+         * @type {import('mongodb').Document[]}
+         */
+        const queries = [];
+
+        /**
          * mongo db cursor
          * @type {DatabasePartitionedCursor}
          */
@@ -868,6 +889,16 @@ class GraphHelper {
             {resourceType, base_version, useAtlas}
         ).findAsync({query, options});
         cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
+
+        queries.push(query);
+        /**
+         * @type {import('mongodb').Document[]}
+         */
+        const explanations = (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
+        if (args['_explain']) {
+            // if explain is requested then don't return any results
+            cursor.clear();
+        }
 
         /**
          * @type {BundleEntry[]}
@@ -960,7 +991,8 @@ class GraphHelper {
 
         entries = this.removeDuplicatesWithLambda(entries,
             (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
-        return entries;
+
+        return {entries, queries, explanations};
     }
 
     /**
@@ -973,15 +1005,25 @@ class GraphHelper {
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {boolean} contained
      * @param {boolean} hash_references
+     * @param {Object} args
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
         {
             requestInfo,
-            base_version, useAtlas, resourceType,
+            base_version,
+            useAtlas,
+            resourceType,
             id,
-            graphDefinitionJson, contained, hash_references
+            graphDefinitionJson,
+            contained,
+            hash_references,
+            args
         }) {
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
         /**
          * @type {function(?Object): Resource}
          */
@@ -1001,9 +1043,9 @@ class GraphHelper {
         //     useAtlas
         // );
         /**
-         * @type {BundleEntry[]}
+         * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
          */
-        const entries = await this.processMultipleIdsAsync(
+        const {entries, queries, explanations} = await this.processMultipleIdsAsync(
             {
                 base_version,
                 useAtlas,
@@ -1012,7 +1054,8 @@ class GraphHelper {
                 graphDefinition,
                 contained,
                 hash_references,
-                idList: id
+                idList: id,
+                args
             }
         );
 
@@ -1032,14 +1075,63 @@ class GraphHelper {
                 accessCodes, requestInfo.user, requestInfo.scope, e.resource
             )
         );
+
+        /**
+         * @type {string}
+         */
+        let collectionName;
+        if (queries && queries.length > 0) {
+            /**
+             * @type {ResourceLocator}
+             */
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                {resourceType, base_version, useAtlas});
+            collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                query: queries[0]
+            });
+        }
+        /**
+         * @type {number}
+         */
+        const stopTime = Date.now();
+        /**
+         * @type {Resource[]}
+         */
+        const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
+        /**
+         * @type {Bundle}
+         */
+        const bundle = this.bundleManager.createBundle(
+            {
+                type: 'searchset',
+                originalUrl: requestInfo.originalUrl,
+                host: requestInfo.host,
+                protocol: requestInfo.protocol,
+                last_id: null,
+                resources,
+                base_version,
+                total_count: 0,
+                args: args,
+                originalQuery: queries,
+                collectionName,
+                originalOptions: {},
+                columns: new Set(),
+                stopTime,
+                startTime,
+                useAtlas: false,
+                user: requestInfo.user,
+                explanations
+            }
+        );
+        return bundle;
         // create a bundle
-        return new Bundle({
-            resourceType: 'Bundle',
-            id: 'bundle-example',
-            type: 'collection',
-            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
-            entry: uniqueEntries
-        });
+        // return new Bundle({
+        //     resourceType: 'Bundle',
+        //     id: 'bundle-example',
+        //     type: 'collection',
+        //     timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
+        //     entry: uniqueEntries
+        // });
     }
 }
 

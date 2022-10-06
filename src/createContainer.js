@@ -215,7 +215,8 @@ const createContainer = function () {
                 securityTagManager: c.securityTagManager,
                 scopesManager: c.scopesManager,
                 scopesValidator: c.scopesValidator,
-                configManager: c.configManager
+                configManager: c.configManager,
+                bundleManager: c.bundleManager
             }
         )
     );

@@ -170,7 +170,8 @@ class GraphOperation {
                     id,
                     graphDefinitionJson: graphDefinitionRaw,
                     contained,
-                    hash_references
+                    hash_references,
+                    args
                 }
             );
 

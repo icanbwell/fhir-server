@@ -57,7 +57,12 @@ class SecurityTagManager {
         return securityTags;
     }
 
-// if there is already an $and statement then just add to it
+    /**
+     * if there is already an $and statement then just add to it
+     * @param {import('mongodb').Document} query
+     * @param {import('mongodb').Document} andQuery
+     * @return {import('mongodb').Document}
+     */
     appendAndQuery(query, andQuery) {
         if (query.$and) {
             query.$and.push(
@@ -78,9 +83,9 @@ class SecurityTagManager {
      * returns the passed query by adding a check for security tgs
      * @param {string} resourceType
      * @param {string[]} securityTags
-     * @param {Object} query
+     * @param {import('mongodb').Document} query
      * @param {boolean} useAccessIndex
-     * @return {Object}
+     * @return {import('mongodb').Document}
      */
     getQueryWithSecurityTags(
         {
@@ -138,9 +143,9 @@ class SecurityTagManager {
     /**
      * Gets Patient Filter Query
      * @param {string[] | null} patients
-     * @param query
+     * @param {import('mongodb').Document} query
      * @param {string} resourceType
-     * @return {{$and}|*|{$and: [*,*]}}
+     * @return {import('mongodb').Document}
      */
     getQueryWithPatientFilter({patients, query, resourceType}) {
         if (patients) {
