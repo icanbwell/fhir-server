@@ -193,8 +193,8 @@ class BundleManager {
                           index) => explainer.quick_explain(
                             {
                                 explanation: e,
-                                query: Array.isArray(originalQuery) && originalQuery.length > index ?
-                                    originalQuery[`${index}`] : null
+                                query: (Array.isArray(originalQuery) && originalQuery.length > index) ?
+                                    originalQuery[`${index}`] : originalQuery
                             }
                         )
                     ) : [];
