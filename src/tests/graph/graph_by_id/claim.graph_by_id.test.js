@@ -32,12 +32,9 @@ describe('Claim Graph By Id Contained Tests', () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response claimResponse ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1376656959/$merge')
