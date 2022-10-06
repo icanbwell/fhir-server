@@ -7,7 +7,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('PatientReturnIdTests', () => {
     beforeEach(async () => {
@@ -43,6 +43,7 @@ describe('PatientReturnIdTests', () => {
             resp = await request.get('/4_0_0/Patient/12345').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
+            expect(resp.body.issue[0].code).toBe('not-found');
 
             resp = await request.post('/4_0_0/Patient/_search?id=12345&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction

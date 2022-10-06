@@ -22,7 +22,6 @@ const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
-const {shouldReturnHtml} = require('../utils/requestHelpers');
 
 class MyFHIRServer {
     /**
@@ -320,8 +319,6 @@ class MyFHIRServer {
                         if (err && err.resourceType === OperationOutcome.resourceType) {
                             const status = err.statusCode || 500;
                             res.status(status).json(err);
-                        } else if (err && err.statusCode === 404 && !shouldReturnHtml(req)) {
-                            res.status(404).end();
                         } else if (err instanceof ServerError) {
                             const status = err.statusCode || 500;
                             res.status(status).json(new OperationOutcome(err));
