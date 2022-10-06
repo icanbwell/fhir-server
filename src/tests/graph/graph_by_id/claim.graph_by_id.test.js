@@ -16,7 +16,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('Claim Graph By Id Contained Tests', () => {
     beforeEach(async () => {
@@ -44,121 +44,43 @@ describe('Claim Graph By Id Contained Tests', () => {
                 .send(practitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body.errors).toBeUndefined();
-            expect(resp.body.issue).toBeUndefined();
-            expect(resp.body['created']).toBe(true);
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/Organization/1407857790/$merge')
                 .send(organizationResource)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response organizationResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$merge')
                 .send(claimResource[0])
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response claimResource 1------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  1------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$merge')
                 .send(claimResource[1])
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response claimResource 2------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2 ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$graph?contained=true')
                 .set(getHeaders())
-                .send(graphDefinitionResource)
-                .expect(200);
+                .send(graphDefinitionResource);
 
-            console.log('------- response ExplanationOfBenefit $graph ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            let body = resp.body;
-            delete body['timestamp'];
-            body.entry.forEach((element) => {
-                delete element['fullUrl'];
-                delete element['resource']['meta']['lastUpdated'];
-                if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach((containedElement) => {
-                        delete containedElement['meta']['lastUpdated'];
-                    });
-                }
-            });
-            let expected = expectedResource_230916613368;
-            delete expected['timestamp'];
-            expected.entry.forEach((element) => {
-                delete element['fullUrl'];
-                if ('meta' in element['resource']) {
-                    delete element['resource']['meta']['lastUpdated'];
-                }
-                element['resource']['meta']['versionId'] = '1';
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-                if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach((containedElement) => {
-                        delete containedElement['meta']['lastUpdated'];
-                    });
-                }
-            });
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource_230916613368);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$graph?contained=true')
                 .set(getHeaders())
-                .send(graphDefinitionResource)
-                .expect(200);
-
-            console.log('------- response ExplanationOfBenefit $graph ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            body = resp.body;
-            delete body['timestamp'];
-            body.entry.forEach((element) => {
-                delete element['fullUrl'];
-                delete element['resource']['meta']['lastUpdated'];
-                if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach((containedElement) => {
-                        delete containedElement['meta']['lastUpdated'];
-                    });
-                }
-            });
-            expected = expectedResource_230916613369;
-            delete expected['timestamp'];
-            expected.entry.forEach((element) => {
-                delete element['fullUrl'];
-                if ('meta' in element['resource']) {
-                    delete element['resource']['meta']['lastUpdated'];
-                }
-                element['resource']['meta']['versionId'] = '1';
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-                if (element['resource']['contained']) {
-                    element['resource']['contained'].forEach((containedElement) => {
-                        delete containedElement['meta']['lastUpdated'];
-                    });
-                }
-            });
-            expect(body).toStrictEqual(expected);
+                .send(graphDefinitionResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource_230916613369);
         });
     });
 });
