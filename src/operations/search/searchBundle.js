@@ -235,6 +235,15 @@ class SearchBundleOperation {
              */
             let cursor = __ret.cursor;
 
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
+            if (args['_explain']) {
+                // if explain is requested then don't return any results
+                cursor.clear();
+            }
+            // process results
             if (cursor !== null) { // usually means the two-step optimization found no results
                 logDebug({
                     user, args: {
@@ -310,7 +319,8 @@ class SearchBundleOperation {
                     indexHint,
                     cursorBatchSize,
                     user,
-                    useAtlas
+                    useAtlas,
+                    explanations
                 }
             );
             await this.fhirLoggingManager.logOperationSuccessAsync(

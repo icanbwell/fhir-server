@@ -112,7 +112,6 @@ class PartitioningManager {
      * @returns {import('mongodb').Db}
      */
     async getDatabaseConnectionAsync({resourceType}) {
-        // noinspection JSValidateTypes
         return this.mongoDatabaseManager.getDatabaseForResource({resourceType});
     }
 

@@ -8,7 +8,6 @@ const { getNodeAutoInstrumentations } = require('@opentelemetry/auto-instrumenta
 const { CollectorTraceExporter } = require('@opentelemetry/exporter-collector');
 const { MongoDBInstrumentation } = require('@opentelemetry/instrumentation-mongodb');
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
-const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
 // const { PrometheusExporter } = require("@openTelemetry/exporter-prometheus");
 
 const collectorOptions = {};
@@ -28,7 +27,6 @@ const sdk = new openTelemetry.NodeSDK({
         }),
         // Express instrumentation expects HTTP layer to be instrumented
         new HttpInstrumentation(),
-        new ExpressInstrumentation(),
     ],
 });
 

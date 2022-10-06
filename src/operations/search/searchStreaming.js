@@ -267,6 +267,15 @@ class SearchStreamingOperation {
              */
             const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
 
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
+            if (args['_explain']) {
+                // if explain is requested then don't return any results
+                cursor.clear();
+            }
+
             if (cursor !== null) { // usually means the two-step optimization found no results
                 if (useNdJson) {
                     resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
@@ -322,7 +331,8 @@ class SearchStreamingOperation {
                                 indexHint,
                                 cursorBatchSize,
                                 user,
-                                useAtlas
+                                useAtlas,
+                                explanations
                             }
                         );
                         resourceIds = await this.searchManager.streamBundleFromCursorAsync(
@@ -407,7 +417,8 @@ class SearchStreamingOperation {
                                 indexHint,
                                 cursorBatchSize,
                                 user,
-                                useAtlas
+                                useAtlas,
+                                explanations
                             }
                         );
                         if (requestId && !res.headersSent) {

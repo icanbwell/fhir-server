@@ -3,6 +3,7 @@
  */
 const {assertIsValid, assertFail} = require('../utils/assertType');
 const {getResource} = require('../operations/common/getResource');
+const async = require('async');
 
 class DatabasePartitionedCursor {
     /**
@@ -10,8 +11,9 @@ class DatabasePartitionedCursor {
      * @param {string} base_version
      * @param {string} resourceType
      * @param {(import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>)[]} cursors
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      */
-    constructor({base_version, resourceType, cursors}) {
+    constructor({base_version, resourceType, cursors, query}) {
         /**
          * @type {(import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>)[]}
          * @private
@@ -31,6 +33,11 @@ class DatabasePartitionedCursor {
          */
         this.resourceType = resourceType;
         assertIsValid(resourceType);
+
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+         */
+        this.query = query;
     }
 
     /**
@@ -116,14 +123,7 @@ class DatabasePartitionedCursor {
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
     async toArray() {
-        /**
-         * @type {import('mongodb').DefaultSchema[]}
-         */
-        let result = [];
-        for (const cursor of this._cursors) {
-            result = result.concat(await cursor.toArray());
-        }
-        return result;
+        return await async.flatMap(this._cursors, async (c) => await c.toArray());
     }
 
     /**
@@ -161,6 +161,17 @@ class DatabasePartitionedCursor {
             this._cursors[`${index}`] = this._cursors[`${index}`].hint(indexHint);
         }
         return this;
+    }
+
+    /**
+     * @return {import('mongodb').Document[]}
+     */
+    async explainAsync() {
+        return await async.map(this._cursors, async (c) => await c.explain());
+    }
+
+    clear() {
+        this._cursors = [];
     }
 }
 
