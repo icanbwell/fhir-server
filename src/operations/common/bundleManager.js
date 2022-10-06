@@ -194,8 +194,8 @@ class BundleManager {
                             {
                                 explanation: e,
                                 query: (Array.isArray(originalQuery) && originalQuery.length > index) ?
-                                    mongoQueryAndOptionsStringify(collectionName, originalQuery[`${index}`], originalOptions) :
-                                    mongoQueryAndOptionsStringify(collectionName, originalQuery, originalOptions)
+                                    mongoQueryAndOptionsStringify(collectionName, originalQuery[`${index}`], originalOptions || {}) :
+                                    mongoQueryAndOptionsStringify(collectionName, originalQuery, originalOptions || {})
                             }
                         )
                     ) : [];
