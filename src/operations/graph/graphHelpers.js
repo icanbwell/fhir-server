@@ -1,6 +1,7 @@
 /**
  * This file contains functions to retrieve a graph of data from the database
  */
+const async = require('async');
 const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
 const env = require('var');
@@ -838,18 +839,9 @@ class GraphHelper {
             /**
              * @type {QueryItem[]}
              */
-            const queryItems = [];
-            /**
-             * @type {{path:string, params: string,target:[{type: string}]}}
-             */
-            for (const link of linkItems) {
-                /**
-                 * @type {Resource}
-                 */
-                /**
-                 * @type {QueryItem[]}
-                 */
-                const queryItemsForOneGraphLink = await this.processOneGraphLinkAsync(
+            const queryItems = await async.flatMap(
+                linkItems,
+                async (link) => await this.processOneGraphLinkAsync(
                     {
                         requestInfo,
                         base_version,
@@ -858,13 +850,8 @@ class GraphHelper {
                         parentEntities: resultEntities,
                         explain,
                         debug
-                    });
-                for (const q of queryItemsForOneGraphLink) {
-                    if (q) {
-                        queryItems.push(q);
-                    }
-                }
-            }
+                    })
+            );
             return {entities: resultEntities, queryItems};
         } catch (e) {
             throw new RethrownError(
