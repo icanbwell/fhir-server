@@ -461,6 +461,9 @@
       },
       {
         "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
       }
     ]
   },
