@@ -33,18 +33,22 @@ const friendlyDescriptionOfStages = {
  * @typedef ExplainResult
  * @property {ExplainExecutionStats} [executionStats]
  * @property {Step} step
+ * @property {import('mongodb').Document} query
  */
 
-
+/**
+ * explains plans
+ */
 class MongoExplainPlanHelper {
 
     /**
      * explains
      * inspired by: https://medium.com/mongodb-performance-tuning/getting-started-with-mongodb-explain-8a3d0c6c7e68
      * @param {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} explanation
+     * @param {import('mongodb').Document} query
      * @return {ExplainResult}}
      */
-    quick_explain(explanation) {
+    quick_explain({explanation, query }) {
         /**
          * @type {{stage: string, transformBy: Object, inputStage: Object}}
          */
@@ -67,7 +71,7 @@ class MongoExplainPlanHelper {
          * @type {Step}
          */
         const step = this.parseInputStage({stepNo, step: winningPlan});
-        return {step: step, executionStats: myExecutionStats};
+        return {step: step, executionStats: myExecutionStats, query: query};
     }
 
     /**

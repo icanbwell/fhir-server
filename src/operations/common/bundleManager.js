@@ -187,7 +187,15 @@ class BundleManager {
                     display: JSON.stringify(explanations),
                 });
                 const explainer = new MongoExplainPlanHelper();
-                const simpleExplanations = explanations.map(e => explainer.quick_explain(e));
+                const simpleExplanations = explanations.map(
+                    (e, index) => explainer.quick_explain(
+                        {
+                            explanation: e,
+                            query: Array.isArray(originalQuery) && originalQuery.length > index ?
+                                originalQuery[`${index}`] : null
+                        }
+                    )
+                );
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplainSimple',
                     display: JSON.stringify(simpleExplanations),
