@@ -16,6 +16,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ConfigManager} = require('../../utils/configManager');
 const {BundleManager} = require('../common/bundleManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 
 /**
  * This class helps with creating graph responses
@@ -28,6 +29,7 @@ class GraphHelper {
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
      * @param {BundleManager} bundleManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(
         {
@@ -36,7 +38,8 @@ class GraphHelper {
             scopesManager,
             scopesValidator,
             configManager,
-            bundleManager
+            bundleManager,
+            resourceLocatorFactory
         }
     ) {
         /**
@@ -72,6 +75,12 @@ class GraphHelper {
          */
         this.bundleManager = bundleManager;
         assertTypeEquals(bundleManager, BundleManager);
+
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
     }
 
     /**

@@ -83,8 +83,9 @@ describe('Claim Graph Contained Tests', () => {
                     '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true'
                 )
                 .set(getHeaders())
-                .send(graphDefinitionResource)
-                .expect(200);
+                .send(graphDefinitionResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
 
             console.log('------- response ExplanationOfBenefit $graph ------------');
             console.log(JSON.stringify(resp.body, null, 2));
