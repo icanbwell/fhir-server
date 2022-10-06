@@ -8,6 +8,7 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 
 // expected
 const expectedResource = require('./fixtures/expected/expected.json');
+const expectedWithExplainResource = require('./fixtures/expected/expectedWithExplain.json');
 
 const {
     commonBeforeEach,
@@ -80,7 +81,7 @@ describe('Claim Graph Contained Tests', () => {
                 .set(getHeaders())
                 .send(graphDefinitionResource);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResource);
+            expect(resp).toHaveResponse(expectedWithExplainResource);
         });
     });
 });

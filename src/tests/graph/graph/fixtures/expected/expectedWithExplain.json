@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "tag": [
+      {
+        "display": "db.ExplanationOfBenefit_4_0_0.find({'id':{'$in':['WPS-Claim-230916613369','WPS-Claim-230916613368']}}, {'_id':0}) ",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "ExplanationOfBenefit_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "[{'projection':{'_id':0}}]",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "[]",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

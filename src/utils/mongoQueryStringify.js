@@ -145,7 +145,7 @@ const mongoQueryAndOptionsStringifySingleQuery = (
     assertIsValid(!Array.isArray(query));
     assertIsValid(!Array.isArray(options));
     const queryText = mongoQueryStringify(query);
-    const projection = options.projection ? options.projection : {};
+    const projection = options && options.projection ? options.projection : {};
     let result = `db.${collectionName}.find(${queryText}, ${mongoQueryStringify(projection)})`;
     if (options.sort) {
         result += `.sort(${mongoQueryStringify(options.sort)})`;

@@ -835,7 +835,7 @@ class GraphHelper {
      * @param {boolean} hash_references
      * @param {string[]} idList
      * @param args
-     * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}>}
+     * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
     async processMultipleIdsAsync(
         {
@@ -874,6 +874,9 @@ class GraphHelper {
                 resourceType, securityTags, query
             });
 
+        /**
+         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
+         */
         const options = {};
         const projection = {};
         // also exclude _id so if there is a covering index the query can be satisfied from the covering index
@@ -889,6 +892,10 @@ class GraphHelper {
          * @type {import('mongodb').Document[]}
          */
         const queries = [];
+        /**
+         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
+         */
+        const optionsForQueries = [];
 
         /**
          * mongo db cursor
@@ -900,6 +907,7 @@ class GraphHelper {
         cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
         queries.push(query);
+        optionsForQueries.push(options);
         /**
          * @type {import('mongodb').Document[]}
          */
@@ -1001,7 +1009,7 @@ class GraphHelper {
         entries = this.removeDuplicatesWithLambda(entries,
             (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
 
-        return {entries, queries, explanations};
+        return {entries, queries, options: optionsForQueries, explanations};
     }
 
     /**
@@ -1054,7 +1062,7 @@ class GraphHelper {
         /**
          * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
          */
-        const {entries, queries, explanations} = await this.processMultipleIdsAsync(
+        const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
             {
                 base_version,
                 useAtlas,
@@ -1123,7 +1131,7 @@ class GraphHelper {
                 args: args,
                 originalQuery: queries,
                 collectionName,
-                originalOptions: {},
+                originalOptions: options,
                 columns: new Set(),
                 stopTime,
                 startTime,
