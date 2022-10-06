@@ -24,6 +24,7 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourcePreparer} = require('../common/resourcePreparer');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {RethrownError} = require('../../utils/rethrownError');
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
 const idProjection = {id: 1, _id: 0};
@@ -396,47 +397,54 @@ class SearchManager {
             patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM
         }
     ) {
-        /**
-         * @type {string[]}
-         */
-        let result = [];
-        if (fhirPersonId) {
+        try {
             /**
-             * @type {Resource | null}
+             * @type {string[]}
              */
-            let person = await this.databaseQueryFactory.createQuery(
-                {resourceType: 'Person', base_version, useAtlas})
-                .findOneAsync({query: {id: fhirPersonId}});
-            // Finds Patients by platform member ids and returns an array with the found patient ids
-            if (person && person.identifier && person.identifier.length > 0) {
-                let memberId = person.identifier.filter(identifier => {
-                    return identifier.type.coding.some(coding => {
-                            return coding.system === 'https://www.icanbwell.com' && coding.code === 'member_id';
-                        }
-                    );
-                });
+            let result = [];
+            if (fhirPersonId) {
                 /**
-                 * @type {DatabasePartitionedCursor}
+                 * @type {Resource | null}
                  */
-                let cursor = await this.databaseQueryFactory.createQuery(
-                    {resourceType: 'Patient', base_version, useAtlas})
-                    .findAsync({
-                            query:
-                                {
-                                    identifier: {
-                                        $elemMatch: {
-                                            'system': patientSystem,
-                                            'value': {$in: memberId.map(id => id.value)}
+                let person = await this.databaseQueryFactory.createQuery(
+                    {resourceType: 'Person', base_version, useAtlas})
+                    .findOneAsync({query: {id: fhirPersonId}});
+                // Finds Patients by platform member ids and returns an array with the found patient ids
+                if (person && person.identifier && person.identifier.length > 0) {
+                    let memberId = person.identifier.filter(identifier => {
+                        return identifier.type.coding.some(coding => {
+                                return coding.system === 'https://www.icanbwell.com' && coding.code === 'member_id';
+                            }
+                        );
+                    });
+                    /**
+                     * @type {DatabasePartitionedCursor}
+                     */
+                    let cursor = await this.databaseQueryFactory.createQuery(
+                        {resourceType: 'Patient', base_version, useAtlas})
+                        .findAsync({
+                                query:
+                                    {
+                                        identifier: {
+                                            $elemMatch: {
+                                                'system': patientSystem,
+                                                'value': {$in: memberId.map(id => id.value)}
+                                            }
                                         }
                                     }
-                                }
-                        }
-                    );
-                cursor = cursor.project({projection: idProjection});
-                result = await cursor.map({mapping: p => p.id}).toArray();
+                            }
+                        );
+                    cursor = cursor.project({projection: idProjection});
+                    result = await cursor.map({mapping: p => p.id}).toArray();
+                }
             }
+            return result;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in SearchManager.getPatientIdsByPersonIdentifiersAsync()',
+                error: e
+            });
         }
-        return result;
     }
 
     /**
@@ -535,17 +543,24 @@ class SearchManager {
             args, query, maxMongoTimeMS
         }
     ) {
-        // https://www.hl7.org/fhir/search.html#total
-        // if _total is passed then calculate the total count for matching records also
-        // don't use the options since they set a limit and skip
-        if (args['_total'] === 'estimate') {
-            return await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas}
-            ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
-        } else {
-            return await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas}
-            ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
+        try {
+            // https://www.hl7.org/fhir/search.html#total
+            // if _total is passed then calculate the total count for matching records also
+            // don't use the options since they set a limit and skip
+            if (args['_total'] === 'estimate') {
+                return await this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version, useAtlas}
+                ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
+            } else {
+                return await this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version, useAtlas}
+                ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
+            }
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in SearchManager.handleGetTotalsAsync()',
+                error: e
+            });
         }
     }
 
@@ -618,42 +633,49 @@ class SearchManager {
             maxMongoTimeMS
         }
     ) {
-        // first get just the ids
-        const projection = {};
-        projection['_id'] = 0;
-        projection['id'] = 1;
-        options['projection'] = projection;
-        originalQuery = [query];
-        originalOptions = [options];
-        const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
+        try {
+            // first get just the ids
+            const projection = {};
+            projection['_id'] = 0;
+            projection['id'] = 1;
+            options['projection'] = projection;
+            originalQuery = [query];
+            originalOptions = [options];
+            const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
-        /**
-         * @type {DatabasePartitionedCursor}
-         */
-        const cursor = await this.databaseQueryFactory.createQuery(
-            {resourceType, base_version, useAtlas}
-        ).findAsync({query, options});
-        /**
-         * @type {import('mongodb').DefaultSchema[]}
-         */
-        let idResults = await cursor
-            .sort({sortOption})
-            .maxTimeMS({milliSecs: maxMongoTimeMS})
-            .toArray();
-        if (idResults.length > 0) {
-            // now get the documents for those ids.  We can clear all the other query parameters
-            query = idResults.length === 1 ?
-                {id: idResults.map((r) => r.id)[0]} :
-                {id: {$in: idResults.map((r) => r.id)}};
-            // query = getQueryWithSecurityTags(securityTags, query);
-            options = {}; // reset options since we'll be looking by id
-            originalQuery.push(query);
-            originalOptions.push(options);
-        } else {
-            // no results
-            query = null; //no need to query
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            const cursor = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).findAsync({query, options});
+            /**
+             * @type {import('mongodb').DefaultSchema[]}
+             */
+            let idResults = await cursor
+                .sort({sortOption})
+                .maxTimeMS({milliSecs: maxMongoTimeMS})
+                .toArray();
+            if (idResults.length > 0) {
+                // now get the documents for those ids.  We can clear all the other query parameters
+                query = idResults.length === 1 ?
+                    {id: idResults.map((r) => r.id)[0]} :
+                    {id: {$in: idResults.map((r) => r.id)}};
+                // query = getQueryWithSecurityTags(securityTags, query);
+                options = {}; // reset options since we'll be looking by id
+                originalQuery.push(query);
+                originalOptions.push(options);
+            } else {
+                // no results
+                query = null; //no need to query
+            }
+            return {options, originalQuery, query, originalOptions};
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in SearchManager.handleTwoStepSearchOptimizationAsync()',
+                error: e
+            });
         }
-        return {options, originalQuery, query, originalOptions};
     }
 
     /**
@@ -730,7 +752,10 @@ class SearchManager {
         } catch (e) {
             logError({user, args: {error: e}});
             ac.abort();
-            throw e;
+            throw new RethrownError({
+                message: 'Error in SearchManager.readResourcesFromCursorAsync()',
+                error: e
+            });
         }
         // logDebug(user, 'Done with loading resources');
         return resources;
@@ -895,7 +920,10 @@ class SearchManager {
         } catch (e) {
             logError({user, args: {error: e}});
             ac.abort();
-            throw e;
+            throw new RethrownError({
+                message: 'Error in SearchManager.streamBundleFromCursorAsync()',
+                error: e
+            });
         } finally {
             res.removeListener('close', onResponseClose);
         }
@@ -1022,7 +1050,7 @@ class SearchManager {
         } catch (e) {
             logError({user, args: {error: e}});
             ac.abort();
-            throw e;
+            throw new RethrownError({message: 'Error in SearchManager.streamResourcesFromCursorAsync()', error: e});
         } finally {
             res.removeListener('close', onResponseClose);
         }
@@ -1045,13 +1073,20 @@ class SearchManager {
             base_version, useAtlas, isUser, fhirPersonId
         }
     ) {
-        if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
-            return await this.getPatientIdsByPersonIdentifiersAsync(
-                {
-                    base_version, useAtlas, fhirPersonId
-                });
+        try {
+            if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
+                return await this.getPatientIdsByPersonIdentifiersAsync(
+                    {
+                        base_version, useAtlas, fhirPersonId
+                    });
+            }
+            return [];
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in SearchManager.streamBundleFromCursorAsync()',
+                error: e
+            });
         }
-        return [];
     }
 }
 
