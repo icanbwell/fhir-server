@@ -316,7 +316,6 @@
             }
         }
     ],
-    "id": "bundle-example",
     "resourceType": "Bundle",
     "type": "collection"
 }
