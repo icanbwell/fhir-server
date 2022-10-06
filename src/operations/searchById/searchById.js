@@ -150,7 +150,6 @@ class SearchByIdOperation {
                 throw new BadRequestError(e);
             }
 
-
             if (resource) {
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
                     throw new ForbiddenError(

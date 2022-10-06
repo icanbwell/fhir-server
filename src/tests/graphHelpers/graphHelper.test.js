@@ -1453,6 +1453,9 @@ describe('graphHelper Tests', () => {
                 if (tag.system === 'https://www.icanbwell.com/queryExplain') {
                     delete tag['display'];
                 }
+                if (tag.system === 'https://www.icanbwell.com/queryExplainSimple') {
+                    delete tag['display'];
+                }
                 if (tag.system === 'https://www.icanbwell.com/queryTime') {
                     delete tag['display'];
                 }
@@ -1577,6 +1580,9 @@ describe('graphHelper Tests', () => {
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryExplain'
+                        },
+                        {
+                            'system': 'https://www.icanbwell.com/queryExplainSimple'
                         }
                     ]
                 },
@@ -1697,6 +1703,9 @@ describe('graphHelper Tests', () => {
                 if (tag.system === 'https://www.icanbwell.com/queryExplain') {
                     delete tag['display'];
                 }
+                if (tag.system === 'https://www.icanbwell.com/queryExplainSimple') {
+                    delete tag['display'];
+                }
                 if (tag.system === 'https://www.icanbwell.com/queryTime') {
                     delete tag['display'];
                 }
@@ -1731,6 +1740,9 @@ describe('graphHelper Tests', () => {
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryExplain',
+                        },
+                        {
+                            'system': 'https://www.icanbwell.com/queryExplainSimple'
                         }
                     ]
                 },

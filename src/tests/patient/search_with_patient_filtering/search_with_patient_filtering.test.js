@@ -34,7 +34,7 @@ const {
     getCustomGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeAll, afterAll, expect, test } = require('@jest/globals');
+const {describe, beforeAll, afterAll, expect, test} = require('@jest/globals');
 
 describe('patient Tests', () => {
     beforeAll(async () => {
@@ -44,7 +44,7 @@ describe('patient Tests', () => {
             .get('/4_0_0/Patient')
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+        expect(resp).toHaveResourceCount(0);
 
         // ARRANGE
         // add the resources to FHIR server
@@ -53,74 +53,74 @@ describe('patient Tests', () => {
             .send(patient1Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request
             .post('/4_0_0/patient/patient-123-b/$merge?validate=true')
             .send(patient2Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request
             .post('/4_0_0/patient/other-patient/$merge?validate=true')
             .send(otherPatientResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request
             .post('/4_0_0/patient/member-id-patient/$merge?validate=true')
             .send(patientWithMemberId)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request
             .post('/4_0_0/patient/epic-sandbox-r4c-eAB3mDIBBcyUKviyzrxsnAw3/$merge?validate=true')
             .send(desireePatientResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request
             .post('/4_0_0/Person/desiree-root-person/$merge')
             .send(desireePersonResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request
             .post('/4_0_0/person/person-123-a/$merge?validate=true')
             .send(person1Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request
             .post('/4_0_0/person/person-123-b/$merge?validate=true')
             .send(person2Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request
             .post('/4_0_0/person/root-person/$merge?validate=true')
             .send(rootPersonResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+        expect(resp).toHaveMergeResponse({created: true});
 
         resp = await request.get('/4_0_0/Person?_bundle=1').set(getHeaders()).expect(200);
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(4);
+        expect(resp).toHaveResourceCount(4);
 
         resp = await request
             .put('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
             .send(allergyResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(201);
+        expect(resp).toHaveStatusCode(201);
 
         resp = await request
             .put(
@@ -129,42 +129,42 @@ describe('patient Tests', () => {
             .send(desireeAllergyIntoleranceResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(201);
+        expect(resp).toHaveStatusCode(201);
 
         resp = await request
             .put('/4_0_0/AllergyIntolerance/patient-123-c-allergy-intolerance')
             .send(allergy3Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(201);
+        expect(resp).toHaveStatusCode(201);
 
         resp = await request
             .put('/4_0_0/AllergyIntolerance/other-patient-allergy')
             .send(allergy2Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(201);
+        expect(resp).toHaveStatusCode(201);
 
         resp = await request
             .put('/4_0_0/Condition/patient-123-b-condition')
             .send(conditionResource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(201);
+        expect(resp).toHaveStatusCode(201);
 
         resp = await request
             .put('/4_0_0/Condition/patient-123-c-condition')
             .send(condition3Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(201);
+        expect(resp).toHaveStatusCode(201);
 
         resp = await request
             .put('/4_0_0/Condition/other-patient-condition')
             .send(condition2Resource)
             .set(getHeaders());
         // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(201);
+        expect(resp).toHaveStatusCode(201);
     });
 
     afterAll(async () => {
@@ -232,7 +232,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_legacy_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+                expect(resp).toHaveResourceCount(1);
                 expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
             });
 
@@ -255,7 +255,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(3);
+                expect(resp).toHaveResourceCount(3);
                 expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
                 expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
                 expect(resp.body.entry[2].resource.id).toBe('patient-123-c');
@@ -270,13 +270,13 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(no_ids_user_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+                expect(resp).toHaveResourceCount(0);
 
                 resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(no_ids_user_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+                expect(resp).toHaveResourceCount(0);
             });
 
             test('No resources are returned if user has a bad fhir id', async () => {
@@ -288,13 +288,13 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_legacy_bad_id_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+                expect(resp).toHaveResourceCount(0);
 
                 resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_legacy_bad_id_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+                expect(resp).toHaveResourceCount(0);
             });
 
             test('Patients are filtered by platform member id', async () => {
@@ -306,7 +306,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(only_fhir_person_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+                expect(resp).toHaveResourceCount(1);
                 expect(resp.body.entry[0].resource.id).toBe('patient-123-c');
             });
 
@@ -317,7 +317,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/patient-123-a')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+                expect(resp).toHaveResourceCount(1);
 
                 expect(resp.body.id).toBe('patient-123-a');
 
@@ -325,7 +325,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/other-patient?_bundle=1')
                     .set(getHeadersWithCustomPayload(other_patient_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+                expect(resp).toHaveResourceCount(1);
 
                 expect(resp.body.id).toBe('other-patient');
             });
@@ -337,7 +337,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/patient-123-c')
                     .set(getHeadersWithCustomPayload(only_fhir_person_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+                expect(resp).toHaveResourceCount(1);
                 expect(resp.body.id).toBe('patient-123-c');
             });
 
@@ -348,7 +348,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/Patient/other-patient')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(404);
+                expect(resp).toHaveStatusCode(404);
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
 
@@ -359,7 +359,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/Patient/other-patient')
                     .set(getHeadersWithCustomPayload(only_fhir_person_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(404);
+                expect(resp).toHaveStatusCode(404);
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
 
@@ -369,7 +369,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(2);
+                expect(resp).toHaveResourceCount(2);
 
                 expect(resp.body.entry[0].resource.id).toBe('patient-123-b-allergy-intolerance');
                 expect(resp.body.entry[1].resource.id).toBe('patient-123-c-allergy-intolerance');
@@ -378,7 +378,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/Condition/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(2);
+                expect(resp).toHaveResourceCount(2);
                 expect(resp.body.entry[0].resource.id).toBe('patient-123-b-condition');
                 expect(resp.body.entry[1].resource.id).toBe('patient-123-c-condition');
             });
@@ -390,7 +390,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/AllergyIntolerance/patient-123-b-allergy-intolerance')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+                expect(resp).toHaveResourceCount(1);
 
                 expect(resp.body.id).toBe('patient-123-b-allergy-intolerance');
             });
@@ -401,7 +401,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(404);
+                expect(resp).toHaveStatusCode(404);
 
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
@@ -413,7 +413,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/Condition/other-patient-condition')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(404);
+                expect(resp).toHaveStatusCode(404);
 
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
@@ -424,7 +424,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/AllergyIntolerance/other-patient-allergy')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(404);
+                expect(resp).toHaveStatusCode(404);
                 expect(resp.body.issue[0].code).toBe('not-found');
             });
         });
@@ -437,7 +437,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/Patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(5);
+                expect(resp).toHaveResourceCount(5);
             });
 
             test('App clients can access all patient-filtered resources', async () => {
@@ -447,7 +447,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(4);
+                expect(resp).toHaveResourceCount(4);
             });
 
             test('App clients can access all subject-filtered resources', async () => {
@@ -456,7 +456,7 @@ describe('patient Tests', () => {
                     .get('/4_0_0/Condition/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(3);
+                expect(resp).toHaveResourceCount(3);
             });
         });
 
