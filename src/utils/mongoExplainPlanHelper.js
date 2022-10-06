@@ -11,13 +11,38 @@ const friendlyDescriptionOfStages = {
     'SHARDING_FILTER': 'for filtering out orphan documents from shards'
 };
 
+
+/**
+ * @typedef Step
+ * @property {number} stepNo
+ * @property {string} stage
+ * @property {Object} [filter]
+ * @property {string} [indexName]
+ * @property {Step[]} [children]
+ */
+
+/**
+ * @typedef ExplainExecutionStats
+ * @property {number} nReturned
+ * @property {number} executionTimeMillis
+ * @property {number} totalKeysExamined
+ * @property {number} totalDocsExamined
+ */
+
+/**
+ * @typedef ExplainResult
+ * @property {ExplainExecutionStats} [executionStats]
+ * @property {Step} step
+ */
+
+
 class MongoExplainPlanHelper {
 
     /**
      * explains
      * inspired by: https://medium.com/mongodb-performance-tuning/getting-started-with-mongodb-explain-8a3d0c6c7e68
      * @param {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} explanation
-     * @return {{[executionStats]: { nReturned: number, executionTimeMillis: number, totalKeysExamined: number, totalDocsExamined: number }, steps: {stepNo: number, step: {step: number, stage: string, [filter]: Object, [indexName]: string}}[]}}
+     * @return {ExplainResult}}
      */
     quick_explain(explanation) {
         /**
@@ -27,7 +52,7 @@ class MongoExplainPlanHelper {
 
         const executionStats = explanation.executionStats;
         /**
-         * @type {{ nReturned: number, executionTimeMillis: number, totalKeysExamined: number, totalDocsExamined:number }}
+         * @type {ExplainExecutionStats}
          */
         const myExecutionStats = {
             nReturned: executionStats.nReturned,
@@ -38,27 +63,32 @@ class MongoExplainPlanHelper {
 
         var stepNo = 1;
 
-        const steps = this.parseInputStage({stepNo, step: winningPlan});
-        stepNo = steps;
-        return {steps: steps, executionStats: myExecutionStats};
+        /**
+         * @type {Step}
+         */
+        const step = this.parseInputStage({stepNo, step: winningPlan});
+        return {step: step, executionStats: myExecutionStats};
     }
 
     /**
      * @param {number} stepNo
      * @param {Object} step
-     * @return {{stepNo: number, step: {step: number, stage: string, [filter]: Object, [indexName]: string}}[]}
+     * @return {Step}
      */
     parseInputStage({stepNo, step}) {
         /**
-         * @type {{stepNo: number, step: {step: number, stage: string, [filter]: Object, [indexName]: string}}[]}
+         * @type {Step}
          */
-        const result = [];
+        const result = {};
         if ('inputStage' in step) {
-            result.push(...this.parseInputStage(step.inputStage));
+            if (!result.children) {
+                result.children = [];
+            }
+            result.children.push(this.parseInputStage({stepNo, step: step.inputStage}));
         }
         if ('inputStages' in step) {
             for (const inputStage of step.inputStages) {
-                result.push(...this.parseInputStage(inputStage));
+                result.children.push(this.parseInputStage({stepNo, step: inputStage}));
             }
         }
         /**
@@ -85,7 +115,7 @@ class MongoExplainPlanHelper {
         if ('numReads' in step) {
             simplePlanItem.numReads = step.numReads;
         }
-        result.push({stepNo, step: simplePlanItem});
+        result.step = simplePlanItem;
 
         return result;
     }
