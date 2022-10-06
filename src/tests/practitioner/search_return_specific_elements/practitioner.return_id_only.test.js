@@ -12,7 +12,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -26,181 +26,108 @@ describe('PractitionerReturnIdTests', () => {
     describe('PractitionerReturnId Tests', () => {
         test('Id works properly', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id')
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            // delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            // // delete expected[0]['meta']['lastUpdated'];
-            // delete expected[0]['$schema'];
-            // expected[0]['meta'] = { 'versionId': '2' };
-            expect(body).toStrictEqual(expected);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('Id works properly with bundle', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_bundle=true')
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
-            expect(resp.body['entry']).toStrictEqual([]);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id&_bundle=true&_total=accurate')
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body['entry'].length).toBe(1);
-            delete body['timestamp'];
-            expect(body).toStrictEqual(expectedPractitionerResourceBundle);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResourceBundle);
         });
         test('Id works properly with bundle and specific scopes', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_bundle=true')
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
-            expect(resp.body['entry']).toStrictEqual([]);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id&_bundle=true&_total=accurate')
-                .set(getHeaders('user/Practitioner.read access/medstar.*'))
-                .expect(200);
+                .set(getHeaders('user/Practitioner.read access/medstar.*'));
 
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body['entry'].length).toBe(1);
-            delete body['timestamp'];
-            expect(body).toStrictEqual(expectedPractitionerResourceBundle);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResourceBundle);
         });
         test('Id fails without user scopes', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_bundle=true')
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
-            expect(resp.body['entry']).toStrictEqual([]);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id&_bundle=true&_total=accurate')
                 .set(getHeaders('user/Patient.read access/medstar.*'));
-
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body).toStrictEqual(expectedPractitionerNoUserScopesBundle);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerNoUserScopesBundle);
         });
         test('Id fails without access scopes', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Practitioner?_bundle=true')
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
-            expect(resp.body['entry']).toStrictEqual([]);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
-
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/Practitioner?_elements=id&_bundle=true&_total=accurate')
-                .set(getHeaders('user/Practitioner.read access/fake.*'))
-                .expect(200);
-
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.entry.length).toStrictEqual(0);
+                .set(getHeaders('user/Practitioner.read access/fake.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
         });
     });
 });

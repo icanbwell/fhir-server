@@ -12,6 +12,8 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
+const {MongoError} = require('../../utils/mongoErrors');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 
 class GraphOperation {
     /**
@@ -19,13 +21,15 @@ class GraphOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(
         {
             graphHelper,
             fhirLoggingManager,
             scopesValidator,
-            resourceValidator
+            resourceValidator,
+            resourceLocatorFactory
         }
     ) {
         /**
@@ -49,6 +53,12 @@ class GraphOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
     }
 
     /**
@@ -68,7 +78,18 @@ class GraphOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, path, body} = requestInfo;
+        const {
+            /** @type {string | null} */
+            user,
+            /** @type {string|null} */
+            path,
+            /** @type {Object | Object[] | null} */
+            body,
+            /**
+             * @type {string}
+             */
+            requestId
+        } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -170,7 +191,8 @@ class GraphOperation {
                     id,
                     graphDefinitionJson: graphDefinitionRaw,
                     contained,
-                    hash_references
+                    hash_references,
+                    args
                 }
             );
 
@@ -193,7 +215,7 @@ class GraphOperation {
                     action: currentOperationName,
                     error: err
                 });
-            throw new BadRequestError(err);
+            throw new MongoError(requestId, err.message, err, resourceType, {}, (Date.now() - startTime), {});
         }
     }
 }

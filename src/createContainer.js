@@ -215,7 +215,9 @@ const createContainer = function () {
                 securityTagManager: c.securityTagManager,
                 scopesManager: c.scopesManager,
                 scopesValidator: c.scopesValidator,
-                configManager: c.configManager
+                configManager: c.configManager,
+                bundleManager: c.bundleManager,
+                resourceLocatorFactory: c.resourceLocatorFactory
             }
         )
     );
@@ -371,7 +373,8 @@ const createContainer = function () {
             graphHelper: c.graphHelper,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            resourceValidator: c.resourceValidator
+            resourceValidator: c.resourceValidator,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('expandOperation', (c) => new ExpandOperation(

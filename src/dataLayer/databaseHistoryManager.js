@@ -3,6 +3,7 @@ const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const {getResource} = require('../operations/common/getResource');
+const {RethrownError} = require('../utils/rethrownError');
 
 /**
  * This class provides access to _History collections
@@ -61,9 +62,15 @@ class DatabaseHistoryManager {
      * @return {Promise<void>}
      */
     async insertHistoryForResourceAsync({doc}) {
-        assertTypeEquals(doc, Resource);
-        const collection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(doc);
-        await collection.insertOne(doc.toJSONInternal());
+        try {
+            assertTypeEquals(doc, Resource);
+            const collection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(doc);
+            await collection.insertOne(doc.toJSONInternal());
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -73,23 +80,29 @@ class DatabaseHistoryManager {
      * @return {Promise<Resource|null>}
      */
     async findOneAsync({query, options = null}) {
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-         */
-        const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync(
-            {query}
-        );
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+        try {
             /**
-             * @type { Promise<Resource|null>}
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const resource = await collection.findOne(query, options);
-            if (resource !== null) {
-                const ResourceCreator = getResource(this._base_version, this._resourceType);
-                return new ResourceCreator(resource);
+            const collections = await this.resourceLocator.getOrCreateHistoryCollectionsForQueryAsync(
+                {query}
+            );
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * @type { Promise<Resource|null>}
+                 */
+                const resource = await collection.findOne(query, options);
+                if (resource !== null) {
+                    const ResourceCreator = getResource(this._base_version, this._resourceType);
+                    return new ResourceCreator(resource);
+                }
             }
+            return null;
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
         }
-        return null;
     }
 
     /**

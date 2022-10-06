@@ -4,6 +4,7 @@
 const {assertIsValid, assertFail} = require('../utils/assertType');
 const {getResource} = require('../operations/common/getResource');
 const async = require('async');
+const {RethrownError} = require('../utils/rethrownError');
 
 class DatabasePartitionedCursor {
     /**
@@ -59,11 +60,17 @@ class DatabasePartitionedCursor {
     async hasNext() {
         while (this._cursors.length > 0) {
             // check if the first cursor has next.  If not, remove that cursor from the list
-            const result = await this._cursors[0].hasNext();
-            if (result) {
-                return result;
+            try {
+                const result = await this._cursors[0].hasNext();
+                if (result) {
+                    return result;
+                }
+                this._cursors.shift();
+            } catch (e) {
+                throw new RethrownError({
+                    error: e,
+                });
             }
-            this._cursors.shift();
         }
         return false; // ran out of data in all the cursors
     }
@@ -75,15 +82,22 @@ class DatabasePartitionedCursor {
     async next() {
         while (this._cursors.length > 0) {
             // check if the first cursor has next.  If not, remove that cursor from the list
-            const result = await this._cursors[0].next();
-            if (result !== null) {
-                const ResourceCreator = getResource(this.base_version, this.resourceType);
-                return new ResourceCreator(result);
-            } else {
-                assertFail({
-                    source: 'DatabasePartitionedCursor.next',
-                    message: 'Data is null',
-                    args: {value: result}
+            try {
+                // return Promise.reject(new Error('woops'));
+                const result = await this._cursors[0].next();
+                if (result !== null) {
+                    const ResourceCreator = getResource(this.base_version, this.resourceType);
+                    return new ResourceCreator(result);
+                } else {
+                    assertFail({
+                        source: 'DatabasePartitionedCursor.next',
+                        message: 'Data is null',
+                        args: {value: result}
+                    });
+                }
+            } catch (e) {
+                throw new RethrownError({
+                    error: e,
                 });
             }
             this._cursors.shift();
@@ -123,7 +137,13 @@ class DatabasePartitionedCursor {
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
     async toArray() {
-        return await async.flatMap(this._cursors, async (c) => await c.toArray());
+        try {
+            return await async.flatMap(this._cursors, async (c) => await c.toArray());
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -167,11 +187,36 @@ class DatabasePartitionedCursor {
      * @return {import('mongodb').Document[]}
      */
     async explainAsync() {
-        return await async.map(this._cursors, async (c) => await c.explain());
+        try {
+            return await async.map(this._cursors, async (c) => await c.explain());
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     clear() {
         this._cursors = [];
+    }
+
+    /**
+     * returns the query
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     */
+    getQuery() {
+        return this.query;
+    }
+
+    /**
+     * @param {number} count
+     * @return {DatabasePartitionedCursor}
+     */
+    limit(count) {
+        for (const index in this._cursors) {
+            this._cursors[`${index}`] = this._cursors[`${index}`].limit(count);
+        }
+        return this;
     }
 }
 

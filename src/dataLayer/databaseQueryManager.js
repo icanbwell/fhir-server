@@ -3,6 +3,7 @@ const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFa
 const {ResourceLocator} = require('../operations/common/resourceLocator');
 const {assertTypeEquals} = require('../utils/assertType');
 const {getResource} = require('../operations/common/getResource');
+const {RethrownError} = require('../utils/rethrownError');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -93,26 +94,32 @@ class DatabaseQueryManager {
      * @return {Promise<{error: import('mongodb').Document, created: boolean} | null>}
      */
     async findOneAndUpdateAsync({query, update, options = null}) {
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-         */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-            query
-        });
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+        try {
             /**
-             * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#findOneAndUpdate
-             * @type {ModifyResult<import('mongodb').DefaultSchema>}
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const result = await collection.findOneAndUpdate(query, update, options);
-            if (result.ok) {
-                return {
-                    error: result.lastErrorObject,
-                    created: result.lastErrorObject && !result.lastErrorObject.updatedExisting
-                };
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+                query
+            });
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#findOneAndUpdate
+                 * @type {ModifyResult<import('mongodb').DefaultSchema>}
+                 */
+                const result = await collection.findOneAndUpdate(query, update, options);
+                if (result.ok) {
+                    return {
+                        error: result.lastErrorObject,
+                        created: result.lastErrorObject && !result.lastErrorObject.updatedExisting
+                    };
+                }
             }
+            return null;
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
         }
-        return null;
     }
 
     /**
@@ -122,22 +129,28 @@ class DatabaseQueryManager {
      * @return {Promise<DeleteManyResult>}
      */
     async deleteManyAsync({query, options = {}}) {
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-         */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-            query
-        });
-        let deletedCount = 0;
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+        try {
             /**
-             * @type {import('mongodb').DeleteWriteOpResultObject}
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const result = await collection.deleteMany(query, options);
-            deletedCount += result.deletedCount;
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+                query
+            });
+            let deletedCount = 0;
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * @type {import('mongodb').DeleteWriteOpResultObject}
+                 */
+                const result = await collection.deleteMany(query, options);
+                deletedCount += result.deletedCount;
 
+            }
+            return {deletedCount: deletedCount, error: null};
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
         }
-        return {deletedCount: deletedCount, error: null};
     }
 
     /**

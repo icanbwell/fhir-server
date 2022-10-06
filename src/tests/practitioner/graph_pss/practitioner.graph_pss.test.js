@@ -21,7 +21,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('Practitioner Graph PSS Contained Tests', () => {
     beforeEach(async () => {
@@ -35,11 +35,9 @@ describe('Practitioner Graph PSS Contained Tests', () => {
     describe('Graph Contained PSS Tests', () => {
         test('Graph contained PSS works properly', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Group/1/$merge')

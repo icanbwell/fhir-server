@@ -29,10 +29,6 @@ const cookieParser = require('cookie-parser');
 const {initialize} = require('./winstonInit');
 const {handleAdmin} = require('./routeHandlers/admin');
 
-if (isTrue(env.TRACING_ENABLED)) {
-    require('./tracing');
-}
-
 /**
  * Creates the FHIR app
  * @param {function (): SimpleContainer} fnCreateContainer

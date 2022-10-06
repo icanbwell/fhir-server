@@ -1,10 +1,10 @@
 /**
  * This file contains functions to retrieve a graph of data from the database
  */
+const async = require('async');
 const {getResource} = require('../common/getResource');
 const {buildR4SearchQuery} = require('../query/r4');
 const env = require('var');
-const moment = require('moment-timezone');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
 const {assertTypeEquals} = require('../../utils/assertType');
@@ -15,8 +15,21 @@ const {NonResourceEntityAndContained} = require('./nonResourceEntityAndContained
 const {ScopesManager} = require('../security/scopesManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const {ConfigManager} = require('../../utils/configManager');
+const {BundleManager} = require('../common/bundleManager');
+const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const {RethrownError} = require('../../utils/rethrownError');
+
+
+/**
+ * @typedef QueryItem
+ * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+ * @property {string} resourceType
+ * @property {string} [property]
+ * @property {string} [reverse_filter]
+ * @property {import('mongodb').Document[]} [explanations]
+ */
+
 
 /**
  * This class helps with creating graph responses
@@ -28,6 +41,8 @@ class GraphHelper {
      * @param {ScopesManager} scopesManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
+     * @param {BundleManager} bundleManager
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(
         {
@@ -35,7 +50,9 @@ class GraphHelper {
             securityTagManager,
             scopesManager,
             scopesValidator,
-            configManager
+            configManager,
+            bundleManager,
+            resourceLocatorFactory
         }
     ) {
         /**
@@ -65,17 +82,18 @@ class GraphHelper {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-    }
 
-    /**
-     * generates a full url for an entity
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} base_version
-     * @param {Resource} parentEntity
-     * @return {string}
-     */
-    getFullUrlForResource({requestInfo, base_version, parentEntity}) {
-        return `${requestInfo.protocol}://${requestInfo.host}/${base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
+        /**
+         * @type {BundleManager}
+         */
+        this.bundleManager = bundleManager;
+        assertTypeEquals(bundleManager, BundleManager);
+
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
     }
 
     /**
@@ -164,126 +182,150 @@ class GraphHelper {
      * @param {string} property
      * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*|null} filterValue (Optional) match filterProperty to this value
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
+     * @returns {QueryItem}
      */
     async getForwardReferencesAsync(
         {
             requestInfo,
             base_version,
             resourceType,
-            parentEntities, property,
+            parentEntities,
+            property,
             filterProperty,
-            filterValue
+            filterValue,
+            explain,
+            debug
         }) {
-        if (!parentEntities || parentEntities.length === 0) {
-            return; // nothing to do
-        }
-
-        // get values of this property from all the entities
-        const relatedReferences = parentEntities.flatMap(p =>
-            this.getPropertiesForEntity({entity: p, property})
-                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                .filter(r => r !== undefined)
-        );
-        // select just the ids from those reference properties
-        // noinspection JSCheckFunctionSignatures
-        let relatedReferenceIds = relatedReferences
-            .filter(r => r.includes('/'))
-            .filter(r => r.split('/')[0] === resourceType) // resourceType matches the one we're looking for
-            .map(r => r.split('/')[1]);
-        if (relatedReferenceIds.length === 0) {
-            return; // nothing to do
-        }
-        // remove duplicates to speed up data access
-        relatedReferenceIds = Array.from(new Set(relatedReferenceIds));
-        const options = {};
-        const projection = {};
-        // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-        projection['_id'] = 0;
-        options['projection'] = projection;
-        /**
-         * @type {string[]}
-         */
-        let securityTags = this.securityTagManager.getSecurityTagsFromScope({
-            user: requestInfo.user,
-            scope: requestInfo.scope
-        });
-        /**
-         * @type {Object}
-         */
-        let query = {
-            'id': {
-                $in: relatedReferenceIds
+        try {
+            // throw new Error('I am here');
+            // Promise.reject(new Error('woops'));
+            if (!parentEntities || parentEntities.length === 0) {
+                return; // nothing to do
             }
-        };
-        if (filterProperty) {
-            query[`${filterProperty}`] = filterValue;
-        }
-        query = this.securityTagManager.getQueryWithSecurityTags(
-            {
-                resourceType, securityTags, query
-            });
-        /**
-         * @type {number}
-         */
-        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
-        /**
-         * mongo db cursor
-         * @type {DatabasePartitionedCursor}
-         */
-        let cursor = await this.databaseQueryFactory.createQuery(
-            {resourceType, base_version, useAtlas: requestInfo.useAtlas}
-        ).findAsync({query, options});
 
-        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
-
-        while (await cursor.hasNext()) {
+            // get values of this property from all the entities
+            const relatedReferences = parentEntities.flatMap(p =>
+                this.getPropertiesForEntity({entity: p, property})
+                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                    .filter(r => r !== undefined)
+            );
+            // select just the ids from those reference properties
+            // noinspection JSCheckFunctionSignatures
+            let relatedReferenceIds = relatedReferences
+                .filter(r => r.includes('/'))
+                .filter(r => r.split('/')[0] === resourceType) // resourceType matches the one we're looking for
+                .map(r => r.split('/')[1]);
+            if (relatedReferenceIds.length === 0) {
+                return; // nothing to do
+            }
+            // remove duplicates to speed up data access
+            relatedReferenceIds = Array.from(new Set(relatedReferenceIds));
+            const options = {};
+            const projection = {};
+            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+            projection['_id'] = 0;
+            options['projection'] = projection;
             /**
-             * @type {Resource|null}
+             * @type {string[]}
              */
-            const relatedResource = await cursor.next();
-
-            if (relatedResource) {
-                // create a class to hold information about this resource
-                const relatedEntityAndContained = new ResourceEntityAndContained(
-                    {
-                        entityId: relatedResource.id,
-                        entityResourceType: relatedResource.resourceType,
-                        fullUrl: this.getFullUrlForResource(
-                            {
-                                requestInfo, base_version, parentEntity: relatedResource
-                            }),
-                        includeInOutput: true,
-                        resource: relatedResource,
-                        containedEntries: []
-                    }
-                );
-
-                // find matching parent and add to containedEntries
-                const matchingParentEntities = parentEntities.filter(
-                    p => (
-                        this.getPropertiesForEntity({entity: p, property})
-                            .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                            .filter(r => r !== undefined)
-                            .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
-                    )
-                );
-
-                if (matchingParentEntities.length === 0) {
-                    throw new Error(
-                        `Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` +
-                        ' in parent entities' +
-                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                        ` using property ${property}`
-                    );
+            let securityTags = this.securityTagManager.getSecurityTagsFromScope({
+                user: requestInfo.user,
+                scope: requestInfo.scope
+            });
+            /**
+             * @type {Object}
+             */
+            let query = {
+                'id': {
+                    $in: relatedReferenceIds
                 }
+            };
+            if (filterProperty) {
+                query[`${filterProperty}`] = filterValue;
+            }
+            query = this.securityTagManager.getQueryWithSecurityTags(
+                {
+                    resourceType, securityTags, query
+                });
+            /**
+             * @type {number}
+             */
+            const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+            /**
+             * mongo db cursor
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas: requestInfo.useAtlas}
+            ).findAsync({query, options});
 
-                // add it to each one since there can be multiple resources that point to the same related resource
-                for (const matchingParentEntity of matchingParentEntities) {
-                    matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(
-                        relatedEntityAndContained
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (explain || debug) ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then don't return any results
+                cursor = cursor.limit(1);
+            }
+
+            cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
+
+            while (await cursor.hasNext()) {
+                /**
+                 * @type {Resource|null}
+                 */
+                const relatedResource = await cursor.next();
+
+                if (relatedResource) {
+                    // create a class to hold information about this resource
+                    const relatedEntityAndContained = new ResourceEntityAndContained(
+                        {
+                            entityId: relatedResource.id,
+                            entityResourceType: relatedResource.resourceType,
+                            includeInOutput: true,
+                            resource: relatedResource,
+                            containedEntries: []
+                        }
                     );
+
+                    // find matching parent and add to containedEntries
+                    const matchingParentEntities = parentEntities.filter(
+                        p => (
+                            this.getPropertiesForEntity({entity: p, property})
+                                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                                .filter(r => r !== undefined)
+                                .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
+                        )
+                    );
+
+                    if (matchingParentEntities.length === 0) {
+                        throw new Error(
+                            `Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` +
+                            ' in parent entities' +
+                            ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                            ` using property ${property}`
+                        );
+                    }
+
+                    // add it to each one since there can be multiple resources that point to the same related resource
+                    for (const matchingParentEntity of matchingParentEntities) {
+                        matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(
+                            relatedEntityAndContained
+                        );
+                    }
                 }
             }
+            return {query, resourceType, property, explanations};
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: `Error in getForwardReferencesAsync(): ${resourceType}, ` +
+                        `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
+                    error: e
+                }
+            );
         }
     }
 
@@ -305,136 +347,163 @@ class GraphHelper {
      * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*} filterValue (Optional) match filterProperty to this value
      * @param {string} reverse_filter Do a reverse link from child to parent using this property
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
+     * @returns {QueryItem}
      */
     async getReverseReferencesAsync(
         {
             requestInfo,
             base_version,
             parentResourceType,
-            relatedResourceType, parentEntities,
-            filterProperty, filterValue, reverse_filter
+            relatedResourceType,
+            parentEntities,
+            filterProperty,
+            filterValue,
+            reverse_filter,
+            explain,
+            debug
         }
     ) {
-        if (!(reverse_filter)) {
-            throw new Error('reverse_filter must be set');
-        }
-        // create comma separated list of ids
-        const parentIdList = parentEntities.map(p => p.entityId).filter(p => p !== undefined);
-        if (parentIdList.length === 0) {
-            return;
-        }
-        const reverseFilterWithParentIds = reverse_filter.replace(
-            '{ref}',
-            `${parentResourceType}/${parentIdList.toString()}`
-        );
-        /**
-         * @type {Object}
-         */
-        const args = this.parseQueryStringIntoArgs(reverseFilterWithParentIds);
-        const searchParameterName = Object.keys(args)[0];
-        let query = buildR4SearchQuery({
-            resourceType: relatedResourceType, args,
-            useAccessIndex: this.configManager.useAccessIndex
-        }).query;
-
-        /**
-         * @type {string[]}
-         */
-        let securityTags = this.securityTagManager.getSecurityTagsFromScope({
-            user: requestInfo.user,
-            scope: requestInfo.scope
-        });
-        query = this.securityTagManager.getQueryWithSecurityTags(
-            {
-                resourceType: relatedResourceType, securityTags, query
-            });
-
-        const options = {};
-        const projection = {};
-        // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-        projection['_id'] = 0;
-        options['projection'] = projection;
-
-        /**
-         * @type {number}
-         */
-        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
-        /**
-         * mongo db cursor
-         * @type {DatabasePartitionedCursor}
-         */
-        let cursor = await this.databaseQueryFactory.createQuery(
-            {resourceType: relatedResourceType, base_version, useAtlas: requestInfo.useAtlas}
-        ).findAsync({query, options});
-        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
-
-        // find matching field name in searchParameter list.  We will use this to match up to parent
-        /**
-         * @type {string}
-         */
-        const fieldForSearchParameter = getFieldNameForSearchParameter(relatedResourceType, searchParameterName);
-
-        if (!fieldForSearchParameter) {
-            throw new Error(`${searchParameterName} is not a valid search parameter for resource ${relatedResourceType}`);
-        }
-
-        while (await cursor.hasNext()) {
+        try {
+            if (!(reverse_filter)) {
+                throw new Error('reverse_filter must be set');
+            }
+            // create comma separated list of ids
+            const parentIdList = parentEntities.map(p => p.entityId).filter(p => p !== undefined);
+            if (parentIdList.length === 0) {
+                return;
+            }
+            const reverseFilterWithParentIds = reverse_filter.replace(
+                '{ref}',
+                `${parentResourceType}/${parentIdList.toString()}`
+            );
             /**
-             * @type {Resource|null}
+             * @type {Object}
              */
-            const relatedResourcePropertyCurrent = await cursor.next();
-            if (relatedResourcePropertyCurrent) {
-                if (filterProperty !== null) {
-                    if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
-                        continue;
-                    }
-                }
-                // create the entry
-                const resourceEntityAndContained = new ResourceEntityAndContained(
-                    {
-                        entityId: relatedResourcePropertyCurrent.id,
-                        entityResourceType: relatedResourcePropertyCurrent.resourceType,
-                        fullUrl: this.getFullUrlForResource(
-                            {
-                                requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
-                            }),
-                        includeInOutput: true,
-                        resource: relatedResourcePropertyCurrent,
-                        containedEntries: []
-                    }
-                );
-                // now match to parent entity, so we can put under correct contained property
-                const properties = this.getPropertiesForEntity(
-                    {
-                        entity: resourceEntityAndContained, property: fieldForSearchParameter
-                    }
-                );
-                // the reference property can be a single item or an array.
+            const args = this.parseQueryStringIntoArgs(reverseFilterWithParentIds);
+            const searchParameterName = Object.keys(args)[0];
+            let query = buildR4SearchQuery({
+                resourceType: relatedResourceType, args,
+                useAccessIndex: this.configManager.useAccessIndex
+            }).query;
+
+            /**
+             * @type {string[]}
+             */
+            let securityTags = this.securityTagManager.getSecurityTagsFromScope({
+                user: requestInfo.user,
+                scope: requestInfo.scope
+            });
+            query = this.securityTagManager.getQueryWithSecurityTags(
+                {
+                    resourceType: relatedResourceType, securityTags, query
+                });
+
+            const options = {};
+            const projection = {};
+            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+            projection['_id'] = 0;
+            options['projection'] = projection;
+
+            /**
+             * @type {number}
+             */
+            const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+            /**
+             * mongo db cursor
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await this.databaseQueryFactory.createQuery(
+                {resourceType: relatedResourceType, base_version, useAtlas: requestInfo.useAtlas}
+            ).findAsync({query, options});
+            cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
+
+            // find matching field name in searchParameter list.  We will use this to match up to parent
+            /**
+             * @type {string}
+             */
+            const fieldForSearchParameter = getFieldNameForSearchParameter(relatedResourceType, searchParameterName);
+
+            if (!fieldForSearchParameter) {
+                throw new Error(`${searchParameterName} is not a valid search parameter for resource ${relatedResourceType}`);
+            }
+
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (explain || debug) ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then don't return any results
+                cursor = cursor.limit(1);
+            }
+
+            while (await cursor.hasNext()) {
                 /**
-                 * @type {string[]}
+                 * @type {Resource|null}
                  */
-                const references = properties
-                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                    .filter(r => r !== undefined);
-                const matchingParentEntities = parentEntities.filter(
-                    p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
-                );
-
-                if (matchingParentEntities.length === 0) {
-                    throw new Error(
-                        'Reverse Reference: No match found for parent entities' +
-                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                        ` using property ${fieldForSearchParameter}` +
-                        ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
+                const relatedResourcePropertyCurrent = await cursor.next();
+                if (relatedResourcePropertyCurrent) {
+                    if (filterProperty !== null) {
+                        if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
+                            continue;
+                        }
+                    }
+                    // create the entry
+                    const resourceEntityAndContained = new ResourceEntityAndContained(
+                        {
+                            entityId: relatedResourcePropertyCurrent.id,
+                            entityResourceType: relatedResourcePropertyCurrent.resourceType,
+                            includeInOutput: true,
+                            resource: relatedResourcePropertyCurrent,
+                            containedEntries: []
+                        }
                     );
-                }
-
-                for (const matchingParentEntity of matchingParentEntities) {
-                    matchingParentEntity.containedEntries.push(
-                        resourceEntityAndContained
+                    // now match to parent entity, so we can put under correct contained property
+                    const properties = this.getPropertiesForEntity(
+                        {
+                            entity: resourceEntityAndContained, property: fieldForSearchParameter
+                        }
                     );
+                    // the reference property can be a single item or an array.
+                    /**
+                     * @type {string[]}
+                     */
+                    const references = properties
+                        .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                        .filter(r => r !== undefined);
+                    const matchingParentEntities = parentEntities.filter(
+                        p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
+                    );
+
+                    if (matchingParentEntities.length === 0) {
+                        throw new Error(
+                            'Reverse Reference: No match found for parent entities' +
+                            ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                            ` using property ${fieldForSearchParameter}` +
+                            ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
+                        );
+                    }
+
+                    for (const matchingParentEntity of matchingParentEntities) {
+                        matchingParentEntity.containedEntries.push(
+                            resourceEntityAndContained
+                        );
+                    }
                 }
             }
+            return {query, resourceType: relatedResourceType, reverse_filter, explanations};
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error in getReverseReferencesAsync(): ' +
+                        `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` +
+                        `parents:${parentEntities.map(p => p.entityId)}, ` +
+                        `filterProperty=${filterProperty}, filterValue=${filterValue}, ` +
+                        `reverseFilter=${reverse_filter}`,
+                    error: e
+                }
+            );
         }
     }
 
@@ -524,12 +593,209 @@ class GraphHelper {
     }
 
     /**
+     * process a link
+     * @param requestInfo
+     * @param base_version
+     * @param parentResourceType
+     * @param link
+     * @param parentEntities
+     * @param explain
+     * @param debug
+     * @param target
+     * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
+     */
+    async processLinkTargetAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            link,
+            parentEntities,
+            explain,
+            debug,
+            target
+        }) {
+        /**
+         * @type {QueryItem[]}
+         */
+        const queryItems = [];
+        /**
+         * @type {EntityAndContainedBase[]}
+         */
+        let childEntries = [];
+        /**
+         * If this is not set then the caller does not want this entity but a nested entity
+         * defined further in the GraphDefinition
+         * @type {string | null}
+         */
+        const resourceType = target.type;
+        // there are two types of linkages:
+        // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
+        // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
+        if (link.path) { // forward link
+            /**
+             * @type {string}
+             */
+            const originalProperty = link.path.replace('[x]', '');
+            const {filterProperty, filterValue, property} = this.getFilterFromPropertyPath(originalProperty);
+            // find parent entities that have a valid property
+            parentEntities = parentEntities.filter(
+                p => this.doesEntityHaveProperty(
+                    {
+                        entity: p, property, filterProperty, filterValue
+                    })
+            );
+            // if this is a reference then get related resources
+            if (this.isPropertyAReference(
+                {
+                    entities: parentEntities, property, filterProperty, filterValue
+                })) {
+                await this.scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    args: {},
+                    resourceType,
+                    startTime: Date.now(),
+                    action: 'graph',
+                    accessRequested: 'read'
+                });
+
+                const queryItem = await this.getForwardReferencesAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        parentEntities,
+                        property,
+                        filterProperty,
+                        filterValue,
+                        explain,
+                        debug
+                    }
+                );
+                if (queryItem) {
+                    queryItems.push(queryItem);
+                }
+                childEntries = parentEntities.flatMap(p => p.containedEntries);
+            } else { // handle paths that are not references
+                childEntries = [];
+                for (const parentEntity of parentEntities) {
+                    // create child entries
+                    /**
+                     * @type {Object[]}
+                     */
+                    const children = this.getPropertiesForEntity(
+                        {
+                            entity: parentEntity, property, filterProperty, filterValue
+                        });
+                    /**
+                     * @type {NonResourceEntityAndContained[]}
+                     */
+                    const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
+                            {
+                                includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
+                                item: c,
+                                containedEntries: []
+                            }
+                        )
+                    );
+                    childEntries = childEntries.concat(childEntriesForCurrentEntity);
+                    parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
+                }
+            }
+        } else if (target.params) { // reverse link
+            if (target.type) { // if caller has requested this entity or just wants a nested entity
+                // reverse link
+                await this.scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    args: {},
+                    resourceType,
+                    startTime: Date.now(),
+                    action: 'graph',
+                    accessRequested: 'read'
+                });
+                if (!parentResourceType) {
+                    throw new Error(
+                        'processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' +
+                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                        ` using target.params: ${target.params}`
+                    );
+                }
+                const queryItem = await this.getReverseReferencesAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        relatedResourceType: resourceType,
+                        parentEntities,
+                        filterProperty: null,
+                        filterValue: null,
+                        reverse_filter: target.params,
+                        explain,
+                        debug
+                    }
+                );
+                if (queryItem) {
+                    queryItems.push(queryItem);
+                }
+                childEntries = parentEntities.flatMap(p => p.containedEntries);
+            }
+        }
+
+        // filter childEntries to find entries of same type as parentResource
+        childEntries = childEntries.filter(c =>
+            (!target.type && !c.resource) || // either there is no target type so choose non-resources
+            (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
+        );
+        if (childEntries && childEntries.length > 0) {
+            /**
+             * @type {string|null}
+             */
+            const childResourceType = target.type;
+
+            // Now recurse down and process the link
+            /**
+             * @type {[{path:string, params: string,target:[{type: string}]}]}
+             */
+            const childLinks = target.link;
+            if (childLinks) {
+                /**
+                 * @type {{path:string, params: string,target:[{type: string}]}}
+                 */
+                for (const childLink of childLinks) {
+                    // now recurse and process the next link in GraphDefinition
+                    /**
+                     * @type {QueryItem[]}
+                     */
+                    const recursiveQueries = await this.processOneGraphLinkAsync(
+                        {
+                            requestInfo,
+                            base_version,
+                            parentResourceType: childResourceType,
+                            link: childLink,
+                            parentEntities: childEntries,
+                            explain,
+                            debug
+                        }
+                    );
+                    for (const recursiveQuery of recursiveQueries) {
+                        queryItems.push(recursiveQuery);
+                    }
+                }
+            }
+        }
+        return {queryItems, childEntries};
+    }
+
+    /**
      * processes a single graph link
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string | null} parentResourceType
      * @param {{path: string, params: string, target: {type: string}[]}} link
-     * @param {[EntityAndContainedBase]} parentEntities
+     * @param {EntityAndContainedBase[]} parentEntities
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
+     * @returns {QueryItem[]}
      */
     async processOneGraphLinkAsync(
         {
@@ -537,160 +803,47 @@ class GraphHelper {
             base_version,
             parentResourceType,
             link,
-            parentEntities
+            parentEntities,
+            explain,
+            debug
         }) {
-
-        /**
-         * @type {EntityAndContainedBase[]}
-         */
-        let childEntries = [];
-        /**
-         * @type {{type: string}[]}
-         */
-        let link_targets = link.target;
-        for (const target of link_targets) {
+        try {
             /**
-             * If this is not set then the caller does not want this entity but a nested entity
-             * defined further in the GraphDefinition
-             * @type {string | null}
+             * @type {{type: string}[]}
              */
-            const resourceType = target.type;
-            // there are two types of linkages:
-            // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
-            // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
-            if (link.path) { // forward link
-                /**
-                 * @type {string}
-                 */
-                const originalProperty = link.path.replace('[x]', '');
-                const {filterProperty, filterValue, property} = this.getFilterFromPropertyPath(originalProperty);
-                // find parent entities that have a valid property
-                parentEntities = parentEntities.filter(
-                    p => this.doesEntityHaveProperty(
-                        {
-                            entity: p, property, filterProperty, filterValue
-                        })
-                );
-                // if this is a reference then get related resources
-                if (this.isPropertyAReference(
+            let link_targets = link.target;
+            /**
+             * @type {{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}[]}
+             */
+            const result = await async.map(
+                link_targets,
+                async (target) => await this.processLinkTargetAsync(
                     {
-                        entities: parentEntities, property, filterProperty, filterValue
-                    })) {
-                    await this.scopesValidator.verifyHasValidScopesAsync({
                         requestInfo,
-                        args: {},
-                        resourceType,
-                        startTime: Date.now(),
-                        action: 'graph',
-                        accessRequested: 'read'
-                    });
-
-                    await this.getForwardReferencesAsync(
-                        {
-                            requestInfo,
-                            base_version,
-                            resourceType,
-                            parentEntities,
-                            property,
-                            filterProperty,
-                            filterValue
-                        }
-                    );
-                    childEntries = parentEntities.flatMap(p => p.containedEntries);
-                } else { // handle paths that are not references
-                    childEntries = [];
-                    for (const parentEntity of parentEntities) {
-                        // create child entries
-                        /**
-                         * @type {Object[]}
-                         */
-                        const children = this.getPropertiesForEntity(
-                            {
-                                entity: parentEntity, property, filterProperty, filterValue
-                            });
-                        /**
-                         * @type {NonResourceEntityAndContained[]}
-                         */
-                        const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
-                                {
-                                    includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
-                                    item: c,
-                                    containedEntries: []
-                                }
-                            )
-                        );
-                        childEntries = childEntries.concat(childEntriesForCurrentEntity);
-                        parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
+                        base_version,
+                        parentResourceType,
+                        link,
+                        parentEntities,
+                        explain,
+                        debug,
+                        target
                     }
-                }
-            } else if (target.params) { // reverse link
-                if (target.type) { // if caller has requested this entity or just wants a nested entity
-                    // reverse link
-                    await this.scopesValidator.verifyHasValidScopesAsync({
-                        requestInfo,
-                        args: {},
-                        resourceType,
-                        startTime: Date.now(),
-                        action: 'graph',
-                        accessRequested: 'read'
-                    });
-                    if (!parentResourceType) {
-                        throw new Error(
-                            'processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' +
-                            ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                            ` using target.params: ${target.params}`
-                        );
-                    }
-                    await this.getReverseReferencesAsync(
-                        {
-                            requestInfo,
-                            base_version,
-                            parentResourceType,
-                            relatedResourceType: resourceType,
-                            parentEntities,
-                            filterProperty: null,
-                            filterValue: null,
-                            reverse_filter: target.params
-                        }
-                    );
-                    childEntries = parentEntities.flatMap(p => p.containedEntries);
-                }
-            }
-
-            // filter childEntries to find entries of same type as parentResource
-            childEntries = childEntries.filter(c =>
-                (!target.type && !c.resource) || // either there is no target type so choose non-resources
-                (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
+                )
             );
-            if (childEntries && childEntries.length > 0) {
-                /**
-                 * @type {string|null}
-                 */
-                const childResourceType = target.type;
-
-                // Now recurse down and process the link
-                /**
-                 * @type {[{path:string, params: string,target:[{type: string}]}]}
-                 */
-                const childLinks = target.link;
-                if (childLinks) {
-                    /**
-                     * @type {{path:string, params: string,target:[{type: string}]}}
-                     */
-                    for (const childLink of childLinks) {
-                        // now recurse and process the next link in GraphDefinition
-                        await this.processOneGraphLinkAsync(
-                            {
-                                requestInfo,
-                                base_version,
-                                parentResourceType: childResourceType,
-                                link: childLink,
-                                parentEntities: childEntries
-                            }
-                        );
-                    }
+            /**
+             * @type {QueryItem[]}
+             */
+            const queryItems = result.flatMap(r => r.queryItems);
+            return queryItems;
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error in processOneGraphLinkAsync(): ' +
+                        `parentResourceType: ${parentResourceType} , ` +
+                        `parents:${parentEntities.map(p => p.entityId)}, `,
+                    error: e
                 }
-            }
+            );
         }
     }
 
@@ -701,48 +854,61 @@ class GraphHelper {
      * @param {string} parentResourceType
      * @param {[Resource]} parentEntities
      * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
-     * @return {Promise<[ResourceEntityAndContained]>}
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
+     * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync(
         {
             requestInfo,
             base_version,
             parentResourceType,
-            parentEntities, linkItems
+            parentEntities,
+            linkItems,
+            explain,
+            debug
         }
     ) {
-        /**
-         * @type {[ResourceEntityAndContained]}
-         */
-        const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained(
-            {
-                entityId: parentEntity.id,
-                entityResourceType: parentEntity.resourceType,
-                fullUrl: this.getFullUrlForResource(
-                    {
-                        requestInfo, base_version, parentEntity
-                    }),
-                includeInOutput: true,
-                resource: parentEntity,
-                containedEntries: []
-            }
-        ));
-        /**
-         * @type {{path:string, params: string,target:[{type: string}]}}
-         */
-        for (const link of linkItems) {
-            /**
-             * @type {Resource}
-             */
+        try {
             /**
              * @type {ResourceEntityAndContained[]}
              */
-            await this.processOneGraphLinkAsync(
+            const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained(
                 {
-                    requestInfo, base_version, parentResourceType, link, parentEntities: resultEntities
-                });
+                    entityId: parentEntity.id,
+                    entityResourceType: parentEntity.resourceType,
+                    includeInOutput: true,
+                    resource: parentEntity,
+                    containedEntries: []
+                }
+            ));
+            /**
+             * @type {QueryItem[]}
+             */
+            const queryItems = await async.flatMap(
+                linkItems,
+                async (link) => await this.processOneGraphLinkAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        link,
+                        parentEntities: resultEntities,
+                        explain,
+                        debug
+                    })
+            );
+            return {entities: resultEntities, queryItems};
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error in processGraphLinksAsync(): ' +
+                        `parentResourceType: ${parentResourceType} , ` +
+                        `parents:${parentEntities.map(p => p.entityId)}, `,
+                    error: e
+                }
+            );
         }
-        return resultEntities;
     }
 
     /**
@@ -818,149 +984,204 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {string[]} idList
-     * @return {Promise<BundleEntry[]>}
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
+     * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
     async processMultipleIdsAsync(
         {
-            base_version, useAtlas, requestInfo,
-            resourceType, graphDefinition,
-            contained, hash_references,
-            idList
+            base_version,
+            useAtlas,
+            requestInfo,
+            resourceType,
+            graphDefinition,
+            contained,
+            hash_references,
+            idList,
+            explain,
+            debug
         }
     ) {
-        /**
-         * @type {BundleEntry[]}
-         */
-        let entries = [];
-        let query = {
-            'id': {
-                $in: idList
-            }
-        };
-        /**
-         * @type {string[]}
-         */
-        let securityTags = this.securityTagManager.getSecurityTagsFromScope({
-            user: requestInfo.user,
-            scope: requestInfo.scope
-        });
-        query = this.securityTagManager.getQueryWithSecurityTags(
-            {
-                resourceType, securityTags, query
-            });
-
-        const options = {};
-        const projection = {};
-        // also exclude _id so if there is a covering index the query can be satisfied from the covering index
-        projection['_id'] = 0;
-        options['projection'] = projection;
-
-        /**
-         * @type {number}
-         */
-        const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
-
-        /**
-         * mongo db cursor
-         * @type {DatabasePartitionedCursor}
-         */
-        let cursor = await this.databaseQueryFactory.createQuery(
-            {resourceType, base_version, useAtlas}
-        ).findAsync({query, options});
-        cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
-
-        /**
-         * @type {BundleEntry[]}
-         */
-        const topLevelBundleEntries = [];
-
-        while (await cursor.hasNext()) {
-            /**
-             * element
-             * @type {Resource|null}
-             */
-            const startResource = await cursor.next();
-            if (startResource) {
-                /**
-                 * @type {BundleEntry}
-                 */
-                let current_entity = new BundleEntry({
-                    fullUrl: this.getFullUrlForResource(
-                        {
-                            requestInfo, base_version, parentEntity: startResource
-                        }),
-                    resource: startResource
-                });
-                entries = entries.concat([current_entity]);
-                topLevelBundleEntries.push(current_entity);
-            }
-        }
-
-        /**
-         * @type {[{path:string, params: string,target:[{type: string}]}]}
-         */
-        const linkItems = graphDefinition.link;
-        /**
-         * @type {[ResourceEntityAndContained]}
-         */
-        const allRelatedEntries = await this.processGraphLinksAsync(
-            {
-                requestInfo,
-                base_version,
-                parentResourceType: resourceType,
-                parentEntities: topLevelBundleEntries.map(e => e.resource),
-                linkItems
-            });
-
-        for (const topLevelBundleEntry of topLevelBundleEntries) {
-            // add related resources as container
-            /**
-             * @type {ResourceEntityAndContained}
-             */
-            const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id &&
-                e.entityResourceType === topLevelBundleEntry.resource.resourceType);
-            /**
-             * @type {[EntityAndContainedBase]}
-             */
-            const related_entries = matchingEntity.containedEntries;
-            if (env.HASH_REFERENCE || hash_references) {
-                /**
-                 * @type {[string]}
-                 */
-                const related_references = [];
-                for (const /** @type  EntityAndContainedBase */ related_item of related_entries) {
-                    /**
-                     * @type {string}
-                     */
-                    const relatedItemElementElement = related_item['resource']['resourceType'];
-                    related_references.push(relatedItemElementElement.concat('/', related_item['resource']['id']));
-                }
-                if (related_references.length > 0) {
-                    topLevelBundleEntry.resource = await this.convertToHashedReferencesAsync(
-                        {
-                            parent_entity: topLevelBundleEntry.resource,
-                            linkReferences: related_references
-                        });
-                }
-            }
+        try {
             /**
              * @type {BundleEntry[]}
              */
-            const relatedEntities = related_entries
-                .flatMap(r => this.getRecursiveContainedEntities(r))
-                .filter(r => r.resource !== undefined);
-            if (contained) {
-                if (relatedEntities.length > 0) {
-                    topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
+            let entries = [];
+            /**
+             * @type {import('mongodb').Document}
+             */
+            let query = {
+                'id': {
+                    $in: idList
                 }
-            } else {
-                entries = entries.concat(relatedEntities);
-            }
-        }
+            };
+            /**
+             * @type {string[]}
+             */
+            let securityTags = this.securityTagManager.getSecurityTagsFromScope({
+                user: requestInfo.user,
+                scope: requestInfo.scope
+            });
+            query = this.securityTagManager.getQueryWithSecurityTags(
+                {
+                    resourceType, securityTags, query
+                });
 
-        entries = this.removeDuplicatesWithLambda(entries,
-            (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
-        return entries;
+            /**
+             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
+             */
+            const options = {};
+            const projection = {};
+            // also exclude _id so if there is a covering index the query can be satisfied from the covering index
+            projection['_id'] = 0;
+            options['projection'] = projection;
+
+            /**
+             * @type {number}
+             */
+            const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const queries = [];
+            /**
+             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
+             */
+            const optionsForQueries = [];
+
+            /**
+             * mongo db cursor
+             * @type {DatabasePartitionedCursor}
+             */
+            let cursor = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).findAsync({query, options});
+            cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
+
+            queries.push(query);
+            optionsForQueries.push(options);
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = explain || debug ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then just return one result
+                cursor = cursor.limit(1);
+            }
+
+            /**
+             * @type {BundleEntry[]}
+             */
+            const topLevelBundleEntries = [];
+
+            while (await cursor.hasNext()) {
+                /**
+                 * element
+                 * @type {Resource|null}
+                 */
+                const startResource = await cursor.next();
+                if (startResource) {
+                    /**
+                     * @type {BundleEntry}
+                     */
+                    let current_entity = new BundleEntry({
+                        resource: startResource
+                    });
+                    entries = entries.concat([current_entity]);
+                    topLevelBundleEntries.push(current_entity);
+                }
+            }
+
+            /**
+             * @type {[{path:string, params: string,target:[{type: string}]}]}
+             */
+            const linkItems = graphDefinition.link;
+            /**
+             * @type {{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}}
+             */
+            const {entities: allRelatedEntries, queryItems} = await this.processGraphLinksAsync(
+                {
+                    requestInfo,
+                    base_version,
+                    parentResourceType: resourceType,
+                    parentEntities: topLevelBundleEntries.map(e => e.resource),
+                    linkItems,
+                    explain,
+                    debug
+                });
+
+            for (const q of queryItems) {
+                if (q.query) {
+                    queries.push(q.query);
+                }
+                if (q.explanations) {
+                    for (const e of q.explanations) {
+                        explanations.push(e);
+                    }
+                }
+            }
+            // add contained objects under the parent resource
+            for (const topLevelBundleEntry of topLevelBundleEntries) {
+                // add related resources as container
+                /**
+                 * @type {ResourceEntityAndContained}
+                 */
+                const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id &&
+                    e.entityResourceType === topLevelBundleEntry.resource.resourceType);
+                /**
+                 * @type {[EntityAndContainedBase]}
+                 */
+                const related_entries = matchingEntity.containedEntries;
+                if (env.HASH_REFERENCE || hash_references) {
+                    /**
+                     * @type {[string]}
+                     */
+                    const related_references = [];
+                    for (const /** @type  EntityAndContainedBase */ related_item of related_entries) {
+                        /**
+                         * @type {string}
+                         */
+                        const relatedItemElementElement = related_item['resource']['resourceType'];
+                        related_references.push(relatedItemElementElement.concat('/', related_item['resource']['id']));
+                    }
+                    if (related_references.length > 0) {
+                        topLevelBundleEntry.resource = await this.convertToHashedReferencesAsync(
+                            {
+                                parent_entity: topLevelBundleEntry.resource,
+                                linkReferences: related_references
+                            });
+                    }
+                }
+                /**
+                 * @type {BundleEntry[]}
+                 */
+                const relatedEntities = related_entries
+                    .flatMap(r => this.getRecursiveContainedEntities(r))
+                    .filter(r => r.resource !== undefined);
+                if (contained) {
+                    if (relatedEntities.length > 0) {
+                        topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
+                    }
+                } else {
+                    entries = entries.concat(relatedEntities);
+                }
+            }
+
+            entries = this.removeDuplicatesWithLambda(entries,
+                (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+
+            return {entries, queries, options: optionsForQueries, explanations};
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error in processMultipleIdsAsync(): ' +
+                        `resourceType: ${resourceType} , ` +
+                        `id:${idList.join(',')}, `,
+                    error: e
+                }
+            );
+        }
     }
 
     /**
@@ -973,73 +1194,146 @@ class GraphHelper {
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {boolean} contained
      * @param {boolean} hash_references
+     * @param {Object} args
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
         {
             requestInfo,
-            base_version, useAtlas, resourceType,
+            base_version,
+            useAtlas,
+            resourceType,
             id,
-            graphDefinitionJson, contained, hash_references
+            graphDefinitionJson,
+            contained,
+            hash_references,
+            args
         }) {
-        /**
-         * @type {function(?Object): Resource}
-         */
-        const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
-        /**
-         * @type {Resource}
-         */
-        const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
+        try {
+            /**
+             * @type {number}
+             */
+            const startTime = Date.now();
+            /**
+             * @type {function(?Object): Resource}
+             */
+            const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
+            /**
+             * @type {Resource}
+             */
+            const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
 
-        if (!(Array.isArray(id))) {
-            id = [id];
-        }
-
-        // const graphParameters = new GraphParameters(base_version, requestInfo.protocol, requestInfo.host,
-        //     requestInfo.user, requestInfo.scope,
-        //     getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope),
-        //     useAtlas
-        // );
-        /**
-         * @type {BundleEntry[]}
-         */
-        const entries = await this.processMultipleIdsAsync(
-            {
-                base_version,
-                useAtlas,
-                requestInfo,
-                resourceType,
-                graphDefinition,
-                contained,
-                hash_references,
-                idList: id
+            if (!(Array.isArray(id))) {
+                id = [id];
             }
-        );
 
-        // remove duplicate resources
-        /**
-         * @type {BundleEntry[]}
-         */
-        let uniqueEntries = this.removeDuplicatesWithLambda(entries,
-            (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            // const graphParameters = new GraphParameters(base_version, requestInfo.protocol, requestInfo.host,
+            //     requestInfo.user, requestInfo.scope,
+            //     getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope),
+            //     useAtlas
+            // );
+            /**
+             * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
+             */
+            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
+                {
+                    base_version,
+                    useAtlas,
+                    requestInfo,
+                    resourceType,
+                    graphDefinition,
+                    contained,
+                    hash_references,
+                    idList: id,
+                    explain: args && args['_explain'] ? true : false,
+                    debug: args && args['_debug'] ? true : false,
+                }
+            );
 
-        /**
-         * @type {string[]}
-         */
-        const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
-        uniqueEntries = uniqueEntries.filter(
-            e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
-                accessCodes, requestInfo.user, requestInfo.scope, e.resource
-            )
-        );
-        // create a bundle
-        return new Bundle({
-            resourceType: 'Bundle',
-            id: 'bundle-example',
-            type: 'collection',
-            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
-            entry: uniqueEntries
-        });
+            // remove duplicate resources
+            /**
+             * @type {BundleEntry[]}
+             */
+            let uniqueEntries = this.removeDuplicatesWithLambda(entries,
+                (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+
+            /**
+             * @type {string[]}
+             */
+            const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
+            uniqueEntries = uniqueEntries.filter(
+                e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                    accessCodes, requestInfo.user, requestInfo.scope, e.resource
+                )
+            );
+
+            /**
+             * @type {string}
+             */
+            let collectionName;
+            if (queries && queries.length > 0) {
+                /**
+                 * @type {ResourceLocator}
+                 */
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                    {resourceType, base_version, useAtlas});
+                collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                    query: queries[0]
+                });
+            }
+            /**
+             * @type {number}
+             */
+            const stopTime = Date.now();
+            /**
+             * @type {Resource[]}
+             */
+            const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
+            /**
+             * @type {Bundle}
+             */
+            const bundle = this.bundleManager.createBundle(
+                {
+                    type: 'collection',
+                    requestId: requestInfo.requestId,
+                    originalUrl: requestInfo.originalUrl,
+                    host: requestInfo.host,
+                    protocol: requestInfo.protocol,
+                    last_id: null,
+                    resources,
+                    base_version,
+                    total_count: null,
+                    args: args,
+                    originalQuery: queries,
+                    collectionName,
+                    originalOptions: options,
+                    columns: new Set(),
+                    stopTime,
+                    startTime,
+                    useAtlas: false,
+                    user: requestInfo.user,
+                    explanations
+                }
+            );
+            return bundle;
+            // create a bundle
+            // return new Bundle({
+            //     resourceType: 'Bundle',
+            //     id: '1',
+            //     type: 'collection',
+            //     timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
+            //     entry: uniqueEntries
+            // });
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error in processGraphAsync(): ' +
+                        `resourceType: ${resourceType} , ` +
+                        `id:${id}, `,
+                    error: e
+                }
+            );
+        }
     }
 }
 

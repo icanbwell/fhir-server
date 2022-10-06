@@ -22,6 +22,7 @@ const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeable
 const {ResourceMerger} = require('../common/resourceMerger');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const {ResourceValidator} = require('../common/resourceValidator');
+const {RethrownError} = require('../../utils/rethrownError');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -354,46 +355,52 @@ class MergeManager {
             scope
         }
     ) {
-        /**
-         * @type {string[]}
-         */
-        const ids_of_resources = resources_incoming.map(r => r.id);
-        logDebug({
-                user, args:
-                    {
-                        message: 'Merge received array',
-                        length: resources_incoming.length,
-                        id: ids_of_resources
-                    }
-            }
-        );
-        // find items without duplicates and run them in parallel
-        // but items with duplicate ids should run in serial, so we can merge them properly (otherwise the first item
-        //  may not finish adding to the db before the next item tries to merge
-        /**
-         * @type {Resource[]}
-         */
-        const duplicate_id_resources = findDuplicateResources(resources_incoming);
-        /**
-         * @type {Resource[]}
-         */
-        const non_duplicate_id_resources = findUniqueResources(resources_incoming);
+        try {
+            /**
+             * @type {string[]}
+             */
+            const ids_of_resources = resources_incoming.map(r => r.id);
+            logDebug({
+                    user, args:
+                        {
+                            message: 'Merge received array',
+                            length: resources_incoming.length,
+                            id: ids_of_resources
+                        }
+                }
+            );
+            // find items without duplicates and run them in parallel
+            // but items with duplicate ids should run in serial, so we can merge them properly (otherwise the first item
+            //  may not finish adding to the db before the next item tries to merge
+            /**
+             * @type {Resource[]}
+             */
+            const duplicate_id_resources = findDuplicateResources(resources_incoming);
+            /**
+             * @type {Resource[]}
+             */
+            const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
-        await Promise.all([
-            async.map(non_duplicate_id_resources,
-                async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
+            await Promise.all([
+                async.map(non_duplicate_id_resources,
+                    async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
+                        {
+                            resourceToMerge: x,
+                            resourceType,
+                            user, currentDate, requestId, base_version, scope
+                        }
+                    )), // run in parallel
+                async.mapSeries(duplicate_id_resources, async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                     {
-                        resourceToMerge: x,
-                        resourceType,
+                        resourceToMerge: x, resourceType,
                         user, currentDate, requestId, base_version, scope
-                    }
-                )), // run in parallel
-            async.mapSeries(duplicate_id_resources, async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
-                {
-                    resourceToMerge: x, resourceType,
-                    user, currentDate, requestId, base_version, scope
-                })) // run in series
-        ]);
+                    })) // run in series
+            ]);
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -421,16 +428,22 @@ class MergeManager {
         }
     ) {
         assertTypeEquals(resourceToMerge, Resource);
-        await this.mergeResourceAsync(
-            {
-                resourceToMerge,
-                resourceType,
-                user,
-                currentDate,
-                requestId,
-                base_version,
-                scope
+        try {
+            await this.mergeResourceAsync(
+                {
+                    resourceToMerge,
+                    resourceType,
+                    user,
+                    currentDate,
+                    requestId,
+                    base_version,
+                    scope
+                });
+        } catch (e) {
+            throw new RethrownError({
+                error: e
             });
+        }
     }
 
     /**
@@ -443,29 +456,36 @@ class MergeManager {
             resourceToMerge
         }
     ) {
-        assertTypeEquals(resourceToMerge, Resource);
-        let id = resourceToMerge.id;
+        try {
+            assertTypeEquals(resourceToMerge, Resource);
+            let id = resourceToMerge.id;
 
-        await preSaveAsync(resourceToMerge);
+            await preSaveAsync(resourceToMerge);
 
-        // Insert/update our resource record
-        await this.databaseBulkInserter.replaceOneAsync(
-            {
-                resourceType: resourceToMerge.resourceType,
-                id: id.toString(),
-                doc: resourceToMerge
-            }
-        );
+            // Insert/update our resource record
+            await this.databaseBulkInserter.replaceOneAsync(
+                {
+                    resourceType: resourceToMerge.resourceType,
+                    id: id.toString(),
+                    doc: resourceToMerge
+                }
+            );
 
-        /**
-         * @type {Resource}
-         */
-        const historyResource = resourceToMerge.copy();
+            /**
+             * @type {Resource}
+             */
+            const historyResource = resourceToMerge.copy();
 
-        await this.databaseBulkInserter.insertOneHistoryAsync(
-            {
-                resourceType: resourceToMerge.resourceType, doc: historyResource
+            await this.databaseBulkInserter.insertOneHistoryAsync(
+                {
+                    resourceType: resourceToMerge.resourceType, doc: historyResource
+                });
+        } catch (e) {
+            throw new RethrownError({
+                message: `Error updating: ${JSON.stringify(resourceToMerge)}`,
+                error: e
             });
+        }
     }
 
     /**
@@ -477,23 +497,30 @@ class MergeManager {
         {
             resourceToMerge
         }) {
-        assertTypeEquals(resourceToMerge, Resource);
-        await preSaveAsync(resourceToMerge);
+        try {
+            assertTypeEquals(resourceToMerge, Resource);
+            await preSaveAsync(resourceToMerge);
 
-        // Insert/update our resource record
-        await this.databaseBulkInserter.insertOneAsync({
-                resourceType: resourceToMerge.resourceType,
-                doc: resourceToMerge
-            }
-        );
+            // Insert/update our resource record
+            await this.databaseBulkInserter.insertOneAsync({
+                    resourceType: resourceToMerge.resourceType,
+                    doc: resourceToMerge
+                }
+            );
 
-        const historyResource = resourceToMerge.copy();
+            const historyResource = resourceToMerge.copy();
 
-        await this.databaseBulkInserter.insertOneHistoryAsync({
-                resourceType: resourceToMerge.resourceType,
-                doc: historyResource
-            }
-        );
+            await this.databaseBulkInserter.insertOneHistoryAsync({
+                    resourceType: resourceToMerge.resourceType,
+                    doc: historyResource
+                }
+            );
+        } catch (e) {
+            throw new RethrownError({
+                message: `Error inserting: ${JSON.stringify(resourceToMerge)}`,
+                error: e
+            });
+        }
     }
 
     /**
@@ -515,104 +542,16 @@ class MergeManager {
             path,
             currentDate
         }) {
-        /**
-         * @type {string} id
-         */
-        let id = resourceToMerge.id;
-        if (!(resourceToMerge.resourceType)) {
+        try {
             /**
-             * @type {OperationOutcome}
+             * @type {string} id
              */
-            const operationOutcome = new OperationOutcome({
-                resourceType: 'OperationOutcome',
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'exception',
-                        details: new CodeableConcept({
-                            text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                        }),
-                        diagnostics: 'resource is missing resourceType',
-                        expression: [
-                            resourceType + '/' + id
-                        ]
-                    })
-                ]
-            });
-            const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
-            return {
-                id: id,
-                created: false,
-                updated: false,
-                issue: issue,
-                operationOutcome: operationOutcome,
-                resourceType: resourceType
-            };
-        }
-
-        if (isTrue(env.AUTH_ENABLED)) {
-            let {success} = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
-            if (!success) {
+            let id = resourceToMerge.id;
+            if (!(resourceToMerge.resourceType)) {
+                /**
+                 * @type {OperationOutcome}
+                 */
                 const operationOutcome = new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
-                            }),
-                            diagnostics: 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceToMerge.resourceType + '.' + 'write' + ']',
-                            expression: [
-                                resourceToMerge.resourceType + '/' + id
-                            ]
-                        })
-                    ]
-                });
-                return {
-                    id: id,
-                    created: false,
-                    updated: false,
-                    issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                    operationOutcome: operationOutcome,
-                    resourceType: resourceToMerge.resourceType
-                };
-            }
-        }
-
-        //----- validate schema ----
-        // The FHIR validator wants meta.lastUpdated to be string instead of data
-        // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
-        const resourceObjectToValidate = deepcopy(resourceToMerge.toJSON());
-        if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
-            // noinspection JSValidateTypes
-            resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
-        }
-
-        /**
-         * @type {OperationOutcome|null}
-         */
-        const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-            id: id,
-            resourceType: resourceObjectToValidate.resourceType,
-            resourceToValidate: resourceObjectToValidate,
-            path: path,
-            currentDate: currentDate
-        });
-        if (validationOperationOutcome) {
-            return {
-                id: id,
-                created: false,
-                updated: false,
-                issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0) ?
-                    validationOperationOutcome.issue[0] : null,
-                operationOutcome: validationOperationOutcome,
-                resourceType: resourceToMerge.resourceType
-            };
-        }
-
-        if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-            if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
-                const accessTagOperationOutcome = new OperationOutcome({
                     resourceType: 'OperationOutcome',
                     issue: [
                         new OperationOutcomeIssue({
@@ -621,25 +560,120 @@ class MergeManager {
                             details: new CodeableConcept({
                                 text: 'Error merging: ' + JSON.stringify(resourceToMerge)
                             }),
-                            diagnostics: 'Resource is missing a meta.security tag with system: https://www.icanbwell.com/access',
+                            diagnostics: 'resource is missing resourceType',
                             expression: [
-                                resourceToMerge.resourceType + '/' + id
+                                resourceType + '/' + id
                             ]
                         })
                     ]
                 });
+                const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
                 return {
                     id: id,
                     created: false,
                     updated: false,
-                    issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
-                    operationOutcome: accessTagOperationOutcome,
+                    issue: issue,
+                    operationOutcome: operationOutcome,
+                    resourceType: resourceType
+                };
+            }
+
+            if (isTrue(env.AUTH_ENABLED)) {
+                let {success} = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
+                if (!success) {
+                    const operationOutcome = new OperationOutcome({
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'exception',
+                                details: new CodeableConcept({
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                }),
+                                diagnostics: 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceToMerge.resourceType + '.' + 'write' + ']',
+                                expression: [
+                                    resourceToMerge.resourceType + '/' + id
+                                ]
+                            })
+                        ]
+                    });
+                    return {
+                        id: id,
+                        created: false,
+                        updated: false,
+                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                        operationOutcome: operationOutcome,
+                        resourceType: resourceToMerge.resourceType
+                    };
+                }
+            }
+
+            //----- validate schema ----
+            // The FHIR validator wants meta.lastUpdated to be string instead of data
+            // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
+            const resourceObjectToValidate = deepcopy(resourceToMerge.toJSON());
+            if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
+                // noinspection JSValidateTypes
+                resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
+            }
+
+            /**
+             * @type {OperationOutcome|null}
+             */
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
+                id: id,
+                resourceType: resourceObjectToValidate.resourceType,
+                resourceToValidate: resourceObjectToValidate,
+                path: path,
+                currentDate: currentDate
+            });
+            if (validationOperationOutcome) {
+                return {
+                    id: id,
+                    created: false,
+                    updated: false,
+                    issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0) ?
+                        validationOperationOutcome.issue[0] : null,
+                    operationOutcome: validationOperationOutcome,
                     resourceType: resourceToMerge.resourceType
                 };
             }
-        }
 
-        return null;
+            if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+                if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
+                    const accessTagOperationOutcome = new OperationOutcome({
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'exception',
+                                details: new CodeableConcept({
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                }),
+                                diagnostics: 'Resource is missing a meta.security tag with system: https://www.icanbwell.com/access',
+                                expression: [
+                                    resourceToMerge.resourceType + '/' + id
+                                ]
+                            })
+                        ]
+                    });
+                    return {
+                        id: id,
+                        created: false,
+                        updated: false,
+                        issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
+                        operationOutcome: accessTagOperationOutcome,
+                        resourceType: resourceToMerge.resourceType
+                    };
+                }
+            }
+
+            return null;
+        } catch (e) {
+            throw new RethrownError({
+                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge)}`,
+                error: e
+            });
+        }
     }
 
     /**
@@ -655,35 +689,42 @@ class MergeManager {
         {
             resourcesToMerge, scopes, user, path, currentDate
         }) {
-        /**
-         * @type {MergeResultEntry[]}
-         */
-        const mergePreCheckErrors = [];
-        /**
-         * @type {Resource[]}
-         */
-        const validResources = [];
-        for (const /** @type {Resource} */ r of resourcesToMerge) {
+        try {
             /**
-             * @type {MergeResultEntry|null}
+             * @type {MergeResultEntry[]}
              */
-            const mergeResult = await this.preMergeChecksAsync(
-                {
-                    resourceToMerge: r,
-                    resourceType: r.resourceType,
-                    scopes,
-                    user,
-                    path,
-                    currentDate
+            const mergePreCheckErrors = [];
+            /**
+             * @type {Resource[]}
+             */
+            const validResources = [];
+            for (const /** @type {Resource} */ r of resourcesToMerge) {
+                /**
+                 * @type {MergeResultEntry|null}
+                 */
+                const mergeResult = await this.preMergeChecksAsync(
+                    {
+                        resourceToMerge: r,
+                        resourceType: r.resourceType,
+                        scopes,
+                        user,
+                        path,
+                        currentDate
+                    }
+                );
+                if (mergeResult) {
+                    mergePreCheckErrors.push(mergeResult);
+                } else {
+                    validResources.push(r);
                 }
-            );
-            if (mergeResult) {
-                mergePreCheckErrors.push(mergeResult);
-            } else {
-                validResources.push(r);
             }
+            return {mergePreCheckErrors, validResources};
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in MergeManager.preMergeChecksMultipleAsync()',
+                error: e
+            });
         }
-        return {mergePreCheckErrors, validResources};
     }
 
     /**
@@ -703,48 +744,54 @@ class MergeManager {
             mergeResults
         }
     ) {
-        assertIsValid(requestInfo);
-        /**
-         * merge results grouped by resourceType
-         * @type {Object}
-         */
-        const groupByResourceType = groupByLambda(mergeResults, mergeResult => {
-            return mergeResult.resourceType;
-        });
+        try {
+            assertIsValid(requestInfo);
+            /**
+             * merge results grouped by resourceType
+             * @type {Object}
+             */
+            const groupByResourceType = groupByLambda(mergeResults, mergeResult => {
+                return mergeResult.resourceType;
+            });
 
-        for (const [resourceType, mergeResultsForResourceType] of Object.entries(groupByResourceType)) {
-            if (resourceType !== 'AuditEvent') { // we don't log queries on AuditEvent itself
-                /**
-                 * @type {MergeResultEntry[]}
-                 */
-                const createdItems = mergeResultsForResourceType.filter(r => r.created === true);
-                /**
-                 * @type {MergeResultEntry[]}
-                 */
-                const updatedItems = mergeResultsForResourceType.filter(r => r.updated === true);
-                if (createdItems && createdItems.length > 0) {
-                    await this.auditLogger.logAuditEntryAsync(
-                        {
-                            requestInfo, base_version, resourceType,
-                            operation: 'create', args,
-                            ids: createdItems.map(r => r['id'])
-                        }
-                    );
-                }
-                if (updatedItems && updatedItems.length > 0) {
-                    await this.auditLogger.logAuditEntryAsync(
-                        {
-                            requestInfo, base_version, resourceType,
-                            operation: 'update', args,
-                            ids: updatedItems.map(r => r['id'])
-                        }
-                    );
+            for (const [resourceType, mergeResultsForResourceType] of Object.entries(groupByResourceType)) {
+                if (resourceType !== 'AuditEvent') { // we don't log queries on AuditEvent itself
+                    /**
+                     * @type {MergeResultEntry[]}
+                     */
+                    const createdItems = mergeResultsForResourceType.filter(r => r.created === true);
+                    /**
+                     * @type {MergeResultEntry[]}
+                     */
+                    const updatedItems = mergeResultsForResourceType.filter(r => r.updated === true);
+                    if (createdItems && createdItems.length > 0) {
+                        await this.auditLogger.logAuditEntryAsync(
+                            {
+                                requestInfo, base_version, resourceType,
+                                operation: 'create', args,
+                                ids: createdItems.map(r => r['id'])
+                            }
+                        );
+                    }
+                    if (updatedItems && updatedItems.length > 0) {
+                        await this.auditLogger.logAuditEntryAsync(
+                            {
+                                requestInfo, base_version, resourceType,
+                                operation: 'update', args,
+                                ids: updatedItems.map(r => r['id'])
+                            }
+                        );
+                    }
                 }
             }
-        }
 
-        const currentDate = moment.utc().format('YYYY-MM-DD');
-        await this.auditLogger.flushAsync({requestId, currentDate});
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+            await this.auditLogger.flushAsync({requestId, currentDate});
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 }
 
