@@ -19,16 +19,14 @@ class DatabaseUpdateFactory {
      * create
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean} useAtlas
      * @return {DatabaseUpdateManager}
      */
-    createDatabaseUpdateManager({resourceType, base_version, useAtlas}) {
+    createDatabaseUpdateManager({resourceType, base_version}) {
         return new DatabaseUpdateManager(
             {
                 resourceLocatorFactory: this.resourceLocatorFactory,
                 resourceType,
-                base_version,
-                useAtlas
+                base_version
             }
         );
     }

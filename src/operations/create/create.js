@@ -7,7 +7,6 @@ const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
 const {preSaveAsync} = require('../common/preSave');
-const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -180,11 +179,6 @@ class CreateOperation {
         }
 
         try {
-            /**
-             * @type {boolean}
-             */
-            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
             // Get current record
             /**
              * @type {function({Object}): Resource}
@@ -255,7 +249,7 @@ class CreateOperation {
             // Insert our resource record
             try {
                 await this.databaseUpdateFactory.createDatabaseUpdateManager(
-                    {resourceType, base_version, useAtlas}
+                    {resourceType, base_version}
                 ).insertOneAsync({doc});
             } catch (e) {
                 // noinspection ExceptionCaughtLocallyJS
@@ -263,7 +257,7 @@ class CreateOperation {
             }
             // Save the resource to history
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
-                {resourceType, base_version, useAtlas}
+                {resourceType, base_version}
             ).insertHistoryForResourceAsync({doc: doc});
 
             // log operation

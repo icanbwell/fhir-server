@@ -27,11 +27,10 @@ class DatabaseBulkLoader {
     /**
      * Finds all documents with the specified resource type and ids
      * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {{resourceType: string, id: string}[]} requestedResources
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async loadResourcesByResourceTypeAndIdAsync({base_version, useAtlas, requestedResources}) {
+    async loadResourcesByResourceTypeAndIdAsync({base_version, requestedResources}) {
         try {
             /**
              * merge results grouped by resourceType
@@ -49,7 +48,7 @@ class DatabaseBulkLoader {
                 Object.entries(groupByResourceType),
                 async x => await this.getResourcesByIdAsync(
                     {
-                        base_version, useAtlas,
+                        base_version,
                         resourceType: x[0],
                         resourceAndIdList: x[1]
                     }
@@ -70,12 +69,11 @@ class DatabaseBulkLoader {
     /**
      * Get resources by id for this resourceType
      * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {string} resourceType
      * @param {{resource:string, id: string}[]} resourceAndIdList
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
-    async getResourcesByIdAsync({base_version, useAtlas, resourceType, resourceAndIdList}) {
+    async getResourcesByIdAsync({base_version, resourceType, resourceAndIdList}) {
         try {
             const query = {
                 id: {$in: resourceAndIdList.map(r => r.id)}
@@ -85,7 +83,7 @@ class DatabaseBulkLoader {
              * @type {DatabasePartitionedCursor}
              */
             const cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas}
+                {resourceType, base_version}
             ).findAsync({query});
 
             /**

@@ -212,7 +212,7 @@ class AuditLogger {
          */
         const mergeResults = await this.databaseBulkInserter.executeAsync(
             {
-                requestId, currentDate, base_version: this.base_version, useAtlas: false
+                requestId, currentDate, base_version: this.base_version
             }
         );
         /**

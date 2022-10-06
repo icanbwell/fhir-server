@@ -2,8 +2,6 @@
 
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ScopesManager} = require('../security/scopesManager');
@@ -81,11 +79,6 @@ class SearchByVersionIdOperation {
 
             let {base_version, id, version_id} = args;
 
-            /**
-             * @type {boolean}
-             */
-            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
             // Query our collection for this observation
             /**
              * @type {Resource|null}
@@ -94,7 +87,7 @@ class SearchByVersionIdOperation {
             try {
                 resource = await this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
-                        resourceType, base_version, useAtlas
+                        resourceType, base_version
                     }
                 ).findOneAsync({
                     query: {id: id.toString(), 'meta.versionId': `${version_id}`}

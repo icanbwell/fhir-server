@@ -106,8 +106,7 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.executeAsync({
                 requestId: requestId1,
                 currentDate,
-                base_version,
-                useAtlas: false,
+                base_version
             });
 
             /**

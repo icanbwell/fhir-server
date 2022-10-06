@@ -258,7 +258,7 @@ class GraphHelper {
              * @type {DatabasePartitionedCursor}
              */
             let cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas: requestInfo.useAtlas}
+                {resourceType, base_version}
             ).findAsync({query, options});
 
             /**
@@ -415,7 +415,7 @@ class GraphHelper {
              * @type {DatabasePartitionedCursor}
              */
             let cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType: relatedResourceType, base_version, useAtlas: requestInfo.useAtlas}
+                {resourceType: relatedResourceType, base_version}
             ).findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
@@ -977,7 +977,6 @@ class GraphHelper {
     /**
      * processing multiple ids
      * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {Resource} graphDefinition
@@ -991,7 +990,6 @@ class GraphHelper {
     async processMultipleIdsAsync(
         {
             base_version,
-            useAtlas,
             requestInfo,
             resourceType,
             graphDefinition,
@@ -1055,7 +1053,7 @@ class GraphHelper {
              * @type {DatabasePartitionedCursor}
              */
             let cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas}
+                {resourceType, base_version}
             ).findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
@@ -1188,7 +1186,6 @@ class GraphHelper {
      * process GraphDefinition and returns a bundle with all the related resources
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {string} resourceType
      * @param {string | string[]} id (accepts a single id or a list of ids)
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
@@ -1201,7 +1198,6 @@ class GraphHelper {
         {
             requestInfo,
             base_version,
-            useAtlas,
             resourceType,
             id,
             graphDefinitionJson,
@@ -1227,18 +1223,12 @@ class GraphHelper {
                 id = [id];
             }
 
-            // const graphParameters = new GraphParameters(base_version, requestInfo.protocol, requestInfo.host,
-            //     requestInfo.user, requestInfo.scope,
-            //     getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope),
-            //     useAtlas
-            // );
             /**
              * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
              */
             const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
                 {
                     base_version,
-                    useAtlas,
                     requestInfo,
                     resourceType,
                     graphDefinition,
@@ -1276,7 +1266,7 @@ class GraphHelper {
                  * @type {ResourceLocator}
                  */
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                    {resourceType, base_version, useAtlas});
+                    {resourceType, base_version});
                 collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
                     query: queries[0]
                 });
@@ -1310,7 +1300,6 @@ class GraphHelper {
                     columns: new Set(),
                     stopTime,
                     startTime,
-                    useAtlas: false,
                     user: requestInfo.user,
                     explanations
                 }

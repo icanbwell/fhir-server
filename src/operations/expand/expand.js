@@ -1,7 +1,5 @@
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {enrich} = require('../../enrich/enrich');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ValueSetManager} = require('../../utils/valueSet.util');
@@ -93,17 +91,12 @@ class ExpandOperation {
         let query = {};
         query.id = id;
         /**
-         * @type {boolean}
-         */
-        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-        /**
          * @type {Resource}
          */
         let resource;
         try {
             resource = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas}
+                {resourceType, base_version}
             ).findOneAsync({query: {id: id.toString()}});
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
@@ -135,7 +128,7 @@ class ExpandOperation {
             }
 
             // implement expand functionality
-            resource = await this.valueSetManager.getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource);
+            resource = await this.valueSetManager.getExpandedValueSetAsync(resourceType, base_version, resource);
 
             // run any enrichment
             resource = (await enrich([resource], resourceType))[0];

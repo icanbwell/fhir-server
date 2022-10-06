@@ -61,7 +61,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
@@ -104,7 +103,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1', '2'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
@@ -159,7 +157,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
@@ -217,7 +214,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1'],
                 graphDefinitionJson: graphDefinition,
@@ -275,7 +271,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
@@ -332,7 +327,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1'],
                 graphDefinitionJson: graphDefinition,
@@ -399,7 +393,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['10'],
                 graphDefinitionJson: graphSimpleForwardDefinition,
@@ -460,7 +453,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
@@ -527,7 +519,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1'],
                 graphDefinitionJson: graphDefinition,
@@ -620,7 +611,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1', '2'],
                 graphDefinitionJson: graphDefinition,
@@ -740,7 +730,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1', '2'],
                 graphDefinitionJson: graphDefinition,
@@ -868,7 +857,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['10'],
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
@@ -1032,7 +1020,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
@@ -1248,7 +1235,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
@@ -1451,7 +1437,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
@@ -1696,7 +1681,6 @@ describe('graphHelper Tests', () => {
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
-                useAtlas: false,
                 resourceType,
                 id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,

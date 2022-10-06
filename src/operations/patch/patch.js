@@ -5,8 +5,6 @@ const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
 const {preSaveAsync} = require('../common/preSave');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -99,18 +97,12 @@ class PatchOperation {
         try {
 
             let {base_version, id, patchContent} = args;
-
-            /**
-             * @type {boolean}
-             */
-            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
             // Get current record
             // Query our collection for this observation
             let data;
             try {
                 data = await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version, useAtlas}
+                    {resourceType, base_version}
                 ).findOneAsync({query: {id: id.toString()}});
             } catch (e) {
                 throw new BadRequestError(e);
@@ -156,7 +148,7 @@ class PatchOperation {
             try {
                 doc = omitPropertyFromResource(doc, '_id');
                 res = await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version, useAtlas}
+                    {resourceType, base_version}
                 ).findOneAndUpdateAsync({
                     query: {id: id}, update: {$set: doc.toJSONInternal()}, options: {upsert: true}
                 });
@@ -171,7 +163,7 @@ class PatchOperation {
             try {
                 await this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
-                        resourceType, base_version, useAtlas
+                        resourceType, base_version
                     }
                 ).insertHistoryForResourceAsync({doc: historyResource});
             } catch (e) {

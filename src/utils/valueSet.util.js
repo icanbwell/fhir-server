@@ -23,15 +23,14 @@ class ValueSetManager {
      * gets the value sets
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @param {string} valueSetUrl
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getContentsOfValueSetAsync(resourceType, base_version, useAtlas, valueSetUrl) {
+    async getContentsOfValueSetAsync(resourceType, base_version, valueSetUrl) {
         const valueSet = await this.databaseQueryFactory.createQuery(
-            {resourceType, base_version, useAtlas}
+            {resourceType, base_version}
         ).findOneAsync({query: {url: valueSetUrl.toString()}});
-        return await this.getValueSetConceptsAsync(resourceType, base_version, useAtlas, valueSet);
+        return await this.getValueSetConceptsAsync(resourceType, base_version, valueSet);
     }
 
     /**
@@ -55,11 +54,10 @@ class ValueSetManager {
      *  Gets the included concepts which can either be concepts or a nested value set
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @param {{valueSet:string[],system:string,version:string,concept:Coding[] }} include
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getIncludeAsync(resourceType, base_version, useAtlas, include) {
+    async getIncludeAsync(resourceType, base_version, include) {
         /**
          * @type {{system, code, display, version: string}[]}
          */
@@ -68,7 +66,7 @@ class ValueSetManager {
         if (include.valueSet) {
             concepts = await async.flatMap(include.valueSet,
                 async valueSet => await this.getContentsOfValueSetAsync(
-                    resourceType, base_version, useAtlas, valueSet)
+                    resourceType, base_version, valueSet)
             );
         }
         if (include.system) {
@@ -86,11 +84,10 @@ class ValueSetManager {
      * Gets the concepts in this value set.  Recurses down into any nested value sets
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @param {Resource} resource1
      * @return {Promise<{system, code, display, version: string}[]>}
      */
-    async getValueSetConceptsAsync(resourceType, base_version, useAtlas, resource1) {
+    async getValueSetConceptsAsync(resourceType, base_version, resource1) {
         /**
          * @type {{system, code, display, version: string}[]}
          */
@@ -99,7 +96,7 @@ class ValueSetManager {
             // noinspection UnnecessaryLocalVariableJS
             expandedValueSets = await async.flatMap(resource1.compose.include,
                 async include => await this.getIncludeAsync(
-                    resourceType, base_version, useAtlas, include)
+                    resourceType, base_version, include)
             );
         }
 
@@ -115,15 +112,14 @@ class ValueSetManager {
      * Expands the value set as a new expansion field and removes the 'compose' field
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @param {Resource} resource1
      * @return {Resource}
      */
-    async getExpandedValueSetAsync(resourceType, base_version, useAtlas, resource1) {
+    async getExpandedValueSetAsync(resourceType, base_version, resource1) {
         /**
          * @type {{system, code, display, version: string}[]}
          */
-        let concepts = await this.getValueSetConceptsAsync(resourceType, base_version, useAtlas, resource1);
+        let concepts = await this.getValueSetConceptsAsync(resourceType, base_version, resource1);
         resource1['expansion'] = {
             contains: concepts,
             'offset': 0,

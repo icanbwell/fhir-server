@@ -51,53 +51,35 @@ let mongoConfig = {
     options: options,
 };
 
-let atlasMongoUrl = env.ATLAS_MONGO_URL;
-if (env.ATLAS_MONGO_USERNAME !== undefined) {
-    atlasMongoUrl = atlasMongoUrl.replace(
-        'mongodb://',
-        `mongodb://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`
-    );
-    atlasMongoUrl = atlasMongoUrl.replace(
-        'mongodb+srv://',
-        `mongodb+srv://${env.ATLAS_MONGO_USERNAME}:${env.ATLAS_MONGO_PASSWORD}@`
-    );
-}
-// url-encode the url
-atlasMongoUrl = atlasMongoUrl ? encodeURI(atlasMongoUrl) : atlasMongoUrl;
 /**
  * @name mongoConfig
  * @summary Configurations for our Mongo instance
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
  */
-let atlasMongoConfig = {
-    connection: atlasMongoUrl,
-    db_name: String(env.ATLAS_MONGO_DB_NAME),
-    options: options,
-};
+let auditEventMongoConfig;
 
-let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL || env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
-if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
-    auditEventMongoUrl = auditEventMongoUrl.replace(
-        'mongodb://',
-        `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
-    );
-    auditEventMongoUrl = auditEventMongoUrl.replace(
-        'mongodb+srv://',
-        `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
-    );
-}
+if (env.AUDIT_EVENT_MONGO_URL) {
+    let auditEventMongoUrl = env.AUDIT_EVENT_MONGO_URL;
+    if (env.AUDIT_EVENT_MONGO_USERNAME !== undefined) {
+        auditEventMongoUrl = auditEventMongoUrl.replace(
+            'mongodb://',
+            `mongodb://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
+        );
+        auditEventMongoUrl = auditEventMongoUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${env.AUDIT_EVENT_MONGO_USERNAME}:${env.AUDIT_EVENT_MONGO_PASSWORD}@`
+        );
+    }
 // url-encode the url
-auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditEventMongoUrl;
-/**
- * @name mongoConfig
- * @summary Configurations for our Mongo instance
- * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
- */
-let auditEventMongoConfig = {
-    connection: auditEventMongoUrl,
-    db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
-    options: options,
-};
+    auditEventMongoUrl = auditEventMongoUrl ? encodeURI(auditEventMongoUrl) : auditEventMongoUrl;
+    auditEventMongoConfig = {
+        connection: auditEventMongoUrl,
+        db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
+        options: options,
+    };
+} else {
+    auditEventMongoConfig = mongoConfig;
+}
 
 // Set up whitelist
 let whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host) => host.trim())) || false;
@@ -186,6 +168,5 @@ if (env.AUTH_ENABLED === '1') {
 module.exports = {
     fhirServerConfig,
     mongoConfig,
-    atlasMongoConfig,
     auditEventMongoConfig,
 };

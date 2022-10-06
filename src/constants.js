@@ -5,8 +5,6 @@
 module.exports = {
     CLIENT: 'client',
     CLIENT_DB: 'client_db',
-    ATLAS_CLIENT: 'atlasClient',
-    ATLAS_CLIENT_DB: 'atlasClient_db',
     AUDIT_EVENT_CLIENT: 'auditEventClient',
     AUDIT_EVENT_CLIENT_DB: 'auditEventClient_db',
     COLLECTION: {

@@ -14,11 +14,10 @@ class ResourceLocator {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {PartitioningManager} partitioningManager
-     * @param {boolean|null} useAtlas
      */
     constructor({
                     mongoDatabaseManager,
-                    mongoCollectionManager, resourceType, base_version, partitioningManager, useAtlas
+                    mongoCollectionManager, resourceType, base_version, partitioningManager
                 }) {
         assertIsValid(resourceType, 'resourceType is not passed to ResourceLocator constructor');
         assertIsValid(base_version, 'base_version is not passed to ResourceLocator constructor');
@@ -37,11 +36,6 @@ class ResourceLocator {
          * @private
          */
         this._base_version = base_version;
-        /**
-         * @type {boolean|null}
-         * @private
-         */
-        this._useAtlas = useAtlas;
         /**
          * @type {PartitioningManager}
          */
