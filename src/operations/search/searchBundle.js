@@ -39,15 +39,27 @@ class SearchBundleOperation {
             configManager
         }
     ) {
+        /**
+         * @type {SearchManager}
+         */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
 
+        /**
+         * @type {ResourceLocatorFactory}
+         */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
 
+        /**
+         * @type {AuditLogger}
+         */
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
 
+        /**
+         * @type {ErrorReporter}
+         */
         this.errorReporter = errorReporter;
         assertTypeEquals(errorReporter, ErrorReporter);
         /**
