@@ -1462,7 +1462,8 @@ describe('graphHelper Tests', () => {
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.meta).toBeDefined();
-            expect(result.meta.filter(t => t.system === 'https://www.icanbwell.com/queryExplain').length).toBe(4);
+            expect(result.meta.tag).toBeDefined();
+            expect(result.meta.tag.filter(t => t.system === 'https://www.icanbwell.com/queryExplain').length).toBe(1);
             for (const tag of result.meta.tag) {
                 if (tag.system === 'https://www.icanbwell.com/queryExplain') {
                     delete tag['display'];
