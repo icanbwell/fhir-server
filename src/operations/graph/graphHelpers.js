@@ -809,22 +809,15 @@ class GraphHelper {
         }) {
         try {
             /**
-             * @type {QueryItem[]}
-             */
-            const queryItems = [];
-            /**
-             * @type {EntityAndContainedBase[]}
-             */
-            let childEntries = [];
-            /**
              * @type {{type: string}[]}
              */
             let link_targets = link.target;
-            for (const target of link_targets) {
-                /**
-                 * @type {{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}}
-                 */
-                const resultForLinkTarget = await this.processLinkTargetAsync(
+            /**
+             * @type {{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}[]}
+             */
+            const result = await async.map(
+                link_targets,
+                async (target) => await this.processLinkTargetAsync(
                     {
                         requestInfo,
                         base_version,
@@ -835,14 +828,12 @@ class GraphHelper {
                         debug,
                         target
                     }
-                );
-                for (const q of resultForLinkTarget.queryItems) {
-                    queryItems.push(q);
-                }
-                for (const c of resultForLinkTarget.childEntries) {
-                    childEntries.push(c);
-                }
-            }
+                )
+            );
+            /**
+             * @type {QueryItem[]}
+             */
+            const queryItems = result.flatMap(r => r.queryItems);
             return queryItems;
         } catch (e) {
             throw new RethrownError(
@@ -1254,8 +1245,8 @@ class GraphHelper {
                     contained,
                     hash_references,
                     idList: id,
-                    explain: args && args['_explain'],
-                    debug: args && args['_debug'],
+                    explain: args && args['_explain'] ? true : false,
+                    debug: args && args['_debug'] ? true : false,
                 }
             );
 
