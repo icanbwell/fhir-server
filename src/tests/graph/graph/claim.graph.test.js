@@ -72,6 +72,15 @@ describe('Claim Graph Contained Tests', () => {
                 .send(graphDefinitionResource);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResource);
+
+            resp = await request
+                .post(
+                    '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true&_explain=1'
+                )
+                .set(getHeaders())
+                .send(graphDefinitionResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource);
         });
     });
 });
