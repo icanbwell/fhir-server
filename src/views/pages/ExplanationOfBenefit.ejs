@@ -164,7 +164,7 @@
                                             <% } else { %>
                                                 <%= coding.code; %>
                                             <% } %>
-                                            (<%= coding.system.split('/').pop(); %>)
+                                            (<%= coding.system ? coding.system.split('/').pop(): ''; %>)
                                         <% }); %>
                                     <% } %>
                                 </td>
