@@ -157,8 +157,11 @@ class HistoryOperation {
         /**
          * @type {import('mongodb').Document[]}
          */
-        const explanations = (args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
-
+        const explanations = (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
+        if (args['_explain']) {
+            // if explain is requested then don't return any results
+            cursor.clear();
+        }
         /**
          * @type {Resource[]}
          */

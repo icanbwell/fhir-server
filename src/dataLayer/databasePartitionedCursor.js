@@ -169,6 +169,10 @@ class DatabasePartitionedCursor {
     async explainAsync() {
         return await async.map(this._cursors, async (c) => await c.explain());
     }
+
+    clear() {
+        this._cursors = [];
+    }
 }
 
 module.exports = {

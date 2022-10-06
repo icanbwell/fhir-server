@@ -121,7 +121,7 @@ class BundleManager {
             link: link,
         });
 
-        if (args['_debug'] || env.LOGLEVEL === 'DEBUG') {
+        if (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG') {
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */
