@@ -373,7 +373,8 @@ const createContainer = function () {
             graphHelper: c.graphHelper,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            resourceValidator: c.resourceValidator
+            resourceValidator: c.resourceValidator,
+            resourceLocatorFactory: c.resourceLocatorFactory
         }
     ));
     container.register('expandOperation', (c) => new ExpandOperation(
