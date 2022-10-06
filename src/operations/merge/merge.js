@@ -464,6 +464,7 @@ class MergeOperation {
                 const bundle = this.bundleManager.createBundle(
                     {
                         type: 'batch-response',
+                        requestId: requestInfo.requestId,
                         originalUrl: url,
                         host,
                         protocol,

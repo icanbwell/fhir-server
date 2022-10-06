@@ -1156,6 +1156,7 @@ class GraphHelper {
             const bundle = this.bundleManager.createBundle(
                 {
                     type: 'searchset',
+                    requestId: requestInfo.requestId,
                     originalUrl: requestInfo.originalUrl,
                     host: requestInfo.host,
                     protocol: requestInfo.protocol,

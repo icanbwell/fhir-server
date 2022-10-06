@@ -313,6 +313,7 @@ class SearchBundleOperation {
             const bundle = this.bundleManager.createBundle(
                 {
                     type: 'searchset',
+                    requestId: requestInfo.requestId,
                     originalUrl: url,
                     host,
                     protocol,

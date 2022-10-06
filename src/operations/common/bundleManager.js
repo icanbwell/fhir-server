@@ -26,6 +26,7 @@ class BundleManager {
 
     /**
      * creates a bundle from the given resources
+     * @param {string} requestId
      * @param {string} type
      * @param {string | null} originalUrl
      * @param {string | null} host
@@ -51,6 +52,7 @@ class BundleManager {
      */
     createBundle(
         {
+            requestId,
             type,
             originalUrl,
             host,
@@ -139,6 +141,9 @@ class BundleManager {
         });
         if (total_count !== null) {
             bundle.total = total_count;
+        }
+        if (requestId) {
+            bundle.id = requestId;
         }
 
         if ((args && (args['_explain'] || args['_debug'])) || env.LOGLEVEL === 'DEBUG') {
