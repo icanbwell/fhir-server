@@ -1082,6 +1082,11 @@ class GraphHelper {
                 if (q.query) {
                     queries.push(q.query);
                 }
+                if (q.explanations) {
+                    for (const e of q.explanations) {
+                        explanations.push(e);
+                    }
+                }
             }
             // add contained objects under the parent resource
             for (const topLevelBundleEntry of topLevelBundleEntries) {

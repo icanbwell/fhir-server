@@ -1356,7 +1356,7 @@ describe('graphHelper Tests', () => {
                 type: 'collection',
             });
         });
-        test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with explain', async () => {
+        test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with debug or explain', async () => {
             /**
              * @type {SimpleContainer}
              */
@@ -1461,6 +1461,8 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
+            expect(result.meta).toBeDefined();
+            expect(result.meta.filter(t => t.system === 'https://www.icanbwell.com/queryExplain').length).toBe(4);
             for (const tag of result.meta.tag) {
                 if (tag.system === 'https://www.icanbwell.com/queryExplain') {
                     delete tag['display'];
