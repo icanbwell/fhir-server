@@ -31,6 +31,9 @@ function cleanMeta(resource) {
             if (tag['system'] === 'https://www.icanbwell.com/queryExplain' && tag['display']) {
                 delete tag['display'];
             }
+            if (tag['system'] === 'https://www.icanbwell.com/queryExplainSimple' && tag['display']) {
+                delete tag['display'];
+            }
             if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
                 tag['display'] = tag['display'].replace('db.AuditEvent_4_0_0.', `db.${auditCollectionName}.`);
             }

@@ -96,9 +96,9 @@ class MongoExplainPlanHelper {
             }
         }
         /**
-         * @type {{step: number, stage: string, [filter]: Object, [indexName]: string}}
+         * @type {Step}
          */
-        const simplePlanItem = {step: stepNo++, stage: step.stage};
+        const simplePlanItem = {stepNo: stepNo++, stage: step.stage};
 
         if (friendlyDescriptionOfStages[step.stage]) {
             simplePlanItem.friendlyStage = friendlyDescriptionOfStages[step.stage];
