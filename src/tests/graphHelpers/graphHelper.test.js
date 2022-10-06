@@ -733,7 +733,7 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({d: '100', resourceType: resourceType});
+            await collection.insertOne({id: '100', resourceType: resourceType});
             await collection.insertOne({id: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
