@@ -398,7 +398,6 @@ class MergeManager {
             ]);
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in MergeManager.mergeResourceListAsync()',
                 error: e
             });
         }
@@ -442,7 +441,6 @@ class MergeManager {
                 });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in MergeManager.mergeResourceWithRetryAsync()',
                 error: e
             });
         }
@@ -484,7 +482,7 @@ class MergeManager {
                 });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in MergeManager.performMergeDbUpdateAsync()',
+                message: `Error updating: ${JSON.stringify(resourceToMerge)}`,
                 error: e
             });
         }
@@ -519,7 +517,7 @@ class MergeManager {
             );
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in MergeManager.performMergeDbInsertAsync()',
+                message: `Error inserting: ${JSON.stringify(resourceToMerge)}`,
                 error: e
             });
         }
@@ -672,7 +670,7 @@ class MergeManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in MergeManager.preMergeChecksAsync()',
+                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge)}`,
                 error: e
             });
         }
@@ -791,7 +789,6 @@ class MergeManager {
             await this.auditLogger.flushAsync({requestId, currentDate});
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in MergeManager.logAuditEntriesForMergeResults()',
                 error: e
             });
         }

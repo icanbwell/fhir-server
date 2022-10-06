@@ -61,8 +61,6 @@ class DatabasePartitionedCursor {
         while (this._cursors.length > 0) {
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
-
-
                 const result = await this._cursors[0].hasNext();
                 if (result) {
                     return result;
@@ -70,9 +68,7 @@ class DatabasePartitionedCursor {
                 this._cursors.shift();
             } catch (e) {
                 throw new RethrownError({
-                    message: 'Error in DatabasePartitionedCursor.hasNext',
                     error: e,
-                    source: 'DatabasePartitionedCursor.hasNext'
                 });
             }
         }
@@ -101,9 +97,7 @@ class DatabasePartitionedCursor {
                 }
             } catch (e) {
                 throw new RethrownError({
-                    message: 'Error in DatabasePartitionedCursor.next',
                     error: e,
-                    source: 'DatabasePartitionedCursor.next'
                 });
             }
             this._cursors.shift();
@@ -143,7 +137,13 @@ class DatabasePartitionedCursor {
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
     async toArray() {
-        return await async.flatMap(this._cursors, async (c) => await c.toArray());
+        try {
+            return await async.flatMap(this._cursors, async (c) => await c.toArray());
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -187,11 +187,25 @@ class DatabasePartitionedCursor {
      * @return {import('mongodb').Document[]}
      */
     async explainAsync() {
-        return await async.map(this._cursors, async (c) => await c.explain());
+        try {
+            return await async.map(this._cursors, async (c) => await c.explain());
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     clear() {
         this._cursors = [];
+    }
+
+    /**
+     * returns the query
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     */
+    getQuery() {
+        return this.query;
     }
 }
 

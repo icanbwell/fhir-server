@@ -2,6 +2,7 @@ const {groupByLambda, getFirstResourceOrNull} = require('../utils/list.util');
 const async = require('async');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {assertTypeEquals} = require('../utils/assertType');
+const {RethrownError} = require('../utils/rethrownError');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -31,33 +32,39 @@ class DatabaseBulkLoader {
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
     async loadResourcesByResourceTypeAndIdAsync({base_version, useAtlas, requestedResources}) {
-        /**
-         * merge results grouped by resourceType
-         * @type {Object}
-         */
-        const groupByResourceType = groupByLambda(requestedResources, requestedResource => {
-            return requestedResource.resourceType;
-        });
+        try {
+            /**
+             * merge results grouped by resourceType
+             * @type {Object}
+             */
+            const groupByResourceType = groupByLambda(requestedResources, requestedResource => {
+                return requestedResource.resourceType;
+            });
 
-        /**
-         * Load all specified resources in parallel
-         * @type {{resources: Resource[], resourceType: string}[]}
-         */
-        const result = await async.map(
-            Object.entries(groupByResourceType),
-            async x => await this.getResourcesByIdAsync(
-                {
-                    base_version, useAtlas,
-                    resourceType: x[0],
-                    resourceAndIdList: x[1]
-                }
-            )
-        );
-        // Now add them to our cache
-        for (const {resourceType, resources} of result) {
-            this.bulkCache.set(resourceType, resources);
+            /**
+             * Load all specified resources in parallel
+             * @type {{resources: Resource[], resourceType: string}[]}
+             */
+            const result = await async.map(
+                Object.entries(groupByResourceType),
+                async x => await this.getResourcesByIdAsync(
+                    {
+                        base_version, useAtlas,
+                        resourceType: x[0],
+                        resourceAndIdList: x[1]
+                    }
+                )
+            );
+            // Now add them to our cache
+            for (const {resourceType, resources} of result) {
+                this.bulkCache.set(resourceType, resources);
+            }
+            return result;
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
         }
-        return result;
     }
 
     /**
@@ -69,22 +76,28 @@ class DatabaseBulkLoader {
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
     async getResourcesByIdAsync({base_version, useAtlas, resourceType, resourceAndIdList}) {
-        const query = {
-            id: {$in: resourceAndIdList.map(r => r.id)}
-        };
-        /**
-         * cursor
-         * @type {DatabasePartitionedCursor}
-         */
-        const cursor = await this.databaseQueryFactory.createQuery(
-            {resourceType, base_version, useAtlas}
-        ).findAsync({query});
+        try {
+            const query = {
+                id: {$in: resourceAndIdList.map(r => r.id)}
+            };
+            /**
+             * cursor
+             * @type {DatabasePartitionedCursor}
+             */
+            const cursor = await this.databaseQueryFactory.createQuery(
+                {resourceType, base_version, useAtlas}
+            ).findAsync({query});
 
-        /**
-         * @type {Resource[]}
-         */
-        const resources = await this.cursorToResourcesAsync({cursor});
-        return {resourceType, resources: resources};
+            /**
+             * @type {Resource[]}
+             */
+            const resources = await this.cursorToResourcesAsync({cursor});
+            return {resourceType, resources: resources};
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -93,19 +106,25 @@ class DatabaseBulkLoader {
      * @returns {Promise<Resource[]>}
      */
     async cursorToResourcesAsync({cursor}) {
-        /**
-         * @type {Resource[]}
-         */
-        const result = [];
-        while (await cursor.hasNext()) {
+        try {
             /**
-             * element
-             * @type {Resource|null}
+             * @type {Resource[]}
              */
-            const resource = await cursor.next();
-            result.push(resource);
+            const result = [];
+            while (await cursor.hasNext()) {
+                /**
+                 * element
+                 * @type {Resource|null}
+                 */
+                const resource = await cursor.next();
+                result.push(resource);
+            }
+            return result;
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
         }
-        return result;
     }
 
     /**

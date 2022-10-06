@@ -25,6 +25,7 @@ const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourcePreparer} = require('../common/resourcePreparer');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {RethrownError} = require('../../utils/rethrownError');
+const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
 const idProjection = {id: 1, _id: 0};
@@ -441,7 +442,7 @@ class SearchManager {
             return result;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in SearchManager.getPatientIdsByPersonIdentifiersAsync()',
+                message: `Error getting patient id for person id: ${fhirPersonId}`,
                 error: e
             });
         }
@@ -558,7 +559,7 @@ class SearchManager {
             }
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in SearchManager.handleGetTotalsAsync()',
+                message: `Error getting totals for ${resourceType} with query: ${mongoQueryStringify(query)}`,
                 error: e
             });
         }
@@ -672,7 +673,7 @@ class SearchManager {
             return {options, originalQuery, query, originalOptions};
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in SearchManager.handleTwoStepSearchOptimizationAsync()',
+                message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
                 error: e
             });
         }
@@ -753,7 +754,7 @@ class SearchManager {
             logError({user, args: {error: e}});
             ac.abort();
             throw new RethrownError({
-                message: 'Error in SearchManager.readResourcesFromCursorAsync()',
+                message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
                 error: e
             });
         }
@@ -921,7 +922,7 @@ class SearchManager {
             logError({user, args: {error: e}});
             ac.abort();
             throw new RethrownError({
-                message: 'Error in SearchManager.streamBundleFromCursorAsync()',
+                message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
                 error: e
             });
         } finally {
@@ -1050,7 +1051,11 @@ class SearchManager {
         } catch (e) {
             logError({user, args: {error: e}});
             ac.abort();
-            throw new RethrownError({message: 'Error in SearchManager.streamResourcesFromCursorAsync()', error: e});
+            throw new RethrownError(
+                {
+                    message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
+                    error: e
+                });
         } finally {
             res.removeListener('close', onResponseClose);
         }
@@ -1083,7 +1088,7 @@ class SearchManager {
             return [];
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in SearchManager.streamBundleFromCursorAsync()',
+                message: `Error get linked patients for person id: ${fhirPersonId}`,
                 error: e
             });
         }

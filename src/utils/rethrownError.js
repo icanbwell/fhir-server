@@ -4,12 +4,15 @@
 class RethrownError extends Error {
     /**
      * Constructor
-     * @param {string} message
+     * @param {string} [message]
      * @param {Error} error
      * @param {Object|undefined} [args]
      * @param {string|undefined} [source]
      */
     constructor({message, error, args, source}) {
+        if (!message && error && error.message) {
+            message = error.message;
+        }
         super(message);
         this.name = this.constructor.name;
         if (!error) {

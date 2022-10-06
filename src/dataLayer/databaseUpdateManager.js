@@ -3,6 +3,7 @@
  */
 const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
+const {RethrownError} = require('../utils/rethrownError');
 
 class DatabaseUpdateManager {
     /**
@@ -46,8 +47,14 @@ class DatabaseUpdateManager {
      * @return {Promise<void>}
      */
     async insertOneAsync({doc}) {
-        const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
-        await collection.insertOne(doc.toJSONInternal());
+        try {
+            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+            await collection.insertOne(doc.toJSONInternal());
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 }
 

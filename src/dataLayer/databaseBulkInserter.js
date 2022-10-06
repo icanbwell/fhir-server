@@ -15,6 +15,7 @@ const {ChangeEventProducer} = require('../utils/changeEventProducer');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const {RethrownError} = require('../utils/rethrownError');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -156,44 +157,50 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneAsync({resourceType, doc}) {
-        assertTypeEquals(doc, Resource);
-        // check to see if we already have this insert and if so use replace
-        if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
-            this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
-            return await this.replaceOneAsync(
-                {
-                    resourceType, id: doc.id, doc
-                }
-            );
-        }
-        if (doc._id) {
-            this.errorReporter.reportMessageAsync({
+        try {
+            assertTypeEquals(doc, Resource);
+            // check to see if we already have this insert and if so use replace
+            if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
+                this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
+                return await this.replaceOneAsync(
+                    {
+                        resourceType, id: doc.id, doc
+                    }
+                );
+            }
+            if (doc._id) {
+                this.errorReporter.reportMessageAsync({
+                    source: 'DatabaseBulkInserter.insertOneAsync',
+                    message: '_id still present',
+                    args: {
+                        doc: doc
+                    }
+                });
+            }
+            // else insert it
+            await logVerboseAsync({
                 source: 'DatabaseBulkInserter.insertOneAsync',
-                message: '_id still present',
-                args: {
-                    doc: doc
-                }
+                args:
+                    {
+                        message: 'start',
+                        bufferLength: this.operationsByResourceTypeMap.size
+                    }
             });
-        }
-        // else insert it
-        await logVerboseAsync({
-            source: 'DatabaseBulkInserter.insertOneAsync',
-            args:
-                {
-                    message: 'start',
-                    bufferLength: this.operationsByResourceTypeMap.size
-                }
-        });
-        this.addOperationForResourceType({
-                resourceType,
-                operation: {
-                    insertOne: {
-                        document: doc.toJSONInternal()
+            this.addOperationForResourceType({
+                    resourceType,
+                    operation: {
+                        insertOne: {
+                            document: doc.toJSONInternal()
+                        }
                     }
                 }
-            }
-        );
-        this.insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
+            );
+            this.insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -203,16 +210,22 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async insertOneHistoryAsync({resourceType, doc}) {
-        assertTypeEquals(doc, Resource);
-        this.addHistoryOperationForResourceType({
-                resourceType,
-                operation: {
-                    insertOne: {
-                        document: doc.toJSONInternal()
+        try {
+            assertTypeEquals(doc, Resource);
+            this.addHistoryOperationForResourceType({
+                    resourceType,
+                    operation: {
+                        insertOne: {
+                            document: doc.toJSONInternal()
+                        }
                     }
                 }
-            }
-        );
+            );
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -223,21 +236,27 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async replaceOneAsync({resourceType, id, doc}) {
-        assertTypeEquals(doc, Resource);
-        // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
-        // noinspection JSCheckFunctionSignatures
-        this.addOperationForResourceType({
-                resourceType,
-                operation: {
-                    replaceOne: {
-                        filter: {id: id.toString()},
-                        // upsert: true,
-                        replacement: doc.toJSONInternal()
+        try {
+            assertTypeEquals(doc, Resource);
+            // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
+            // noinspection JSCheckFunctionSignatures
+            this.addOperationForResourceType({
+                    resourceType,
+                    operation: {
+                        replaceOne: {
+                            filter: {id: id.toString()},
+                            // upsert: true,
+                            replacement: doc.toJSONInternal()
+                        }
                     }
                 }
-            }
-        );
-        this.updatedIdsByResourceTypeMap.get(resourceType).push(doc.id);
+            );
+            this.updatedIdsByResourceTypeMap.get(resourceType).push(doc.id);
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -249,184 +268,190 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<MergeResultEntry[]>}
      */
     async executeAsync({requestId, currentDate, base_version, useAtlas}) {
-        await logVerboseAsync({
-            source: 'DatabaseBulkInserter.executeAsync',
-            args:
-                {
-                    message: 'start',
-                    bufferLength: this.operationsByResourceTypeMap.size
-                }
-        });
-        // run both the operations on the main tables and the history tables in parallel
-        /**
-         * @type {BulkResultEntry[]}
-         */
-        const resultsByResourceType = await async.map(
-            this.operationsByResourceTypeMap.entries(),
-            async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                {
-                    requestId, currentDate,
-                    mapEntry: x, base_version, useAtlas,
-                    useHistoryCollection: false
-                }
-            ));
-
-        if (this.historyOperationsByResourceTypeMap.size > 0) {
-            this.postRequestProcessor.add(async () => {
-                    await async.map(
-                        this.historyOperationsByResourceTypeMap.entries(),
-                        async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                            {
-                                requestId, currentDate,
-                                mapEntry: x, base_version, useAtlas,
-                                useHistoryCollection: true
-                            }
-                        ));
-                    this.historyOperationsByResourceTypeMap.clear();
-                }
-            );
-        }
-
-        // If there are any errors, send them to Slack notification
-        if (resultsByResourceType.some(r => r.error)) {
+        try {
+            await logVerboseAsync({
+                source: 'DatabaseBulkInserter.executeAsync',
+                args:
+                    {
+                        message: 'start',
+                        bufferLength: this.operationsByResourceTypeMap.size
+                    }
+            });
+            // run both the operations on the main tables and the history tables in parallel
             /**
              * @type {BulkResultEntry[]}
              */
-            const erroredMerges = resultsByResourceType.filter(r => r.error);
-            for (const erroredMerge of erroredMerges) {
-                /**
-                 * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
-                 */
-                const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
-                await this.errorReporter.reportErrorAsync(
+            const resultsByResourceType = await async.map(
+                this.operationsByResourceTypeMap.entries(),
+                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
                     {
-                        source: 'databaseBulkInserter',
-                        message: `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
-                            ` ${JSON.stringify(operationsForResourceType)}`,
-                        error: erroredMerge.error,
-                        args: {
-                            requestId: requestId,
-                            resourceType: erroredMerge.resourceType,
-                            operations: operationsForResourceType
-                        }
+                        requestId, currentDate,
+                        mapEntry: x, base_version, useAtlas,
+                        useHistoryCollection: false
+                    }
+                ));
+
+            if (this.historyOperationsByResourceTypeMap.size > 0) {
+                this.postRequestProcessor.add(async () => {
+                        await async.map(
+                            this.historyOperationsByResourceTypeMap.entries(),
+                            async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                                {
+                                    requestId, currentDate,
+                                    mapEntry: x, base_version, useAtlas,
+                                    useHistoryCollection: true
+                                }
+                            ));
+                        this.historyOperationsByResourceTypeMap.clear();
                     }
                 );
             }
-        }
-        /**
-         * results
-         * @type {MergeResultEntry[]}
-         */
-        const mergeResultEntries = [];
-        for (const [resourceType, ids] of this.insertedIdsByResourceTypeMap) {
-            /**
-             * @type {BulkResultEntry|null}
-             */
-            const mergeResultForResourceType = getFirstElementOrNull(
-                resultsByResourceType.filter(r => r.resourceType === resourceType));
-            if (mergeResultForResourceType) {
-                const diagnostics = JSON.stringify(mergeResultForResourceType.error);
-                for (const id of ids) {
-                    /**
-                     * @type {MergeResultEntry}
-                     */
-                    const mergeResultEntry = {
-                        'id': id,
-                        created: !mergeResultForResourceType.error,
-                        updated: false,
-                        resourceType: resourceType
-                    };
-                    if (mergeResultForResourceType.error) {
-                        mergeResultEntry.issue = new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
-                            diagnostics: diagnostics,
-                            expression: [
-                                resourceType + '/' + id
-                            ]
-                        });
-                    }
-                    mergeResultEntries.push(
-                        mergeResultEntry
-                    );
-                    // fire change events
-                    /**
-                     * @type {Resource}
-                     */
-                    const resource = this.operationsByResourceTypeMap
-                        .get(resourceType)
-                        .filter(x => x.insertOne && x.insertOne.document.id === id)[0].insertOne.document;
 
-                    await this.changeEventProducer.fireEventsAsync({
-                        requestId,
-                        eventType: 'C',
-                        resourceType: resourceType,
-                        doc: resource
-                    });
+            // If there are any errors, send them to Slack notification
+            if (resultsByResourceType.some(r => r.error)) {
+                /**
+                 * @type {BulkResultEntry[]}
+                 */
+                const erroredMerges = resultsByResourceType.filter(r => r.error);
+                for (const erroredMerge of erroredMerges) {
+                    /**
+                     * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+                     */
+                    const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
+                    await this.errorReporter.reportErrorAsync(
+                        {
+                            source: 'databaseBulkInserter',
+                            message: `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
+                                ` ${JSON.stringify(operationsForResourceType)}`,
+                            error: erroredMerge.error,
+                            args: {
+                                requestId: requestId,
+                                resourceType: erroredMerge.resourceType,
+                                operations: operationsForResourceType
+                            }
+                        }
+                    );
                 }
             }
-        }
-        for (const [resourceType, ids] of this.updatedIdsByResourceTypeMap) {
             /**
-             * @type {BulkResultEntry|null}
+             * results
+             * @type {MergeResultEntry[]}
              */
-            const mergeResultForResourceType = getFirstElementOrNull(resultsByResourceType.filter(r => r.resourceType === resourceType));
-            if (mergeResultForResourceType) {
-                const diagnostics = JSON.stringify(mergeResultForResourceType.error);
-                for (const id of ids) {
-                    /**
-                     * @type {MergeResultEntry}
-                     */
-                    const mergeResultEntry = {
-                        'id': id,
-                        created: false,
-                        updated: !mergeResultForResourceType.error,
-                        resourceType: resourceType
-                    };
-                    if (mergeResultForResourceType.error) {
-                        mergeResultEntry.issue = new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
-                            diagnostics: diagnostics,
-                            expression: [
-                                resourceType + '/' + id
-                            ]
+            const mergeResultEntries = [];
+            for (const [resourceType, ids] of this.insertedIdsByResourceTypeMap) {
+                /**
+                 * @type {BulkResultEntry|null}
+                 */
+                const mergeResultForResourceType = getFirstElementOrNull(
+                    resultsByResourceType.filter(r => r.resourceType === resourceType));
+                if (mergeResultForResourceType) {
+                    const diagnostics = JSON.stringify(mergeResultForResourceType.error);
+                    for (const id of ids) {
+                        /**
+                         * @type {MergeResultEntry}
+                         */
+                        const mergeResultEntry = {
+                            'id': id,
+                            created: !mergeResultForResourceType.error,
+                            updated: false,
+                            resourceType: resourceType
+                        };
+                        if (mergeResultForResourceType.error) {
+                            mergeResultEntry.issue = new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'exception',
+                                details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
+                                diagnostics: diagnostics,
+                                expression: [
+                                    resourceType + '/' + id
+                                ]
+                            });
+                        }
+                        mergeResultEntries.push(
+                            mergeResultEntry
+                        );
+                        // fire change events
+                        /**
+                         * @type {Resource}
+                         */
+                        const resource = this.operationsByResourceTypeMap
+                            .get(resourceType)
+                            .filter(x => x.insertOne && x.insertOne.document.id === id)[0].insertOne.document;
+
+                        await this.changeEventProducer.fireEventsAsync({
+                            requestId,
+                            eventType: 'C',
+                            resourceType: resourceType,
+                            doc: resource
                         });
                     }
-                    mergeResultEntries.push(
-                        mergeResultEntry
-                    );
-                    /**
-                     * @type {Resource}
-                     */
-                    const resource = this.operationsByResourceTypeMap
-                        .get(resourceType)
-                        .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
-                    await this.changeEventProducer.fireEventsAsync({
-                        requestId,
-                        eventType: 'U',
-                        resourceType: resourceType,
-                        doc: resource
-                    });
                 }
             }
-        }
-
-        this.operationsByResourceTypeMap.clear();
-        this.insertedIdsByResourceTypeMap.clear();
-        this.updatedIdsByResourceTypeMap.clear();
-
-        await logVerboseAsync({
-            source: 'DatabaseBulkInserter.executeAsync',
-            args:
-                {
-                    message: 'end',
-                    bufferLength: this.operationsByResourceTypeMap.size
+            for (const [resourceType, ids] of this.updatedIdsByResourceTypeMap) {
+                /**
+                 * @type {BulkResultEntry|null}
+                 */
+                const mergeResultForResourceType = getFirstElementOrNull(resultsByResourceType.filter(r => r.resourceType === resourceType));
+                if (mergeResultForResourceType) {
+                    const diagnostics = JSON.stringify(mergeResultForResourceType.error);
+                    for (const id of ids) {
+                        /**
+                         * @type {MergeResultEntry}
+                         */
+                        const mergeResultEntry = {
+                            'id': id,
+                            created: false,
+                            updated: !mergeResultForResourceType.error,
+                            resourceType: resourceType
+                        };
+                        if (mergeResultForResourceType.error) {
+                            mergeResultEntry.issue = new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'exception',
+                                details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
+                                diagnostics: diagnostics,
+                                expression: [
+                                    resourceType + '/' + id
+                                ]
+                            });
+                        }
+                        mergeResultEntries.push(
+                            mergeResultEntry
+                        );
+                        /**
+                         * @type {Resource}
+                         */
+                        const resource = this.operationsByResourceTypeMap
+                            .get(resourceType)
+                            .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
+                        await this.changeEventProducer.fireEventsAsync({
+                            requestId,
+                            eventType: 'U',
+                            resourceType: resourceType,
+                            doc: resource
+                        });
+                    }
                 }
-        });
-        return mergeResultEntries;
+            }
+
+            this.operationsByResourceTypeMap.clear();
+            this.insertedIdsByResourceTypeMap.clear();
+            this.updatedIdsByResourceTypeMap.clear();
+
+            await logVerboseAsync({
+                source: 'DatabaseBulkInserter.executeAsync',
+                args:
+                    {
+                        message: 'end',
+                        bufferLength: this.operationsByResourceTypeMap.size
+                    }
+            });
+            return mergeResultEntries;
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 
     /**
@@ -447,16 +472,22 @@ class DatabaseBulkInserter extends EventEmitter {
             useAtlas, useHistoryCollection
         }
     ) {
-        const [
-            /** @type {string} */resourceType,
-            /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations
-        ] = mapEntry;
+        try {
+            const [
+                /** @type {string} */resourceType,
+                /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */ operations
+            ] = mapEntry;
 
-        return await this.performBulkForResourceTypeAsync(
-            {
-                requestId, currentDate,
-                resourceType, base_version, useAtlas, useHistoryCollection, operations
+            return await this.performBulkForResourceTypeAsync(
+                {
+                    requestId, currentDate,
+                    resourceType, base_version, useAtlas, useHistoryCollection, operations
+                });
+        } catch (e) {
+            throw new RethrownError({
+                error: e
             });
+        }
     }
 
     /**
@@ -480,115 +511,121 @@ class DatabaseBulkInserter extends EventEmitter {
             useHistoryCollection,
             operations
         }) {
-        return await mutex.runExclusive(async () => {
-            /**
-             * @type {Map<string, *[]>}
-             */
-            const operationsByCollectionNames = new Map();
-            /**
-             * @type {ResourceLocator}
-             */
-            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                {
-                    resourceType, base_version, useAtlas
-                }
-            );
-            for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {
-                // noinspection JSValidateTypes
+        try {
+            return await mutex.runExclusive(async () => {
                 /**
-                 * @type {Resource}
+                 * @type {Map<string, *[]>}
                  */
-                const resource = operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
+                const operationsByCollectionNames = new Map();
                 /**
-                 * @type {string}
+                 * @type {ResourceLocator}
                  */
-                const collectionName = useHistoryCollection ?
-                    await resourceLocator.getHistoryCollectionNameAsync(resource) :
-                    await resourceLocator.getCollectionNameAsync(resource);
-                if (!(operationsByCollectionNames.has(collectionName))) {
-                    operationsByCollectionNames.set(`${collectionName}`, []);
-                }
-                // remove _id if present so mongo can insert properly
-                if (!useHistoryCollection && operation.insertOne) {
-                    delete operation.insertOne.document['_id'];
-                }
-                if (!useHistoryCollection && resource._id) {
-                    this.errorReporter.reportMessageAsync({
-                        source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
-                        message: '_id still present',
-                        args: {
-                            doc: resource,
-                            collection: collectionName,
-                            insert: operation.insertOne
-                        }
-                    });
-                }
-
-                operationsByCollectionNames.get(collectionName).push(operation);
-            }
-
-            // preserve order so inserts come before updates
-            /**
-             * @type {import('mongodb').CollectionBulkWriteOptions|null}
-             */
-            const options = {ordered: true};
-            /**
-             * @type {import('mongodb').BulkWriteOpResultObject|null}
-             */
-            let mergeResult;
-            for (const operationsByCollectionName of operationsByCollectionNames) {
-                const [
-                    /** @type {string} */collectionName,
-                    /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
-                    operationsByCollection] = operationsByCollectionName;
-
-                if (env.LOG_ALL_MERGES) {
-                    await sendToS3('bulk_inserter',
-                        resourceType,
-                        operations,
-                        currentDate,
-                        requestId,
-                        'merge');
-                }
-                try {
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
+                    {
+                        resourceType, base_version, useAtlas
+                    }
+                );
+                for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {
+                    // noinspection JSValidateTypes
                     /**
-                     * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+                     * @type {Resource}
                      */
-                    const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                    const resource = operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
                     /**
-                     * @type {import('mongodb').BulkWriteOpResultObject}
+                     * @type {string}
                      */
-                    const result = await collection.bulkWrite(operationsByCollection, options);
-                    //TODO: this only returns result from the last collection
-                    mergeResult = result.result;
-                } catch (e) {
-                    await this.errorReporter.reportErrorAsync({
-                        source: 'databaseBulkInserter',
-                        message: 'databaseBulkInserter: Error bulkWrite',
-                        error: e,
-                        args: {
-                            requestId: requestId,
-                            operations: operationsByCollection,
-                            options: options,
-                            collection: collectionName
-                        }
-                    });
-                    await logSystemErrorAsync({
-                        event: 'databaseBulkInserter',
-                        message: 'databaseBulkInserter: Error bulkWrite',
-                        error: e,
-                        args: {
-                            requestId: requestId,
-                            operations: operationsByCollection,
-                            options: options,
-                            collection: collectionName
-                        }
-                    });
-                    return {resourceType: resourceType, mergeResult: null, error: e};
+                    const collectionName = useHistoryCollection ?
+                        await resourceLocator.getHistoryCollectionNameAsync(resource) :
+                        await resourceLocator.getCollectionNameAsync(resource);
+                    if (!(operationsByCollectionNames.has(collectionName))) {
+                        operationsByCollectionNames.set(`${collectionName}`, []);
+                    }
+                    // remove _id if present so mongo can insert properly
+                    if (!useHistoryCollection && operation.insertOne) {
+                        delete operation.insertOne.document['_id'];
+                    }
+                    if (!useHistoryCollection && resource._id) {
+                        this.errorReporter.reportMessageAsync({
+                            source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
+                            message: '_id still present',
+                            args: {
+                                doc: resource,
+                                collection: collectionName,
+                                insert: operation.insertOne
+                            }
+                        });
+                    }
+
+                    operationsByCollectionNames.get(collectionName).push(operation);
                 }
-            }
-            return {resourceType: resourceType, mergeResult: mergeResult, error: null};
-        });
+
+                // preserve order so inserts come before updates
+                /**
+                 * @type {import('mongodb').CollectionBulkWriteOptions|null}
+                 */
+                const options = {ordered: true};
+                /**
+                 * @type {import('mongodb').BulkWriteOpResultObject|null}
+                 */
+                let mergeResult;
+                for (const operationsByCollectionName of operationsByCollectionNames) {
+                    const [
+                        /** @type {string} */collectionName,
+                        /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
+                        operationsByCollection] = operationsByCollectionName;
+
+                    if (env.LOG_ALL_MERGES) {
+                        await sendToS3('bulk_inserter',
+                            resourceType,
+                            operations,
+                            currentDate,
+                            requestId,
+                            'merge');
+                    }
+                    try {
+                        /**
+                         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+                         */
+                        const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                        /**
+                         * @type {import('mongodb').BulkWriteOpResultObject}
+                         */
+                        const result = await collection.bulkWrite(operationsByCollection, options);
+                        //TODO: this only returns result from the last collection
+                        mergeResult = result.result;
+                    } catch (e) {
+                        await this.errorReporter.reportErrorAsync({
+                            source: 'databaseBulkInserter',
+                            message: 'databaseBulkInserter: Error bulkWrite',
+                            error: e,
+                            args: {
+                                requestId: requestId,
+                                operations: operationsByCollection,
+                                options: options,
+                                collection: collectionName
+                            }
+                        });
+                        await logSystemErrorAsync({
+                            event: 'databaseBulkInserter',
+                            message: 'databaseBulkInserter: Error bulkWrite',
+                            error: e,
+                            args: {
+                                requestId: requestId,
+                                operations: operationsByCollection,
+                                options: options,
+                                collection: collectionName
+                            }
+                        });
+                        return {resourceType: resourceType, mergeResult: null, error: e};
+                    }
+                }
+                return {resourceType: resourceType, mergeResult: mergeResult, error: null};
+            });
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
     }
 }
 
