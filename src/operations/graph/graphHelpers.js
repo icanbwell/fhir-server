@@ -593,6 +593,200 @@ class GraphHelper {
     }
 
     /**
+     * process a link
+     * @param requestInfo
+     * @param base_version
+     * @param parentResourceType
+     * @param link
+     * @param parentEntities
+     * @param explain
+     * @param debug
+     * @param target
+     * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
+     */
+    async processLinkTargetAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            link,
+            parentEntities,
+            explain,
+            debug,
+            target
+        }) {
+        /**
+         * @type {QueryItem[]}
+         */
+        const queryItems = [];
+        /**
+         * @type {EntityAndContainedBase[]}
+         */
+        let childEntries = [];
+        /**
+         * If this is not set then the caller does not want this entity but a nested entity
+         * defined further in the GraphDefinition
+         * @type {string | null}
+         */
+        const resourceType = target.type;
+        // there are two types of linkages:
+        // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
+        // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
+        if (link.path) { // forward link
+            /**
+             * @type {string}
+             */
+            const originalProperty = link.path.replace('[x]', '');
+            const {filterProperty, filterValue, property} = this.getFilterFromPropertyPath(originalProperty);
+            // find parent entities that have a valid property
+            parentEntities = parentEntities.filter(
+                p => this.doesEntityHaveProperty(
+                    {
+                        entity: p, property, filterProperty, filterValue
+                    })
+            );
+            // if this is a reference then get related resources
+            if (this.isPropertyAReference(
+                {
+                    entities: parentEntities, property, filterProperty, filterValue
+                })) {
+                await this.scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    args: {},
+                    resourceType,
+                    startTime: Date.now(),
+                    action: 'graph',
+                    accessRequested: 'read'
+                });
+
+                const queryItem = await this.getForwardReferencesAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        parentEntities,
+                        property,
+                        filterProperty,
+                        filterValue,
+                        explain,
+                        debug
+                    }
+                );
+                if (queryItem) {
+                    queryItems.push(queryItem);
+                }
+                childEntries = parentEntities.flatMap(p => p.containedEntries);
+            } else { // handle paths that are not references
+                childEntries = [];
+                for (const parentEntity of parentEntities) {
+                    // create child entries
+                    /**
+                     * @type {Object[]}
+                     */
+                    const children = this.getPropertiesForEntity(
+                        {
+                            entity: parentEntity, property, filterProperty, filterValue
+                        });
+                    /**
+                     * @type {NonResourceEntityAndContained[]}
+                     */
+                    const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
+                            {
+                                includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
+                                item: c,
+                                containedEntries: []
+                            }
+                        )
+                    );
+                    childEntries = childEntries.concat(childEntriesForCurrentEntity);
+                    parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
+                }
+            }
+        } else if (target.params) { // reverse link
+            if (target.type) { // if caller has requested this entity or just wants a nested entity
+                // reverse link
+                await this.scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo,
+                    args: {},
+                    resourceType,
+                    startTime: Date.now(),
+                    action: 'graph',
+                    accessRequested: 'read'
+                });
+                if (!parentResourceType) {
+                    throw new Error(
+                        'processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' +
+                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
+                        ` using target.params: ${target.params}`
+                    );
+                }
+                const queryItem = await this.getReverseReferencesAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        relatedResourceType: resourceType,
+                        parentEntities,
+                        filterProperty: null,
+                        filterValue: null,
+                        reverse_filter: target.params,
+                        explain,
+                        debug
+                    }
+                );
+                if (queryItem) {
+                    queryItems.push(queryItem);
+                }
+                childEntries = parentEntities.flatMap(p => p.containedEntries);
+            }
+        }
+
+        // filter childEntries to find entries of same type as parentResource
+        childEntries = childEntries.filter(c =>
+            (!target.type && !c.resource) || // either there is no target type so choose non-resources
+            (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
+        );
+        if (childEntries && childEntries.length > 0) {
+            /**
+             * @type {string|null}
+             */
+            const childResourceType = target.type;
+
+            // Now recurse down and process the link
+            /**
+             * @type {[{path:string, params: string,target:[{type: string}]}]}
+             */
+            const childLinks = target.link;
+            if (childLinks) {
+                /**
+                 * @type {{path:string, params: string,target:[{type: string}]}}
+                 */
+                for (const childLink of childLinks) {
+                    // now recurse and process the next link in GraphDefinition
+                    /**
+                     * @type {QueryItem[]}
+                     */
+                    const recursiveQueries = await this.processOneGraphLinkAsync(
+                        {
+                            requestInfo,
+                            base_version,
+                            parentResourceType: childResourceType,
+                            link: childLink,
+                            parentEntities: childEntries,
+                            explain,
+                            debug
+                        }
+                    );
+                    for (const recursiveQuery of recursiveQueries) {
+                        queryItems.push(recursiveQuery);
+                    }
+                }
+            }
+        }
+        return {queryItems, childEntries};
+    }
+
+    /**
      * processes a single graph link
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
@@ -628,164 +822,25 @@ class GraphHelper {
             let link_targets = link.target;
             for (const target of link_targets) {
                 /**
-                 * If this is not set then the caller does not want this entity but a nested entity
-                 * defined further in the GraphDefinition
-                 * @type {string | null}
+                 * @type {{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}}
                  */
-                const resourceType = target.type;
-                // there are two types of linkages:
-                // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
-                // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
-                if (link.path) { // forward link
-                    /**
-                     * @type {string}
-                     */
-                    const originalProperty = link.path.replace('[x]', '');
-                    const {filterProperty, filterValue, property} = this.getFilterFromPropertyPath(originalProperty);
-                    // find parent entities that have a valid property
-                    parentEntities = parentEntities.filter(
-                        p => this.doesEntityHaveProperty(
-                            {
-                                entity: p, property, filterProperty, filterValue
-                            })
-                    );
-                    // if this is a reference then get related resources
-                    if (this.isPropertyAReference(
-                        {
-                            entities: parentEntities, property, filterProperty, filterValue
-                        })) {
-                        await this.scopesValidator.verifyHasValidScopesAsync({
-                            requestInfo,
-                            args: {},
-                            resourceType,
-                            startTime: Date.now(),
-                            action: 'graph',
-                            accessRequested: 'read'
-                        });
-
-                        const queryItem = await this.getForwardReferencesAsync(
-                            {
-                                requestInfo,
-                                base_version,
-                                resourceType,
-                                parentEntities,
-                                property,
-                                filterProperty,
-                                filterValue,
-                                explain,
-                                debug
-                            }
-                        );
-                        if (queryItem) {
-                            queryItems.push(queryItem);
-                        }
-                        childEntries = parentEntities.flatMap(p => p.containedEntries);
-                    } else { // handle paths that are not references
-                        childEntries = [];
-                        for (const parentEntity of parentEntities) {
-                            // create child entries
-                            /**
-                             * @type {Object[]}
-                             */
-                            const children = this.getPropertiesForEntity(
-                                {
-                                    entity: parentEntity, property, filterProperty, filterValue
-                                });
-                            /**
-                             * @type {NonResourceEntityAndContained[]}
-                             */
-                            const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
-                                    {
-                                        includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
-                                        item: c,
-                                        containedEntries: []
-                                    }
-                                )
-                            );
-                            childEntries = childEntries.concat(childEntriesForCurrentEntity);
-                            parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
-                        }
+                const resultForLinkTarget = await this.processLinkTargetAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        link,
+                        parentEntities,
+                        explain,
+                        debug,
+                        target
                     }
-                } else if (target.params) { // reverse link
-                    if (target.type) { // if caller has requested this entity or just wants a nested entity
-                        // reverse link
-                        await this.scopesValidator.verifyHasValidScopesAsync({
-                            requestInfo,
-                            args: {},
-                            resourceType,
-                            startTime: Date.now(),
-                            action: 'graph',
-                            accessRequested: 'read'
-                        });
-                        if (!parentResourceType) {
-                            throw new Error(
-                                'processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' +
-                                ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                                ` using target.params: ${target.params}`
-                            );
-                        }
-                        const queryItem = await this.getReverseReferencesAsync(
-                            {
-                                requestInfo,
-                                base_version,
-                                parentResourceType,
-                                relatedResourceType: resourceType,
-                                parentEntities,
-                                filterProperty: null,
-                                filterValue: null,
-                                reverse_filter: target.params,
-                                explain,
-                                debug
-                            }
-                        );
-                        if (queryItem) {
-                            queryItems.push(queryItem);
-                        }
-                        childEntries = parentEntities.flatMap(p => p.containedEntries);
-                    }
-                }
-
-                // filter childEntries to find entries of same type as parentResource
-                childEntries = childEntries.filter(c =>
-                    (!target.type && !c.resource) || // either there is no target type so choose non-resources
-                    (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
                 );
-                if (childEntries && childEntries.length > 0) {
-                    /**
-                     * @type {string|null}
-                     */
-                    const childResourceType = target.type;
-
-                    // Now recurse down and process the link
-                    /**
-                     * @type {[{path:string, params: string,target:[{type: string}]}]}
-                     */
-                    const childLinks = target.link;
-                    if (childLinks) {
-                        /**
-                         * @type {{path:string, params: string,target:[{type: string}]}}
-                         */
-                        for (const childLink of childLinks) {
-                            // now recurse and process the next link in GraphDefinition
-                            /**
-                             * @type {QueryItem[]}
-                             */
-                            const recursiveQueries = await this.processOneGraphLinkAsync(
-                                {
-                                    requestInfo,
-                                    base_version,
-                                    parentResourceType: childResourceType,
-                                    link: childLink,
-                                    parentEntities: childEntries,
-                                    explain,
-                                    debug
-                                }
-                            );
-                            for (const recursiveQuery of recursiveQueries) {
-                                queryItems.push(recursiveQuery);
-                            }
-                        }
-                    }
+                for (const q of resultForLinkTarget.queryItems) {
+                    queryItems.push(q);
+                }
+                for (const c of resultForLinkTarget.childEntries) {
+                    childEntries.push(c);
                 }
             }
             return queryItems;
