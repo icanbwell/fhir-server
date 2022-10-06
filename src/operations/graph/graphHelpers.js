@@ -26,6 +26,7 @@ const {RethrownError} = require('../../utils/rethrownError');
  * @property {string} resourceType
  * @property {string} [property]
  * @property {string} [reverse_filter]
+ * @property {import('mongodb').Document[]} [explanations]
  */
 
 
@@ -180,6 +181,8 @@ class GraphHelper {
      * @param {string} property
      * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*|null} filterValue (Optional) match filterProperty to this value
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
      * @returns {QueryItem}
      */
     async getForwardReferencesAsync(
@@ -190,7 +193,9 @@ class GraphHelper {
             parentEntities,
             property,
             filterProperty,
-            filterValue
+            filterValue,
+            explain,
+            debug
         }) {
         try {
             // throw new Error('I am here');
@@ -255,6 +260,15 @@ class GraphHelper {
                 {resourceType, base_version, useAtlas: requestInfo.useAtlas}
             ).findAsync({query, options});
 
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (explain || debug) ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then don't return any results
+                cursor = cursor.limit(1);
+            }
+
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
             while (await cursor.hasNext()) {
@@ -302,7 +316,7 @@ class GraphHelper {
                     }
                 }
             }
-            return {query, resourceType, property};
+            return {query, resourceType, property, explanations};
         } catch (e) {
             throw new RethrownError(
                 {
@@ -332,6 +346,8 @@ class GraphHelper {
      * @param {string | null} filterProperty (Optional) filter the sublist by this property
      * @param {*} filterValue (Optional) match filterProperty to this value
      * @param {string} reverse_filter Do a reverse link from child to parent using this property
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync(
@@ -339,8 +355,13 @@ class GraphHelper {
             requestInfo,
             base_version,
             parentResourceType,
-            relatedResourceType, parentEntities,
-            filterProperty, filterValue, reverse_filter
+            relatedResourceType,
+            parentEntities,
+            filterProperty,
+            filterValue,
+            reverse_filter,
+            explain,
+            debug
         }
     ) {
         try {
@@ -407,6 +428,15 @@ class GraphHelper {
                 throw new Error(`${searchParameterName} is not a valid search parameter for resource ${relatedResourceType}`);
             }
 
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            const explanations = (explain || debug) ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then don't return any results
+                cursor = cursor.limit(1);
+            }
+
             while (await cursor.hasNext()) {
                 /**
                  * @type {Resource|null}
@@ -461,7 +491,7 @@ class GraphHelper {
                     }
                 }
             }
-            return {query, parentResourceType, relatedResourceType, reverse_filter};
+            return {query, resourceType: relatedResourceType, reverse_filter, explanations};
         } catch (e) {
             throw new RethrownError(
                 {
@@ -568,6 +598,8 @@ class GraphHelper {
      * @param {string | null} parentResourceType
      * @param {{path: string, params: string, target: {type: string}[]}} link
      * @param {EntityAndContainedBase[]} parentEntities
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
      * @returns {QueryItem[]}
      */
     async processOneGraphLinkAsync(
@@ -576,7 +608,9 @@ class GraphHelper {
             base_version,
             parentResourceType,
             link,
-            parentEntities
+            parentEntities,
+            explain,
+            debug
         }) {
         try {
             /**
@@ -628,7 +662,7 @@ class GraphHelper {
                             accessRequested: 'read'
                         });
 
-                        const {query: queryForwardReference} = await this.getForwardReferencesAsync(
+                        const queryItem = await this.getForwardReferencesAsync(
                             {
                                 requestInfo,
                                 base_version,
@@ -636,10 +670,14 @@ class GraphHelper {
                                 parentEntities,
                                 property,
                                 filterProperty,
-                                filterValue
+                                filterValue,
+                                explain,
+                                debug
                             }
                         );
-                        queryItems.push({query: queryForwardReference, resourceType, property});
+                        if (queryItem) {
+                            queryItems.push(queryItem);
+                        }
                         childEntries = parentEntities.flatMap(p => p.containedEntries);
                     } else { // handle paths that are not references
                         childEntries = [];
@@ -685,7 +723,7 @@ class GraphHelper {
                                 ` using target.params: ${target.params}`
                             );
                         }
-                        const {query: queryReverseReference} = await this.getReverseReferencesAsync(
+                        const queryItem = await this.getReverseReferencesAsync(
                             {
                                 requestInfo,
                                 base_version,
@@ -694,10 +732,14 @@ class GraphHelper {
                                 parentEntities,
                                 filterProperty: null,
                                 filterValue: null,
-                                reverse_filter: target.params
+                                reverse_filter: target.params,
+                                explain,
+                                debug
                             }
                         );
-                        queryItems.push({query: queryReverseReference, resourceType, reverse_filter: target.params});
+                        if (queryItem) {
+                            queryItems.push(queryItem);
+                        }
                         childEntries = parentEntities.flatMap(p => p.containedEntries);
                     }
                 }
@@ -733,7 +775,9 @@ class GraphHelper {
                                     base_version,
                                     parentResourceType: childResourceType,
                                     link: childLink,
-                                    parentEntities: childEntries
+                                    parentEntities: childEntries,
+                                    explain,
+                                    debug
                                 }
                             );
                             for (const recursiveQuery of recursiveQueries) {
@@ -763,6 +807,8 @@ class GraphHelper {
      * @param {string} parentResourceType
      * @param {[Resource]} parentEntities
      * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync(
@@ -771,7 +817,9 @@ class GraphHelper {
             base_version,
             parentResourceType,
             parentEntities,
-            linkItems
+            linkItems,
+            explain,
+            debug
         }
     ) {
         try {
@@ -803,10 +851,18 @@ class GraphHelper {
                  */
                 const queryItemsForOneGraphLink = await this.processOneGraphLinkAsync(
                     {
-                        requestInfo, base_version, parentResourceType, link, parentEntities: resultEntities
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        link,
+                        parentEntities: resultEntities,
+                        explain,
+                        debug
                     });
                 for (const q of queryItemsForOneGraphLink) {
-                    queryItems.push(q);
+                    if (q) {
+                        queryItems.push(q);
+                    }
                 }
             }
             return {entities: resultEntities, queryItems};
@@ -895,7 +951,8 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {string[]} idList
-     * @param {Object} args
+     * @param {boolean} [explain]
+     * @param {boolean} [debug]
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
     async processMultipleIdsAsync(
@@ -908,7 +965,8 @@ class GraphHelper {
             contained,
             hash_references,
             idList,
-            args
+            explain,
+            debug
         }
     ) {
         try {
@@ -973,10 +1031,10 @@ class GraphHelper {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = ((args && (args['_explain'] || args['_debug'])) || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
-            if (args && args['_explain']) {
-                // if explain is requested then don't return any results
-                cursor.clear();
+            const explanations = explain || debug ? await cursor.explainAsync() : [];
+            if (explain) {
+                // if explain is requested then just return one result
+                cursor = cursor.limit(1);
             }
 
             /**
@@ -1015,11 +1073,15 @@ class GraphHelper {
                     base_version,
                     parentResourceType: resourceType,
                     parentEntities: topLevelBundleEntries.map(e => e.resource),
-                    linkItems
+                    linkItems,
+                    explain,
+                    debug
                 });
 
             for (const q of queryItems) {
-                queries.push(q.query);
+                if (q.query) {
+                    queries.push(q.query);
+                }
             }
             // add contained objects under the parent resource
             for (const topLevelBundleEntry of topLevelBundleEntries) {
@@ -1145,7 +1207,8 @@ class GraphHelper {
                     contained,
                     hash_references,
                     idList: id,
-                    args
+                    explain: args && args['_explain'],
+                    debug: args && args['_debug'],
                 }
             );
 

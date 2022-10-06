@@ -207,6 +207,17 @@ class DatabasePartitionedCursor {
     getQuery() {
         return this.query;
     }
+
+    /**
+     * @param {number} count
+     * @return {DatabasePartitionedCursor}
+     */
+    limit(count) {
+        for (const index in this._cursors) {
+            this._cursors[`${index}`] = this._cursors[`${index}`].limit(count);
+        }
+        return this;
+    }
 }
 
 module.exports = {
