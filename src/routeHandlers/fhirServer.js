@@ -319,6 +319,8 @@ class MyFHIRServer {
                         if (err && err.resourceType === OperationOutcome.resourceType) {
                             const status = err.statusCode || 500;
                             res.status(status).json(err);
+                        } else if (err && err.statusCode === 404) {
+                            res.status(404).end();
                         } else if (err instanceof ServerError) {
                             const status = err.statusCode || 500;
                             res.status(status).json(new OperationOutcome(err));
