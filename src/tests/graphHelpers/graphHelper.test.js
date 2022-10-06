@@ -1356,5 +1356,208 @@ describe('graphHelper Tests', () => {
                 type: 'collection',
             });
         });
+        test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with explain', async () => {
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const db = await mongoDatabaseManager.getClientDbAsync();
+            let resourceType = 'Practitioner';
+            let collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne({
+                id: '2',
+                resourceType: 'Practitioner',
+                extension: [
+                    {
+                        extension: {
+                            url: 'plan',
+                            valueReference: {
+                                reference: 'InsurancePlan/2000',
+                            },
+                        },
+                    },
+                ],
+            });
+
+            // add a PractitionerRole
+            resourceType = 'PractitionerRole';
+            collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne({
+                id: '10',
+                resourceType: resourceType,
+                practitioner: {
+                    reference: 'Practitioner/1',
+                },
+                organization: {
+                    reference: 'Organization/100',
+                },
+                extension: [
+                    {
+                        id: 'IDHP',
+                        extension: [
+                            {
+                                url: 'for_system',
+                                valueUri: 'http://medstarhealth.org/IDHP',
+                            },
+                            {
+                                url: 'availability_score',
+                                valueDecimal: 0.1234567890123,
+                            },
+                        ],
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                    },
+                    {
+                        extension: [
+                            {
+                                url: 'plan',
+                                valueReference: {
+                                    reference:
+                                        'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                },
+                            },
+                        ],
+                        url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
+                    },
+                ],
+            });
+            await collection.insertOne({
+                id: '20',
+                resourceType: resourceType,
+                practitioner: {
+                    reference: 'Practitioner/2',
+                },
+                organization: {
+                    reference: 'Organization/200',
+                },
+            });
+            // add an Organization
+            resourceType = 'Organization';
+            collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne({id: '100', resourceType: resourceType});
+            await collection.insertOne({id: '200', resourceType: resourceType});
+
+            // add an InsurancePlan
+            resourceType = 'InsurancePlan';
+            collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne({
+                id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                resourceType: resourceType,
+            });
+            resourceType = 'Practitioner';
+            const result = await getGraphHelper().processGraphAsync({
+                requestInfo,
+                base_version,
+                useAtlas: false,
+                resourceType,
+                id: ['1', '2'],
+                graphDefinitionJson: graphWithExtensionDefinition,
+                contained: true,
+                hash_references: false,
+                args: {_debug: 1}
+            });
+            expect(result).not.toBeNull();
+            delete result['timestamp'];
+            expect(result.toJSON()).toStrictEqual({
+                entry: [
+                    {
+                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        resource: {
+                            contained: [
+                                {
+                                    extension: [
+                                        {
+                                            extension: [
+                                                {
+                                                    url: 'for_system',
+                                                    valueUri: 'http://medstarhealth.org/IDHP',
+                                                },
+                                                {
+                                                    url: 'availability_score',
+                                                    valueDecimal: 0.1234567890123,
+                                                },
+                                            ],
+                                            id: 'IDHP',
+                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/provider_search',
+                                        },
+                                        {
+                                            extension: [
+                                                {
+                                                    url: 'plan',
+                                                    valueReference: {
+                                                        reference:
+                                                            'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                                    },
+                                                },
+                                            ],
+                                            url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
+                                        },
+                                    ],
+                                    id: '10',
+                                    organization: {
+                                        reference: 'Organization/100',
+                                    },
+                                    practitioner: {
+                                        reference: 'Practitioner/1',
+                                    },
+                                    resourceType: 'PractitionerRole',
+                                },
+                                {
+                                    id: '100',
+                                    resourceType: 'Organization',
+                                },
+                                {
+                                    id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                    resourceType: 'InsurancePlan',
+                                },
+                            ],
+                            id: '1',
+                            resourceType: 'Practitioner',
+                        },
+                    },
+                    {
+                        fullUrl: 'https://host/4_0_0/Practitioner/2',
+                        resource: {
+                            contained: [
+                                {
+                                    id: '20',
+                                    organization: {
+                                        reference: 'Organization/200',
+                                    },
+                                    practitioner: {
+                                        reference: 'Practitioner/2',
+                                    },
+                                    resourceType: 'PractitionerRole',
+                                },
+                                {
+                                    id: '200',
+                                    resourceType: 'Organization',
+                                },
+                            ],
+                            extension: [
+                                {
+                                    extension: [
+                                        {
+                                            url: 'plan',
+                                            valueReference: {
+                                                reference: 'InsurancePlan/2000',
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                            id: '2',
+                            resourceType: 'Practitioner',
+                        },
+                    },
+                ],
+                id: '1',
+                resourceType: 'Bundle',
+                type: 'collection',
+            });
+        });
     });
 });
