@@ -56,11 +56,10 @@ describe('PractitionerSearchAllReturnTotalTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_count=10&id=0&_bundle=1&_total=accurate')
-                .set(getHeaders('user/*.* access/*.*'))
-                .expect(200);
-            console.log('------- response Practitioner sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
+                .set(getHeaders('user/*.* access/*.*'));
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
             // clear out the lastUpdated column since that changes
             const body = resp.body;
             expect(body.entry.length).toBe(1);
