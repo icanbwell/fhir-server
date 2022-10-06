@@ -11,9 +11,8 @@ class DatabaseUpdateManager {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean} useAtlas
      */
-    constructor({resourceLocatorFactory, resourceType, base_version, useAtlas}) {
+    constructor({resourceLocatorFactory, resourceType, base_version}) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
@@ -26,18 +25,12 @@ class DatabaseUpdateManager {
          */
         this._base_version = base_version;
         /**
-         * @type {boolean}
-         * @private
-         */
-        this._useAtlas = useAtlas;
-        /**
          * @type {ResourceLocator}
          */
         this.resourceLocator = resourceLocatorFactory.createResourceLocator(
             {
                 resourceType: this._resourceType,
-                base_version: this._base_version,
-                useAtlas: this._useAtlas
+                base_version: this._base_version
             });
     }
 

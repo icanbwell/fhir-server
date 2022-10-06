@@ -244,11 +244,6 @@ class MergeManager {
         // use mutex so multiple requests are not in here at the same time
         await mutex.runExclusive(async () => {
             try {
-                /**
-                 * @type {boolean}
-                 */
-                const useAtlas = (isTrue(env.USE_ATLAS));
-
                 // Query our collection for this id
                 /**
                  * @type {Resource|null}
@@ -261,7 +256,7 @@ class MergeManager {
                         }
                     ) :
                     await this.databaseQueryFactory.createQuery(
-                        {resourceType: resourceToMerge.resourceType, base_version, useAtlas}
+                        {resourceType: resourceToMerge.resourceType, base_version}
                     ).findOneAsync({query: {id: id.toString()}});
 
                 // check if resource was found in database or not

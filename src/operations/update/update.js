@@ -7,7 +7,6 @@ const {getResource} = require('../common/getResource');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
 const {preSaveAsync} = require('../common/preSave');
-const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -175,17 +174,12 @@ class UpdateOperation {
         }
 
         try {
-            /**
-             * @type {boolean}
-             */
-            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
             // Get current record
             /**
              * @type {Resource | null}
              */
             let data = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas}
+                {resourceType, base_version}
             ).findOneAsync({query: {id: id.toString()}});
             // create a resource with incoming data
             /**
@@ -309,7 +303,7 @@ class UpdateOperation {
              * @type {{error: import('mongodb').Document, created: boolean} | null}
              */
             const res = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas}
+                {resourceType, base_version}
             ).findOneAndUpdateAsync(
                 {query: {id: id}, update: {$set: doc.toJSONInternal()}, options: {upsert: true}});
             // save to history
@@ -321,7 +315,7 @@ class UpdateOperation {
 
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {
-                    resourceType, base_version, useAtlas
+                    resourceType, base_version
                 }
             ).insertHistoryForResourceAsync({doc: historyResource});
 

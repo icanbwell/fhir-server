@@ -46,7 +46,6 @@ class BundleManager {
      * @param {string|undefined} [indexHint]
      * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
-     * @param {boolean | null} [useAtlas]
      * @param {import('mongodb').Document[]} explanations
      * @return {Bundle}
      */
@@ -72,7 +71,6 @@ class BundleManager {
             indexHint,
             cursorBatchSize,
             user,
-            useAtlas,
             explanations
         }) {
         /**
@@ -186,12 +184,6 @@ class BundleManager {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplain',
                     display: JSON.stringify(explanations),
-                });
-            }
-            if (useAtlas) {
-                tag.push({
-                    system: 'https://www.icanbwell.com/queryUseAtlas',
-                    code: useAtlas ? '1' : 0,
                 });
             }
             if (cursorBatchSize && cursorBatchSize > 0) {

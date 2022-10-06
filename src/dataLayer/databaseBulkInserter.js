@@ -262,12 +262,11 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Executes all the operations in bulk
      * @param {string} base_version
-     * @param {boolean?} useAtlas
      * @param {string} requestId
      * @param {string} currentDate
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync({requestId, currentDate, base_version, useAtlas}) {
+    async executeAsync({requestId, currentDate, base_version}) {
         try {
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
@@ -286,7 +285,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 async x => await this.performBulkForResourceTypeWithMapEntryAsync(
                     {
                         requestId, currentDate,
-                        mapEntry: x, base_version, useAtlas,
+                        mapEntry: x, base_version,
                         useHistoryCollection: false
                     }
                 ));
@@ -298,7 +297,7 @@ class DatabaseBulkInserter extends EventEmitter {
                             async x => await this.performBulkForResourceTypeWithMapEntryAsync(
                                 {
                                     requestId, currentDate,
-                                    mapEntry: x, base_version, useAtlas,
+                                    mapEntry: x, base_version,
                                     useHistoryCollection: true
                                 }
                             ));
@@ -460,7 +459,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} currentDate
      * @param {[string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]]} mapEntry
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @param {boolean|null} useHistoryCollection
      * @returns {Promise<BulkResultEntry>}
      */
@@ -469,7 +467,7 @@ class DatabaseBulkInserter extends EventEmitter {
             requestId,
             currentDate,
             mapEntry, base_version,
-            useAtlas, useHistoryCollection
+            useHistoryCollection
         }
     ) {
         try {
@@ -481,7 +479,7 @@ class DatabaseBulkInserter extends EventEmitter {
             return await this.performBulkForResourceTypeAsync(
                 {
                     requestId, currentDate,
-                    resourceType, base_version, useAtlas, useHistoryCollection, operations
+                    resourceType, base_version, useHistoryCollection, operations
                 });
         } catch (e) {
             throw new RethrownError({
@@ -496,7 +494,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} currentDate
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {boolean|null} useHistoryCollection
      * @param {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} operations
      * @returns {Promise<BulkResultEntry>}
@@ -507,7 +504,6 @@ class DatabaseBulkInserter extends EventEmitter {
             currentDate,
             resourceType,
             base_version,
-            useAtlas,
             useHistoryCollection,
             operations
         }) {
@@ -522,7 +518,7 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                     {
-                        resourceType, base_version, useAtlas
+                        resourceType, base_version
                     }
                 );
                 for (const /** @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} */ operation of operations) {

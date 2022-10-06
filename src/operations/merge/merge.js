@@ -1,6 +1,4 @@
 const moment = require('moment-timezone');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {MergeManager} = require('./mergeManager');
@@ -301,11 +299,6 @@ class MergeOperation {
                 // unwrap the resources
                 incomingObjects = incomingObjects.entry.map(e => e.resource);
             }
-
-            /**
-             * @type {boolean}
-             */
-            const useAtlas = isTrue(env.USE_ATLAS);
             /**
              * @type {boolean}
              */
@@ -342,7 +335,6 @@ class MergeOperation {
             await this.databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
                 {
                     base_version,
-                    useAtlas,
                     requestedResources: incomingResourceTypeAndIds
                 }
             );
@@ -368,7 +360,7 @@ class MergeOperation {
             let mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate,
-                    base_version, useAtlas
+                    base_version
                 });
 
             // flush any event handlers
@@ -452,7 +444,7 @@ class MergeOperation {
                     }
                 );
                 const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                    {resourceType, base_version, useAtlas});
+                    {resourceType, base_version});
                 const firstCollectionNameForQuery = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
                     query: {}
                 });
@@ -478,7 +470,6 @@ class MergeOperation {
                         stopTime,
                         startTime,
                         user,
-                        useAtlas,
                         explanations: []
                     }
                 );

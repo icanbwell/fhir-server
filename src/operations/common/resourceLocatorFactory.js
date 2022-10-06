@@ -36,15 +36,13 @@ class ResourceLocatorFactory {
     /**
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @return {ResourceLocator}
      */
-    createResourceLocator({resourceType, base_version, useAtlas}) {
+    createResourceLocator({resourceType, base_version}) {
         return new ResourceLocator(
             {
                 mongoCollectionManager: this.mongoCollectionManager, resourceType, base_version,
                 partitioningManager: this.partitioningManager,
-                useAtlas,
                 mongoDatabaseManager: this.mongoDatabaseManager
             }
         );

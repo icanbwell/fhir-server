@@ -3,7 +3,6 @@
 const {logDebug} = require('../common/logging');
 const {isTrue} = require('../../utils/isTrue');
 const {BadRequestError, NotValidatedError} = require('../../utils/httpErrors');
-const env = require('var');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {GraphHelper} = require('./graphHelpers');
@@ -116,11 +115,6 @@ class GraphOperation {
              */
             const hash_references = isTrue(args['_hash_references']);
             /**
-             * @type {boolean}
-             */
-            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
-            /**
              * @type {string}
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -186,7 +180,6 @@ class GraphOperation {
                 {
                     requestInfo,
                     base_version,
-                    useAtlas,
                     resourceType,
                     id,
                     graphDefinitionJson: graphDefinitionRaw,

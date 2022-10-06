@@ -4,7 +4,6 @@ const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/ht
 const {enrich} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
 const env = require('var');
-const {isTrue} = require('../../utils/isTrue');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('../search/searchManager');
@@ -130,12 +129,6 @@ class SearchByIdOperation {
             let query = {};
             query.id = id;
 
-
-            /**
-             * @type {boolean}
-             */
-            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
             /**
              * @type {Promise<Resource> | *}
              */
@@ -145,13 +138,13 @@ class SearchByIdOperation {
                 const allPatients = patients.concat(
                     await this.searchManager.getPatientIdsByPersonIdentifiersAsync(
                         {
-                            base_version, useAtlas, fhirPersonId
+                            base_version, fhirPersonId
                         }));
                 query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
             }
             try {
                 resource = await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version, useAtlas}
+                    {resourceType, base_version}
                 ).findOneAsync({query});
             } catch (e) {
                 throw new BadRequestError(e);

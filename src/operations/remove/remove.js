@@ -5,7 +5,6 @@ const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {buildR4SearchQuery} = require('../query/r4');
-const {isTrue} = require('../../utils/isTrue');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -165,12 +164,6 @@ class RemoveOperation {
                 // don't delete everything
                 return {deleted: 0};
             }
-
-            /**
-             * @type {boolean}
-             */
-            const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
             // Delete our resource record
             let res;
             try {
@@ -178,7 +171,7 @@ class RemoveOperation {
                  * @type {DeleteManyResult}
                  */
                 res = await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version, useAtlas}
+                    {resourceType, base_version}
                 ).deleteManyAsync({query});
 
                 // log access to audit logs

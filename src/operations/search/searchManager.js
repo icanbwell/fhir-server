@@ -162,12 +162,10 @@ class SearchManager {
      * Create the query and gets the cursor from mongo
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @param {Object?} args
      * @param {Set} columns
      * @param {Object} options
      * @param {import('mongodb').Document} query
-     * @param {boolean} useAtlas
      * @param {number} maxMongoTimeMS
      * @param {string | null} user
      * @param {boolean} isStreaming
@@ -178,7 +176,6 @@ class SearchManager {
         {
             resourceType,
             base_version,
-            useAtlas,
             args,
             columns,
             options,
@@ -251,7 +248,6 @@ class SearchManager {
                 {
                     resourceType,
                     base_version,
-                    useAtlas,
                     options,
                     originalQuery,
                     query,
@@ -305,7 +301,7 @@ class SearchManager {
          * @type {DatabasePartitionedCursor}
          */
         let cursorQuery = await this.databaseQueryFactory.createQuery(
-            {resourceType, base_version, useAtlas}
+            {resourceType, base_version}
         ).findAsync({query, options});
 
         if (isStreaming) {
@@ -339,7 +335,7 @@ class SearchManager {
         if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
             // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                {resourceType, base_version, useAtlas});
+                {resourceType, base_version});
             const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync(
                 {
                     query
@@ -362,7 +358,7 @@ class SearchManager {
             total_count = await this.handleGetTotalsAsync(
                 {
                     resourceType, base_version,
-                    useAtlas, args, query, maxMongoTimeMS
+                    args, query, maxMongoTimeMS
                 });
         }
 
@@ -384,7 +380,6 @@ class SearchManager {
     /**
      * Gets Patient id from identifiers
      * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {string} fhirPersonId
      * @param {string} personSystem
      * @param {string} patientSystem
@@ -392,7 +387,7 @@ class SearchManager {
      */
     async getPatientIdsByPersonIdentifiersAsync(
         {
-            base_version, useAtlas, fhirPersonId,
+            base_version, fhirPersonId,
             // eslint-disable-next-line no-unused-vars
             personSystem = BWELL_FHIR_MEMBER_ID_SYSTEM,
             patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM
@@ -408,7 +403,7 @@ class SearchManager {
                  * @type {Resource | null}
                  */
                 let person = await this.databaseQueryFactory.createQuery(
-                    {resourceType: 'Person', base_version, useAtlas})
+                    {resourceType: 'Person', base_version})
                     .findOneAsync({query: {id: fhirPersonId}});
                 // Finds Patients by platform member ids and returns an array with the found patient ids
                 if (person && person.identifier && person.identifier.length > 0) {
@@ -422,7 +417,7 @@ class SearchManager {
                      * @type {DatabasePartitionedCursor}
                      */
                     let cursor = await this.databaseQueryFactory.createQuery(
-                        {resourceType: 'Patient', base_version, useAtlas})
+                        {resourceType: 'Patient', base_version})
                         .findAsync({
                                 query:
                                     {
@@ -532,7 +527,6 @@ class SearchManager {
      * handle request to return totals for the query
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @param {Object} args
      * @param {Object} query
      * @param {number} maxMongoTimeMS
@@ -540,7 +534,7 @@ class SearchManager {
      */
     async handleGetTotalsAsync(
         {
-            resourceType, base_version, useAtlas,
+            resourceType, base_version,
             args, query, maxMongoTimeMS
         }
     ) {
@@ -550,11 +544,11 @@ class SearchManager {
             // don't use the options since they set a limit and skip
             if (args['_total'] === 'estimate') {
                 return await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version, useAtlas}
+                    {resourceType, base_version}
                 ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
             } else {
                 return await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version, useAtlas}
+                    {resourceType, base_version}
                 ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
             }
         } catch (e) {
@@ -614,7 +608,6 @@ class SearchManager {
      * implements a two-step optimization by first retrieving ids and then requesting the data for those ids
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {boolean|null} useAtlas
      * @param {Object} options
      * @param {Object|Object[]} originalQuery
      * @param {Object} query
@@ -626,7 +619,6 @@ class SearchManager {
         {
             resourceType,
             base_version,
-            useAtlas,
             options,
             originalQuery,
             query,
@@ -648,7 +640,7 @@ class SearchManager {
              * @type {DatabasePartitionedCursor}
              */
             const cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version, useAtlas}
+                {resourceType, base_version}
             ).findAsync({query, options});
             /**
              * @type {import('mongodb').DefaultSchema[]}
@@ -1068,21 +1060,20 @@ class SearchManager {
     /**
      * Gets linked patients
      * @param {string} base_version
-     * @param {boolean} useAtlas
      * @param {boolean | null} isUser
      * @param {string} fhirPersonId
      * @return {Promise<string[]>}
      */
     async getLinkedPatientsAsync(
         {
-            base_version, useAtlas, isUser, fhirPersonId
+            base_version, isUser, fhirPersonId
         }
     ) {
         try {
             if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
                 return await this.getPatientIdsByPersonIdentifiersAsync(
                     {
-                        base_version, useAtlas, fhirPersonId
+                        base_version, fhirPersonId
                     });
             }
             return [];

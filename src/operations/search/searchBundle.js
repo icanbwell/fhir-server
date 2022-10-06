@@ -145,17 +145,12 @@ class SearchBundleOperation {
          */
         const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
 
-        /**
-         * @type {boolean}
-         */
-        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
         const {/** @type {string} **/base_version} = args;
 
         const allPatients = patients.concat(
             await this.searchManager.getLinkedPatientsAsync(
                 {
-                    base_version, useAtlas, isUser, fhirPersonId
+                    base_version, isUser, fhirPersonId
                 }));
 
         /** @type {import('mongodb').Document}**/
@@ -199,12 +194,12 @@ class SearchBundleOperation {
          * @type {ResourceLocator}
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-            {resourceType, base_version, useAtlas});
+            {resourceType, base_version});
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
                 {
-                    resourceType, base_version, useAtlas,
+                    resourceType, base_version,
                     args, columns, options, query,
                     maxMongoTimeMS, user, isStreaming: false, useAccessIndex
                 });
@@ -332,7 +327,6 @@ class SearchBundleOperation {
                     indexHint,
                     cursorBatchSize,
                     user,
-                    useAtlas,
                     explanations
                 }
             );

@@ -3,7 +3,6 @@
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
-const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -128,12 +127,6 @@ class HistoryByIdOperation {
                 }
             ]
         };
-
-        /**
-         * @type {boolean}
-         */
-        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
         try {
             /**
              * @type {DatabasePartitionedCursor}
@@ -142,7 +135,7 @@ class HistoryByIdOperation {
             try {
                 cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
-                        resourceType, base_version, useAtlas
+                        resourceType, base_version
                     }
                 ).findAsync({query, options});
             } catch (e) {
@@ -191,7 +184,7 @@ class HistoryByIdOperation {
              * @type {ResourceLocator}
              */
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                {resourceType, base_version, useAtlas});
+                {resourceType, base_version});
 
             // https://hl7.org/fhir/http.html#history
             // The return content is a Bundle with type set to history containing the specified version history,
@@ -221,7 +214,6 @@ class HistoryByIdOperation {
                     stopTime,
                     startTime,
                     user,
-                    useAtlas,
                     explanations
                 }
             );

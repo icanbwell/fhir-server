@@ -1,7 +1,6 @@
 const {buildStu3SearchQuery} = require('../../operations/query/stu3');
 const {buildDstu2SearchQuery} = require('../../operations/query/dstu2');
 const {NotFoundError} = require('../../utils/httpErrors');
-const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -114,11 +113,6 @@ class HistoryOperation {
         } else if (base_version === VERSIONS['1_0_2']) {
             query = buildDstu2SearchQuery(args);
         }
-        /**
-         * @type {boolean}
-         */
-        const useAtlas = (isTrue(env.USE_ATLAS) || isTrue(args['_useAtlas']));
-
         // noinspection JSValidateTypes
         /**
          * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
@@ -139,7 +133,7 @@ class HistoryOperation {
         try {
             cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {
-                    resourceType, base_version, useAtlas
+                    resourceType, base_version
                 }
             ).findAsync({query, options});
         } catch (e) {
@@ -195,7 +189,7 @@ class HistoryOperation {
          * @type {ResourceLocator}
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-            {resourceType, base_version, useAtlas});
+            {resourceType, base_version});
 
         // https://hl7.org/fhir/http.html#history
         // The return content is a Bundle with type set to history containing the specified version history,
@@ -225,7 +219,6 @@ class HistoryOperation {
                 stopTime,
                 startTime,
                 user,
-                useAtlas,
                 explanations
             }
         );
