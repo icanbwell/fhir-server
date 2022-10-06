@@ -13,6 +13,18 @@ class BundleManager {
     }
 
     /**
+     * generates a full url for an entity
+     * @param {string} protocol
+     * @param {string} host
+     * @param {string} base_version
+     * @param {Resource} resource
+     * @return {string}
+     */
+    getFullUrlForResource({protocol, host, base_version, resource}) {
+        return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
+    }
+
+    /**
      * creates a bundle from the given resources
      * @param {string} type
      * @param {string | null} originalUrl
@@ -21,7 +33,7 @@ class BundleManager {
      * @param {string | null} [last_id]
      * @param {Resource[]} resources
      * @param {string} base_version
-     * @param {number|null} total_count
+     * @param {number|null} [total_count]
      * @param {Object} args
      * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
      * @param {string} collectionName
@@ -33,7 +45,7 @@ class BundleManager {
      * @param {string|undefined} [indexHint]
      * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
-     * @param {boolean | null} useAtlas
+     * @param {boolean | null} [useAtlas]
      * @param {import('mongodb').Document[]} explanations
      * @return {Bundle}
      */
@@ -107,7 +119,13 @@ class BundleManager {
          * @type {BundleEntry[]}
          */
         const entries = resources.map((resource) => {
-            return new BundleEntry({resource: resource});
+            return new BundleEntry(
+                {
+                    resource: resource,
+                    fullUrl: this.getFullUrlForResource(
+                        {protocol, host, base_version, resource})
+                }
+            );
         });
         // noinspection JSValidateTypes
         /**
@@ -117,11 +135,13 @@ class BundleManager {
             type: type,
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             entry: entries,
-            total: total_count,
             link: link,
         });
+        if (total_count !== null) {
+            bundle.total = total_count;
+        }
 
-        if (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG') {
+        if ((args && (args['_explain'] || args['_debug'])) || env.LOGLEVEL === 'DEBUG') {
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */

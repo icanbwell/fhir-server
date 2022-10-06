@@ -85,17 +85,6 @@ class GraphHelper {
     }
 
     /**
-     * generates a full url for an entity
-     * @param {FhirRequestInfo} requestInfo
-     * @param {string} base_version
-     * @param {Resource} parentEntity
-     * @return {string}
-     */
-    getFullUrlForResource({requestInfo, base_version, parentEntity}) {
-        return `${requestInfo.protocol}://${requestInfo.host}/${base_version}/${parentEntity.resourceType}/${parentEntity.id}`;
-    }
-
-    /**
      * returns property values
      * @param {EntityAndContainedBase} entity
      * @param {string} property Property to read
@@ -268,10 +257,6 @@ class GraphHelper {
                         {
                             entityId: relatedResource.id,
                             entityResourceType: relatedResource.resourceType,
-                            fullUrl: this.getFullUrlForResource(
-                                {
-                                    requestInfo, base_version, parentEntity: relatedResource
-                                }),
                             includeInOutput: true,
                             resource: relatedResource,
                             containedEntries: []
@@ -424,10 +409,6 @@ class GraphHelper {
                         {
                             entityId: relatedResourcePropertyCurrent.id,
                             entityResourceType: relatedResourcePropertyCurrent.resourceType,
-                            fullUrl: this.getFullUrlForResource(
-                                {
-                                    requestInfo, base_version, parentEntity: relatedResourcePropertyCurrent
-                                }),
                             includeInOutput: true,
                             resource: relatedResourcePropertyCurrent,
                             containedEntries: []
@@ -774,10 +755,6 @@ class GraphHelper {
                 {
                     entityId: parentEntity.id,
                     entityResourceType: parentEntity.resourceType,
-                    fullUrl: this.getFullUrlForResource(
-                        {
-                            requestInfo, base_version, parentEntity
-                        }),
                     includeInOutput: true,
                     resource: parentEntity,
                     containedEntries: []
@@ -884,7 +861,7 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {string[]} idList
-     * @param args
+     * @param {Object} args
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
     async processMultipleIdsAsync(
@@ -962,8 +939,8 @@ class GraphHelper {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
-            if (args['_explain']) {
+            const explanations = ((args && (args['_explain'] || args['_debug'])) || env.LOGLEVEL === 'DEBUG') ? await cursor.explainAsync() : [];
+            if (args && args['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
@@ -984,10 +961,6 @@ class GraphHelper {
                      * @type {BundleEntry}
                      */
                     let current_entity = new BundleEntry({
-                        fullUrl: this.getFullUrlForResource(
-                            {
-                                requestInfo, base_version, parentEntity: startResource
-                            }),
                         resource: startResource
                     });
                     entries = entries.concat([current_entity]);
@@ -1189,7 +1162,7 @@ class GraphHelper {
                     last_id: null,
                     resources,
                     base_version,
-                    total_count: 0,
+                    total_count: null,
                     args: args,
                     originalQuery: queries,
                     collectionName,

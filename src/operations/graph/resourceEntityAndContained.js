@@ -9,14 +9,13 @@ class ResourceEntityAndContained extends EntityAndContainedBase {
      * class
      * @param {string} entityId
      * @param {string} entityResourceType
-     * @param {string} fullUrl
      * @param {boolean} includeInOutput
      * @param {Resource} resource
      * @param {EntityAndContainedBase[]} containedEntries
      */
     constructor(
         {
-            entityId, entityResourceType, fullUrl,
+            entityId, entityResourceType,
             includeInOutput, resource, containedEntries
         }) {
         super({includeInOutput});
@@ -30,11 +29,6 @@ class ResourceEntityAndContained extends EntityAndContainedBase {
          */
         assertIsValid(entityResourceType);
         this.entityResourceType = entityResourceType;
-        /**
-         * @type {string}
-         */
-        assertIsValid(fullUrl);
-        this.fullUrl = fullUrl;
         /**
          * @type {Resource}
          */
