@@ -19,9 +19,9 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
 
     async dropDatabasesAsync() {
         const db = await this.getClientDbAsync();
-        db.dropDatabase();
+        await db.dropDatabase();
         const auditDb = await this.getAuditDbAsync();
-        auditDb.dropDatabase();
+        await auditDb.dropDatabase();
     }
 }
 
