@@ -4,6 +4,7 @@ const env = require('var');
 const {mongoQueryAndOptionsStringify, mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {logDebug} = require('./logging');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const {MongoExplainPlanHelper} = require('../../utils/mongoExplainPlanHelper');
 
 /**
  * This class creates a Bundle resource out of a list of resources
@@ -184,6 +185,12 @@ class BundleManager {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplain',
                     display: JSON.stringify(explanations),
+                });
+                const explainer = new MongoExplainPlanHelper();
+                const simpleExplanations = explanations.map(e => explainer.quick_explain(e));
+                tag.push({
+                    system: 'https://www.icanbwell.com/queryExplainSimple',
+                    display: JSON.stringify(simpleExplanations),
                 });
             }
             if (cursorBatchSize && cursorBatchSize > 0) {

@@ -1,0 +1,142 @@
+/**
+ * from: https://www.mongodb.com/docs/manual/reference/explain-results/
+ * @type {{FETCH: string, GROUP: string, SHARD_MERGE: string, COLLSCAN: string, SHARDING_FILTER: string, IXSCAN: string}}
+ */
+const friendlyDescriptionOfStages = {
+    'COLLSCAN': 'for a collection scan',
+    'IXSCAN': 'scanning index keys',
+    'FETCH': 'retrieving documents',
+    'GROUP': 'for grouping documents',
+    'SHARD_MERGE': 'for merging results from shards',
+    'SHARDING_FILTER': 'for filtering out orphan documents from shards'
+};
+
+class MongoExplainPlanHelper {
+
+    /**
+     * explains
+     * inspired by: https://medium.com/mongodb-performance-tuning/getting-started-with-mongodb-explain-8a3d0c6c7e68
+     * @param {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} explanation
+     * @return {{[executionStats]: { nReturned: number, executionTimeMillis: number, totalKeysExamined: number, totalDocsExamined: number }, steps: {stepNo: number, step: {step: number, stage: string, [filter]: Object, [indexName]: string}}[]}}
+     */
+    quick_explain(explanation) {
+        /**
+         * @type {{stage: string, transformBy: Object, inputStage: Object}}
+         */
+        const winningPlan = explanation.queryPlanner.winningPlan;
+
+        const executionStats = explanation.executionStats;
+        /**
+         * @type {{ nReturned: number, executionTimeMillis: number, totalKeysExamined: number, totalDocsExamined:number }}
+         */
+        const myExecutionStats = {
+            nReturned: executionStats.nReturned,
+            executionTimeMillis: executionStats.executionTimeMillis,
+            totalKeysExamined: executionStats.totalKeysExamined,
+            totalDocsExamined: executionStats.totalDocsExamined
+        };
+
+        var stepNo = 1;
+
+        const steps = this.parseInputStage({stepNo, step: winningPlan});
+        stepNo = steps;
+        return {steps: steps, executionStats: myExecutionStats};
+    }
+
+    /**
+     * @param {number} stepNo
+     * @param {Object} step
+     * @return {{stepNo: number, step: {step: number, stage: string, [filter]: Object, [indexName]: string}}[]}
+     */
+    parseInputStage({stepNo, step}) {
+        /**
+         * @type {{stepNo: number, step: {step: number, stage: string, [filter]: Object, [indexName]: string}}[]}
+         */
+        const result = [];
+        if ('inputStage' in step) {
+            result.push(...this.parseInputStage(step.inputStage));
+        }
+        if ('inputStages' in step) {
+            for (const inputStage of step.inputStages) {
+                result.push(...this.parseInputStage(inputStage));
+            }
+        }
+        /**
+         * @type {{step: number, stage: string, [filter]: Object, [indexName]: string}}
+         */
+        const simplePlanItem = {step: stepNo++, stage: step.stage};
+
+        if (friendlyDescriptionOfStages[step.stage]) {
+            simplePlanItem.friendlyStage = friendlyDescriptionOfStages[step.stage];
+        }
+
+        if ('indexName' in step) {
+            simplePlanItem.indexName = step.indexName;
+        }
+        if ('filter' in step) {
+            simplePlanItem.filter = step.filter;
+        }
+        if ('docsExamined' in step) {
+            simplePlanItem.docsExamined = step.docsExamined;
+        }
+        if ('keysExamined' in step) {
+            simplePlanItem.keysExamined = step.keysExamined;
+        }
+        if ('numReads' in step) {
+            simplePlanItem.numReads = step.numReads;
+        }
+        result.push({stepNo, step: simplePlanItem});
+
+        return result;
+    }
+
+    // executionStats(execStats) {
+    //     var stepNo = 1;
+    //     print('\n');
+    //     var printSpaces = function (n) {
+    //         var s = '';
+    //         for (var i = 1; i < n; i++) {
+    //             s += ' ';
+    //         }
+    //         return s;
+    //     };
+    //     var printInputStage = function (step, depth) {
+    //         if ('inputStage' in step) {
+    //             printInputStage(step.inputStage, depth + 1);
+    //         }
+    //         if ('inputStages' in step) {
+    //             step.inputStages.forEach(function (inputStage) {
+    //                 printInputStage(inputStage, depth + 1);
+    //             });
+    //         }
+    //         var extraData = '(';
+    //         if ('indexName' in step) {
+    //             extraData += ' ' + step.indexName;
+    //         }
+    //         if ('executionTimeMillisEstimate' in step) {
+    //             extraData += ' ms:' + step.executionTimeMillisEstimate;
+    //         }
+    //         if ('keysExamined' in step) {
+    //             extraData += ' keys:' + step.keysExamined;
+    //         }
+    //         if ('docsExamined' in step) {
+    //             extraData += ' docs:' + step.docsExamined;
+    //         }
+    //         extraData += ')';
+    //         print(stepNo++, printSpaces(depth), step.stage, extraData);
+    //     };
+    //     printInputStage(execStats.executionStages, 1);
+    //     print(
+    //         '\nTotals:  ms:',
+    //         execStats.executionTimeMillis,
+    //         ' keys:',
+    //         execStats.totalKeysExamined,
+    //         ' Docs:',
+    //         execStats.totalDocsExamined
+    //     );
+    // }
+}
+
+module.exports = {
+    MongoExplainPlanHelper
+};
