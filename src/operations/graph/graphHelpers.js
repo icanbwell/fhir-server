@@ -1155,7 +1155,7 @@ class GraphHelper {
              */
             const bundle = this.bundleManager.createBundle(
                 {
-                    type: 'searchset',
+                    type: 'collection',
                     requestId: requestInfo.requestId,
                     originalUrl: requestInfo.originalUrl,
                     host: requestInfo.host,
@@ -1180,7 +1180,7 @@ class GraphHelper {
             // create a bundle
             // return new Bundle({
             //     resourceType: 'Bundle',
-            //     id: 'bundle-example',
+            //     id: '1',
             //     type: 'collection',
             //     timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
             //     entry: uniqueEntries

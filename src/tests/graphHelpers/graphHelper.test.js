@@ -80,7 +80,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -129,7 +129,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -187,7 +187,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -245,7 +245,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -302,7 +302,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -359,7 +359,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -430,7 +430,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -487,7 +487,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -565,7 +565,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -686,7 +686,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -799,7 +799,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -931,7 +931,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -1151,7 +1151,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
@@ -1358,7 +1358,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
-                id: 'bundle-example',
+                id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
             });
