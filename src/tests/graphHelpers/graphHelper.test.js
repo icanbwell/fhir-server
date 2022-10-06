@@ -1461,6 +1461,14 @@ describe('graphHelper Tests', () => {
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
+            for (const tag of result.meta.tag) {
+                if (tag.system === 'https://www.icanbwell.com/queryExplain') {
+                    delete tag['display'];
+                }
+                if (tag.system === 'https://www.icanbwell.com/queryTime') {
+                    delete tag['display'];
+                }
+            }
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
@@ -1554,6 +1562,37 @@ describe('graphHelper Tests', () => {
                         },
                     },
                 ],
+                'meta': {
+                    'tag': [
+                        {
+                            'display': 'db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':{\'$in\':[\'Practitioner/1\',\'Practitioner/2\']}}]}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'100\',\'200\']}}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
+                            'system': 'https://www.icanbwell.com/query'
+                        },
+                        {
+                            'code': 'Practitioner_4_0_0',
+                            'system': 'https://www.icanbwell.com/queryCollection'
+                        },
+                        {
+                            'display': '[{\'projection\':{\'_id\':0}}]',
+                            'system': 'https://www.icanbwell.com/queryOptions'
+                        },
+                        {
+                            'display': '[]',
+                            'system': 'https://www.icanbwell.com/queryFields'
+                        },
+                        {
+                            'system': 'https://www.icanbwell.com/queryTime'
+                        },
+                        {
+                            'display': '{\'useTwoStepSearchOptimization\':undefined}',
+                            'system': 'https://www.icanbwell.com/queryOptimization'
+                        },
+                        {
+                            'system': 'https://www.icanbwell.com/queryExplain'
+                        }
+                    ]
+                },
+
                 id: '1',
                 resourceType: 'Bundle',
                 type: 'collection',
