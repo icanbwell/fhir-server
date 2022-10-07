@@ -4,7 +4,7 @@ const {NotAllowedError, ForbiddenError} = require('../../utils/httpErrors');
 const env = require('var');
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
-const {buildR4SearchQuery} = require('../query/r4');
+const {R4SearchQueryCreator} = require('../query/r4');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -23,6 +23,7 @@ class RemoveOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
+     * @param {R4SearchQueryCreator} r4SearchQueryCreator
      */
     constructor(
         {
@@ -31,7 +32,8 @@ class RemoveOperation {
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            configManager
+            configManager,
+            r4SearchQueryCreator
         }
     ) {
         /**
@@ -65,6 +67,12 @@ class RemoveOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {R4SearchQueryCreator}
+         */
+        this.r4SearchQueryCreator = r4SearchQueryCreator;
+        assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
     }
 
     /**
@@ -130,10 +138,9 @@ class RemoveOperation {
                 } else if (base_version === VERSIONS['1_0_2']) {
                     query = buildDstu2SearchQuery(args);
                 } else {
-                    ({query} = buildR4SearchQuery(
+                    ({query} = this.r4SearchQueryCreator.buildR4SearchQuery(
                         {
-                            resourceType, args,
-                            useAccessIndex: this.configManager.useAccessIndex
+                            resourceType, args
                         }));
                 }
             } catch (e) {

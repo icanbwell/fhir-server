@@ -4,7 +4,7 @@
       "resource": {
         "agent": [
           {
-            "altId": "FakeHR6",
+            "altId": "OBocz9j",
             "id": "amp-0",
             "requestor": false,
             "role": [
@@ -29,7 +29,7 @@
               ]
             },
             "who": {
-              "reference": "Person/fake-TnpmHR6"
+              "reference": "Person/fake-OBocz9j"
             }
           }
         ],
@@ -39,7 +39,7 @@
               {
                 "id": "amp-0",
                 "type": "browser",
-                "valueString": "Mobile Safari"
+                "valueString": "Microsoft Edge"
               }
             ],
             "id": "amp-0"
@@ -49,7 +49,7 @@
               {
                 "id": "amp-0",
                 "type": "browser_version",
-                "valueString": "14.1"
+                "valueString": "93.0"
               }
             ],
             "id": "amp-1"
@@ -59,7 +59,7 @@
               {
                 "id": "amp-0",
                 "type": "city",
-                "valueString": "Fairfax"
+                "valueString": "Baltimore"
               }
             ],
             "id": "amp-2"
@@ -78,8 +78,7 @@
             "detail": [
               {
                 "id": "amp-0",
-                "type": "device",
-                "valueString": "iPhone"
+                "type": "device"
               }
             ],
             "id": "amp-4"
@@ -129,7 +128,7 @@
               {
                 "id": "amp-0",
                 "type": "os",
-                "valueString": "iOS"
+                "valueString": "Windows"
               }
             ],
             "id": "amp-9"
@@ -139,7 +138,7 @@
               {
                 "id": "amp-0",
                 "type": "region",
-                "valueString": "Virginia"
+                "valueString": "Maryland"
               }
             ],
             "id": "amp-10"
@@ -149,7 +148,7 @@
               {
                 "id": "amp-0",
                 "type": "screen_height",
-                "valueString": "896"
+                "valueString": "1080"
               }
             ],
             "id": "amp-11"
@@ -159,17 +158,17 @@
               {
                 "id": "amp-0",
                 "type": "screen_width",
-                "valueString": "414"
+                "valueString": "1920"
               }
             ],
             "id": "amp-12"
           }
         ],
-        "id": "MixP-0001r5i3yr8g2cuj",
+        "id": "MixP-0001wx03abn1tez5",
         "meta": {
           "security": [
             {
-              "code": "medstar",
+              "code": "thedacare",
               "system": "https://www.icanbwell.com/owner"
             },
             {
@@ -177,11 +176,11 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "thedacare",
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "medstar",
+              "code": "thedacare",
               "system": "https://www.icanbwell.com/vendor"
             }
           ],
@@ -189,7 +188,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2021-09-20T12:44:59.000Z",
+        "recorded": "2021-09-20T14:27:30.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
@@ -221,11 +220,11 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z')}},{'recorded':{'$gte':ISODate('2021-09-19T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {}).sort({'id':1}).limit(2)",
+        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z')}},{'recorded':{'$gte':ISODate('2021-09-19T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'thedacare'}}}]}, {}).sort({'id':1}).limit(2)",
         "system": "https://www.icanbwell.com/query"
       },
       {
-        "code": "AuditEvent_4_0_0_2022_09",
+        "code": "AuditEvent_4_0_0_2022_10",
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {

@@ -1,0 +1,98 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "active": true,
+        "communication": [
+          {
+            "coding": [
+              {
+                "code": "en",
+                "system": "urn:ietf:bcp:47"
+              }
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "id": "1376656959",
+        "identifier": [
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "type": {
+              "coding": [
+                {
+                  "code": "NPI",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "official",
+            "value": "1376656959"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ],
+            "text": "SAMER S. NAJJAR  MD",
+            "use": "usual"
+          }
+        ],
+        "resourceType": "Practitioner",
+        "telecom": [
+          {
+            "system": "email",
+            "use": "work",
+            "value": "foo@foo.com"
+          }
+        ]
+      }
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Practitioner_4_0_0.find({'id':{'$in':['1376656959']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'member.entity.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'subject.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {})",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Practitioner_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "[{'projection':{'_id':0}}]",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "[]",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "type": "collection"
+}

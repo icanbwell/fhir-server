@@ -12,12 +12,21 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {ConfigManager} = require('../../../utils/configManager');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
+const {IndexProvider} = require('../../../indexes/indexProvider');
 
 class MockConfigManager extends ConfigManager {
     /**
      * @returns {string[]}
      */
     get partitionResources() {
+        return ['Account', 'AuditEvent'];
+    }
+
+    get useAccessIndex() {
+        return true;
+    }
+
+    get resourcesWithAccessIndex() {
         return ['Account', 'AuditEvent'];
     }
 }
@@ -31,6 +40,16 @@ class MockConfigManagerWithNoPartitionedResources extends ConfigManager {
     }
 }
 
+class MockIndexProvider extends IndexProvider {
+    /**
+     * @param {string[]} accessCodes
+     * @return {boolean}
+     */
+    hasIndexForAccessCodes({accessCodes}) {
+        return accessCodes.every(a => a === 'medstar');
+    }
+}
+
 describe('AuditEvent Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -41,9 +60,79 @@ describe('AuditEvent Tests', () => {
     });
 
     describe('AuditEvent accessIndex Tests', () => {
-        test('accessIndex works', async () => {
+        test('accessIndex works for access codes that have an index', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
+                c.register('indexProvider', () => new MockIndexProvider());
+                return c;
+            });
+            const container = getTestContainer();
+            // first confirm there are no AuditEvent
+            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            // ARRANGE
+            // add the resources to FHIR server
+            resp = await request
+                .post('/4_0_0/AuditEvent/1/$merge?validate=true')
+                .send(auditevent1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+
+            // read from database to make sure the _accessIndex property was set
+            const fieldDate = new Date(moment.utc('2021-09-20').format('YYYY-MM-DDTHH:mm:ssZ'));
+            /**
+             * @type {string}
+             */
+            const mongoCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth(
+                {
+                    fieldValue: fieldDate.toString(),
+                    resourceWithBaseVersion: 'AuditEvent_4_0_0',
+                });
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const auditEventDb = await mongoDatabaseManager.getAuditDbAsync();
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            let internalAuditEventCollection = auditEventDb.collection(mongoCollectionName);
+            /**
+             * @type {import('mongodb').DefaultSchema[]}
+             */
+            const allAuditEntries = await internalAuditEventCollection.find({}).toArray();
+            expect(allAuditEntries.length).toBe(2);
+
+            const medstarAuditEntries = await internalAuditEventCollection.find({id: 'MixP-0001r5i3yr8g2cuj'}).toArray();
+            expect(medstarAuditEntries.length).toBe(1);
+            expect(medstarAuditEntries[0]._access.medstar).toBe(1);
+
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right AuditEvent back
+            resp = await request
+                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
+        });
+        test('accessIndex is not used for access codes that do not have an index', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                c.register('indexProvider', () => new MockIndexProvider());
                 return c;
             });
             const container = getTestContainer();
@@ -105,17 +194,10 @@ describe('AuditEvent Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
+                .get('/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cthedcare&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResources);
-
-            // search by token system and code and make sure we get the right AuditEvent back
-            resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_useAccessIndex=1')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
         test('accessIndex works even for resources not on partitionResources', async () => {
             const request = await createTestRequest((c) => {
@@ -199,14 +281,7 @@ describe('AuditEvent Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedAuditEventResources);
-
-            // search by token system and code and make sure we get the right AuditEvent back
-            resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
+                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cthedacare&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventWithoutAccessIndexResources);

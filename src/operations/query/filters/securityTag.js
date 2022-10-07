@@ -7,10 +7,17 @@ const {tokenQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {import('../common/types').SearchParameterDefinition} propertyObj
  * @param {Object[]} and_segments
  * @param {Set} columns
- * @param {boolean} useAccessIndex
- * @returns {*[]}
+ * @param {function(code): boolean} fnUseAccessIndex function that returns whether to use access index for this code
+ * @returns {string[]}
  */
-function filterBySecurityTag({queryParameterValue, propertyObj, and_segments, columns, useAccessIndex}) {
+function filterBySecurityTag(
+    {
+        queryParameterValue,
+        propertyObj,
+        and_segments,
+        columns,
+        fnUseAccessIndex
+    }) {
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }
@@ -57,9 +64,9 @@ function filterBySecurityTag({queryParameterValue, propertyObj, and_segments, co
              * @type {string}
              */
             const decodedTokenQueryItem = decodeURIComponent(tokenQueryItem);
-            if (decodedTokenQueryItem.includes('|') && useAccessIndex) {
+            if (decodedTokenQueryItem.includes('|')) {
                 const [system, value] = decodedTokenQueryItem.split('|');
-                if (system === 'https://www.icanbwell.com/access') {
+                if (system === 'https://www.icanbwell.com/access' && fnUseAccessIndex(value)) {
                     // http://www.hl7.org/fhir/search.html#token
                     const field = `_access.${value}`;
                     and_segments.push(
