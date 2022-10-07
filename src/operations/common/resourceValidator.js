@@ -2,6 +2,8 @@ const {validateResource} = require('../../utils/validator.util');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const sendToS3 = require('../../utils/aws-s3');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
+const env = require('var');
+const {isTrue} = require('../../utils/isTrue');
 
 class ResourceValidator {
 
@@ -33,18 +35,20 @@ class ResourceValidator {
             validationOperationOutcome['details']['text'] = validationOperationOutcome['details']['text'] +
                 ',' + JSON.stringify(resourceToValidate);
 
-            await sendToS3('validation_failures',
-                resourceType,
-                resourceToValidate,
-                currentDate,
-                id,
-                'merge');
-            await sendToS3('validation_failures',
-                resourceType,
-                validationOperationOutcome,
-                currentDate,
-                id,
-                'merge_failure');
+            if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                await sendToS3('validation_failures',
+                    resourceType,
+                    resourceToValidate,
+                    currentDate,
+                    id,
+                    'merge');
+                await sendToS3('validation_failures',
+                    resourceType,
+                    validationOperationOutcome,
+                    currentDate,
+                    id,
+                    'merge_failure');
+            }
             return validationOperationOutcome;
         }
         return null;

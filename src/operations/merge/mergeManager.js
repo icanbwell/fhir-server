@@ -299,18 +299,20 @@ class MergeManager {
                         }
                     ]
                 };
-                await sendToS3('errors',
-                    resourceToMerge.resourceType,
-                    resourceToMerge,
-                    currentDate,
-                    id,
-                    'merge');
-                await sendToS3('errors',
-                    resourceToMerge.resourceType,
-                    operationOutcome,
-                    currentDate,
-                    id,
-                    'merge_error');
+                if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                    await sendToS3('errors',
+                        resourceToMerge.resourceType,
+                        resourceToMerge,
+                        currentDate,
+                        id,
+                        'merge');
+                    await sendToS3('errors',
+                        resourceToMerge.resourceType,
+                        operationOutcome,
+                        currentDate,
+                        id,
+                        'merge_error');
+                }
                 assertFail({
                     source: 'MergeManager',
                     message: 'Failed to load data',

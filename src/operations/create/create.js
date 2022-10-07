@@ -278,12 +278,14 @@ class CreateOperation {
 
             return doc;
         } catch (/** @type {Error} */ e) {
-            await sendToS3('errors',
-                resourceType,
-                resource_incoming,
-                currentDate,
-                uuid,
-                currentOperationName);
+            if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                await sendToS3('errors',
+                    resourceType,
+                    resource_incoming,
+                    currentDate,
+                    uuid,
+                    currentOperationName);
+            }
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
                 args,
