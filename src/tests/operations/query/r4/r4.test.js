@@ -3,7 +3,6 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {AccessIndexManager} = require('../../../../operations/common/accessIndexManager');
 const {ConfigManager} = require('../../../../utils/configManager');
 const {IndexProvider} = require('../../../../indexes/indexProvider');
-const {customIndexes} = require('../../../indexers/missingIndex/mockCustomIndexes');
 
 class MockAccessIndexManager extends AccessIndexManager {
     resourceHasAccessIndexForAccessCodes({resourceType, accessCodes}) {
@@ -19,12 +18,12 @@ class MockConfigManager extends ConfigManager {
 }
 
 class MockIndexProvider extends IndexProvider {
-    getIndexes() {
-        return customIndexes;
+    hasIndexForAccessCodes({accessCodes}) {
+        return accessCodes.every(ac => ac === 'medstar');
     }
 }
 
-describe('AuditEvent Tests', () => {
+describe('r4 search Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -33,7 +32,7 @@ describe('AuditEvent Tests', () => {
         await commonAfterEach();
     });
 
-    describe('AuditEvent r4 Tests', () => {
+    describe('AuditEvent r4 search Tests', () => {
         test('r4 works for Patient without accessIndex', async () => {
             await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
@@ -98,18 +97,8 @@ describe('AuditEvent Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'AuditEvent', args
             });
-            expect(result.query.$and).toStrictEqual([
-                {
-                    recorded: {
-                        $lt: new Date('2021-09-22T00:00:00.000Z')
-                    }
-                },
-                {
-                    '_access.medstar': 1
-                }
-            ]);
             expect(result.query.$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
-            expect(result.query.$and['1']).toBe({'_access.medstar': 1});
+            expect(result.query.$and['2']).toStrictEqual({'_access.medstar': 1});
         });
         test('r4 works with Task and subject', async () => {
             await createTestRequest((c) => {

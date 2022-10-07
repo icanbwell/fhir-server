@@ -11,6 +11,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {ConfigManager} = require('../../../utils/configManager');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
+const {IndexProvider} = require('../../../indexes/indexProvider');
 
 class MockConfigManagerWithAllPartitionedResources extends ConfigManager {
     /**
@@ -29,6 +30,16 @@ class MockConfigManagerWithAllPartitionedResources extends ConfigManager {
     }
 }
 
+class MockIndexProvider extends IndexProvider {
+    /**
+     * @param {string[]} accessCodes
+     * @return {boolean}
+     */
+    hasIndexForAccessCodes({accessCodes}) {
+        return accessCodes.every(a => a === 'medstar');
+    }
+}
+
 
 describe('AuditEvent when all is set Tests', () => {
     beforeEach(async () => {
@@ -43,6 +54,7 @@ describe('AuditEvent when all is set Tests', () => {
         test('accessIndex works for audit event when all is set', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithAllPartitionedResources());
+                c.register('indexProvider', () => new MockIndexProvider());
                 return c;
             });
             const container = getTestContainer();
