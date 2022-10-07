@@ -16,9 +16,8 @@
             <tbody>
             <% performers.forEach(function(performer){ %>
                 <% if (performer.function) { %>
-                    <% performer.function.forEach(function(type){ %>
-                        <% if (type.coding) { %>
-                            <% type.coding.forEach(function(coding){ %>
+                        <% if (performer.function.type.coding) { %>
+                            <% performer.function.type.coding.forEach(function(coding){ %>
                                 <tr>
                                     <td>
                                         <a href="/4_0_0/<%= performer.actor.reference; %>"><%= performer.actor.reference; %></a>
@@ -29,7 +28,6 @@
                                 </tr>
                             <% }); %>
                         <% } %>
-                    <% }); %>
                 <% } else { %>
                     <tr>
                         <td>
