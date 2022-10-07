@@ -5,10 +5,11 @@ const organizationResource = require('./fixtures/claim/organization.json');
 
 // graph
 const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
+const graphDefinitionMedstarResource = require('./fixtures/graph/my_graph_medstar.json');
 
 // expected
 const expectedResource = require('./fixtures/expected/expected.json');
-const expectedWithExplainResource = require('./fixtures/expected/expectedWithExplain.json');
+const expectedMedstarResource = require('./fixtures/expected/expectedMedstar.json');
 
 const {
     commonBeforeEach,
@@ -18,17 +19,25 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
+const {IndexProvider} = require('../../../indexes/indexProvider');
 
 class MockConfigManager extends ConfigManager {
-    /**
-     * @returns {string[]}
-     */
-    get partitionResources() {
-        return ['all'];
-    }
-
     get useAccessIndex() {
         return true;
+    }
+
+    get resourcesWithAccessIndex() {
+        return ['all'];
+    }
+}
+
+class MockIndexProvider extends IndexProvider {
+    /**
+     * @param {string[]} accessCodes
+     * @return {boolean}
+     */
+    hasIndexForAccessCodes({accessCodes}) {
+        return accessCodes.every(a => a === 'medstar');
     }
 }
 
@@ -44,6 +53,7 @@ describe('Claim Graph Contained Tests', () => {
     describe('Graph Contained Tests', () => {
         test('Graph contained with multiple targets works properly', async () => {
             const request = await createTestRequest((c) => {
+                c.register('indexProvider', () => new MockIndexProvider());
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
@@ -84,7 +94,7 @@ describe('Claim Graph Contained Tests', () => {
 
             resp = await request
                 .post(
-                    '/4_0_0/Practitioner/$graph?id=1376656959&contained=true'
+                    '/4_0_0/Practitioner/$graph?id=1376656959&contained=true&_debug=1'
                 )
                 .set(getHeaders())
                 .send(graphDefinitionResource);
@@ -93,12 +103,12 @@ describe('Claim Graph Contained Tests', () => {
 
             resp = await request
                 .post(
-                    '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true&_explain=1'
+                    '/4_0_0/Practitioner/$graph?id=1376656959&contained=true&_debug=1'
                 )
                 .set(getHeaders())
-                .send(graphDefinitionResource);
+                .send(graphDefinitionMedstarResource);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedWithExplainResource);
+            expect(resp).toHaveResponse(expectedMedstarResource);
         });
     });
 });
