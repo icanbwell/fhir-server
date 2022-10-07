@@ -56,6 +56,7 @@ const {FhirResponseWriter} = require('./middleware/fhir/fhirResponseWriter');
 const {IndexHinter} = require('./indexes/indexHinter');
 const {IndexProvider} = require('./indexes/indexProvider');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
+const {R4SearchQueryCreator} = require('./operations/query/r4');
 
 /**
  * Creates a container and sets up all the services
@@ -159,7 +160,8 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 securityTagManager: c.securityTagManager,
                 resourcePreparer: c.resourcePreparer,
-                indexHinter: c.indexHinter
+                indexHinter: c.indexHinter,
+                r4SearchQueryCreator: c.r4SearchQueryCreator
             }
         )
     );
@@ -217,7 +219,8 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 configManager: c.configManager,
                 bundleManager: c.bundleManager,
-                resourceLocatorFactory: c.resourceLocatorFactory
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                r4SearchQueryCreator: c.r4SearchQueryCreator
             }
         )
     );
@@ -320,7 +323,8 @@ const createContainer = function () {
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            configManager: c.configManager
+            configManager: c.configManager,
+            r4SearchQueryCreator: c.r4SearchQueryCreator
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -442,6 +446,11 @@ const createContainer = function () {
     container.register('accessIndexManager', (c) => new AccessIndexManager({
         configManager: c.configManager,
         indexProvider: c.indexProvider
+    }));
+
+    container.register('r4SearchQueryCreator', (c) => new R4SearchQueryCreator({
+        configManager: c.configManager,
+        accessIndexManager: c.accessIndexManager
     }));
 
     return container;

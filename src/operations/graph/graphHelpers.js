@@ -3,7 +3,7 @@
  */
 const async = require('async');
 const {getResource} = require('../common/getResource');
-const {buildR4SearchQuery} = require('../query/r4');
+const {R4SearchQueryCreator} = require('../query/r4');
 const env = require('var');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
@@ -43,6 +43,7 @@ class GraphHelper {
      * @param {ConfigManager} configManager
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {R4SearchQueryCreator} r4SearchQueryCreator
      */
     constructor(
         {
@@ -52,7 +53,8 @@ class GraphHelper {
             scopesValidator,
             configManager,
             bundleManager,
-            resourceLocatorFactory
+            resourceLocatorFactory,
+            r4SearchQueryCreator
         }
     ) {
         /**
@@ -94,6 +96,12 @@ class GraphHelper {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
+         * @type {R4SearchQueryCreator}
+         */
+        this.r4SearchQueryCreator = r4SearchQueryCreator;
+        assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
     }
 
     /**
@@ -383,9 +391,8 @@ class GraphHelper {
              */
             const args = this.parseQueryStringIntoArgs(reverseFilterWithParentIds);
             const searchParameterName = Object.keys(args)[0];
-            let query = buildR4SearchQuery({
-                resourceType: relatedResourceType, args,
-                useAccessIndex: this.configManager.useAccessIndex
+            let query = this.r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: relatedResourceType, args
             }).query;
 
             /**

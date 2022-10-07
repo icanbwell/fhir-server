@@ -1,6 +1,5 @@
 const {buildStu3SearchQuery} = require('../query/stu3');
 const {buildDstu2SearchQuery} = require('../query/dstu2');
-const {buildR4SearchQuery} = require('../query/r4');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {logDebug, logError} = require('../common/logging');
@@ -26,6 +25,7 @@ const {ResourcePreparer} = require('../common/resourcePreparer');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {RethrownError} = require('../../utils/rethrownError');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const {R4SearchQueryCreator} = require('../query/r4');
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
 const idProjection = {id: 1, _id: 0};
@@ -38,6 +38,7 @@ class SearchManager {
      * @param {SecurityTagManager} securityTagManager
      * @param {ResourcePreparer} resourcePreparer
      * @param {IndexHinter} indexHinter
+     * @param {R4SearchQueryCreator} r4SearchQueryCreator
      */
     constructor(
         {
@@ -45,7 +46,8 @@ class SearchManager {
             resourceLocatorFactory,
             securityTagManager,
             resourcePreparer,
-            indexHinter
+            indexHinter,
+            r4SearchQueryCreator
         }
     ) {
         /**
@@ -75,6 +77,12 @@ class SearchManager {
          */
         this.indexHinter = indexHinter;
         assertTypeEquals(indexHinter, IndexHinter);
+
+        /**
+         * @type {R4SearchQueryCreator}
+         */
+        this.r4SearchQueryCreator = r4SearchQueryCreator;
+        assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
     }
 
     /**
@@ -125,8 +133,8 @@ class SearchManager {
             } else if (base_version === VERSIONS['1_0_2']) {
                 query = buildDstu2SearchQuery(args);
             } else {
-                ({query, columns} = buildR4SearchQuery({
-                    resourceType, args, useAccessIndex
+                ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
+                    resourceType, args
                 }));
             }
         } catch (e) {

@@ -179,7 +179,7 @@ const mongoQueryAndOptionsStringify = (
         });
         return result;
     } else {
-        return mongoQueryAndOptionsStringifySingleQuery(collectionName, query, options);
+        return mongoQueryAndOptionsStringifySingleQuery(collectionName, query, Array.isArray(options) ? options[0] : options);
     }
 };
 
