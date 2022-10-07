@@ -158,18 +158,20 @@ class UpdateOperation {
                 });
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                await sendToS3('validation_failures',
-                    resourceType,
-                    resource_incoming_json,
-                    currentDate,
-                    resource_incoming_json.id,
-                    currentOperationName);
-                await sendToS3('validation_failures',
-                    resourceType,
-                    validationOperationOutcome,
-                    currentDate,
-                    resource_incoming_json.id,
-                    'update_failure');
+                if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                    await sendToS3('validation_failures',
+                        resourceType,
+                        resource_incoming_json,
+                        currentDate,
+                        resource_incoming_json.id,
+                        currentOperationName);
+                    await sendToS3('validation_failures',
+                        resourceType,
+                        validationOperationOutcome,
+                        currentDate,
+                        resource_incoming_json.id,
+                        'update_failure');
+                }
                 throw new NotValidatedError(validationOperationOutcome);
             }
         }
@@ -353,12 +355,14 @@ class UpdateOperation {
 
             return result;
         } catch (e) {
-            await sendToS3('errors',
-                resourceType,
-                resource_incoming_json,
-                currentDate,
-                id,
-                currentOperationName);
+            if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                await sendToS3('errors',
+                    resourceType,
+                    resource_incoming_json,
+                    currentDate,
+                    id,
+                    currentOperationName);
+            }
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
