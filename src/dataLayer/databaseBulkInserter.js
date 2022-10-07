@@ -16,6 +16,7 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const {RethrownError} = require('../utils/rethrownError');
+const {isTrue} = require('../utils/isTrue');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -570,7 +571,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
                         operationsByCollection] = operationsByCollectionName;
 
-                    if (env.LOG_ALL_MERGES) {
+                    if (isTrue(env.LOG_ALL_MERGES)) {
                         await sendToS3('bulk_inserter',
                             resourceType,
                             operations,

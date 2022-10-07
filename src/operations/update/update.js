@@ -4,6 +4,7 @@ const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
+const {isTrue} = require('../../utils/isTrue');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
 const {preSaveAsync} = require('../common/preSave');
@@ -134,7 +135,7 @@ class UpdateOperation {
         let resource_incoming_json = body;
         let {base_version, id} = args;
 
-        if (env.LOG_ALL_SAVES) {
+        if (isTrue(env.LOG_ALL_SAVES)) {
             await sendToS3('logs',
                 resourceType,
                 resource_incoming_json,
@@ -244,7 +245,7 @@ class UpdateOperation {
                         resource: foundResource
                     };
                 }
-                if (env.LOG_ALL_SAVES) {
+                if (isTrue(env.LOG_ALL_SAVES)) {
                     await sendToS3('logs',
                         resourceType,
                         patchContent,

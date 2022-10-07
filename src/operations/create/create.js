@@ -18,6 +18,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
+const {isTrue} = require('../../utils/isTrue');
 
 class CreateOperation {
     /**
@@ -137,7 +138,7 @@ class CreateOperation {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
-        if (env.LOG_ALL_SAVES) {
+        if (isTrue(env.LOG_ALL_SAVES)) {
             await sendToS3('logs',
                 resourceType,
                 resource_incoming,

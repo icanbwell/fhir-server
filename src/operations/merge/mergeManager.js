@@ -131,7 +131,7 @@ class MergeManager {
         const patched_resource_incoming = await this.resourceMerger.mergeResourceAsync(
             {currentResource, resourceToMerge});
 
-        if (env.LOG_ALL_MERGES) {
+        if (isTrue(env.LOG_ALL_MERGES)) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 {
@@ -232,7 +232,7 @@ class MergeManager {
             resourceToMerge.meta.lastUpdated = new Date(resourceToMerge.meta.lastUpdated).toISOString();
         }
 
-        if (env.LOG_ALL_SAVES) {
+        if (isTrue(env.LOG_ALL_SAVES)) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 resourceToMerge,
