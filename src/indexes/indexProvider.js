@@ -12,7 +12,7 @@ class IndexProvider {
      */
     hasIndexForAccessCodes({accessCodes}) {
         const accessCodesWithIndexes = ['medstar', 'Thedacare'];
-        return accessCodes.all(ac => accessCodesWithIndexes.includes(ac));
+        return accessCodes.every(ac => accessCodesWithIndexes.includes(ac));
     }
 }
 
