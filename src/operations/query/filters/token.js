@@ -13,6 +13,7 @@ function filterByToken({queryParameterValue, propertyObj, and_segments, columns}
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }
+    // https://hl7.org/fhir/search.html#token
     for (const tokenQueryItem of queryParameterValue) {
         if (propertyObj.fieldFilter === "[system/@value='email']") {
             and_segments.push(
