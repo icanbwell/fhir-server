@@ -1,4 +1,4 @@
-const {tokenQueryBuilder} = require('../../../utils/querybuilder.util');
+const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/querybuilder.util');
 
 /**
  * Filters by token
@@ -66,6 +66,11 @@ function filterByToken({queryParameterValue, propertyObj, and_segments, columns}
         } else {
             and_segments.push({
                 $or: [
+                    exactMatchQueryBuilder(
+                        tokenQueryItem,
+                        `${propertyObj.field}`,
+                        ''
+                    ),
                     tokenQueryBuilder(
                         tokenQueryItem,
                         'code',
