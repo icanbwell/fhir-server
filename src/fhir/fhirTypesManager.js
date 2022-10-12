@@ -2,7 +2,11 @@ const dataElementsJson = require('../fhir/generator/json/definitions.json/datael
 const dataElementMap = new Map(dataElementsJson.entry.map(i =>
         [
             i.resource.id,
-            i.resource.element[0].type ? i.resource.element[0].type[0].code : null
+            {
+                code: i.resource.element[0].type ? i.resource.element[0].type[0].code : null,
+                min: i.resource.element[0].min,
+                max: i.resource.element[0].max
+            }
         ]
     )
 );
@@ -16,7 +20,8 @@ class FhirTypesManager {
      */
     getTypeForField({resourceType, field}) {
         const resourceAndField = `${resourceType}.${field}`;
-        return dataElementMap.get(resourceAndField);
+        const dataType = dataElementMap.get(resourceAndField);
+        return dataType && dataType.code;
     }
 }
 
