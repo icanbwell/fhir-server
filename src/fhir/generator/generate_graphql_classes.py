@@ -49,7 +49,7 @@ def clean_duplicate_lines(file_path: Union[Path, str]) -> None:
 
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
-    parent_schema_dir = Path(__file__).parent.joinpath("../")
+    parent_schema_dir = Path(__file__).parent.joinpath("../../graphql/v2")
     graphql_schema_dir: Path = parent_schema_dir.joinpath("schemas")
     graphql_resolvers_dir: Path = parent_schema_dir.joinpath("resolvers")
 
