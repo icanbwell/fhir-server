@@ -41,6 +41,10 @@ describe('FhirTypesManager Tests', () => {
                 resourceType: 'AuditEvent',
                 field: 'subtype'
             })).toStrictEqual('Coding');
+            expect(fhirTypesManager.getTypeForField({
+                resourceType: 'AuditEvent',
+                field: 'agent.role'
+            })).toStrictEqual('CodeableConcept');
         });
     });
 });

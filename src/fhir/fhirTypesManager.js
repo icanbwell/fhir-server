@@ -2,7 +2,7 @@ const dataElementsJson = require('../fhir/generator/json/definitions.json/datael
 const dataElementMap = new Map(dataElementsJson.entry.map(i =>
         [
             i.resource.id,
-            i.resource.element[0].type ? i.resource.element[0].type.code : null
+            i.resource.element[0].type ? i.resource.element[0].type[0].code : null
         ]
     )
 );
