@@ -16,13 +16,31 @@ describe('FhirTypesManager Tests', () => {
         test('FhirTypesManager works', async () => {
             const fhirTypesManager = new FhirTypesManager();
 
-            expect(fhirTypesManager.getTypeForField('Task', 'status')).toStrictEqual('code');
-            expect(fhirTypesManager.getTypeForField('Observation', 'code')).toStrictEqual('CodeableConcept');
-            expect(fhirTypesManager.getTypeForField('Observation', 'identifier')).toStrictEqual('Identifier');
-            expect(fhirTypesManager.getTypeForField('Appointment', 'description')).toStrictEqual('string');
-            expect(fhirTypesManager.getTypeForField('Appointment', 'specialty')).toStrictEqual('CodeableConcept');
-            expect(fhirTypesManager.getTypeForField('AuditEvent', 'type')).toStrictEqual('Coding');
-            expect(fhirTypesManager.getTypeForField('AuditEvent', 'subtype')).toStrictEqual('Coding');
+            expect(fhirTypesManager.getTypeForField({resourceType: 'Task', field: 'status'})).toStrictEqual('code');
+            expect(fhirTypesManager.getTypeForField({
+                resourceType: 'Observation',
+                field: 'code'
+            })).toStrictEqual('CodeableConcept');
+            expect(fhirTypesManager.getTypeForField({
+                resourceType: 'Observation',
+                field: 'identifier'
+            })).toStrictEqual('Identifier');
+            expect(fhirTypesManager.getTypeForField({
+                resourceType: 'Appointment',
+                field: 'description'
+            })).toStrictEqual('string');
+            expect(fhirTypesManager.getTypeForField({
+                resourceType: 'Appointment',
+                field: 'specialty'
+            })).toStrictEqual('CodeableConcept');
+            expect(fhirTypesManager.getTypeForField({
+                resourceType: 'AuditEvent',
+                field: 'type'
+            })).toStrictEqual('Coding');
+            expect(fhirTypesManager.getTypeForField({
+                resourceType: 'AuditEvent',
+                field: 'subtype'
+            })).toStrictEqual('Coding');
         });
     });
 });

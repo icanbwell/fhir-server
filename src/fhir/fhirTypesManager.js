@@ -8,7 +8,7 @@ class FhirTypesManager {
      * @param {string} field
      * @return {string|null}
      */
-    getTypeForField(resourceType, field) {
+    getTypeForField({resourceType, field}) {
 
         /**
          * @type {Object[]}

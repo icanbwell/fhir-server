@@ -94,5 +94,5 @@ function filterByToken({queryParameterValue, propertyObj, and_segments, columns}
 }
 
 module.exports = {
-    filterByToken: filterByToken
+    filterByToken
 };
