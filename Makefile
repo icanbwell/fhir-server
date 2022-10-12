@@ -157,8 +157,8 @@ graphql:
 .PHONY:classes
 classes:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	python3 src/graphql/v2/generator/generate_classes.py && \
-	python3 src/graphql/v2/generator/generate_classes_index.py && \
+	python3 src/fhir/generator/generate_classes.py && \
+	python3 src/fhir/generator/generate_classes_index.py && \
 	eslint --fix "src/fhir/classes/**/*.js"
 
 .PHONY:searchParameters

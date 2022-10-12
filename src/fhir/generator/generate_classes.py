@@ -49,9 +49,7 @@ def clean_duplicate_lines(file_path: Union[Path, str]) -> None:
 
 def main() -> int:
     data_dir: Path = Path(__file__).parent.joinpath("./")
-    parent_schema_dir = Path(__file__).parent.joinpath("../")
-    top_level_dir = Path(__file__).parent.joinpath("../")
-    fhir_dir = top_level_dir.joinpath("fhir")
+    fhir_dir = Path(__file__).parent.joinpath("../")
     classes_dir: Path = fhir_dir.joinpath("classes/4_0_0/")
 
     # clean out old stuff
