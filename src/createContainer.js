@@ -57,6 +57,7 @@ const {IndexHinter} = require('./indexes/indexHinter');
 const {IndexProvider} = require('./indexes/indexProvider');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 const {R4SearchQueryCreator} = require('./operations/query/r4');
+const {FhirTypesManager} = require('./fhir/fhirTypesManager');
 
 /**
  * Creates a container and sets up all the services
@@ -448,10 +449,14 @@ const createContainer = function () {
         indexProvider: c.indexProvider
     }));
 
-    container.register('r4SearchQueryCreator', (c) => new R4SearchQueryCreator({
-        configManager: c.configManager,
-        accessIndexManager: c.accessIndexManager
-    }));
+    container.register('fhirTypesManager', () => new FhirTypesManager());
+
+    container.register('r4SearchQueryCreator', (c) => new R4SearchQueryCreator(
+        {
+            configManager: c.configManager,
+            accessIndexManager: c.accessIndexManager,
+            fhirTypesManager: c.fhirTypesManager
+        }));
 
     return container;
 };

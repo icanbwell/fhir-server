@@ -16,6 +16,7 @@ const {filterBySecurityTag} = require('./filters/securityTag');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
+const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
 
 function isUrl(queryParameterValue) {
     return queryParameterValue.startsWith('http://') ||
@@ -28,13 +29,28 @@ class R4SearchQueryCreator {
      * constructor
      * @param {ConfigManager} configManager
      * @param {AccessIndexManager} accessIndexManager
+     * @param {FhirTypesManager} fhirTypesManager
      */
-    constructor({configManager, accessIndexManager}) {
+    constructor({
+                    configManager,
+                    accessIndexManager,
+                    fhirTypesManager
+                }) {
+        /**
+         * @type {ConfigManager}
+         */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
-
+        /**
+         * @type {AccessIndexManager}
+         */
         this.accessIndexManager = accessIndexManager;
         assertTypeEquals(accessIndexManager, AccessIndexManager);
+        /**
+         * @type {FhirTypesManager}
+         */
+        this.fhirTypesManager = fhirTypesManager;
+        assertTypeEquals(fhirTypesManager, FhirTypesManager);
     }
 
     /**
@@ -100,6 +116,13 @@ class R4SearchQueryCreator {
                     /** @type {string} **/ queryParameter,
                     /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj,
                 ] of Object.entries(searchParameterObj)) {
+                    // set type of field in propertyObj
+                    propertyObj.fieldType = this.fhirTypesManager.getTypeForField(
+                        {
+                            resourceType,
+                            field: propertyObj.field
+                        }
+                    );
                     /**
                      * @type {string | string[]}
                      */

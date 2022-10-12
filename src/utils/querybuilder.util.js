@@ -11,7 +11,7 @@ const {escapeRegExp} = require('./regexEscaper');
  * @param {string} target what we are querying for
  * @return a mongo regex query
  */
-let stringQueryBuilder = function (target) {
+const stringQueryBuilder = function (target) {
     // noinspection RegExpDuplicateCharacterInClass
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
     // eslint-disable-next-line security/detect-non-literal-regexp
@@ -25,11 +25,11 @@ let stringQueryBuilder = function (target) {
  * @param {string} target
  * @return {array} ors
  */
-let addressQueryBuilder = function (target) {
+const addressQueryBuilder = function (target) {
     // Tokenize the input as mush as possible
-    let totalSplit = target.split(/[\s,]+/);
-    let ors = [];
-    for (let index in totalSplit) {
+    const totalSplit = target.split(/[\s,]+/);
+    const ors = [];
+    for (const index in totalSplit) {
         /**
          * @type {string}
          */
@@ -66,11 +66,11 @@ let addressQueryBuilder = function (target) {
  * @param {string} target
  * @return {array} ors
  */
-let nameQueryBuilder = function (target) {
-    let split = target.split(/[\s.,]+/);
-    let ors = [];
+const nameQueryBuilder = function (target) {
+    const split = target.split(/[\s.,]+/);
+    const ors = [];
 
-    for (let i in split) {
+    for (const i in split) {
         /**
          * @type {RegExp}
          */
@@ -103,14 +103,14 @@ let nameQueryBuilder = function (target) {
  * @param {?boolean} exists_flag whether to check for existence
  * @return {JSON} queryBuilder
  * Using to assign a single variable:
- *      let queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
- for (let i in queryBuilder) {
+ *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
+ for (const i in queryBuilder) {
 			 query[i] = queryBuilder[i];
 		}
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-let tokenQueryBuilder = function (target, type, field, required, exists_flag = null) {
+const tokenQueryBuilder = function (target, type, field, required, exists_flag = null) {
     let queryBuilder = {};
     let system = '';
     let value;
@@ -135,7 +135,7 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
         system = required;
     }
 
-    let queryBuilderElementMatch = {};
+    const queryBuilderElementMatch = {};
     if (system) {
         queryBuilder[`${field}.system`] = system;
         queryBuilderElementMatch['system'] = system;
@@ -165,14 +165,58 @@ let tokenQueryBuilder = function (target, type, field, required, exists_flag = n
 };
 
 /**
+ * @name exactMatchQueryBuilder
+ * @param {?string} target what we are searching for
+ * @param {string} field path to system and value from field
+ * @param {string} required the required system if specified
+ * @param {?boolean} exists_flag whether to check for existence
+ * @return {JSON} queryBuilder
+ * Using to assign a single variable:
+ *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
+ for (const i in queryBuilder) {
+			 query[i] = queryBuilder[i];
+		}
+ * Use in an or query
+ *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
+ */
+const exactMatchQueryBuilder = function (target, field, required, exists_flag = null) {
+    const queryBuilder = {};
+    let value;
+
+    if (target === null || exists_flag === false) {
+        queryBuilder[`${field}`] = {$exists: false};
+        return queryBuilder;
+    }
+    if (exists_flag === true) {
+        queryBuilder[`${field}`] = {$exists: true};
+        return queryBuilder;
+    }
+
+    value = target;
+
+    if (value) {
+        if (value.includes(',')) {
+            const values = value.split(',');
+            queryBuilder[`${field}`] = {
+                $in: values
+            };
+        } else {
+            queryBuilder[`${field}`] = value;
+        }
+    }
+
+    return queryBuilder;
+};
+
+/**
  * @name referenceQueryBuilder
  * @param {string} target
  * @param {string} field
  * @param {?boolean} [exists_flag]
  * @return {JSON} queryBuilder
  */
-let referenceQueryBuilder = function (target, field, exists_flag) {
-    let queryBuilder = {};
+const referenceQueryBuilder = function (target, field, exists_flag) {
+    const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
         queryBuilder[`${field}`] = {$exists: false};
@@ -192,7 +236,7 @@ let referenceQueryBuilder = function (target, field, exists_flag) {
     }
     // target = type/id
     else if (target.includes('/')) {
-        let [type, id] = target.split('/');
+        const [type, id] = target.split('/');
         if (id.includes(',')) {
             const idList = id.split(',');
             queryBuilder[`${field}`] = {$in: idList.map(i => `${type}/${i}`)};
@@ -211,12 +255,12 @@ let referenceQueryBuilder = function (target, field, exists_flag) {
 
 /**
  * @name numberQueryBuilder
- * @description takes in number query and returns a mongo query. The target parameter can have a 2 letter prefix to
+ * @description takes in number query and returns a mongo query. The target parameter can have a 2 constter prefix to
  *              specify a specific kind of query. Else, an approximation query will be returned.
  * @param target
  * @returns {Object} a mongo query
  */
-let numberQueryBuilder = function (target) {
+const numberQueryBuilder = function (target) {
     let prefix = '';
     let number;
     let sigfigs;
@@ -253,7 +297,7 @@ let numberQueryBuilder = function (target) {
     } else {
         decimals = 1;
     }
-    let aprox = (1 / 10 ** decimals) * 5;
+    const aprox = (1 / 10 ** decimals) * 5;
 
     return {$gte: number - aprox, $lt: number + aprox};
 };
@@ -264,8 +308,8 @@ let numberQueryBuilder = function (target) {
  * @param target [prefix][number]|[system]|[code]
  * @param field path to specific field in the resource
  */
-let quantityQueryBuilder = function (target, field) {
-    let qB = {};
+const quantityQueryBuilder = function (target, field) {
+    const qB = {};
     //split by the two pipes
     let [num, system, code] = target.split('|');
 
@@ -278,7 +322,7 @@ let quantityQueryBuilder = function (target, field) {
 
     if (isNaN(num)) {
         //with prefixes
-        let prefix = num.substring(0, 2);
+        const prefix = num.substring(0, 2);
         num = Number(num.substring(2));
 
         // Missing eq(default), sa, eb, and ap prefixes
@@ -313,7 +357,7 @@ function mod(n, m) {
 }
 
 //gives the number of days from year 0, used for adding or subtracting days from a date
-let getDayNum = function (year, month, day) {
+const getDayNum = function (year, month, day) {
     month = mod(month + 9, 12);
     year = year - Math.floor(month / 10);
     return (
@@ -327,7 +371,7 @@ let getDayNum = function (year, month, day) {
 };
 
 //returns a date given the number of days from year 0;
-let getDateFromNum = function (days) {
+const getDateFromNum = function (days) {
     let year = Math.floor((10000 * days + 14780) / 3652425);
     let day2 =
         days - (365 * year + Math.floor(year / 4) - Math.floor(year / 100) + Math.floor(year / 400));
@@ -336,10 +380,10 @@ let getDateFromNum = function (days) {
         day2 =
             days - (365 * year + Math.floor(year / 4) - Math.floor(year / 100) + Math.floor(year / 400));
     }
-    let m1 = Math.floor((100 * day2 + 52) / 3060);
-    let month = mod(m1 + 2, 12) + 1;
+    const m1 = Math.floor((100 * day2 + 52) / 3060);
+    const month = mod(m1 + 2, 12) + 1;
     year = year + Math.floor((m1 + 2) / 12);
-    let rDay = day2 - Math.floor((m1 * 306 + 5) / 10) + 1;
+    const rDay = day2 - Math.floor((m1 * 306 + 5) / 10) + 1;
     return year.toString() + '-' + ('0' + month).slice(-2) + '-' + ('0' + rDay).slice(-2);
 };
 
@@ -350,14 +394,14 @@ let getDateFromNum = function (days) {
 //Also doesn't work foe when things are stored in different time zones in the .json files (with the + or -)
 //  UNLESS, the search parameter is teh exact same as what is stored.  So, if something is stored as 2016-06-03T05:00-03:00, then the search parameter must be 2016-06-03T05:00-03:00
 //It's important to make sure formatting is right, don't forget a leading 0 when dealing with single digit times.
-let dateQueryBuilder = function (date, type, path) {
+const dateQueryBuilder = function (date, type, path) {
     // noinspection RegExpSingleCharAlternation
     // eslint-disable-next-line security/detect-unsafe-regex
-    let regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
-    let match = date.match(regex);
+    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
+    const match = date.match(regex);
     let str = '';
     let toRet = [];
-    let pArr = []; //will have other possibilities such as just year, just year and month, etc
+    const pArr = []; //will have other possibilities such as just year, just year and month, etc
     let prefix = '$eq';
     if (match && match.length >= 1) {
         if (match[1]) {
@@ -367,7 +411,7 @@ let dateQueryBuilder = function (date, type, path) {
         // if (type === 'date') {
         //     //if its just a date, we don't have to worry about time components
         //     //add parts of date that are available
-        //     for (let i = 2; i < 5; i++) {
+        //     for (const i = 2; i < 5; i++) {
         //         //add up the date parts in a string
         //         if (match[`${i}`]) {
         //             str = str + match[`${i}`];
@@ -416,7 +460,7 @@ let dateQueryBuilder = function (date, type, path) {
                         let hrs;
                         if (match[8] === '+') {
                             //time is ahead of UTC so we must subtract
-                            let hM = match[5].split(':');
+                            const hM = match[5].split(':');
                             hM[0] = hM[0].replace('T', '');
                             mins = Number(hM[1]) - Number(match[10]);
                             hrs = Number(hM[0]) - Number(match[9]);
@@ -446,7 +490,7 @@ let dateQueryBuilder = function (date, type, path) {
                             }
                         } else {
                             //time is behind UTC so we add
-                            let hM = match[5].split(':');
+                            const hM = match[5].split(':');
                             hM[0] = hM[0].replace('T', '');
                             mins = Number(hM[1]) + Number(match[10]);
                             hrs = Number(hM[0]) + Number(match[9]);
@@ -478,7 +522,7 @@ let dateQueryBuilder = function (date, type, path) {
                         pArr[5] = str + '$';
                         str = str + 'T' + ('0' + hrs).slice(-2) + ':' + ('0' + mins).slice(-2); //proper formatting for leading 0's
                         // eslint-disable-next-line security/detect-unsafe-regex
-                        let match2 = str.match(/^(\d{4})(-\d{2})?(-\d{2})(?:(T\d{2}:\d{2})(:\d{2})?)?/);
+                        const match2 = str.match(/^(\d{4})(-\d{2})?(-\d{2})(?:(T\d{2}:\d{2})(:\d{2})?)?/);
                         if (match2 && match2.length >= 1) {
                             pArr[0] = match2[1] + '$'; //YYYY
                             pArr[1] = match2[1] + match2[2] + '$'; //YYYY-MM
@@ -524,14 +568,14 @@ let dateQueryBuilder = function (date, type, path) {
                     ')|(?:' +
                     pArr[4] +
                     ')';
-                let regPoss = {
+                const regPoss = {
                     // eslint-disable-next-line security/detect-non-literal-regexp
                     $regex: new RegExp(escapeRegExp(regexPattern)),
                 };
                 if (type === 'period') {
                     str = str + 'Z';
-                    let pS = path + '.start';
-                    let pE = path + '.end';
+                    const pS = path + '.start';
+                    const pE = path + '.end';
                     toRet = [
                         {
                             $and: [
@@ -544,11 +588,11 @@ let dateQueryBuilder = function (date, type, path) {
                     ];
                     return toRet;
                 }
-                let tempFill = pArr.toString().replace(/,/g, ')|(?:') + ')'; //turning the pArr to a string that can be used as a regex
+                const tempFill = pArr.toString().replace(/,/g, ')|(?:') + ')'; //turning the pArr to a string that can be used as a regex
                 if (type === 'timing') {
-                    let pDT = path + '.event';
-                    let pBPS = path + '.repeat.boundsPeriod.start';
-                    let pBPE = path + '.repeat.boundsPeriod.end';
+                    const pDT = path + '.event';
+                    const pBPS = path + '.repeat.boundsPeriod.start';
+                    const pBPE = path + '.repeat.boundsPeriod.end';
                     toRet = [
                         {
                             [pDT]: {
@@ -601,7 +645,7 @@ let dateQueryBuilder = function (date, type, path) {
 
 // noinspection JSUnusedLocalSymbols
 // eslint-disable-next-line no-unused-vars
-let dateQueryBuilderNative = function (dateSearchParameter, type, path) {
+const dateQueryBuilderNative = function (dateSearchParameter, type, path) {
     const regex = /([a-z]+)(.+)/;
     const matches = dateSearchParameter.match(regex);
     const operation = matches[1];
@@ -651,12 +695,12 @@ let dateQueryBuilderNative = function (dateSearchParameter, type, path) {
  * @param field1 contains the path and search type
  * @param field2 contains the path and search type
  */
-let compositeQueryBuilder = function (target, field1, field2) {
-    let composite = [];
+const compositeQueryBuilder = function (target, field1, field2) {
+    const composite = [];
     let temp = {};
-    let [target1, target2] = target.split(/[$,]/);
-    let [path1, type1] = field1.split('|');
-    let [path2, type2] = field2.split('|');
+    const [target1, target2] = target.split(/[$,]/);
+    const [path1, type1] = field1.split('|');
+    const [path2, type2] = field2.split('|');
 
     // Call the right queryBuilder based on type
     switch (type1) {
@@ -757,8 +801,8 @@ let compositeQueryBuilder = function (target, field1, field2) {
  * @param {boolean} ignoreCase
  * @return {JSON} queryBuilder
  */
-let partialTextQueryBuilder = function (field, partialText, ignoreCase) {
-    let queryBuilder = {};
+const partialTextQueryBuilder = function (field, partialText, ignoreCase) {
+    const queryBuilder = {};
     /**
      * @type {RegExp}
      */
@@ -788,5 +832,6 @@ module.exports = {
     compositeQueryBuilder,
     dateQueryBuilder,
     dateQueryBuilderNative,
-    partialTextQueryBuilder
+    partialTextQueryBuilder,
+    exactMatchQueryBuilder
 };

@@ -86,10 +86,10 @@ extend type Query {
         """
         patient: SearchReference
         """
-        questionnaire (FHIR type: canonical)
+        questionnaire (FHIR type: reference)
         The questionnaire the answers are provided for
         """
-        questionnaire: SearchString
+        questionnaire: SearchReference
         """
         source (FHIR type: reference)
         The individual providing the information reflected in the questionnaire respose
