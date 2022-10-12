@@ -1,5 +1,11 @@
 const dataElementsJson = require('../fhir/generator/json/definitions.json/dataelements.json');
-const {getFirstElementOrNull} = require('../utils/list.util');
+const dataElementMap = new Map(dataElementsJson.entry.map(i =>
+        [
+            i.resource.id,
+            i.resource.element[0].type ? i.resource.element[0].type.code : null
+        ]
+    )
+);
 
 class FhirTypesManager {
     /**
@@ -9,24 +15,8 @@ class FhirTypesManager {
      * @return {string|null}
      */
     getTypeForField({resourceType, field}) {
-
-        /**
-         * @type {Object[]}
-         */
-        const dataElements = dataElementsJson.entry;
-        const dataElementEntry = getFirstElementOrNull(
-            dataElements.filter(d => d.resource.id === `${resourceType}.${field}`).map(d => d.resource)
-        );
-        if (dataElementEntry) {
-            const dataTypeElement = getFirstElementOrNull(dataElementEntry.element);
-            /**
-             * @type {{code: string}|null}
-             */
-            const dataType = getFirstElementOrNull(dataTypeElement.type);
-            return dataType.code;
-        }
-
-        return null;
+        const resourceAndField = `${resourceType}.${field}`;
+        return dataElementMap.get(resourceAndField);
     }
 }
 
