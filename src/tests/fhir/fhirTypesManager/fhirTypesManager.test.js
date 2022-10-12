@@ -49,6 +49,10 @@ describe('FhirTypesManager Tests', () => {
                 resourceType: 'Measure',
                 field: 'library'
             })).toStrictEqual('Reference');
+            expect(fhirTypesManager.getTypeForField({
+                resourceType: 'Measure',
+                field: 'approvalDate'
+            })).toStrictEqual('date');
         });
     });
 });
