@@ -180,6 +180,7 @@ function createApp(fnCreateContainer) {
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes
         passport.use('adminStrategy', strategy);
+        app.use(cors(fhirServerConfig.server.corsOptions));
     }
 
     // eslint-disable-next-line new-cap
@@ -200,6 +201,7 @@ function createApp(fnCreateContainer) {
     // enable middleware for graphql
     if (isTrue(env.ENABLE_GRAPHQL)) {
         app.use(cors(fhirServerConfig.server.corsOptions));
+
         const useGraphQLv2 = isTrue(env.USE_GRAPHQL_v2);
         if (useGraphQLv2) {
             graphql(fnCreateContainer)
