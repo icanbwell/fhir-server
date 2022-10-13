@@ -6,7 +6,7 @@
   "repository": "https://github.com/icanbwell/fhir-server",
   "license": "MIT",
   "engines": {
-    "node": "16.17.x"
+    "node": "16.18.x"
   },
   "scripts": {
     "start": "NODE_ENV=production node src/index.js",
@@ -115,7 +115,7 @@
     "fontawesome-4.7": "^4.7.0",
     "graphql": "^16.6.0",
     "graphql-schema-linter": "^3.0.1",
-    "helmet": "^5.1.1",
+    "helmet": "^6.0.0",
     "http-terminator": "^3.2.0",
     "jwks-rsa": "^2.1.4",
     "kafkajs": "^2.2.0",
