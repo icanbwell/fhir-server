@@ -175,6 +175,9 @@ Linked resources can be nested. For example, this graph has nested linked resour
 }
 ```
 
+`[x]` means this property is a list not a single.
+
+
 ### Filtering
 
 Filtering can also be done:
