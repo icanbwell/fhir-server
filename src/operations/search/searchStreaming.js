@@ -284,6 +284,10 @@ class SearchStreamingOperation {
 
             collectionName = cursor.getFirstCollection();
             databaseName = cursor.getFirstDatabase();
+            /**
+             * @type {string[]}
+             */
+            const allCollectionsToSearch = cursor.getAllCollections();
 
             if (cursor !== null) { // usually means the two-step optimization found no results
                 if (useNdJson) {
@@ -336,7 +340,8 @@ class SearchStreamingOperation {
                                 indexHint,
                                 cursorBatchSize,
                                 user,
-                                explanations
+                                explanations,
+                                allCollectionsToSearch
                             }
                         );
                         resourceIds = await this.searchManager.streamBundleFromCursorAsync(
@@ -417,7 +422,8 @@ class SearchStreamingOperation {
                                 indexHint,
                                 cursorBatchSize,
                                 user,
-                                explanations
+                                explanations,
+                                allCollectionsToSearch
                             }
                         );
                         if (requestId && !res.headersSent) {

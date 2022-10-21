@@ -287,6 +287,14 @@ class DatabasePartitionedCursor {
     getFirstDatabase() {
         return this._cursors.length > 0 ? this._cursors[0].db : 'No cursor';
     }
+
+    /**
+     * Gets all collections to be queried by this class
+     * @return {string[]}
+     */
+    getAllCollections() {
+        return this._cursors.map(c => c.collection);
+    }
 }
 
 module.exports = {
