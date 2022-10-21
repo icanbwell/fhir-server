@@ -14,6 +14,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
+const {BadRequestError} = require('../../utils/httpErrors');
 
 class SearchBundleOperation {
     /**
@@ -157,6 +158,25 @@ class SearchBundleOperation {
         let query = {};
         /** @type {Set} **/
         let columns = new Set();
+
+        // check if required filters for AuditEvent are passed
+        if (resourceType === 'AuditEvent') {
+            // args must contain one of these
+            const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
+            if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
+                if (requiredFiltersForAuditEvent.filter(r => args[`${r}`]).length === 0) {
+                    const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
+                    throw new BadRequestError(
+                        {
+                            'message': message,
+                            toString: function () {
+                                return message;
+                            }
+                        }
+                    );
+                }
+            }
+        }
 
         try {
             ({
@@ -303,6 +323,10 @@ class SearchBundleOperation {
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
             /**
+             * @type {string[]}
+             */
+            const allCollectionsToSearch = cursor.getAllCollections();
+            /**
              * @type {Bundle}
              */
             const bundle = this.bundleManager.createBundle(
@@ -327,7 +351,8 @@ class SearchBundleOperation {
                     indexHint,
                     cursorBatchSize,
                     user,
-                    explanations
+                    explanations,
+                    allCollectionsToSearch
                 }
             );
             await this.fhirLoggingManager.logOperationSuccessAsync(

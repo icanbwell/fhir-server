@@ -49,6 +49,7 @@ class BundleManager {
      * @param {number | undefined} [cursorBatchSize]
      * @param {string | null} user
      * @param {import('mongodb').Document[]} explanations
+     * @param {string[]|undefined} [allCollectionsToSearch]
      * @return {Bundle}
      */
     createBundle(
@@ -74,7 +75,8 @@ class BundleManager {
             indexHint,
             cursorBatchSize,
             user,
-            explanations
+            explanations,
+            allCollectionsToSearch
         }) {
         /**
          * array of links
@@ -158,7 +160,7 @@ class BundleManager {
                 },
                 {
                     system: 'https://www.icanbwell.com/queryCollection',
-                    code: collectionName,
+                    code: allCollectionsToSearch ? allCollectionsToSearch.join(',') : collectionName,
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptions',

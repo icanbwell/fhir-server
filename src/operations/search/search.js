@@ -21,6 +21,7 @@ class SearchOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+
         /**
          * @type {{entry: {resource: Resource}[]}}
          */
