@@ -199,9 +199,7 @@ class SearchStreamingOperation {
         /**
          * @type {string}
          */
-        let collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-            query
-        });
+        let collectionName;
         /**
          * @type {string}
          */
@@ -445,6 +443,12 @@ class SearchStreamingOperation {
                     query: mongoQueryAndOptionsStringify(collectionName, query, options)
                 });
         } catch (e) {
+            /**
+             * @type {string}
+             */
+            collectionName = collectionName || (await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+                query
+            }));
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
