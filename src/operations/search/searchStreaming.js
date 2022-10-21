@@ -195,6 +195,18 @@ class SearchStreamingOperation {
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
             {resourceType, base_version});
+
+        /**
+         * @type {string}
+         */
+        let collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+            query
+        });
+        /**
+         * @type {string}
+         */
+        let databaseName = '';
+
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
@@ -272,6 +284,9 @@ class SearchStreamingOperation {
                 cursor.clear();
             }
 
+            collectionName = cursor.getFirstCollection();
+            databaseName = cursor.getFirstDatabase();
+
             if (cursor !== null) { // usually means the two-step optimization found no results
                 if (useNdJson) {
                     resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
@@ -290,14 +305,6 @@ class SearchStreamingOperation {
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
                     if (env.RETURN_BUNDLE || args['_bundle']) {
-                        /**
-                         * @type {string}
-                         */
-                        const collectionName = cursor.getFirstCollection();
-                        /**
-                         * @type {string}
-                         */
-                        const databaseName = cursor.getFirstDatabase();
                         /**
                          * @type {Resource[]}
                          */
@@ -387,14 +394,6 @@ class SearchStreamingOperation {
                     // return empty bundle
                     if (env.RETURN_BUNDLE || args['_bundle']) {
                         /**
-                         * @type {string}
-                         */
-                        const collectionName = cursor.getFirstCollection();
-                        /**
-                         * @type {string}
-                         */
-                        const databaseName = cursor.getFirstDatabase();
-                        /**
                          * @type {Bundle}
                          */
                         const bundle = this.bundleManager.createBundle(
@@ -436,12 +435,6 @@ class SearchStreamingOperation {
                     }
                 }
             }
-            /**
-             * @type {string}
-             */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                query
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
@@ -452,12 +445,6 @@ class SearchStreamingOperation {
                     query: mongoQueryAndOptionsStringify(collectionName, query, options)
                 });
         } catch (e) {
-            /**
-             * @type {string}
-             */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                query
-            });
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
