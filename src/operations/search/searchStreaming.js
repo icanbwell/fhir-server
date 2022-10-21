@@ -266,7 +266,7 @@ class SearchStreamingOperation {
              * @type {import('mongodb').Document[]}
              */
             const explanations = (cursor && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ?
-                await cursor.explainAsync() : [];
+                (await cursor.explainAsync()) : [];
             if (cursor && args['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
@@ -293,9 +293,11 @@ class SearchStreamingOperation {
                         /**
                          * @type {string}
                          */
-                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                            query
-                        });
+                        const collectionName = cursor.getFirstCollection();
+                        /**
+                         * @type {string}
+                         */
+                        const databaseName = cursor.getFirstDatabase();
                         /**
                          * @type {Resource[]}
                          */
@@ -320,6 +322,7 @@ class SearchStreamingOperation {
                                 args,
                                 originalQuery,
                                 collectionName,
+                                databaseName,
                                 originalOptions,
                                 columns,
                                 stopTime: stopTime1,
@@ -386,9 +389,11 @@ class SearchStreamingOperation {
                         /**
                          * @type {string}
                          */
-                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                            query
-                        });
+                        const collectionName = cursor.getFirstCollection();
+                        /**
+                         * @type {string}
+                         */
+                        const databaseName = cursor.getFirstDatabase();
                         /**
                          * @type {Bundle}
                          */
@@ -406,6 +411,7 @@ class SearchStreamingOperation {
                                 args,
                                 originalQuery,
                                 collectionName,
+                                databaseName,
                                 originalOptions,
                                 columns,
                                 stopTime,

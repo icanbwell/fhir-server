@@ -39,6 +39,7 @@ class BundleManager {
      * @param {Object} args
      * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
      * @param {string} collectionName
+     * @param {string | undefined} [databaseName]
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
      * @param {Set|undefined} [columns]
      * @param {number} stopTime
@@ -64,6 +65,7 @@ class BundleManager {
             args,
             originalQuery,
             collectionName,
+            databaseName,
             originalOptions,
             columns,
             stopTime,
@@ -175,6 +177,13 @@ class BundleManager {
                     display: `{'useTwoStepSearchOptimization':${useTwoStepSearchOptimization}}`,
                 }
             ];
+            if (databaseName) {
+                tag.push({
+                        system: 'https://www.icanbwell.com/queryDatabase',
+                        code: databaseName,
+                    },
+                );
+            }
             if (indexHint) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryIndexHint',
