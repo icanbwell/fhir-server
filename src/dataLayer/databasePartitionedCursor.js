@@ -237,8 +237,8 @@ class DatabasePartitionedCursor {
                 collections: this._cursors.map(c => c.collection),
                 query: this.query
             }));
-
-            return await async.map(this._cursors, async (c) => await c.cursor.explain());
+            // explanation is needed only from the first collection
+            return await this._cursors[0].cursor.explain();
         } catch (e) {
             throw new RethrownError({
                 collections: this._cursors.map(c => c.collection),
