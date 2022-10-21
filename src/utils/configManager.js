@@ -25,6 +25,16 @@ class ConfigManager {
     get useAccessIndex() {
         return isTrue(env.USE_ACCESS_INDEX);
     }
+
+    /**
+     * @return {string[]|null}
+     */
+    get requiredFiltersForAuditEvent() {
+        return (
+            env.REQUIRED_AUDIT_EVENT_FILTERS && env.REQUIRED_AUDIT_EVENT_FILTERS.split(',')
+                .map((col) => col.trim())
+        ) || null;
+    }
 }
 
 module.exports = {
