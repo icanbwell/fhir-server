@@ -47,6 +47,12 @@ class DatabasePartitionedCursor {
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
         this.query = query;
+        console.log(JSON.stringify({
+            message: 'Created DatabasePartitionedCursor',
+            collections: this._cursors.map(c => c.collection),
+            query: query
+        }));
+
     }
 
     /**
@@ -67,6 +73,12 @@ class DatabasePartitionedCursor {
      */
     async hasNext() {
         while (this._cursors.length > 0) {
+            console.log(JSON.stringify({
+                message: 'DatabasePartitionedCursor: hasNext',
+                collections: this._cursors.map(c => c.collection),
+                query: this.query
+            }));
+
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
                 const result = await this._cursors[0].cursor.hasNext();
@@ -92,6 +104,12 @@ class DatabasePartitionedCursor {
      */
     async next() {
         while (this._cursors.length > 0) {
+            console.log(JSON.stringify({
+                message: 'DatabasePartitionedCursor: next',
+                collections: this._cursors.map(c => c.collection),
+                query: this.query
+            }));
+
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
                 // return Promise.reject(new Error('woops'));
@@ -155,6 +173,12 @@ class DatabasePartitionedCursor {
      */
     async toArray() {
         try {
+            console.log(JSON.stringify({
+                message: 'DatabasePartitionedCursor: toArray',
+                collections: this._cursors.map(c => c.collection),
+                query: this.query
+            }));
+
             return await async.flatMap(this._cursors, async (c) => await c.cursor.toArray());
         } catch (e) {
             throw new RethrownError({
@@ -208,6 +232,12 @@ class DatabasePartitionedCursor {
      */
     async explainAsync() {
         try {
+            console.log(JSON.stringify({
+                message: 'DatabasePartitionedCursor: explain',
+                collections: this._cursors.map(c => c.collection),
+                query: this.query
+            }));
+
             return await async.map(this._cursors, async (c) => await c.cursor.explain());
         } catch (e) {
             throw new RethrownError({
