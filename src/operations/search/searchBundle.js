@@ -303,6 +303,10 @@ class SearchBundleOperation {
              */
             const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
             /**
+             * @type {string[]}
+             */
+            const allCollectionsToSearch = cursor.getAllCollections();
+            /**
              * @type {Bundle}
              */
             const bundle = this.bundleManager.createBundle(
@@ -327,7 +331,8 @@ class SearchBundleOperation {
                     indexHint,
                     cursorBatchSize,
                     user,
-                    explanations
+                    explanations,
+                    allCollectionsToSearch
                 }
             );
             await this.fhirLoggingManager.logOperationSuccessAsync(
