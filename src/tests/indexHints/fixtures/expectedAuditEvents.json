@@ -460,6 +460,10 @@
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
+        "code": "audit-event",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
         "code": "helix_audit_event_security",
         "system": "https://www.icanbwell.com/queryIndexHint"
       },

@@ -6,17 +6,24 @@ const {getResource} = require('../operations/common/getResource');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
 
+/**
+ * @typedef CursorInfo
+ * @property {string} db
+ * @property {string} collection
+ * @property {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>} cursor
+ */
+
 class DatabasePartitionedCursor {
     /**
      * Constructor
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {(import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>)[]} cursors
+     * @param {CursorInfo[]} cursors
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      */
     constructor({base_version, resourceType, cursors, query}) {
         /**
-         * @type {(import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>)[]}
+         * @type {CursorInfo[]}
          * @private
          */
         this._cursors = cursors;
@@ -48,7 +55,7 @@ class DatabasePartitionedCursor {
      */
     maxTimeMS({milliSecs}) {
         for (const index in this._cursors) {
-            this._cursors[`${index}`] = this._cursors[`${index}`].maxTimeMS(milliSecs);
+            this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.maxTimeMS(milliSecs);
         }
         return this;
     }
@@ -61,13 +68,15 @@ class DatabasePartitionedCursor {
         while (this._cursors.length > 0) {
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
-                const result = await this._cursors[0].hasNext();
+                const result = await this._cursors[0].cursor.hasNext();
                 if (result) {
                     return result;
                 }
                 this._cursors.shift();
             } catch (e) {
                 throw new RethrownError({
+                    collections: this._cursors.map(c => c.collection),
+                    databases: this._cursors.map(c => c.db),
                     error: e,
                 });
             }
@@ -84,7 +93,7 @@ class DatabasePartitionedCursor {
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
                 // return Promise.reject(new Error('woops'));
-                const result = await this._cursors[0].next();
+                const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
                     const ResourceCreator = getResource(this.base_version, this.resourceType);
                     return new ResourceCreator(result);
@@ -97,6 +106,8 @@ class DatabasePartitionedCursor {
                 }
             } catch (e) {
                 throw new RethrownError({
+                    collections: this._cursors.map(c => c.collection),
+                    databases: this._cursors.map(c => c.db),
                     error: e,
                 });
             }
@@ -112,7 +123,7 @@ class DatabasePartitionedCursor {
      */
     project({projection}) {
         for (const index in this._cursors) {
-            this._cursors[`${index}`] = this._cursors[`${index}`].project(projection);
+            this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.project(projection);
         }
         return this;
     }
@@ -124,7 +135,7 @@ class DatabasePartitionedCursor {
      */
     map({mapping}) {
         for (const index in this._cursors) {
-            this._cursors[`${index}`] = this._cursors[`${index}`].map(mapping);
+            this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.map(mapping);
         }
         return this;
     }
@@ -138,9 +149,11 @@ class DatabasePartitionedCursor {
      */
     async toArray() {
         try {
-            return await async.flatMap(this._cursors, async (c) => await c.toArray());
+            return await async.flatMap(this._cursors, async (c) => await c.cursor.toArray());
         } catch (e) {
             throw new RethrownError({
+                collections: this._cursors.map(c => c.collection),
+                databases: this._cursors.map(c => c.db),
                 error: e
             });
         }
@@ -154,7 +167,7 @@ class DatabasePartitionedCursor {
     sort({sortOption}) {
         for (const index in this._cursors) {
             // noinspection JSCheckFunctionSignatures
-            this._cursors[`${index}`] = this._cursors[`${index}`].sort(sortOption, 1);
+            this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.sort(sortOption, 1);
         }
         return this;
     }
@@ -166,7 +179,7 @@ class DatabasePartitionedCursor {
      */
     batchSize({size}) {
         for (const index in this._cursors) {
-            this._cursors[`${index}`] = this._cursors[`${index}`].batchSize(size);
+            this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.batchSize(size);
         }
         return this;
     }
@@ -178,7 +191,7 @@ class DatabasePartitionedCursor {
      */
     hint({indexHint}) {
         for (const index in this._cursors) {
-            this._cursors[`${index}`] = this._cursors[`${index}`].hint(indexHint);
+            this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.hint(indexHint);
         }
         return this;
     }
@@ -188,9 +201,11 @@ class DatabasePartitionedCursor {
      */
     async explainAsync() {
         try {
-            return await async.map(this._cursors, async (c) => await c.explain());
+            return await async.map(this._cursors, async (c) => await c.cursor.explain());
         } catch (e) {
             throw new RethrownError({
+                collections: this._cursors.map(c => c.collection),
+                databases: this._cursors.map(c => c.db),
                 error: e
             });
         }
@@ -214,9 +229,25 @@ class DatabasePartitionedCursor {
      */
     limit(count) {
         for (const index in this._cursors) {
-            this._cursors[`${index}`] = this._cursors[`${index}`].limit(count);
+            this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.limit(count);
         }
         return this;
+    }
+
+    /**
+     * Gets first collection
+     * @return {string}
+     */
+    getFirstCollection() {
+        return this._cursors.length > 0 ? this._cursors[0].collection : 'No cursor';
+    }
+
+    /**
+     * Gets first database
+     * @return {string}
+     */
+    getFirstDatabase() {
+        return this._cursors.length > 0 ? this._cursors[0].db : 'No cursor';
     }
 }
 

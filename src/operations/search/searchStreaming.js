@@ -195,6 +195,16 @@ class SearchStreamingOperation {
          */
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
             {resourceType, base_version});
+
+        /**
+         * @type {string}
+         */
+        let collectionName;
+        /**
+         * @type {string}
+         */
+        let databaseName = '';
+
         try {
             /** @type {GetCursorResult} **/
             const __ret = await this.searchManager.getCursorForQueryAsync(
@@ -266,11 +276,14 @@ class SearchStreamingOperation {
              * @type {import('mongodb').Document[]}
              */
             const explanations = (cursor && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ?
-                await cursor.explainAsync() : [];
+                (await cursor.explainAsync()) : [];
             if (cursor && args['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
+
+            collectionName = cursor.getFirstCollection();
+            databaseName = cursor.getFirstDatabase();
 
             if (cursor !== null) { // usually means the two-step optimization found no results
                 if (useNdJson) {
@@ -290,12 +303,6 @@ class SearchStreamingOperation {
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
                     if (env.RETURN_BUNDLE || args['_bundle']) {
-                        /**
-                         * @type {string}
-                         */
-                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                            query
-                        });
                         /**
                          * @type {Resource[]}
                          */
@@ -320,6 +327,7 @@ class SearchStreamingOperation {
                                 args,
                                 originalQuery,
                                 collectionName,
+                                databaseName,
                                 originalOptions,
                                 columns,
                                 stopTime: stopTime1,
@@ -384,12 +392,6 @@ class SearchStreamingOperation {
                     // return empty bundle
                     if (env.RETURN_BUNDLE || args['_bundle']) {
                         /**
-                         * @type {string}
-                         */
-                        const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                            query
-                        });
-                        /**
                          * @type {Bundle}
                          */
                         const bundle = this.bundleManager.createBundle(
@@ -406,6 +408,7 @@ class SearchStreamingOperation {
                                 args,
                                 originalQuery,
                                 collectionName,
+                                databaseName,
                                 originalOptions,
                                 columns,
                                 stopTime,
@@ -430,12 +433,6 @@ class SearchStreamingOperation {
                     }
                 }
             }
-            /**
-             * @type {string}
-             */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                query
-            });
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
@@ -449,9 +446,9 @@ class SearchStreamingOperation {
             /**
              * @type {string}
              */
-            const collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
+            collectionName = collectionName || (await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
                 query
-            });
+            }));
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,

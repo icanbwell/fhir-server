@@ -74,6 +74,10 @@ class PartitioningManager {
                 }
             }
             this.partitionCacheLastLoaded = moment.utc();
+            console.log(JSON.stringify({
+                message: 'loadPartitionsFromDatabaseAsync',
+                cache: this.partitionsCache
+            }));
         } finally {
             release();
         }

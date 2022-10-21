@@ -59,6 +59,10 @@
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
+        "code": "fhir",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
         "system": "https://www.icanbwell.com/queryExplain"
       },
       {

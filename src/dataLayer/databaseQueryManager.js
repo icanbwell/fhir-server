@@ -158,7 +158,7 @@ class DatabaseQueryManager {
          */
         const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
         /**
-         * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>[]}
+         * @type {CursorInfo[]}
          */
         const cursors = [];
         for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
@@ -166,7 +166,7 @@ class DatabaseQueryManager {
              * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
              */
             const cursor = collection.find(query, options);
-            cursors.push(cursor);
+            cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
         }
         return new DatabasePartitionedCursor({
             base_version: this._base_version, resourceType: this._resourceType, cursors,
