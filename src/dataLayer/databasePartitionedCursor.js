@@ -29,6 +29,7 @@ class DatabasePartitionedCursor {
         this._cursors = cursors;
         assertIsValid(cursors);
         assertIsValid(Array.isArray(cursors));
+        assertIsValid(cursors.length > 0);
         /**
          * @type {string}
          * @private
@@ -78,6 +79,7 @@ class DatabasePartitionedCursor {
                     collections: this._cursors.map(c => c.collection),
                     databases: this._cursors.map(c => c.db),
                     error: e,
+                    query: this.query
                 });
             }
         }
@@ -101,7 +103,10 @@ class DatabasePartitionedCursor {
                     assertFail({
                         source: 'DatabasePartitionedCursor.next',
                         message: 'Data is null',
-                        args: {value: result}
+                        args: {
+                            value: result,
+                            query: this.query
+                        }
                     });
                 }
             } catch (e) {
@@ -109,6 +114,7 @@ class DatabasePartitionedCursor {
                     collections: this._cursors.map(c => c.collection),
                     databases: this._cursors.map(c => c.db),
                     error: e,
+                    query: this.query
                 });
             }
             this._cursors.shift();
@@ -154,7 +160,8 @@ class DatabasePartitionedCursor {
             throw new RethrownError({
                 collections: this._cursors.map(c => c.collection),
                 databases: this._cursors.map(c => c.db),
-                error: e
+                error: e,
+                query: this.query
             });
         }
     }
@@ -206,7 +213,8 @@ class DatabasePartitionedCursor {
             throw new RethrownError({
                 collections: this._cursors.map(c => c.collection),
                 databases: this._cursors.map(c => c.db),
-                error: e
+                error: e,
+                query: this.query
             });
         }
     }
