@@ -22,9 +22,10 @@ class KafkaClient {
      * @param {string|undefined} clientId
      * @param {string[]|undefined} brokers
      * @param {boolean} ssl
+     * @param {import('kafkajs').SASLOptions} sasl
      */
-    constructor({clientId, brokers, ssl}) {
-        this.init(clientId, brokers, ssl);
+    constructor({clientId, brokers, ssl, sasl}) {
+        this.init(clientId, brokers, ssl, sasl);
     }
 
     /**
@@ -32,23 +33,30 @@ class KafkaClient {
      * @param {string} clientId
      * @param {string[]} brokers
      * @param {boolean} ssl
+     * @param {import('kafkajs').SASLOptions} sasl
      */
-    init(clientId, brokers, ssl) {
+    init(clientId, brokers, ssl, sasl) {
         assertIsValid(clientId !== undefined);
         assertIsValid(brokers !== undefined);
         assertIsValid(Array.isArray(brokers));
         assertIsValid(brokers.length > 0);
+
         this.clientId = clientId;
         this.brokers = brokers;
         this.ssl = ssl;
+        this.sasl = sasl;
 
+        /**
+         * @type {import('kafkajs').KafkaConfig}
+         */
         const config = {
             clientId: clientId,
             brokers: brokers,
-            ssl: ssl
+            ssl: ssl,
+            sasl: sasl
         };
         /**
-         * @type {Kafka}
+         * @type {import('kafkajs').Kafka}
          */
         this.client = new Kafka(config);
     }
