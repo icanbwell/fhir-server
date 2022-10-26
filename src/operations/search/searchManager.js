@@ -26,6 +26,7 @@ const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {RethrownError} = require('../../utils/rethrownError');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {R4SearchQueryCreator} = require('../query/r4');
+const {ConfigManager} = require('../../utils/configManager');
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
 const idProjection = {id: 1, _id: 0};
@@ -39,6 +40,7 @@ class SearchManager {
      * @param {ResourcePreparer} resourcePreparer
      * @param {IndexHinter} indexHinter
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -47,7 +49,8 @@ class SearchManager {
             securityTagManager,
             resourcePreparer,
             indexHinter,
-            r4SearchQueryCreator
+            r4SearchQueryCreator,
+            configManager
         }
     ) {
         /**
@@ -83,6 +86,12 @@ class SearchManager {
          */
         this.r4SearchQueryCreator = r4SearchQueryCreator;
         assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -250,7 +259,7 @@ class SearchManager {
         const useTwoStepSearchOptimization =
             !args['_elements'] &&
             !args['id'] &&
-            (isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION) || args['_useTwoStepOptimization']);
+            (this.configManager.enableTwoStepOptimization || args['_useTwoStepOptimization']);
         if (isTrue(useTwoStepSearchOptimization)) {
             const __ret = await this.handleTwoStepSearchOptimizationAsync(
                 {

@@ -1,10 +1,10 @@
 const {isTrue} = require('../../../../utils/isTrue');
-const env = require('var');
 const {shouldReturnHtml} = require('../../../../utils/requestHelpers');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
 const {FhirResponseWriter} = require('../../fhirResponseWriter');
+const {ConfigManager} = require('../../../../utils/configManager');
 
 /**
  * @typedef FhirService
@@ -31,12 +31,14 @@ class GenericController {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {FhirResponseWriter} fhirResponseWriter
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
             postRequestProcessor,
             fhirOperationsManager,
-            fhirResponseWriter
+            fhirResponseWriter,
+            configManager
         }
     ) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
@@ -55,6 +57,12 @@ class GenericController {
          */
         this.fhirResponseWriter = fhirResponseWriter;
         assertTypeEquals(fhirResponseWriter, FhirResponseWriter);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -72,7 +80,7 @@ class GenericController {
                 /**
                  * @type {boolean}
                  */
-                const stream = (isTrue(env.STREAM_RESPONSE) || isTrue(req.query._streamResponse));
+                const stream = (this.configManager.streamResponse || isTrue(req.query._streamResponse));
 
                 // if stream option is set, and we are not returning HTML then stream the data to client
                 if (stream && !shouldReturnHtml(req)) {
