@@ -140,7 +140,7 @@ class KafkaClient {
      * @param consumer
      * @param maxWait
      * @param label
-     * @returns {Promise<unknown>}
+     * @returns {Promise<void>}
      */
     waitForConsumerToJoinGroupAsync(consumer, {maxWait = 10000, label = ''} = {}) {
         return new Promise((resolve, reject) => {
