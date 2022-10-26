@@ -162,7 +162,8 @@ const createContainer = function () {
                 securityTagManager: c.securityTagManager,
                 resourcePreparer: c.resourcePreparer,
                 indexHinter: c.indexHinter,
-                r4SearchQueryCreator: c.r4SearchQueryCreator
+                r4SearchQueryCreator: c.r4SearchQueryCreator,
+                configManager: c.configManager
             }
         )
     );
@@ -418,7 +419,8 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 fhirOperationsManager: c.fhirOperationsManager,
-                fhirResponseWriter: c.fhirResponseWriter
+                fhirResponseWriter: c.fhirResponseWriter,
+                configManager: c.configManager
             }
         )
     );

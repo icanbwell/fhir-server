@@ -302,12 +302,12 @@ class SearchStreamingOperation {
                 cursor.clear();
             }
 
-            collectionName = cursor.getFirstCollection();
-            databaseName = cursor.getFirstDatabase();
+            collectionName = cursor ? cursor.getFirstCollection() : null;
+            databaseName = cursor ? cursor.getFirstDatabase() : null;
             /**
              * @type {string[]}
              */
-            const allCollectionsToSearch = cursor.getAllCollections();
+            const allCollectionsToSearch = cursor ? cursor.getAllCollections() : [];
 
             if (cursor !== null) { // usually means the two-step optimization found no results
                 if (useNdJson) {

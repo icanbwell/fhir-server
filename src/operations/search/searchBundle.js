@@ -325,7 +325,7 @@ class SearchBundleOperation {
             /**
              * @type {string[]}
              */
-            const allCollectionsToSearch = cursor.getAllCollections();
+            const allCollectionsToSearch = cursor ? cursor.getAllCollections() : [];
             /**
              * @type {Bundle}
              */

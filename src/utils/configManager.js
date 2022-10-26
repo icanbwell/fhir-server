@@ -35,6 +35,22 @@ class ConfigManager {
                 .map((col) => col.trim())
         ) || null;
     }
+
+    /**
+     * whether to enable two step optimization
+     * @return {boolean}
+     */
+    get enableTwoStepOptimization() {
+        return isTrue(env.USE_TWO_STEP_SEARCH_OPTIMIZATION);
+    }
+
+    /**
+     * whether to stream the response
+     * @return {boolean}
+     */
+    get streamResponse() {
+        return isTrue(env.STREAM_RESPONSE);
+    }
 }
 
 module.exports = {

@@ -2,18 +2,26 @@ const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_be
 const allergyIntoleranceBundleResource = require('./fixtures/allergy_intolerances.json');
 const careTeamBundleResource = require('./fixtures/care_team.json');
 const expectedGraphQlResponse = require('./fixtures/expected_graphql_response.json');
+const expectedGraphQlMissingPersonResponse = require('./fixtures/expected_graphql_response_missing_person.json');
 const expectedGraphqlMissingUserScopesResponse = require('./fixtures/expected_graphql_missing_user_scopes_response.json');
 const expectedGraphqlMissingAccessScopesResponse = require('./fixtures/expected_graphql_missing_access_scopes_response.json');
 
 const patientBundleResource = require('./fixtures/patients.json');
 const organizationBundleResource = require('./fixtures/organizations.json');
+const personBundleResource = require('./fixtures/person.json');
 
 const fs = require('fs');
 const path = require('path');
 
 // eslint-disable-next-line security/detect-non-literal-fs-filename
-const explanationOfBenefitQuery = fs.readFileSync(
+const patientQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query.graphql'),
+    'utf8'
+);
+
+// eslint-disable-next-line security/detect-non-literal-fs-filename
+const patientNonExistentQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query_non_existent.graphql'),
     'utf8'
 );
 
@@ -25,7 +33,18 @@ const {
     getUnAuthenticatedGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {ConfigManager} = require('../../../utils/configManager');
+
+class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
+    get enableTwoStepOptimization() {
+        return true;
+    }
+
+    get streamResponse() {
+        return false;
+    }
+}
 
 describe('GraphQL Patient Tests', () => {
     beforeEach(async () => {
@@ -39,7 +58,7 @@ describe('GraphQL Patient Tests', () => {
     describe('GraphQL Patient', () => {
         test('GraphQL Patient properly', async () => {
             const request = await createTestRequest();
-            const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
+            const graphqlQueryText = patientQuery.replace(/\\n/g, '');
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
@@ -113,9 +132,36 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlResponse);
         });
+        test('GraphQL Patient for missing person', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerWithTwoStepOptimizationBundle());
+                return c;
+            });
+            const graphqlQueryText = patientNonExistentQuery.replace(/\\n/g, '');
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(personBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                // .get('/graphql/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
+                })
+                .set(getGraphQLHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQlMissingPersonResponse);
+        });
         test('GraphQL Patient properly (unauthenticated)', async () => {
             const request = await createTestRequest();
-            const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
+            const graphqlQueryText = patientQuery.replace(/\\n/g, '');
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
@@ -185,7 +231,7 @@ describe('GraphQL Patient Tests', () => {
         });
         test('GraphQL Patient properly (missing user scopes)', async () => {
             const request = await createTestRequest();
-            const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
+            const graphqlQueryText = patientQuery.replace(/\\n/g, '');
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
@@ -257,7 +303,7 @@ describe('GraphQL Patient Tests', () => {
         });
         test('GraphQL Patient properly (missing access scopes)', async () => {
             const request = await createTestRequest();
-            const graphqlQueryText = explanationOfBenefitQuery.replace(/\\n/g, '');
+            const graphqlQueryText = patientQuery.replace(/\\n/g, '');
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
