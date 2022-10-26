@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.Person_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'http://www.walgreens.com/profileid','value':'1000000-a-01'}}}]}, {'_id':0,'id':1}).sort({'id':1}).limit(100) ]",
+        "display": "[db.Person_4_0_0.find({'$and':[{'identifier':{'$elemMatch':{'system':'http://www.walgreens.com/profileid','value':'1000000-a-01'}}}]}, {}).sort({'id':1}).limit(100)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -11,7 +11,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[[{'limit':100,'sort':{'id':1},'projection':{'_id':0,'id':1}}]]",
+        "display": "[{'limit':100,'sort':{'id':1}}]",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
@@ -22,8 +22,14 @@
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "display": "[{'useTwoStepSearchOptimization':true}]",
+        "display": "[{'useTwoStepSearchOptimization':undefined}]",
         "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
       }
     ]
   }
