@@ -94,8 +94,8 @@ const createContainer = function () {
                     brokers: env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : '',
                     ssl: isTrue(env.KAFKA_SSL),
                     sasl: isTrue(env.KAFKA_SASL) ? {
-                        mechanism: 'aws',
-                        authorizationIdentity: env.KAFKA_IDENTITY ? env.KAFKA_IDENTITY : null, // UserId or RoleId
+                        mechanism: env.KAFKA_SASL_MECHANISM || 'aws',
+                        authorizationIdentity: env.KAFKA_SASL_IDENTITY ? env.KAFKA_SASL_IDENTITY : null, // UserId or RoleId
                     } : null,
                 }
             ) :
