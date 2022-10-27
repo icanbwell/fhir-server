@@ -131,7 +131,7 @@
     "sanitize-filename": "^1.6.3",
     "sanitize-html": "^2.7.2",
     "snappy": "^7.1.2",
-    "snyk": "^1.1019.0",
+    "snyk": "^1.1022.0",
     "superagent": "^8.0.0",
     "swagger-ui-express": "^4.5.0",
     "validator": "^13.7.0",
