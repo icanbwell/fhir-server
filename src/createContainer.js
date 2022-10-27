@@ -92,7 +92,11 @@ const createContainer = function () {
                 {
                     clientId: env.KAFKA_CLIENT_ID,
                     brokers: env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : '',
-                    ssl: isTrue(env.KAFKA_SSL)
+                    ssl: isTrue(env.KAFKA_SSL),
+                    sasl: isTrue(env.KAFKA_SASL) ? {
+                        mechanism: env.KAFKA_SASL_MECHANISM || 'aws',
+                        authorizationIdentity: env.KAFKA_SASL_IDENTITY ? env.KAFKA_SASL_IDENTITY : null, // UserId or RoleId
+                    } : null,
                 }
             ) :
             new DummyKafkaClient({clientId: '', brokers: []})
