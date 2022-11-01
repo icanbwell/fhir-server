@@ -432,6 +432,222 @@
           "system": "http://dicom.nema.org/resources/ontology/DCM"
         }
       }
+    },
+    {
+      "resource": {
+        "agent": [
+          {
+            "altId": "OBocz9j",
+            "id": "amp-0",
+            "requestor": false,
+            "role": [
+              {
+                "coding": [
+                  {
+                    "code": "humanuser",
+                    "id": "amp-0",
+                    "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type"
+                  }
+                ],
+                "id": "amp-0"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "code": "PAT",
+                  "id": "amp-0",
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-RoleClass"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Person/fake-OBocz9j"
+            }
+          }
+        ],
+        "entity": [
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "browser",
+                "valueString": "Microsoft Edge"
+              }
+            ],
+            "id": "amp-0"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "browser_version",
+                "valueString": "93.0"
+              }
+            ],
+            "id": "amp-1"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "city",
+                "valueString": "Baltimore"
+              }
+            ],
+            "id": "amp-2"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "mp_country_code",
+                "valueString": "US"
+              }
+            ],
+            "id": "amp-3"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "device"
+              }
+            ],
+            "id": "amp-4"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "device_id",
+                "valueString": "0"
+              }
+            ],
+            "id": "amp-5"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "initial_referrer",
+                "valueString": "https://access.fakehealth.org/"
+              }
+            ],
+            "id": "amp-6"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "initial_referring_domain",
+                "valueString": "access.fakehealth.org"
+              }
+            ],
+            "id": "amp-7"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "library_version",
+                "valueString": "2.35.0"
+              }
+            ],
+            "id": "amp-8"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "os",
+                "valueString": "Windows"
+              }
+            ],
+            "id": "amp-9"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "region",
+                "valueString": "Maryland"
+              }
+            ],
+            "id": "amp-10"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "screen_height",
+                "valueString": "1080"
+              }
+            ],
+            "id": "amp-11"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "screen_width",
+                "valueString": "1920"
+              }
+            ],
+            "id": "amp-12"
+          }
+        ],
+        "id": "MixP-0001wx03abn1tez6",
+        "meta": {
+          "security": [
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "fake",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/vendor"
+            }
+          ],
+          "source": "https://data.medstar.com/api/2.0",
+          "versionId": "1"
+        },
+        "outcome": "0",
+        "recorded": "2022-05-22T14:27:30.000Z",
+        "resourceType": "AuditEvent",
+        "source": {
+          "observer": {
+            "reference": "Organization/Mixpanel"
+          },
+          "site": "https://access.fake.org",
+          "type": [
+            {
+              "code": "3",
+              "id": "amp-0",
+              "system": "http://terminology.hl7.org/CodeSystem/security-source-type"
+            }
+          ]
+        },
+        "subtype": [
+          {
+            "display": "Login - reCAPTCHA Modal - Clicked I'm not a robot",
+            "id": "amp-0"
+          }
+        ],
+        "type": {
+          "code": "110100",
+          "display": "Application Activity",
+          "system": "http://dicom.nema.org/resources/ontology/DCM"
+        }
+      }
     }
   ],
   "meta": {

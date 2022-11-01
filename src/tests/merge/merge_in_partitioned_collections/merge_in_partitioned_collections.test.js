@@ -74,7 +74,7 @@ describe('AuditEvent Tests', () => {
             const auditDb = await mongoDatabaseManager.getAuditDbAsync();
             await auditDb.dropCollection('AuditEvent_4_0_0_2021_05');
 
-            auditevent1Resource.entry = auditevent1Resource.entry.slice(0, 2);
+            auditevent1Resource.entry = auditevent1Resource.entry.slice(0, 3);
             resp = await request
                 .post('/4_0_0/AuditEvent/1/$merge?validate=true')
                 .send(auditevent1Resource)
