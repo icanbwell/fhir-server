@@ -63,6 +63,21 @@ class ResourceLocator {
     }
 
     /**
+     * returns unique collections names for the provided resources
+     * @param {Resource[]} resources
+     * @returns {string[]}
+     */
+    async getCollectionNamesAsync({resources}) {
+        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+        const partitions = await async.map(
+            resources,
+            async (resource) => await this.partitioningManager.getPartitionNameByResourceAsync(
+                {resource, base_version: this._base_version})
+        );
+        return Array.from(new Set(partitions));
+    }
+
+    /**
      * returns all the collection names for resourceType
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @returns {string[]}
@@ -163,6 +178,26 @@ class ResourceLocator {
          */
         const collectionName = await this.getCollectionNameAsync(resource);
         return await this.getOrCreateCollectionAsync(collectionName);
+    }
+
+    /**
+     * Gets all the collections for this resourceType.  If collections do not exist then they are created.
+     * @param {Resource[]} resources
+     * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
+     */
+    async getOrCreateCollectionsAsync({resources}) {
+        /**
+         * @type {string[]}
+         */
+        const collectionNames = await this.getCollectionNamesAsync({resources});
+        /**
+         * mongo db connection
+         * @type {import('mongodb').Db}
+         */
+        const db = await this.getDatabaseConnectionAsync();
+        return async.map(collectionNames,
+            async collectionName => await this.mongoCollectionManager.getOrCreateCollectionAsync(
+                {db, collectionName}));
     }
 
     /**

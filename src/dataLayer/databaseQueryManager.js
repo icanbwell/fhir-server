@@ -221,6 +221,37 @@ class DatabaseQueryManager {
         }
         return count;
     }
+
+    /**
+     * Finds and returns subset of passed in resources that exist in the database
+     * @param {Resource[]} resources
+     * @return {Promise<DatabasePartitionedCursor>}
+     */
+    async findResourcesInDatabaseAsync({resources}) {
+        /**
+         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
+         */
+        const collections = await this.resourceLocator.getOrCreateCollectionsAsync({resources: resources});
+        const query = {
+            id: {$in: resources.map(r => r.id)}
+        };
+        const options = {};
+        /**
+         * @type {CursorInfo[]}
+         */
+        const cursors = [];
+        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+            /**
+             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
+             */
+            const cursor = collection.find(query, options);
+            cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+        }
+        return new DatabasePartitionedCursor({
+            base_version: this._base_version, resourceType: this._resourceType, cursors,
+            query
+        });
+    }
 }
 
 module.exports = {

@@ -332,10 +332,10 @@ class MergeOperation {
             });
 
             // Load the resources from the database
-            await this.databaseBulkLoader.loadResourcesByResourceTypeAndIdAsync(
+            await this.databaseBulkLoader.loadResourcesAsync(
                 {
                     base_version,
-                    requestedResources: incomingResourceTypeAndIds
+                    requestedResources: resourcesIncomingArray
                 }
             );
 

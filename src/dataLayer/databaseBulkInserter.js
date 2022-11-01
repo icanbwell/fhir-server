@@ -558,7 +558,7 @@ class DatabaseBulkInserter extends EventEmitter {
 
                 // preserve order so inserts come before updates
                 /**
-                 * @type {import('mongodb').CollectionBulkWriteOptions|null}
+                 * @type {import('mongodb').BulkWriteOptions|null}
                  */
                 const options = {ordered: true};
                 /**
@@ -568,7 +568,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 for (const operationsByCollectionName of operationsByCollectionNames) {
                     const [
                         /** @type {string} */collectionName,
-                        /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
+                        /** @type {(import('mongodb').AnyBulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
                         operationsByCollection] = operationsByCollectionName;
 
                     if (isTrue(env.LOG_ALL_MERGES)) {
