@@ -1,0 +1,477 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "agent": [
+          {
+            "altId": "FakeHR6",
+            "id": "amp-0",
+            "requestor": false,
+            "role": [
+              {
+                "coding": [
+                  {
+                    "code": "humanuser",
+                    "id": "amp-0",
+                    "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type"
+                  }
+                ],
+                "id": "amp-0"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "code": "PAT",
+                  "id": "amp-0",
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-RoleClass"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Person/fake-TnpmHR6"
+            }
+          }
+        ],
+        "entity": [
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "browser",
+                "valueString": "Mobile Safari"
+              }
+            ],
+            "id": "amp-0"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "browser_version",
+                "valueString": "14.1"
+              }
+            ],
+            "id": "amp-1"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "city",
+                "valueString": "Fairfax"
+              }
+            ],
+            "id": "amp-2"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "mp_country_code",
+                "valueString": "US"
+              }
+            ],
+            "id": "amp-3"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "device",
+                "valueString": "iPhone"
+              }
+            ],
+            "id": "amp-4"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "device_id",
+                "valueString": "0"
+              }
+            ],
+            "id": "amp-5"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "initial_referrer",
+                "valueString": "https://access.fakehealth.org/"
+              }
+            ],
+            "id": "amp-6"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "initial_referring_domain",
+                "valueString": "access.fakehealth.org"
+              }
+            ],
+            "id": "amp-7"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "library_version",
+                "valueString": "2.35.0"
+              }
+            ],
+            "id": "amp-8"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "os",
+                "valueString": "iOS"
+              }
+            ],
+            "id": "amp-9"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "region",
+                "valueString": "Virginia"
+              }
+            ],
+            "id": "amp-10"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "screen_height",
+                "valueString": "896"
+              }
+            ],
+            "id": "amp-11"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "screen_width",
+                "valueString": "414"
+              }
+            ],
+            "id": "amp-12"
+          }
+        ],
+        "id": "MixP-0001r5i3yr8g2cuj",
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "fake",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/vendor"
+            }
+          ],
+          "source": "https://data.medstar.com/api/2.0",
+          "versionId": "1"
+        },
+        "outcome": "0",
+        "recorded": "2021-09-20T12:44:59.000Z",
+        "resourceType": "AuditEvent",
+        "source": {
+          "observer": {
+            "reference": "Organization/Mixpanel"
+          },
+          "site": "https://access.fake.org",
+          "type": [
+            {
+              "code": "3",
+              "id": "amp-0",
+              "system": "http://terminology.hl7.org/CodeSystem/security-source-type"
+            }
+          ]
+        },
+        "subtype": [
+          {
+            "display": "Login - reCAPTCHA Modal - Clicked I'm not a robot",
+            "id": "amp-0"
+          }
+        ],
+        "type": {
+          "code": "110100",
+          "display": "Application Activity",
+          "system": "http://dicom.nema.org/resources/ontology/DCM"
+        }
+      }
+    },
+    {
+      "resource": {
+        "agent": [
+          {
+            "altId": "OBocz9j",
+            "id": "amp-0",
+            "requestor": false,
+            "role": [
+              {
+                "coding": [
+                  {
+                    "code": "humanuser",
+                    "id": "amp-0",
+                    "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type"
+                  }
+                ],
+                "id": "amp-0"
+              }
+            ],
+            "type": {
+              "coding": [
+                {
+                  "code": "PAT",
+                  "id": "amp-0",
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-RoleClass"
+                }
+              ]
+            },
+            "who": {
+              "reference": "Person/fake-OBocz9j"
+            }
+          }
+        ],
+        "entity": [
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "browser",
+                "valueString": "Microsoft Edge"
+              }
+            ],
+            "id": "amp-0"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "browser_version",
+                "valueString": "93.0"
+              }
+            ],
+            "id": "amp-1"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "city",
+                "valueString": "Baltimore"
+              }
+            ],
+            "id": "amp-2"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "mp_country_code",
+                "valueString": "US"
+              }
+            ],
+            "id": "amp-3"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "device"
+              }
+            ],
+            "id": "amp-4"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "device_id",
+                "valueString": "0"
+              }
+            ],
+            "id": "amp-5"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "initial_referrer",
+                "valueString": "https://access.fakehealth.org/"
+              }
+            ],
+            "id": "amp-6"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "initial_referring_domain",
+                "valueString": "access.fakehealth.org"
+              }
+            ],
+            "id": "amp-7"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "library_version",
+                "valueString": "2.35.0"
+              }
+            ],
+            "id": "amp-8"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "os",
+                "valueString": "Windows"
+              }
+            ],
+            "id": "amp-9"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "region",
+                "valueString": "Maryland"
+              }
+            ],
+            "id": "amp-10"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "screen_height",
+                "valueString": "1080"
+              }
+            ],
+            "id": "amp-11"
+          },
+          {
+            "detail": [
+              {
+                "id": "amp-0",
+                "type": "screen_width",
+                "valueString": "1920"
+              }
+            ],
+            "id": "amp-12"
+          }
+        ],
+        "id": "MixP-0001wx03abn1tez5",
+        "meta": {
+          "security": [
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "fake",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/vendor"
+            }
+          ],
+          "source": "https://data.medstar.com/api/2.0",
+          "versionId": "1"
+        },
+        "outcome": "0",
+        "recorded": "2022-05-20T14:27:30.000Z",
+        "resourceType": "AuditEvent",
+        "source": {
+          "observer": {
+            "reference": "Organization/Mixpanel"
+          },
+          "site": "https://access.fake.org",
+          "type": [
+            {
+              "code": "3",
+              "id": "amp-0",
+              "system": "http://terminology.hl7.org/CodeSystem/security-source-type"
+            }
+          ]
+        },
+        "subtype": [
+          {
+            "display": "Login - reCAPTCHA Modal - Clicked I'm not a robot",
+            "id": "amp-0"
+          }
+        ],
+        "type": {
+          "code": "110100",
+          "display": "Application Activity",
+          "system": "http://dicom.nema.org/resources/ontology/DCM"
+        }
+      }
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.AuditEvent_4_0_0_2021_09.find({}, {}).sort({'id':1}).limit(100)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "AuditEvent_4_0_0_2022_11",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'limit':100,'sort':{'id':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['id']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "code": "audit-event",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

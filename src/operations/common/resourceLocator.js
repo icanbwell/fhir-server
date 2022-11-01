@@ -181,7 +181,7 @@ class ResourceLocator {
     }
 
     /**
-     * Gets all the collections for this resourceType.  If collections do not exist then they are created.
+     * Gets all the collections for these resources.  If collections do not exist then they are created.
      * @param {Resource[]} resources
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
      */
