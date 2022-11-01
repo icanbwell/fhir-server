@@ -66,10 +66,22 @@ class PartitioningManager {
                  */
                 const connection = await this.getDatabaseConnectionAsync({resourceType});
 
-                for await (const /** @type {{name: string, type: string}} */ collection of connection.listCollections(
-                    {}, {nameOnly: true})) {
-                    if (collection.name.startsWith(resourceType) && !collection.name.includes('_History')) {
-                        this.partitionsCache.get(resourceType).push(collection.name);
+                /**
+                 * @type {string[]}
+                 */
+                let collectionNames = (
+                    await connection.listCollections(
+                        {}, {nameOnly: true}).toArray()
+                ).map(c => c.name);
+
+                const partitioner = this.getPartitionerForResourceType({resourceType});
+                if (partitioner) {
+                    collectionNames = collectionNames.sort(partitioner.getSortingFunction());
+                }
+
+                for (const /** @type {string} */ collectionName of collectionNames) {
+                    if (collectionName.startsWith(resourceType) && !collectionName.includes('_History')) {
+                        this.partitionsCache.get(resourceType).push(collectionName);
                     }
                 }
             }
@@ -149,23 +161,23 @@ class PartitioningManager {
              * @type {string}
              */
             const type = partitionConfig['type'];
-            switch (type) {
-                case 'year-month': {
-                    const partition = await new YearMonthPartitioner().getPartitionByResourceAsync({
-                        resource, field, resourceType, resourceWithBaseVersion
+            /**
+             * @type {BasePartitioner|null}
+             */
+            const partitioner = this.getPartitionerForResourceType({resourceType});
+            if (partitioner) {
+                const partition = await partitioner.getPartitionByResourceAsync({
+                    resource, field, resourceType, resourceWithBaseVersion
+                });
+                await this.addPartitionsToCacheAsync({resourceType, partition});
+                return partition;
+            } else {
+                assertFail(
+                    {
+                        source: 'PartitioningManager.getPartition',
+                        message: `type: ${type} is not supported for partitioning type`,
+                        args: {}
                     });
-                    await this.addPartitionsToCacheAsync({resourceType, partition});
-                    return partition;
-                }
-
-                default:
-                    assertFail(
-                        {
-                            source: 'PartitioningManager.getPartition',
-                            message: `type: ${type} is not supported for partitioning type`,
-                            args: {}
-                        });
-
             }
         } else {
             await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
@@ -199,26 +211,27 @@ class PartitioningManager {
         if (partitionConfig && this.isResourcePartitioned(resourceType)) {
             const field = partitionConfig['field'];
             const type = partitionConfig['type'];
-            switch (type) {
-                case 'year-month':
-                    return await new YearMonthPartitioner().getPartitionByQueryAsync(
-                        {
-                            resourceType,
-                            query,
-                            field,
-                            resourceWithBaseVersion,
-                            partitionsCache: this.partitionsCache
-                        }
-                    );
-
-                default:
-                    assertFail(
-                        {
-                            source: 'PartitioningManager.getPartition',
-                            message: `type: ${type} is not supported for partitioning type`,
-                            args: {}
-                        });
-
+            /**
+             * @type {BasePartitioner|null}
+             */
+            const partitioner = this.getPartitionerForResourceType({resourceType});
+            if (partitioner) {
+                return await partitioner.getPartitionByQueryAsync(
+                    {
+                        resourceType,
+                        query,
+                        field,
+                        resourceWithBaseVersion,
+                        partitionsCache: this.partitionsCache
+                    }
+                );
+            } else {
+                assertFail(
+                    {
+                        source: 'PartitioningManager.getPartition',
+                        message: `type: ${type} is not supported for partitioning type`,
+                        args: {}
+                    });
             }
         } else {
             return [resourceWithBaseVersion];
@@ -247,6 +260,38 @@ class PartitioningManager {
     clearCache() {
         this.partitionsCache.clear();
         this.partitionCacheLastLoaded = null;
+    }
+
+    /**
+     * Gets partitioner for given resource type
+     * @param resourceType
+     * @return {BasePartitioner|null}
+     */
+    getPartitionerForResourceType({resourceType}) {
+        // see if there is a partitionConfig defined for this resource
+        const partitionConfig = partitionConfiguration[`${resourceType}`];
+
+        // if partitionConfig found then use that to calculate the name of the partitionConfig
+        if (partitionConfig && this.isResourcePartitioned(resourceType)) {
+            /**
+             * @type {string}
+             */
+            const type = partitionConfig['type'];
+            switch (type) {
+                case 'year-month': {
+                    return new YearMonthPartitioner();
+                }
+                default:
+                    assertFail(
+                        {
+                            source: 'PartitioningManager.getPartitionerForResourceType',
+                            message: `type: ${type} is not supported for partitioning type`,
+                            args: {}
+                        });
+            }
+        }
+
+        return null;
     }
 }
 
