@@ -323,22 +323,25 @@ class MyFHIRServer {
                             const status = err.statusCode || 500;
                             res.status(status).json(new OperationOutcome(err));
                         } else if (err) {
-                            const error = new OperationOutcome({
-                                statusCode: 500,
-                                issue: [
-                                    {
-                                        severity: 'error',
-                                        code: 'internal',
-                                        details: {
-                                            text: `Unexpected: ${err.message}`,
+                            const status = err.statusCode || 500;
+                            const error = err.issue && err.issue.length > 0 ?
+                                err.issue[0] :
+                                new OperationOutcome({
+                                    statusCode: status,
+                                    issue: [
+                                        {
+                                            severity: 'error',
+                                            code: 'internal',
+                                            details: {
+                                                text: `Unexpected: ${err.message}`,
+                                            },
+                                            diagnostics: env.IS_PRODUCTION ? err.message : err.stack,
                                         },
-                                        diagnostics: env.IS_PRODUCTION ? err.message : err.stack,
-                                    },
-                                ],
-                            });
+                                    ],
+                                });
 
                             // logger.error(error);
-                            res.status(500).json(error);
+                            res.status(status).json(error);
                         } else {
                             next();
                         }

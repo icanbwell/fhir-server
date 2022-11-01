@@ -354,7 +354,7 @@ function toHaveMergeResponse(resp, checks) {
         // assertMergeIsSuccessful(resp.body);
     } catch (e) {
         const pass = false;
-        const message = () => `Merge failed: ${JSON.stringify(resp.body)}`;
+        const message = () => `Merge failed: ${JSON.stringify(resp.body)} ${e}`;
         return {actual: resp.body, expected: checks, message, pass};
     }
     return {

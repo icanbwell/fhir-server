@@ -156,12 +156,15 @@ class MergeManager {
      * @param {Resource} resourceToMerge
      * @param {string} base_version
      * @param {string | null} user
+     * @param {string} scope
      * @returns {Promise<void>}
      */
     async mergeInsertAsync(
         {
-            resourceToMerge, base_version,
-            user
+            resourceToMerge,
+            base_version,
+            user,
+            scope,
         }
     ) {
         assertTypeEquals(resourceToMerge, Resource);
@@ -174,6 +177,12 @@ class MergeManager {
             if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                 throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
             }
+        }
+
+        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resourceToMerge, user, scope))) {
+            throw new ForbiddenError(
+                'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
+                resourceToMerge.resourceType + ' with id ' + resourceToMerge.id);
         }
 
         if (!resourceToMerge.meta) {
@@ -270,7 +279,7 @@ class MergeManager {
                 } else {
                     this.databaseBulkLoader.addResourceToExistingList({resource: resourceToMerge});
                     await this.mergeInsertAsync({
-                        resourceToMerge, base_version, user
+                        resourceToMerge, base_version, user, scope
                     });
                 }
             } catch (e) {

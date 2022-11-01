@@ -13,7 +13,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('search_by_security_tag', () => {
     const scope = 'user/*.read user/*.write access/medstar.* access/thedacare.*';
@@ -70,8 +70,9 @@ describe('search_by_security_tag', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource4)
-                .set(getHeaders(scope))
-                .expect(200);
+                .set(getHeaders('user/*.read user/*.write access/l_and_f.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
 
             console.log('------- response practitionerResource3 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
