@@ -28,6 +28,14 @@ describe('AuditEvent Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            // send again to test merging with existing resources
+            resp = await request
+                .post('/4_0_0/AuditEvent/1/$merge?validate=true')
+                .send(auditevent1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: false, updated: false});
+
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
