@@ -48,7 +48,7 @@ class AdminLogManager {
 
         const body = {
             query: {
-                match: {
+                term: {
                     'fields.id': id
                 }
             }

@@ -1,3 +1,5 @@
+const env = require('var');
+
 /**
  * This class can be used to rethrow errors
  */
@@ -18,7 +20,11 @@ class RethrownError extends Error {
         if (!error) {
             throw new Error('RethrownError requires a message and error');
         }
-        this.original_error = error;
+        this.original_error = error.original_error || error;
+        /**
+         * @type {OperationOutcome[]}
+         */
+        this.issue = error.issue;
         this.stack_before_rethrow = this.stack;
         // const message_lines = (this.message.match(/\n/g) || []).length + 1;
         // this.stack = this.stack.split('\n').slice(0, message_lines + 1).join('\n') + '\n' +
@@ -27,6 +33,8 @@ class RethrownError extends Error {
         this.source = source;
 
         this.nested = error;
+
+        this.statusCode = error.statusCode; // keep same statusCode
 
         if (message instanceof Error) {
             error = message;
@@ -42,6 +50,9 @@ class RethrownError extends Error {
         var oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
         var stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
         Object.defineProperty(this, 'stack', stackDescriptor);
+        if (this.issue) {
+            this.issue.forEach(i => {i.diagnostics = env.IS_PRODUCTION ? this.message : this.stack;});
+        }
     }
 
     /**
