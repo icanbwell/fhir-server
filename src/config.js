@@ -116,7 +116,7 @@ let fhirServerConfig = {
         },
     },
     logging: {
-        level: env.LOGGING_LEVEL,
+        level: env.LOGLEVEL,
     },
     errorTracking: {
         requestHandler: Sentry.Handlers.requestHandler,
