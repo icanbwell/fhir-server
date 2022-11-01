@@ -10,7 +10,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest, getTestContainer,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
@@ -24,7 +24,7 @@ describe('Person Tests', () => {
     });
 
     describe('Person mergeWith_id Tests', () => {
-        test('mergeWith_id works with access/*.*', async () => {
+        test('mergeWith_id works with access/*.* (create)', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -34,6 +34,45 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
+
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right Person back
+            resp = await request
+                .get('/4_0_0/Person/?_bundle=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonResources);
+        });
+        test('mergeWith_id works with access/*.* (update)', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync();
+
+            resp = await request
+                .get('/4_0_0/Person/?_bundle=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonResources);
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: false, updated: false});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Person back
