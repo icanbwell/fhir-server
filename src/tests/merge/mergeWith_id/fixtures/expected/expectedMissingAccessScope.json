@@ -1,0 +1,7 @@
+{
+  "severity": "error",
+  "code": "forbidden",
+  "details": {
+    "text": "user imran with scopes [user/*.read user/*.write] has no access scopes"
+  }
+}
