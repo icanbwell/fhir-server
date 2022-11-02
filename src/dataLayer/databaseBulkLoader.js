@@ -3,6 +3,7 @@ const async = require('async');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {assertTypeEquals} = require('../utils/assertType');
 const {RethrownError} = require('../utils/rethrownError');
+const {databaseBulkLoaderTimer} = require('../utils/prometheus.utils');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -74,6 +75,8 @@ class DatabaseBulkLoader {
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
     async getResourcesAsync({base_version, resourceType, resources}) {
+        // Start the FHIR request timer, saving a reference to the returned method
+        const timer = databaseBulkLoaderTimer.startTimer();
         try {
             /**
              * cursor
@@ -92,6 +95,8 @@ class DatabaseBulkLoader {
             throw new RethrownError({
                 error: e
             });
+        } finally {
+            timer({resourceType});
         }
     }
 

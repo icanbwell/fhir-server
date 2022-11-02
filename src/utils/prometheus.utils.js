@@ -77,6 +77,25 @@ const fhirRequestTimer = new Histogram({
 
 module.exports.fhirRequestTimer = fhirRequestTimer;
 
+// Create a custom histogram metric
+const databaseBulkLoaderTimer = new Histogram({
+    name: 'databaseBulkLoaderTimer',
+    help: 'Duration of bulk loader in seconds',
+    labelNames: ['resourceType'],
+    buckets: [0.01, 5, 25, 50, 75, 100, 125] // histogram buckets in seconds
+});
+
+module.exports.databaseBulkLoaderTimer = databaseBulkLoaderTimer;
+
+const databaseBulkInserterTimer = new Histogram({
+    name: 'databaseBulkInserterTimer',
+    help: 'Duration of bulk inserter in seconds',
+    labelNames: ['resourceType'],
+    buckets: [0.01, 5, 25, 50, 75, 100, 125] // histogram buckets in seconds
+});
+
+module.exports.databaseBulkInserterTimer = databaseBulkInserterTimer;
+
 
 // Create a histogram metric
 const httpRequestDurationMicroseconds = new Histogram({
