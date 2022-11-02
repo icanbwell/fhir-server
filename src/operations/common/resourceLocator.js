@@ -70,7 +70,7 @@ class ResourceLocator {
     async getCollectionNamesAsync({resources}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         const partitions = await this.partitioningManager.getPartitionNamesByResourcesAsync(
-            {resources}
+            {resources, base_version: this._base_version}
         );
         return partitions;
     }

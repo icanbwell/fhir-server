@@ -120,7 +120,7 @@ class PartitioningManager {
                 // sort the list again
                 const partitioner = this.getPartitionerForResourceType({resourceType});
                 if (partitioner) {
-                    this.partitionsCache.set(resourceType, partitions.sort(partitioner.getSortingFunction));
+                    this.partitionsCache.set(resourceType, partitions.sort(partitioner.getSortingFunction()));
                 }
             }
         } finally {
@@ -149,6 +149,8 @@ class PartitioningManager {
         const resourceType = resource.resourceType;
         assertIsValid(resourceType, `resourceType is empty for resource: ${JSON.stringify(resource)}`);
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
+
+        assertIsValid(base_version, 'base_version is empty');
 
         await this.loadPartitionsFromDatabaseAsync();
 
@@ -194,9 +196,10 @@ class PartitioningManager {
     /**
      * Gets Partitions for specified resources
      * @param {Resource[]} resources
+     * @param {string} base_version
      * @return {Promise<string[]>}
      */
-    async getPartitionNamesByResourcesAsync({resources}) {
+    async getPartitionNamesByResourcesAsync({resources, base_version}) {
         if (resources.length === 0) {
             return [];
         }
@@ -206,7 +209,7 @@ class PartitioningManager {
         let partitions = await async.mapSeries(
             resources,
             async (resource) => await this.getPartitionNameByResourceAsync(
-                {resource, base_version: this._base_version})
+                {resource, base_version})
         );
         // sort the list
         const partitioner = this.getPartitionerForResourceType({resourceType: resources[0].resourceType});
