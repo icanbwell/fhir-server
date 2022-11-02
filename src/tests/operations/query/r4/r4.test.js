@@ -32,7 +32,7 @@ describe('r4 search Tests', () => {
         await commonAfterEach();
     });
 
-    describe('AuditEvent r4 search Tests', () => {
+    describe('r4 search Tests', () => {
         test('r4 works for Patient without accessIndex', async () => {
             await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
@@ -203,6 +203,46 @@ describe('r4 search Tests', () => {
             });
             expect(result.query.$and['0']['for.reference'].$in[0]).toStrictEqual('Patient/1234');
             expect(result.query.$and['0']['for.reference'].$in[1]).toStrictEqual('Patient/4567');
+        });
+        test('r4 works with boolean type true', async () => {
+            await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                c.register('indexProvider', () => new MockIndexProvider());
+                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return c;
+            });
+            const container = getTestContainer();
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            const args = {
+                'active': 'true'
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'PractitionerRole', args
+            });
+            expect(result.query.$and['0'].active).toStrictEqual(true);
+        });
+        test('r4 works with boolean type false', async () => {
+            await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                c.register('indexProvider', () => new MockIndexProvider());
+                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return c;
+            });
+            const container = getTestContainer();
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            const args = {
+                'active': 'false'
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'PractitionerRole', args
+            });
+            expect(result.query.$and['0'].active).toStrictEqual(false);
         });
     });
 });

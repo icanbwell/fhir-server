@@ -166,7 +166,7 @@ const tokenQueryBuilder = function (target, type, field, required, exists_flag =
 
 /**
  * @name exactMatchQueryBuilder
- * @param {?string} target what we are searching for
+ * @param {string|boolean|null} target what we are searching for
  * @param {string} field path to system and value from field
  * @param {string} required the required system if specified
  * @param {?boolean} exists_flag whether to check for existence
@@ -194,8 +194,8 @@ const exactMatchQueryBuilder = function (target, field, required, exists_flag = 
 
     value = target;
 
-    if (value) {
-        if (value.includes(',')) {
+    if (value !== undefined) {
+        if (typeof value === 'string' && value.includes(',')) {
             const values = value.split(',');
             queryBuilder[`${field}`] = {
                 $in: values
