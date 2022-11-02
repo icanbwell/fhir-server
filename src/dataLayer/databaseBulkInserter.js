@@ -17,6 +17,7 @@ const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableCon
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const {RethrownError} = require('../utils/rethrownError');
 const {isTrue} = require('../utils/isTrue');
+const {databaseBulkInserterTimer} = require('../utils/prometheus.utils');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -508,6 +509,8 @@ class DatabaseBulkInserter extends EventEmitter {
             useHistoryCollection,
             operations
         }) {
+        // Start the FHIR request timer, saving a reference to the returned method
+        const timer = databaseBulkInserterTimer.startTimer();
         try {
             return await mutex.runExclusive(async () => {
                 /**
@@ -558,7 +561,7 @@ class DatabaseBulkInserter extends EventEmitter {
 
                 // preserve order so inserts come before updates
                 /**
-                 * @type {import('mongodb').CollectionBulkWriteOptions|null}
+                 * @type {import('mongodb').BulkWriteOptions|null}
                  */
                 const options = {ordered: true};
                 /**
@@ -568,7 +571,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 for (const operationsByCollectionName of operationsByCollectionNames) {
                     const [
                         /** @type {string} */collectionName,
-                        /** @type {(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
+                        /** @type {(import('mongodb').AnyBulkWriteOperation<import('mongodb').DefaultSchema>)[]} */
                         operationsByCollection] = operationsByCollectionName;
 
                     if (isTrue(env.LOG_ALL_MERGES)) {
@@ -622,6 +625,8 @@ class DatabaseBulkInserter extends EventEmitter {
             throw new RethrownError({
                 error: e
             });
+        } finally {
+            timer({resourceType});
         }
     }
 }

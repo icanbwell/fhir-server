@@ -3,6 +3,7 @@ const async = require('async');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {assertTypeEquals} = require('../utils/assertType');
 const {RethrownError} = require('../utils/rethrownError');
+const {databaseBulkLoaderTimer} = require('../utils/prometheus.utils');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -27,10 +28,10 @@ class DatabaseBulkLoader {
     /**
      * Finds all documents with the specified resource type and ids
      * @param {string} base_version
-     * @param {{resourceType: string, id: string}[]} requestedResources
+     * @param {Resource[]} requestedResources
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async loadResourcesByResourceTypeAndIdAsync({base_version, requestedResources}) {
+    async loadResourcesAsync({base_version, requestedResources}) {
         try {
             /**
              * merge results grouped by resourceType
@@ -41,16 +42,16 @@ class DatabaseBulkLoader {
             });
 
             /**
-             * Load all specified resources in parallel
+             * Load all specified resource groups in async
              * @type {{resources: Resource[], resourceType: string}[]}
              */
             const result = await async.map(
                 Object.entries(groupByResourceType),
-                async x => await this.getResourcesByIdAsync(
+                async x => await this.getResourcesAsync(
                     {
                         base_version,
                         resourceType: x[0],
-                        resourceAndIdList: x[1]
+                        resources: x[1]
                     }
                 )
             );
@@ -70,31 +71,32 @@ class DatabaseBulkLoader {
      * Get resources by id for this resourceType
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {{resource:string, id: string}[]} resourceAndIdList
+     * @param {Resource[]} resources
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
-    async getResourcesByIdAsync({base_version, resourceType, resourceAndIdList}) {
+    async getResourcesAsync({base_version, resourceType, resources}) {
+        // Start the FHIR request timer, saving a reference to the returned method
+        const timer = databaseBulkLoaderTimer.startTimer();
         try {
-            const query = {
-                id: {$in: resourceAndIdList.map(r => r.id)}
-            };
             /**
              * cursor
              * @type {DatabasePartitionedCursor}
              */
             const cursor = await this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
-            ).findAsync({query});
+            ).findResourcesInDatabaseAsync({resources});
 
             /**
              * @type {Resource[]}
              */
-            const resources = await this.cursorToResourcesAsync({cursor});
-            return {resourceType, resources: resources};
+            const foundResources = await this.cursorToResourcesAsync({cursor});
+            return {resourceType, resources: foundResources};
         } catch (e) {
             throw new RethrownError({
                 error: e
             });
+        } finally {
+            timer({resourceType});
         }
     }
 

@@ -24,6 +24,14 @@ class BasePartitioner {
         throw new Error(`base class ${this.constructor.name} must implement getPartitionByQueryAsync`);
     }
 
+    /**
+     * Returns a function used for sorting the partitions
+     * @return {function(string, string): number}
+     */
+    getSortingFunction() {
+        throw new Error(`base class ${this.constructor.name} must implement getSortingFunction`);
+    }
+
 }
 
 module.exports = {

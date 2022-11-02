@@ -2,6 +2,7 @@ const deepEqual = require('fast-deep-equal');
 const {mergeObject} = require('../../utils/mergeHelper');
 const {compare, applyPatch} = require('fast-json-patch');
 const moment = require('moment-timezone');
+const {preSaveAsync} = require('./preSave');
 
 /**
  * @description This class merges two resources
@@ -29,6 +30,9 @@ class ResourceMerger {
         resourceToMerge.meta.versionId = currentResource.meta.versionId;
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
+
+        // fix up any data that we normally fix up before saving so the comparison is correct
+        await preSaveAsync(resourceToMerge);
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource, resourceToMerge) === true) {

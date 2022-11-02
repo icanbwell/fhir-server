@@ -116,6 +116,14 @@ class YearMonthPartitioner extends BasePartitioner {
         }
         return partitions;
     }
+
+    /**
+     * Returns a function used for sorting the partitions
+     * @return {function(string, string): number}
+     */
+    getSortingFunction() {
+        return (a, b) => (a > b ? -1 : 1);
+    }
 }
 
 module.exports = {
