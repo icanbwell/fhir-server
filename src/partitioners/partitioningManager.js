@@ -4,6 +4,7 @@ const {ConfigManager} = require('../utils/configManager');
 const {YearMonthPartitioner} = require('./yearMonthPartitioner');
 const moment = require('moment-timezone');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
+const async = require('async');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -116,6 +117,11 @@ class PartitioningManager {
             const partitions = this.partitionsCache.get(resourceType);
             if (!partitions.includes(partition)) {
                 partitions.push(partition);
+                // sort the list again
+                const partitioner = this.getPartitionerForResourceType({resourceType});
+                if (partitioner) {
+                    this.partitionsCache.set(resourceType, partitions.sort(partitioner.getSortingFunction));
+                }
             }
         } finally {
             release();
@@ -146,7 +152,7 @@ class PartitioningManager {
 
         await this.loadPartitionsFromDatabaseAsync();
 
-        const resourceWithBaseVersion = `${resourceType}_${base_version}`;
+        const resourceTypeWithBaseVersion = `${resourceType}_${base_version}`;
 
         // see if there is a partitionConfig defined for this resource
         const partitionConfig = partitionConfiguration[`${resourceType}`];
@@ -167,7 +173,7 @@ class PartitioningManager {
             const partitioner = this.getPartitionerForResourceType({resourceType});
             if (partitioner) {
                 const partition = await partitioner.getPartitionByResourceAsync({
-                    resource, field, resourceType, resourceWithBaseVersion
+                    resource, field, resourceType, resourceWithBaseVersion: resourceTypeWithBaseVersion
                 });
                 await this.addPartitionsToCacheAsync({resourceType, partition});
                 return partition;
@@ -180,9 +186,34 @@ class PartitioningManager {
                     });
             }
         } else {
-            await this.addPartitionsToCacheAsync({resourceType, partition: resourceWithBaseVersion});
-            return resourceWithBaseVersion;
+            await this.addPartitionsToCacheAsync({resourceType, partition: resourceTypeWithBaseVersion});
+            return resourceTypeWithBaseVersion;
         }
+    }
+
+    /**
+     * Gets Partitions for specified resources
+     * @param {Resource[]} resources
+     * @return {Promise<string[]>}
+     */
+    async getPartitionNamesByResourcesAsync({resources}) {
+        if (resources.length === 0) {
+            return [];
+        }
+        /**
+         * @type {string[]}
+         */
+        let partitions = await async.mapSeries(
+            resources,
+            async (resource) => await this.getPartitionNameByResourceAsync(
+                {resource, base_version: this._base_version})
+        );
+        // sort the list
+        const partitioner = this.getPartitionerForResourceType({resourceType: resources[0].resourceType});
+        if (partitioner) {
+            partitions = partitions.sort(partitioner.getSortingFunction());
+        }
+        return Array.from(new Set(partitions)); // remove duplicates
     }
 
     isResourcePartitioned(resourceType) {
