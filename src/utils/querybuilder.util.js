@@ -166,7 +166,7 @@ const tokenQueryBuilder = function (target, type, field, required, exists_flag =
 
 /**
  * @name exactMatchQueryBuilder
- * @param {?string} target what we are searching for
+ * @param {string|boolean|null} target what we are searching for
  * @param {string} field path to system and value from field
  * @param {string} required the required system if specified
  * @param {?boolean} exists_flag whether to check for existence
@@ -194,8 +194,8 @@ const exactMatchQueryBuilder = function (target, field, required, exists_flag = 
 
     value = target;
 
-    if (value) {
-        if (value.includes(',')) {
+    if (value !== undefined) {
+        if (typeof value === 'string' && value.includes(',')) {
             const values = value.split(',');
             queryBuilder[`${field}`] = {
                 $in: values
@@ -210,12 +210,13 @@ const exactMatchQueryBuilder = function (target, field, required, exists_flag = 
 
 /**
  * @name referenceQueryBuilder
+ * @param {string} target_type
  * @param {string} target
  * @param {string} field
  * @param {?boolean} [exists_flag]
  * @return {JSON} queryBuilder
  */
-const referenceQueryBuilder = function (target, field, exists_flag) {
+const referenceQueryBuilder = function ({target_type, target, field, exists_flag}) {
     const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
@@ -235,7 +236,19 @@ const referenceQueryBuilder = function (target, field, exists_flag) {
         queryBuilder[`${field}`] = match[2];
     }
     // target = type/id
-    else if (target.includes('/')) {
+    else if (target.includes(',')) { // list was passed
+        const searchItems = target.split(',');
+        const fullResourceTypeAndIdList = [];
+        for (const searchItem of searchItems) {
+            if (searchItem.includes('/')) {
+                const [type, id] = searchItem.split('/');
+                fullResourceTypeAndIdList.push(`${type}/${id}`);
+            } else {
+                fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
+            }
+        }
+        queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
+    } else if (target.includes('/')) {
         const [type, id] = target.split('/');
         if (id.includes(',')) {
             const idList = id.split(',');
@@ -718,7 +731,12 @@ const compositeQueryBuilder = function (target, field1, field2) {
             });
             break;
         case 'reference':
-            composite.push(referenceQueryBuilder(target1, path1, null));
+            composite.push(referenceQueryBuilder({
+                target_type: target,
+                target: target1,
+                field: path1,
+                exists_flag: null
+            }));
             break;
         case 'quantity':
             composite.push(quantityQueryBuilder(target1, path1));
@@ -759,7 +777,7 @@ const compositeQueryBuilder = function (target, field1, field2) {
             });
             break;
         case 'reference':
-            composite.push(referenceQueryBuilder(target2, path2));
+            composite.push(referenceQueryBuilder({target_type: target, target: target2, field: path2}));
             break;
         case 'quantity':
             composite.push(quantityQueryBuilder(target2, path2));

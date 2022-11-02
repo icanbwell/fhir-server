@@ -132,7 +132,7 @@ function filterByToken({queryParameterValue, propertyObj, and_segments, columns}
                 case 'boolean':
                     and_segments.push(
                         exactMatchQueryBuilder(
-                            tokenQueryItem,
+                            tokenQueryItem === 'true' ? true : false,
                             `${propertyObj.field}`,
                             ''
                         )
