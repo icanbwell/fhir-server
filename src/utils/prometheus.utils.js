@@ -96,6 +96,16 @@ const databaseBulkInserterTimer = new Histogram({
 
 module.exports.databaseBulkInserterTimer = databaseBulkInserterTimer;
 
+// https://github.com/prometheus/client_python
+const partitionedCollectionsCount = new Histogram({
+    name: 'partitionedCollectionsCount',
+    help: 'Count of collections in DatabasePartitionedCursor',
+    labelNames: ['resourceType'],
+    buckets: [1, 2, 5, 10]
+});
+
+module.exports.partitionedCollectionsCount = partitionedCollectionsCount;
+
 
 // Create a histogram metric
 const httpRequestDurationMicroseconds = new Histogram({

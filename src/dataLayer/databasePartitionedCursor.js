@@ -5,6 +5,7 @@ const {assertIsValid, assertFail} = require('../utils/assertType');
 const {getResource} = require('../operations/common/getResource');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
+const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
 
 /**
  * @typedef CursorInfo
@@ -52,6 +53,7 @@ class DatabasePartitionedCursor {
             query: query
         }));
 
+        partitionedCollectionsCount.labels(resourceType).observe(cursors.length);
     }
 
     /**
