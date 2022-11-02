@@ -215,7 +215,7 @@ const exactMatchQueryBuilder = function (target, field, required, exists_flag = 
  * @param {?boolean} [exists_flag]
  * @return {JSON} queryBuilder
  */
-const referenceQueryBuilder = function (target, field, exists_flag) {
+const referenceQueryBuilder = function ({target, field, exists_flag}) {
     const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
@@ -235,7 +235,19 @@ const referenceQueryBuilder = function (target, field, exists_flag) {
         queryBuilder[`${field}`] = match[2];
     }
     // target = type/id
-    else if (target.includes('/')) {
+    else if (target.includes(',')) { // list was passed
+        const searchItems = target.split(',');
+        const fullResourceTypeAndIdList = [];
+        for (const searchItem of searchItems) {
+            if (searchItem.includes('/')) {
+                const [type, id] = searchItem.split('/');
+                fullResourceTypeAndIdList.push(`${type}/${id}`);
+            } else {
+                fullResourceTypeAndIdList.push(searchItem);
+            }
+        }
+        queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
+    } else if (target.includes('/')) {
         const [type, id] = target.split('/');
         if (id.includes(',')) {
             const idList = id.split(',');
@@ -718,7 +730,7 @@ const compositeQueryBuilder = function (target, field1, field2) {
             });
             break;
         case 'reference':
-            composite.push(referenceQueryBuilder(target1, path1, null));
+            composite.push(referenceQueryBuilder({target: target1, field: path1, exists_flag: null}));
             break;
         case 'quantity':
             composite.push(quantityQueryBuilder(target1, path1));
@@ -759,7 +771,7 @@ const compositeQueryBuilder = function (target, field1, field2) {
             });
             break;
         case 'reference':
-            composite.push(referenceQueryBuilder(target2, path2));
+            composite.push(referenceQueryBuilder({target: target2, field: path2}));
             break;
         case 'quantity':
             composite.push(quantityQueryBuilder(target2, path2));

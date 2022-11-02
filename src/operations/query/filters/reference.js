@@ -15,21 +15,24 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
         if (propertyObj.fields && Array.isArray(propertyObj.fields)) {
             and_segments.push({
                 $or: propertyObj.fields.map((field1) =>
-                    referenceQueryBuilder(
-                        queryParameterValue.includes('/') ? queryParameterValue
-                            : `${target}/` + queryParameterValue,
-                        `${field1}.reference`,
-                        null
+                    referenceQueryBuilder({
+                            target: queryParameterValue.includes('/') ? queryParameterValue
+                                : `${target}/` + queryParameterValue,
+                            field: `${field1}.reference`,
+                            exists_flag: null
+                        }
                     )
                 ),
             });
         } else {
             and_segments.push(
                 referenceQueryBuilder(
-                    queryParameterValue.includes('/') ? queryParameterValue
-                        : `${target}/` + queryParameterValue,
-                    `${propertyObj.field}.reference`,
-                    null
+                    {
+                        target: queryParameterValue.includes('/') ? queryParameterValue
+                            : `${target}/` + queryParameterValue,
+                        field: `${propertyObj.field}.reference`,
+                        exists_flag: null
+                    }
                 )
             );
         }
@@ -41,20 +44,23 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
         if (queryParameterValue.includes('/')) {
             and_segments.push(
                 referenceQueryBuilder(
-                    queryParameterValue,
-                    field,
-                    null
+                    {
+                        target: queryParameterValue,
+                        field: field,
+                        exists_flag: null
+                    }
                 )
             );
         } else {
             // else search for these ids in all the target resources
             and_segments.push({
                 $or: propertyObj.target.map((target1) =>
-                    referenceQueryBuilder(
-                        queryParameterValue.includes('/') ? queryParameterValue
-                            : `${target1}/` + queryParameterValue,
-                        field,
-                        null
+                    referenceQueryBuilder({
+                            target: queryParameterValue.includes('/') ? queryParameterValue
+                                : `${target1}/` + queryParameterValue,
+                            field: `${field}`,
+                            exists_flag: null
+                        }
                     )
                 ),
             });
