@@ -180,7 +180,8 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Task', args
             });
-            expect(result.query.$and['0']['for.reference']).toStrictEqual('Patient/1234');
+            expect(result.query.$and['0'].$or[0]['for.reference'].$in[0]).toStrictEqual('Account/1234');
+            expect(result.query.$and['0'].$or[0]['for.reference'].$in[1]).toStrictEqual('Account/4567');
         });
         test('r4 works with Task and multiple subjects with reference type', async () => {
             await createTestRequest((c) => {
@@ -200,7 +201,8 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Task', args
             });
-            expect(result.query.$and['0']['for.reference']).toStrictEqual('Patient/1234');
+            expect(result.query.$and['0']['for.reference'].$in[0]).toStrictEqual('Patient/1234');
+            expect(result.query.$and['0']['for.reference'].$in[1]).toStrictEqual('Patient/4567');
         });
     });
 });

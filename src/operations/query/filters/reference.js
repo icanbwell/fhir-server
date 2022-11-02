@@ -16,6 +16,7 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
             and_segments.push({
                 $or: propertyObj.fields.map((field1) =>
                     referenceQueryBuilder({
+                            target_type: target,
                             target: queryParameterValue.includes('/') ? queryParameterValue
                                 : `${target}/` + queryParameterValue,
                             field: `${field1}.reference`,
@@ -28,6 +29,7 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
             and_segments.push(
                 referenceQueryBuilder(
                     {
+                        target_type: target,
                         target: queryParameterValue.includes('/') ? queryParameterValue
                             : `${target}/` + queryParameterValue,
                         field: `${propertyObj.field}.reference`,
@@ -42,9 +44,11 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
         // handle multiple targets
         // if resourceType is specified then search for only those resources
         if (queryParameterValue.includes('/')) {
+            const target = propertyObj.target[0];
             and_segments.push(
                 referenceQueryBuilder(
                     {
+                        target_type: target,
                         target: queryParameterValue,
                         field: field,
                         exists_flag: null
@@ -56,6 +60,7 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
             and_segments.push({
                 $or: propertyObj.target.map((target1) =>
                     referenceQueryBuilder({
+                            target_type: target1,
                             target: queryParameterValue.includes('/') ? queryParameterValue
                                 : `${target1}/` + queryParameterValue,
                             field: `${field}`,

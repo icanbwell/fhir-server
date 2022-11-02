@@ -210,12 +210,13 @@ const exactMatchQueryBuilder = function (target, field, required, exists_flag = 
 
 /**
  * @name referenceQueryBuilder
+ * @param {string} target_type
  * @param {string} target
  * @param {string} field
  * @param {?boolean} [exists_flag]
  * @return {JSON} queryBuilder
  */
-const referenceQueryBuilder = function ({target, field, exists_flag}) {
+const referenceQueryBuilder = function ({target_type, target, field, exists_flag}) {
     const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
@@ -243,7 +244,7 @@ const referenceQueryBuilder = function ({target, field, exists_flag}) {
                 const [type, id] = searchItem.split('/');
                 fullResourceTypeAndIdList.push(`${type}/${id}`);
             } else {
-                fullResourceTypeAndIdList.push(searchItem);
+                fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
             }
         }
         queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
@@ -730,7 +731,12 @@ const compositeQueryBuilder = function (target, field1, field2) {
             });
             break;
         case 'reference':
-            composite.push(referenceQueryBuilder({target: target1, field: path1, exists_flag: null}));
+            composite.push(referenceQueryBuilder({
+                target_type: target,
+                target: target1,
+                field: path1,
+                exists_flag: null
+            }));
             break;
         case 'quantity':
             composite.push(quantityQueryBuilder(target1, path1));
@@ -771,7 +777,7 @@ const compositeQueryBuilder = function (target, field1, field2) {
             });
             break;
         case 'reference':
-            composite.push(referenceQueryBuilder({target: target2, field: path2}));
+            composite.push(referenceQueryBuilder({target_type: target, target: target2, field: path2}));
             break;
         case 'quantity':
             composite.push(quantityQueryBuilder(target2, path2));
