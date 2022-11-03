@@ -187,6 +187,17 @@ module.exports = {
                     name: 'helix_observation_effective_2'
                 }
             }
-        ]
+        ],
+        'Person_4_0_0': [
+            {
+                keys: {
+                  'identifier.system': 1,
+                  'identifier.value': 1
+                },
+                options: {
+                    name: 'identifier.system_1_identifier.value_1'
+                }
+            }
+        ],
     }
 };
