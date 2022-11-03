@@ -217,8 +217,8 @@ module.exports.strategy = new MyJwtStrategy(
         }),
         /* specify a list of extractors and it will use the first one that returns the token */
         jwtFromRequest: ExtractJwt.fromExtractors([
-            ExtractJwt.fromAuthHeaderAsBearerToken(),
             ExtractJwt.fromHeader('x-bwell-identity'),
+            ExtractJwt.fromAuthHeaderAsBearerToken(),
             cookieExtractor,
             ExtractJwt.fromUrlQueryParameter('token'),
         ]),
