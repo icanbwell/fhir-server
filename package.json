@@ -117,7 +117,7 @@
     "graphql-schema-linter": "^3.0.1",
     "helmet": "^6.0.0",
     "http-terminator": "^3.2.0",
-    "jwks-rsa": "^2.1.4",
+    "jwks-rsa": "^2.1.5",
     "kafkajs": "^2.2.2",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.38",
