@@ -7,7 +7,7 @@ class IdEnrichmentProvider extends EnrichmentProvider {
      * @return {boolean}
      */
     // eslint-disable-next-line no-unused-vars
-    canEnrich(resourceType) {
+    canEnrich({resourceType}) {
         return true;
     }
 
@@ -15,10 +15,11 @@ class IdEnrichmentProvider extends EnrichmentProvider {
      * enrich the specified resources
      * @param {Resource[]} resources
      * @param {string} resourceType
+     * @param {Object} args
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrich(resources, resourceType) {
+    async enrich({resources, resourceType, args}) {
         for (const resource of resources) {
             if (resource._sourceId) {
                 resource.id = resource._sourceId;

@@ -6,7 +6,7 @@ class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider {
      * @param {string} resourceType
      * @return {boolean}
      */
-    canEnrich(resourceType) {
+    canEnrich({resourceType}) {
         return resourceType === 'ExplanationOfBenefit';
     }
 
@@ -14,10 +14,11 @@ class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider {
      * enrich the specified resources
      * @param {Resource[]} resources
      * @param {string} resourceType
+     * @param {Object} args
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrich(resources, resourceType) {
+    async enrich({resources, resourceType, args}) {
         return resources;
     }
 }

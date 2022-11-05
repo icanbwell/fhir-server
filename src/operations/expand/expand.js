@@ -139,7 +139,7 @@ class ExpandOperation {
 
             // run any enrichment
             resource = (await this.enrichmentManager.enrichAsync({
-                        resources: [resource], resourceType
+                        resources: [resource], resourceType, args
                     }
                 )
             )[0];
