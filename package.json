@@ -157,7 +157,7 @@
     "jest-failure-reporter": "^1.0.1",
     "jest-matcher-utils": "^29.2.2",
     "jest-diff": "^29.2.1",
-    "jose": "^2.0.6",
+    "jose": "^4.10.4",
     "jshint": "^2.13.5",
     "jsonwebtoken": "^8.5.1",
     "mongodb-memory-server": "^8.9.5",

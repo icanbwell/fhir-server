@@ -1,5 +1,6 @@
 const nock = require('nock');
 const jose = require('jose');
+const async = require('async');
 
 /**
  * creates a mock endpoint for /.well-known/jwks.json
@@ -12,18 +13,23 @@ function jwksEndpoint(host, path, certs) {
     return nock(host)
         .persist()
         .get(`${path}`)
-        .reply(200, {
-            keys: certs.map((cert) => {
-                const parsed = jose.JWK.asKey(cert.pub).toJWK();
-                return {
-                    alg: 'RS256',
-                    e: parsed.e,
-                    n: parsed.n,
-                    kty: parsed.kty,
-                    use: 'sig',
-                    kid: cert.kid,
-                };
-            }),
+        .reply((uri, requestBody, cb) => {
+            async.map(
+                certs,
+                async (cert) => {
+                    const parsed = await jose.importSPKI(cert.pub, 'ES256');
+                    const publicJwk = await jose.exportJWK(parsed);
+                    const result = {
+                        alg: 'RS256',
+                        e: publicJwk.e,
+                        n: publicJwk.n,
+                        kty: publicJwk.kty,
+                        use: 'sig',
+                        kid: cert.kid,
+                    };
+                    return result;
+                }
+            ).then((keys) => cb(null, [200, {keys: keys}]));
         });
 }
 
