@@ -11,7 +11,6 @@ build_all:
 .PHONY:publish
 publish:
 	docker push imranq2/node-fhir-server-mongo:latest
-	docker push imranq2/node-fhir-server-mongo:1.2.71
 
 .PHONY:up
 up:

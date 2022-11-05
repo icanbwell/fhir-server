@@ -8,11 +8,11 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeadersWithCustomToken,
-    createTestRequest, 
-    getUnAuthenticatedHeaders, 
+    createTestRequest,
+    getUnAuthenticatedHeaders,
     getFullAccessToken,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('PatientReturnIdWithCustomBearerTokenTests', () => {
     beforeEach(async () => {
@@ -69,20 +69,20 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
     describe('Patient Search By Id Tests With x-well-identity Bearer Token', () => {
         test('search by single id works', async () => {
             const request = await createTestRequest();
-            const headers = { ...getUnAuthenticatedHeaders(), 'x-bwell-identity': getFullAccessToken()};
+            const headers = {...getUnAuthenticatedHeaders(), 'x-bwell-identity': getFullAccessToken()};
             let resp = await request
-              .get('/4_0_0/Patient')
-              .set(headers)
-              .expect(200);
+                .get('/4_0_0/Patient')
+                .set(headers)
+                .expect(200);
             expect(resp.body.length).toBe(0);
             console.log('------- response 1 ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 1 ------------');
             resp = await request
-              .post('/4_0_0/Patient/1679033641/$merge?validate=true')
-              .send(patient1Resource)
-              .set(headers)
-              .expect(200);
+                .post('/4_0_0/Patient/1679033641/$merge?validate=true')
+                .send(patient1Resource)
+                .set(headers)
+                .expect(200);
             console.log('------- response patient1Resource ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response  ------------');
@@ -92,9 +92,9 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response 3 ------------');
             resp = await request
-              .get('/4_0_0/Patient/00100000000')
-              .set(headers)
-              .expect(200);
+                .get('/4_0_0/Patient/00100000000')
+                .set(headers)
+                .expect(200);
             console.log('------- response Patient sorted ------------');
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response sort ------------');
