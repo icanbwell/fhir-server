@@ -168,7 +168,7 @@ class SearchByIdOperation {
                 resource = removeNull(resource);
 
                 // run any enrichment
-                resource = (await this.enrichmentManager.enrich([resource], resourceType))[0];
+                resource = (await this.enrichmentManager.enrichAsync([resource], resourceType))[0];
                 if (resourceType !== 'AuditEvent') {
                     // log access to audit logs
                     await this.auditLogger.logAuditEntryAsync(

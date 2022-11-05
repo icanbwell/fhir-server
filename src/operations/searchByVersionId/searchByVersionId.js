@@ -111,7 +111,7 @@ class SearchByVersionIdOperation {
                         resource.resourceType + ' with id ' + id);
                 }
                 // run any enrichment
-                resource = (await this.enrichmentManager.enrich([resource], resourceType))[0];
+                resource = (await this.enrichmentManager.enrichAsync([resource], resourceType))[0];
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {
                         requestInfo,

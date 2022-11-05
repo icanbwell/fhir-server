@@ -138,7 +138,7 @@ class ExpandOperation {
             resource = await this.valueSetManager.getExpandedValueSetAsync(resourceType, base_version, resource);
 
             // run any enrichment
-            resource = (await this.enrichmentManager.enrich([resource], resourceType))[0];
+            resource = (await this.enrichmentManager.enrichAsync([resource], resourceType))[0];
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {

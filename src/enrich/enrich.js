@@ -8,17 +8,25 @@ const ExplanationOfBenefitsEnrichmentProvider = require('./providers/explanation
  * Registered set of enrichment providers
  * @type {EnrichmentProvider[]}
  */
-const enrichmentProviders = [new ExplanationOfBenefitsEnrichmentProvider()];
+const defaultEnrichmentProviders = [new ExplanationOfBenefitsEnrichmentProvider()];
 
 class EnrichmentManager {
+    /**
+     * constructor
+     * @param {EnrichmentProvider[]|undefined|null} [enrichmentProviders]
+     */
+    constructor({enrichmentProviders}) {
+        this.enrichmentProviders = enrichmentProviders || defaultEnrichmentProviders;
+    }
+
     /**
      * Runs any registered enrichment providers
      * @param {Resource[]} resources
      * @param {string} resourceType
      * @return {Promise<Resource[]>}
      */
-    async enrich(resources, resourceType) {
-        for (const enrichmentProvider of enrichmentProviders) {
+    async enrichAsync(resources, resourceType) {
+        for (const enrichmentProvider of this.enrichmentProviders) {
             if (enrichmentProvider.canEnrich(resourceType)) {
                 resources = await enrichmentProvider.enrich(resources, resourceType);
             }
