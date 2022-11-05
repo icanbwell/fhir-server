@@ -18,7 +18,7 @@ class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider {
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrich({resources, resourceType, args}) {
+    async enrichAsync({resources, resourceType, args}) {
         return resources;
     }
 }

@@ -30,7 +30,7 @@ class EnrichmentManager {
     async enrichAsync({resources, resourceType, args}) {
         for (const enrichmentProvider of this.enrichmentProviders) {
             if (enrichmentProvider.canEnrich({resourceType})) {
-                resources = await enrichmentProvider.enrich({resources, resourceType, args});
+                resources = await enrichmentProvider.enrichAsync({resources, resourceType, args});
             }
         }
         return resources;
