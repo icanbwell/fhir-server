@@ -10,8 +10,10 @@ class ResourcePreparer {
      * @param {AccessIndexManager} accessIndexManager
      * @param {EnrichmentManager} enrichmentManager
      */
-    constructor({scopesManager, accessIndexManager,
-                enrichmentManager}) {
+    constructor({
+                    scopesManager, accessIndexManager,
+                    enrichmentManager
+                }) {
         /**
          * @type {ScopesManager}
          */
@@ -108,7 +110,10 @@ class ResourcePreparer {
             /**
              * @type {Resource[]}
              */
-            const enrichedResources = await this.enrichmentManager.enrichAsync([element], resourceType);
+            const enrichedResources = await this.enrichmentManager.enrichAsync({
+                    resources: [element], resourceType
+                }
+            );
             resources = resources.concat(enrichedResources);
         }
         return resources;

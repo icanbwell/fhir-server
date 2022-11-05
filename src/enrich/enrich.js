@@ -22,11 +22,12 @@ class EnrichmentManager {
 
     /**
      * Runs any registered enrichment providers
+     * @param {Object} args
      * @param {Resource[]} resources
      * @param {string} resourceType
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync(resources, resourceType) {
+    async enrichAsync({resources, resourceType} ) {
         for (const enrichmentProvider of this.enrichmentProviders) {
             if (enrichmentProvider.canEnrich(resourceType)) {
                 resources = await enrichmentProvider.enrich(resources, resourceType);
