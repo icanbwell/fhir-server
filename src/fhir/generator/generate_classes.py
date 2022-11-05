@@ -114,7 +114,7 @@ def main() -> int:
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
                     search_parameters_for_current_resource=search_parameters_for_current_resource,
-                    extra_properties=["_access", "_source", "_uuid", "_sourceId"]
+                    extra_properties=["_access", "_sourceAssigningAuthority", "_uuid", "_sourceId"]
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:

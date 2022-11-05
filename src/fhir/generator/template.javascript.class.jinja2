@@ -168,8 +168,8 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 
 {% for extra_property in extra_properties %}
         /**
-         * @description Specific instances of data or objects that have been accessed.
-         * @property {AuditEventEntity[]|undefined}
+         * @description {{ extra_property }}
+         * @property {*|undefined}
          */
         Object.defineProperty(this, '{{ extra_property -}}', {
             // https://www.w3schools.com/js/js_object_es5.asp

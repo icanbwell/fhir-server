@@ -416,8 +416,8 @@ class Person extends Resource {
 
 
         /**
-         * @description Specific instances of data or objects that have been accessed.
-         * @property {AuditEventEntity[]|undefined}
+         * @description _access
+         * @property {*|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -425,10 +425,46 @@ class Person extends Resource {
             configurable: true,
             get: () => this.__data._access,
             set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null) {
-                    return;
-                }
                 this.__data._access = valueProvided;
+            }
+        });
+        /**
+         * @description _sourceAssigningAuthority
+         * @property {*|undefined}
+         */
+        Object.defineProperty(this, '_sourceAssigningAuthority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._sourceAssigningAuthority,
+            set: valueProvided => {
+                this.__data._sourceAssigningAuthority = valueProvided;
+            }
+        });
+        /**
+         * @description _uuid
+         * @property {*|undefined}
+         */
+        Object.defineProperty(this, '_uuid', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._uuid,
+            set: valueProvided => {
+                this.__data._uuid = valueProvided;
+            }
+        });
+        /**
+         * @description _sourceId
+         * @property {*|undefined}
+         */
+        Object.defineProperty(this, '_sourceId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._sourceId,
+            set: valueProvided => {
+                this.__data._sourceId = valueProvided;
             }
         });
 
@@ -584,6 +620,16 @@ class Person extends Resource {
         if (this._access) {
             json._access = this._access;
         }
+        if (this._sourceAssigningAuthority) {
+            json._sourceAssigningAuthority = this._sourceAssigningAuthority;
+        }
+        if (this._uuid) {
+            json._uuid = this._uuid;
+        }
+        if (this._sourceId) {
+            json._sourceId = this._sourceId;
+        }
+
         return removeNull(json);
     }
 }
