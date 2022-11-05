@@ -1,4 +1,5 @@
 const {isColumnDateType} = require('./isColumnDateType');
+const {generateUUID} = require('../../utils/uid.util');
 /**
  * fixes up any resources before they are saved
  * @param {Resource} resource
@@ -13,6 +14,14 @@ const preSaveAsync = async function (resource) {
                 resource[`${fieldName}`] = new Date(field);
             }
         }
+    }
+
+    if (!resource._sourceId) {
+        resource._sourceId = resource.id;
+    }
+
+    if (!resource._uuid) {
+        resource._uuid = `urn:uuid:${generateUUID()}`;
     }
 
     if (resource.meta && resource.meta.security) {
@@ -32,6 +41,31 @@ const preSaveAsync = async function (resource) {
             for (const /** @type {string} **/ accessCode of accessCodes) {
                 if (resource._access[`${accessCode}`] !== 1) {
                     resource._access[`${accessCode}`] = 1;
+                }
+            }
+        }
+        /**
+         * @type {string[]}
+         */
+        let sourceAssigningAuthorityCodes = resource.meta.security.filter(
+            s => s.system === 'https://www.icanbwell.com/sourceAssigningAuthority').map(s => s.code);
+        // if no sourceAssigningAuthorityCodes so fall back to owner tags
+        if (sourceAssigningAuthorityCodes.length === 0) {
+            sourceAssigningAuthorityCodes = resource.meta.security.filter(
+                s => s.system === 'https://www.icanbwell.com/owner').map(s => s.code);
+        }
+        if (sourceAssigningAuthorityCodes.length > 0) {
+            resource._sourceAssigningAuthority = resource._sourceAssigningAuthority || {};
+            // remove any tags that are don't have corresponding security tags
+            for (const [tagName] of Object.entries(resource._sourceAssigningAuthority)) {
+                if (!sourceAssigningAuthorityCodes.includes(tagName)) {
+                    delete resource._sourceAssigningAuthority[`${tagName}`];
+                }
+            }
+            // now add any new/updated tags
+            for (const /** @type {string} **/ sourceAssigningAuthorityCode of sourceAssigningAuthorityCodes) {
+                if (resource._sourceAssigningAuthority[`${sourceAssigningAuthorityCode}`] !== 1) {
+                    resource._sourceAssigningAuthority[`${sourceAssigningAuthorityCode}`] = 1;
                 }
             }
         }
