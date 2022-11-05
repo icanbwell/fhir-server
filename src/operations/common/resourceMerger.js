@@ -35,7 +35,7 @@ class ResourceMerger {
         await preSaveAsync(resourceToMerge);
 
         // for speed, first check if the incoming resource is exactly the same
-        if (deepEqual(currentResource, resourceToMerge) === true) {
+        if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
             return null;
         }
 
