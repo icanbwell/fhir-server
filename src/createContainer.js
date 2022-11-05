@@ -72,7 +72,7 @@ const createContainer = function () {
     container.register('configManager', () => new ConfigManager());
 
     container.register('scopesManager', () => new ScopesManager());
-    container.register('enrichmentManager', () => new EnrichmentManager());
+    container.register('enrichmentManager', () => new EnrichmentManager({}));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,

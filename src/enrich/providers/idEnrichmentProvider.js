@@ -1,13 +1,14 @@
 const EnrichmentProvider = require('./enrichmentProvider');
 
-class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider {
+class IdEnrichmentProvider extends EnrichmentProvider {
     /**
      * Whether this Enrichment can enrich the specified resourceType
      * @param {string} resourceType
      * @return {boolean}
      */
+    // eslint-disable-next-line no-unused-vars
     canEnrich(resourceType) {
-        return resourceType === 'ExplanationOfBenefit';
+        return true;
     }
 
     /**
@@ -18,10 +19,15 @@ class ExplanationOfBenefitsEnrichmentProvider extends EnrichmentProvider {
      */
     // eslint-disable-next-line no-unused-vars
     async enrich(resources, resourceType) {
+        for (const resource of resources) {
+            if (resource._sourceId) {
+                resource.id = resource._sourceId;
+            }
+        }
         return resources;
     }
 }
 
 module.exports = {
-    ExplanationOfBenefitsEnrichmentProvider
+    IdEnrichmentProvider
 };
