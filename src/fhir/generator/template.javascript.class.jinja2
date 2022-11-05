@@ -166,22 +166,21 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 
 {% endfor %}
 
+{% for extra_property in extra_properties %}
         /**
-         * @description Specific instances of data or objects that have been accessed.
-         * @property {AuditEventEntity[]|undefined}
+         * @description {{ extra_property }}
+         * @property {*|undefined}
          */
-        Object.defineProperty(this, '_access', {
+        Object.defineProperty(this, '{{ extra_property -}}', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data._access,
+            get: () => this.__data.{{ extra_property }},
             set: valueProvided => {
-                if (valueProvided === undefined || valueProvided === null) {
-                    return;
-                }
-                this.__data._access = valueProvided;
+                this.__data.{{ extra_property }} = valueProvided;
             }
         });
+{%  endfor %}
 
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
@@ -306,9 +305,12 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = this.toJSON();
 
-        if (this._access) {
-            json._access = this._access;
+{% for extra_property in extra_properties %}
+        if (this.{{ extra_property -}}) {
+            json.{{ extra_property -}} = this.{{ extra_property -}};
         }
+{%  endfor %}
+
         return removeNull(json);
     }
 }
