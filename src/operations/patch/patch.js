@@ -4,7 +4,7 @@ const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
-const {preSaveAsync} = require('../common/preSave');
+const {PreSaveManager} = require('../common/preSave');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -23,6 +23,7 @@ class PatchOperation {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {PreSaveManager} preSaveManager
      */
     constructor(
         {
@@ -31,7 +32,8 @@ class PatchOperation {
             changeEventProducer,
             postRequestProcessor,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            preSaveManager
         }
     ) {
         /**
@@ -65,6 +67,11 @@ class PatchOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -132,7 +139,7 @@ class PatchOperation {
                 throw new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
             }
 
-            await preSaveAsync(resource);
+            await this.preSaveManager.preSaveAsync(resource);
 
             // Same as update from this point on
             /**

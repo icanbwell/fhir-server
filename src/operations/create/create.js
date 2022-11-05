@@ -6,7 +6,7 @@ const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
-const {preSaveAsync} = require('../common/preSave');
+const {PreSaveManager} = require('../common/preSave');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -32,6 +32,7 @@ class CreateOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
+     * @param {PreSaveManager} preSaveManager
      */
     constructor(
         {
@@ -43,7 +44,8 @@ class CreateOperation {
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            resourceValidator
+            resourceValidator,
+            preSaveManager
         }
     ) {
         /**
@@ -92,6 +94,12 @@ class CreateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -221,7 +229,7 @@ class CreateOperation {
                 resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             }
 
-            await preSaveAsync(resource);
+            await this.preSaveManager.preSaveAsync(resource);
 
             // Create the document to be inserted into Mongo
             // noinspection JSUnresolvedFunction

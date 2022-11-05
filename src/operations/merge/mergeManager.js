@@ -1,6 +1,6 @@
 const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
-const {preSaveAsync} = require('../common/preSave');
+const {PreSaveManager} = require('../common/preSave');
 const {ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const env = require('var');
@@ -37,6 +37,7 @@ class MergeManager {
      * @param {ScopesManager} scopesManager
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
+     * @param {PreSaveManager} preSaveManager
      */
     constructor(
         {
@@ -46,7 +47,8 @@ class MergeManager {
             databaseBulkLoader,
             scopesManager,
             resourceMerger,
-            resourceValidator
+            resourceValidator,
+            preSaveManager
         }
     ) {
         /**
@@ -86,6 +88,12 @@ class MergeManager {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -123,7 +131,7 @@ class MergeManager {
                 foundResource.resourceType + ' with id ' + id);
         }
 
-        await preSaveAsync(currentResource);
+        await this.preSaveManager.preSaveAsync(currentResource);
 
         /**
          * @type {Resource|null}
@@ -466,7 +474,7 @@ class MergeManager {
             assertTypeEquals(resourceToMerge, Resource);
             let id = resourceToMerge.id;
 
-            await preSaveAsync(resourceToMerge);
+            await this.preSaveManager.preSaveAsync(resourceToMerge);
 
             // Insert/update our resource record
             await this.databaseBulkInserter.replaceOneAsync(
@@ -505,7 +513,7 @@ class MergeManager {
         }) {
         try {
             assertTypeEquals(resourceToMerge, Resource);
-            await preSaveAsync(resourceToMerge);
+            await this.preSaveManager.preSaveAsync(resourceToMerge);
 
             // Insert/update our resource record
             await this.databaseBulkInserter.insertOneAsync({

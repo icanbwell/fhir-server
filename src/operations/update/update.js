@@ -7,7 +7,7 @@ const {getResource} = require('../common/getResource');
 const {isTrue} = require('../../utils/isTrue');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
-const {preSaveAsync} = require('../common/preSave');
+const {PreSaveManager} = require('../common/preSave');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -35,6 +35,7 @@ class UpdateOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
+     * @param {PreSaveManager} preSaveManager
      */
     constructor(
         {
@@ -46,7 +47,8 @@ class UpdateOperation {
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            resourceValidator
+            resourceValidator,
+            preSaveManager
         }
     ) {
         /**
@@ -94,6 +96,12 @@ class UpdateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -218,7 +226,7 @@ class UpdateOperation {
                 // noinspection JSPrimitiveTypeWrapperUsage
                 resource_incoming.meta = foundResource.meta;
 
-                await preSaveAsync(resource_incoming);
+                await this.preSaveManager.preSaveAsync(resource_incoming);
 
                 const foundResourceObject = foundResource.toJSON();
                 const resourceIncomingObject = resource_incoming.toJSON();
@@ -265,7 +273,7 @@ class UpdateOperation {
                 meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 resource_incoming.meta = meta;
 
-                await preSaveAsync(resource_incoming);
+                await this.preSaveManager.preSaveAsync(resource_incoming);
 
                 // Same as update from this point on
                 doc = resource_incoming;
@@ -295,7 +303,7 @@ class UpdateOperation {
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
-                await preSaveAsync(resource_incoming);
+                await this.preSaveManager.preSaveAsync(resource_incoming);
 
                 doc = resource_incoming;
             }

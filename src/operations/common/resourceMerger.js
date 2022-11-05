@@ -2,13 +2,23 @@ const deepEqual = require('fast-deep-equal');
 const {mergeObject} = require('../../utils/mergeHelper');
 const {compare, applyPatch} = require('fast-json-patch');
 const moment = require('moment-timezone');
-const {preSaveAsync} = require('./preSave');
+const {PreSaveManager} = require('./preSave');
+const {assertTypeEquals} = require('../../utils/assertType');
 
 /**
  * @description This class merges two resources
  */
 class ResourceMerger {
-    constructor() {
+    /**
+     * constructor
+     * @param {PreSaveManager} preSaveManager
+     */
+    constructor({preSaveManager}) {
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -32,7 +42,7 @@ class ResourceMerger {
         resourceToMerge.meta.source = currentResource.meta.source;
 
         // fix up any data that we normally fix up before saving so the comparison is correct
-        await preSaveAsync(resourceToMerge);
+        await this.preSaveManager.preSaveAsync(resourceToMerge);
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {

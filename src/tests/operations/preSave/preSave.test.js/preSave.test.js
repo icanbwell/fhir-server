@@ -1,6 +1,6 @@
 const {commonBeforeEach, commonAfterEach} = require('../../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {preSaveAsync} = require('../../../../operations/common/preSave');
+const {PreSaveManager} = require('../../../../operations/common/preSave');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -31,7 +31,7 @@ describe('Patient Tests', () => {
                     ]
                 }
             };
-            const result = await preSaveAsync(resource);
+            const result = await new PreSaveManager().preSaveAsync(resource);
             expect(result._uuid).toBeDefined();
             expect(result._uuid).toStartWith('urn:uuid:');
             expect(result._sourceId).toStrictEqual('123');

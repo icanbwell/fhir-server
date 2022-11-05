@@ -58,6 +58,7 @@ const {IndexProvider} = require('./indexes/indexProvider');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 const {R4SearchQueryCreator} = require('./operations/query/r4');
 const {FhirTypesManager} = require('./fhir/fhirTypesManager');
+const {PreSaveManager} = require('./operations/common/preSave');
 
 /**
  * Creates a container and sets up all the services
@@ -76,7 +77,10 @@ const createContainer = function () {
             accessIndexManager: c.accessIndexManager
         }
     ));
-    container.register('resourceMerger', () => new ResourceMerger());
+    container.register('preSaveManager', () => new PreSaveManager());
+    container.register('resourceMerger', (c) => new ResourceMerger({
+        preSaveManager: c.preSaveManager
+    }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
         fhirLoggingManager: c.fhirLoggingManager
@@ -186,7 +190,8 @@ const createContainer = function () {
                 databaseBulkLoader: c.databaseBulkLoader,
                 scopesManager: c.scopesManager,
                 resourceMerger: c.resourceMerger,
-                resourceValidator: c.resourceValidator
+                resourceValidator: c.resourceValidator,
+                preSaveManager: c.preSaveManager
             }
         )
     );
@@ -280,7 +285,8 @@ const createContainer = function () {
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
-                resourceValidator: c.resourceValidator
+                resourceValidator: c.resourceValidator,
+                preSaveManager: c.preSaveManager
             }
         )
     );
@@ -296,7 +302,8 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
                 bundleManager: c.bundleManager,
-                resourceLocatorFactory: c.resourceLocatorFactory
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                preSaveManager: c.preSaveManager
             }
         )
     );
@@ -368,7 +375,8 @@ const createContainer = function () {
             changeEventProducer: c.changeEventProducer,
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            preSaveManager: c.preSaveManager
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
