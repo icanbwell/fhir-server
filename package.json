@@ -91,7 +91,7 @@
     "@slack/web-api": "^6.7.2",
     "accepts": "^1.3.8",
     "apollo-datasource": "^3.3.2",
-    "apollo-server-core": "^3.10.4",
+    "apollo-server-core": "^3.11.0",
     "apollo-server-express": "^3.10.4",
     "apollo-server-plugin-base": "^3.6.3",
     "async": "^3.2.4",
