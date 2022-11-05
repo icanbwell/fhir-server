@@ -1,7 +1,7 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
-const {enrich} = require('../../enrich/enrich');
+const {EnrichmentManager} = require('../../enrich/enrich');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ScopesManager} = require('../security/scopesManager');
@@ -15,13 +15,15 @@ class SearchByVersionIdOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {EnrichmentManager} enrichmentManager
      */
     constructor(
         {
             databaseHistoryFactory,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            enrichmentManager
         }
     ) {
         /**
@@ -45,6 +47,12 @@ class SearchByVersionIdOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
+
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
     }
 
     /**
@@ -103,7 +111,7 @@ class SearchByVersionIdOperation {
                         resource.resourceType + ' with id ' + id);
                 }
                 // run any enrichment
-                resource = (await enrich([resource], resourceType))[0];
+                resource = (await this.enrichmentManager.enrich([resource], resourceType))[0];
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {
                         requestInfo,

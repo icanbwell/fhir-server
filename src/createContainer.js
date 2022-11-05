@@ -59,6 +59,7 @@ const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 const {R4SearchQueryCreator} = require('./operations/query/r4');
 const {FhirTypesManager} = require('./fhir/fhirTypesManager');
 const {PreSaveManager} = require('./operations/common/preSave');
+const {EnrichmentManager} = require('./enrich/enrich');
 
 /**
  * Creates a container and sets up all the services
@@ -71,10 +72,12 @@ const createContainer = function () {
     container.register('configManager', () => new ConfigManager());
 
     container.register('scopesManager', () => new ScopesManager());
+    container.register('enrichmentManager', () => new EnrichmentManager());
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,
-            accessIndexManager: c.accessIndexManager
+            accessIndexManager: c.accessIndexManager,
+            enrichmentManager: c.enrichmentManager
         }
     ));
     container.register('preSaveManager', () => new PreSaveManager());
@@ -272,7 +275,8 @@ const createContainer = function () {
             securityTagManager: c.securityTagManager,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            enrichmentManager: c.enrichmentManager
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(
@@ -345,7 +349,8 @@ const createContainer = function () {
             databaseHistoryFactory: c.databaseHistoryFactory,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            enrichmentManager: c.enrichmentManager
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -401,7 +406,8 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            scopesValidator: c.scopesValidator
+            scopesValidator: c.scopesValidator,
+            enrichmentManager: c.enrichmentManager
         }
     ));
 

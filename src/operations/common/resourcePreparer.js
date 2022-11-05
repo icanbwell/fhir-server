@@ -1,4 +1,4 @@
-const {enrich} = require('../../enrich/enrich');
+const {EnrichmentManager} = require('../../enrich/enrich');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
 const {AccessIndexManager} = require('./accessIndexManager');
@@ -8,8 +8,10 @@ class ResourcePreparer {
      * constructor
      * @param {ScopesManager} scopesManager
      * @param {AccessIndexManager} accessIndexManager
+     * @param {EnrichmentManager} enrichmentManager
      */
-    constructor({scopesManager, accessIndexManager}) {
+    constructor({scopesManager, accessIndexManager,
+                enrichmentManager}) {
         /**
          * @type {ScopesManager}
          */
@@ -21,6 +23,12 @@ class ResourcePreparer {
          */
         this.accessIndexManager = accessIndexManager;
         assertTypeEquals(accessIndexManager, AccessIndexManager);
+
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
     }
 
     /**
@@ -100,7 +108,7 @@ class ResourcePreparer {
             /**
              * @type {Resource[]}
              */
-            const enrichedResources = await enrich([element], resourceType);
+            const enrichedResources = await this.enrichmentManager.enrich([element], resourceType);
             resources = resources.concat(enrichedResources);
         }
         return resources;

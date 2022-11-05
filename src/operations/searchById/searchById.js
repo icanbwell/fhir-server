@@ -1,7 +1,7 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
-const {enrich} = require('../../enrich/enrich');
+const {EnrichmentManager} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
 const env = require('var');
 const moment = require('moment-timezone');
@@ -24,6 +24,7 @@ class SearchByIdOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {EnrichmentManager} enrichmentManager
      */
     constructor(
         {
@@ -33,7 +34,8 @@ class SearchByIdOperation {
             securityTagManager,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            enrichmentManager
         }
     ) {
         /**
@@ -72,6 +74,11 @@ class SearchByIdOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
     }
 
     /**
@@ -161,7 +168,7 @@ class SearchByIdOperation {
                 resource = removeNull(resource);
 
                 // run any enrichment
-                resource = (await enrich([resource], resourceType))[0];
+                resource = (await this.enrichmentManager.enrich([resource], resourceType))[0];
                 if (resourceType !== 'AuditEvent') {
                     // log access to audit logs
                     await this.auditLogger.logAuditEntryAsync(
