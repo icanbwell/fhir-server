@@ -172,6 +172,12 @@ describe('Patient Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);
+
+            resp = await request
+                .get('/4_0_0/Patient/person.m65634')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientResources.entry[0].resource);
         });
     });
 });
