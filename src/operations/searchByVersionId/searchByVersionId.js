@@ -9,6 +9,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
+const {SearchManager} = require('../search/searchManager');
 
 class SearchByVersionIdOperation {
     /**
@@ -19,6 +20,7 @@ class SearchByVersionIdOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
      * @param {ConfigManager} configManager
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
@@ -27,7 +29,8 @@ class SearchByVersionIdOperation {
             fhirLoggingManager,
             scopesValidator,
             enrichmentManager,
-            configManager
+            configManager,
+            searchManager
         }
     ) {
         /**
@@ -62,6 +65,11 @@ class SearchByVersionIdOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**

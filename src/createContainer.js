@@ -354,7 +354,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
-            configManager: c.configManager
+            configManager: c.configManager,
+            searchManager: c.searchManager
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
