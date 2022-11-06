@@ -63,6 +63,7 @@ const {EnrichmentManager} = require('./enrich/enrich');
 const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
 const {ExplanationOfBenefitsEnrichmentProvider} = require('./enrich/providers/explanationOfBenefitsEnrichmentProvider');
 const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
+const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
 
 /**
  * Creates a container and sets up all the services
@@ -172,7 +173,9 @@ const createContainer = function () {
     }));
 
     container.register('queryRewriterManager', () => new QueryRewriterManager({
-        queryRewriters: []
+        queryRewriters: [
+            new PatientProxyQueryRewriter()
+        ]
     }));
 
     container.register('searchManager', (c) => new SearchManager(

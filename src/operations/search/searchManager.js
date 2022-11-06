@@ -125,6 +125,7 @@ class SearchManager {
             filter = true
         }
     ) {
+        args = await this.queryRewriterManager.rewriteArgsAsync({args});
         /**
          * @type {string[]}
          */
@@ -173,7 +174,7 @@ class SearchManager {
             query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
         }
 
-        ({query, columns} = await this.queryRewriterManager.rewriteAsync({base_version, query, columns}));
+        ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({base_version, query, columns}));
         return {base_version, query, columns};
     }
 

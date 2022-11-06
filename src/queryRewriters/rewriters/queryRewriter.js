@@ -10,8 +10,18 @@ class QueryRewriter {
      * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteAsync({base_version, query, columns}) {
-        throw Error('Not Implemented');
+    async rewriteQueryAsync({base_version, query, columns}) {
+        return {query, columns};
+    }
+
+    /**
+     * rewrites the args
+     * @param {Object} args
+     * @return {Promise<Object>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async rewriteArgsAsync({args}) {
+        return args;
     }
 }
 

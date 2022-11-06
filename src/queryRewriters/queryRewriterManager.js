@@ -17,11 +17,24 @@ class QueryRewriterManager {
      * @param {Set} columns
      * @return {Promise<{query:import('mongodb').Document,columns:Set}>}
      */
-    async rewriteAsync({base_version, query, columns}) {
+    async rewriteQueryAsync({base_version, query, columns}) {
         for (const queryRewriter of this.queryRewriters) {
-            ({query, columns} = await queryRewriter.rewriteAsync({base_version, query, columns}));
+            ({query, columns} = await queryRewriter.rewriteQueryAsync({base_version, query, columns}));
         }
         return {query, columns};
+    }
+
+    /**
+     * rewrites the args
+     * @param {Object} args
+     * @return {Promise<Object>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async rewriteArgsAsync({args}) {
+        for (const queryRewriter of this.queryRewriters) {
+            args = await queryRewriter.rewriteArgsAsync({args});
+        }
+        return args;
     }
 }
 
