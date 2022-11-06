@@ -170,9 +170,7 @@ class SearchManager {
             query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
         }
 
-        const _ret = await this.queryRewriterManager.rewriteAsync({base_version, query, columns});
-        query = _ret.query;
-        columns = _ret.columns;
+        ({query, columns} = await this.queryRewriterManager.rewriteAsync({base_version, query, columns}));
         return {base_version, query, columns};
     }
 

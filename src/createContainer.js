@@ -281,7 +281,8 @@ const createContainer = function () {
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            enrichmentManager: c.enrichmentManager
+            enrichmentManager: c.enrichmentManager,
+            configManager: c.configManager
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(

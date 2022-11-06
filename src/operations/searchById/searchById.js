@@ -3,7 +3,6 @@
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
-const env = require('var');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('../search/searchManager');
@@ -13,6 +12,8 @@ const {SecurityTagManager} = require('../common/securityTagManager');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {isTrue} = require('../../utils/isTrue');
+const {ConfigManager} = require('../../utils/configManager');
 
 class SearchByIdOperation {
     /**
@@ -25,6 +26,7 @@ class SearchByIdOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -35,7 +37,8 @@ class SearchByIdOperation {
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            enrichmentManager
+            enrichmentManager,
+            configManager
         }
     ) {
         /**
@@ -79,6 +82,13 @@ class SearchByIdOperation {
          */
         this.enrichmentManager = enrichmentManager;
         assertTypeEquals(enrichmentManager, EnrichmentManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
     }
 
     /**
@@ -131,24 +141,34 @@ class SearchByIdOperation {
 
             // Search Result param
             /**
-             * @type {Object}
-             */
-            let query = {};
-            query.id = id;
-
-            /**
              * @type {Promise<Resource> | *}
              */
             let resource;
-            query = {id: id.toString()};
-            if (isUser && env.ENABLE_PATIENT_FILTERING && filter) {
-                const allPatients = patients.concat(
-                    await this.searchManager.getPatientIdsByPersonIdentifiersAsync(
-                        {
-                            base_version, fhirPersonId
-                        }));
-                query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
-            }
+
+            /**
+             * @type {boolean}
+             */
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
+
+            /**
+             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+             */
+            const {
+                /** @type {import('mongodb').Document}**/
+                query,
+                // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync({
+                user,
+                scope,
+                isUser,
+                patients,
+                args: Object.assign(args, {id: id.toString()}), // add id filter to query
+                resourceType,
+                useAccessIndex,
+                fhirPersonId,
+                filter
+            });
             try {
                 resource = await this.databaseQueryFactory.createQuery(
                     {resourceType, base_version}
