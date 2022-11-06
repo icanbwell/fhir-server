@@ -139,7 +139,6 @@ class SearchByIdOperation {
             let {id} = args;
             let {base_version} = args;
 
-            // Search Result param
             /**
              * @type {Promise<Resource> | *}
              */
@@ -163,7 +162,7 @@ class SearchByIdOperation {
                 scope,
                 isUser,
                 patients,
-                args: Object.assign(args, {id: id.toString()}), // add id filter to query
+                args,
                 resourceType,
                 useAccessIndex,
                 fhirPersonId,

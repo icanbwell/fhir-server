@@ -104,20 +104,22 @@ class SearchByVersionIdOperation {
             // requestId
         } = requestInfo;
 
-        await this.scopesValidator.verifyHasValidScopesAsync(
-            {
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                action: currentOperationName,
-                accessRequested: 'read'
-            }
-        );
-
         try {
 
             let {base_version, id, version_id} = args;
+            args['id'] = id.toString(); // add id filter to query
+            // check if user has permissions to access this resource
+            await this.scopesValidator.verifyHasValidScopesAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    accessRequested: 'read'
+                }
+            );
+
 
             /**
              * @type {boolean}

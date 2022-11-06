@@ -25,4 +25,6 @@ class EnrichmentProvider {
     }
 }
 
-module.exports = EnrichmentProvider;
+module.exports = {
+    EnrichmentProvider
+};
