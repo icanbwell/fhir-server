@@ -777,6 +777,10 @@ class Media extends Resource {
             duration,
             content,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -795,7 +799,6 @@ class Media extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Media}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -827,6 +830,11 @@ class Media extends Resource {
      * @param {decimal|undefined} [duration],
      * @param {Attachment} content,
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Media}
     */
     create(
             {
@@ -861,6 +869,10 @@ class Media extends Resource {
             duration,
             content,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Media({
@@ -895,6 +907,10 @@ class Media extends Resource {
             duration,
             content,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

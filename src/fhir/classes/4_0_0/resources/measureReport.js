@@ -527,6 +527,10 @@ class MeasureReport extends Resource {
             improvementNotation,
             group,
             evaluatedResource,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -545,7 +549,6 @@ class MeasureReport extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MeasureReport}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -565,6 +568,11 @@ class MeasureReport extends Resource {
      * @param {CodeableConcept|undefined} [improvementNotation],
      * @param {MeasureReportGroup[]|undefined} [group],
      * @param {Reference[]|undefined} [evaluatedResource],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MeasureReport}
     */
     create(
             {
@@ -587,6 +595,10 @@ class MeasureReport extends Resource {
             improvementNotation,
             group,
             evaluatedResource,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MeasureReport({
@@ -609,6 +621,10 @@ class MeasureReport extends Resource {
             improvementNotation,
             group,
             evaluatedResource,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

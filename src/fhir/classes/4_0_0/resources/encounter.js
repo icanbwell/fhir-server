@@ -797,6 +797,10 @@ class Encounter extends Resource {
             location,
             serviceProvider,
             partOf,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -815,7 +819,6 @@ class Encounter extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Encounter}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -847,6 +850,11 @@ class Encounter extends Resource {
      * @param {EncounterLocation[]|undefined} [location],
      * @param {Reference|undefined} [serviceProvider],
      * @param {Reference|undefined} [partOf],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Encounter}
     */
     create(
             {
@@ -881,6 +889,10 @@ class Encounter extends Resource {
             location,
             serviceProvider,
             partOf,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Encounter({
@@ -915,6 +927,10 @@ class Encounter extends Resource {
             location,
             serviceProvider,
             partOf,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -738,6 +738,10 @@ class ImplementationGuide extends Resource {
             global,
             definition,
             manifest,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -756,7 +760,6 @@ class ImplementationGuide extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ImplementationGuide}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -785,6 +788,11 @@ class ImplementationGuide extends Resource {
      * @param {ImplementationGuideGlobal[]|undefined} [global],
      * @param {ImplementationGuideDefinition|undefined} [definition],
      * @param {ImplementationGuideManifest|undefined} [manifest],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ImplementationGuide}
     */
     create(
             {
@@ -816,6 +824,10 @@ class ImplementationGuide extends Resource {
             global,
             definition,
             manifest,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ImplementationGuide({
@@ -847,6 +859,10 @@ class ImplementationGuide extends Resource {
             global,
             definition,
             manifest,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

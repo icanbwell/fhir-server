@@ -781,6 +781,10 @@ class Appointment extends Resource {
             basedOn,
             participant,
             requestedPeriod,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -799,7 +803,6 @@ class Appointment extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Appointment}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -830,6 +833,11 @@ class Appointment extends Resource {
      * @param {Reference[]|undefined} [basedOn],
      * @param {AppointmentParticipant[]} participant,
      * @param {Period[]|undefined} [requestedPeriod],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Appointment}
     */
     create(
             {
@@ -863,6 +871,10 @@ class Appointment extends Resource {
             basedOn,
             participant,
             requestedPeriod,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Appointment({
@@ -896,6 +908,10 @@ class Appointment extends Resource {
             basedOn,
             participant,
             requestedPeriod,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

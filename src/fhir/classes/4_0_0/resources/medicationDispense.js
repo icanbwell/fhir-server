@@ -853,6 +853,10 @@ class MedicationDispense extends Resource {
             substitution,
             detectedIssue,
             eventHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -871,7 +875,6 @@ class MedicationDispense extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicationDispense}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -906,6 +909,11 @@ class MedicationDispense extends Resource {
      * @param {MedicationDispenseSubstitution|undefined} [substitution],
      * @param {Reference[]|undefined} [detectedIssue],
      * @param {Reference[]|undefined} [eventHistory],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicationDispense}
     */
     create(
             {
@@ -943,6 +951,10 @@ class MedicationDispense extends Resource {
             substitution,
             detectedIssue,
             eventHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicationDispense({
@@ -980,6 +992,10 @@ class MedicationDispense extends Resource {
             substitution,
             detectedIssue,
             eventHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

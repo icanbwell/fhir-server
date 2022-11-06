@@ -436,6 +436,10 @@ class MedicinalProductInteraction extends Resource {
             effect,
             incidence,
             management,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -454,7 +458,6 @@ class MedicinalProductInteraction extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductInteraction}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -470,6 +473,11 @@ class MedicinalProductInteraction extends Resource {
      * @param {CodeableConcept|undefined} [effect],
      * @param {CodeableConcept|undefined} [incidence],
      * @param {CodeableConcept|undefined} [management],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductInteraction}
     */
     create(
             {
@@ -488,6 +496,10 @@ class MedicinalProductInteraction extends Resource {
             effect,
             incidence,
             management,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductInteraction({
@@ -506,6 +518,10 @@ class MedicinalProductInteraction extends Resource {
             effect,
             incidence,
             management,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

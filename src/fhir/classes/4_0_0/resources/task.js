@@ -950,6 +950,10 @@ class Task extends Resource {
             restriction,
             input,
             output,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -968,7 +972,6 @@ class Task extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Task}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1008,6 +1011,11 @@ class Task extends Resource {
      * @param {TaskRestriction|undefined} [restriction],
      * @param {TaskInput[]|undefined} [input],
      * @param {TaskOutput[]|undefined} [output],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Task}
     */
     create(
             {
@@ -1050,6 +1058,10 @@ class Task extends Resource {
             restriction,
             input,
             output,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Task({
@@ -1092,6 +1104,10 @@ class Task extends Resource {
             restriction,
             input,
             output,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

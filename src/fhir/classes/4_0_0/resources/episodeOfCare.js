@@ -548,6 +548,10 @@ class EpisodeOfCare extends Resource {
             careManager,
             team,
             account,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -566,7 +570,6 @@ class EpisodeOfCare extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {EpisodeOfCare}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -587,6 +590,11 @@ class EpisodeOfCare extends Resource {
      * @param {Reference|undefined} [careManager],
      * @param {Reference[]|undefined} [team],
      * @param {Reference[]|undefined} [account],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {EpisodeOfCare}
     */
     create(
             {
@@ -610,6 +618,10 @@ class EpisodeOfCare extends Resource {
             careManager,
             team,
             account,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new EpisodeOfCare({
@@ -633,6 +645,10 @@ class EpisodeOfCare extends Resource {
             careManager,
             team,
             account,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

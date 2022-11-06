@@ -286,6 +286,10 @@ class DomainResource extends Resource {
             contained,
             extension,
             modifierExtension,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -304,7 +308,6 @@ class DomainResource extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DomainResource}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -313,6 +316,11 @@ class DomainResource extends Resource {
      * @param {ResourceContainer[]|undefined} [contained],
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DomainResource}
     */
     create(
             {
@@ -324,6 +332,10 @@ class DomainResource extends Resource {
             contained,
             extension,
             modifierExtension,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DomainResource({
@@ -335,6 +347,10 @@ class DomainResource extends Resource {
             contained,
             extension,
             modifierExtension,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

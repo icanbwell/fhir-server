@@ -567,6 +567,10 @@ class ObservationDefinition extends Resource {
             normalCodedValueSet,
             abnormalCodedValueSet,
             criticalCodedValueSet,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -585,7 +589,6 @@ class ObservationDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ObservationDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -607,6 +610,11 @@ class ObservationDefinition extends Resource {
      * @param {Reference|undefined} [normalCodedValueSet],
      * @param {Reference|undefined} [abnormalCodedValueSet],
      * @param {Reference|undefined} [criticalCodedValueSet],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ObservationDefinition}
     */
     create(
             {
@@ -631,6 +639,10 @@ class ObservationDefinition extends Resource {
             normalCodedValueSet,
             abnormalCodedValueSet,
             criticalCodedValueSet,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ObservationDefinition({
@@ -655,6 +667,10 @@ class ObservationDefinition extends Resource {
             normalCodedValueSet,
             abnormalCodedValueSet,
             criticalCodedValueSet,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -687,6 +687,10 @@ class StructureMap extends Resource {
             structure,
             'import': import_,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -705,7 +709,6 @@ class StructureMap extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {StructureMap}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -732,6 +735,11 @@ class StructureMap extends Resource {
      * @param {StructureMapStructure[]|undefined} [structure],
      * @param {canonical[]|undefined} [import_],
      * @param {StructureMapGroup[]} group,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {StructureMap}
     */
     create(
             {
@@ -761,6 +769,10 @@ class StructureMap extends Resource {
             structure,
             'import': import_,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new StructureMap({
@@ -790,6 +802,10 @@ class StructureMap extends Resource {
             structure,
             'import': import_,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

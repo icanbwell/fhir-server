@@ -461,6 +461,10 @@ class AppointmentResponse extends Resource {
             actor,
             participantStatus,
             comment,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -479,7 +483,6 @@ class AppointmentResponse extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {AppointmentResponse}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -496,6 +499,11 @@ class AppointmentResponse extends Resource {
      * @param {Reference|undefined} [actor],
      * @param {code} participantStatus,
      * @param {String|undefined} [comment],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {AppointmentResponse}
     */
     create(
             {
@@ -515,6 +523,10 @@ class AppointmentResponse extends Resource {
             actor,
             participantStatus,
             comment,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new AppointmentResponse({
@@ -534,6 +546,10 @@ class AppointmentResponse extends Resource {
             actor,
             participantStatus,
             comment,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -670,6 +670,10 @@ class Patient extends Resource {
             generalPractitioner,
             managingOrganization,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -688,7 +692,6 @@ class Patient extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Patient}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -715,6 +718,11 @@ class Patient extends Resource {
      * @param {Reference[]|undefined} [generalPractitioner],
      * @param {Reference|undefined} [managingOrganization],
      * @param {PatientLink[]|undefined} [link],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Patient}
     */
     create(
             {
@@ -744,6 +752,10 @@ class Patient extends Resource {
             generalPractitioner,
             managingOrganization,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Patient({
@@ -773,6 +785,10 @@ class Patient extends Resource {
             generalPractitioner,
             managingOrganization,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

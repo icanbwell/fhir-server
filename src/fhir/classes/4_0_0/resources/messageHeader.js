@@ -550,6 +550,10 @@ class MessageHeader extends Resource {
             response,
             focus,
             definition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -568,7 +572,6 @@ class MessageHeader extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MessageHeader}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -589,6 +592,11 @@ class MessageHeader extends Resource {
      * @param {MessageHeaderResponse|undefined} [response],
      * @param {Reference[]|undefined} [focus],
      * @param {canonical|undefined} [definition],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MessageHeader}
     */
     create(
             {
@@ -612,6 +620,10 @@ class MessageHeader extends Resource {
             response,
             focus,
             definition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MessageHeader({
@@ -635,6 +647,10 @@ class MessageHeader extends Resource {
             response,
             focus,
             definition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -549,6 +549,10 @@ class DocumentManifest extends Resource {
             description,
             content,
             related,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -567,7 +571,6 @@ class DocumentManifest extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DocumentManifest}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -588,6 +591,11 @@ class DocumentManifest extends Resource {
      * @param {String|undefined} [description],
      * @param {Reference[]} content,
      * @param {DocumentManifestRelated[]|undefined} [related],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DocumentManifest}
     */
     create(
             {
@@ -611,6 +619,10 @@ class DocumentManifest extends Resource {
             description,
             content,
             related,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DocumentManifest({
@@ -634,6 +646,10 @@ class DocumentManifest extends Resource {
             description,
             content,
             related,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

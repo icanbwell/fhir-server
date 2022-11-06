@@ -611,6 +611,10 @@ class CoverageEligibilityRequest extends Resource {
             supportingInfo,
             insurance,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -629,7 +633,6 @@ class CoverageEligibilityRequest extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {CoverageEligibilityRequest}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -653,6 +656,11 @@ class CoverageEligibilityRequest extends Resource {
      * @param {CoverageEligibilityRequestSupportingInfo[]|undefined} [supportingInfo],
      * @param {CoverageEligibilityRequestInsurance[]|undefined} [insurance],
      * @param {CoverageEligibilityRequestItem[]|undefined} [item],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {CoverageEligibilityRequest}
     */
     create(
             {
@@ -679,6 +687,10 @@ class CoverageEligibilityRequest extends Resource {
             supportingInfo,
             insurance,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new CoverageEligibilityRequest({
@@ -705,6 +717,10 @@ class CoverageEligibilityRequest extends Resource {
             supportingInfo,
             insurance,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -464,6 +464,10 @@ class Medication extends Resource {
             amount,
             ingredient,
             batch,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -482,7 +486,6 @@ class Medication extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Medication}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -499,6 +502,11 @@ class Medication extends Resource {
      * @param {Ratio|undefined} [amount],
      * @param {MedicationIngredient[]|undefined} [ingredient],
      * @param {MedicationBatch|undefined} [batch],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Medication}
     */
     create(
             {
@@ -518,6 +526,10 @@ class Medication extends Resource {
             amount,
             ingredient,
             batch,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Medication({
@@ -537,6 +549,10 @@ class Medication extends Resource {
             amount,
             ingredient,
             batch,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

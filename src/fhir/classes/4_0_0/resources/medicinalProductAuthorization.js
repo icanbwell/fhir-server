@@ -626,6 +626,10 @@ class MedicinalProductAuthorization extends Resource {
             holder,
             regulator,
             procedure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -644,7 +648,6 @@ class MedicinalProductAuthorization extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductAuthorization}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -669,6 +672,11 @@ class MedicinalProductAuthorization extends Resource {
      * @param {Reference|undefined} [holder],
      * @param {Reference|undefined} [regulator],
      * @param {MedicinalProductAuthorizationProcedure|undefined} [procedure],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductAuthorization}
     */
     create(
             {
@@ -696,6 +704,10 @@ class MedicinalProductAuthorization extends Resource {
             holder,
             regulator,
             procedure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductAuthorization({
@@ -723,6 +735,10 @@ class MedicinalProductAuthorization extends Resource {
             holder,
             regulator,
             procedure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

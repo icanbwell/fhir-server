@@ -1207,6 +1207,10 @@ class Measure extends Resource {
             guidance,
             group,
             supplementalData,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1225,7 +1229,6 @@ class Measure extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Measure}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1276,6 +1279,11 @@ class Measure extends Resource {
      * @param {markdown|undefined} [guidance],
      * @param {MeasureGroup[]|undefined} [group],
      * @param {MeasureSupplementalData[]|undefined} [supplementalData],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Measure}
     */
     create(
             {
@@ -1329,6 +1337,10 @@ class Measure extends Resource {
             guidance,
             group,
             supplementalData,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Measure({
@@ -1382,6 +1394,10 @@ class Measure extends Resource {
             guidance,
             group,
             supplementalData,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

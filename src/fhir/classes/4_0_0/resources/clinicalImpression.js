@@ -743,6 +743,10 @@ class ClinicalImpression extends Resource {
             prognosisReference,
             supportingInfo,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -761,7 +765,6 @@ class ClinicalImpression extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ClinicalImpression}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -791,6 +794,11 @@ class ClinicalImpression extends Resource {
      * @param {Reference[]|undefined} [prognosisReference],
      * @param {Reference[]|undefined} [supportingInfo],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ClinicalImpression}
     */
     create(
             {
@@ -823,6 +831,10 @@ class ClinicalImpression extends Resource {
             prognosisReference,
             supportingInfo,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ClinicalImpression({
@@ -855,6 +867,10 @@ class ClinicalImpression extends Resource {
             prognosisReference,
             supportingInfo,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

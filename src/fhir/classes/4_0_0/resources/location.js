@@ -652,6 +652,10 @@ class Location extends Resource {
             hoursOfOperation,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -670,7 +674,6 @@ class Location extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Location}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -696,6 +699,11 @@ class Location extends Resource {
      * @param {LocationHoursOfOperation[]|undefined} [hoursOfOperation],
      * @param {String|undefined} [availabilityExceptions],
      * @param {Reference[]|undefined} [endpoint],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Location}
     */
     create(
             {
@@ -724,6 +732,10 @@ class Location extends Resource {
             hoursOfOperation,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Location({
@@ -752,6 +764,10 @@ class Location extends Resource {
             hoursOfOperation,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

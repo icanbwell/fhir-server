@@ -927,6 +927,10 @@ class EventDefinition extends Resource {
             endorser,
             relatedArtifact,
             trigger,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -945,7 +949,6 @@ class EventDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {EventDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -983,6 +986,11 @@ class EventDefinition extends Resource {
      * @param {ContactDetail[]|undefined} [endorser],
      * @param {RelatedArtifact[]|undefined} [relatedArtifact],
      * @param {TriggerDefinition[]} trigger,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {EventDefinition}
     */
     create(
             {
@@ -1023,6 +1031,10 @@ class EventDefinition extends Resource {
             endorser,
             relatedArtifact,
             trigger,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new EventDefinition({
@@ -1063,6 +1075,10 @@ class EventDefinition extends Resource {
             endorser,
             relatedArtifact,
             trigger,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

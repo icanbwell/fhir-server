@@ -566,6 +566,10 @@ class CareTeam extends Resource {
             managingOrganization,
             telecom,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -584,7 +588,6 @@ class CareTeam extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {CareTeam}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -606,6 +609,11 @@ class CareTeam extends Resource {
      * @param {Reference[]|undefined} [managingOrganization],
      * @param {ContactPoint[]|undefined} [telecom],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {CareTeam}
     */
     create(
             {
@@ -630,6 +638,10 @@ class CareTeam extends Resource {
             managingOrganization,
             telecom,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new CareTeam({
@@ -654,6 +666,10 @@ class CareTeam extends Resource {
             managingOrganization,
             telecom,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

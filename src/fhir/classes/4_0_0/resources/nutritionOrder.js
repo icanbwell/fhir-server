@@ -665,6 +665,10 @@ class NutritionOrder extends Resource {
             supplement,
             enteralFormula,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -683,7 +687,6 @@ class NutritionOrder extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {NutritionOrder}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -709,6 +712,11 @@ class NutritionOrder extends Resource {
      * @param {NutritionOrderSupplement[]|undefined} [supplement],
      * @param {NutritionOrderEnteralFormula|undefined} [enteralFormula],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {NutritionOrder}
     */
     create(
             {
@@ -737,6 +745,10 @@ class NutritionOrder extends Resource {
             supplement,
             enteralFormula,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new NutritionOrder({
@@ -765,6 +777,10 @@ class NutritionOrder extends Resource {
             supplement,
             enteralFormula,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

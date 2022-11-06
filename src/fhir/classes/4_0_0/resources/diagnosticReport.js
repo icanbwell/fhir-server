@@ -702,6 +702,10 @@ class DiagnosticReport extends Resource {
             conclusion,
             conclusionCode,
             presentedForm,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -720,7 +724,6 @@ class DiagnosticReport extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DiagnosticReport}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -748,6 +751,11 @@ class DiagnosticReport extends Resource {
      * @param {String|undefined} [conclusion],
      * @param {CodeableConcept[]|undefined} [conclusionCode],
      * @param {Attachment[]|undefined} [presentedForm],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DiagnosticReport}
     */
     create(
             {
@@ -778,6 +786,10 @@ class DiagnosticReport extends Resource {
             conclusion,
             conclusionCode,
             presentedForm,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DiagnosticReport({
@@ -808,6 +820,10 @@ class DiagnosticReport extends Resource {
             conclusion,
             conclusionCode,
             presentedForm,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

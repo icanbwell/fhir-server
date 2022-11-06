@@ -633,6 +633,10 @@ class MolecularSequence extends Resource {
             repository,
             pointer,
             structureVariant,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -651,7 +655,6 @@ class MolecularSequence extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MolecularSequence}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -676,6 +679,11 @@ class MolecularSequence extends Resource {
      * @param {MolecularSequenceRepository[]|undefined} [repository],
      * @param {Reference[]|undefined} [pointer],
      * @param {MolecularSequenceStructureVariant[]|undefined} [structureVariant],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MolecularSequence}
     */
     create(
             {
@@ -703,6 +711,10 @@ class MolecularSequence extends Resource {
             repository,
             pointer,
             structureVariant,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MolecularSequence({
@@ -730,6 +742,10 @@ class MolecularSequence extends Resource {
             repository,
             pointer,
             structureVariant,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

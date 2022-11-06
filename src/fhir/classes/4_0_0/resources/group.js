@@ -500,6 +500,10 @@ class Group extends Resource {
             managingEntity,
             characteristic,
             member,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -518,7 +522,6 @@ class Group extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Group}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -537,6 +540,11 @@ class Group extends Resource {
      * @param {Reference|undefined} [managingEntity],
      * @param {GroupCharacteristic[]|undefined} [characteristic],
      * @param {GroupMember[]|undefined} [member],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Group}
     */
     create(
             {
@@ -558,6 +566,10 @@ class Group extends Resource {
             managingEntity,
             characteristic,
             member,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Group({
@@ -579,6 +591,10 @@ class Group extends Resource {
             managingEntity,
             characteristic,
             member,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

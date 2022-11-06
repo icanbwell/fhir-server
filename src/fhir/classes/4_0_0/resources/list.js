@@ -562,6 +562,10 @@ class List extends Resource {
             note,
             entry,
             emptyReason,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -580,7 +584,6 @@ class List extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {List}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -602,6 +605,11 @@ class List extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {ListEntry[]|undefined} [entry],
      * @param {CodeableConcept|undefined} [emptyReason],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {List}
     */
     create(
             {
@@ -626,6 +634,10 @@ class List extends Resource {
             note,
             entry,
             emptyReason,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new List({
@@ -650,6 +662,10 @@ class List extends Resource {
             note,
             entry,
             emptyReason,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

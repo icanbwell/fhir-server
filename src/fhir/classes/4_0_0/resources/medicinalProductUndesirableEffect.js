@@ -392,6 +392,10 @@ class MedicinalProductUndesirableEffect extends Resource {
             classification,
             frequencyOfOccurrence,
             population,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -410,7 +414,6 @@ class MedicinalProductUndesirableEffect extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductUndesirableEffect}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -424,6 +427,11 @@ class MedicinalProductUndesirableEffect extends Resource {
      * @param {CodeableConcept|undefined} [classification],
      * @param {CodeableConcept|undefined} [frequencyOfOccurrence],
      * @param {Population[]|undefined} [population],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductUndesirableEffect}
     */
     create(
             {
@@ -440,6 +448,10 @@ class MedicinalProductUndesirableEffect extends Resource {
             classification,
             frequencyOfOccurrence,
             population,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductUndesirableEffect({
@@ -456,6 +468,10 @@ class MedicinalProductUndesirableEffect extends Resource {
             classification,
             frequencyOfOccurrence,
             population,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

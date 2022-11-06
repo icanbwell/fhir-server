@@ -812,6 +812,10 @@ class ResearchStudy extends Resource {
             note,
             arm,
             objective,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -830,7 +834,6 @@ class ResearchStudy extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ResearchStudy}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -863,6 +866,11 @@ class ResearchStudy extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {ResearchStudyArm[]|undefined} [arm],
      * @param {ResearchStudyObjective[]|undefined} [objective],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ResearchStudy}
     */
     create(
             {
@@ -898,6 +906,10 @@ class ResearchStudy extends Resource {
             note,
             arm,
             objective,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ResearchStudy({
@@ -933,6 +945,10 @@ class ResearchStudy extends Resource {
             note,
             arm,
             objective,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

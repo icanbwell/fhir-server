@@ -170,6 +170,10 @@ class Resource extends ResourceContainer {
             meta,
             implicitRules,
             language,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -188,11 +192,15 @@ class Resource extends ResourceContainer {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Resource}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Resource}
     */
     create(
             {
@@ -200,6 +208,10 @@ class Resource extends ResourceContainer {
             meta,
             implicitRules,
             language,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Resource({
@@ -207,6 +219,10 @@ class Resource extends ResourceContainer {
             meta,
             implicitRules,
             language,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

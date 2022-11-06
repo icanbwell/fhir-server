@@ -561,6 +561,10 @@ class SupplyDelivery extends Resource {
             supplier,
             destination,
             receiver,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -579,7 +583,6 @@ class SupplyDelivery extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SupplyDelivery}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -601,6 +604,11 @@ class SupplyDelivery extends Resource {
      * @param {Reference|undefined} [supplier],
      * @param {Reference|undefined} [destination],
      * @param {Reference[]|undefined} [receiver],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SupplyDelivery}
     */
     create(
             {
@@ -625,6 +633,10 @@ class SupplyDelivery extends Resource {
             supplier,
             destination,
             receiver,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SupplyDelivery({
@@ -649,6 +661,10 @@ class SupplyDelivery extends Resource {
             supplier,
             destination,
             receiver,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

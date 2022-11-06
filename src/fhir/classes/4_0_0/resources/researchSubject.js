@@ -455,6 +455,10 @@ class ResearchSubject extends Resource {
             assignedArm,
             actualArm,
             consent,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -473,7 +477,6 @@ class ResearchSubject extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ResearchSubject}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -490,6 +493,11 @@ class ResearchSubject extends Resource {
      * @param {String|undefined} [assignedArm],
      * @param {String|undefined} [actualArm],
      * @param {Reference|undefined} [consent],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ResearchSubject}
     */
     create(
             {
@@ -509,6 +517,10 @@ class ResearchSubject extends Resource {
             assignedArm,
             actualArm,
             consent,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ResearchSubject({
@@ -528,6 +540,10 @@ class ResearchSubject extends Resource {
             assignedArm,
             actualArm,
             consent,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

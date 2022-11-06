@@ -309,6 +309,10 @@ class OperationOutcome extends Resource {
             extension,
             modifierExtension,
             issue,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -327,7 +331,6 @@ class OperationOutcome extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {OperationOutcome}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -337,6 +340,11 @@ class OperationOutcome extends Resource {
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
      * @param {OperationOutcomeIssue[]} issue,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {OperationOutcome}
     */
     create(
             {
@@ -349,6 +357,10 @@ class OperationOutcome extends Resource {
             extension,
             modifierExtension,
             issue,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new OperationOutcome({
@@ -361,6 +373,10 @@ class OperationOutcome extends Resource {
             extension,
             modifierExtension,
             issue,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

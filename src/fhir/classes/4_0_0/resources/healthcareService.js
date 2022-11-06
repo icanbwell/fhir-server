@@ -805,6 +805,10 @@ class HealthcareService extends Resource {
             notAvailable,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -823,7 +827,6 @@ class HealthcareService extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {HealthcareService}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -856,6 +859,11 @@ class HealthcareService extends Resource {
      * @param {HealthcareServiceNotAvailable[]|undefined} [notAvailable],
      * @param {String|undefined} [availabilityExceptions],
      * @param {Reference[]|undefined} [endpoint],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {HealthcareService}
     */
     create(
             {
@@ -891,6 +899,10 @@ class HealthcareService extends Resource {
             notAvailable,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new HealthcareService({
@@ -926,6 +938,10 @@ class HealthcareService extends Resource {
             notAvailable,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -853,6 +853,10 @@ class SearchParameter extends Resource {
             modifier,
             chain,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -871,7 +875,6 @@ class SearchParameter extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SearchParameter}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -906,6 +909,11 @@ class SearchParameter extends Resource {
      * @param {code[]|undefined} [modifier],
      * @param {String[]|undefined} [chain],
      * @param {SearchParameterComponent[]|undefined} [component],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SearchParameter}
     */
     create(
             {
@@ -943,6 +951,10 @@ class SearchParameter extends Resource {
             modifier,
             chain,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SearchParameter({
@@ -980,6 +992,10 @@ class SearchParameter extends Resource {
             modifier,
             chain,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

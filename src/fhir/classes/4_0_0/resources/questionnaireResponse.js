@@ -529,6 +529,10 @@ class QuestionnaireResponse extends Resource {
             author,
             source,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -547,7 +551,6 @@ class QuestionnaireResponse extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {QuestionnaireResponse}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -567,6 +570,11 @@ class QuestionnaireResponse extends Resource {
      * @param {Reference|undefined} [author],
      * @param {Reference|undefined} [source],
      * @param {QuestionnaireResponseItem[]|undefined} [item],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {QuestionnaireResponse}
     */
     create(
             {
@@ -589,6 +597,10 @@ class QuestionnaireResponse extends Resource {
             author,
             source,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new QuestionnaireResponse({
@@ -611,6 +623,10 @@ class QuestionnaireResponse extends Resource {
             author,
             source,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

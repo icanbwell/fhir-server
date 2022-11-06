@@ -816,6 +816,10 @@ class Condition extends Resource {
             stage,
             evidence,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -834,7 +838,6 @@ class Condition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Condition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -868,6 +871,11 @@ class Condition extends Resource {
      * @param {ConditionStage[]|undefined} [stage],
      * @param {ConditionEvidence[]|undefined} [evidence],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Condition}
     */
     create(
             {
@@ -904,6 +912,10 @@ class Condition extends Resource {
             stage,
             evidence,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Condition({
@@ -940,6 +952,10 @@ class Condition extends Resource {
             stage,
             evidence,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

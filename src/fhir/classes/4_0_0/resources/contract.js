@@ -1064,6 +1064,10 @@ class Contract extends Resource {
             rule,
             legallyBindingAttachment,
             legallyBindingReference,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1082,7 +1086,6 @@ class Contract extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Contract}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1126,6 +1129,11 @@ class Contract extends Resource {
      * @param {ContractRule[]|undefined} [rule],
      * @param {Attachment|undefined} [legallyBindingAttachment],
      * @param {Reference|undefined} [legallyBindingReference],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Contract}
     */
     create(
             {
@@ -1172,6 +1180,10 @@ class Contract extends Resource {
             rule,
             legallyBindingAttachment,
             legallyBindingReference,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Contract({
@@ -1218,6 +1230,10 @@ class Contract extends Resource {
             rule,
             legallyBindingAttachment,
             legallyBindingReference,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

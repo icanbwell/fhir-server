@@ -784,6 +784,10 @@ class CarePlan extends Resource {
             goal,
             activity,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -802,7 +806,6 @@ class CarePlan extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {CarePlan}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -834,6 +837,11 @@ class CarePlan extends Resource {
      * @param {Reference[]|undefined} [goal],
      * @param {CarePlanActivity[]|undefined} [activity],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {CarePlan}
     */
     create(
             {
@@ -868,6 +876,10 @@ class CarePlan extends Resource {
             goal,
             activity,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new CarePlan({
@@ -902,6 +914,10 @@ class CarePlan extends Resource {
             goal,
             activity,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

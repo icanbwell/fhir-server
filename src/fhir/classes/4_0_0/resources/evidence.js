@@ -908,6 +908,10 @@ class Evidence extends Resource {
             exposureBackground,
             exposureVariant,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -926,7 +930,6 @@ class Evidence extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Evidence}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -963,6 +966,11 @@ class Evidence extends Resource {
      * @param {Reference} exposureBackground,
      * @param {Reference[]|undefined} [exposureVariant],
      * @param {Reference[]|undefined} [outcome],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Evidence}
     */
     create(
             {
@@ -1002,6 +1010,10 @@ class Evidence extends Resource {
             exposureBackground,
             exposureVariant,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Evidence({
@@ -1041,6 +1053,10 @@ class Evidence extends Resource {
             exposureBackground,
             exposureVariant,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

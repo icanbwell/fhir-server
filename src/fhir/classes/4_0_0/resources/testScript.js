@@ -816,6 +816,10 @@ class TestScript extends Resource {
             setup,
             test,
             teardown,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -834,7 +838,6 @@ class TestScript extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {TestScript}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -867,6 +870,11 @@ class TestScript extends Resource {
      * @param {TestScriptSetup|undefined} [setup],
      * @param {TestScriptTest[]|undefined} [test],
      * @param {TestScriptTeardown|undefined} [teardown],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {TestScript}
     */
     create(
             {
@@ -902,6 +910,10 @@ class TestScript extends Resource {
             setup,
             test,
             teardown,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new TestScript({
@@ -937,6 +949,10 @@ class TestScript extends Resource {
             setup,
             test,
             teardown,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

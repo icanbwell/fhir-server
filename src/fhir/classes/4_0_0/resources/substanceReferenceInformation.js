@@ -391,6 +391,10 @@ class SubstanceReferenceInformation extends Resource {
             geneElement,
             classification,
             target,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -409,7 +413,6 @@ class SubstanceReferenceInformation extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SubstanceReferenceInformation}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -423,6 +426,11 @@ class SubstanceReferenceInformation extends Resource {
      * @param {SubstanceReferenceInformationGeneElement[]|undefined} [geneElement],
      * @param {SubstanceReferenceInformationClassification[]|undefined} [classification],
      * @param {SubstanceReferenceInformationTarget[]|undefined} [target],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SubstanceReferenceInformation}
     */
     create(
             {
@@ -439,6 +447,10 @@ class SubstanceReferenceInformation extends Resource {
             geneElement,
             classification,
             target,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SubstanceReferenceInformation({
@@ -455,6 +467,10 @@ class SubstanceReferenceInformation extends Resource {
             geneElement,
             classification,
             target,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

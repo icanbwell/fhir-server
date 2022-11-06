@@ -837,6 +837,10 @@ class FamilyMemberHistory extends Resource {
             reasonReference,
             note,
             condition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -855,7 +859,6 @@ class FamilyMemberHistory extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {FamilyMemberHistory}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -890,6 +893,11 @@ class FamilyMemberHistory extends Resource {
      * @param {Reference[]|undefined} [reasonReference],
      * @param {Annotation[]|undefined} [note],
      * @param {FamilyMemberHistoryCondition[]|undefined} [condition],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {FamilyMemberHistory}
     */
     create(
             {
@@ -927,6 +935,10 @@ class FamilyMemberHistory extends Resource {
             reasonReference,
             note,
             condition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new FamilyMemberHistory({
@@ -964,6 +976,10 @@ class FamilyMemberHistory extends Resource {
             reasonReference,
             note,
             condition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

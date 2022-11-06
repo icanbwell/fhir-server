@@ -716,6 +716,10 @@ class MedicationStatement extends Resource {
             reasonReference,
             note,
             dosage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -734,7 +738,6 @@ class MedicationStatement extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicationStatement}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -762,6 +765,11 @@ class MedicationStatement extends Resource {
      * @param {Reference[]|undefined} [reasonReference],
      * @param {Annotation[]|undefined} [note],
      * @param {Dosage[]|undefined} [dosage],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicationStatement}
     */
     create(
             {
@@ -792,6 +800,10 @@ class MedicationStatement extends Resource {
             reasonReference,
             note,
             dosage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicationStatement({
@@ -822,6 +834,10 @@ class MedicationStatement extends Resource {
             reasonReference,
             note,
             dosage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

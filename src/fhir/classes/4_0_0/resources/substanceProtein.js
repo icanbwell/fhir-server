@@ -392,6 +392,10 @@ class SubstanceProtein extends Resource {
             numberOfSubunits,
             disulfideLinkage,
             subunit,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -410,7 +414,6 @@ class SubstanceProtein extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SubstanceProtein}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -423,6 +426,11 @@ class SubstanceProtein extends Resource {
      * @param {Int|undefined} [numberOfSubunits],
      * @param {String[]|undefined} [disulfideLinkage],
      * @param {SubstanceProteinSubunit[]|undefined} [subunit],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SubstanceProtein}
     */
     create(
             {
@@ -438,6 +446,10 @@ class SubstanceProtein extends Resource {
             numberOfSubunits,
             disulfideLinkage,
             subunit,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SubstanceProtein({
@@ -453,6 +465,10 @@ class SubstanceProtein extends Resource {
             numberOfSubunits,
             disulfideLinkage,
             subunit,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

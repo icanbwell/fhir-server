@@ -435,6 +435,10 @@ class MedicinalProductPharmaceutical extends Resource {
             device,
             characteristics,
             routeOfAdministration,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -453,7 +457,6 @@ class MedicinalProductPharmaceutical extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductPharmaceutical}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -469,6 +472,11 @@ class MedicinalProductPharmaceutical extends Resource {
      * @param {Reference[]|undefined} [device],
      * @param {MedicinalProductPharmaceuticalCharacteristics[]|undefined} [characteristics],
      * @param {MedicinalProductPharmaceuticalRouteOfAdministration[]} routeOfAdministration,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductPharmaceutical}
     */
     create(
             {
@@ -487,6 +495,10 @@ class MedicinalProductPharmaceutical extends Resource {
             device,
             characteristics,
             routeOfAdministration,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductPharmaceutical({
@@ -505,6 +517,10 @@ class MedicinalProductPharmaceutical extends Resource {
             device,
             characteristics,
             routeOfAdministration,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

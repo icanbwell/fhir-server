@@ -581,6 +581,10 @@ class VerificationResult extends Resource {
             primarySource,
             attestation,
             validator,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -599,7 +603,6 @@ class VerificationResult extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {VerificationResult}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -622,6 +625,11 @@ class VerificationResult extends Resource {
      * @param {VerificationResultPrimarySource[]|undefined} [primarySource],
      * @param {VerificationResultAttestation|undefined} [attestation],
      * @param {VerificationResultValidator[]|undefined} [validator],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {VerificationResult}
     */
     create(
             {
@@ -647,6 +655,10 @@ class VerificationResult extends Resource {
             primarySource,
             attestation,
             validator,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new VerificationResult({
@@ -672,6 +684,10 @@ class VerificationResult extends Resource {
             primarySource,
             attestation,
             validator,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

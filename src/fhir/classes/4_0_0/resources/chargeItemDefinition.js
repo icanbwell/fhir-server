@@ -802,6 +802,10 @@ class ChargeItemDefinition extends Resource {
             instance,
             applicability,
             propertyGroup,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -820,7 +824,6 @@ class ChargeItemDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ChargeItemDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -852,6 +855,11 @@ class ChargeItemDefinition extends Resource {
      * @param {Reference[]|undefined} [instance],
      * @param {ChargeItemDefinitionApplicability[]|undefined} [applicability],
      * @param {ChargeItemDefinitionPropertyGroup[]|undefined} [propertyGroup],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ChargeItemDefinition}
     */
     create(
             {
@@ -886,6 +894,10 @@ class ChargeItemDefinition extends Resource {
             instance,
             applicability,
             propertyGroup,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ChargeItemDefinition({
@@ -920,6 +932,10 @@ class ChargeItemDefinition extends Resource {
             instance,
             applicability,
             propertyGroup,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

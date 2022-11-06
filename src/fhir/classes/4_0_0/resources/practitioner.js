@@ -503,6 +503,10 @@ class Practitioner extends Resource {
             photo,
             qualification,
             communication,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -521,7 +525,6 @@ class Practitioner extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Practitioner}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -540,6 +543,11 @@ class Practitioner extends Resource {
      * @param {Attachment[]|undefined} [photo],
      * @param {PractitionerQualification[]|undefined} [qualification],
      * @param {CodeableConcept[]|undefined} [communication],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Practitioner}
     */
     create(
             {
@@ -561,6 +569,10 @@ class Practitioner extends Resource {
             photo,
             qualification,
             communication,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Practitioner({
@@ -582,6 +594,10 @@ class Practitioner extends Resource {
             photo,
             qualification,
             communication,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -438,6 +438,10 @@ class Subscription extends Resource {
             criteria,
             error,
             channel,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -456,7 +460,6 @@ class Subscription extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Subscription}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -472,6 +475,11 @@ class Subscription extends Resource {
      * @param {String} criteria,
      * @param {String|undefined} [error],
      * @param {SubscriptionChannel} channel,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Subscription}
     */
     create(
             {
@@ -490,6 +498,10 @@ class Subscription extends Resource {
             criteria,
             error,
             channel,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Subscription({
@@ -508,6 +520,10 @@ class Subscription extends Resource {
             criteria,
             error,
             channel,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

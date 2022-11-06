@@ -544,6 +544,10 @@ class OrganizationAffiliation extends Resource {
             healthcareService,
             telecom,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -562,7 +566,6 @@ class OrganizationAffiliation extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {OrganizationAffiliation}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -583,6 +586,11 @@ class OrganizationAffiliation extends Resource {
      * @param {Reference[]|undefined} [healthcareService],
      * @param {ContactPoint[]|undefined} [telecom],
      * @param {Reference[]|undefined} [endpoint],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {OrganizationAffiliation}
     */
     create(
             {
@@ -606,6 +614,10 @@ class OrganizationAffiliation extends Resource {
             healthcareService,
             telecom,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new OrganizationAffiliation({
@@ -629,6 +641,10 @@ class OrganizationAffiliation extends Resource {
             healthcareService,
             telecom,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

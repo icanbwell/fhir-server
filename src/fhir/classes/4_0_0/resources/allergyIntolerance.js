@@ -724,6 +724,10 @@ class AllergyIntolerance extends Resource {
             lastOccurrence,
             note,
             reaction,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -742,7 +746,6 @@ class AllergyIntolerance extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {AllergyIntolerance}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -771,6 +774,11 @@ class AllergyIntolerance extends Resource {
      * @param {dateTime|undefined} [lastOccurrence],
      * @param {Annotation[]|undefined} [note],
      * @param {AllergyIntoleranceReaction[]|undefined} [reaction],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {AllergyIntolerance}
     */
     create(
             {
@@ -802,6 +810,10 @@ class AllergyIntolerance extends Resource {
             lastOccurrence,
             note,
             reaction,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new AllergyIntolerance({
@@ -833,6 +845,10 @@ class AllergyIntolerance extends Resource {
             lastOccurrence,
             note,
             reaction,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

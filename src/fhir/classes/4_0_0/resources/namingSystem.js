@@ -573,6 +573,10 @@ class NamingSystem extends Resource {
             jurisdiction,
             usage,
             uniqueId,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -591,7 +595,6 @@ class NamingSystem extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {NamingSystem}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -613,6 +616,11 @@ class NamingSystem extends Resource {
      * @param {CodeableConcept[]|undefined} [jurisdiction],
      * @param {String|undefined} [usage],
      * @param {NamingSystemUniqueId[]} uniqueId,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {NamingSystem}
     */
     create(
             {
@@ -637,6 +645,10 @@ class NamingSystem extends Resource {
             jurisdiction,
             usage,
             uniqueId,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new NamingSystem({
@@ -661,6 +673,10 @@ class NamingSystem extends Resource {
             jurisdiction,
             usage,
             uniqueId,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

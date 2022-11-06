@@ -531,6 +531,10 @@ class Provenance extends Resource {
             agent,
             entity,
             signature,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -549,7 +553,6 @@ class Provenance extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Provenance}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -569,6 +572,11 @@ class Provenance extends Resource {
      * @param {ProvenanceAgent[]} agent,
      * @param {ProvenanceEntity[]|undefined} [entity],
      * @param {Signature[]|undefined} [signature],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Provenance}
     */
     create(
             {
@@ -591,6 +599,10 @@ class Provenance extends Resource {
             agent,
             entity,
             signature,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Provenance({
@@ -613,6 +625,10 @@ class Provenance extends Resource {
             agent,
             entity,
             signature,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -888,6 +888,10 @@ class StructureDefinition extends Resource {
             derivation,
             snapshot,
             differential,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -906,7 +910,6 @@ class StructureDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {StructureDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -942,6 +945,11 @@ class StructureDefinition extends Resource {
      * @param {code|undefined} [derivation],
      * @param {StructureDefinitionSnapshot|undefined} [snapshot],
      * @param {StructureDefinitionDifferential|undefined} [differential],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {StructureDefinition}
     */
     create(
             {
@@ -980,6 +988,10 @@ class StructureDefinition extends Resource {
             derivation,
             snapshot,
             differential,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new StructureDefinition({
@@ -1018,6 +1030,10 @@ class StructureDefinition extends Resource {
             derivation,
             snapshot,
             differential,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

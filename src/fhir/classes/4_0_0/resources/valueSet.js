@@ -692,6 +692,10 @@ class ValueSet extends Resource {
             copyright,
             compose,
             expansion,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -710,7 +714,6 @@ class ValueSet extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ValueSet}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -737,6 +740,11 @@ class ValueSet extends Resource {
      * @param {markdown|undefined} [copyright],
      * @param {ValueSetCompose|undefined} [compose],
      * @param {ValueSetExpansion|undefined} [expansion],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ValueSet}
     */
     create(
             {
@@ -766,6 +774,10 @@ class ValueSet extends Resource {
             copyright,
             compose,
             expansion,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ValueSet({
@@ -795,6 +807,10 @@ class ValueSet extends Resource {
             copyright,
             compose,
             expansion,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

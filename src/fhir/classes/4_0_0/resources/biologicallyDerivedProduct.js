@@ -525,6 +525,10 @@ class BiologicallyDerivedProduct extends Resource {
             processing,
             manipulation,
             storage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -543,7 +547,6 @@ class BiologicallyDerivedProduct extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {BiologicallyDerivedProduct}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -563,6 +566,11 @@ class BiologicallyDerivedProduct extends Resource {
      * @param {BiologicallyDerivedProductProcessing[]|undefined} [processing],
      * @param {BiologicallyDerivedProductManipulation|undefined} [manipulation],
      * @param {BiologicallyDerivedProductStorage[]|undefined} [storage],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {BiologicallyDerivedProduct}
     */
     create(
             {
@@ -585,6 +593,10 @@ class BiologicallyDerivedProduct extends Resource {
             processing,
             manipulation,
             storage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new BiologicallyDerivedProduct({
@@ -607,6 +619,10 @@ class BiologicallyDerivedProduct extends Resource {
             processing,
             manipulation,
             storage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

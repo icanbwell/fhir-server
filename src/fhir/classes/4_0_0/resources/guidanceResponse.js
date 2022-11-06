@@ -664,6 +664,10 @@ class GuidanceResponse extends Resource {
             outputParameters,
             result,
             dataRequirement,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -682,7 +686,6 @@ class GuidanceResponse extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {GuidanceResponse}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -708,6 +711,11 @@ class GuidanceResponse extends Resource {
      * @param {Reference|undefined} [outputParameters],
      * @param {Reference|undefined} [result],
      * @param {DataRequirement[]|undefined} [dataRequirement],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {GuidanceResponse}
     */
     create(
             {
@@ -736,6 +744,10 @@ class GuidanceResponse extends Resource {
             outputParameters,
             result,
             dataRequirement,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new GuidanceResponse({
@@ -764,6 +776,10 @@ class GuidanceResponse extends Resource {
             outputParameters,
             result,
             dataRequirement,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

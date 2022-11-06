@@ -1061,6 +1061,10 @@ class ResearchDefinition extends Resource {
             exposure,
             exposureAlternative,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1079,7 +1083,6 @@ class ResearchDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ResearchDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1123,6 +1126,11 @@ class ResearchDefinition extends Resource {
      * @param {Reference|undefined} [exposure],
      * @param {Reference|undefined} [exposureAlternative],
      * @param {Reference|undefined} [outcome],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ResearchDefinition}
     */
     create(
             {
@@ -1169,6 +1177,10 @@ class ResearchDefinition extends Resource {
             exposure,
             exposureAlternative,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ResearchDefinition({
@@ -1215,6 +1227,10 @@ class ResearchDefinition extends Resource {
             exposure,
             exposureAlternative,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

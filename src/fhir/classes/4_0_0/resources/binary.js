@@ -243,6 +243,10 @@ class Binary extends Resource {
             contentType,
             securityContext,
             data,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -261,7 +265,6 @@ class Binary extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Binary}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -269,6 +272,11 @@ class Binary extends Resource {
      * @param {code} contentType,
      * @param {Reference|undefined} [securityContext],
      * @param {base64Binary|undefined} [data],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Binary}
     */
     create(
             {
@@ -279,6 +287,10 @@ class Binary extends Resource {
             contentType,
             securityContext,
             data,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Binary({
@@ -289,6 +301,10 @@ class Binary extends Resource {
             contentType,
             securityContext,
             data,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

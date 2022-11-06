@@ -716,6 +716,10 @@ class MedicinalProduct extends Resource {
             crossReference,
             manufacturingBusinessOperation,
             specialDesignation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -734,7 +738,6 @@ class MedicinalProduct extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProduct}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -763,6 +766,11 @@ class MedicinalProduct extends Resource {
      * @param {Identifier[]|undefined} [crossReference],
      * @param {MedicinalProductManufacturingBusinessOperation[]|undefined} [manufacturingBusinessOperation],
      * @param {MedicinalProductSpecialDesignation[]|undefined} [specialDesignation],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProduct}
     */
     create(
             {
@@ -794,6 +802,10 @@ class MedicinalProduct extends Resource {
             crossReference,
             manufacturingBusinessOperation,
             specialDesignation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProduct({
@@ -825,6 +837,10 @@ class MedicinalProduct extends Resource {
             crossReference,
             manufacturingBusinessOperation,
             specialDesignation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

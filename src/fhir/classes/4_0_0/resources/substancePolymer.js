@@ -412,6 +412,10 @@ class SubstancePolymer extends Resource {
             modification,
             monomerSet,
             repeat,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -430,7 +434,6 @@ class SubstancePolymer extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SubstancePolymer}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -445,6 +448,11 @@ class SubstancePolymer extends Resource {
      * @param {String[]|undefined} [modification],
      * @param {SubstancePolymerMonomerSet[]|undefined} [monomerSet],
      * @param {SubstancePolymerRepeat[]|undefined} [repeat],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SubstancePolymer}
     */
     create(
             {
@@ -462,6 +470,10 @@ class SubstancePolymer extends Resource {
             modification,
             monomerSet,
             repeat,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SubstancePolymer({
@@ -479,6 +491,10 @@ class SubstancePolymer extends Resource {
             modification,
             monomerSet,
             repeat,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

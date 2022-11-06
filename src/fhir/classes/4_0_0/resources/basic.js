@@ -396,6 +396,10 @@ class Basic extends Resource {
             subject,
             created,
             author,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -414,7 +418,6 @@ class Basic extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Basic}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -428,6 +431,11 @@ class Basic extends Resource {
      * @param {Reference|undefined} [subject],
      * @param {date|undefined} [created],
      * @param {Reference|undefined} [author],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Basic}
     */
     create(
             {
@@ -444,6 +452,10 @@ class Basic extends Resource {
             subject,
             created,
             author,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Basic({
@@ -460,6 +472,10 @@ class Basic extends Resource {
             subject,
             created,
             author,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

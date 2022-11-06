@@ -355,6 +355,10 @@ class Linkage extends Resource {
             active,
             author,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -373,7 +377,6 @@ class Linkage extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Linkage}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -385,6 +388,11 @@ class Linkage extends Resource {
      * @param {Boolean|undefined} [active],
      * @param {Reference|undefined} [author],
      * @param {LinkageItem[]} item,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Linkage}
     */
     create(
             {
@@ -399,6 +407,10 @@ class Linkage extends Resource {
             active,
             author,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Linkage({
@@ -413,6 +425,10 @@ class Linkage extends Resource {
             active,
             author,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

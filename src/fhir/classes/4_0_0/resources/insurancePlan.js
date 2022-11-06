@@ -585,6 +585,10 @@ class InsurancePlan extends Resource {
             network,
             coverage,
             plan,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -603,7 +607,6 @@ class InsurancePlan extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {InsurancePlan}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -626,6 +629,11 @@ class InsurancePlan extends Resource {
      * @param {Reference[]|undefined} [network],
      * @param {InsurancePlanCoverage[]|undefined} [coverage],
      * @param {InsurancePlanPlan[]|undefined} [plan],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {InsurancePlan}
     */
     create(
             {
@@ -651,6 +659,10 @@ class InsurancePlan extends Resource {
             network,
             coverage,
             plan,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new InsurancePlan({
@@ -676,6 +688,10 @@ class InsurancePlan extends Resource {
             network,
             coverage,
             plan,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

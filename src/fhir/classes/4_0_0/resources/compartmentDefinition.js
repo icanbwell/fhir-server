@@ -597,6 +597,10 @@ class CompartmentDefinition extends Resource {
             code,
             search,
             resource,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -615,7 +619,6 @@ class CompartmentDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {CompartmentDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -638,6 +641,11 @@ class CompartmentDefinition extends Resource {
      * @param {code} code,
      * @param {Boolean} search,
      * @param {CompartmentDefinitionResource[]|undefined} [resource],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {CompartmentDefinition}
     */
     create(
             {
@@ -663,6 +671,10 @@ class CompartmentDefinition extends Resource {
             code,
             search,
             resource,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new CompartmentDefinition({
@@ -688,6 +700,10 @@ class CompartmentDefinition extends Resource {
             code,
             search,
             resource,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

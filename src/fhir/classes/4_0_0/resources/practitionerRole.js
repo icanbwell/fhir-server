@@ -588,6 +588,10 @@ class PractitionerRole extends Resource {
             notAvailable,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -606,7 +610,6 @@ class PractitionerRole extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {PractitionerRole}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -629,6 +632,11 @@ class PractitionerRole extends Resource {
      * @param {PractitionerRoleNotAvailable[]|undefined} [notAvailable],
      * @param {String|undefined} [availabilityExceptions],
      * @param {Reference[]|undefined} [endpoint],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {PractitionerRole}
     */
     create(
             {
@@ -654,6 +662,10 @@ class PractitionerRole extends Resource {
             notAvailable,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new PractitionerRole({
@@ -679,6 +691,10 @@ class PractitionerRole extends Resource {
             notAvailable,
             availabilityExceptions,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

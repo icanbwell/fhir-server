@@ -868,6 +868,10 @@ class CapabilityStatement extends Resource {
             rest,
             messaging,
             document,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -886,7 +890,6 @@ class CapabilityStatement extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {CapabilityStatement}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -921,6 +924,11 @@ class CapabilityStatement extends Resource {
      * @param {CapabilityStatementRest[]|undefined} [rest],
      * @param {CapabilityStatementMessaging[]|undefined} [messaging],
      * @param {CapabilityStatementDocument[]|undefined} [document],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {CapabilityStatement}
     */
     create(
             {
@@ -958,6 +966,10 @@ class CapabilityStatement extends Resource {
             rest,
             messaging,
             document,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new CapabilityStatement({
@@ -995,6 +1007,10 @@ class CapabilityStatement extends Resource {
             rest,
             messaging,
             document,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

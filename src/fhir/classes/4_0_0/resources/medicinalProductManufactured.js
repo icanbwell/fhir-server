@@ -437,6 +437,10 @@ class MedicinalProductManufactured extends Resource {
             ingredient,
             physicalCharacteristics,
             otherCharacteristics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -455,7 +459,6 @@ class MedicinalProductManufactured extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductManufactured}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -471,6 +474,11 @@ class MedicinalProductManufactured extends Resource {
      * @param {Reference[]|undefined} [ingredient],
      * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
      * @param {CodeableConcept[]|undefined} [otherCharacteristics],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductManufactured}
     */
     create(
             {
@@ -489,6 +497,10 @@ class MedicinalProductManufactured extends Resource {
             ingredient,
             physicalCharacteristics,
             otherCharacteristics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductManufactured({
@@ -507,6 +519,10 @@ class MedicinalProductManufactured extends Resource {
             ingredient,
             physicalCharacteristics,
             otherCharacteristics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -1034,6 +1034,10 @@ class MedicationRequest extends Resource {
             priorPrescription,
             detectedIssue,
             eventHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1052,7 +1056,6 @@ class MedicationRequest extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicationRequest}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1095,6 +1098,11 @@ class MedicationRequest extends Resource {
      * @param {Reference|undefined} [priorPrescription],
      * @param {Reference[]|undefined} [detectedIssue],
      * @param {Reference[]|undefined} [eventHistory],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicationRequest}
     */
     create(
             {
@@ -1140,6 +1148,10 @@ class MedicationRequest extends Resource {
             priorPrescription,
             detectedIssue,
             eventHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicationRequest({
@@ -1185,6 +1197,10 @@ class MedicationRequest extends Resource {
             priorPrescription,
             detectedIssue,
             eventHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

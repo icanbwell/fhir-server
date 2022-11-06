@@ -625,6 +625,10 @@ class CoverageEligibilityResponse extends Resource {
             preAuthRef,
             form,
             error,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -643,7 +647,6 @@ class CoverageEligibilityResponse extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {CoverageEligibilityResponse}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -668,6 +671,11 @@ class CoverageEligibilityResponse extends Resource {
      * @param {String|undefined} [preAuthRef],
      * @param {CodeableConcept|undefined} [form],
      * @param {CoverageEligibilityResponseError[]|undefined} [error],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {CoverageEligibilityResponse}
     */
     create(
             {
@@ -695,6 +703,10 @@ class CoverageEligibilityResponse extends Resource {
             preAuthRef,
             form,
             error,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new CoverageEligibilityResponse({
@@ -722,6 +734,10 @@ class CoverageEligibilityResponse extends Resource {
             preAuthRef,
             form,
             error,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

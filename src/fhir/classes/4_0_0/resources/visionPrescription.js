@@ -456,6 +456,10 @@ class VisionPrescription extends Resource {
             dateWritten,
             prescriber,
             lensSpecification,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -474,7 +478,6 @@ class VisionPrescription extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {VisionPrescription}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -491,6 +494,11 @@ class VisionPrescription extends Resource {
      * @param {dateTime} dateWritten,
      * @param {Reference} prescriber,
      * @param {VisionPrescriptionLensSpecification[]} lensSpecification,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {VisionPrescription}
     */
     create(
             {
@@ -510,6 +518,10 @@ class VisionPrescription extends Resource {
             dateWritten,
             prescriber,
             lensSpecification,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new VisionPrescription({
@@ -529,6 +541,10 @@ class VisionPrescription extends Resource {
             dateWritten,
             prescriber,
             lensSpecification,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

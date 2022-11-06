@@ -621,6 +621,10 @@ class GraphDefinition extends Resource {
             start,
             profile,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -639,7 +643,6 @@ class GraphDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {GraphDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -663,6 +666,11 @@ class GraphDefinition extends Resource {
      * @param {code} start,
      * @param {canonical|undefined} [profile],
      * @param {GraphDefinitionLink[]|undefined} [link],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {GraphDefinition}
     */
     create(
             {
@@ -689,6 +697,10 @@ class GraphDefinition extends Resource {
             start,
             profile,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new GraphDefinition({
@@ -715,6 +727,10 @@ class GraphDefinition extends Resource {
             start,
             profile,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -1015,6 +1015,10 @@ class EffectEvidenceSynthesis extends Resource {
             resultsByExposure,
             effectEstimate,
             certainty,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1033,7 +1037,6 @@ class EffectEvidenceSynthesis extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {EffectEvidenceSynthesis}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1075,6 +1078,11 @@ class EffectEvidenceSynthesis extends Resource {
      * @param {EffectEvidenceSynthesisResultsByExposure[]|undefined} [resultsByExposure],
      * @param {EffectEvidenceSynthesisEffectEstimate[]|undefined} [effectEstimate],
      * @param {EffectEvidenceSynthesisCertainty[]|undefined} [certainty],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {EffectEvidenceSynthesis}
     */
     create(
             {
@@ -1119,6 +1127,10 @@ class EffectEvidenceSynthesis extends Resource {
             resultsByExposure,
             effectEstimate,
             certainty,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new EffectEvidenceSynthesis({
@@ -1163,6 +1175,10 @@ class EffectEvidenceSynthesis extends Resource {
             resultsByExposure,
             effectEstimate,
             certainty,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

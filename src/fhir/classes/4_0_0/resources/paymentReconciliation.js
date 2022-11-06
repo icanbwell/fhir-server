@@ -600,6 +600,10 @@ class PaymentReconciliation extends Resource {
             detail,
             formCode,
             processNote,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -618,7 +622,6 @@ class PaymentReconciliation extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {PaymentReconciliation}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -642,6 +645,11 @@ class PaymentReconciliation extends Resource {
      * @param {PaymentReconciliationDetail[]|undefined} [detail],
      * @param {CodeableConcept|undefined} [formCode],
      * @param {PaymentReconciliationProcessNote[]|undefined} [processNote],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {PaymentReconciliation}
     */
     create(
             {
@@ -668,6 +676,10 @@ class PaymentReconciliation extends Resource {
             detail,
             formCode,
             processNote,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new PaymentReconciliation({
@@ -694,6 +706,10 @@ class PaymentReconciliation extends Resource {
             detail,
             formCode,
             processNote,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

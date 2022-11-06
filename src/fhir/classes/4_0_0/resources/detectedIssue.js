@@ -565,6 +565,10 @@ class DetectedIssue extends Resource {
             detail,
             reference,
             mitigation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -583,7 +587,6 @@ class DetectedIssue extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DetectedIssue}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -605,6 +608,11 @@ class DetectedIssue extends Resource {
      * @param {String|undefined} [detail],
      * @param {uri|undefined} [reference],
      * @param {DetectedIssueMitigation[]|undefined} [mitigation],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DetectedIssue}
     */
     create(
             {
@@ -629,6 +637,10 @@ class DetectedIssue extends Resource {
             detail,
             reference,
             mitigation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DetectedIssue({
@@ -653,6 +665,10 @@ class DetectedIssue extends Resource {
             detail,
             reference,
             mitigation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

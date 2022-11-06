@@ -621,6 +621,10 @@ class Composition extends Resource {
             relatesTo,
             event,
             section,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -639,7 +643,6 @@ class Composition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Composition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -663,6 +666,11 @@ class Composition extends Resource {
      * @param {CompositionRelatesTo[]|undefined} [relatesTo],
      * @param {CompositionEvent[]|undefined} [event],
      * @param {CompositionSection[]|undefined} [section],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Composition}
     */
     create(
             {
@@ -689,6 +697,10 @@ class Composition extends Resource {
             relatesTo,
             event,
             section,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Composition({
@@ -715,6 +727,10 @@ class Composition extends Resource {
             relatesTo,
             event,
             section,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

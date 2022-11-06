@@ -435,6 +435,10 @@ class Substance extends Resource {
             description,
             instance,
             ingredient,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -453,7 +457,6 @@ class Substance extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Substance}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -469,6 +472,11 @@ class Substance extends Resource {
      * @param {String|undefined} [description],
      * @param {SubstanceInstance[]|undefined} [instance],
      * @param {SubstanceIngredient[]|undefined} [ingredient],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Substance}
     */
     create(
             {
@@ -487,6 +495,10 @@ class Substance extends Resource {
             description,
             instance,
             ingredient,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Substance({
@@ -505,6 +517,10 @@ class Substance extends Resource {
             description,
             instance,
             ingredient,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

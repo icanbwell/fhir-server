@@ -1213,6 +1213,10 @@ class ExplanationOfBenefit extends Resource {
             processNote,
             benefitPeriod,
             benefitBalance,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1231,7 +1235,6 @@ class ExplanationOfBenefit extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ExplanationOfBenefit}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1283,6 +1286,11 @@ class ExplanationOfBenefit extends Resource {
      * @param {ExplanationOfBenefitProcessNote[]|undefined} [processNote],
      * @param {Period|undefined} [benefitPeriod],
      * @param {ExplanationOfBenefitBenefitBalance[]|undefined} [benefitBalance],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ExplanationOfBenefit}
     */
     create(
             {
@@ -1337,6 +1345,10 @@ class ExplanationOfBenefit extends Resource {
             processNote,
             benefitPeriod,
             benefitBalance,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ExplanationOfBenefit({
@@ -1391,6 +1403,10 @@ class ExplanationOfBenefit extends Resource {
             processNote,
             benefitPeriod,
             benefitBalance,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

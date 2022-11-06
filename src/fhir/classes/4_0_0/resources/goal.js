@@ -652,6 +652,10 @@ class Goal extends Resource {
             note,
             outcomeCode,
             outcomeReference,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -670,7 +674,6 @@ class Goal extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Goal}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -696,6 +699,11 @@ class Goal extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {CodeableConcept[]|undefined} [outcomeCode],
      * @param {Reference[]|undefined} [outcomeReference],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Goal}
     */
     create(
             {
@@ -724,6 +732,10 @@ class Goal extends Resource {
             note,
             outcomeCode,
             outcomeReference,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Goal({
@@ -752,6 +764,10 @@ class Goal extends Resource {
             note,
             outcomeCode,
             outcomeReference,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -764,6 +764,10 @@ class MedicationKnowledge extends Resource {
             contraindication,
             regulatory,
             kinetics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -782,7 +786,6 @@ class MedicationKnowledge extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicationKnowledge}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -813,6 +816,11 @@ class MedicationKnowledge extends Resource {
      * @param {Reference[]|undefined} [contraindication],
      * @param {MedicationKnowledgeRegulatory[]|undefined} [regulatory],
      * @param {MedicationKnowledgeKinetics[]|undefined} [kinetics],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicationKnowledge}
     */
     create(
             {
@@ -846,6 +854,10 @@ class MedicationKnowledge extends Resource {
             contraindication,
             regulatory,
             kinetics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicationKnowledge({
@@ -879,6 +891,10 @@ class MedicationKnowledge extends Resource {
             contraindication,
             regulatory,
             kinetics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

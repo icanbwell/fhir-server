@@ -667,6 +667,10 @@ class RiskAssessment extends Resource {
             prediction,
             mitigation,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -685,7 +689,6 @@ class RiskAssessment extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {RiskAssessment}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -712,6 +715,11 @@ class RiskAssessment extends Resource {
      * @param {RiskAssessmentPrediction[]|undefined} [prediction],
      * @param {String|undefined} [mitigation],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {RiskAssessment}
     */
     create(
             {
@@ -741,6 +749,10 @@ class RiskAssessment extends Resource {
             prediction,
             mitigation,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new RiskAssessment({
@@ -770,6 +782,10 @@ class RiskAssessment extends Resource {
             prediction,
             mitigation,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

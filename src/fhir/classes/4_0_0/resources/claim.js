@@ -872,6 +872,10 @@ class Claim extends Resource {
             accident,
             item,
             total,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -890,7 +894,6 @@ class Claim extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Claim}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -926,6 +929,11 @@ class Claim extends Resource {
      * @param {ClaimAccident|undefined} [accident],
      * @param {ClaimItem[]|undefined} [item],
      * @param {Money|undefined} [total],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Claim}
     */
     create(
             {
@@ -964,6 +972,10 @@ class Claim extends Resource {
             accident,
             item,
             total,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Claim({
@@ -1002,6 +1014,10 @@ class Claim extends Resource {
             accident,
             item,
             total,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

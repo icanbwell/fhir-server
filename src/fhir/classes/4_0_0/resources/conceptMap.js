@@ -723,6 +723,10 @@ class ConceptMap extends Resource {
             targetUri,
             targetCanonical,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -741,7 +745,6 @@ class ConceptMap extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ConceptMap}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -770,6 +773,11 @@ class ConceptMap extends Resource {
      * @param {uri|undefined} [targetUri],
      * @param {canonical|undefined} [targetCanonical],
      * @param {ConceptMapGroup[]|undefined} [group],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ConceptMap}
     */
     create(
             {
@@ -801,6 +809,10 @@ class ConceptMap extends Resource {
             targetUri,
             targetCanonical,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ConceptMap({
@@ -832,6 +844,10 @@ class ConceptMap extends Resource {
             targetUri,
             targetCanonical,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

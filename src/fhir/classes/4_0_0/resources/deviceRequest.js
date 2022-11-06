@@ -859,6 +859,10 @@ class DeviceRequest extends Resource {
             supportingInfo,
             note,
             relevantHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -877,7 +881,6 @@ class DeviceRequest extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DeviceRequest}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -913,6 +916,11 @@ class DeviceRequest extends Resource {
      * @param {Reference[]|undefined} [supportingInfo],
      * @param {Annotation[]|undefined} [note],
      * @param {Reference[]|undefined} [relevantHistory],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DeviceRequest}
     */
     create(
             {
@@ -951,6 +959,10 @@ class DeviceRequest extends Resource {
             supportingInfo,
             note,
             relevantHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DeviceRequest({
@@ -989,6 +1001,10 @@ class DeviceRequest extends Resource {
             supportingInfo,
             note,
             relevantHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -452,6 +452,10 @@ class EnrollmentResponse extends Resource {
             created,
             organization,
             requestProvider,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -470,7 +474,6 @@ class EnrollmentResponse extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {EnrollmentResponse}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -487,6 +490,11 @@ class EnrollmentResponse extends Resource {
      * @param {dateTime|undefined} [created],
      * @param {Reference|undefined} [organization],
      * @param {Reference|undefined} [requestProvider],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {EnrollmentResponse}
     */
     create(
             {
@@ -506,6 +514,10 @@ class EnrollmentResponse extends Resource {
             created,
             organization,
             requestProvider,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new EnrollmentResponse({
@@ -525,6 +537,10 @@ class EnrollmentResponse extends Resource {
             created,
             organization,
             requestProvider,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

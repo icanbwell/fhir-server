@@ -433,6 +433,10 @@ class EnrollmentRequest extends Resource {
             provider,
             candidate,
             coverage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -451,7 +455,6 @@ class EnrollmentRequest extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {EnrollmentRequest}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -467,6 +470,11 @@ class EnrollmentRequest extends Resource {
      * @param {Reference|undefined} [provider],
      * @param {Reference|undefined} [candidate],
      * @param {Reference|undefined} [coverage],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {EnrollmentRequest}
     */
     create(
             {
@@ -485,6 +493,10 @@ class EnrollmentRequest extends Resource {
             provider,
             candidate,
             coverage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new EnrollmentRequest({
@@ -503,6 +515,10 @@ class EnrollmentRequest extends Resource {
             provider,
             candidate,
             coverage,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

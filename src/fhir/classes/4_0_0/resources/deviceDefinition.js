@@ -778,6 +778,10 @@ class DeviceDefinition extends Resource {
             quantity,
             parentDevice,
             material,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -796,7 +800,6 @@ class DeviceDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DeviceDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -828,6 +831,11 @@ class DeviceDefinition extends Resource {
      * @param {Quantity|undefined} [quantity],
      * @param {Reference|undefined} [parentDevice],
      * @param {DeviceDefinitionMaterial[]|undefined} [material],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DeviceDefinition}
     */
     create(
             {
@@ -862,6 +870,10 @@ class DeviceDefinition extends Resource {
             quantity,
             parentDevice,
             material,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DeviceDefinition({
@@ -896,6 +908,10 @@ class DeviceDefinition extends Resource {
             quantity,
             parentDevice,
             material,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

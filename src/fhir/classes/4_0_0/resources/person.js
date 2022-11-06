@@ -496,6 +496,10 @@ class Person extends Resource {
             managingOrganization,
             active,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -514,7 +518,6 @@ class Person extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Person}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -533,6 +536,11 @@ class Person extends Resource {
      * @param {Reference|undefined} [managingOrganization],
      * @param {Boolean|undefined} [active],
      * @param {PersonLink[]|undefined} [link],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Person}
     */
     create(
             {
@@ -554,6 +562,10 @@ class Person extends Resource {
             managingOrganization,
             active,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Person({
@@ -575,6 +587,10 @@ class Person extends Resource {
             managingOrganization,
             active,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -321,6 +321,10 @@ class Bundle extends Resource {
             link,
             entry,
             signature,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -339,7 +343,6 @@ class Bundle extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Bundle}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -351,6 +354,11 @@ class Bundle extends Resource {
      * @param {BundleLink[]|undefined} [link],
      * @param {BundleEntry[]|undefined} [entry],
      * @param {Signature|undefined} [signature],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Bundle}
     */
     create(
             {
@@ -365,6 +373,10 @@ class Bundle extends Resource {
             link,
             entry,
             signature,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Bundle({
@@ -379,6 +391,10 @@ class Bundle extends Resource {
             link,
             entry,
             signature,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -998,6 +998,10 @@ class PlanDefinition extends Resource {
             library,
             goal,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1016,7 +1020,6 @@ class PlanDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {PlanDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1057,6 +1060,11 @@ class PlanDefinition extends Resource {
      * @param {canonical[]|undefined} [library],
      * @param {PlanDefinitionGoal[]|undefined} [goal],
      * @param {PlanDefinitionAction[]|undefined} [action],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {PlanDefinition}
     */
     create(
             {
@@ -1100,6 +1108,10 @@ class PlanDefinition extends Resource {
             library,
             goal,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new PlanDefinition({
@@ -1143,6 +1155,10 @@ class PlanDefinition extends Resource {
             library,
             goal,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

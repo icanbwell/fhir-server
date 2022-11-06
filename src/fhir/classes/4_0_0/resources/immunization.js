@@ -903,6 +903,10 @@ class Immunization extends Resource {
             fundingSource,
             reaction,
             protocolApplied,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -921,7 +925,6 @@ class Immunization extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Immunization}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -959,6 +962,11 @@ class Immunization extends Resource {
      * @param {CodeableConcept|undefined} [fundingSource],
      * @param {ImmunizationReaction[]|undefined} [reaction],
      * @param {ImmunizationProtocolApplied[]|undefined} [protocolApplied],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Immunization}
     */
     create(
             {
@@ -999,6 +1007,10 @@ class Immunization extends Resource {
             fundingSource,
             reaction,
             protocolApplied,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Immunization({
@@ -1039,6 +1051,10 @@ class Immunization extends Resource {
             fundingSource,
             reaction,
             protocolApplied,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

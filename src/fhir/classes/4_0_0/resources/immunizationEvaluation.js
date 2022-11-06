@@ -600,6 +600,10 @@ class ImmunizationEvaluation extends Resource {
             doseNumberString,
             seriesDosesPositiveInt,
             seriesDosesString,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -618,7 +622,6 @@ class ImmunizationEvaluation extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ImmunizationEvaluation}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -642,6 +645,11 @@ class ImmunizationEvaluation extends Resource {
      * @param {String|undefined} [doseNumberString],
      * @param {Int|undefined} [seriesDosesPositiveInt],
      * @param {String|undefined} [seriesDosesString],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ImmunizationEvaluation}
     */
     create(
             {
@@ -668,6 +676,10 @@ class ImmunizationEvaluation extends Resource {
             doseNumberString,
             seriesDosesPositiveInt,
             seriesDosesString,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ImmunizationEvaluation({
@@ -694,6 +706,10 @@ class ImmunizationEvaluation extends Resource {
             doseNumberString,
             seriesDosesPositiveInt,
             seriesDosesString,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

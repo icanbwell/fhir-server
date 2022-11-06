@@ -629,6 +629,10 @@ class Invoice extends Resource {
             totalGross,
             paymentTerms,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -647,7 +651,6 @@ class Invoice extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Invoice}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -672,6 +675,11 @@ class Invoice extends Resource {
      * @param {Money|undefined} [totalGross],
      * @param {markdown|undefined} [paymentTerms],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Invoice}
     */
     create(
             {
@@ -699,6 +707,10 @@ class Invoice extends Resource {
             totalGross,
             paymentTerms,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Invoice({
@@ -726,6 +738,10 @@ class Invoice extends Resource {
             totalGross,
             paymentTerms,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

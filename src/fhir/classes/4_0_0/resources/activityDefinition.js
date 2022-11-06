@@ -1450,6 +1450,10 @@ class ActivityDefinition extends Resource {
             observationResultRequirement,
             transform,
             dynamicValue,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1468,7 +1472,6 @@ class ActivityDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ActivityDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1530,6 +1533,11 @@ class ActivityDefinition extends Resource {
      * @param {Reference[]|undefined} [observationResultRequirement],
      * @param {canonical|undefined} [transform],
      * @param {ActivityDefinitionDynamicValue[]|undefined} [dynamicValue],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ActivityDefinition}
     */
     create(
             {
@@ -1594,6 +1602,10 @@ class ActivityDefinition extends Resource {
             observationResultRequirement,
             transform,
             dynamicValue,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ActivityDefinition({
@@ -1658,6 +1670,10 @@ class ActivityDefinition extends Resource {
             observationResultRequirement,
             transform,
             dynamicValue,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

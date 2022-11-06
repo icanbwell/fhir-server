@@ -897,6 +897,10 @@ class ChargeItem extends Resource {
             account,
             note,
             supportingInformation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -915,7 +919,6 @@ class ChargeItem extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ChargeItem}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -953,6 +956,11 @@ class ChargeItem extends Resource {
      * @param {Reference[]|undefined} [account],
      * @param {Annotation[]|undefined} [note],
      * @param {Reference[]|undefined} [supportingInformation],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ChargeItem}
     */
     create(
             {
@@ -993,6 +1001,10 @@ class ChargeItem extends Resource {
             account,
             note,
             supportingInformation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ChargeItem({
@@ -1033,6 +1045,10 @@ class ChargeItem extends Resource {
             account,
             note,
             supportingInformation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

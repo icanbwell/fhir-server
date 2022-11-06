@@ -538,6 +538,10 @@ class PaymentNotice extends Resource {
             recipient,
             amount,
             paymentStatus,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -556,7 +560,6 @@ class PaymentNotice extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {PaymentNotice}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -577,6 +580,11 @@ class PaymentNotice extends Resource {
      * @param {Reference} recipient,
      * @param {Money} amount,
      * @param {CodeableConcept|undefined} [paymentStatus],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {PaymentNotice}
     */
     create(
             {
@@ -600,6 +608,10 @@ class PaymentNotice extends Resource {
             recipient,
             amount,
             paymentStatus,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new PaymentNotice({
@@ -623,6 +635,10 @@ class PaymentNotice extends Resource {
             recipient,
             amount,
             paymentStatus,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -401,6 +401,10 @@ class SubstanceNucleicAcid extends Resource {
             areaOfHybridisation,
             oligoNucleotideType,
             subunit,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -419,7 +423,6 @@ class SubstanceNucleicAcid extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SubstanceNucleicAcid}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -433,6 +436,11 @@ class SubstanceNucleicAcid extends Resource {
      * @param {String|undefined} [areaOfHybridisation],
      * @param {CodeableConcept|undefined} [oligoNucleotideType],
      * @param {SubstanceNucleicAcidSubunit[]|undefined} [subunit],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SubstanceNucleicAcid}
     */
     create(
             {
@@ -449,6 +457,10 @@ class SubstanceNucleicAcid extends Resource {
             areaOfHybridisation,
             oligoNucleotideType,
             subunit,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SubstanceNucleicAcid({
@@ -465,6 +477,10 @@ class SubstanceNucleicAcid extends Resource {
             areaOfHybridisation,
             oligoNucleotideType,
             subunit,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

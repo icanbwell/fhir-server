@@ -524,6 +524,10 @@ class Endpoint extends Resource {
             payloadMimeType,
             address,
             header,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -542,7 +546,6 @@ class Endpoint extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Endpoint}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -562,6 +565,11 @@ class Endpoint extends Resource {
      * @param {code[]|undefined} [payloadMimeType],
      * @param {url} address,
      * @param {String[]|undefined} [header],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Endpoint}
     */
     create(
             {
@@ -584,6 +592,10 @@ class Endpoint extends Resource {
             payloadMimeType,
             address,
             header,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Endpoint({
@@ -606,6 +618,10 @@ class Endpoint extends Resource {
             payloadMimeType,
             address,
             header,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

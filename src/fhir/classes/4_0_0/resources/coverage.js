@@ -653,6 +653,10 @@ class Coverage extends Resource {
             costToBeneficiary,
             subrogation,
             contract,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -671,7 +675,6 @@ class Coverage extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Coverage}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -697,6 +700,11 @@ class Coverage extends Resource {
      * @param {CoverageCostToBeneficiary[]|undefined} [costToBeneficiary],
      * @param {Boolean|undefined} [subrogation],
      * @param {Reference[]|undefined} [contract],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Coverage}
     */
     create(
             {
@@ -725,6 +733,10 @@ class Coverage extends Resource {
             costToBeneficiary,
             subrogation,
             contract,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Coverage({
@@ -753,6 +765,10 @@ class Coverage extends Resource {
             costToBeneficiary,
             subrogation,
             contract,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

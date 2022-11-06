@@ -519,6 +519,10 @@ class AuditEvent extends Resource {
             agent,
             source,
             entity,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -537,7 +541,6 @@ class AuditEvent extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {AuditEvent}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -557,6 +560,11 @@ class AuditEvent extends Resource {
      * @param {AuditEventAgent[]} agent,
      * @param {AuditEventSource} source,
      * @param {AuditEventEntity[]|undefined} [entity],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {AuditEvent}
     */
     create(
             {
@@ -579,6 +587,10 @@ class AuditEvent extends Resource {
             agent,
             source,
             entity,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new AuditEvent({
@@ -601,6 +613,10 @@ class AuditEvent extends Resource {
             agent,
             source,
             entity,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

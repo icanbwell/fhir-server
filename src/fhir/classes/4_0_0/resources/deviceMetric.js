@@ -519,6 +519,10 @@ class DeviceMetric extends Resource {
             category,
             measurementPeriod,
             calibration,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -537,7 +541,6 @@ class DeviceMetric extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DeviceMetric}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -556,6 +559,11 @@ class DeviceMetric extends Resource {
      * @param {code} category,
      * @param {Timing|undefined} [measurementPeriod],
      * @param {DeviceMetricCalibration[]|undefined} [calibration],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DeviceMetric}
     */
     create(
             {
@@ -577,6 +585,10 @@ class DeviceMetric extends Resource {
             category,
             measurementPeriod,
             calibration,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DeviceMetric({
@@ -598,6 +610,10 @@ class DeviceMetric extends Resource {
             category,
             measurementPeriod,
             calibration,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

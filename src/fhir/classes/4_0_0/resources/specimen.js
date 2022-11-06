@@ -565,6 +565,10 @@ class Specimen extends Resource {
             container,
             condition,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -583,7 +587,6 @@ class Specimen extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Specimen}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -605,6 +608,11 @@ class Specimen extends Resource {
      * @param {SpecimenContainer[]|undefined} [container],
      * @param {CodeableConcept[]|undefined} [condition],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Specimen}
     */
     create(
             {
@@ -629,6 +637,10 @@ class Specimen extends Resource {
             container,
             condition,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Specimen({
@@ -653,6 +665,10 @@ class Specimen extends Resource {
             container,
             condition,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

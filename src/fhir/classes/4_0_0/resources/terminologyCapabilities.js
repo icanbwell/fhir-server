@@ -823,6 +823,10 @@ class TerminologyCapabilities extends Resource {
             validateCode,
             translation,
             closure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -841,7 +845,6 @@ class TerminologyCapabilities extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {TerminologyCapabilities}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -874,6 +877,11 @@ class TerminologyCapabilities extends Resource {
      * @param {TerminologyCapabilitiesValidateCode|undefined} [validateCode],
      * @param {TerminologyCapabilitiesTranslation|undefined} [translation],
      * @param {TerminologyCapabilitiesClosure|undefined} [closure],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {TerminologyCapabilities}
     */
     create(
             {
@@ -909,6 +917,10 @@ class TerminologyCapabilities extends Resource {
             validateCode,
             translation,
             closure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new TerminologyCapabilities({
@@ -944,6 +956,10 @@ class TerminologyCapabilities extends Resource {
             validateCode,
             translation,
             closure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

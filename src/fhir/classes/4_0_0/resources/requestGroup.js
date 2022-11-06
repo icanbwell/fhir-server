@@ -669,6 +669,10 @@ class RequestGroup extends Resource {
             reasonReference,
             note,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -687,7 +691,6 @@ class RequestGroup extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {RequestGroup}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -714,6 +717,11 @@ class RequestGroup extends Resource {
      * @param {Reference[]|undefined} [reasonReference],
      * @param {Annotation[]|undefined} [note],
      * @param {RequestGroupAction[]|undefined} [action],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {RequestGroup}
     */
     create(
             {
@@ -743,6 +751,10 @@ class RequestGroup extends Resource {
             reasonReference,
             note,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new RequestGroup({
@@ -772,6 +784,10 @@ class RequestGroup extends Resource {
             reasonReference,
             note,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

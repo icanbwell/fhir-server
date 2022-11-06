@@ -853,6 +853,10 @@ class OperationDefinition extends Resource {
             outputProfile,
             parameter,
             overload,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -871,7 +875,6 @@ class OperationDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {OperationDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -906,6 +909,11 @@ class OperationDefinition extends Resource {
      * @param {canonical|undefined} [outputProfile],
      * @param {OperationDefinitionParameter[]|undefined} [parameter],
      * @param {OperationDefinitionOverload[]|undefined} [overload],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {OperationDefinition}
     */
     create(
             {
@@ -943,6 +951,10 @@ class OperationDefinition extends Resource {
             outputProfile,
             parameter,
             overload,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new OperationDefinition({
@@ -980,6 +992,10 @@ class OperationDefinition extends Resource {
             outputProfile,
             parameter,
             overload,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

@@ -477,6 +477,10 @@ class MedicinalProductIndication extends Resource {
             otherTherapy,
             undesirableEffect,
             population,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -495,7 +499,6 @@ class MedicinalProductIndication extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductIndication}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -513,6 +516,11 @@ class MedicinalProductIndication extends Resource {
      * @param {MedicinalProductIndicationOtherTherapy[]|undefined} [otherTherapy],
      * @param {Reference[]|undefined} [undesirableEffect],
      * @param {Population[]|undefined} [population],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductIndication}
     */
     create(
             {
@@ -533,6 +541,10 @@ class MedicinalProductIndication extends Resource {
             otherTherapy,
             undesirableEffect,
             population,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductIndication({
@@ -553,6 +565,10 @@ class MedicinalProductIndication extends Resource {
             otherTherapy,
             undesirableEffect,
             population,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

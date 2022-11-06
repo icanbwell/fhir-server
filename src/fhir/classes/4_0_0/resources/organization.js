@@ -500,6 +500,10 @@ class Organization extends Resource {
             partOf,
             contact,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -518,7 +522,6 @@ class Organization extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Organization}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -537,6 +540,11 @@ class Organization extends Resource {
      * @param {Reference|undefined} [partOf],
      * @param {OrganizationContact[]|undefined} [contact],
      * @param {Reference[]|undefined} [endpoint],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Organization}
     */
     create(
             {
@@ -558,6 +566,10 @@ class Organization extends Resource {
             partOf,
             contact,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Organization({
@@ -579,6 +591,10 @@ class Organization extends Resource {
             partOf,
             contact,
             endpoint,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

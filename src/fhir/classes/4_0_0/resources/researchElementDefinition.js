@@ -1034,6 +1034,10 @@ class ResearchElementDefinition extends Resource {
             type,
             variableType,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1052,7 +1056,6 @@ class ResearchElementDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ResearchElementDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1095,6 +1098,11 @@ class ResearchElementDefinition extends Resource {
      * @param {code} type,
      * @param {code|undefined} [variableType],
      * @param {ResearchElementDefinitionCharacteristic[]} characteristic,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ResearchElementDefinition}
     */
     create(
             {
@@ -1140,6 +1148,10 @@ class ResearchElementDefinition extends Resource {
             type,
             variableType,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ResearchElementDefinition({
@@ -1185,6 +1197,10 @@ class ResearchElementDefinition extends Resource {
             type,
             variableType,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

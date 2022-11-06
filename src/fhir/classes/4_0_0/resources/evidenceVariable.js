@@ -887,6 +887,10 @@ class EvidenceVariable extends Resource {
             relatedArtifact,
             type,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -905,7 +909,6 @@ class EvidenceVariable extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {EvidenceVariable}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -941,6 +944,11 @@ class EvidenceVariable extends Resource {
      * @param {RelatedArtifact[]|undefined} [relatedArtifact],
      * @param {code|undefined} [type],
      * @param {EvidenceVariableCharacteristic[]} characteristic,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {EvidenceVariable}
     */
     create(
             {
@@ -979,6 +987,10 @@ class EvidenceVariable extends Resource {
             relatedArtifact,
             type,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new EvidenceVariable({
@@ -1017,6 +1029,10 @@ class EvidenceVariable extends Resource {
             relatedArtifact,
             type,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 

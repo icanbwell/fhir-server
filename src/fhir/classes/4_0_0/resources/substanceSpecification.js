@@ -687,6 +687,10 @@ class SubstanceSpecification extends Resource {
             polymer,
             protein,
             sourceMaterial,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -705,7 +709,6 @@ class SubstanceSpecification extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SubstanceSpecification}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -733,6 +736,11 @@ class SubstanceSpecification extends Resource {
      * @param {Reference|undefined} [polymer],
      * @param {Reference|undefined} [protein],
      * @param {Reference|undefined} [sourceMaterial],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SubstanceSpecification}
     */
     create(
             {
@@ -763,6 +771,10 @@ class SubstanceSpecification extends Resource {
             polymer,
             protein,
             sourceMaterial,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SubstanceSpecification({
@@ -793,6 +805,10 @@ class SubstanceSpecification extends Resource {
             polymer,
             protein,
             sourceMaterial,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
