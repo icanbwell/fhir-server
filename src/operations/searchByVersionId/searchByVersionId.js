@@ -137,13 +137,14 @@ class SearchByVersionIdOperation {
                 scope,
                 isUser,
                 patients,
-                args: Object.assign(args, {id: id.toString(), 'meta.versionId': `${version_id}`}), // add id filter to query
+                args: Object.assign(args, {id: id.toString()}), // add id filter to query
                 resourceType,
                 useAccessIndex,
                 fhirPersonId,
                 filter
             });
 
+            query['meta.versionId'] = `${version_id}`;
             /**
              * @type {Resource|null}
              */
