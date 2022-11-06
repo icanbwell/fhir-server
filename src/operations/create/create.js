@@ -248,24 +248,20 @@ class CreateOperation {
             logDebug({user, args: {message: 'Inserting', doc: doc}});
 
             // Insert our resource record
-            try {
-                await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
-                await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
-                /**
-                 * @type {MergeResultEntry[]}
-                 */
-                const mergeResults = await this.databaseBulkInserter.executeAsync(
-                    {
-                        requestId, currentDate, base_version: this.base_version
-                    }
-                );
-                if (!mergeResults || mergeResults.length === 0 || !mergeResults[0].created) {
-                    throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+            await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
+            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await this.databaseBulkInserter.executeAsync(
+                {
+                    requestId, currentDate, base_version: this.base_version
                 }
-            } catch (e) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(e);
+            );
+            if (!mergeResults || mergeResults.length === 0 || !mergeResults[0].created) {
+                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
             }
+
             // log operation
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {

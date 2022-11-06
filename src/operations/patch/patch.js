@@ -153,25 +153,22 @@ class PatchOperation {
              * @type {{error: import('mongodb').Document, created: boolean} | null}
              */
             let res;
-            try {
-                doc = omitPropertyFromResource(doc, '_id');
+            doc = omitPropertyFromResource(doc, '_id');
 
-                await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
-                await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
-                /**
-                 * @type {MergeResultEntry[]}
-                 */
-                const mergeResults = await this.databaseBulkInserter.executeAsync(
-                    {
-                        requestId, currentDate, base_version: this.base_version
-                    }
-                );
-                if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                    throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+            await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
+            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await this.databaseBulkInserter.executeAsync(
+                {
+                    requestId, currentDate, base_version: this.base_version
                 }
-            } catch (e) {
-                throw new BadRequestError(e);
+            );
+            if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
             }
+
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
