@@ -18,6 +18,10 @@ class DomainResource extends Resource {
      * @param {ResourceContainer[]|undefined} [contained],
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -29,6 +33,10 @@ class DomainResource extends Resource {
             contained,
             extension,
             modifierExtension,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -217,7 +225,7 @@ class DomainResource extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -230,7 +238,7 @@ class DomainResource extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -243,7 +251,7 @@ class DomainResource extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -256,7 +264,7 @@ class DomainResource extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -278,6 +286,10 @@ class DomainResource extends Resource {
             contained,
             extension,
             modifierExtension,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -296,7 +308,6 @@ class DomainResource extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DomainResource}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -305,6 +316,11 @@ class DomainResource extends Resource {
      * @param {ResourceContainer[]|undefined} [contained],
      * @param {Extension[]|undefined} [extension],
      * @param {Extension[]|undefined} [modifierExtension],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DomainResource}
     */
     create(
             {
@@ -316,6 +332,10 @@ class DomainResource extends Resource {
             contained,
             extension,
             modifierExtension,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DomainResource({
@@ -327,6 +347,10 @@ class DomainResource extends Resource {
             contained,
             extension,
             modifierExtension,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -334,8 +358,8 @@ class DomainResource extends Resource {
      * @description creates a copy of this resource
      * @returns {DomainResource}
     */
-    copy() {
-        return new DomainResource(this.toJSON());
+    clone() {
+        return new DomainResource(this.toJSONInternal());
     }
 
 

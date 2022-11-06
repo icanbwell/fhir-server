@@ -156,12 +156,15 @@ class DatabaseBulkLoader {
         /**
          * @type {Resource[]}
          */
-        const cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        let cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        const resourceCopy = resource.clone(); // copy to avoid someone changing this object in the future
         if (cacheEntryResources) {
-            cacheEntryResources.push(resource);
+            // remove the resource with same id
+            cacheEntryResources = cacheEntryResources.filter(c => c.id !== resource.id);
+            cacheEntryResources.push(resourceCopy);
             this.bulkCache.set(resource.resourceType, cacheEntryResources);
         } else {
-            this.bulkCache.set(resource.resourceType, [resource]);
+            this.bulkCache.set(resource.resourceType, [resourceCopy]);
         }
     }
 
@@ -174,13 +177,14 @@ class DatabaseBulkLoader {
          * @type {Resource[]}
          */
         let cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        const resourceCopy = resource.clone(); // copy to avoid someone changing this object in the future
         if (cacheEntryResources) {
             // remove the resource with same id
             cacheEntryResources = cacheEntryResources.filter(c => c.id !== resource.id);
-            cacheEntryResources.push(resource);
+            cacheEntryResources.push(resourceCopy);
             this.bulkCache.set(resource.resourceType, cacheEntryResources);
         } else {
-            this.bulkCache.set(resource.resourceType, [resource]);
+            this.bulkCache.set(resource.resourceType, [resourceCopy]);
         }
     }
 }

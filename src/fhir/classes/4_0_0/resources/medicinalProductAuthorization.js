@@ -35,6 +35,10 @@ class MedicinalProductAuthorization extends Resource {
      * @param {Reference|undefined} [holder],
      * @param {Reference|undefined} [regulator],
      * @param {MedicinalProductAuthorizationProcedure|undefined} [procedure],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -62,6 +66,10 @@ class MedicinalProductAuthorization extends Resource {
             holder,
             regulator,
             procedure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -541,7 +549,7 @@ class MedicinalProductAuthorization extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -554,7 +562,7 @@ class MedicinalProductAuthorization extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -567,7 +575,7 @@ class MedicinalProductAuthorization extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -580,7 +588,7 @@ class MedicinalProductAuthorization extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -618,6 +626,10 @@ class MedicinalProductAuthorization extends Resource {
             holder,
             regulator,
             procedure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -636,7 +648,6 @@ class MedicinalProductAuthorization extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductAuthorization}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -661,6 +672,11 @@ class MedicinalProductAuthorization extends Resource {
      * @param {Reference|undefined} [holder],
      * @param {Reference|undefined} [regulator],
      * @param {MedicinalProductAuthorizationProcedure|undefined} [procedure],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductAuthorization}
     */
     create(
             {
@@ -688,6 +704,10 @@ class MedicinalProductAuthorization extends Resource {
             holder,
             regulator,
             procedure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductAuthorization({
@@ -715,6 +735,10 @@ class MedicinalProductAuthorization extends Resource {
             holder,
             regulator,
             procedure,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -722,8 +746,8 @@ class MedicinalProductAuthorization extends Resource {
      * @description creates a copy of this resource
      * @returns {MedicinalProductAuthorization}
     */
-    copy() {
-        return new MedicinalProductAuthorization(this.toJSON());
+    clone() {
+        return new MedicinalProductAuthorization(this.toJSONInternal());
     }
 
 

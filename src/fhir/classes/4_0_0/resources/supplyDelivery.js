@@ -32,6 +32,10 @@ class SupplyDelivery extends Resource {
      * @param {Reference|undefined} [supplier],
      * @param {Reference|undefined} [destination],
      * @param {Reference[]|undefined} [receiver],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -56,6 +60,10 @@ class SupplyDelivery extends Resource {
             supplier,
             destination,
             receiver,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -479,7 +487,7 @@ class SupplyDelivery extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -492,7 +500,7 @@ class SupplyDelivery extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -505,7 +513,7 @@ class SupplyDelivery extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -518,7 +526,7 @@ class SupplyDelivery extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -553,6 +561,10 @@ class SupplyDelivery extends Resource {
             supplier,
             destination,
             receiver,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -571,7 +583,6 @@ class SupplyDelivery extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SupplyDelivery}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -593,6 +604,11 @@ class SupplyDelivery extends Resource {
      * @param {Reference|undefined} [supplier],
      * @param {Reference|undefined} [destination],
      * @param {Reference[]|undefined} [receiver],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SupplyDelivery}
     */
     create(
             {
@@ -617,6 +633,10 @@ class SupplyDelivery extends Resource {
             supplier,
             destination,
             receiver,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SupplyDelivery({
@@ -641,6 +661,10 @@ class SupplyDelivery extends Resource {
             supplier,
             destination,
             receiver,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -648,8 +672,8 @@ class SupplyDelivery extends Resource {
      * @description creates a copy of this resource
      * @returns {SupplyDelivery}
     */
-    copy() {
-        return new SupplyDelivery(this.toJSON());
+    clone() {
+        return new SupplyDelivery(this.toJSONInternal());
     }
 
 

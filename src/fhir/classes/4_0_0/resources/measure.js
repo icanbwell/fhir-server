@@ -61,6 +61,10 @@ class Measure extends Resource {
      * @param {markdown|undefined} [guidance],
      * @param {MeasureGroup[]|undefined} [group],
      * @param {MeasureSupplementalData[]|undefined} [supplementalData],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -114,6 +118,10 @@ class Measure extends Resource {
             guidance,
             group,
             supplementalData,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -1096,7 +1104,7 @@ class Measure extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1109,7 +1117,7 @@ class Measure extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1122,7 +1130,7 @@ class Measure extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1135,7 +1143,7 @@ class Measure extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1199,6 +1207,10 @@ class Measure extends Resource {
             guidance,
             group,
             supplementalData,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1217,7 +1229,6 @@ class Measure extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Measure}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1268,6 +1279,11 @@ class Measure extends Resource {
      * @param {markdown|undefined} [guidance],
      * @param {MeasureGroup[]|undefined} [group],
      * @param {MeasureSupplementalData[]|undefined} [supplementalData],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Measure}
     */
     create(
             {
@@ -1321,6 +1337,10 @@ class Measure extends Resource {
             guidance,
             group,
             supplementalData,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Measure({
@@ -1374,6 +1394,10 @@ class Measure extends Resource {
             guidance,
             group,
             supplementalData,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -1381,8 +1405,8 @@ class Measure extends Resource {
      * @description creates a copy of this resource
      * @returns {Measure}
     */
-    copy() {
-        return new Measure(this.toJSON());
+    clone() {
+        return new Measure(this.toJSONInternal());
     }
 
 

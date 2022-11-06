@@ -44,6 +44,10 @@ class TestScript extends Resource {
      * @param {TestScriptSetup|undefined} [setup],
      * @param {TestScriptTest[]|undefined} [test],
      * @param {TestScriptTeardown|undefined} [teardown],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -79,6 +83,10 @@ class TestScript extends Resource {
             setup,
             test,
             teardown,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -723,7 +731,7 @@ class TestScript extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -736,7 +744,7 @@ class TestScript extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -749,7 +757,7 @@ class TestScript extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -762,7 +770,7 @@ class TestScript extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -808,6 +816,10 @@ class TestScript extends Resource {
             setup,
             test,
             teardown,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -826,7 +838,6 @@ class TestScript extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {TestScript}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -859,6 +870,11 @@ class TestScript extends Resource {
      * @param {TestScriptSetup|undefined} [setup],
      * @param {TestScriptTest[]|undefined} [test],
      * @param {TestScriptTeardown|undefined} [teardown],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {TestScript}
     */
     create(
             {
@@ -894,6 +910,10 @@ class TestScript extends Resource {
             setup,
             test,
             teardown,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new TestScript({
@@ -929,6 +949,10 @@ class TestScript extends Resource {
             setup,
             test,
             teardown,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -936,8 +960,8 @@ class TestScript extends Resource {
      * @description creates a copy of this resource
      * @returns {TestScript}
     */
-    copy() {
-        return new TestScript(this.toJSON());
+    clone() {
+        return new TestScript(this.toJSONInternal());
     }
 
 

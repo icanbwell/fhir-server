@@ -40,6 +40,10 @@ class MedicinalProduct extends Resource {
      * @param {Identifier[]|undefined} [crossReference],
      * @param {MedicinalProductManufacturingBusinessOperation[]|undefined} [manufacturingBusinessOperation],
      * @param {MedicinalProductSpecialDesignation[]|undefined} [specialDesignation],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -71,6 +75,10 @@ class MedicinalProduct extends Resource {
             crossReference,
             manufacturingBusinessOperation,
             specialDesignation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -627,7 +635,7 @@ class MedicinalProduct extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -640,7 +648,7 @@ class MedicinalProduct extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -653,7 +661,7 @@ class MedicinalProduct extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -666,7 +674,7 @@ class MedicinalProduct extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -708,6 +716,10 @@ class MedicinalProduct extends Resource {
             crossReference,
             manufacturingBusinessOperation,
             specialDesignation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -726,7 +738,6 @@ class MedicinalProduct extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProduct}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -755,6 +766,11 @@ class MedicinalProduct extends Resource {
      * @param {Identifier[]|undefined} [crossReference],
      * @param {MedicinalProductManufacturingBusinessOperation[]|undefined} [manufacturingBusinessOperation],
      * @param {MedicinalProductSpecialDesignation[]|undefined} [specialDesignation],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProduct}
     */
     create(
             {
@@ -786,6 +802,10 @@ class MedicinalProduct extends Resource {
             crossReference,
             manufacturingBusinessOperation,
             specialDesignation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProduct({
@@ -817,6 +837,10 @@ class MedicinalProduct extends Resource {
             crossReference,
             manufacturingBusinessOperation,
             specialDesignation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -824,8 +848,8 @@ class MedicinalProduct extends Resource {
      * @description creates a copy of this resource
      * @returns {MedicinalProduct}
     */
-    copy() {
-        return new MedicinalProduct(this.toJSON());
+    clone() {
+        return new MedicinalProduct(this.toJSONInternal());
     }
 
 

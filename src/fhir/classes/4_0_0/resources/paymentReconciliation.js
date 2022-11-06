@@ -35,6 +35,10 @@ class PaymentReconciliation extends Resource {
      * @param {PaymentReconciliationDetail[]|undefined} [detail],
      * @param {CodeableConcept|undefined} [formCode],
      * @param {PaymentReconciliationProcessNote[]|undefined} [processNote],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -61,6 +65,10 @@ class PaymentReconciliation extends Resource {
             detail,
             formCode,
             processNote,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -516,7 +524,7 @@ class PaymentReconciliation extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -529,7 +537,7 @@ class PaymentReconciliation extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -542,7 +550,7 @@ class PaymentReconciliation extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -555,7 +563,7 @@ class PaymentReconciliation extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -592,6 +600,10 @@ class PaymentReconciliation extends Resource {
             detail,
             formCode,
             processNote,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -610,7 +622,6 @@ class PaymentReconciliation extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {PaymentReconciliation}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -634,6 +645,11 @@ class PaymentReconciliation extends Resource {
      * @param {PaymentReconciliationDetail[]|undefined} [detail],
      * @param {CodeableConcept|undefined} [formCode],
      * @param {PaymentReconciliationProcessNote[]|undefined} [processNote],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {PaymentReconciliation}
     */
     create(
             {
@@ -660,6 +676,10 @@ class PaymentReconciliation extends Resource {
             detail,
             formCode,
             processNote,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new PaymentReconciliation({
@@ -686,6 +706,10 @@ class PaymentReconciliation extends Resource {
             detail,
             formCode,
             processNote,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -693,8 +717,8 @@ class PaymentReconciliation extends Resource {
      * @description creates a copy of this resource
      * @returns {PaymentReconciliation}
     */
-    copy() {
-        return new PaymentReconciliation(this.toJSON());
+    clone() {
+        return new PaymentReconciliation(this.toJSONInternal());
     }
 
 

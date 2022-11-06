@@ -4,34 +4,33 @@ const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
-const {preSaveAsync} = require('../common/preSave');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {omitPropertyFromResource} = require('../../utils/omitProperties');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 
 class PatchOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {DatabaseHistoryFactory} databaseHistoryFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor(
         {
             databaseQueryFactory,
-            databaseHistoryFactory,
             changeEventProducer,
             postRequestProcessor,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            databaseBulkInserter
         }
     ) {
         /**
@@ -39,11 +38,6 @@ class PatchOperation {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        this.databaseHistoryFactory = databaseHistoryFactory;
-        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
         /**
          * @type {ChangeEventProducer}
          */
@@ -64,7 +58,11 @@ class PatchOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -96,6 +94,7 @@ class PatchOperation {
 
         try {
 
+            const currentDate = moment.utc().format('YYYY-MM-DD');
             let {base_version, id, patchContent} = args;
             // Get current record
             // Query our collection for this observation
@@ -132,8 +131,6 @@ class PatchOperation {
                 throw new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
             }
 
-            await preSaveAsync(resource);
-
             // Same as update from this point on
             /**
              * @type {Resource}
@@ -145,30 +142,22 @@ class PatchOperation {
              * @type {{error: import('mongodb').Document, created: boolean} | null}
              */
             let res;
-            try {
-                doc = omitPropertyFromResource(doc, '_id');
-                res = await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
-                ).findOneAndUpdateAsync({
-                    query: {id: id}, update: {$set: doc.toJSONInternal()}, options: {upsert: true}
-                });
-            } catch (e) {
-                throw new BadRequestError(e);
-            }
-            // Save to history
+            doc = omitPropertyFromResource(doc, '_id');
+
+            await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
+            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
             /**
-             * @type {Resource}
+             * @type {MergeResultEntry[]}
              */
-            const historyResource = doc.copy();
-            try {
-                await this.databaseHistoryFactory.createDatabaseHistoryManager(
-                    {
-                        resourceType, base_version
-                    }
-                ).insertHistoryForResourceAsync({doc: historyResource});
-            } catch (e) {
-                throw new BadRequestError(e);
+            const mergeResults = await this.databaseBulkInserter.executeAsync(
+                {
+                    requestId, currentDate, base_version: base_version
+                }
+            );
+            if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
             }
+
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,

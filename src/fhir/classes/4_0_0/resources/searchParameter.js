@@ -46,6 +46,10 @@ class SearchParameter extends Resource {
      * @param {code[]|undefined} [modifier],
      * @param {String[]|undefined} [chain],
      * @param {SearchParameterComponent[]|undefined} [component],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -83,6 +87,10 @@ class SearchParameter extends Resource {
             modifier,
             chain,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -758,7 +766,7 @@ class SearchParameter extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -771,7 +779,7 @@ class SearchParameter extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -784,7 +792,7 @@ class SearchParameter extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -797,7 +805,7 @@ class SearchParameter extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -845,6 +853,10 @@ class SearchParameter extends Resource {
             modifier,
             chain,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -863,7 +875,6 @@ class SearchParameter extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SearchParameter}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -898,6 +909,11 @@ class SearchParameter extends Resource {
      * @param {code[]|undefined} [modifier],
      * @param {String[]|undefined} [chain],
      * @param {SearchParameterComponent[]|undefined} [component],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SearchParameter}
     */
     create(
             {
@@ -935,6 +951,10 @@ class SearchParameter extends Resource {
             modifier,
             chain,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SearchParameter({
@@ -972,6 +992,10 @@ class SearchParameter extends Resource {
             modifier,
             chain,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -979,8 +1003,8 @@ class SearchParameter extends Resource {
      * @description creates a copy of this resource
      * @returns {SearchParameter}
     */
-    copy() {
-        return new SearchParameter(this.toJSON());
+    clone() {
+        return new SearchParameter(this.toJSONInternal());
     }
 
 

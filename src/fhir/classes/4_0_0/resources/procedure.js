@@ -53,6 +53,10 @@ class Procedure extends Resource {
      * @param {ProcedureFocalDevice[]|undefined} [focalDevice],
      * @param {Reference[]|undefined} [usedReference],
      * @param {CodeableConcept[]|undefined} [usedCode],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -96,6 +100,10 @@ class Procedure extends Resource {
             focalDevice,
             usedReference,
             usedCode,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -877,7 +885,7 @@ class Procedure extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -890,7 +898,7 @@ class Procedure extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -903,7 +911,7 @@ class Procedure extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -916,7 +924,7 @@ class Procedure extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -970,6 +978,10 @@ class Procedure extends Resource {
             focalDevice,
             usedReference,
             usedCode,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -988,7 +1000,6 @@ class Procedure extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Procedure}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1029,6 +1040,11 @@ class Procedure extends Resource {
      * @param {ProcedureFocalDevice[]|undefined} [focalDevice],
      * @param {Reference[]|undefined} [usedReference],
      * @param {CodeableConcept[]|undefined} [usedCode],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Procedure}
     */
     create(
             {
@@ -1072,6 +1088,10 @@ class Procedure extends Resource {
             focalDevice,
             usedReference,
             usedCode,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Procedure({
@@ -1115,6 +1135,10 @@ class Procedure extends Resource {
             focalDevice,
             usedReference,
             usedCode,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -1122,8 +1146,8 @@ class Procedure extends Resource {
      * @description creates a copy of this resource
      * @returns {Procedure}
     */
-    copy() {
-        return new Procedure(this.toJSON());
+    clone() {
+        return new Procedure(this.toJSONInternal());
     }
 
 

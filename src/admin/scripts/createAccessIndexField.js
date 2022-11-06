@@ -44,7 +44,8 @@ async function main() {
                 collections: collections,
                 batchSize,
                 useAuditDatabase: parameters.audit ? true : false,
-                adminLogger: new AdminLogger()
+                adminLogger: new AdminLogger(),
+                mongoDatabaseManager: c.mongoDatabaseManager
             }
         )
     );

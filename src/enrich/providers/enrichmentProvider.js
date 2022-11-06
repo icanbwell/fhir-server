@@ -8,7 +8,7 @@ class EnrichmentProvider {
      * @return {boolean}
      */
     // eslint-disable-next-line no-unused-vars
-    canEnrich(resourceType) {
+    canEnrich({resourceType}) {
         throw Error('Not Implemented');
     }
 
@@ -16,10 +16,11 @@ class EnrichmentProvider {
      * enrich the specified resources
      * @param {Resource[]} resources
      * @param {string} resourceType
+     * @param {Object} args
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrich(resources, resourceType) {
+    async enrichAsync({resources, resourceType, args}) {
         throw Error('Not Implemented');
     }
 }

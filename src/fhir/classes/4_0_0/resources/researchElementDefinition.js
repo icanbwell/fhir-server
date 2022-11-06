@@ -54,6 +54,10 @@ class ResearchElementDefinition extends Resource {
      * @param {code} type,
      * @param {code|undefined} [variableType],
      * @param {ResearchElementDefinitionCharacteristic[]} characteristic,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -99,6 +103,10 @@ class ResearchElementDefinition extends Resource {
             type,
             variableType,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -931,7 +939,7 @@ class ResearchElementDefinition extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -944,7 +952,7 @@ class ResearchElementDefinition extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -957,7 +965,7 @@ class ResearchElementDefinition extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -970,7 +978,7 @@ class ResearchElementDefinition extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1026,6 +1034,10 @@ class ResearchElementDefinition extends Resource {
             type,
             variableType,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1044,7 +1056,6 @@ class ResearchElementDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ResearchElementDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1087,6 +1098,11 @@ class ResearchElementDefinition extends Resource {
      * @param {code} type,
      * @param {code|undefined} [variableType],
      * @param {ResearchElementDefinitionCharacteristic[]} characteristic,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ResearchElementDefinition}
     */
     create(
             {
@@ -1132,6 +1148,10 @@ class ResearchElementDefinition extends Resource {
             type,
             variableType,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ResearchElementDefinition({
@@ -1177,6 +1197,10 @@ class ResearchElementDefinition extends Resource {
             type,
             variableType,
             characteristic,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -1184,8 +1208,8 @@ class ResearchElementDefinition extends Resource {
      * @description creates a copy of this resource
      * @returns {ResearchElementDefinition}
     */
-    copy() {
-        return new ResearchElementDefinition(this.toJSON());
+    clone() {
+        return new ResearchElementDefinition(this.toJSONInternal());
     }
 
 

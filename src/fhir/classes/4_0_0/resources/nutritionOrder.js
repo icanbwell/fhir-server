@@ -37,6 +37,10 @@ class NutritionOrder extends Resource {
      * @param {NutritionOrderSupplement[]|undefined} [supplement],
      * @param {NutritionOrderEnteralFormula|undefined} [enteralFormula],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -65,6 +69,10 @@ class NutritionOrder extends Resource {
             supplement,
             enteralFormula,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -579,7 +587,7 @@ class NutritionOrder extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -592,7 +600,7 @@ class NutritionOrder extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -605,7 +613,7 @@ class NutritionOrder extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -618,7 +626,7 @@ class NutritionOrder extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -657,6 +665,10 @@ class NutritionOrder extends Resource {
             supplement,
             enteralFormula,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -675,7 +687,6 @@ class NutritionOrder extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {NutritionOrder}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -701,6 +712,11 @@ class NutritionOrder extends Resource {
      * @param {NutritionOrderSupplement[]|undefined} [supplement],
      * @param {NutritionOrderEnteralFormula|undefined} [enteralFormula],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {NutritionOrder}
     */
     create(
             {
@@ -729,6 +745,10 @@ class NutritionOrder extends Resource {
             supplement,
             enteralFormula,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new NutritionOrder({
@@ -757,6 +777,10 @@ class NutritionOrder extends Resource {
             supplement,
             enteralFormula,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -764,8 +788,8 @@ class NutritionOrder extends Resource {
      * @description creates a copy of this resource
      * @returns {NutritionOrder}
     */
-    copy() {
-        return new NutritionOrder(this.toJSON());
+    clone() {
+        return new NutritionOrder(this.toJSONInternal());
     }
 
 

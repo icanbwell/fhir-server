@@ -36,6 +36,10 @@ class CoverageEligibilityResponse extends Resource {
      * @param {String|undefined} [preAuthRef],
      * @param {CodeableConcept|undefined} [form],
      * @param {CoverageEligibilityResponseError[]|undefined} [error],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -63,6 +67,10 @@ class CoverageEligibilityResponse extends Resource {
             preAuthRef,
             form,
             error,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -540,7 +548,7 @@ class CoverageEligibilityResponse extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -553,7 +561,7 @@ class CoverageEligibilityResponse extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -566,7 +574,7 @@ class CoverageEligibilityResponse extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -579,7 +587,7 @@ class CoverageEligibilityResponse extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -617,6 +625,10 @@ class CoverageEligibilityResponse extends Resource {
             preAuthRef,
             form,
             error,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -635,7 +647,6 @@ class CoverageEligibilityResponse extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {CoverageEligibilityResponse}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -660,6 +671,11 @@ class CoverageEligibilityResponse extends Resource {
      * @param {String|undefined} [preAuthRef],
      * @param {CodeableConcept|undefined} [form],
      * @param {CoverageEligibilityResponseError[]|undefined} [error],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {CoverageEligibilityResponse}
     */
     create(
             {
@@ -687,6 +703,10 @@ class CoverageEligibilityResponse extends Resource {
             preAuthRef,
             form,
             error,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new CoverageEligibilityResponse({
@@ -714,6 +734,10 @@ class CoverageEligibilityResponse extends Resource {
             preAuthRef,
             form,
             error,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -721,8 +745,8 @@ class CoverageEligibilityResponse extends Resource {
      * @description creates a copy of this resource
      * @returns {CoverageEligibilityResponse}
     */
-    copy() {
-        return new CoverageEligibilityResponse(this.toJSON());
+    clone() {
+        return new CoverageEligibilityResponse(this.toJSONInternal());
     }
 
 

@@ -14,6 +14,10 @@ class Resource extends ResourceContainer {
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -21,6 +25,10 @@ class Resource extends ResourceContainer {
             meta,
             implicitRules,
             language,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -105,7 +113,7 @@ class Resource extends ResourceContainer {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -118,7 +126,7 @@ class Resource extends ResourceContainer {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -131,7 +139,7 @@ class Resource extends ResourceContainer {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -144,7 +152,7 @@ class Resource extends ResourceContainer {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -162,6 +170,10 @@ class Resource extends ResourceContainer {
             meta,
             implicitRules,
             language,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -180,11 +192,15 @@ class Resource extends ResourceContainer {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Resource}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
      * @param {code|undefined} [language],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Resource}
     */
     create(
             {
@@ -192,6 +208,10 @@ class Resource extends ResourceContainer {
             meta,
             implicitRules,
             language,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Resource({
@@ -199,6 +219,10 @@ class Resource extends ResourceContainer {
             meta,
             implicitRules,
             language,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -206,8 +230,8 @@ class Resource extends ResourceContainer {
      * @description creates a copy of this resource
      * @returns {Resource}
     */
-    copy() {
-        return new Resource(this.toJSON());
+    clone() {
+        return new Resource(this.toJSONInternal());
     }
 
 

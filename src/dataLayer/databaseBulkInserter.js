@@ -18,6 +18,7 @@ const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const {RethrownError} = require('../utils/rethrownError');
 const {isTrue} = require('../utils/isTrue');
 const {databaseBulkInserterTimer} = require('../utils/prometheus.utils');
+const {PreSaveManager} = require('../operations/common/preSave');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -43,11 +44,16 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ChangeEventProducer} changeEventProducer
+     * @param {PreSaveManager} preSaveManager
      */
     constructor({
-                    resourceManager, postRequestProcessor, errorReporter,
-                    mongoCollectionManager, resourceLocatorFactory,
-                    changeEventProducer
+                    resourceManager,
+                    postRequestProcessor,
+                    errorReporter,
+                    mongoCollectionManager,
+                    resourceLocatorFactory,
+                    changeEventProducer,
+                    preSaveManager
                 }) {
         super();
 
@@ -86,6 +92,12 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.changeEventProducer = changeEventProducer;
         assertTypeEquals(changeEventProducer, ChangeEventProducer);
+
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
 
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
         /**
@@ -161,6 +173,7 @@ class DatabaseBulkInserter extends EventEmitter {
     async insertOneAsync({resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
+            await this.preSaveManager.preSaveAsync(doc);
             // check to see if we already have this insert and if so use replace
             if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
                 this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
@@ -235,11 +248,13 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {string} id
      * @param {Resource} doc
+     * @param {boolean} [upsert]
      * @returns {Promise<void>}
      */
-    async replaceOneAsync({resourceType, id, doc}) {
+    async replaceOneAsync({resourceType, id, doc, upsert = false}) {
         try {
             assertTypeEquals(doc, Resource);
+            await this.preSaveManager.preSaveAsync(doc);
             // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
             // noinspection JSCheckFunctionSignatures
             this.addOperationForResourceType({
@@ -247,7 +262,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     operation: {
                         replaceOne: {
                             filter: {id: id.toString()},
-                            // upsert: true,
+                            upsert: upsert,
                             replacement: doc.toJSONInternal()
                         }
                     }

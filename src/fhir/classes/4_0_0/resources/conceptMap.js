@@ -41,6 +41,10 @@ class ConceptMap extends Resource {
      * @param {uri|undefined} [targetUri],
      * @param {canonical|undefined} [targetCanonical],
      * @param {ConceptMapGroup[]|undefined} [group],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -72,6 +76,10 @@ class ConceptMap extends Resource {
             targetUri,
             targetCanonical,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -634,7 +642,7 @@ class ConceptMap extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -647,7 +655,7 @@ class ConceptMap extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -660,7 +668,7 @@ class ConceptMap extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -673,7 +681,7 @@ class ConceptMap extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -715,6 +723,10 @@ class ConceptMap extends Resource {
             targetUri,
             targetCanonical,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -733,7 +745,6 @@ class ConceptMap extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ConceptMap}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -762,6 +773,11 @@ class ConceptMap extends Resource {
      * @param {uri|undefined} [targetUri],
      * @param {canonical|undefined} [targetCanonical],
      * @param {ConceptMapGroup[]|undefined} [group],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ConceptMap}
     */
     create(
             {
@@ -793,6 +809,10 @@ class ConceptMap extends Resource {
             targetUri,
             targetCanonical,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ConceptMap({
@@ -824,6 +844,10 @@ class ConceptMap extends Resource {
             targetUri,
             targetCanonical,
             group,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -831,8 +855,8 @@ class ConceptMap extends Resource {
      * @description creates a copy of this resource
      * @returns {ConceptMap}
     */
-    copy() {
-        return new ConceptMap(this.toJSON());
+    clone() {
+        return new ConceptMap(this.toJSONInternal());
     }
 
 

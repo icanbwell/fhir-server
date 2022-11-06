@@ -1,5 +1,5 @@
 const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
-const {enrich} = require('../../enrich/enrich');
+const {EnrichmentManager} = require('../../enrich/enrich');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ValueSetManager} = require('../../utils/valueSet.util');
@@ -15,6 +15,7 @@ class ExpandOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {EnrichmentManager} enrichmentManager
      */
     constructor(
         {
@@ -22,7 +23,8 @@ class ExpandOperation {
             valueSetManager,
             scopesManager,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            enrichmentManager
         }
     ) {
         /**
@@ -52,6 +54,11 @@ class ExpandOperation {
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
 
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
     }
 
     /**
@@ -131,7 +138,11 @@ class ExpandOperation {
             resource = await this.valueSetManager.getExpandedValueSetAsync(resourceType, base_version, resource);
 
             // run any enrichment
-            resource = (await enrich([resource], resourceType))[0];
+            resource = (await this.enrichmentManager.enrichAsync({
+                        resources: [resource], resourceType, args
+                    }
+                )
+            )[0];
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {

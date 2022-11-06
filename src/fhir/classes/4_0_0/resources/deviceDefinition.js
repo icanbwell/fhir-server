@@ -43,6 +43,10 @@ class DeviceDefinition extends Resource {
      * @param {Quantity|undefined} [quantity],
      * @param {Reference|undefined} [parentDevice],
      * @param {DeviceDefinitionMaterial[]|undefined} [material],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -77,6 +81,10 @@ class DeviceDefinition extends Resource {
             quantity,
             parentDevice,
             material,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -686,7 +694,7 @@ class DeviceDefinition extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -699,7 +707,7 @@ class DeviceDefinition extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -712,7 +720,7 @@ class DeviceDefinition extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -725,7 +733,7 @@ class DeviceDefinition extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -770,6 +778,10 @@ class DeviceDefinition extends Resource {
             quantity,
             parentDevice,
             material,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -788,7 +800,6 @@ class DeviceDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {DeviceDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -820,6 +831,11 @@ class DeviceDefinition extends Resource {
      * @param {Quantity|undefined} [quantity],
      * @param {Reference|undefined} [parentDevice],
      * @param {DeviceDefinitionMaterial[]|undefined} [material],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {DeviceDefinition}
     */
     create(
             {
@@ -854,6 +870,10 @@ class DeviceDefinition extends Resource {
             quantity,
             parentDevice,
             material,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new DeviceDefinition({
@@ -888,6 +908,10 @@ class DeviceDefinition extends Resource {
             quantity,
             parentDevice,
             material,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -895,8 +919,8 @@ class DeviceDefinition extends Resource {
      * @description creates a copy of this resource
      * @returns {DeviceDefinition}
     */
-    copy() {
-        return new DeviceDefinition(this.toJSON());
+    clone() {
+        return new DeviceDefinition(this.toJSONInternal());
     }
 
 

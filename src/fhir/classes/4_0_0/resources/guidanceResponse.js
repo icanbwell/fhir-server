@@ -38,6 +38,10 @@ class GuidanceResponse extends Resource {
      * @param {Reference|undefined} [outputParameters],
      * @param {Reference|undefined} [result],
      * @param {DataRequirement[]|undefined} [dataRequirement],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -66,6 +70,10 @@ class GuidanceResponse extends Resource {
             outputParameters,
             result,
             dataRequirement,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -578,7 +586,7 @@ class GuidanceResponse extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -591,7 +599,7 @@ class GuidanceResponse extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -604,7 +612,7 @@ class GuidanceResponse extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -617,7 +625,7 @@ class GuidanceResponse extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -656,6 +664,10 @@ class GuidanceResponse extends Resource {
             outputParameters,
             result,
             dataRequirement,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -674,7 +686,6 @@ class GuidanceResponse extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {GuidanceResponse}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -700,6 +711,11 @@ class GuidanceResponse extends Resource {
      * @param {Reference|undefined} [outputParameters],
      * @param {Reference|undefined} [result],
      * @param {DataRequirement[]|undefined} [dataRequirement],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {GuidanceResponse}
     */
     create(
             {
@@ -728,6 +744,10 @@ class GuidanceResponse extends Resource {
             outputParameters,
             result,
             dataRequirement,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new GuidanceResponse({
@@ -756,6 +776,10 @@ class GuidanceResponse extends Resource {
             outputParameters,
             result,
             dataRequirement,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -763,8 +787,8 @@ class GuidanceResponse extends Resource {
      * @description creates a copy of this resource
      * @returns {GuidanceResponse}
     */
-    copy() {
-        return new GuidanceResponse(this.toJSON());
+    clone() {
+        return new GuidanceResponse(this.toJSONInternal());
     }
 
 

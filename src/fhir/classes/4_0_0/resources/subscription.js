@@ -30,6 +30,10 @@ class Subscription extends Resource {
      * @param {String} criteria,
      * @param {String|undefined} [error],
      * @param {SubscriptionChannel} channel,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -48,6 +52,10 @@ class Subscription extends Resource {
             criteria,
             error,
             channel,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -362,7 +370,7 @@ class Subscription extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -375,7 +383,7 @@ class Subscription extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -388,7 +396,7 @@ class Subscription extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -401,7 +409,7 @@ class Subscription extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -430,6 +438,10 @@ class Subscription extends Resource {
             criteria,
             error,
             channel,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -448,7 +460,6 @@ class Subscription extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Subscription}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -464,6 +475,11 @@ class Subscription extends Resource {
      * @param {String} criteria,
      * @param {String|undefined} [error],
      * @param {SubscriptionChannel} channel,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Subscription}
     */
     create(
             {
@@ -482,6 +498,10 @@ class Subscription extends Resource {
             criteria,
             error,
             channel,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Subscription({
@@ -500,6 +520,10 @@ class Subscription extends Resource {
             criteria,
             error,
             channel,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -507,8 +531,8 @@ class Subscription extends Resource {
      * @description creates a copy of this resource
      * @returns {Subscription}
     */
-    copy() {
-        return new Subscription(this.toJSON());
+    clone() {
+        return new Subscription(this.toJSONInternal());
     }
 
 

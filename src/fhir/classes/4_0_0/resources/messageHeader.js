@@ -35,6 +35,10 @@ class MessageHeader extends Resource {
      * @param {MessageHeaderResponse|undefined} [response],
      * @param {Reference[]|undefined} [focus],
      * @param {canonical|undefined} [definition],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -58,6 +62,10 @@ class MessageHeader extends Resource {
             response,
             focus,
             definition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -469,7 +477,7 @@ class MessageHeader extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -482,7 +490,7 @@ class MessageHeader extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -495,7 +503,7 @@ class MessageHeader extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -508,7 +516,7 @@ class MessageHeader extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -542,6 +550,10 @@ class MessageHeader extends Resource {
             response,
             focus,
             definition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -560,7 +572,6 @@ class MessageHeader extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MessageHeader}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -581,6 +592,11 @@ class MessageHeader extends Resource {
      * @param {MessageHeaderResponse|undefined} [response],
      * @param {Reference[]|undefined} [focus],
      * @param {canonical|undefined} [definition],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MessageHeader}
     */
     create(
             {
@@ -604,6 +620,10 @@ class MessageHeader extends Resource {
             response,
             focus,
             definition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MessageHeader({
@@ -627,6 +647,10 @@ class MessageHeader extends Resource {
             response,
             focus,
             definition,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -634,8 +658,8 @@ class MessageHeader extends Resource {
      * @description creates a copy of this resource
      * @returns {MessageHeader}
     */
-    copy() {
-        return new MessageHeader(this.toJSON());
+    clone() {
+        return new MessageHeader(this.toJSONInternal());
     }
 
 

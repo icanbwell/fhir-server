@@ -44,6 +44,10 @@ class CommunicationRequest extends Resource {
      * @param {CodeableConcept[]|undefined} [reasonCode],
      * @param {Reference[]|undefined} [reasonReference],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -78,6 +82,10 @@ class CommunicationRequest extends Resource {
             reasonCode,
             reasonReference,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -690,7 +698,7 @@ class CommunicationRequest extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -703,7 +711,7 @@ class CommunicationRequest extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -716,7 +724,7 @@ class CommunicationRequest extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -729,7 +737,7 @@ class CommunicationRequest extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -774,6 +782,10 @@ class CommunicationRequest extends Resource {
             reasonCode,
             reasonReference,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -792,7 +804,6 @@ class CommunicationRequest extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {CommunicationRequest}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -824,6 +835,11 @@ class CommunicationRequest extends Resource {
      * @param {CodeableConcept[]|undefined} [reasonCode],
      * @param {Reference[]|undefined} [reasonReference],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {CommunicationRequest}
     */
     create(
             {
@@ -858,6 +874,10 @@ class CommunicationRequest extends Resource {
             reasonCode,
             reasonReference,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new CommunicationRequest({
@@ -892,6 +912,10 @@ class CommunicationRequest extends Resource {
             reasonCode,
             reasonReference,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -899,8 +923,8 @@ class CommunicationRequest extends Resource {
      * @description creates a copy of this resource
      * @returns {CommunicationRequest}
     */
-    copy() {
-        return new CommunicationRequest(this.toJSON());
+    clone() {
+        return new CommunicationRequest(this.toJSONInternal());
     }
 
 

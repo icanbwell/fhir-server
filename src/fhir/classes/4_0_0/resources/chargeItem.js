@@ -52,6 +52,10 @@ class ChargeItem extends Resource {
      * @param {Reference[]|undefined} [account],
      * @param {Annotation[]|undefined} [note],
      * @param {Reference[]|undefined} [supportingInformation],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -92,6 +96,10 @@ class ChargeItem extends Resource {
             account,
             note,
             supportingInformation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -799,7 +807,7 @@ class ChargeItem extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -812,7 +820,7 @@ class ChargeItem extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -825,7 +833,7 @@ class ChargeItem extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -838,7 +846,7 @@ class ChargeItem extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -889,6 +897,10 @@ class ChargeItem extends Resource {
             account,
             note,
             supportingInformation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -907,7 +919,6 @@ class ChargeItem extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ChargeItem}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -945,6 +956,11 @@ class ChargeItem extends Resource {
      * @param {Reference[]|undefined} [account],
      * @param {Annotation[]|undefined} [note],
      * @param {Reference[]|undefined} [supportingInformation],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ChargeItem}
     */
     create(
             {
@@ -985,6 +1001,10 @@ class ChargeItem extends Resource {
             account,
             note,
             supportingInformation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ChargeItem({
@@ -1025,6 +1045,10 @@ class ChargeItem extends Resource {
             account,
             note,
             supportingInformation,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -1032,8 +1056,8 @@ class ChargeItem extends Resource {
      * @description creates a copy of this resource
      * @returns {ChargeItem}
     */
-    copy() {
-        return new ChargeItem(this.toJSON());
+    clone() {
+        return new ChargeItem(this.toJSONInternal());
     }
 
 

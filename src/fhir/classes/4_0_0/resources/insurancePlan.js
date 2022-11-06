@@ -33,6 +33,10 @@ class InsurancePlan extends Resource {
      * @param {Reference[]|undefined} [network],
      * @param {InsurancePlanCoverage[]|undefined} [coverage],
      * @param {InsurancePlanPlan[]|undefined} [plan],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -58,6 +62,10 @@ class InsurancePlan extends Resource {
             network,
             coverage,
             plan,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -502,7 +510,7 @@ class InsurancePlan extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -515,7 +523,7 @@ class InsurancePlan extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -528,7 +536,7 @@ class InsurancePlan extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -541,7 +549,7 @@ class InsurancePlan extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -577,6 +585,10 @@ class InsurancePlan extends Resource {
             network,
             coverage,
             plan,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -595,7 +607,6 @@ class InsurancePlan extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {InsurancePlan}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -618,6 +629,11 @@ class InsurancePlan extends Resource {
      * @param {Reference[]|undefined} [network],
      * @param {InsurancePlanCoverage[]|undefined} [coverage],
      * @param {InsurancePlanPlan[]|undefined} [plan],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {InsurancePlan}
     */
     create(
             {
@@ -643,6 +659,10 @@ class InsurancePlan extends Resource {
             network,
             coverage,
             plan,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new InsurancePlan({
@@ -668,6 +688,10 @@ class InsurancePlan extends Resource {
             network,
             coverage,
             plan,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -675,8 +699,8 @@ class InsurancePlan extends Resource {
      * @description creates a copy of this resource
      * @returns {InsurancePlan}
     */
-    copy() {
-        return new InsurancePlan(this.toJSON());
+    clone() {
+        return new InsurancePlan(this.toJSONInternal());
     }
 
 

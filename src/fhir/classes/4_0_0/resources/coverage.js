@@ -37,6 +37,10 @@ class Coverage extends Resource {
      * @param {CoverageCostToBeneficiary[]|undefined} [costToBeneficiary],
      * @param {Boolean|undefined} [subrogation],
      * @param {Reference[]|undefined} [contract],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -65,6 +69,10 @@ class Coverage extends Resource {
             costToBeneficiary,
             subrogation,
             contract,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -567,7 +575,7 @@ class Coverage extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -580,7 +588,7 @@ class Coverage extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -593,7 +601,7 @@ class Coverage extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -606,7 +614,7 @@ class Coverage extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -645,6 +653,10 @@ class Coverage extends Resource {
             costToBeneficiary,
             subrogation,
             contract,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -663,7 +675,6 @@ class Coverage extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Coverage}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -689,6 +700,11 @@ class Coverage extends Resource {
      * @param {CoverageCostToBeneficiary[]|undefined} [costToBeneficiary],
      * @param {Boolean|undefined} [subrogation],
      * @param {Reference[]|undefined} [contract],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Coverage}
     */
     create(
             {
@@ -717,6 +733,10 @@ class Coverage extends Resource {
             costToBeneficiary,
             subrogation,
             contract,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Coverage({
@@ -745,6 +765,10 @@ class Coverage extends Resource {
             costToBeneficiary,
             subrogation,
             contract,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -752,8 +776,8 @@ class Coverage extends Resource {
      * @description creates a copy of this resource
      * @returns {Coverage}
     */
-    copy() {
-        return new Coverage(this.toJSON());
+    clone() {
+        return new Coverage(this.toJSONInternal());
     }
 
 

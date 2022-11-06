@@ -32,6 +32,10 @@ class QuestionnaireResponse extends Resource {
      * @param {Reference|undefined} [author],
      * @param {Reference|undefined} [source],
      * @param {QuestionnaireResponseItem[]|undefined} [item],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -54,6 +58,10 @@ class QuestionnaireResponse extends Resource {
             author,
             source,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -449,7 +457,7 @@ class QuestionnaireResponse extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -462,7 +470,7 @@ class QuestionnaireResponse extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -475,7 +483,7 @@ class QuestionnaireResponse extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -488,7 +496,7 @@ class QuestionnaireResponse extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -521,6 +529,10 @@ class QuestionnaireResponse extends Resource {
             author,
             source,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -539,7 +551,6 @@ class QuestionnaireResponse extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {QuestionnaireResponse}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -559,6 +570,11 @@ class QuestionnaireResponse extends Resource {
      * @param {Reference|undefined} [author],
      * @param {Reference|undefined} [source],
      * @param {QuestionnaireResponseItem[]|undefined} [item],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {QuestionnaireResponse}
     */
     create(
             {
@@ -581,6 +597,10 @@ class QuestionnaireResponse extends Resource {
             author,
             source,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new QuestionnaireResponse({
@@ -603,6 +623,10 @@ class QuestionnaireResponse extends Resource {
             author,
             source,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -610,8 +634,8 @@ class QuestionnaireResponse extends Resource {
      * @description creates a copy of this resource
      * @returns {QuestionnaireResponse}
     */
-    copy() {
-        return new QuestionnaireResponse(this.toJSON());
+    clone() {
+        return new QuestionnaireResponse(this.toJSONInternal());
     }
 
 

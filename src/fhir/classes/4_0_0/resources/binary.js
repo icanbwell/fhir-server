@@ -20,6 +20,10 @@ class Binary extends Resource {
      * @param {code} contentType,
      * @param {Reference|undefined} [securityContext],
      * @param {base64Binary|undefined} [data],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -30,6 +34,10 @@ class Binary extends Resource {
             contentType,
             securityContext,
             data,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -175,7 +183,7 @@ class Binary extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -188,7 +196,7 @@ class Binary extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -201,7 +209,7 @@ class Binary extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -214,7 +222,7 @@ class Binary extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -235,6 +243,10 @@ class Binary extends Resource {
             contentType,
             securityContext,
             data,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -253,7 +265,6 @@ class Binary extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Binary}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -261,6 +272,11 @@ class Binary extends Resource {
      * @param {code} contentType,
      * @param {Reference|undefined} [securityContext],
      * @param {base64Binary|undefined} [data],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Binary}
     */
     create(
             {
@@ -271,6 +287,10 @@ class Binary extends Resource {
             contentType,
             securityContext,
             data,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Binary({
@@ -281,6 +301,10 @@ class Binary extends Resource {
             contentType,
             securityContext,
             data,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -288,8 +312,8 @@ class Binary extends Resource {
      * @description creates a copy of this resource
      * @returns {Binary}
     */
-    copy() {
-        return new Binary(this.toJSON());
+    clone() {
+        return new Binary(this.toJSONInternal());
     }
 
 

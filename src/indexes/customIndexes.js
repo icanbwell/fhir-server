@@ -67,6 +67,29 @@ module.exports = {
                     'AuditEvent_4_0_0'
                 ]
             },
+            {
+                keys: {
+                    '_sourceId': 1,
+                    '_sourceAssigningAuthority.medstar': 1,
+                },
+                options: {
+                    name: 'sourceId._access_medstar'
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
+            },
+            {
+                keys: {
+                    '_uuid': 1,
+                },
+                options: {
+                    name: 'uuid'
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
+            },
         ],
         '*_History': [
             {

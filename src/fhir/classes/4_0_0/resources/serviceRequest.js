@@ -58,6 +58,10 @@ class ServiceRequest extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {String|undefined} [patientInstruction],
      * @param {Reference[]|undefined} [relevantHistory],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -107,6 +111,10 @@ class ServiceRequest extends Resource {
             note,
             patientInstruction,
             relevantHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -1004,7 +1012,7 @@ class ServiceRequest extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1017,7 +1025,7 @@ class ServiceRequest extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1030,7 +1038,7 @@ class ServiceRequest extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1043,7 +1051,7 @@ class ServiceRequest extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1103,6 +1111,10 @@ class ServiceRequest extends Resource {
             note,
             patientInstruction,
             relevantHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1121,7 +1133,6 @@ class ServiceRequest extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ServiceRequest}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1168,6 +1179,11 @@ class ServiceRequest extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {String|undefined} [patientInstruction],
      * @param {Reference[]|undefined} [relevantHistory],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ServiceRequest}
     */
     create(
             {
@@ -1217,6 +1233,10 @@ class ServiceRequest extends Resource {
             note,
             patientInstruction,
             relevantHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ServiceRequest({
@@ -1266,6 +1286,10 @@ class ServiceRequest extends Resource {
             note,
             patientInstruction,
             relevantHistory,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -1273,8 +1297,8 @@ class ServiceRequest extends Resource {
      * @description creates a copy of this resource
      * @returns {ServiceRequest}
     */
-    copy() {
-        return new ServiceRequest(this.toJSON());
+    clone() {
+        return new ServiceRequest(this.toJSONInternal());
     }
 
 

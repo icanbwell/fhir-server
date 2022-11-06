@@ -2,25 +2,41 @@
  * Implements enrich function that finds any registered enrichment providers for that resource and runs them
  */
 
-const ExplanationOfBenefitsEnrichmentProvider = require('./providers/explanationOfBenefitsEnrichmentProvider');
+const {ExplanationOfBenefitsEnrichmentProvider} = require('./providers/explanationOfBenefitsEnrichmentProvider');
+const {IdEnrichmentProvider} = require('./providers/idEnrichmentProvider');
 
 /**
  * Registered set of enrichment providers
  * @type {EnrichmentProvider[]}
  */
-const enrichmentProviders = [new ExplanationOfBenefitsEnrichmentProvider()];
+const defaultEnrichmentProviders = [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()];
 
-/**
- * Runs any registered enrichment providers
- * @param {Resource[]} resources
- * @param {string} resourceType
- * @return {Promise<Resource[]>}
- */
-module.exports.enrich = async (resources, resourceType) => {
-    for (const enrichmentProvider of enrichmentProviders) {
-        if (enrichmentProvider.canEnrich(resourceType)) {
-            resources = await enrichmentProvider.enrich(resources, resourceType);
-        }
+class EnrichmentManager {
+    /**
+     * constructor
+     * @param {EnrichmentProvider[]|undefined|null} [enrichmentProviders]
+     */
+    constructor({enrichmentProviders}) {
+        this.enrichmentProviders = enrichmentProviders || defaultEnrichmentProviders;
     }
-    return resources;
+
+    /**
+     * Runs any registered enrichment providers
+     * @param {Object} args
+     * @param {Resource[]} resources
+     * @param {string} resourceType
+     * @return {Promise<Resource[]>}
+     */
+    async enrichAsync({resources, resourceType, args}) {
+        for (const enrichmentProvider of this.enrichmentProviders) {
+            if (enrichmentProvider.canEnrich({resourceType})) {
+                resources = await enrichmentProvider.enrichAsync({resources, resourceType, args});
+            }
+        }
+        return resources;
+    }
+}
+
+module.exports = {
+    EnrichmentManager
 };

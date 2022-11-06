@@ -26,6 +26,10 @@ class MedicinalProductManufactured extends Resource {
      * @param {Reference[]|undefined} [ingredient],
      * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
      * @param {CodeableConcept[]|undefined} [otherCharacteristics],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -44,6 +48,10 @@ class MedicinalProductManufactured extends Resource {
             ingredient,
             physicalCharacteristics,
             otherCharacteristics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -361,7 +369,7 @@ class MedicinalProductManufactured extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -374,7 +382,7 @@ class MedicinalProductManufactured extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -387,7 +395,7 @@ class MedicinalProductManufactured extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -400,7 +408,7 @@ class MedicinalProductManufactured extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -429,6 +437,10 @@ class MedicinalProductManufactured extends Resource {
             ingredient,
             physicalCharacteristics,
             otherCharacteristics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -447,7 +459,6 @@ class MedicinalProductManufactured extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductManufactured}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -463,6 +474,11 @@ class MedicinalProductManufactured extends Resource {
      * @param {Reference[]|undefined} [ingredient],
      * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
      * @param {CodeableConcept[]|undefined} [otherCharacteristics],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductManufactured}
     */
     create(
             {
@@ -481,6 +497,10 @@ class MedicinalProductManufactured extends Resource {
             ingredient,
             physicalCharacteristics,
             otherCharacteristics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductManufactured({
@@ -499,6 +519,10 @@ class MedicinalProductManufactured extends Resource {
             ingredient,
             physicalCharacteristics,
             otherCharacteristics,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -506,8 +530,8 @@ class MedicinalProductManufactured extends Resource {
      * @description creates a copy of this resource
      * @returns {MedicinalProductManufactured}
     */
-    copy() {
-        return new MedicinalProductManufactured(this.toJSON());
+    clone() {
+        return new MedicinalProductManufactured(this.toJSONInternal());
     }
 
 

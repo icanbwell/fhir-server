@@ -50,6 +50,10 @@ class Task extends Resource {
      * @param {TaskRestriction|undefined} [restriction],
      * @param {TaskInput[]|undefined} [input],
      * @param {TaskOutput[]|undefined} [output],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -92,6 +96,10 @@ class Task extends Resource {
             restriction,
             input,
             output,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -850,7 +858,7 @@ class Task extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -863,7 +871,7 @@ class Task extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -876,7 +884,7 @@ class Task extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -889,7 +897,7 @@ class Task extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -942,6 +950,10 @@ class Task extends Resource {
             restriction,
             input,
             output,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -960,7 +972,6 @@ class Task extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Task}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1000,6 +1011,11 @@ class Task extends Resource {
      * @param {TaskRestriction|undefined} [restriction],
      * @param {TaskInput[]|undefined} [input],
      * @param {TaskOutput[]|undefined} [output],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Task}
     */
     create(
             {
@@ -1042,6 +1058,10 @@ class Task extends Resource {
             restriction,
             input,
             output,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Task({
@@ -1084,6 +1104,10 @@ class Task extends Resource {
             restriction,
             input,
             output,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -1091,8 +1115,8 @@ class Task extends Resource {
      * @description creates a copy of this resource
      * @returns {Task}
     */
-    copy() {
-        return new Task(this.toJSON());
+    clone() {
+        return new Task(this.toJSONInternal());
     }
 
 

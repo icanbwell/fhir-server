@@ -7,10 +7,8 @@ const {getResource} = require('../common/getResource');
 const {isTrue} = require('../../utils/isTrue');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
-const {preSaveAsync} = require('../common/preSave');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
@@ -19,6 +17,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 
 /**
  * Update Operation
@@ -26,7 +25,6 @@ const {ResourceValidator} = require('../common/resourceValidator');
 class UpdateOperation {
     /**
      * constructor
-     * @param {DatabaseHistoryFactory} databaseHistoryFactory
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
@@ -35,10 +33,10 @@ class UpdateOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor(
         {
-            databaseHistoryFactory,
             databaseQueryFactory,
             changeEventProducer,
             auditLogger,
@@ -46,14 +44,10 @@ class UpdateOperation {
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            resourceValidator
+            resourceValidator,
+            databaseBulkInserter
         }
     ) {
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        this.databaseHistoryFactory = databaseHistoryFactory;
-        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -94,6 +88,11 @@ class UpdateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -218,8 +217,6 @@ class UpdateOperation {
                 // noinspection JSPrimitiveTypeWrapperUsage
                 resource_incoming.meta = foundResource.meta;
 
-                await preSaveAsync(resource_incoming);
-
                 const foundResourceObject = foundResource.toJSON();
                 const resourceIncomingObject = resource_incoming.toJSON();
                 // now create a patch between the document in db and the incoming document
@@ -265,11 +262,10 @@ class UpdateOperation {
                 meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 resource_incoming.meta = meta;
 
-                await preSaveAsync(resource_incoming);
-
                 // Same as update from this point on
                 doc = resource_incoming;
                 // check_fhir_mismatch(cleaned, patched_incoming_data);
+                await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
             } else {
                 // not found so insert
                 if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
@@ -295,32 +291,23 @@ class UpdateOperation {
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
-                await preSaveAsync(resource_incoming);
-
                 doc = resource_incoming;
+                await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
             }
 
             // Insert/update our resource record
-            // When using the $set operator, only the specified fields are updated
+            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
             /**
-             * @type {{error: import('mongodb').Document, created: boolean} | null}
+             * @type {MergeResultEntry[]}
              */
-            const res = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findOneAndUpdateAsync(
-                {query: {id: id}, update: {$set: doc.toJSONInternal()}, options: {upsert: true}});
-            // save to history
-
-            /**
-             * @type {Resource}
-             */
-            const historyResource = doc.copy();
-
-            await this.databaseHistoryFactory.createDatabaseHistoryManager(
+            const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    resourceType, base_version
+                    requestId, currentDate, base_version: base_version
                 }
-            ).insertHistoryForResourceAsync({doc: historyResource});
+            );
+            if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+            }
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
@@ -335,7 +322,7 @@ class UpdateOperation {
 
             const result = {
                 id: id,
-                created: res.created,
+                created: mergeResults[0].created,
                 resource_version: doc.meta.versionId,
                 resource: doc
             };

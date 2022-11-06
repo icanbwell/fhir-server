@@ -57,6 +57,12 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         {{ ']' -}}
     {% endif %},
 {%  endfor %}
+{% for extra_property in extra_properties %}
+     * @param {{- ' {' -}}
+    {{ extra_property.type }}|undefined
+    {{- '} ' -}}
+    [{{ extra_property.name }}]
+{%  endfor %}
     */
     constructor(
         {
@@ -67,6 +73,9 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             {{ property.name -}},
     {%  endif %}
 {% endfor %}
+{% for extra_property in extra_properties %}
+            {{ extra_property.name -}},
+{%  endfor %}
         }
     ) {
 {% if fhir_entity.cleaned_name == 'Element' %}
@@ -145,7 +154,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
                     this.__data.{{ property.name }} = valueProvided.map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
-                    })
+                    });
                 } else {
                 const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
                 this.__data.{{ property.name }} = [new ResourceCreator(valueProvided)];
@@ -168,16 +177,16 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 
 {% for extra_property in extra_properties %}
         /**
-         * @description {{ extra_property }}
-         * @property {*|undefined}
+         * @description {{ extra_property.name }}
+         * @property {{ '{' + extra_property.type + '|undefined' +'}' }}
          */
-        Object.defineProperty(this, '{{ extra_property -}}', {
+        Object.defineProperty(this, '{{ extra_property.name -}}', {
             // https://www.w3schools.com/js/js_object_es5.asp
             enumerable: true,
             configurable: true,
-            get: () => this.__data.{{ extra_property }},
+            get: () => this.__data.{{ extra_property.name }},
             set: valueProvided => {
-                this.__data.{{ extra_property }} = valueProvided;
+                this.__data.{{ extra_property.name }} = valueProvided;
             }
         });
 {%  endfor %}
@@ -190,6 +199,9 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     {%  else %}
             {{ property.name -}},
     {%  endif %}
+{% endfor %}
+{% for extra_property in extra_properties %}
+            {{ extra_property.name -}},
 {% endfor %}
         });
 
@@ -214,7 +226,6 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% if fhir_entity.is_resource %}
     /**
      * @description Creates a blank new resource
-     * @returns {{- ' {' -}}{{ fhir_entity.cleaned_name }} {{- '}' }}
 {% for property in fhir_entity.properties %}
      * @param {{- ' {' -}}
     {% if property.cleaned_type == "Extension" %}
@@ -239,6 +250,13 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         {{ ']' -}}
     {% endif %},
 {%  endfor %}
+{% for extra_property in extra_properties %}
+     * @param {{- ' {' -}}
+    {{ extra_property.type }}|undefined
+    {{- '} ' -}}
+    [{{ extra_property.name }}]
+{%  endfor %}
+     * @returns {{- ' {' -}}{{ fhir_entity.cleaned_name }} {{- '}' }}
     */
     create(
             {
@@ -248,6 +266,9 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     {%  else %}
             {{ property.name -}},
     {%  endif %}
+{% endfor %}
+{% for extra_property in extra_properties %}
+            {{ extra_property.name -}},
 {% endfor %}
         }
     ) {
@@ -259,6 +280,9 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             {{ property.name -}},
     {%  endif %}
 {% endfor %}
+{% for extra_property in extra_properties %}
+            {{ extra_property.name -}},
+{% endfor %}
         });
     }
 
@@ -266,8 +290,8 @@ class {{ fhir_entity.cleaned_name }} extends Element {
      * @description creates a copy of this resource
      * @returns {{- ' {' -}}{{ fhir_entity.cleaned_name }} {{- '}' }}
     */
-    copy() {
-        return new {{ fhir_entity.cleaned_name }}(this.toJSON());
+    clone() {
+        return new {{ fhir_entity.cleaned_name }}(this.toJSONInternal());
     }
 
 {%  endif %}
@@ -306,8 +330,8 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         const json = this.toJSON();
 
 {% for extra_property in extra_properties %}
-        if (this.{{ extra_property -}}) {
-            json.{{ extra_property -}} = this.{{ extra_property -}};
+        if (this.{{ extra_property.name -}}) {
+            json.{{ extra_property.name }} = this.{{ extra_property.name -}};
         }
 {%  endfor %}
 

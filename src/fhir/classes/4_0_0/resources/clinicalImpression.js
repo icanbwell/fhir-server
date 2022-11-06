@@ -46,6 +46,10 @@ class ClinicalImpression extends Resource {
      * @param {Reference[]|undefined} [prognosisReference],
      * @param {Reference[]|undefined} [supportingInfo],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -78,6 +82,10 @@ class ClinicalImpression extends Resource {
             prognosisReference,
             supportingInfo,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -653,7 +661,7 @@ class ClinicalImpression extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -666,7 +674,7 @@ class ClinicalImpression extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -679,7 +687,7 @@ class ClinicalImpression extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -692,7 +700,7 @@ class ClinicalImpression extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -735,6 +743,10 @@ class ClinicalImpression extends Resource {
             prognosisReference,
             supportingInfo,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -753,7 +765,6 @@ class ClinicalImpression extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ClinicalImpression}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -783,6 +794,11 @@ class ClinicalImpression extends Resource {
      * @param {Reference[]|undefined} [prognosisReference],
      * @param {Reference[]|undefined} [supportingInfo],
      * @param {Annotation[]|undefined} [note],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ClinicalImpression}
     */
     create(
             {
@@ -815,6 +831,10 @@ class ClinicalImpression extends Resource {
             prognosisReference,
             supportingInfo,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ClinicalImpression({
@@ -847,6 +867,10 @@ class ClinicalImpression extends Resource {
             prognosisReference,
             supportingInfo,
             note,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -854,8 +878,8 @@ class ClinicalImpression extends Resource {
      * @description creates a copy of this resource
      * @returns {ClinicalImpression}
     */
-    copy() {
-        return new ClinicalImpression(this.toJSON());
+    clone() {
+        return new ClinicalImpression(this.toJSONInternal());
     }
 
 

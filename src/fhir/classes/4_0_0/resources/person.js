@@ -30,6 +30,10 @@ class Person extends Resource {
      * @param {Reference|undefined} [managingOrganization],
      * @param {Boolean|undefined} [active],
      * @param {PersonLink[]|undefined} [link],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -51,6 +55,10 @@ class Person extends Resource {
             managingOrganization,
             active,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -417,7 +425,7 @@ class Person extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -430,7 +438,7 @@ class Person extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -443,7 +451,7 @@ class Person extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -456,7 +464,7 @@ class Person extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -488,6 +496,10 @@ class Person extends Resource {
             managingOrganization,
             active,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -506,7 +518,6 @@ class Person extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Person}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -525,6 +536,11 @@ class Person extends Resource {
      * @param {Reference|undefined} [managingOrganization],
      * @param {Boolean|undefined} [active],
      * @param {PersonLink[]|undefined} [link],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Person}
     */
     create(
             {
@@ -546,6 +562,10 @@ class Person extends Resource {
             managingOrganization,
             active,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Person({
@@ -567,6 +587,10 @@ class Person extends Resource {
             managingOrganization,
             active,
             link,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -574,8 +598,8 @@ class Person extends Resource {
      * @description creates a copy of this resource
      * @returns {Person}
     */
-    copy() {
-        return new Person(this.toJSON());
+    clone() {
+        return new Person(this.toJSONInternal());
     }
 
 

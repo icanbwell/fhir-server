@@ -133,7 +133,7 @@ class FhirResponseWriter {
         if (resource.meta && resource.meta.versionId) {
             let pathname = path.posix.join(location, '_history', resource.meta.versionId);
             res.set('Content-Location', `${baseUrl}/${pathname}`);
-            res.set('ETag', resource.meta.versionId);
+            res.set('ETag', `W/"${resource.meta.versionId}"`);
         }
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
@@ -166,7 +166,7 @@ class FhirResponseWriter {
         if (result.resource_version) {
             let pathname = path.posix.join(location, '_history', result.resource_version);
             res.set('Content-Location', `${baseUrl}/${pathname}`);
-            res.set('ETag', result.resource_version);
+            res.set('ETag', `W/"${result.resource_version}"`);
         }
         res.set('Last-Modified', date.toISOString());
         res.type(this.getContentType(fhirVersion));

@@ -6,11 +6,8 @@ const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
-const {preSaveAsync} = require('../common/preSave');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
-const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
@@ -19,12 +16,11 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {isTrue} = require('../../utils/isTrue');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 
 class CreateOperation {
     /**
      * constructor
-     * @param {DatabaseHistoryFactory} databaseHistoryFactory
-     * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
@@ -32,30 +28,20 @@ class CreateOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor(
         {
-            databaseHistoryFactory,
-            databaseUpdateFactory,
             changeEventProducer,
             auditLogger,
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            resourceValidator
+            resourceValidator,
+            databaseBulkInserter
         }
     ) {
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        this.databaseHistoryFactory = databaseHistoryFactory;
-        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
-        /**
-         * @type {DatabaseUpdateFactory}
-         */
-        this.databaseUpdateFactory = databaseUpdateFactory;
-        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
         /**
          * @type {ChangeEventProducer}
          */
@@ -92,6 +78,11 @@ class CreateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -128,10 +119,8 @@ class CreateOperation {
 
         let {base_version} = args;
 
-        /**
-         * @type {string}
-         */
-        const uuid = generateUUID();
+        // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
+        resource_incoming.id = generateUUID();
 
         /**
          * @type {string}
@@ -143,7 +132,7 @@ class CreateOperation {
                 resourceType,
                 resource_incoming,
                 currentDate,
-                uuid,
+                resource_incoming.id,
                 currentOperationName
             );
         }
@@ -198,12 +187,6 @@ class CreateOperation {
                 }
             }
 
-            // If no resource ID was provided, generate one.
-            /**
-             * @type {string}
-             */
-            let id = uuid;
-
             // Create the resource's metadata
             /**
              * @type {function({Object}): Meta}
@@ -221,15 +204,11 @@ class CreateOperation {
                 resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             }
 
-            await preSaveAsync(resource);
-
-            // Create the document to be inserted into Mongo
-            // noinspection JSUnresolvedFunction
             /**
              * @type {Resource}
              */
             let doc = resource;
-            Object.assign(doc, {id: id});
+            Object.assign(doc, {id: resource_incoming.id});
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
@@ -248,18 +227,19 @@ class CreateOperation {
             logDebug({user, args: {message: 'Inserting', doc: doc}});
 
             // Insert our resource record
-            try {
-                await this.databaseUpdateFactory.createDatabaseUpdateManager(
-                    {resourceType, base_version}
-                ).insertOneAsync({doc});
-            } catch (e) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new BadRequestError(e);
+            await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
+            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await this.databaseBulkInserter.executeAsync(
+                {
+                    requestId, currentDate, base_version: base_version
+                }
+            );
+            if (!mergeResults || mergeResults.length === 0 || !mergeResults[0].created) {
+                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
             }
-            // Save the resource to history
-            await this.databaseHistoryFactory.createDatabaseHistoryManager(
-                {resourceType, base_version}
-            ).insertHistoryForResourceAsync({doc: doc});
 
             // log operation
             await this.fhirLoggingManager.logOperationSuccessAsync(
@@ -283,7 +263,7 @@ class CreateOperation {
                     resourceType,
                     resource_incoming,
                     currentDate,
-                    uuid,
+                    resource_incoming.id,
                     currentOperationName);
             }
             await this.fhirLoggingManager.logOperationFailureAsync({

@@ -30,6 +30,10 @@ class Practitioner extends Resource {
      * @param {Attachment[]|undefined} [photo],
      * @param {PractitionerQualification[]|undefined} [qualification],
      * @param {CodeableConcept[]|undefined} [communication],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -51,6 +55,10 @@ class Practitioner extends Resource {
             photo,
             qualification,
             communication,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -424,7 +432,7 @@ class Practitioner extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -437,7 +445,7 @@ class Practitioner extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -450,7 +458,7 @@ class Practitioner extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -463,7 +471,7 @@ class Practitioner extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -495,6 +503,10 @@ class Practitioner extends Resource {
             photo,
             qualification,
             communication,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -513,7 +525,6 @@ class Practitioner extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Practitioner}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -532,6 +543,11 @@ class Practitioner extends Resource {
      * @param {Attachment[]|undefined} [photo],
      * @param {PractitionerQualification[]|undefined} [qualification],
      * @param {CodeableConcept[]|undefined} [communication],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Practitioner}
     */
     create(
             {
@@ -553,6 +569,10 @@ class Practitioner extends Resource {
             photo,
             qualification,
             communication,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Practitioner({
@@ -574,6 +594,10 @@ class Practitioner extends Resource {
             photo,
             qualification,
             communication,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -581,8 +605,8 @@ class Practitioner extends Resource {
      * @description creates a copy of this resource
      * @returns {Practitioner}
     */
-    copy() {
-        return new Practitioner(this.toJSON());
+    clone() {
+        return new Practitioner(this.toJSONInternal());
     }
 
 

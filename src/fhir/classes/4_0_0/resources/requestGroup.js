@@ -38,6 +38,10 @@ class RequestGroup extends Resource {
      * @param {Reference[]|undefined} [reasonReference],
      * @param {Annotation[]|undefined} [note],
      * @param {RequestGroupAction[]|undefined} [action],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -67,6 +71,10 @@ class RequestGroup extends Resource {
             reasonReference,
             note,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -582,7 +590,7 @@ class RequestGroup extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -595,7 +603,7 @@ class RequestGroup extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -608,7 +616,7 @@ class RequestGroup extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -621,7 +629,7 @@ class RequestGroup extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -661,6 +669,10 @@ class RequestGroup extends Resource {
             reasonReference,
             note,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -679,7 +691,6 @@ class RequestGroup extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {RequestGroup}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -706,6 +717,11 @@ class RequestGroup extends Resource {
      * @param {Reference[]|undefined} [reasonReference],
      * @param {Annotation[]|undefined} [note],
      * @param {RequestGroupAction[]|undefined} [action],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {RequestGroup}
     */
     create(
             {
@@ -735,6 +751,10 @@ class RequestGroup extends Resource {
             reasonReference,
             note,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new RequestGroup({
@@ -764,6 +784,10 @@ class RequestGroup extends Resource {
             reasonReference,
             note,
             action,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -771,8 +795,8 @@ class RequestGroup extends Resource {
      * @description creates a copy of this resource
      * @returns {RequestGroup}
     */
-    copy() {
-        return new RequestGroup(this.toJSON());
+    clone() {
+        return new RequestGroup(this.toJSONInternal());
     }
 
 

@@ -25,6 +25,10 @@ class MedicinalProductIngredient extends Resource {
      * @param {Reference[]|undefined} [manufacturer],
      * @param {MedicinalProductIngredientSpecifiedSubstance[]|undefined} [specifiedSubstance],
      * @param {MedicinalProductIngredientSubstance|undefined} [substance],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -42,6 +46,10 @@ class MedicinalProductIngredient extends Resource {
             manufacturer,
             specifiedSubstance,
             substance,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -339,7 +347,7 @@ class MedicinalProductIngredient extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -352,7 +360,7 @@ class MedicinalProductIngredient extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -365,7 +373,7 @@ class MedicinalProductIngredient extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -378,7 +386,7 @@ class MedicinalProductIngredient extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -406,6 +414,10 @@ class MedicinalProductIngredient extends Resource {
             manufacturer,
             specifiedSubstance,
             substance,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -424,7 +436,6 @@ class MedicinalProductIngredient extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {MedicinalProductIngredient}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -439,6 +450,11 @@ class MedicinalProductIngredient extends Resource {
      * @param {Reference[]|undefined} [manufacturer],
      * @param {MedicinalProductIngredientSpecifiedSubstance[]|undefined} [specifiedSubstance],
      * @param {MedicinalProductIngredientSubstance|undefined} [substance],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {MedicinalProductIngredient}
     */
     create(
             {
@@ -456,6 +472,10 @@ class MedicinalProductIngredient extends Resource {
             manufacturer,
             specifiedSubstance,
             substance,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new MedicinalProductIngredient({
@@ -473,6 +493,10 @@ class MedicinalProductIngredient extends Resource {
             manufacturer,
             specifiedSubstance,
             substance,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -480,8 +504,8 @@ class MedicinalProductIngredient extends Resource {
      * @description creates a copy of this resource
      * @returns {MedicinalProductIngredient}
     */
-    copy() {
-        return new MedicinalProductIngredient(this.toJSON());
+    clone() {
+        return new MedicinalProductIngredient(this.toJSONInternal());
     }
 
 

@@ -56,6 +56,10 @@ class ResearchDefinition extends Resource {
      * @param {Reference|undefined} [exposure],
      * @param {Reference|undefined} [exposureAlternative],
      * @param {Reference|undefined} [outcome],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -102,6 +106,10 @@ class ResearchDefinition extends Resource {
             exposure,
             exposureAlternative,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -957,7 +965,7 @@ class ResearchDefinition extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -970,7 +978,7 @@ class ResearchDefinition extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -983,7 +991,7 @@ class ResearchDefinition extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -996,7 +1004,7 @@ class ResearchDefinition extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1053,6 +1061,10 @@ class ResearchDefinition extends Resource {
             exposure,
             exposureAlternative,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1071,7 +1083,6 @@ class ResearchDefinition extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {ResearchDefinition}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1115,6 +1126,11 @@ class ResearchDefinition extends Resource {
      * @param {Reference|undefined} [exposure],
      * @param {Reference|undefined} [exposureAlternative],
      * @param {Reference|undefined} [outcome],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {ResearchDefinition}
     */
     create(
             {
@@ -1161,6 +1177,10 @@ class ResearchDefinition extends Resource {
             exposure,
             exposureAlternative,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new ResearchDefinition({
@@ -1207,6 +1227,10 @@ class ResearchDefinition extends Resource {
             exposure,
             exposureAlternative,
             outcome,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -1214,8 +1238,8 @@ class ResearchDefinition extends Resource {
      * @description creates a copy of this resource
      * @returns {ResearchDefinition}
     */
-    copy() {
-        return new ResearchDefinition(this.toJSON());
+    clone() {
+        return new ResearchDefinition(this.toJSONInternal());
     }
 
 

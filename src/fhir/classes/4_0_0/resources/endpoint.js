@@ -32,6 +32,10 @@ class Endpoint extends Resource {
      * @param {code[]|undefined} [payloadMimeType],
      * @param {url} address,
      * @param {String[]|undefined} [header],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -54,6 +58,10 @@ class Endpoint extends Resource {
             payloadMimeType,
             address,
             header,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -444,7 +452,7 @@ class Endpoint extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -457,7 +465,7 @@ class Endpoint extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -470,7 +478,7 @@ class Endpoint extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -483,7 +491,7 @@ class Endpoint extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -516,6 +524,10 @@ class Endpoint extends Resource {
             payloadMimeType,
             address,
             header,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -534,7 +546,6 @@ class Endpoint extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Endpoint}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -554,6 +565,11 @@ class Endpoint extends Resource {
      * @param {code[]|undefined} [payloadMimeType],
      * @param {url} address,
      * @param {String[]|undefined} [header],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Endpoint}
     */
     create(
             {
@@ -576,6 +592,10 @@ class Endpoint extends Resource {
             payloadMimeType,
             address,
             header,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Endpoint({
@@ -598,6 +618,10 @@ class Endpoint extends Resource {
             payloadMimeType,
             address,
             header,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -605,8 +629,8 @@ class Endpoint extends Resource {
      * @description creates a copy of this resource
      * @returns {Endpoint}
     */
-    copy() {
-        return new Endpoint(this.toJSON());
+    clone() {
+        return new Endpoint(this.toJSONInternal());
     }
 
 

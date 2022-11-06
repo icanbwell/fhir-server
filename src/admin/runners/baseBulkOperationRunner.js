@@ -199,22 +199,21 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
     /**
      * runs the loop
-     * @param startFromIdContainer
-     * @param query
-     * @param config
-     * @param destinationCollectionName
-     * @param sourceCollectionName
-     * @param currentDateTime
-     * @param batchSize
-     * @param projection
-     * @param skipExistingIds
-     * @param numberOfSourceDocuments
-     * @param numberOfDestinationDocuments
-     * @param lastCheckedId
-     * @param fnCreateBulkOperationAsync
-     * @param operations
-     * @param ordered
-     * @returns {Promise<*>}
+     * @param {StartFromIdContainer} startFromIdContainer
+     * @param {import('mongodb').Filter<import('mongodb').Document>} query
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} config     * @param destinationCollectionName
+     * @param {string} destinationCollectionName
+     * @param {string} sourceCollectionName
+     * @param {Moment} currentDateTime
+     * @param {number} batchSize
+     * @param {import('mongodb').Collection<import('mongodb').Document>|undefined} [projection]
+     * @param {boolean} skipExistingIds
+     * @param {number} numberOfSourceDocuments
+     * @param {number} numberOfDestinationDocuments
+     * @param {string} lastCheckedId
+     * @param {function(document: import('mongodb').DefaultSchema):Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>} fnCreateBulkOperationAsync     * @param operations
+     * @param {boolean|undefined} [ordered]
+     * @returns {Promise<string>}
      */
     async runLoopAsync(
         {

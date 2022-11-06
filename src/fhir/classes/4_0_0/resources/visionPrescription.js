@@ -28,6 +28,10 @@ class VisionPrescription extends Resource {
      * @param {dateTime} dateWritten,
      * @param {Reference} prescriber,
      * @param {VisionPrescriptionLensSpecification[]} lensSpecification,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -47,6 +51,10 @@ class VisionPrescription extends Resource {
             dateWritten,
             prescriber,
             lensSpecification,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -379,7 +387,7 @@ class VisionPrescription extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -392,7 +400,7 @@ class VisionPrescription extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -405,7 +413,7 @@ class VisionPrescription extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -418,7 +426,7 @@ class VisionPrescription extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -448,6 +456,10 @@ class VisionPrescription extends Resource {
             dateWritten,
             prescriber,
             lensSpecification,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -466,7 +478,6 @@ class VisionPrescription extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {VisionPrescription}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -483,6 +494,11 @@ class VisionPrescription extends Resource {
      * @param {dateTime} dateWritten,
      * @param {Reference} prescriber,
      * @param {VisionPrescriptionLensSpecification[]} lensSpecification,
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {VisionPrescription}
     */
     create(
             {
@@ -502,6 +518,10 @@ class VisionPrescription extends Resource {
             dateWritten,
             prescriber,
             lensSpecification,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new VisionPrescription({
@@ -521,6 +541,10 @@ class VisionPrescription extends Resource {
             dateWritten,
             prescriber,
             lensSpecification,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -528,8 +552,8 @@ class VisionPrescription extends Resource {
      * @description creates a copy of this resource
      * @returns {VisionPrescription}
     */
-    copy() {
-        return new VisionPrescription(this.toJSON());
+    clone() {
+        return new VisionPrescription(this.toJSONInternal());
     }
 
 

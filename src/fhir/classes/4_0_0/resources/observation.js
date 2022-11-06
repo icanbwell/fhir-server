@@ -57,6 +57,10 @@ class Observation extends Resource {
      * @param {Reference[]|undefined} [hasMember],
      * @param {Reference[]|undefined} [derivedFrom],
      * @param {ObservationComponent[]|undefined} [component],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -105,6 +109,10 @@ class Observation extends Resource {
             hasMember,
             derivedFrom,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -981,7 +989,7 @@ class Observation extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -994,7 +1002,7 @@ class Observation extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1007,7 +1015,7 @@ class Observation extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1020,7 +1028,7 @@ class Observation extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1079,6 +1087,10 @@ class Observation extends Resource {
             hasMember,
             derivedFrom,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -1097,7 +1109,6 @@ class Observation extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {Observation}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -1143,6 +1154,11 @@ class Observation extends Resource {
      * @param {Reference[]|undefined} [hasMember],
      * @param {Reference[]|undefined} [derivedFrom],
      * @param {ObservationComponent[]|undefined} [component],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {Observation}
     */
     create(
             {
@@ -1191,6 +1207,10 @@ class Observation extends Resource {
             hasMember,
             derivedFrom,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new Observation({
@@ -1239,6 +1259,10 @@ class Observation extends Resource {
             hasMember,
             derivedFrom,
             component,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -1246,8 +1270,8 @@ class Observation extends Resource {
      * @description creates a copy of this resource
      * @returns {Observation}
     */
-    copy() {
-        return new Observation(this.toJSON());
+    clone() {
+        return new Observation(this.toJSONInternal());
     }
 
 

@@ -45,6 +45,10 @@ class SubstanceSourceMaterial extends Resource {
      * @param {SubstanceSourceMaterialFractionDescription[]|undefined} [fractionDescription],
      * @param {SubstanceSourceMaterialOrganism|undefined} [organism],
      * @param {SubstanceSourceMaterialPartDescription[]|undefined} [partDescription],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -69,6 +73,10 @@ class SubstanceSourceMaterial extends Resource {
             fractionDescription,
             organism,
             partDescription,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -511,7 +519,7 @@ class SubstanceSourceMaterial extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -524,7 +532,7 @@ class SubstanceSourceMaterial extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -537,7 +545,7 @@ class SubstanceSourceMaterial extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -550,7 +558,7 @@ class SubstanceSourceMaterial extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -585,6 +593,10 @@ class SubstanceSourceMaterial extends Resource {
             fractionDescription,
             organism,
             partDescription,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
         // Define a default non-writable resourceType property
@@ -603,7 +615,6 @@ class SubstanceSourceMaterial extends Resource {
 
     /**
      * @description Creates a blank new resource
-     * @returns {SubstanceSourceMaterial}
      * @param {id|undefined} [id],
      * @param {Meta|undefined} [meta],
      * @param {uri|undefined} [implicitRules],
@@ -625,6 +636,11 @@ class SubstanceSourceMaterial extends Resource {
      * @param {SubstanceSourceMaterialFractionDescription[]|undefined} [fractionDescription],
      * @param {SubstanceSourceMaterialOrganism|undefined} [organism],
      * @param {SubstanceSourceMaterialPartDescription[]|undefined} [partDescription],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
+     * @returns {SubstanceSourceMaterial}
     */
     create(
             {
@@ -649,6 +665,10 @@ class SubstanceSourceMaterial extends Resource {
             fractionDescription,
             organism,
             partDescription,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         return new SubstanceSourceMaterial({
@@ -673,6 +693,10 @@ class SubstanceSourceMaterial extends Resource {
             fractionDescription,
             organism,
             partDescription,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
     }
 
@@ -680,8 +704,8 @@ class SubstanceSourceMaterial extends Resource {
      * @description creates a copy of this resource
      * @returns {SubstanceSourceMaterial}
     */
-    copy() {
-        return new SubstanceSourceMaterial(this.toJSON());
+    clone() {
+        return new SubstanceSourceMaterial(this.toJSONInternal());
     }
 
 
