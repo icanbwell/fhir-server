@@ -2,22 +2,16 @@
  * Implements enrich function that finds any registered enrichment providers for that resource and runs them
  */
 
-const {ExplanationOfBenefitsEnrichmentProvider} = require('./providers/explanationOfBenefitsEnrichmentProvider');
-const {IdEnrichmentProvider} = require('./providers/idEnrichmentProvider');
-
-/**
- * Registered set of enrichment providers
- * @type {EnrichmentProvider[]}
- */
-const defaultEnrichmentProviders = [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()];
-
 class EnrichmentManager {
     /**
      * constructor
-     * @param {EnrichmentProvider[]|undefined|null} [enrichmentProviders]
+     * @param {EnrichmentProvider[]} enrichmentProviders
      */
     constructor({enrichmentProviders}) {
-        this.enrichmentProviders = enrichmentProviders || defaultEnrichmentProviders;
+        /**
+         * @type {EnrichmentProvider[]}
+         */
+        this.enrichmentProviders = enrichmentProviders;
     }
 
     /**

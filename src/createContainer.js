@@ -61,19 +61,23 @@ const {FhirTypesManager} = require('./fhir/fhirTypesManager');
 const {PreSaveManager} = require('./operations/common/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
 const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
+const {ExplanationOfBenefitsEnrichmentProvider} = require('./enrich/providers/explanationOfBenefitsEnrichmentProvider');
+const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
 
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
  */
 const createContainer = function () {
-    // Note the order of registration does NOT matter
+    // Note: the order of registration does NOT matter since everything is lazy evaluated
     const container = new SimpleContainer();
 
     container.register('configManager', () => new ConfigManager());
 
     container.register('scopesManager', () => new ScopesManager());
-    container.register('enrichmentManager', () => new EnrichmentManager({}));
+    container.register('enrichmentManager', () => new EnrichmentManager({
+        enrichmentProviders: [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()]
+    }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,
@@ -167,7 +171,9 @@ const createContainer = function () {
         indexProvider: c.indexProvider
     }));
 
-    container.register('queryRewriterManager', () => new QueryRewriterManager());
+    container.register('queryRewriterManager', () => new QueryRewriterManager({
+        queryRewriters: []
+    }));
 
     container.register('searchManager', (c) => new SearchManager(
             {
