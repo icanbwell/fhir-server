@@ -129,6 +129,7 @@ class SearchManager {
          * @type {string}
          */
         const {base_version} = args;
+        assertIsValid(base_version);
         // see if any query rewriters want to rewrite the args
         args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});
         /**

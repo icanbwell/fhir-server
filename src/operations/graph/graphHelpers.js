@@ -261,7 +261,7 @@ class GraphHelper {
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
                 patients: requestInfo.patients,
-                args: Object.assign({}, {'id': relatedReferenceIds}), // add id filter to query
+                args: Object.assign({'base_version': base_version}, {'id': relatedReferenceIds}), // add id filter to query
                 resourceType,
                 useAccessIndex,
                 fhirPersonId: requestInfo.fhirPersonId,
@@ -404,6 +404,7 @@ class GraphHelper {
              * @type {Object}
              */
             const args = this.parseQueryStringIntoArgs(reverseFilterWithParentIds);
+            args['base_version'] = base_version;
             const searchParameterName = Object.keys(args)[0];
             /**
              * @type {boolean}
