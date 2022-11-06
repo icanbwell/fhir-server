@@ -81,7 +81,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
             const patientReferencePrefix = 'Patient/';
             const patientIds = person.link
                 .filter(l => l.target.reference.startsWith(patientReferencePrefix))
-                .map(l => l.target.reference.replace(patientReferencePrefix, ''));
+                .map(l => l.target.reference);
             if (patientIds && patientIds.length > 0) {
                 // 4. return a csv of those patient ids
                 return patientIds.join(',');

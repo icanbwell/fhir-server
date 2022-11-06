@@ -106,7 +106,7 @@
     {
       "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
       "target": {
-        "reference": "Person/60b6a959-8107-493b-8919-e9aa629ae397"
+        "reference": "Patient/00200000000"
       },
       "assurance": "level4"
     }

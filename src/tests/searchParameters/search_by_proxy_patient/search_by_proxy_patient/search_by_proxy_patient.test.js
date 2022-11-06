@@ -1,11 +1,13 @@
 // test file
 const normalPatient = require('./fixtures/Patient/normalPatient.json');
-const observationResource = require('./fixtures/Observation/observation.json');
+const observation1Resource = require('./fixtures/Observation/observation1.json');
+const observation2Resource = require('./fixtures/Observation/observation2.json');
 const personResource = require('./fixtures/Person/person.json');
 
 // expected
 // const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedObservationNormal = require('./fixtures/expected/expectedObservationNormal.json');
+const expectedObservationProxyPatient = require('./fixtures/expected/expectedObservationProxyPatient.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -33,7 +35,7 @@ describe('Patient Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
-                .send(observationResource)
+                .send(observation1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -63,7 +65,14 @@ describe('Patient Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
-                .send(observationResource)
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -74,7 +83,7 @@ describe('Patient Tests', () => {
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationNormal);
+            expect(resp).toHaveResponse(expectedObservationProxyPatient);
         });
     });
 });
