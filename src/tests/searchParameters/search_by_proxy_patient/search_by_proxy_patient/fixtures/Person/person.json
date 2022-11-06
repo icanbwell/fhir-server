@@ -99,7 +99,7 @@
     {
       "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
       "target": {
-        "reference": "Patient/e1b5f640-4f83-481f-bc61-b41edf4ca235"
+        "reference": "Patient/00100000000"
       },
       "assurance": "level4"
     },

@@ -26,13 +26,14 @@ class QueryRewriterManager {
 
     /**
      * rewrites the args
+     * @param {string} base_version
      * @param {Object} args
      * @return {Promise<Object>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({args}) {
+    async rewriteArgsAsync({base_version, args}) {
         for (const queryRewriter of this.queryRewriters) {
-            args = await queryRewriter.rewriteArgsAsync({args});
+            args = await queryRewriter.rewriteArgsAsync({base_version, args});
         }
         return args;
     }

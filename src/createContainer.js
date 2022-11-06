@@ -172,9 +172,11 @@ const createContainer = function () {
         indexProvider: c.indexProvider
     }));
 
-    container.register('queryRewriterManager', () => new QueryRewriterManager({
+    container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
-            new PatientProxyQueryRewriter()
+            new PatientProxyQueryRewriter({
+                databaseQueryFactory: c.databaseQueryFactory
+            })
         ]
     }));
 

@@ -125,15 +125,16 @@ class SearchManager {
             filter = true
         }
     ) {
-        args = await this.queryRewriterManager.rewriteArgsAsync({args});
+        /**
+         * @type {string}
+         */
+        const {base_version} = args;
+        // see if any query rewriters want to rewrite the args
+        args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args});
         /**
          * @type {string[]}
          */
         let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
-        /**
-         * @type {string}
-         */
-        let {base_version} = args;
         /**
          * @type {string[]|null}
          */
