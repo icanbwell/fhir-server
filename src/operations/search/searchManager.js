@@ -130,7 +130,7 @@ class SearchManager {
          */
         const {base_version} = args;
         // see if any query rewriters want to rewrite the args
-        args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args});
+        args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});
         /**
          * @type {string[]}
          */
@@ -175,7 +175,7 @@ class SearchManager {
             query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
         }
 
-        ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({base_version, query, columns}));
+        ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({base_version, query, columns, resourceType}));
         return {base_version, query, columns};
     }
 
