@@ -14,6 +14,7 @@ const expectedObservationProxyPatient = require('./fixtures/expected/expectedObs
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const deepcopy = require('deepcopy');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -240,6 +241,82 @@ describe('Patient Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientTwoPatientsResources.entry[0].resource);
+        });
+        test('get patient for proxy patients works with nested persons (two patients but access restricted to one)', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right Patient back
+            const healthsystem1PatientResources = deepcopy(expectedPatientTwoPatientsResources);
+            healthsystem1PatientResources.entry = healthsystem1PatientResources.entry.slice(0, 1);
+            resp = await request
+                .get('/4_0_0/Patient/?_bundle=1&id=person.m65634')
+                .set(getHeaders('user/*.read access/healthsystem1.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(healthsystem1PatientResources);
+
+            resp = await request
+                .get('/4_0_0/Patient/person.m65634')
+                .set(getHeaders('user/*.read access/healthsystem1.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(healthsystem1PatientResources.entry[0].resource);
+            // Now check healthsystem2 patients
+            const healthsystem2PatientResources = deepcopy(expectedPatientTwoPatientsResources);
+            healthsystem2PatientResources.entry = healthsystem2PatientResources.entry.slice(1, 2);
+            resp = await request
+                .get('/4_0_0/Patient/?_bundle=1&id=person.m65634')
+                .set(getHeaders('user/*.read access/healthsystem2.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(healthsystem2PatientResources);
+
+            resp = await request
+                .get('/4_0_0/Patient/person.m65634')
+                .set(getHeaders('user/*.read access/healthsystem2.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(healthsystem2PatientResources.entry[0].resource);
         });
     });
 });
