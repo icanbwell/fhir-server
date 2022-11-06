@@ -103,6 +103,7 @@ class PatchOperation {
 
         try {
 
+            const currentDate = moment.utc().format('YYYY-MM-DD');
             let {base_version, id, patchContent} = args;
             // Get current record
             // Query our collection for this observation
@@ -154,25 +155,20 @@ class PatchOperation {
             let res;
             try {
                 doc = omitPropertyFromResource(doc, '_id');
-                res = await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
-                ).findOneAndUpdateAsync({
-                    query: {id: id}, update: {$set: doc.toJSONInternal()}, options: {upsert: true}
-                });
-            } catch (e) {
-                throw new BadRequestError(e);
-            }
-            // Save to history
-            /**
-             * @type {Resource}
-             */
-            const historyResource = doc.clone();
-            try {
-                await this.databaseHistoryFactory.createDatabaseHistoryManager(
+
+                await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
+                await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+                /**
+                 * @type {MergeResultEntry[]}
+                 */
+                const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
-                        resourceType, base_version
+                        requestId, currentDate, base_version: this.base_version
                     }
-                ).insertHistoryForResourceAsync({doc: historyResource});
+                );
+                if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                    throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+                }
             } catch (e) {
                 throw new BadRequestError(e);
             }

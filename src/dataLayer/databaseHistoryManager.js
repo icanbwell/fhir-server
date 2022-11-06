@@ -1,7 +1,6 @@
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const {getResource} = require('../operations/common/getResource');
 const {RethrownError} = require('../utils/rethrownError');
 
@@ -46,23 +45,6 @@ class DatabaseHistoryManager {
                 base_version: this._base_version
             }
         );
-    }
-
-    /**
-     * Inserts a single resource
-     * @param {Resource} doc
-     * @return {Promise<void>}
-     */
-    async insertHistoryForResourceAsync({doc}) {
-        try {
-            assertTypeEquals(doc, Resource);
-            const collection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(doc);
-            await collection.insertOne(doc.toJSONInternal());
-        } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
-        }
     }
 
     /**

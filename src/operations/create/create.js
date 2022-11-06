@@ -249,18 +249,23 @@ class CreateOperation {
 
             // Insert our resource record
             try {
-                await this.databaseUpdateFactory.createDatabaseUpdateManager(
-                    {resourceType, base_version}
-                ).insertOneAsync({doc});
+                await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
+                await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+                /**
+                 * @type {MergeResultEntry[]}
+                 */
+                const mergeResults = await this.databaseBulkInserter.executeAsync(
+                    {
+                        requestId, currentDate, base_version: this.base_version
+                    }
+                );
+                if (!mergeResults || mergeResults.length === 0 || !mergeResults[0].created) {
+                    throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+                }
             } catch (e) {
                 // noinspection ExceptionCaughtLocallyJS
                 throw new BadRequestError(e);
             }
-            // Save the resource to history
-            await this.databaseHistoryFactory.createDatabaseHistoryManager(
-                {resourceType, base_version}
-            ).insertHistoryForResourceAsync({doc: doc});
-
             // log operation
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {

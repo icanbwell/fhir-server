@@ -82,42 +82,6 @@ class DatabaseQueryManager {
     /**
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
-     * @param {import('mongodb').UpdateFilter<import('mongodb').DefaultSchema> | any} update
-     * @param {import('mongodb').FindOneAndUpdateOptions<import('mongodb').DefaultSchema>} options
-     * @return {Promise<{error: import('mongodb').Document, created: boolean} | null>}
-     */
-    async findOneAndUpdateAsync({query, update, options = null}) {
-        try {
-            /**
-             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-             */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-                query
-            });
-            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
-                 * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#findOneAndUpdate
-                 * @type {ModifyResult<import('mongodb').DefaultSchema>}
-                 */
-                const result = await collection.findOneAndUpdate(query, update, options);
-                if (result.ok) {
-                    return {
-                        error: result.lastErrorObject,
-                        created: result.lastErrorObject && !result.lastErrorObject.updatedExisting
-                    };
-                }
-            }
-            return null;
-        } catch (e) {
-            throw new RethrownError({
-                error: e
-            });
-        }
-    }
-
-    /**
-     * Finds one resource by looking in multiple partitions of a resource type
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').DeleteOptions} options
      * @return {Promise<DeleteManyResult>}
      */

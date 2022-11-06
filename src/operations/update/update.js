@@ -309,26 +309,19 @@ class UpdateOperation {
             }
 
             // Insert/update our resource record
-            // When using the $set operator, only the specified fields are updated
+            await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
+            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
             /**
-             * @type {{error: import('mongodb').Document, created: boolean} | null}
+             * @type {MergeResultEntry[]}
              */
-            const res = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findOneAndUpdateAsync(
-                {query: {id: id}, update: {$set: doc.toJSONInternal()}, options: {upsert: true}});
-            // save to history
-
-            /**
-             * @type {Resource}
-             */
-            const historyResource = doc.clone();
-
-            await this.databaseHistoryFactory.createDatabaseHistoryManager(
+            const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    resourceType, base_version
+                    requestId, currentDate, base_version: this.base_version
                 }
-            ).insertHistoryForResourceAsync({doc: historyResource});
+            );
+            if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+            }
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
@@ -343,7 +336,7 @@ class UpdateOperation {
 
             const result = {
                 id: id,
-                created: res.created,
+                created: mergeResults[0].created,
                 resource_version: doc.meta.versionId,
                 resource: doc
             };
