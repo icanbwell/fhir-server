@@ -136,10 +136,8 @@ class CreateOperation {
 
         let {base_version} = args;
 
-        /**
-         * @type {string}
-         */
-        const uuid = generateUUID();
+        // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
+        resource_incoming.id = generateUUID();
 
         /**
          * @type {string}
@@ -151,7 +149,7 @@ class CreateOperation {
                 resourceType,
                 resource_incoming,
                 currentDate,
-                uuid,
+                resource_incoming.id,
                 currentOperationName
             );
         }
@@ -206,12 +204,6 @@ class CreateOperation {
                 }
             }
 
-            // If no resource ID was provided, generate one.
-            /**
-             * @type {string}
-             */
-            let id = uuid;
-
             // Create the resource's metadata
             /**
              * @type {function({Object}): Meta}
@@ -237,7 +229,7 @@ class CreateOperation {
              * @type {Resource}
              */
             let doc = resource;
-            Object.assign(doc, {id: id});
+            Object.assign(doc, {id: resource_incoming.id});
 
             if (resourceType !== 'AuditEvent') {
                 // log access to audit logs
@@ -291,7 +283,7 @@ class CreateOperation {
                     resourceType,
                     resource_incoming,
                     currentDate,
-                    uuid,
+                    resource_incoming.id,
                     currentOperationName);
             }
             await this.fhirLoggingManager.logOperationFailureAsync({
