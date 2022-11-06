@@ -96,12 +96,16 @@ describe('InternalAuditLog Tests', () => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
+                delete log['_uuid'];
+                delete log['_sourceId'];
                 delete log['recorded'];
             });
             expectedAuditEvents1.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
+                delete log['_uuid'];
+                delete log['_sourceId'];
                 delete log['recorded'];
             });
             expect(logs).toStrictEqual(expectedAuditEvents1);
@@ -126,12 +130,16 @@ describe('InternalAuditLog Tests', () => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
+                delete log['_uuid'];
+                delete log['_sourceId'];
                 delete log['recorded'];
             });
             expectedAuditEvents2.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
+                delete log['_uuid'];
+                delete log['_sourceId'];
                 delete log['recorded'];
             });
             expect(logs).toStrictEqual(expectedAuditEvents2);
@@ -159,12 +167,16 @@ describe('InternalAuditLog Tests', () => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
+                delete log['_uuid'];
+                delete log['_sourceId'];
                 delete log['recorded'];
             });
             expectedAuditEvents2.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
+                delete log['_uuid'];
+                delete log['_sourceId'];
                 delete log['recorded'];
             });
             expect(logs).toStrictEqual(expectedAuditEvents2);
@@ -185,12 +197,16 @@ describe('InternalAuditLog Tests', () => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
+                delete log['_uuid'];
+                delete log['_sourceId'];
                 delete log['recorded'];
             });
             expectedAuditEvents3.forEach((log) => {
                 delete log['meta']['lastUpdated'];
                 delete log['_id'];
                 delete log['id'];
+                delete log['_uuid'];
+                delete log['_sourceId'];
                 delete log['recorded'];
             });
             expect(logs).toStrictEqual(expectedAuditEvents3);

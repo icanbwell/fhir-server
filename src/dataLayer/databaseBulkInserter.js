@@ -248,9 +248,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {string} id
      * @param {Resource} doc
+     * @param {boolean} [upsert]
      * @returns {Promise<void>}
      */
-    async replaceOneAsync({resourceType, id, doc}) {
+    async replaceOneAsync({resourceType, id, doc, upsert = false}) {
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
@@ -261,7 +262,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     operation: {
                         replaceOne: {
                             filter: {id: id.toString()},
-                            // upsert: true,
+                            upsert: upsert,
                             replacement: doc.toJSONInternal()
                         }
                     }

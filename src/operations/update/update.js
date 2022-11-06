@@ -265,6 +265,7 @@ class UpdateOperation {
                 // Same as update from this point on
                 doc = resource_incoming;
                 // check_fhir_mismatch(cleaned, patched_incoming_data);
+                await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
             } else {
                 // not found so insert
                 if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
@@ -291,10 +292,10 @@ class UpdateOperation {
                 }
 
                 doc = resource_incoming;
+                await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
             }
 
             // Insert/update our resource record
-            await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
             await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
             /**
              * @type {MergeResultEntry[]}
