@@ -109,6 +109,7 @@ class SearchManager {
      * @param {Object?} args
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
+     * @param {string} fhirPersonId
      * @param {boolean} filter
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
@@ -120,6 +121,7 @@ class SearchManager {
             args,
             resourceType,
             useAccessIndex,
+            fhirPersonId,
             filter = true
         }
     ) {
@@ -131,6 +133,11 @@ class SearchManager {
          * @type {string}
          */
         let {base_version} = args;
+        const allPatients = patients.concat(
+            await this.getLinkedPatientsAsync(
+                {
+                    base_version, isUser, fhirPersonId
+                }));
         /**
          * @type {import('mongodb').Document}
          */
@@ -160,7 +167,7 @@ class SearchManager {
                 resourceType, securityTags, query, useAccessIndex
             });
         if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
-            query = this.securityTagManager.getQueryWithPatientFilter({patients, query, resourceType});
+            query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
         }
 
         const _ret = await this.queryRewriterManager.rewriteAsync({base_version, query, columns});

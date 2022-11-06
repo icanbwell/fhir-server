@@ -148,12 +148,6 @@ class SearchBundleOperation {
 
         const {/** @type {string} **/base_version} = args;
 
-        const allPatients = patients.concat(
-            await this.searchManager.getLinkedPatientsAsync(
-                {
-                    base_version, isUser, fhirPersonId
-                }));
-
         /** @type {import('mongodb').Document}**/
         let query = {};
         /** @type {Set} **/
@@ -186,7 +180,8 @@ class SearchBundleOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patients: allPatients, args, resourceType, useAccessIndex, filter
+                    user, scope, isUser, patients, args, resourceType, useAccessIndex, filter,
+                    fhirPersonId
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
