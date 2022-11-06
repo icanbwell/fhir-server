@@ -151,7 +151,7 @@ class PatchOperation {
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: this.base_version
+                    requestId, currentDate, base_version: base_version
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
