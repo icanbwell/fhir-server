@@ -166,7 +166,7 @@ class PatchOperation {
             /**
              * @type {Resource}
              */
-            const historyResource = doc.copy();
+            const historyResource = doc.clone();
             try {
                 await this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {

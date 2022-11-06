@@ -38,6 +38,10 @@ class Goal extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {CodeableConcept[]|undefined} [outcomeCode],
      * @param {Reference[]|undefined} [outcomeReference],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -66,6 +70,10 @@ class Goal extends Resource {
             note,
             outcomeCode,
             outcomeReference,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -566,7 +574,7 @@ class Goal extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -579,7 +587,7 @@ class Goal extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -592,7 +600,7 @@ class Goal extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -605,7 +613,7 @@ class Goal extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -751,8 +759,8 @@ class Goal extends Resource {
      * @description creates a copy of this resource
      * @returns {Goal}
     */
-    copy() {
-        return new Goal(this.toJSON());
+    clone() {
+        return new Goal(this.toJSONInternal());
     }
 
 

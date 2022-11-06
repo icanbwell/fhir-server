@@ -322,7 +322,7 @@ class UpdateOperation {
             /**
              * @type {Resource}
              */
-            const historyResource = doc.copy();
+            const historyResource = doc.clone();
 
             await this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {

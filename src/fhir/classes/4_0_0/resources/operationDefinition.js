@@ -46,6 +46,10 @@ class OperationDefinition extends Resource {
      * @param {canonical|undefined} [outputProfile],
      * @param {OperationDefinitionParameter[]|undefined} [parameter],
      * @param {OperationDefinitionOverload[]|undefined} [overload],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -83,6 +87,10 @@ class OperationDefinition extends Resource {
             outputProfile,
             parameter,
             overload,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -758,7 +766,7 @@ class OperationDefinition extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -771,7 +779,7 @@ class OperationDefinition extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -784,7 +792,7 @@ class OperationDefinition extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -797,7 +805,7 @@ class OperationDefinition extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -979,8 +987,8 @@ class OperationDefinition extends Resource {
      * @description creates a copy of this resource
      * @returns {OperationDefinition}
     */
-    copy() {
-        return new OperationDefinition(this.toJSON());
+    clone() {
+        return new OperationDefinition(this.toJSONInternal());
     }
 
 

@@ -43,6 +43,10 @@ class Questionnaire extends Resource {
      * @param {Period|undefined} [effectivePeriod],
      * @param {Coding[]|undefined} [code],
      * @param {QuestionnaireItem[]|undefined} [item],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -76,6 +80,10 @@ class Questionnaire extends Resource {
             effectivePeriod,
             code,
             item,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -682,7 +690,7 @@ class Questionnaire extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -695,7 +703,7 @@ class Questionnaire extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -708,7 +716,7 @@ class Questionnaire extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -721,7 +729,7 @@ class Questionnaire extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -887,8 +895,8 @@ class Questionnaire extends Resource {
      * @description creates a copy of this resource
      * @returns {Questionnaire}
     */
-    copy() {
-        return new Questionnaire(this.toJSON());
+    clone() {
+        return new Questionnaire(this.toJSONInternal());
     }
 
 

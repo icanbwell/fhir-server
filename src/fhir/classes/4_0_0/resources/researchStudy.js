@@ -48,6 +48,10 @@ class ResearchStudy extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {ResearchStudyArm[]|undefined} [arm],
      * @param {ResearchStudyObjective[]|undefined} [objective],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -83,6 +87,10 @@ class ResearchStudy extends Resource {
             note,
             arm,
             objective,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -719,7 +727,7 @@ class ResearchStudy extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -732,7 +740,7 @@ class ResearchStudy extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -745,7 +753,7 @@ class ResearchStudy extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -758,7 +766,7 @@ class ResearchStudy extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -932,8 +940,8 @@ class ResearchStudy extends Resource {
      * @description creates a copy of this resource
      * @returns {ResearchStudy}
     */
-    copy() {
-        return new ResearchStudy(this.toJSON());
+    clone() {
+        return new ResearchStudy(this.toJSONInternal());
     }
 
 

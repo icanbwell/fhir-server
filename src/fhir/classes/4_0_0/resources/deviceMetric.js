@@ -30,6 +30,10 @@ class DeviceMetric extends Resource {
      * @param {code} category,
      * @param {Timing|undefined} [measurementPeriod],
      * @param {DeviceMetricCalibration[]|undefined} [calibration],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -51,6 +55,10 @@ class DeviceMetric extends Resource {
             category,
             measurementPeriod,
             calibration,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -440,7 +448,7 @@ class DeviceMetric extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -453,7 +461,7 @@ class DeviceMetric extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -466,7 +474,7 @@ class DeviceMetric extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -479,7 +487,7 @@ class DeviceMetric extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -597,8 +605,8 @@ class DeviceMetric extends Resource {
      * @description creates a copy of this resource
      * @returns {DeviceMetric}
     */
-    copy() {
-        return new DeviceMetric(this.toJSON());
+    clone() {
+        return new DeviceMetric(this.toJSONInternal());
     }
 
 

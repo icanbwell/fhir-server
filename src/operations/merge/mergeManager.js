@@ -278,17 +278,17 @@ class MergeManager {
 
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {
-                    this.databaseBulkLoader.updateResourceInExistingList({resource: resourceToMerge});
                     await this.mergeExistingAsync(
                         {
                             resourceToMerge, currentResource, user, scope, currentDate, requestId
                         }
                     );
+                    this.databaseBulkLoader.updateResourceInExistingList({resource: resourceToMerge});
                 } else {
-                    this.databaseBulkLoader.addResourceToExistingList({resource: resourceToMerge});
                     await this.mergeInsertAsync({
                         resourceToMerge, base_version, user, scope
                     });
+                    this.databaseBulkLoader.addResourceToExistingList({resource: resourceToMerge});
                 }
             } catch (e) {
                 logError({
@@ -488,7 +488,7 @@ class MergeManager {
             /**
              * @type {Resource}
              */
-            const historyResource = resourceToMerge.copy();
+            const historyResource = resourceToMerge.clone();
 
             await this.databaseBulkInserter.insertOneHistoryAsync(
                 {
@@ -522,7 +522,7 @@ class MergeManager {
                 }
             );
 
-            const historyResource = resourceToMerge.copy();
+            const historyResource = resourceToMerge.clone();
 
             await this.databaseBulkInserter.insertOneHistoryAsync({
                     resourceType: resourceToMerge.resourceType,

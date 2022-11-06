@@ -71,7 +71,7 @@ class ResourceMerger {
         /**
          * @type {Object}
          */
-        let patched_incoming_data = applyPatch(currentResource, patchContent).newDocument;
+        let patched_incoming_data = applyPatch(currentResource.toJSONInternal(), patchContent).newDocument;
         // Create a new resource to store the merged data
         /**
          * @type {Resource}

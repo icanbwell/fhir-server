@@ -26,6 +26,10 @@ class Basic extends Resource {
      * @param {Reference|undefined} [subject],
      * @param {date|undefined} [created],
      * @param {Reference|undefined} [author],
+     * @param {Object|undefined} [_access]
+     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -42,6 +46,10 @@ class Basic extends Resource {
             subject,
             created,
             author,
+            _access,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -322,7 +330,7 @@ class Basic extends Resource {
 
         /**
          * @description _access
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_access', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -335,7 +343,7 @@ class Basic extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {*|undefined}
+         * @property {Object|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -348,7 +356,7 @@ class Basic extends Resource {
         });
         /**
          * @description _uuid
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_uuid', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -361,7 +369,7 @@ class Basic extends Resource {
         });
         /**
          * @description _sourceId
-         * @property {*|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceId', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -459,8 +467,8 @@ class Basic extends Resource {
      * @description creates a copy of this resource
      * @returns {Basic}
     */
-    copy() {
-        return new Basic(this.toJSON());
+    clone() {
+        return new Basic(this.toJSONInternal());
     }
 
 
