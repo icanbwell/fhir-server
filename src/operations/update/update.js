@@ -7,10 +7,8 @@ const {getResource} = require('../common/getResource');
 const {isTrue} = require('../../utils/isTrue');
 const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
-const {PreSaveManager} = require('../common/preSave');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
@@ -19,6 +17,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 
 /**
  * Update Operation
@@ -26,7 +25,6 @@ const {ResourceValidator} = require('../common/resourceValidator');
 class UpdateOperation {
     /**
      * constructor
-     * @param {DatabaseHistoryFactory} databaseHistoryFactory
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
@@ -35,11 +33,10 @@ class UpdateOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
-     * @param {PreSaveManager} preSaveManager
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor(
         {
-            databaseHistoryFactory,
             databaseQueryFactory,
             changeEventProducer,
             auditLogger,
@@ -48,14 +45,9 @@ class UpdateOperation {
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
-            preSaveManager
+            databaseBulkInserter
         }
     ) {
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        this.databaseHistoryFactory = databaseHistoryFactory;
-        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -96,12 +88,11 @@ class UpdateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
-
         /**
-         * @type {PreSaveManager}
+         * @type {DatabaseBulkInserter}
          */
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -226,8 +217,6 @@ class UpdateOperation {
                 // noinspection JSPrimitiveTypeWrapperUsage
                 resource_incoming.meta = foundResource.meta;
 
-                await this.preSaveManager.preSaveAsync(resource_incoming);
-
                 const foundResourceObject = foundResource.toJSON();
                 const resourceIncomingObject = resource_incoming.toJSON();
                 // now create a patch between the document in db and the incoming document
@@ -273,8 +262,6 @@ class UpdateOperation {
                 meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 resource_incoming.meta = meta;
 
-                await this.preSaveManager.preSaveAsync(resource_incoming);
-
                 // Same as update from this point on
                 doc = resource_incoming;
                 // check_fhir_mismatch(cleaned, patched_incoming_data);
@@ -302,8 +289,6 @@ class UpdateOperation {
                     resource_incoming.meta['versionId'] = '1';
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
-
-                await this.preSaveManager.preSaveAsync(resource_incoming);
 
                 doc = resource_incoming;
             }

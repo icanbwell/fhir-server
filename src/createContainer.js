@@ -205,7 +205,8 @@ const createContainer = function () {
                 errorReporter: c.errorReporter,
                 mongoCollectionManager: c.mongoCollectionManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                changeEventProducer: c.changeEventProducer
+                changeEventProducer: c.changeEventProducer,
+                preSaveManager: c.preSaveManager
             }
         )
     );
@@ -284,13 +285,11 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
                 changeEventProducer: c.changeEventProducer,
-                databaseUpdateFactory: c.databaseUpdateFactory,
-                databaseHistoryFactory: c.databaseHistoryFactory,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
-                preSaveManager: c.preSaveManager
+                databaseBulkInserter: c.databaseBulkInserter
             }
         )
     );
@@ -299,7 +298,6 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
                 changeEventProducer: c.changeEventProducer,
-                databaseHistoryFactory: c.databaseHistoryFactory,
                 databaseQueryFactory: c.databaseQueryFactory,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
@@ -307,7 +305,7 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                preSaveManager: c.preSaveManager
+                databaseBulkInserter: c.databaseBulkInserter
             }
         )
     );
@@ -376,12 +374,11 @@ const createContainer = function () {
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            databaseHistoryFactory: c.databaseHistoryFactory,
             changeEventProducer: c.changeEventProducer,
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            preSaveManager: c.preSaveManager
+            databaseBulkInserter: c.databaseBulkInserter
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(

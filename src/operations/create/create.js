@@ -6,11 +6,8 @@ const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {getMeta} = require('../common/getMeta');
-const {PreSaveManager} = require('../common/preSave');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
-const {DatabaseUpdateFactory} = require('../../dataLayer/databaseUpdateFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
@@ -19,12 +16,11 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {isTrue} = require('../../utils/isTrue');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 
 class CreateOperation {
     /**
      * constructor
-     * @param {DatabaseHistoryFactory} databaseHistoryFactory
-     * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {AuditLogger} auditLogger
      * @param {PostRequestProcessor} postRequestProcessor
@@ -32,12 +28,10 @@ class CreateOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
-     * @param {PreSaveManager} preSaveManager
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor(
         {
-            databaseHistoryFactory,
-            databaseUpdateFactory,
             changeEventProducer,
             auditLogger,
             postRequestProcessor,
@@ -45,19 +39,9 @@ class CreateOperation {
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
-            preSaveManager
+            databaseBulkInserter
         }
     ) {
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        this.databaseHistoryFactory = databaseHistoryFactory;
-        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
-        /**
-         * @type {DatabaseUpdateFactory}
-         */
-        this.databaseUpdateFactory = databaseUpdateFactory;
-        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
         /**
          * @type {ChangeEventProducer}
          */
@@ -94,12 +78,11 @@ class CreateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
-
         /**
-         * @type {PreSaveManager}
+         * @type {DatabaseBulkInserter}
          */
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -221,10 +204,6 @@ class CreateOperation {
                 resource.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
             }
 
-            await this.preSaveManager.preSaveAsync(resource);
-
-            // Create the document to be inserted into Mongo
-            // noinspection JSUnresolvedFunction
             /**
              * @type {Resource}
              */

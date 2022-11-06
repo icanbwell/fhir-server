@@ -4,36 +4,33 @@ const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
 const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
-const {PreSaveManager} = require('../common/preSave');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {omitPropertyFromResource} = require('../../utils/omitProperties');
+const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 
 class PatchOperation {
     /**
      * constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
-     * @param {DatabaseHistoryFactory} databaseHistoryFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
-     * @param {PreSaveManager} preSaveManager
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor(
         {
             databaseQueryFactory,
-            databaseHistoryFactory,
             changeEventProducer,
             postRequestProcessor,
             fhirLoggingManager,
             scopesValidator,
-            preSaveManager
+            databaseBulkInserter
         }
     ) {
         /**
@@ -41,11 +38,6 @@ class PatchOperation {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        /**
-         * @type {DatabaseHistoryFactory}
-         */
-        this.databaseHistoryFactory = databaseHistoryFactory;
-        assertTypeEquals(databaseHistoryFactory, DatabaseHistoryFactory);
         /**
          * @type {ChangeEventProducer}
          */
@@ -66,12 +58,11 @@ class PatchOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
-
         /**
-         * @type {PreSaveManager}
+         * @type {DatabaseBulkInserter}
          */
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -139,8 +130,6 @@ class PatchOperation {
             } else {
                 throw new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
             }
-
-            await this.preSaveManager.preSaveAsync(resource);
 
             // Same as update from this point on
             /**
