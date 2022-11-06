@@ -60,6 +60,7 @@ const {R4SearchQueryCreator} = require('./operations/query/r4');
 const {FhirTypesManager} = require('./fhir/fhirTypesManager');
 const {PreSaveManager} = require('./operations/common/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
+const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
 
 /**
  * Creates a container and sets up all the services
@@ -166,6 +167,8 @@ const createContainer = function () {
         indexProvider: c.indexProvider
     }));
 
+    container.register('queryRewriterManager', () => new QueryRewriterManager());
+
     container.register('searchManager', (c) => new SearchManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -174,7 +177,8 @@ const createContainer = function () {
                 resourcePreparer: c.resourcePreparer,
                 indexHinter: c.indexHinter,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
-                configManager: c.configManager
+                configManager: c.configManager,
+                queryRewriterManager: c.queryRewriterManager
             }
         )
     );

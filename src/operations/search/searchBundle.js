@@ -184,7 +184,7 @@ class SearchBundleOperation {
                 query,
                 /** @type {Set} **/
                 columns
-            } = this.searchManager.constructQuery(
+            } = await this.searchManager.constructQueryAsync(
                 {
                     user, scope, isUser, patients: allPatients, args, resourceType, useAccessIndex, filter
                 }));

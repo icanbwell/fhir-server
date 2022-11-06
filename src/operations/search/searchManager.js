@@ -27,6 +27,7 @@ const {RethrownError} = require('../../utils/rethrownError');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {R4SearchQueryCreator} = require('../query/r4');
 const {ConfigManager} = require('../../utils/configManager');
+const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
 const idProjection = {id: 1, _id: 0};
@@ -41,6 +42,7 @@ class SearchManager {
      * @param {IndexHinter} indexHinter
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {ConfigManager} configManager
+     * @param {QueryRewriterManager} queryRewriterManager
      */
     constructor(
         {
@@ -50,7 +52,8 @@ class SearchManager {
             resourcePreparer,
             indexHinter,
             r4SearchQueryCreator,
-            configManager
+            configManager,
+            queryRewriterManager
         }
     ) {
         /**
@@ -92,6 +95,9 @@ class SearchManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        this.queryRewriterManager = queryRewriterManager;
+        assertTypeEquals(queryRewriterManager, QueryRewriterManager);
     }
 
     /**
@@ -106,7 +112,7 @@ class SearchManager {
      * @param {boolean} filter
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
-    constructQuery(
+    async constructQueryAsync(
         {
             user, scope,
             isUser,
@@ -156,6 +162,10 @@ class SearchManager {
         if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
             query = this.securityTagManager.getQueryWithPatientFilter({patients, query, resourceType});
         }
+
+        const _ret = await this.queryRewriterManager.rewriteAsync({base_version, query, columns});
+        query = _ret.query;
+        columns = _ret.columns;
         return {base_version, query, columns};
     }
 
