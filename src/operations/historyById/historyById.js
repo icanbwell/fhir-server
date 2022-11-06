@@ -1,7 +1,5 @@
 // noinspection ExceptionCaughtLocallyJS
 
-const {buildStu3SearchQuery} = require('../query/stu3');
-const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -11,7 +9,9 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {ConfigManager} = require('../../utils/configManager');
+const {SearchManager} = require('../search/searchManager');
+const {isTrue} = require('../../utils/isTrue');
 
 class HistoryByIdOperation {
     /**
@@ -22,6 +22,8 @@ class HistoryByIdOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {ConfigManager} configManager
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
@@ -30,7 +32,9 @@ class HistoryByIdOperation {
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
-            resourceLocatorFactory
+            resourceLocatorFactory,
+            configManager,
+            searchManager
         }
     ) {
         /**
@@ -66,6 +70,16 @@ class HistoryByIdOperation {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -73,8 +87,10 @@ class HistoryByIdOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @param {boolean} filter
      */
-    async historyById(requestInfo, args, resourceType) {
+    async historyById(requestInfo, args, resourceType,
+                      filter = true) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -94,6 +110,12 @@ class HistoryByIdOperation {
             protocol,
             /** @type {string | null} */
             host,
+            /** @type {string[]} */
+            patients = [],
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            fhirPersonId,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -106,15 +128,30 @@ class HistoryByIdOperation {
         });
 
         let {base_version, id} = args;
-        let query = {};
+        /**
+         * @type {boolean}
+         */
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
 
-        if (base_version === VERSIONS['3_0_1']) {
-            query = buildStu3SearchQuery(args);
-        } else if (base_version === VERSIONS['1_0_2']) {
-            query = buildDstu2SearchQuery(args);
-        }
-
-        query.id = `${id}`;
+        /**
+         * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+         */
+        const {
+            /** @type {import('mongodb').Document}**/
+            query,
+            // /** @type {Set} **/
+            // columns
+        } = await this.searchManager.constructQueryAsync({
+            user,
+            scope,
+            isUser,
+            patients,
+            args: Object.assign(args, {id: id.toString()}), // add id filter to query
+            resourceType,
+            useAccessIndex,
+            fhirPersonId,
+            filter
+        });
 
         // noinspection JSValidateTypes
         /**

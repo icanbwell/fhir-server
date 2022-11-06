@@ -365,7 +365,9 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            configManager: c.configManager,
+            searchManager: c.searchManager
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -375,7 +377,9 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            configManager: c.configManager,
+            searchManager: c.searchManager
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
