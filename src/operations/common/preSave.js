@@ -23,7 +23,7 @@ class PreSaveManager {
         }
 
         if (!resource._uuid) {
-            resource._uuid = `urn:uuid:${generateUUID()}`;
+            resource._uuid = `${generateUUID()}`;
         }
 
         if (resource.meta && resource.meta.security) {
