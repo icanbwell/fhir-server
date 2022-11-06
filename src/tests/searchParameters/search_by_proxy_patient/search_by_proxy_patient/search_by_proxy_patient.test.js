@@ -26,7 +26,7 @@ describe('Patient Tests', () => {
     });
 
     describe('Patient search_by_proxy_patient Tests', () => {
-        test('search by patient for normal patients works', async () => {
+        test('search obsrvations by patient for normal patients works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -56,7 +56,7 @@ describe('Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationNormal);
         });
-        test('search by patient for proxy patients works', async () => {
+        test('search observations by patient for proxy patients works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -89,7 +89,7 @@ describe('Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationProxyPatient);
         });
-        test('search by patient for proxy patients works with nested persons', async () => {
+        test('search observations by patient for proxy patients works with nested persons', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -128,6 +128,55 @@ describe('Patient Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationProxyPatient);
+        });
+        test('search observations by patient for proxy patients works with nested persons (access restricted to one)', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right Patient back
+            const healthsystem1ObservationResources = deepcopy(expectedObservationProxyPatient);
+            healthsystem1ObservationResources.entry = healthsystem1ObservationResources.entry.slice(0, 1);
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65634')
+                .set(getHeaders('user/*.read access/healthsystem1.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(healthsystem1ObservationResources);
+            const healthsystem2ObservationResources = deepcopy(expectedObservationProxyPatient);
+            healthsystem2ObservationResources.entry = healthsystem2ObservationResources.entry.slice(1, 2);
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65634')
+                .set(getHeaders('user/*.read access/healthsystem2.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(healthsystem2ObservationResources);
         });
         test('get patient for proxy patients works with nested persons (one patient)', async () => {
             const request = await createTestRequest();
