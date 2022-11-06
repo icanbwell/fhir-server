@@ -45,12 +45,12 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                 if (argValue.some(a => a.startsWith(personProxyPrefix))) {
                     args[`${argName}`] = await async.mapSeries(
                         argValue,
-                        async a => a.startsWith(personProxyPrefix) ? await this.fixPatientProxy(
+                        async a => a.startsWith(personProxyPrefix) ? await this.getPatientProxyIds(
                             {id: a, databaseQueryManager}) : a
                     );
                 }
             } else if (typeof argValue === 'string' && argValue.startsWith(personProxyPrefix)) {
-                args[`${argName}`] = await this.fixPatientProxy({
+                args[`${argName}`] = await this.getPatientProxyIds({
                     id: argValue, databaseQueryManager
                 });
             }
@@ -64,10 +64,30 @@ class PatientProxyQueryRewriter extends QueryRewriter {
      * @param {DatabaseQueryManager} databaseQueryManager
      * @return {Promise<string>}
      */
-    async fixPatientProxy({id, databaseQueryManager}) {
+    async getPatientProxyIds({id, databaseQueryManager}) {
         // 1. Get person id from id
         const personId = id.replace(personProxyPrefix, '');
         // 2. Get that Person resource from the database
+        const patientIds = await this.getPatientIdsFromPersonAsync(
+            {
+                personId,
+                databaseQueryManager
+            }
+        );
+        if (patientIds && patientIds.length > 0) {
+            // 4. return a csv of those patient ids (remove duplicates)
+            return Array.from(new Set(patientIds)).join(',');
+        }
+        return id;
+    }
+
+    /**
+     * gets patient ids (recursive) from a person
+     * @param {string} personId
+     * @param {DatabaseQueryManager} databaseQueryManager
+     * @return {Promise<string[]>}
+     */
+    async getPatientIdsFromPersonAsync({personId, databaseQueryManager}) {
         /**
          * @type {Person|null}
          */
@@ -76,18 +96,36 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                 query: {id: personId}
             }
         );
-        // 3. Read the patient ids in link property
+        /**
+         * @type {string[]}
+         */
+        let patientIds = [];
         if (person && person.link && person.link.length > 0) {
             const patientReferencePrefix = 'Patient/';
-            const patientIds = person.link
+            const personReferencePrefix = 'Person/';
+            const patientIdsToAdd = person.link
                 .filter(l => l.target.reference.startsWith(patientReferencePrefix))
                 .map(l => l.target.reference);
-            if (patientIds && patientIds.length > 0) {
-                // 4. return a csv of those patient ids
-                return patientIds.join(',');
-            }
+            patientIds = patientIds.concat(patientIdsToAdd);
+            // now find any Person links and call them recursively
+            const personIdsToRecurse = person.link
+                .filter(l => l.target.reference.startsWith(personReferencePrefix))
+                .map(l => l.target.reference.replace(personReferencePrefix, ''));
+            /**
+             * @type {*|Promise<unknown>}
+             */
+            const patientIdsFromPersons = await async.flatMapSeries(
+                personIdsToRecurse,
+                async i => await this.getPatientIdsFromPersonAsync({
+                        personId: i,
+                        databaseQueryManager
+                    }
+                )
+            );
+            patientIds = patientIds.concat(patientIdsFromPersons);
         }
-        return id;
+
+        return patientIds;
     }
 }
 
