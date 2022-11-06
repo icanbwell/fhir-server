@@ -239,7 +239,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                r4SearchQueryCreator: c.r4SearchQueryCreator
+                r4SearchQueryCreator: c.r4SearchQueryCreator,
+                searchManager: c.searchManager
             }
         )
     );

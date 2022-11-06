@@ -133,11 +133,14 @@ class SearchManager {
          * @type {string}
          */
         let {base_version} = args;
-        const allPatients = patients.concat(
+        /**
+         * @type {string[]|null}
+         */
+        const allPatients = patients ? patients.concat(
             await this.getLinkedPatientsAsync(
                 {
                     base_version, isUser, fhirPersonId
-                }));
+                })) : null;
         /**
          * @type {import('mongodb').Document}
          */
