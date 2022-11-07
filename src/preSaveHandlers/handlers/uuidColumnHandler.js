@@ -2,6 +2,7 @@ const {PreSaveHandler} = require('./preSaveHandler');
 const {generateUUID, isUuid} = require('../../utils/uid.util');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
+const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
 
 class UuidColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
@@ -22,10 +23,12 @@ class UuidColumnHandler extends PreSaveHandler {
 
         if (resource.identifier && !resource.identifier.some(s => s.system === IdentifierSystem.uuid)) {
             resource.identifier.push(
-                {
-                    'system': IdentifierSystem.uuid,
-                    'value': resource._uuid
-                }
+                new Identifier(
+                    {
+                        'system': IdentifierSystem.uuid,
+                        'value': resource._uuid
+                    }
+                )
             );
         }
 
