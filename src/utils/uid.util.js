@@ -14,7 +14,7 @@ const crypto = require('crypto');
  * @api private
  */
 function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
@@ -22,15 +22,15 @@ function getRandomInt(min, max) {
  * @param {number} length
  */
 let getUid = function (length) {
-  let uid = '';
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charsLength = chars.length;
+    let uid = '';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charsLength = chars.length;
 
-  for (let i = 0; i < length; ++i) {
-    uid += chars[getRandomInt(0, charsLength - 1)];
-  }
+    for (let i = 0; i < length; ++i) {
+        uid += chars[getRandomInt(0, charsLength - 1)];
+    }
 
-  return uid;
+    return uid;
 };
 
 /**
@@ -41,7 +41,7 @@ let getUid = function (length) {
  * @returns {string}
  */
 const getUuid = (obj) => {
-  return hash(obj);
+    return hash(obj);
 };
 
 /**
@@ -50,9 +50,21 @@ const getUuid = (obj) => {
  */
 const generateUUID = () => crypto.randomUUID();
 
+const uuidRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+
+/**
+ * Checks whether the provided string is a uuid using regex
+ * @param {string} text
+ * @return {boolean}
+ */
+function isUuid(text) {
+    return uuidRegex.test(text);
+}
+
 
 module.exports = {
-  getUid,
-  getUuid,
-  generateUUID
+    getUid,
+    getUuid,
+    generateUUID,
+    isUuid
 };
