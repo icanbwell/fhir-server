@@ -5,6 +5,7 @@ const deepEqual = require('fast-deep-equal');
 const {expect} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
+const {IdentifierSystem} = require('../utils/identifierSystem');
 
 /**
  * @typedef JestUtils
@@ -44,6 +45,14 @@ function cleanMeta(resource) {
     }
     if (resource.meta) {
         delete resource.meta.lastUpdated;
+    }
+
+    if (resource.identifier) {
+        resource.identifier.forEach((identifier) => {
+            if (identifier['system'] === IdentifierSystem.uuid && identifier['value']) {
+                delete identifier['value'];
+            }
+        });
     }
 
     return resource;
