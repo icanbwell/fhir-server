@@ -6,6 +6,7 @@ const {expect} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
 const {IdentifierSystem} = require('../utils/identifierSystem');
+const {ndjsonToJsonText} = require('ndjson-to-json-text');
 
 /**
  * @typedef JestUtils
@@ -224,13 +225,15 @@ function toHaveResponse(resp, expected, fnCleanResource) {
      * @type {JestUtils}
      */
     const utils = this.utils;
-    if (Array.isArray(resp.body) && !Array.isArray(expected)) {
+    const contentType = resp.headers['content-type'];
+    const body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
+    if (Array.isArray(body) && !Array.isArray(expected)) {
         expected = [expected];
     }
-    if (!Array.isArray(resp.body) && !resp.body.data && Array.isArray(expected)) {
+    if (!Array.isArray(body) && !body.data && Array.isArray(expected)) {
         expected = expected[0];
     }
-    if (!Array.isArray(resp.body) && resp.body.resourceType === 'Bundle') {
+    if (!Array.isArray(body) && body.resourceType === 'Bundle') {
         // handle bundles being returned
         if (Array.isArray(expected)) {
             // make into a bundle if it is not
@@ -243,14 +246,14 @@ function toHaveResponse(resp, expected, fnCleanResource) {
             };
         }
         return checkContent({
-            actual: resp.body, expected, utils, options, expand: this.expand,
+            actual: body, expected, utils, options, expand: this.expand,
             fnCleanResource
         });
-    } else if (resp.body.data && !(expected.body && expected.body.data) && !(expected.data)) {
+    } else if (body.data && !(expected.body && expected.body.data) && !(expected.data)) {
         // GraphQL response
         // get first property of resp.body.data
         // eslint-disable-next-line no-unused-vars
-        let [propertyName, propertyValue] = Object.entries(resp.body.data)[0];
+        let [propertyName, propertyValue] = Object.entries(body.data)[0];
         // see if the return value is a bundle
         if (propertyValue && !(Array.isArray(propertyValue)) && propertyValue.entry && Array.isArray(expected)) {
             propertyValue = propertyValue.entry.map(e => e.resource);
@@ -270,17 +273,17 @@ function toHaveResponse(resp, expected, fnCleanResource) {
             fnCleanResource
         });
     } else {
-        if (Array.isArray(resp.body)) {
-            resp.body.forEach((element) => {
+        if (Array.isArray(body)) {
+            body.forEach((element) => {
                 // clean out stuff that changes
                 cleanMeta(element);
             });
         } else {
-            cleanMeta(resp.body);
-            if (resp.body.resourceType) {
+            cleanMeta(body);
+            if (body.resourceType) {
                 const operationOutcome = validateResource(
-                    resp.body,
-                    resp.body.resourceType,
+                    body,
+                    body.resourceType,
                     ''
                 );
                 if (operationOutcome && operationOutcome.statusCode === 400) {
@@ -288,8 +291,8 @@ function toHaveResponse(resp, expected, fnCleanResource) {
                         source: 'expectResponse',
                         message: 'FHIR validation failed',
                         args: {
-                            resourceType: resp.body.resourceType,
-                            resource: resp.body,
+                            resourceType: body.resourceType,
+                            resource: body,
                             operationOutcome: operationOutcome,
                         },
                     });
@@ -306,7 +309,7 @@ function toHaveResponse(resp, expected, fnCleanResource) {
         }
     }
     return checkContent({
-        actual: resp.body, expected, utils, options, expand: this.expand,
+        actual: body, expected, utils, options, expand: this.expand,
         fnCleanResource
     });
 }
@@ -382,16 +385,18 @@ function toHaveResourceCount(resp, expected) {
         return toHaveStatusOk(resp);
     }
     let count;
-    if (!(Array.isArray(resp.body))) {
-        if (resp.body.resourceType === 'Bundle') {
-            count = resp.body.entry.length;
-        } else if (resp.body.resourceType) {
+    const contentType = resp.headers['content-type'];
+    const body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
+    if (!(Array.isArray(body))) {
+        if (body.resourceType === 'Bundle') {
+            count = body.entry.length;
+        } else if (body.resourceType) {
             count = 1;
         } else {
             count = 0;
         }
     } else {
-        count = resp.body.length;
+        count = body.length;
     }
     const pass = count === expected;
     const message = pass ? () =>
@@ -399,6 +404,7 @@ function toHaveResourceCount(resp, expected) {
         : () => `Resource count did not match: ${resp.text}`;
     return {actual: count, expected: expected, message, pass};
 }
+
 
 module.exports = {
     toHaveResponse,
