@@ -10,5 +10,5 @@ class SourceIdColumnHandler extends PreSaveHandler {
 }
 
 module.exports = {
-    SourceIdHandler: SourceIdColumnHandler
+    SourceIdColumnHandler
 };

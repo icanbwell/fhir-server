@@ -65,7 +65,7 @@ const {ExplanationOfBenefitsEnrichmentProvider} = require('./enrich/providers/ex
 const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
 const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
-const {SourceIdHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
+const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
 const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
@@ -94,7 +94,7 @@ const createContainer = function () {
     container.register('preSaveManager', () => new PreSaveManager({
         preSaveHandlers: [
             new DateColumnHandler(),
-            new SourceIdHandler(),
+            new SourceIdColumnHandler(),
             new UuidColumnHandler(),
             new AccessColumnHandler(),
             new SourceAssigningAuthorityColumnHandler()

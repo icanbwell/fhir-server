@@ -2,7 +2,7 @@ const {commonBeforeEach, commonAfterEach} = require('../../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
 const {DateColumnHandler} = require('../../../../preSaveHandlers/handlers/dateColumnHandler');
-const {SourceIdHandler} = require('../../../../preSaveHandlers/handlers/sourceIdColumnHandler');
+const {SourceIdColumnHandler} = require('../../../../preSaveHandlers/handlers/sourceIdColumnHandler');
 const {UuidColumnHandler} = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('../../../../preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('../../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
@@ -40,7 +40,7 @@ describe('Patient Tests', () => {
             const result = await new PreSaveManager({
                 preSaveHandlers: [
                     new DateColumnHandler(),
-                    new SourceIdHandler(),
+                    new SourceIdColumnHandler(),
                     new UuidColumnHandler(),
                     new AccessColumnHandler(),
                     new SourceAssigningAuthorityColumnHandler()
