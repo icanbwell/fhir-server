@@ -41,6 +41,13 @@
             "system": "http:/goodhealth.org/identifiers",
             "use": "official",
             "value": "20170201-001"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "example5"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "intent": "order",

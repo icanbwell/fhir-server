@@ -46,6 +46,7 @@ class ResourceMerger {
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
         if (currentResource.identifier &&
+            Array.isArray(currentResource.identifier) &&
             currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId) &&
             (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId))
         ) {
@@ -59,6 +60,7 @@ class ResourceMerger {
         }
 
         if (currentResource.identifier &&
+            Array.isArray(currentResource.identifier) &&
             currentResource.identifier.some(s => s.system === IdentifierSystem.uuid) &&
             (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))
         ) {

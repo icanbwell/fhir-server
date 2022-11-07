@@ -48,7 +48,7 @@ function cleanMeta(resource) {
         delete resource.meta.lastUpdated;
     }
 
-    if (resource.identifier) {
+    if (resource.identifier && Array.isArray(resource.identifier)) {
         resource.identifier.forEach((identifier) => {
             if (identifier['system'] === IdentifierSystem.uuid && identifier['value']) {
                 delete identifier['value'];

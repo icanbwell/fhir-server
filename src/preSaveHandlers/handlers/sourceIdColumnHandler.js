@@ -7,7 +7,7 @@ class SourceIdColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
         if (!resource._sourceId) {
             // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
-            if (resource.identifier && resource.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
+            if (resource.identifier && Array.isArray(resource.identifier) && resource.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
                 resource._sourceId = getFirstElementOrNull(
                     resource.meta.security.filter(s => s.system === IdentifierSystem.sourceId).map(s => s.value));
             }
@@ -17,7 +17,7 @@ class SourceIdColumnHandler extends PreSaveHandler {
         }
 
         // if an identifier with system=https://www.icanbwell.com/sourceId does not exist then create it
-        if (resource.identifier && !resource.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
+        if (resource.identifier && Array.isArray(resource.identifier) && !resource.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
             resource.identifier.push(
                 new Identifier(
                     {
