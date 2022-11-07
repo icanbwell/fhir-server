@@ -4,6 +4,8 @@ const {compare, applyPatch} = require('fast-json-patch');
 const moment = require('moment-timezone');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const {IdentifierSystem} = require('../../utils/identifierSystem');
+const {getFirstElementOrNull} = require('../../utils/list.util');
 
 /**
  * @description This class merges two resources
@@ -40,6 +42,34 @@ class ResourceMerger {
         resourceToMerge.meta.versionId = currentResource.meta.versionId;
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
+
+        // copy the identifiers over
+        // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
+        if (currentResource.identifier &&
+            currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId) &&
+            (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId))
+        ) {
+            if (!resourceToMerge.identifier) {
+                resourceToMerge.identifier = [];
+            }
+            resourceToMerge.identifier.push(
+                getFirstElementOrNull(
+                    currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+            );
+        }
+
+        if (currentResource.identifier &&
+            currentResource.identifier.some(s => s.system === IdentifierSystem.uuid) &&
+            (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))
+        ) {
+            if (!resourceToMerge.identifier) {
+                resourceToMerge.identifier = [];
+            }
+            resourceToMerge.identifier.push(
+                getFirstElementOrNull(
+                    currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid))
+            );
+        }
 
         // fix up any data that we normally fix up before saving so the comparison is correct
         await this.preSaveManager.preSaveAsync(resourceToMerge);
