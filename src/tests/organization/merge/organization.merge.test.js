@@ -22,52 +22,27 @@ describe('Organization Merge Tests', () => {
     describe('Organization Merge Bundles', () => {
         test('Organization name merges properly', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/4_0_0/Organization').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/Organization').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResourceInit)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {updated: true}]);
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResourceUpdate)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {updated: true}]);
 
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3  ------------');
-
-            resp = await request.get('/4_0_0/Organization?_count=10').set(getHeaders()).expect(200);
-
-            let body = resp.body;
-            console.log('------- response 4 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 4  ------------');
-            expect(body.length).toBe(2);
-            body.forEach((element) => {
-                delete element['meta']['lastUpdated'];
-            });
-            let expected = expectedOrganizationBundleResource;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                // element['meta'] = {'versionId': '1'};
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body).toStrictEqual(expected);
+            resp = await request.get('/4_0_0/Organization?_count=10').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedOrganizationBundleResource);
         });
     });
 });
