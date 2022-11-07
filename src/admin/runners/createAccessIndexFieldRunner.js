@@ -1,6 +1,10 @@
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {mongoConfig, auditEventMongoConfig} = require('../../config');
-const {generateUUID} = require('../../utils/uid.util');
+const {SourceIdColumnHandler} = require('../../preSaveHandlers/handlers/sourceIdColumnHandler');
+const {UuidColumnHandler} = require('../../preSaveHandlers/handlers/uuidColumnHandler');
+const {SourceAssigningAuthorityColumnHandler} = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const {AccessColumnHandler} = require('../../preSaveHandlers/handlers/accessColumnHandler');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -56,7 +60,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             return operations;
         }
         // Step 1: Add any missing _access tags
-        const accessCodes = doc.meta.security.filter(s => s.system === 'https://www.icanbwell.com/access').map(s => s.code);
+        const accessCodes = doc.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
         // update only the necessary field in the document
         const setCommand = {};
         /**
@@ -64,11 +68,8 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
          */
         let hasUpdate = false;
         if (accessCodes.length > 0 && !doc['_access']) {
-            const _access = {};
-            for (const accessCode of accessCodes) {
-                _access[`${accessCode}`] = 1;
-            }
-            setCommand['_access'] = _access;
+            doc = await new AccessColumnHandler().preSaveAsync({resource: doc});
+            setCommand['_access'] = doc._access;
             hasUpdate = true;
         }
         // Step 2: add any missing _sourceAssigningAuthority tags
@@ -76,28 +77,30 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
          * @type {string[]}
          */
         let sourceAssigningAuthorityCodes = doc.meta.security.filter(
-            s => s.system === 'https://www.icanbwell.com/sourceAssigningAuthority').map(s => s.code);
+            s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
         // if no sourceAssigningAuthorityCodes so fall back to owner tags
         if (sourceAssigningAuthorityCodes.length === 0) {
             sourceAssigningAuthorityCodes = doc.meta.security.filter(
-                s => s.system === 'https://www.icanbwell.com/owner').map(s => s.code);
+                s => s.system === SecurityTagSystem.owner).map(s => s.code);
         }
         if (sourceAssigningAuthorityCodes.length > 0 && !doc['_sourceAssigningAuthority']) {
-            const _sourceAssigningAuthority = {};
-            for (const sourceAssigningAuthorityCode of sourceAssigningAuthorityCodes) {
-                _sourceAssigningAuthority[`${sourceAssigningAuthorityCode}`] = 1;
-            }
-            setCommand['_sourceAssigningAuthority'] = _sourceAssigningAuthority;
+            doc = await new SourceAssigningAuthorityColumnHandler().preSaveAsync({resource: doc});
+            setCommand['_sourceAssigningAuthority'] = doc._sourceAssigningAuthority;
+            setCommand['meta'] = doc.meta;
             hasUpdate = true;
         }
         // Step 3: add _sourceId
         if (!doc['_sourceId']) {
-            setCommand['_sourceId'] = doc.id;
+            doc = await new SourceIdColumnHandler().preSaveAsync({resource: doc});
+            setCommand['_sourceId'] = doc._sourceId;
+            setCommand['meta'] = doc.meta;
             hasUpdate = true;
         }
         // Step 4: add _uuid
         if (!doc['_uuid']) {
-            setCommand['_uuid'] = `${generateUUID()}`;
+            doc = await new UuidColumnHandler().preSaveAsync({resource: doc});
+            setCommand['_uuid'] = doc._uuid;
+            setCommand['meta'] = doc.meta;
             hasUpdate = true;
         }
         // if there are any updates to be done

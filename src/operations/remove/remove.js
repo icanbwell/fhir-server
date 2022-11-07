@@ -14,6 +14,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ConfigManager} = require('../../utils/configManager');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 class RemoveOperation {
     /**
@@ -157,7 +158,7 @@ class RemoveOperation {
                     {
                         'meta.security': {
                             '$elemMatch': {
-                                'system': 'https://www.icanbwell.com/access',
+                                'system': SecurityTagSystem.access,
                                 'code': {
                                     '$in': securityTags
                                 }

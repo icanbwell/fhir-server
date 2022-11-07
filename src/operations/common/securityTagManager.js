@@ -4,6 +4,7 @@ const {profiles} = require('../../profiles');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
 const {AccessIndexManager} = require('./accessIndexManager');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 /**
  * This class manages queries for security tags
@@ -116,7 +117,7 @@ class SecurityTagManager {
                 securityTagQuery = {
                     'meta.security': {
                         '$elemMatch': {
-                            'system': 'https://www.icanbwell.com/access',
+                            'system': SecurityTagSystem.access,
                             'code': securityTags[0]
                         }
                     }
@@ -125,7 +126,7 @@ class SecurityTagManager {
                 securityTagQuery = {
                     'meta.security': {
                         '$elemMatch': {
-                            'system': 'https://www.icanbwell.com/access',
+                            'system': SecurityTagSystem.access,
                             'code': {
                                 '$in': securityTags
                             }

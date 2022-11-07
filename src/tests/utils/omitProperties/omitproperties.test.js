@@ -1,6 +1,7 @@
 const { commonBeforeEach, commonAfterEach } = require('../../common');
 const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 const { omitProperty } = require('../../../utils/omitProperties');
+const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -21,11 +22,11 @@ describe('Patient Tests', () => {
                     profile: ['http://hl7.org/fhir/us/core/StructureDefinition/us-core-person'],
                     security: [
                         {
-                            system: 'https://www.icanbwell.com/access',
+                            system: SecurityTagSystem.access,
                             code: 'bwell',
                         },
                         {
-                            system: 'https://www.icanbwell.com/owner',
+                            system: SecurityTagSystem.owner,
                             code: 'bwell',
                         },
                     ],

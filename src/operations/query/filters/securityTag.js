@@ -1,4 +1,5 @@
 const {tokenQueryBuilder} = require('../../../utils/querybuilder.util');
+const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
 
 /**
  * Filters by token
@@ -66,7 +67,7 @@ function filterBySecurityTag(
             const decodedTokenQueryItem = decodeURIComponent(tokenQueryItem);
             if (decodedTokenQueryItem.includes('|')) {
                 const [system, value] = decodedTokenQueryItem.split('|');
-                if (system === 'https://www.icanbwell.com/access' && fnUseAccessIndex(value)) {
+                if (system === SecurityTagSystem.access && fnUseAccessIndex(value)) {
                     // http://www.hl7.org/fhir/search.html#token
                     const field = `_access.${value}`;
                     and_segments.push(
