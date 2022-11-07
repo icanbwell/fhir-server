@@ -1,4 +1,4 @@
-const EnrichmentProvider = require('./enrichmentProvider');
+const {EnrichmentProvider} = require('./enrichmentProvider');
 
 class IdEnrichmentProvider extends EnrichmentProvider {
     /**

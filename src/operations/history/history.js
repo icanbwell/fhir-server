@@ -1,5 +1,3 @@
-const {buildStu3SearchQuery} = require('../../operations/query/stu3');
-const {buildDstu2SearchQuery} = require('../../operations/query/dstu2');
 const {NotFoundError} = require('../../utils/httpErrors');
 const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -9,7 +7,9 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {ConfigManager} = require('../../utils/configManager');
+const {SearchManager} = require('../search/searchManager');
+const {isTrue} = require('../../utils/isTrue');
 
 class HistoryOperation {
     /**
@@ -20,6 +20,8 @@ class HistoryOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {ConfigManager} configManager
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
@@ -28,7 +30,9 @@ class HistoryOperation {
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
-            resourceLocatorFactory
+            resourceLocatorFactory,
+            configManager,
+            searchManager
         }
     ) {
         /**
@@ -64,6 +68,16 @@ class HistoryOperation {
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -71,8 +85,9 @@ class HistoryOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @param {boolean} filter
      */
-    async history(requestInfo, args, resourceType) {
+    async history(requestInfo, args, resourceType, filter = true) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -92,6 +107,12 @@ class HistoryOperation {
             protocol,
             /** @type {string | null} */
             host,
+            /** @type {string[]} */
+            patients = [],
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            fhirPersonId,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -106,13 +127,31 @@ class HistoryOperation {
         // Common search params
         let {base_version} = args;
 
-        let query = {};
+        /**
+         * @type {boolean}
+         */
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
 
-        if (base_version === VERSIONS['3_0_1']) {
-            query = buildStu3SearchQuery(args);
-        } else if (base_version === VERSIONS['1_0_2']) {
-            query = buildDstu2SearchQuery(args);
-        }
+        /**
+         * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+         */
+        const {
+            /** @type {import('mongodb').Document}**/
+            query,
+            // /** @type {Set} **/
+            // columns
+        } = await this.searchManager.constructQueryAsync({
+            user,
+            scope,
+            isUser,
+            patients,
+            args: args,
+            resourceType,
+            useAccessIndex,
+            fhirPersonId,
+            filter
+        });
+
         // noinspection JSValidateTypes
         /**
          * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}

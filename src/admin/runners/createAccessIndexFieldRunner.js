@@ -97,7 +97,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
         }
         // Step 4: add _uuid
         if (!doc['_uuid']) {
-            setCommand['_uuid'] = `urn:uuid:${generateUUID()}`;
+            setCommand['_uuid'] = `${generateUUID()}`;
             hasUpdate = true;
         }
         // if there are any updates to be done

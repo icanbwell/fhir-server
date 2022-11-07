@@ -2,8 +2,8 @@ const deepEqual = require('fast-deep-equal');
 const {mergeObject} = require('../../utils/mergeHelper');
 const {compare, applyPatch} = require('fast-json-patch');
 const moment = require('moment-timezone');
-const {PreSaveManager} = require('./preSave');
 const {assertTypeEquals} = require('../../utils/assertType');
+const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 
 /**
  * @description This class merges two resources

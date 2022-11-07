@@ -58,21 +58,32 @@ const {IndexProvider} = require('./indexes/indexProvider');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 const {R4SearchQueryCreator} = require('./operations/query/r4');
 const {FhirTypesManager} = require('./fhir/fhirTypesManager');
-const {PreSaveManager} = require('./operations/common/preSave');
+const {PreSaveManager} = require('./preSaveHandlers/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
+const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
+const {ExplanationOfBenefitsEnrichmentProvider} = require('./enrich/providers/explanationOfBenefitsEnrichmentProvider');
+const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
+const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
+const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
+const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
+const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
+const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
+const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 
 /**
  * Creates a container and sets up all the services
  * @return {SimpleContainer}
  */
 const createContainer = function () {
-    // Note the order of registration does NOT matter
+    // Note: the order of registration does NOT matter since everything is lazy evaluated
     const container = new SimpleContainer();
 
     container.register('configManager', () => new ConfigManager());
 
     container.register('scopesManager', () => new ScopesManager());
-    container.register('enrichmentManager', () => new EnrichmentManager({}));
+    container.register('enrichmentManager', () => new EnrichmentManager({
+        enrichmentProviders: [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()]
+    }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,
@@ -80,7 +91,15 @@ const createContainer = function () {
             enrichmentManager: c.enrichmentManager
         }
     ));
-    container.register('preSaveManager', () => new PreSaveManager());
+    container.register('preSaveManager', () => new PreSaveManager({
+        preSaveHandlers: [
+            new DateColumnHandler(),
+            new SourceIdColumnHandler(),
+            new UuidColumnHandler(),
+            new AccessColumnHandler(),
+            new SourceAssigningAuthorityColumnHandler()
+        ]
+    }));
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
     }));
@@ -166,6 +185,14 @@ const createContainer = function () {
         indexProvider: c.indexProvider
     }));
 
+    container.register('queryRewriterManager', (c) => new QueryRewriterManager({
+        queryRewriters: [
+            new PatientProxyQueryRewriter({
+                databaseQueryFactory: c.databaseQueryFactory
+            })
+        ]
+    }));
+
     container.register('searchManager', (c) => new SearchManager(
             {
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -174,7 +201,8 @@ const createContainer = function () {
                 resourcePreparer: c.resourcePreparer,
                 indexHinter: c.indexHinter,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
-                configManager: c.configManager
+                configManager: c.configManager,
+                queryRewriterManager: c.queryRewriterManager
             }
         )
     );
@@ -235,7 +263,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                r4SearchQueryCreator: c.r4SearchQueryCreator
+                r4SearchQueryCreator: c.r4SearchQueryCreator,
+                searchManager: c.searchManager
             }
         )
     );
@@ -277,7 +306,8 @@ const createContainer = function () {
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            enrichmentManager: c.enrichmentManager
+            enrichmentManager: c.enrichmentManager,
+            configManager: c.configManager
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(
@@ -348,7 +378,9 @@ const createContainer = function () {
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            enrichmentManager: c.enrichmentManager
+            enrichmentManager: c.enrichmentManager,
+            configManager: c.configManager,
+            searchManager: c.searchManager
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -358,7 +390,9 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            configManager: c.configManager,
+            searchManager: c.searchManager
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -368,7 +402,9 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            configManager: c.configManager,
+            searchManager: c.searchManager
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(

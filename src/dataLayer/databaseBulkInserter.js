@@ -18,7 +18,7 @@ const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const {RethrownError} = require('../utils/rethrownError');
 const {isTrue} = require('../utils/isTrue');
 const {databaseBulkInserterTimer} = require('../utils/prometheus.utils');
-const {PreSaveManager} = require('../operations/common/preSave');
+const {PreSaveManager} = require('../preSaveHandlers/preSave');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();

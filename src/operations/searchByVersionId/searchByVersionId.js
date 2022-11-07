@@ -7,6 +7,9 @@ const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const {isTrue} = require('../../utils/isTrue');
+const {ConfigManager} = require('../../utils/configManager');
+const {SearchManager} = require('../search/searchManager');
 
 class SearchByVersionIdOperation {
     /**
@@ -16,6 +19,8 @@ class SearchByVersionIdOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
+     * @param {ConfigManager} configManager
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
@@ -23,7 +28,9 @@ class SearchByVersionIdOperation {
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            enrichmentManager
+            enrichmentManager,
+            configManager,
+            searchManager
         }
     ) {
         /**
@@ -53,6 +60,16 @@ class SearchByVersionIdOperation {
          */
         this.enrichmentManager = enrichmentManager;
         assertTypeEquals(enrichmentManager, EnrichmentManager);
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -60,8 +77,10 @@ class SearchByVersionIdOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @param {boolean} filter
      */
-    async searchByVersionId(requestInfo, args, resourceType) {
+    async searchByVersionId(requestInfo, args, resourceType,
+                            filter = true) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -70,24 +89,64 @@ class SearchByVersionIdOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope} = requestInfo;
-
-        await this.scopesValidator.verifyHasValidScopesAsync(
-            {
-                requestInfo,
-                args,
-                resourceType,
-                startTime,
-                action: currentOperationName,
-                accessRequested: 'read'
-            }
-        );
+        const {
+            /** @type {string[]} */
+            patients = [],
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            fhirPersonId,
+            /** @type {string | null} */
+            user,
+            /** @type {string | null} */
+            scope,
+            // /** @type {string} */
+            // requestId
+        } = requestInfo;
 
         try {
 
             let {base_version, id, version_id} = args;
+            args['id'] = id.toString(); // add id filter to query
+            // check if user has permissions to access this resource
+            await this.scopesValidator.verifyHasValidScopesAsync(
+                {
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    accessRequested: 'read'
+                }
+            );
 
-            // Query our collection for this observation
+
+            /**
+             * @type {boolean}
+             */
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
+
+            /**
+             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+             */
+            const {
+                /** @type {import('mongodb').Document}**/
+                query,
+                // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync({
+                user,
+                scope,
+                isUser,
+                patients,
+                args: Object.assign(args, {id: id.toString()}), // add id filter to query
+                resourceType,
+                useAccessIndex,
+                fhirPersonId,
+                filter
+            });
+
+            query['meta.versionId'] = `${version_id}`;
             /**
              * @type {Resource|null}
              */
@@ -98,7 +157,7 @@ class SearchByVersionIdOperation {
                         resourceType, base_version
                     }
                 ).findOneAsync({
-                    query: {id: id.toString(), 'meta.versionId': `${version_id}`}
+                    query: query
                 });
             } catch (e) {
                 throw new BadRequestError(e);

@@ -27,6 +27,7 @@ const {RethrownError} = require('../../utils/rethrownError');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {R4SearchQueryCreator} = require('../query/r4');
 const {ConfigManager} = require('../../utils/configManager');
+const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
 const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
 const idProjection = {id: 1, _id: 0};
@@ -41,6 +42,7 @@ class SearchManager {
      * @param {IndexHinter} indexHinter
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {ConfigManager} configManager
+     * @param {QueryRewriterManager} queryRewriterManager
      */
     constructor(
         {
@@ -50,7 +52,8 @@ class SearchManager {
             resourcePreparer,
             indexHinter,
             r4SearchQueryCreator,
-            configManager
+            configManager,
+            queryRewriterManager
         }
     ) {
         /**
@@ -92,6 +95,9 @@ class SearchManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        this.queryRewriterManager = queryRewriterManager;
+        assertTypeEquals(queryRewriterManager, QueryRewriterManager);
     }
 
     /**
@@ -103,10 +109,11 @@ class SearchManager {
      * @param {Object?} args
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
+     * @param {string} fhirPersonId
      * @param {boolean} filter
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
-    constructQuery(
+    async constructQueryAsync(
         {
             user, scope,
             isUser,
@@ -114,17 +121,29 @@ class SearchManager {
             args,
             resourceType,
             useAccessIndex,
+            fhirPersonId,
             filter = true
         }
     ) {
+        /**
+         * @type {string}
+         */
+        const {base_version} = args;
+        assertIsValid(base_version);
+        // see if any query rewriters want to rewrite the args
+        args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});
         /**
          * @type {string[]}
          */
         let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
         /**
-         * @type {string}
+         * @type {string[]|null}
          */
-        let {base_version} = args;
+        const allPatients = patients ? patients.concat(
+            await this.getLinkedPatientsAsync(
+                {
+                    base_version, isUser, fhirPersonId
+                })) : null;
         /**
          * @type {import('mongodb').Document}
          */
@@ -154,8 +173,10 @@ class SearchManager {
                 resourceType, securityTags, query, useAccessIndex
             });
         if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
-            query = this.securityTagManager.getQueryWithPatientFilter({patients, query, resourceType});
+            query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
         }
+
+        ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({base_version, query, columns, resourceType}));
         return {base_version, query, columns};
     }
 

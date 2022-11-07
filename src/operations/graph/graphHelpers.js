@@ -19,6 +19,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {RethrownError} = require('../../utils/rethrownError');
+const {SearchManager} = require('../search/searchManager');
 
 
 /**
@@ -44,6 +45,7 @@ class GraphHelper {
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
@@ -54,7 +56,8 @@ class GraphHelper {
             configManager,
             bundleManager,
             resourceLocatorFactory,
-            r4SearchQueryCreator
+            r4SearchQueryCreator,
+            searchManager
         }
     ) {
         /**
@@ -102,6 +105,11 @@ class GraphHelper {
          */
         this.r4SearchQueryCreator = r4SearchQueryCreator;
         assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -236,27 +244,33 @@ class GraphHelper {
             projection['_id'] = 0;
             options['projection'] = projection;
             /**
-             * @type {string[]}
+             * @type {boolean}
              */
-            let securityTags = this.securityTagManager.getSecurityTagsFromScope({
-                user: requestInfo.user,
-                scope: requestInfo.scope
-            });
+            const useAccessIndex = this.configManager.useAccessIndex;
+
             /**
-             * @type {Object}
+             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
-            let query = {
-                'id': {
-                    $in: relatedReferenceIds
-                }
-            };
+            let {
+                /** @type {import('mongodb').Document}**/
+                query,
+                // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync({
+                user: requestInfo.user,
+                scope: requestInfo.scope,
+                isUser: requestInfo.isUser,
+                patients: requestInfo.patients,
+                args: Object.assign({'base_version': base_version}, {'id': relatedReferenceIds}), // add id filter to query
+                resourceType,
+                useAccessIndex,
+                fhirPersonId: requestInfo.fhirPersonId,
+                filter: true
+            });
+
             if (filterProperty) {
                 query[`${filterProperty}`] = filterValue;
             }
-            query = this.securityTagManager.getQueryWithSecurityTags(
-                {
-                    resourceType, securityTags, query
-                });
             /**
              * @type {number}
              */
@@ -390,22 +404,32 @@ class GraphHelper {
              * @type {Object}
              */
             const args = this.parseQueryStringIntoArgs(reverseFilterWithParentIds);
+            args['base_version'] = base_version;
             const searchParameterName = Object.keys(args)[0];
-            let query = this.r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: relatedResourceType, args
-            }).query;
+            /**
+             * @type {boolean}
+             */
+            const useAccessIndex = this.configManager.useAccessIndex;
 
             /**
-             * @type {string[]}
+             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
-            let securityTags = this.securityTagManager.getSecurityTagsFromScope({
+            let {
+                /** @type {import('mongodb').Document}**/
+                query,
+                // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync({
                 user: requestInfo.user,
-                scope: requestInfo.scope
+                scope: requestInfo.scope,
+                isUser: requestInfo.isUser,
+                patients: requestInfo.patients,
+                args,
+                resourceType: relatedResourceType,
+                useAccessIndex,
+                fhirPersonId: requestInfo.fhirPersonId,
+                filter: true
             });
-            query = this.securityTagManager.getQueryWithSecurityTags(
-                {
-                    resourceType: relatedResourceType, securityTags, query
-                });
 
             const options = {};
             const projection = {};

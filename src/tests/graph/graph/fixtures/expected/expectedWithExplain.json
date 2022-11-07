@@ -134,7 +134,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.ExplanationOfBenefit_4_0_0.find({'id':{'$in':['WPS-Claim-230916613369','WPS-Claim-230916613368']}}, {'_id':0})  | db.ExplanationOfBenefit_4_0_0.find({'id':{'$in':['WPS-6678928210']}}, {}) | db.ExplanationOfBenefit_4_0_0.find({'id':{'$in':['WPS-Health']}}, {}) | db.ExplanationOfBenefit_4_0_0.find({'id':{'$in':['1376656959']}}, {})",
+        "display": "db.ExplanationOfBenefit_4_0_0.find({'id':{'$in':['WPS-Claim-230916613369','WPS-Claim-230916613368']}}, {'_id':0})  | db.ExplanationOfBenefit_4_0_0.find({'$and':[{'id':{'$in':['WPS-6678928210']}}]}, {}) | db.ExplanationOfBenefit_4_0_0.find({'$and':[{'id':{'$in':['WPS-Health']}}]}, {}) | db.ExplanationOfBenefit_4_0_0.find({'$and':[{'id':{'$in':['1376656959']}}]}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {

@@ -1,5 +1,5 @@
 const { getResources } = require('../../common');
-const { getUuid } = require('../../../../utils/uid.util');
+const { getHash } = require('../../../../utils/uid.util');
 const { MergeOperation } = require('../../../../operations/merge/merge');
 const { getRequestInfo } = require('../../requestInfoHelper');
 const { assertTypeEquals } = require('../../../../utils/assertType');
@@ -90,7 +90,7 @@ module.exports = {
                 // create care team
                 const careTeam = mapCareTeam(args.team);
                 if (!careTeam.id) {
-                    careTeam.id = getUuid(careTeam);
+                    careTeam.id = getHash(careTeam);
                 }
                 /**
                  * @type {import('../../../../utils/fhirRequestInfo').FhirRequestInfo}
