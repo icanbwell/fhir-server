@@ -1,203 +1,223 @@
 {
-    "entry": [
-        {
-            "resource": {
-                "active": true,
-                "communication": [
-                    {
-                        "coding": [
-                            {
-                                "code": "en",
-                                "system": "urn:ietf:bcp:47"
-                            }
-                        ]
-                    }
-                ],
-                "gender": "unknown",
-                "identifier": [
-                    {
-                        "system": "http://medstarhealth.org",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "PRN",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ]
-                        },
-                        "use": "usual",
-                        "value": "4657"
-                    },
-                    {
-                        "system": "http://hl7.org/fhir/sid/us-npi",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "NPI",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ]
-                        },
-                        "use": "official",
-                        "value": "1679033641"
-                    }
-                ],
-                "meta": {
-                    "security": [
-                        {
-                            "code": "medstar",
-                            "system": "https://www.icanbwell.com/access"
-                        }
-                    ],
-                    "versionId": "1"
-                },
-                "name": [
-                    {
-                        "family": "NAJJAR  MD",
-                        "given": ["SAMER S."],
-                        "text": "SAMER S. NAJJAR  MD",
-                        "use": "usual"
-                    }
-                ],
-                "qualification": [
-                    {
-                        "code": {
-                            "coding": [
-                                {
-                                    "code": "MD",
-                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "code": {
-                            "coding": [
-                                {
-                                    "code": "MD",
-                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
-                                }
-                            ]
-                        },
-                        "issuer": {
-                            "reference": "Organization/Stanford_Medical_School"
-                        },
-                        "period": {
-                            "end": "2021-12-11",
-                            "start": "1960-01-01"
-                        }
-                    }
-                ],
-                "resourceType": "Practitioner",
-                "telecom": [
-                    {
-                        "system": "email",
-                        "use": "work",
-                        "value": "foo@foo.com"
-                    }
-                ]
+  "entry": [
+    {
+      "resource": {
+        "active": true,
+        "communication": [
+          {
+            "coding": [
+              {
+                "code": "en",
+                "system": "urn:ietf:bcp:47"
+              }
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "id": "1d95a8c8-a884-480a-b9ad-ef90c8a238f3",
+        "identifier": [
+          {
+            "system": "http://medstarhealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "PRN",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "usual",
+            "value": "4657"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "type": {
+              "coding": [
+                {
+                  "code": "NPI",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "official",
+            "value": "1679033641"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2750689f-5651-4e65-8691-7e0e3c1e43f1"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
             }
+          ],
+          "versionId": "1"
         },
-        {
-            "resource": {
-                "active": false,
-                "communication": [
-                    {
-                        "coding": [
-                            {
-                                "code": "en",
-                                "system": "urn:ietf:bcp:47"
-                            }
-                        ]
-                    }
-                ],
-                "gender": "unknown",
-                "identifier": [
-                    {
-                        "system": "http://medstarhealth.org",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "PRN",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ]
-                        },
-                        "use": "usual",
-                        "value": "4657"
-                    },
-                    {
-                        "system": "http://hl7.org/fhir/sid/us-npi",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "NPI",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ]
-                        },
-                        "use": "official",
-                        "value": "1679033641"
-                    }
-                ],
-                "meta": {
-                    "security": [
-                        {
-                            "code": "medstar",
-                            "system": "https://www.icanbwell.com/access"
-                        }
-                    ],
-                    "versionId": "1"
-                },
-                "name": [
-                    {
-                        "family": "NAJJAR  MD",
-                        "given": ["SAMER S."],
-                        "text": "SAMER S. NAJJAR  MD",
-                        "use": "usual"
-                    }
-                ],
-                "qualification": [
-                    {
-                        "code": {
-                            "coding": [
-                                {
-                                    "code": "MD",
-                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "code": {
-                            "coding": [
-                                {
-                                    "code": "MD",
-                                    "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
-                                }
-                            ]
-                        },
-                        "issuer": {
-                            "reference": "Organization/Stanford_Medical_School"
-                        },
-                        "period": {
-                            "end": "2021-12-11",
-                            "start": "1960-01-01"
-                        }
-                    }
-                ],
-                "resourceType": "Practitioner",
-                "telecom": [
-                    {
-                        "system": "email",
-                        "use": "work",
-                        "value": "foo@foo.com"
-                    }
-                ]
+        "name": [
+          {
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ],
+            "text": "SAMER S. NAJJAR  MD",
+            "use": "usual"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
             }
-        }
-    ],
-    "resourceType": "Bundle",
-    "total": 0,
-    "type": "searchset"
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            },
+            "issuer": {
+              "reference": "Organization/Stanford_Medical_School"
+            },
+            "period": {
+              "end": "2021-12-11",
+              "start": "1960-01-01"
+            }
+          }
+        ],
+        "resourceType": "Practitioner",
+        "telecom": [
+          {
+            "system": "email",
+            "use": "work",
+            "value": "foo@foo.com"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "active": false,
+        "communication": [
+          {
+            "coding": [
+              {
+                "code": "en",
+                "system": "urn:ietf:bcp:47"
+              }
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "id": "52a08809-594c-4fea-be38-9f9d9aaf7566",
+        "identifier": [
+          {
+            "system": "http://medstarhealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "PRN",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "usual",
+            "value": "4657"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "type": {
+              "coding": [
+                {
+                  "code": "NPI",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "official",
+            "value": "1679033641"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2750689f-5651-4e65-8691-7e0e3c1e43f1"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ],
+            "text": "SAMER S. NAJJAR  MD",
+            "use": "usual"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            },
+            "issuer": {
+              "reference": "Organization/Stanford_Medical_School"
+            },
+            "period": {
+              "end": "2021-12-11",
+              "start": "1960-01-01"
+            }
+          }
+        ],
+        "resourceType": "Practitioner",
+        "telecom": [
+          {
+            "system": "email",
+            "use": "work",
+            "value": "foo@foo.com"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
 }

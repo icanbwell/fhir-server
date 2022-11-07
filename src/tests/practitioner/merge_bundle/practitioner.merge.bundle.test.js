@@ -7,7 +7,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('Practitioner Merge Bundle Tests', () => {
     beforeEach(async () => {
@@ -22,46 +22,19 @@ describe('Practitioner Merge Bundle Tests', () => {
         test('Multiple calls to Practitioner merge bundles properly', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
-
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/4657/$merge')
                 .send(practitionerBundleResource)
                 .set(getHeaders());
-
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
-
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            console.log('------- response 5 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 5  ------------');
-            expect(body.length).toBe(2);
-            body.forEach((element) => {
-                delete element['meta']['lastUpdated'];
-            });
-            let expected = expectedPractitionerBundleResource;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                element['meta']['versionId'] = '1';
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body).toStrictEqual(expected);
-        })
-        ;
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerBundleResource);
+        });
     });
 });
