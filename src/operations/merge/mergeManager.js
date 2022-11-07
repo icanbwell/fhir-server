@@ -1,6 +1,5 @@
 const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
-const {PreSaveManager} = require('../common/preSave');
 const {ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const env = require('var');
@@ -23,6 +22,7 @@ const {ResourceMerger} = require('../common/resourceMerger');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
+const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();

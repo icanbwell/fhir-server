@@ -58,12 +58,17 @@ const {IndexProvider} = require('./indexes/indexProvider');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 const {R4SearchQueryCreator} = require('./operations/query/r4');
 const {FhirTypesManager} = require('./fhir/fhirTypesManager');
-const {PreSaveManager} = require('./operations/common/preSave');
+const {PreSaveManager} = require('./preSaveHandlers/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
 const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
 const {ExplanationOfBenefitsEnrichmentProvider} = require('./enrich/providers/explanationOfBenefitsEnrichmentProvider');
 const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
 const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
+const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
+const {SourceIdHandler} = require('./preSaveHandlers/handlers/sourceIdColumnHandler');
+const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
+const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
+const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 
 /**
  * Creates a container and sets up all the services
@@ -86,7 +91,15 @@ const createContainer = function () {
             enrichmentManager: c.enrichmentManager
         }
     ));
-    container.register('preSaveManager', () => new PreSaveManager());
+    container.register('preSaveManager', () => new PreSaveManager({
+        preSaveHandlers: [
+            new DateColumnHandler(),
+            new SourceIdHandler(),
+            new UuidColumnHandler(),
+            new AccessColumnHandler(),
+            new SourceAssigningAuthorityColumnHandler()
+        ]
+    }));
     container.register('resourceMerger', (c) => new ResourceMerger({
         preSaveManager: c.preSaveManager
     }));

@@ -1,6 +1,6 @@
 const {commonBeforeEach, commonAfterEach} = require('../../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {PreSaveManager} = require('../../../../operations/common/preSave');
+const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
