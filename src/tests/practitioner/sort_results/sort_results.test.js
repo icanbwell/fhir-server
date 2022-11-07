@@ -83,7 +83,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
+            expect(resp).toHaveResourceCount(2);
 
             resp = await request
                 .get('/4_0_0/Practitioner?_sort=-meta.lastUpdated')
