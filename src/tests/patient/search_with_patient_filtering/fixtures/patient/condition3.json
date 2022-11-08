@@ -1,6 +1,6 @@
 {
     "resourceType": "Condition",
-    "id": "patient-123-c-condition",
+    "id": "patient-123-a-condition",
     "meta": {
         "versionId": "1",
         "lastUpdated": "2021-09-24T02:33:06+00:00",
@@ -13,6 +13,6 @@
         ]
     },
     "subject": {
-        "reference": "Patient/patient-123-c"
+        "reference": "Patient/patient-123-a"
     }
 }
