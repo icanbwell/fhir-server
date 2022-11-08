@@ -35,6 +35,30 @@
             <!-- prettier-ignore -->
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'AuditEvent', property:'agent'}], id:res.id, name: "Audit Event"}); %>
 
+            <hr></hr>
+            <h3>Resources in Linked Patient Resources</h3>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Account', property:'patient'}], id:`Patient/person.${res.id}`, name: "Account" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'AllergyIntolerance', property:'patient'}], id:`Patient/person.${res.id}`, name: "AllergyIntolerance" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Appointment', property:'patient'}], id:`Patient/person.${res.id}`, name: "Appointment" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'AuditEvent', property:'patient'}], id:`Patient/person.${res.id}`, name: "AuditEvent" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'CareTeam', property:'patient'}], id:`Patient/person.${res.id}`, name: "CareTeam" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Condition', property:'patient'}], id:`Patient/person.${res.id}`, name: "Condition" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ChargeItem', property:'patient'}], id:`Patient/person.${res.id}`, name: "ChargeItem" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Coverage', property:'patient'}], id:`Patient/person.${res.id}`, name: "Coverage" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Encounter', property:'patient'}], id:`Patient/person.${res.id}`, name: "Encounter" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Immunization', property:'patient'}], id:`Patient/person.${res.id}`, name: "Immunization" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ExplanationOfBenefit', property:'patient'}], id:`Patient/person.${res.id}`, name: "ExplanationOfBenefit" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MeasureReport', property:'patient'}], id:`Patient/person.${res.id}`, name: "MeasureReport" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationRequest', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationRequest" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationStatement', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationStatement" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Observation', property:'patient'}], id:`Patient/person.${res.id}`, name: "Observation" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Person', property:'patient'}], id:`Patient/person.${res.id}`, name: "Person" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Procedure', property:'patient'}], id:`Patient/person.${res.id}`, name: "Procedure" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'patient'}], id:`Patient/person.${res.id}`, name: "Schedule" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ServiceRequest', property:'patient'}], id:`Patient/person.${res.id}`, name: "ServiceRequest" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Task', property:'patient'}], id:`Patient/person.${res.id}`, name: "Task" }); %>
+
+
             <%- include('../partials/json', {res: res, index: index}); %>
         </div>
     <% }); %>

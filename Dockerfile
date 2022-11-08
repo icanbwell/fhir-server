@@ -13,7 +13,7 @@ RUN mkdir /srv/src
 COPY package.json /srv/src/package.json
 
 RUN echo "$NODE_ENV"
-RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src && rm --force package-lock.json && yarn install --no-optional --production=true; fi
+RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src && rm --force package-lock.json && yarn clean cache && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
 
 #RUN cd /srv/src && rm --force package-lock.json && yarn install --no-optional
 # Download the Amazon DocumentDB Certificate Authority (CA) certificate required to authenticate to your cluster
