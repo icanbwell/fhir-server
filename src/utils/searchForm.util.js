@@ -50,6 +50,20 @@ function getPatientForm(params) {
     return patientArray;
 }
 
+function getPersonForm(params) {
+    let personArray = [];
+    personArray.push(givenNameField(params));
+    personArray.push(familyNameField(params));
+    personArray.push({
+        label: 'Email',
+        name: 'email',
+        sortField: 'name',
+        value: params.telecom ? params.telecom : '',
+        useExactMatch: true
+    });
+    return personArray;
+}
+
 function getPractitionerForm(params) {
     const practitionerArray = [];
     practitionerArray.push(givenNameField(params));
@@ -93,6 +107,9 @@ const getFormData = (req, resourceName) => {
     switch (resourceName) {
         case 'Patient':
             formData = formData.concat(getPatientForm(params));
+            break;
+        case 'Person':
+            formData = formData.concat(getPersonForm(params));
             break;
         case 'Practitioner':
             formData = formData.concat(getPractitionerForm(params));
@@ -209,8 +226,16 @@ const getFieldValue = (res, name) => {
             return res.name ? res.name : '';
         case 'id':
             return res.id ? res.id : '';
+        case 'email':
+            return res.telecom ? res.telecom.filter(n => n.system === 'email').map((n) => n.value).join(', ') : '';
     }
-    return '';
+    if (Object.hasOwn(res, 'name')) {
+        return res.name;
+    }
+    if (Array.isArray(res)) {
+        return res.map(r => r.name).join(',');
+    }
+    return JSON.stringify(res[`${name}`]);
 };
 
 const isValidResource = (resource, resourceName) => {
