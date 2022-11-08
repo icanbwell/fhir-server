@@ -30,6 +30,13 @@
                 },
                 "use": "official",
                 "value": "1376656959"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "1376656959"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
               }
             ],
             "meta": {
@@ -76,6 +83,13 @@
               "text": "Claim Number"
             },
             "value": "230916613368"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "WPS-Claim-230916613368"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "insurance": [
@@ -129,12 +143,6 @@
         },
         "use": "Claim"
       }
-    }
-  ],
-  "link": [
-    {
-      "relation": "self",
-      "url": "http://localhost:3000/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$graph?contained=true"
     }
   ],
   "resourceType": "Bundle",

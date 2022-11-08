@@ -1,380 +1,418 @@
 {
-    "entry": [
-        {
-            "resource": {
-                "active": true,
-                "address": [
-                    {
-                        "city": "Perry Hall",
-                        "line": ["5009 Honeygo Center Drive", "Suite 216"],
-                        "postalCode": "21128",
-                        "state": "MD"
-                    }
-                ],
-                "alias": ["MedStar Medical Group Derm at Honeygo"],
-                "contact": [
-                    {
-                        "purpose": {
-                            "coding": [
-                                {
-                                    "code": "Central Scheduling",
-                                    "system": "MedstarHealth.org"
-                                }
-                            ]
-                        },
-                        "telecom": [
-                            {
-                                "system": "phone",
-                                "use": "work"
-                            }
-                        ]
-                    }
-                ],
-                "extension": [
-                    {
-                        "valueDecimal": -76.61668
-                    },
-                    {
-                        "valueDecimal": 39.32792
-                    }
-                ],
-                "id": "1234",
-                "identifier": [
-                    {
-                        "system": "bwell",
-                        "use": "usual",
-                        "value": "-733797173"
-                    }
-                ],
-                "meta": {
-                    "security": [
-                        {
-                            "code": "medstar",
-                            "system": "https://www.icanbwell.com/access"
-                        }
-                    ],
-                    "source": "https://www.foo.com",
-                    "versionId": "1"
-                },
-                "name": "MedStar Medical Group Dermatology at Honeygo",
-                "partOf": {
-                    "display": "MedStar Medical Group",
-                    "type": "Organization"
-                },
-                "resourceType": "Organization",
-                "telecom": [
-                    {
-                        "system": "phone",
-                        "value": "(410) 256-5858"
-                    },
-                    {
-                        "system": "fax",
-                        "value": "(866) 733-0434"
-                    }
-                ],
-                "type": [
-                    {
-                        "coding": [
-                            {
-                                "code": "prov",
-                                "display": "Healthcare Provider",
-                                "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                            }
-                        ],
-                        "text": "Healthcare Organization"
-                    },
-                    {
-                        "coding": [
-                            {
-                                "code": "prov",
-                                "display": "Emergency Room",
-                                "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                            }
-                        ],
-                        "text": "ER Indicator"
-                    }
-                ]
+  "entry": [
+    {
+      "resource": {
+        "active": true,
+        "address": [
+          {
+            "city": "Perry Hall",
+            "line": [
+              "5009 Honeygo Center Drive",
+              "Suite 216"
+            ],
+            "postalCode": "21128",
+            "state": "MD"
+          }
+        ],
+        "alias": [
+          "MedStar Medical Group Derm at Honeygo"
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "code": "Central Scheduling",
+                  "system": "MedstarHealth.org"
+                }
+              ]
+            },
+            "telecom": [
+              {
+                "system": "phone",
+                "use": "work"
+              }
+            ]
+          }
+        ],
+        "extension": [
+          {
+            "valueDecimal": -76.61668
+          },
+          {
+            "valueDecimal": 39.32792
+          }
+        ],
+        "id": "1234",
+        "identifier": [
+          {
+            "system": "bwell",
+            "use": "usual",
+            "value": "-733797173"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1234"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
             }
+          ],
+          "source": "https://www.foo.com",
+          "versionId": "1"
         },
-        {
-            "resource": {
-                "active": true,
-                "address": [
-                    {
-                        "city": "Perry Hall",
-                        "line": ["5009 Honeygo Center Drive", "Suite 216"],
-                        "postalCode": "21128",
-                        "state": "MD"
-                    }
-                ],
-                "alias": ["MedStar Medical Group Derm at Honeygo"],
-                "contact": [
-                    {
-                        "purpose": {
-                            "coding": [
-                                {
-                                    "code": "Central Scheduling",
-                                    "system": "MedstarHealth.org"
-                                }
-                            ]
-                        },
-                        "telecom": [
-                            {
-                                "system": "phone",
-                                "use": "work"
-                            }
-                        ]
-                    }
-                ],
-                "extension": [
-                    {
-                        "valueDecimal": -76.61668
-                    },
-                    {
-                        "valueDecimal": 39.32792
-                    }
-                ],
-                "id": "733797173",
-                "identifier": [
-                    {
-                        "system": "bwell",
-                        "use": "usual",
-                        "value": "-733797173"
-                    }
-                ],
-                "meta": {
-                    "security": [
-                        {
-                            "code": "medstar",
-                            "system": "https://www.icanbwell.com/access"
-                        }
-                    ],
-                    "source": "https://www.foo.com",
-                    "versionId": "1"
-                },
-                "name": "MedStar Medical Group Dermatology at Honeygo",
-                "partOf": {
-                    "display": "MedStar Medical Group",
-                    "type": "Organization"
-                },
-                "resourceType": "Organization",
-                "telecom": [
-                    {
-                        "system": "phone",
-                        "value": "(410) 256-5858"
-                    },
-                    {
-                        "system": "fax",
-                        "value": "(866) 733-0434"
-                    }
-                ],
-                "type": [
-                    {
-                        "coding": [
-                            {
-                                "code": "prov",
-                                "display": "Healthcare Provider",
-                                "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                            }
-                        ],
-                        "text": "Healthcare Organization"
-                    },
-                    {
-                        "coding": [
-                            {
-                                "code": "prov",
-                                "display": "Emergency Room",
-                                "system": "http://terminology.hl7.org/CodeSystem/organization-type"
-                            }
-                        ],
-                        "text": "ER Indicator"
-                    }
-                ]
-            }
+        "name": "MedStar Medical Group Dermatology at Honeygo",
+        "partOf": {
+          "display": "MedStar Medical Group",
+          "type": "Organization"
         },
-        {
-            "resource": {
-                "description": "Baltimore Region",
-                "id": "UHG-MDER",
-                "identifier": [
-                    {
-                        "system": "MedstarHealth.org",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "FI",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ],
-                            "text": "Practice-Location-Department alias"
-                        },
-                        "value": "UHG-MDER"
-                    },
-                    {
-                        "system": "MedstarHealth.org",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "XX",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ],
-                            "text": "Location mnem"
-                        },
-                        "value": "UHG"
-                    },
-                    {
-                        "system": "MedstarHealth.org",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "DepartmentName",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ],
-                            "text": "Scheduling Department Name"
-                        },
-                        "value": "MMG DERMATOLOGY"
-                    },
-                    {
-                        "system": "MedstarHealth.org",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "DeptMnem",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ],
-                            "text": "Scheduling Department Mnem"
-                        },
-                        "value": "MDER"
-                    },
-                    {
-                        "system": "MedstarHealth.org",
-                        "type": {
-                            "coding": [
-                                {
-                                    "code": "DeptNo",
-                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-                                }
-                            ],
-                            "text": "Scheduling Department Number"
-                        },
-                        "value": "SCD"
-                    }
-                ],
-                "managingOrganization": {
-                    "reference": "Organization/733797173",
-                    "type": "Organization"
-                },
-                "meta": {
-                    "security": [
-                        {
-                            "code": "medstar",
-                            "system": "https://www.icanbwell.com/access"
-                        }
-                    ],
-                    "source": "https://www.foo.com",
-                    "versionId": "1"
-                },
-                "mode": "instance",
-                "name": "MSH 5009 Honeygo suite 216",
-                "physicalType": {
-                    "coding": [
-                        {
-                            "code": "bu",
-                            "system": "http://terminology.hl7.org/CodeSystem/location-physical-type"
-                        }
-                    ]
-                },
-                "position": {
-                    "latitude": 39.32792,
-                    "longitude": -76.61668
-                },
-                "resourceType": "Location",
-                "status": "active",
-                "telecom": [
-                    {
-                        "rank": 1,
-                        "system": "phone"
-                    },
-                    {
-                        "rank": 2,
-                        "system": "phone",
-                        "value": "(410) 256-5858"
-                    },
-                    {
-                        "rank": 3,
-                        "system": "fax",
-                        "value": "(866) 733-0434"
-                    },
-                    {
-                        "rank": 4,
-                        "system": "url"
-                    }
-                ],
-                "type": [
-                    {
-                        "coding": [
-                            {
-                                "code": "Dermatology",
-                                "display": "Dermatology",
-                                "system": "MedstarHealth.org"
-                            }
-                        ],
-                        "text": "practice speciality"
-                    },
-                    {
-                        "coding": [
-                            {
-                                "code": "ER",
-                                "display": "ER Indicator",
-                                "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode"
-                            }
-                        ],
-                        "text": "ER Indicator"
-                    }
-                ]
+        "resourceType": "Organization",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "(410) 256-5858"
+          },
+          {
+            "system": "fax",
+            "value": "(866) 733-0434"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "prov",
+                "display": "Healthcare Provider",
+                "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+              }
+            ],
+            "text": "Healthcare Organization"
+          },
+          {
+            "coding": [
+              {
+                "code": "prov",
+                "display": "Emergency Room",
+                "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+              }
+            ],
+            "text": "ER Indicator"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "active": true,
+        "address": [
+          {
+            "city": "Perry Hall",
+            "line": [
+              "5009 Honeygo Center Drive",
+              "Suite 216"
+            ],
+            "postalCode": "21128",
+            "state": "MD"
+          }
+        ],
+        "alias": [
+          "MedStar Medical Group Derm at Honeygo"
+        ],
+        "contact": [
+          {
+            "purpose": {
+              "coding": [
+                {
+                  "code": "Central Scheduling",
+                  "system": "MedstarHealth.org"
+                }
+              ]
+            },
+            "telecom": [
+              {
+                "system": "phone",
+                "use": "work"
+              }
+            ]
+          }
+        ],
+        "extension": [
+          {
+            "valueDecimal": -76.61668
+          },
+          {
+            "valueDecimal": 39.32792
+          }
+        ],
+        "id": "733797173",
+        "identifier": [
+          {
+            "system": "bwell",
+            "use": "usual",
+            "value": "-733797173"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "733797173"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
             }
+          ],
+          "source": "https://www.foo.com",
+          "versionId": "1"
         },
-        {
-            "resource": {
-                "id": "-733797173",
-                "identifier": [
-                    {
-                        "system": "bwell",
-                        "use": "usual",
-                        "value": "-733797173"
-                    }
-                ],
-                "meta": {
-                    "security": [
-                        {
-                            "code": "medstar",
-                            "system": "https://www.icanbwell.com/access"
-                        }
-                    ],
-                    "source": "https://www.foo.com",
-                    "versionId": "1"
-                },
-                "providedBy": {
-                    "reference": "Organization/733797173"
-                },
-                "resourceType": "HealthcareService",
-                "specialty": [
-                    {
-                        "coding": [
-                            {
-                                "code": "261QP2300X",
-                                "display": "Primary Care and Student Health",
-                                "system": "http://nucc.org/provider-taxonomy"
-                            }
-                        ]
-                    }
-                ]
+        "name": "MedStar Medical Group Dermatology at Honeygo",
+        "partOf": {
+          "display": "MedStar Medical Group",
+          "type": "Organization"
+        },
+        "resourceType": "Organization",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "(410) 256-5858"
+          },
+          {
+            "system": "fax",
+            "value": "(866) 733-0434"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "prov",
+                "display": "Healthcare Provider",
+                "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+              }
+            ],
+            "text": "Healthcare Organization"
+          },
+          {
+            "coding": [
+              {
+                "code": "prov",
+                "display": "Emergency Room",
+                "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+              }
+            ],
+            "text": "ER Indicator"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "description": "Baltimore Region",
+        "id": "UHG-MDER",
+        "identifier": [
+          {
+            "system": "MedstarHealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "FI",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ],
+              "text": "Practice-Location-Department alias"
+            },
+            "value": "UHG-MDER"
+          },
+          {
+            "system": "MedstarHealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "XX",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ],
+              "text": "Location mnem"
+            },
+            "value": "UHG"
+          },
+          {
+            "system": "MedstarHealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "DepartmentName",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ],
+              "text": "Scheduling Department Name"
+            },
+            "value": "MMG DERMATOLOGY"
+          },
+          {
+            "system": "MedstarHealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "DeptMnem",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ],
+              "text": "Scheduling Department Mnem"
+            },
+            "value": "MDER"
+          },
+          {
+            "system": "MedstarHealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "DeptNo",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ],
+              "text": "Scheduling Department Number"
+            },
+            "value": "SCD"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "UHG-MDER"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "managingOrganization": {
+          "reference": "Organization/733797173",
+          "type": "Organization"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
             }
-        }
-    ],
-    "resourceType": "Bundle",
-    "type": "collection"
+          ],
+          "source": "https://www.foo.com",
+          "versionId": "1"
+        },
+        "mode": "instance",
+        "name": "MSH 5009 Honeygo suite 216",
+        "physicalType": {
+          "coding": [
+            {
+              "code": "bu",
+              "system": "http://terminology.hl7.org/CodeSystem/location-physical-type"
+            }
+          ]
+        },
+        "position": {
+          "latitude": 39.32792,
+          "longitude": -76.61668
+        },
+        "resourceType": "Location",
+        "status": "active",
+        "telecom": [
+          {
+            "rank": 1,
+            "system": "phone"
+          },
+          {
+            "rank": 2,
+            "system": "phone",
+            "value": "(410) 256-5858"
+          },
+          {
+            "rank": 3,
+            "system": "fax",
+            "value": "(866) 733-0434"
+          },
+          {
+            "rank": 4,
+            "system": "url"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "Dermatology",
+                "display": "Dermatology",
+                "system": "MedstarHealth.org"
+              }
+            ],
+            "text": "practice speciality"
+          },
+          {
+            "coding": [
+              {
+                "code": "ER",
+                "display": "ER Indicator",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode"
+              }
+            ],
+            "text": "ER Indicator"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "-733797173",
+        "identifier": [
+          {
+            "system": "bwell",
+            "use": "usual",
+            "value": "-733797173"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "-733797173"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "source": "https://www.foo.com",
+          "versionId": "1"
+        },
+        "providedBy": {
+          "reference": "Organization/733797173"
+        },
+        "resourceType": "HealthcareService",
+        "specialty": [
+          {
+            "coding": [
+              {
+                "code": "261QP2300X",
+                "display": "Primary Care and Student Health",
+                "system": "http://nucc.org/provider-taxonomy"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
 }

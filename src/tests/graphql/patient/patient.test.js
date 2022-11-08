@@ -35,7 +35,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
-const {IdentifierSystem} = require('../../../utils/identifierSystem');
+const {cleanMeta} = require('../../customMatchers');
 
 class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
     get enableTwoStepOptimization() {
@@ -133,15 +133,8 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
                 r.explanationOfBenefit.forEach(resource => {
-                        if (resource.identifier && Array.isArray(resource.identifier)) {
-                            resource.identifier.forEach((identifier) => {
-                                if (identifier['system'] === IdentifierSystem.uuid && identifier['value']) {
-                                    delete identifier['value'];
-                                }
-                            });
-                        }
-                    }
-                );
+                    cleanMeta(resource);
+                });
                 return r;
             });
         });

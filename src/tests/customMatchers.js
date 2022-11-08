@@ -411,5 +411,6 @@ module.exports = {
     toHaveStatusCode,
     toHaveStatusOk,
     toHaveMergeResponse,
-    toHaveResourceCount
+    toHaveResourceCount,
+    cleanMeta
 };
