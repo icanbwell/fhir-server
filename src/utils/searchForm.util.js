@@ -43,10 +43,21 @@ function familyNameField(params) {
     };
 }
 
+function emailField(params) {
+    return {
+        label: 'Email',
+        name: 'email',
+        sortField: 'name',
+        value: params.telecom ? params.telecom : '',
+        useExactMatch: true
+    };
+}
+
 function getPatientForm(params) {
     let patientArray = [];
     patientArray.push(givenNameField(params));
     patientArray.push(familyNameField(params));
+    patientArray.push(emailField(params));
     return patientArray;
 }
 
@@ -54,13 +65,7 @@ function getPersonForm(params) {
     let personArray = [];
     personArray.push(givenNameField(params));
     personArray.push(familyNameField(params));
-    personArray.push({
-        label: 'Email',
-        name: 'email',
-        sortField: 'name',
-        value: params.telecom ? params.telecom : '',
-        useExactMatch: true
-    });
+    personArray.push(emailField(params));
     return personArray;
 }
 
