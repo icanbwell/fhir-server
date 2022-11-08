@@ -77,7 +77,7 @@ describe('Person Tests', () => {
             // ACT & ASSERT
             resp = await request
                 .post(
-                    '/4_0_0/ExplanationOfBenefit/$graph?id=WPS-Claim-230916613369,WPS-Claim-230916613368&contained=true'
+                    '/4_0_0/Person/$graph?id=002126287fbd412d8b52115e48edbd4c&contained=true'
                 )
                 .set(getHeaders())
                 .send(graphDefinitionResource);
