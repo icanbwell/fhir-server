@@ -31,6 +31,7 @@ function givenNameField(params) {
         name: 'given',
         sortField: 'name',
         value: params.given ? params.given : '',
+        useExactMatch: true
     };
 }
 
@@ -40,6 +41,7 @@ function familyNameField(params) {
         name: 'family',
         sortField: 'name.family',
         value: params.family ? params.family : '',
+        useExactMatch: true
     };
 }
 
@@ -53,11 +55,23 @@ function emailField(params) {
     };
 }
 
+// eslint-disable-next-line no-unused-vars
+function identifierField(params) {
+    return {
+        label: 'Identifier',
+        name: 'identifier',
+        sortField: 'identifier',
+        value: '',
+        useExactMatch: true
+    };
+}
+
 function getPatientForm(params) {
     let patientArray = [];
     patientArray.push(givenNameField(params));
     patientArray.push(familyNameField(params));
     patientArray.push(emailField(params));
+    patientArray.push(identifierField(params));
     return patientArray;
 }
 
@@ -66,6 +80,7 @@ function getPersonForm(params) {
     personArray.push(givenNameField(params));
     personArray.push(familyNameField(params));
     personArray.push(emailField(params));
+    personArray.push(identifierField(params));
     return personArray;
 }
 
@@ -79,6 +94,7 @@ function getPractitionerForm(params) {
         sortField: 'identifier',
         value: params.identifier ? params.identifier.replace(identifierUrl, '') : '',
     });
+    practitionerArray.push(identifierField(params));
     return practitionerArray;
 }
 
@@ -233,6 +249,8 @@ const getFieldValue = (res, name) => {
             return res.id ? res.id : '';
         case 'email':
             return res.telecom ? res.telecom.filter(n => n.system === 'email').map((n) => n.value).join(', ') : '';
+        case 'identifier':
+            return res.identifier ? res.identifier.map((n) => `${n.value}(${n.system})`).join(', ') : '';
     }
     if (Object.hasOwn(res, 'name')) {
         return res.name;
