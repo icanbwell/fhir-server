@@ -1,90 +1,107 @@
 {
-    "resourceType": "Person",
-    "id": "desiree-root-person",
-    "meta": {
-        "versionId": "1",
-        "lastUpdated": "2022-07-12T02:44:06.000Z",
-        "source": "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4/metadata",
-        "security": [
-            {
-                "system": "https://www.icanbwell.com/owner",
-                "code": "epic_sandbox_r4c"
-            },
-            {
-                "system": "https://www.icanbwell.com/access",
-                "code": "epic_sandbox_r4c"
-            },
-            {
-                "system": "https://www.icanbwell.com/vendor",
-                "code": "epic_sandbox_r4c"
-            }
-        ]
-    },
-    "identifier": [
-        {
-            "type": {
-                "coding": [
-                    {
-                        "system": "https://www.icanbwell.com",
-                        "code": "member_id",
-                        "display": "bWell App member_id"
-                    }
-                ]
-            },
-            "system": "https://www.icanbwell.com/member_id",
-            "value": "AYYrfts"
-        }
-    ],
-    "active": true,
-    "name": [
-        {
-            "use": "official",
-            "text": "Desiree Caroline Powell",
-            "family": "Powell",
-            "given": ["Desiree", "Caroline"]
-        },
-        {
-            "use": "usual",
-            "text": "Desiree Caroline Powell",
-            "family": "Powell",
-            "given": ["Desiree", "Caroline"]
-        }
-    ],
-    "telecom": [
-        {
-            "system": "phone",
-            "value": "904-555-5555",
-            "use": "home"
-        },
-        {
-            "system": "phone",
-            "value": "608-555-5555",
-            "use": "mobile"
-        }
-    ],
-    "gender": "female",
-    "birthDate": "2014-11-14",
-    "address": [
-        {
-            "use": "old",
-            "line": ["156 Kingston Drive"],
-            "city": "JACKSONVILLE",
-            "district": "DUVAL",
-            "state": "FL",
-            "postalCode": "32205",
-            "country": "US"
-        },
-        {
-            "use": "home",
-            "line": ["156 Kingston Drive"],
-            "city": "JACKSONVILLE",
-            "district": "DUVAL",
-            "state": "FL",
-            "postalCode": "32205",
-            "country": "US",
-            "period": {
-                "start": "2019-05-24T00:00:00.000Z"
-            }
-        }
+  "resourceType": "Person",
+  "id": "desiree-root-person",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2022-07-12T02:44:06.000Z",
+    "source": "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4/metadata",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "epic_sandbox_r4c"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "epic_sandbox_r4c"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "epic_sandbox_r4c"
+      }
     ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "member_id",
+            "display": "bWell App member_id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com/member_id",
+      "value": "AYYrfts"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "text": "Desiree Caroline Powell",
+      "family": "Powell",
+      "given": [
+        "Desiree",
+        "Caroline"
+      ]
+    },
+    {
+      "use": "usual",
+      "text": "Desiree Caroline Powell",
+      "family": "Powell",
+      "given": [
+        "Desiree",
+        "Caroline"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "904-555-5555",
+      "use": "home"
+    },
+    {
+      "system": "phone",
+      "value": "608-555-5555",
+      "use": "mobile"
+    }
+  ],
+  "gender": "female",
+  "birthDate": "2014-11-14",
+  "address": [
+    {
+      "use": "old",
+      "line": [
+        "156 Kingston Drive"
+      ],
+      "city": "JACKSONVILLE",
+      "district": "DUVAL",
+      "state": "FL",
+      "postalCode": "32205",
+      "country": "US"
+    },
+    {
+      "use": "home",
+      "line": [
+        "156 Kingston Drive"
+      ],
+      "city": "JACKSONVILLE",
+      "district": "DUVAL",
+      "state": "FL",
+      "postalCode": "32205",
+      "country": "US",
+      "period": {
+        "start": "2019-05-24T00:00:00.000Z"
+      }
+    }
+  ],
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/epic-sandbox-r4c-eAB3mDIBBcyUKviyzrxsnAw3"
+      }
+    }
+  ]
 }

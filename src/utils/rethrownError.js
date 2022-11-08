@@ -85,7 +85,7 @@ class RethrownError extends Error {
      */
     buildCombinedStacks(stack, nested) {
         if (nested) {
-            stack += '\r\nCaused By: ' + nested.stack;
+            stack = nested.stack + '\r\nCauses: ' + stack;
         }
         return stack;
     }

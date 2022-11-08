@@ -1,6 +1,6 @@
 {
     "resourceType": "AllergyIntolerance",
-    "id": "patient-123-c-allergy-intolerance",
+    "id": "patient-123-a-allergy-intolerance",
     "meta": {
         "versionId": "1",
         "lastUpdated": "2021-09-24T02:33:06+00:00",
@@ -42,7 +42,7 @@
         "text": "Mold (organism)"
     },
     "patient": {
-        "reference": "Patient/patient-123-c"
+        "reference": "Patient/patient-123-a"
     },
     "recordedDate": "2002-06-05T01:17:36-04:00"
 }
