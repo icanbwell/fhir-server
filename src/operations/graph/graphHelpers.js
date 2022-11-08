@@ -248,9 +248,6 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
-            /**
-             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
-             */
             let {
                 /** @type {import('mongodb').Document}**/
                 query,
@@ -1038,25 +1035,23 @@ class GraphHelper {
              * @type {BundleEntry[]}
              */
             let entries = [];
-            /**
-             * @type {import('mongodb').Document}
-             */
-            let query = {
-                'id': {
-                    $in: idList
-                }
-            };
-            /**
-             * @type {string[]}
-             */
-            let securityTags = this.securityTagManager.getSecurityTagsFromScope({
+
+            let {
+                /** @type {import('mongodb').Document}**/
+                query,
+                // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync({
                 user: requestInfo.user,
-                scope: requestInfo.scope
+                scope: requestInfo.scope,
+                isUser: requestInfo.isUser,
+                patients: requestInfo.patients,
+                args: Object.assign({'base_version': base_version}, {'id': idList}), // add id filter to query
+                resourceType,
+                useAccessIndex: this.configManager.useAccessIndex,
+                fhirPersonId: requestInfo.fhirPersonId,
+                filter: true
             });
-            query = this.securityTagManager.getQueryWithSecurityTags(
-                {
-                    resourceType, securityTags, query
-                });
 
             /**
              * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
