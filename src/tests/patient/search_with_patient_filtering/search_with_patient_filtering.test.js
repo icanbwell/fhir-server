@@ -255,10 +255,9 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
-                expect(resp).toHaveResourceCount(3);
+                expect(resp).toHaveResourceCount(2);
                 expect(resp.body.entry[0].resource.id).toBe('patient-123-a');
                 expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
-                expect(resp.body.entry[2].resource.id).toBe('patient-123-c');
             });
 
             test('No resources are returned if user has no fhir ids', async () => {
@@ -297,19 +296,6 @@ describe('patient Tests', () => {
                 expect(resp).toHaveResourceCount(0);
             });
 
-            test('Patients are filtered by platform member id', async () => {
-                const request = await createTestRequest();
-                // ACT & ASSERT
-                // search by token system and code and make sure we get the right patient back
-                // console.log(getHeadersWithCustomPayload(payload));
-                let resp = await request
-                    .get('/4_0_0/patient/?_bundle=1')
-                    .set(getHeadersWithCustomPayload(only_fhir_person_payload));
-                // noinspection JSUnresolvedFunction
-                expect(resp).toHaveResourceCount(1);
-                expect(resp.body.entry[0].resource.id).toBe('patient-123-c');
-            });
-
             test('A user can access their patient by id', async () => {
                 const request = await createTestRequest();
                 // Patient-123 should be able to access himself
@@ -328,17 +314,6 @@ describe('patient Tests', () => {
                 expect(resp).toHaveResourceCount(1);
 
                 expect(resp.body.id).toBe('other-patient');
-            });
-
-            test('A user can access their patient by id (member id only)', async () => {
-                const request = await createTestRequest();
-                // Patient-123 should be able to access himself
-                let resp = await request
-                    .get('/4_0_0/patient/patient-123-c')
-                    .set(getHeadersWithCustomPayload(only_fhir_person_payload));
-                // noinspection JSUnresolvedFunction
-                expect(resp).toHaveResourceCount(1);
-                expect(resp.body.id).toBe('patient-123-c');
             });
 
             test('A user cannot access another patient by id', async () => {
@@ -371,16 +346,16 @@ describe('patient Tests', () => {
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveResourceCount(2);
 
-                expect(resp.body.entry[0].resource.id).toBe('patient-123-b-allergy-intolerance');
-                expect(resp.body.entry[1].resource.id).toBe('patient-123-c-allergy-intolerance');
+                expect(resp.body.entry[0].resource.id).toBe('patient-123-a-allergy-intolerance');
+                expect(resp.body.entry[1].resource.id).toBe('patient-123-b-allergy-intolerance');
 
                 resp = await request
-                    .get('/4_0_0/Condition/?_bundle=1')
+                    .get('/4_0_0/Condition/?_bundle=1&_sort=id')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveResourceCount(2);
-                expect(resp.body.entry[0].resource.id).toBe('patient-123-b-condition');
-                expect(resp.body.entry[1].resource.id).toBe('patient-123-c-condition');
+                expect(resp.body.entry[0].resource.id).toBe('patient-123-a-condition');
+                expect(resp.body.entry[1].resource.id).toBe('patient-123-b-condition');
             });
 
             test('A user can access their patient-filtered resources by id', async () => {

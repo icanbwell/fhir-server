@@ -28,9 +28,7 @@ const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {R4SearchQueryCreator} = require('../query/r4');
 const {ConfigManager} = require('../../utils/configManager');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
-const BWELL_PLATFORM_MEMBER_ID_SYSTEM = 'https://icanbwell.com/Bwell_Platform/member_id';
-const BWELL_FHIR_MEMBER_ID_SYSTEM = 'https://www.icanbwell.com/member_id';
-const idProjection = {id: 1, _id: 0};
+const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 
 class SearchManager {
     /**
@@ -43,6 +41,7 @@ class SearchManager {
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {ConfigManager} configManager
      * @param {QueryRewriterManager} queryRewriterManager
+     * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      */
     constructor(
         {
@@ -53,7 +52,8 @@ class SearchManager {
             indexHinter,
             r4SearchQueryCreator,
             configManager,
-            queryRewriterManager
+            queryRewriterManager,
+            personToPatientIdsExpander
         }
     ) {
         /**
@@ -98,6 +98,11 @@ class SearchManager {
 
         this.queryRewriterManager = queryRewriterManager;
         assertTypeEquals(queryRewriterManager, QueryRewriterManager);
+        /**
+         * @type {PersonToPatientIdsExpander}
+         */
+        this.personToPatientIdsExpander = personToPatientIdsExpander;
+        assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
     }
 
     /**
@@ -176,7 +181,12 @@ class SearchManager {
             query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
         }
 
-        ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({base_version, query, columns, resourceType}));
+        ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({
+            base_version,
+            query,
+            columns,
+            resourceType
+        }));
         return {base_version, query, columns};
     }
 
@@ -419,60 +429,26 @@ class SearchManager {
      * Gets Patient id from identifiers
      * @param {string} base_version
      * @param {string} fhirPersonId
-     * @param {string} personSystem
-     * @param {string} patientSystem
      * @return {Promise<string[]>}
      */
     async getPatientIdsByPersonIdentifiersAsync(
         {
-            base_version, fhirPersonId,
-            // eslint-disable-next-line no-unused-vars
-            personSystem = BWELL_FHIR_MEMBER_ID_SYSTEM,
-            patientSystem = BWELL_PLATFORM_MEMBER_ID_SYSTEM
+            base_version,
+            fhirPersonId
         }
     ) {
+        assertIsValid(base_version);
+        assertIsValid(fhirPersonId);
         try {
-            /**
-             * @type {string[]}
-             */
-            let result = [];
-            if (fhirPersonId) {
-                /**
-                 * @type {Resource | null}
-                 */
-                let person = await this.databaseQueryFactory.createQuery(
-                    {resourceType: 'Person', base_version})
-                    .findOneAsync({query: {id: fhirPersonId}});
-                // Finds Patients by platform member ids and returns an array with the found patient ids
-                if (person && person.identifier && person.identifier.length > 0) {
-                    let memberId = person.identifier.filter(identifier => {
-                        return identifier.type.coding.some(coding => {
-                                return coding.system === 'https://www.icanbwell.com' && coding.code === 'member_id';
-                            }
-                        );
-                    });
-                    /**
-                     * @type {DatabasePartitionedCursor}
-                     */
-                    let cursor = await this.databaseQueryFactory.createQuery(
-                        {resourceType: 'Patient', base_version})
-                        .findAsync({
-                                query:
-                                    {
-                                        identifier: {
-                                            $elemMatch: {
-                                                'system': patientSystem,
-                                                'value': {$in: memberId.map(id => id.value)}
-                                            }
-                                        }
-                                    }
-                            }
-                        );
-                    cursor = cursor.project({projection: idProjection});
-                    result = await cursor.map({mapping: p => p.id}).toArray();
-                }
-            }
-            return result;
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: 'Person',
+                base_version: base_version
+            });
+            return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
+                databaseQueryManager,
+                personId: fhirPersonId,
+                level: 1
+            });
         } catch (e) {
             throw new RethrownError({
                 message: `Error getting patient id for person id: ${fhirPersonId}`,
@@ -1108,7 +1084,7 @@ class SearchManager {
         }
     ) {
         try {
-            if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
+            if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && fhirPersonId) {
                 return await this.getPatientIdsByPersonIdentifiersAsync(
                     {
                         base_version, fhirPersonId
