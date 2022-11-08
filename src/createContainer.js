@@ -69,6 +69,7 @@ const {SourceIdColumnHandler} = require('./preSaveHandlers/handlers/sourceIdColu
 const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
 
 /**
  * Creates a container and sets up all the services
@@ -184,11 +185,14 @@ const createContainer = function () {
     container.register('indexHinter', (c) => new IndexHinter({
         indexProvider: c.indexProvider
     }));
+    container.register('personToPatientIdsExpander', (c) => new PersonToPatientIdsExpander({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
 
     container.register('queryRewriterManager', (c) => new QueryRewriterManager({
         queryRewriters: [
             new PatientProxyQueryRewriter({
-                databaseQueryFactory: c.databaseQueryFactory
+                personToPatientIdsExpander: c.personToPatientIdsExpander
             })
         ]
     }));
