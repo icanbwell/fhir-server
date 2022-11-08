@@ -31,6 +31,7 @@ function givenNameField(params) {
         name: 'given',
         sortField: 'name',
         value: params.given ? params.given : '',
+        useExactMatch: true
     };
 }
 
@@ -40,6 +41,28 @@ function familyNameField(params) {
         name: 'family',
         sortField: 'name.family',
         value: params.family ? params.family : '',
+        useExactMatch: true
+    };
+}
+
+function emailField(params) {
+    return {
+        label: 'Email',
+        name: 'email',
+        sortField: 'name',
+        value: params.telecom ? params.telecom : '',
+        useExactMatch: true
+    };
+}
+
+// eslint-disable-next-line no-unused-vars
+function identifierField(params) {
+    return {
+        label: 'Identifier',
+        name: 'identifier',
+        sortField: 'identifier',
+        value: '',
+        useExactMatch: true
     };
 }
 
@@ -47,7 +70,16 @@ function getPatientForm(params) {
     let patientArray = [];
     patientArray.push(givenNameField(params));
     patientArray.push(familyNameField(params));
+    patientArray.push(emailField(params));
     return patientArray;
+}
+
+function getPersonForm(params) {
+    let personArray = [];
+    personArray.push(givenNameField(params));
+    personArray.push(familyNameField(params));
+    personArray.push(emailField(params));
+    return personArray;
 }
 
 function getPractitionerForm(params) {
@@ -94,6 +126,9 @@ const getFormData = (req, resourceName) => {
         case 'Patient':
             formData = formData.concat(getPatientForm(params));
             break;
+        case 'Person':
+            formData = formData.concat(getPersonForm(params));
+            break;
         case 'Practitioner':
             formData = formData.concat(getPractitionerForm(params));
             break;
@@ -106,18 +141,20 @@ const getFormData = (req, resourceName) => {
     }
 
     formData.push({
-        label: 'Source',
-        name: '_source',
-        sortField: 'meta.source',
-        value: params._source ? params._source : '',
-    });
-
-    formData.push({
         label: 'Id',
         name: 'id',
         sortField: 'id',
         value: params.id ? params.id : '',
         useExactMatch: true
+    });
+
+    formData.push(identifierField(params));
+
+    formData.push({
+        label: 'Source',
+        name: '_source',
+        sortField: 'meta.source',
+        value: params._source ? params._source : '',
     });
 
     return formData;
@@ -209,8 +246,18 @@ const getFieldValue = (res, name) => {
             return res.name ? res.name : '';
         case 'id':
             return res.id ? res.id : '';
+        case 'email':
+            return res.telecom ? res.telecom.filter(n => n.system === 'email').map((n) => n.value).join(', ') : '';
+        case 'identifier':
+            return res.identifier ? res.identifier.map((n) => `${n.value}(${n.system})`).join(', ') : '';
     }
-    return '';
+    if (Object.hasOwn(res, 'name')) {
+        return res.name;
+    }
+    if (Array.isArray(res)) {
+        return res.map(r => r.name).join(',');
+    }
+    return JSON.stringify(res[`${name}`]);
 };
 
 const isValidResource = (resource, resourceName) => {
