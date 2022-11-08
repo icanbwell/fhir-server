@@ -51,12 +51,16 @@ class ResourceMerger {
             (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId))
         ) {
             if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [];
+                resourceToMerge.identifier = [
+                    getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+                ];
+            } else {
+                resourceToMerge.identifier.push(
+                    getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+                );
             }
-            resourceToMerge.identifier.push(
-                getFirstElementOrNull(
-                    currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
-            );
         }
 
         if (currentResource.identifier &&
@@ -65,12 +69,16 @@ class ResourceMerger {
             (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))
         ) {
             if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [];
+                resourceToMerge.identifier = [
+                    getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid))
+                ];
+            } else {
+                resourceToMerge.identifier.push(
+                    getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid))
+                );
             }
-            resourceToMerge.identifier.push(
-                getFirstElementOrNull(
-                    currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid))
-            );
         }
 
         // fix up any data that we normally fix up before saving so the comparison is correct

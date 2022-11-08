@@ -31,14 +31,14 @@ describe('Organization Merge Tests', () => {
                 .send(organizationBundleResourceInit)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {updated: true}]);
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')
                 .send(organizationBundleResourceUpdate)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {updated: true}]);
+            expect(resp).toHaveMergeResponse([{updated: true}, {updated: true}]);
 
             resp = await request.get('/4_0_0/Organization?_count=10').set(getHeaders());
             // noinspection JSUnresolvedFunction
