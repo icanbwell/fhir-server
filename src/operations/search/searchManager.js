@@ -1084,7 +1084,7 @@ class SearchManager {
         }
     ) {
         try {
-            if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser) {
+            if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && fhirPersonId) {
                 return await this.getPatientIdsByPersonIdentifiersAsync(
                     {
                         base_version, fhirPersonId
