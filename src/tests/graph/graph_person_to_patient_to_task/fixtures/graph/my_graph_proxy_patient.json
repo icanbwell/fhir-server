@@ -1,0 +1,15 @@
+{
+  "resourceType": "GraphDefinition",
+  "start": "Patient",
+  "link": [
+    {
+      "description": "Associated Task",
+      "target": [
+        {
+          "type": "Task",
+          "params": "subject={ref}"
+        }
+      ]
+    }
+  ]
+}

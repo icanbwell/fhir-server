@@ -81,13 +81,15 @@ class PersonToPatientIdsExpander {
         let patientIds = [];
         if (person && person.link && person.link.length > 0) {
             const patientIdsToAdd = person.link
-                .filter(l => l.target.reference.startsWith(patientReferencePrefix))
+                .filter(l => l.target && l.target.reference &&
+                    (l.target.reference.startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
                 .map(l => l.target.reference.replace(patientReferencePrefix, ''));
             patientIds = patientIds.concat(patientIdsToAdd);
             if (level < maximumRecursionDepth) { // avoid infinite loop
                 // now find any Person links and call them recursively
                 const personIdsToRecurse = person.link
-                    .filter(l => l.target.reference.startsWith(personReferencePrefix))
+                    .filter(l => l.target && l.target.reference &&
+                        (l.target.reference.startsWith(personReferencePrefix) || l.target.type === 'Person'))
                     .map(l => l.target.reference.replace(personReferencePrefix, ''));
                 /**
                  * @type {string[]}

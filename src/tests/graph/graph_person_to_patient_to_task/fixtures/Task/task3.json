@@ -1,0 +1,31 @@
+{
+  "resourceType": "Task",
+  "id": "8f9cd53e-6445-4003-8caf-569487868ce9",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2022-10-10T13:14:00.000Z",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "use": "old",
+      "system": "https://www.icanbwell.com/legacyId",
+      "value": "98548363"
+    }
+  ],
+  "instantiatesCanonical": "https://fhir.dev.bwell.zone/4_0_0/ActivityDefinition/d4ded4d6-30a5-448b-9083-880581df8b00",
+  "status": "cancelled",
+  "for": {
+    "reference": "Patient/0318898e65044aaab3115d048d44c434",
+    "type": "Patient"
+  }
+}

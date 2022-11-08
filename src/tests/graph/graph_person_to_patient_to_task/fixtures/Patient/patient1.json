@@ -1,0 +1,95 @@
+{
+  "resourceType": "Patient",
+  "id": "aab16fc4c5914e38b489bcd096369623",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2022-06-24T12:55:11.000Z",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem2"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "healthsystem2"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "FHIR_id",
+            "display": "bWell FHIR id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "bwell-aa3549c799274219a16d5dcb403cc0e4"
+    },
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "user_id",
+            "display": "bWell App user_id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "587921"
+    },
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "member_id",
+            "display": "bWell App member_id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "QWERTY"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Family",
+      "given": [
+        "Given"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+919999999999",
+      "use": "home"
+    },
+    {
+      "system": "email",
+      "value": "foo@bar.com",
+      "use": "home"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1996-01-01",
+  "address": [
+    {
+      "line": [
+        "301 W. Second St., Austin, Texas 78701"
+      ],
+      "city": "Austin",
+      "state": "Texas",
+      "postalCode": "78701"
+    }
+  ]
+}
