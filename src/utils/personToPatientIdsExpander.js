@@ -71,7 +71,8 @@ class PersonToPatientIdsExpander {
          */
         const person = await databaseQueryManager.findOneAsync(
             {
-                query: {id: personId}
+                query: {id: personId},
+                options: {projection: {id: 1, link: 1, _id: 0}}
             }
         );
         /**

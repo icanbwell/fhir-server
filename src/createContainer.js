@@ -206,7 +206,8 @@ const createContainer = function () {
                 indexHinter: c.indexHinter,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 configManager: c.configManager,
-                queryRewriterManager: c.queryRewriterManager
+                queryRewriterManager: c.queryRewriterManager,
+                personToPatientIdsExpander: c.personToPatientIdsExpander
             }
         )
     );
