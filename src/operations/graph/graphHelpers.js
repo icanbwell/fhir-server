@@ -392,13 +392,15 @@ class GraphHelper {
                 throw new Error('reverse_filter must be set');
             }
             // create comma separated list of ids
-            const parentIdList = parentEntities.map(p => p.entityId).filter(p => p !== undefined);
-            if (parentIdList.length === 0) {
+            const parentResourceTypeAndIdList = parentEntities
+                .filter(p => p.entityId !== undefined)
+                .map(p => `${p.resource.resourceType}/${p.entityId}`);
+            if (parentResourceTypeAndIdList.length === 0) {
                 return;
             }
             const reverseFilterWithParentIds = reverse_filter.replace(
                 '{ref}',
-                `${parentResourceType}/${parentIdList.toString()}`
+                parentResourceTypeAndIdList.join(',')
             );
             /**
              * @type {Object}

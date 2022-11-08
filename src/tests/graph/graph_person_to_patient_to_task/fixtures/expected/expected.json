@@ -177,6 +177,61 @@
             ]
           },
           {
+            "code": {
+              "coding": [
+                {
+                  "code": "healthActivity",
+                  "system": "https://www.icanbwell.com/activityType"
+                },
+                {
+                  "code": "Prevention",
+                  "system": "https://www.icanbwell.com/activityClass"
+                }
+              ]
+            },
+            "extension": [
+              {
+                "url": "https://www.icanbwell.com/activityCompletionMethod",
+                "valueString": "Data"
+              },
+              {
+                "url": "https://www.icanbwell.com/activityRedirectUrl",
+                "valueString": "/invite-family-member/"
+              },
+              {
+                "url": "https://www.icanbwell.com/activityContentId",
+                "valueString": "b6f5f87c-327b-11ed-a8db-666c69ee66a3"
+              },
+              {
+                "url": "https://www.icanbwell.com/activityPoints",
+                "valueInteger": 200
+              }
+            ],
+            "for": {
+              "display": "Himanshu",
+              "reference": "Patient/aab16fc4c5914e38b489bcd096369623"
+            },
+            "id": "615221a8-2e14-4218-a38e-f83a8dbfd8c0",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/activityName",
+                "value": "Get Out and Move"
+              }
+            ],
+            "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/34ad8566-9e53-4d2e-9049-d0dd8c46e904",
+            "meta": {
+              "security": [
+                {
+                  "code": "bwell",
+                  "system": "https://www.icanbwell.com/access"
+                }
+              ],
+              "versionId": "1"
+            },
+            "resourceType": "Task",
+            "status": "ready"
+          },
+          {
             "for": {
               "reference": "Patient/0318898e65044aaab3115d048d44c434",
               "type": "Patient"
@@ -205,6 +260,61 @@
             },
             "resourceType": "Task",
             "status": "cancelled"
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "healthActivity",
+                  "system": "https://www.icanbwell.com/activityType"
+                },
+                {
+                  "code": "Prevention",
+                  "system": "https://www.icanbwell.com/activityClass"
+                }
+              ]
+            },
+            "extension": [
+              {
+                "url": "https://www.icanbwell.com/activityCompletionMethod",
+                "valueString": "Data"
+              },
+              {
+                "url": "https://www.icanbwell.com/activityRedirectUrl",
+                "valueString": "/invite-family-member/"
+              },
+              {
+                "url": "https://www.icanbwell.com/activityContentId",
+                "valueString": "b6f5f87c-327b-11ed-a8db-666c69ee66a3"
+              },
+              {
+                "url": "https://www.icanbwell.com/activityPoints",
+                "valueInteger": 200
+              }
+            ],
+            "for": {
+              "display": "Himanshu",
+              "reference": "Patient/aab16fc4c5914e38b489bcd096369623"
+            },
+            "id": "b59bed1b-5bc1-46ce-be79-2f8a07ce7324",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/activityName",
+                "value": "Get Out and Move"
+              }
+            ],
+            "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/34ad8566-9e53-4d2e-9049-d0dd8c46e904",
+            "meta": {
+              "security": [
+                {
+                  "code": "bwell",
+                  "system": "https://www.icanbwell.com/access"
+                }
+              ],
+              "versionId": "1"
+            },
+            "resourceType": "Task",
+            "status": "ready"
           }
         ],
         "gender": "male",
