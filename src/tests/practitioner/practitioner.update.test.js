@@ -31,6 +31,8 @@ describe('Practitioner Update Tests', () => {
                 .put('/4_0_0/Practitioner/4657')
                 .send(practitionerResource)
                 .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
