@@ -100,6 +100,13 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                         cleanMeta(resource.provider);
                     }
                 });
+                if (r.meta && r.meta.tag) {
+                    r.meta.tag.forEach((tag) => {
+                        if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
+                            delete tag['display'];
+                        }
+                    });
+                }
 
                 return r;
             });
