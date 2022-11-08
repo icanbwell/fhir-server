@@ -27,9 +27,10 @@ class ResourceMerger {
      * Merges two resources and returns either a merged resource or null (if there were no changes)
      * @param {Resource} currentResource
      * @param {Resource} resourceToMerge
+     * @param {boolean|undefined} [smartMerge]
      * @returns {Resource|null}
      */
-    async mergeResourceAsync({currentResource, resourceToMerge}) {
+    async mergeResourceAsync({currentResource, resourceToMerge, smartMerge = true}) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -92,7 +93,9 @@ class ResourceMerger {
         /**
          * @type {Object}
          */
-        let mergedObject = mergeObject(currentResource.toJSON(), resourceToMerge.toJSON());
+        let mergedObject = smartMerge ?
+            mergeObject(currentResource.toJSON(), resourceToMerge.toJSON()) :
+            resourceToMerge.toJSON();
 
         // now create a patch between the document in db and the incoming document
         //  this returns an array of patches
