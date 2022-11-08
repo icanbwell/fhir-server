@@ -41,6 +41,13 @@
             },
             "use": "official",
             "value": "1679033641"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1679033641"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "meta": {
@@ -221,6 +228,13 @@
               "text": "Organization Identifier"
             },
             "value": "3437"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "UF3-UADM"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "meta": {
@@ -347,6 +361,13 @@
               ]
             },
             "value": "MWHC"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "MWHC"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "meta": {
@@ -446,6 +467,13 @@
             },
             "use": "usual",
             "value": "MAX-MALX"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "MAX-MALX"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "location": [
@@ -560,6 +588,13 @@
             "system": "MedstarHealth.org",
             "use": "usual",
             "value": "MAX-MALX"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "MAX-MALX"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "meta": {

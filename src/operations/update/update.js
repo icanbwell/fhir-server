@@ -1,11 +1,9 @@
-const {logDebug} = require('../common/logging');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {isTrue} = require('../../utils/isTrue');
-const {compare} = require('fast-json-patch');
 const {getMeta} = require('../common/getMeta');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -18,6 +16,8 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {ResourceMerger} = require('../common/resourceMerger');
 
 /**
  * Update Operation
@@ -34,6 +34,7 @@ class UpdateOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {ResourceMerger} resourceMerger
      */
     constructor(
         {
@@ -45,7 +46,8 @@ class UpdateOperation {
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
-            databaseBulkInserter
+            databaseBulkInserter,
+            resourceMerger
         }
     ) {
         /**
@@ -93,6 +95,12 @@ class UpdateOperation {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     /**
@@ -198,14 +206,16 @@ class UpdateOperation {
              */
             let doc;
 
+            /**
+             * @type {Resource}
+             */
+            let foundResource;
+
             // check if resource was found in database or not
             // noinspection JSUnresolvedVariable
             if (data && data.meta) {
                 // found an existing resource
-                /**
-                 * @type {Resource}
-                 */
-                let foundResource = data;
+                foundResource = data;
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new ForbiddenError(
@@ -213,65 +223,23 @@ class UpdateOperation {
                         foundResource.resourceType + ' with id ' + id);
                 }
 
-                // use metadata of existing resource (overwrite any passed in metadata)
-                // noinspection JSPrimitiveTypeWrapperUsage
-                resource_incoming.meta = foundResource.meta;
-
-                const foundResourceObject = foundResource.toJSON();
-                const resourceIncomingObject = resource_incoming.toJSON();
-                // now create a patch between the document in db and the incoming document
-                //  this returns an array of patches
-                /**
-                 * @type {Operation[]}
-                 */
-                let patchContent = compare(foundResourceObject, resourceIncomingObject);
-                // ignore any changes to _id since that's an internal field
-                patchContent = patchContent.filter(item => item.path !== '/_id');
-                logDebug({user, args: {message: 'Update', patches: patchContent}});
-                // see if there are any changes
-                if (patchContent.length === 0) {
-                    await this.fhirLoggingManager.logOperationSuccessAsync({
-                        requestInfo,
-                        args,
-                        resourceType,
-                        startTime,
-                        action: currentOperationName
-                    });
-                    return {
-                        id: id,
-                        created: false,
-                        resource_version: foundResource.meta.versionId,
-                        resource: foundResource
-                    };
+                doc = await this.resourceMerger.mergeResourceAsync({
+                    currentResource: foundResource,
+                    resourceToMerge: resource_incoming,
+                    smartMerge: false
+                });
+                if (doc) { // if there is a change
+                    await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
                 }
-                if (isTrue(env.LOG_ALL_SAVES)) {
-                    await sendToS3('logs',
-                        resourceType,
-                        patchContent,
-                        currentDate,
-                        id,
-                        'update_patch');
-                }
-                // update the metadata to increment versionId
-                /**
-                 * @type {Meta}
-                 */
-                let meta = foundResource.meta;
-                meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
-                // noinspection SpellCheckingInspection
-                meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-                resource_incoming.meta = meta;
-
-                // Same as update from this point on
-                doc = resource_incoming;
-                // check_fhir_mismatch(cleaned, patched_incoming_data);
-                await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
             } else {
                 // not found so insert
                 if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
                     if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
                         // noinspection ExceptionCaughtLocallyJS
-                        throw new BadRequestError(new Error('ResourceC is missing a security access tag with system: https://www.icanbwell.com/access '));
+                        throw new BadRequestError(
+                            new Error(
+                                'Resource is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.access} `));
                     }
                 }
 
@@ -295,52 +263,62 @@ class UpdateOperation {
                 await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
             }
 
-            // Insert/update our resource record
-            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
-            /**
-             * @type {MergeResultEntry[]}
-             */
-            const mergeResults = await this.databaseBulkInserter.executeAsync(
-                {
-                    requestId, currentDate, base_version: base_version
-                }
-            );
-            if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
-            }
-
-            if (resourceType !== 'AuditEvent') {
-                // log access to audit logs
-                await this.auditLogger.logAuditEntryAsync(
+            if (doc) {
+                // Insert/update our resource record
+                await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+                /**
+                 * @type {MergeResultEntry[]}
+                 */
+                const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
-                        requestInfo, base_version, resourceType,
-                        operation: currentOperationName, args, ids: [resource_incoming['id']]
+                        requestId, currentDate, base_version: base_version
                     }
                 );
-                await this.auditLogger.flushAsync({requestId, currentDate});
-            }
+                if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                    throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+                }
 
-            const result = {
-                id: id,
-                created: mergeResults[0].created,
-                resource_version: doc.meta.versionId,
-                resource: doc
-            };
-            await this.fhirLoggingManager.logOperationSuccessAsync(
-                {
-                    requestInfo,
-                    args,
-                    resourceType,
-                    startTime,
-                    action: currentOperationName,
-                    result: JSON.stringify(result)
+                if (resourceType !== 'AuditEvent') {
+                    // log access to audit logs
+                    await this.auditLogger.logAuditEntryAsync(
+                        {
+                            requestInfo, base_version, resourceType,
+                            operation: currentOperationName, args, ids: [resource_incoming['id']]
+                        }
+                    );
+                    await this.auditLogger.flushAsync({requestId, currentDate});
+                }
+
+                const result = {
+                    id: id,
+                    created: mergeResults[0].created,
+                    resource_version: doc.meta.versionId,
+                    resource: doc
+                };
+                await this.fhirLoggingManager.logOperationSuccessAsync(
+                    {
+                        requestInfo,
+                        args,
+                        resourceType,
+                        startTime,
+                        action: currentOperationName,
+                        result: JSON.stringify(result)
+                    });
+                await this.changeEventProducer.fireEventsAsync({
+                    requestId, eventType: 'U', resourceType, doc
                 });
-            await this.changeEventProducer.fireEventsAsync({
-                requestId, eventType: 'U', resourceType, doc
-            });
-            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
-
-            return result;
+                this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
+                return result;
+            } else {
+                // not modified
+                return {
+                    id: id,
+                    created: false,
+                    updated: false,
+                    resource_version: foundResource.meta.versionId,
+                    resource: foundResource
+                };
+            }
         } catch (e) {
             if (isTrue(env.LOG_VALIDATION_FAILURES)) {
                 await sendToS3('errors',

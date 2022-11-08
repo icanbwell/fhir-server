@@ -4,6 +4,7 @@ const {
     mongoQueryAndOptionsStringify,
 } = require('../../../utils/mongoQueryStringify');
 const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
 
 describe('mongoQueryStringify Tests', () => {
     beforeEach(async () => {
@@ -31,7 +32,7 @@ describe('mongoQueryStringify Tests', () => {
                     {
                         'meta.security': {
                             $elemMatch: {
-                                system: 'https://www.icanbwell.com/access',
+                                system: SecurityTagSystem.access,
                                 code: 'fake',
                             },
                         },
@@ -62,7 +63,7 @@ describe('mongoQueryStringify Tests', () => {
                         {
                             'meta.security': {
                                 $elemMatch: {
-                                    system: 'https://www.icanbwell.com/access',
+                                    system: SecurityTagSystem.access,
                                     code: 'fake',
                                 },
                             },
@@ -84,7 +85,7 @@ describe('mongoQueryStringify Tests', () => {
                         {
                             'meta.security': {
                                 $elemMatch: {
-                                    system: 'https://www.icanbwell.com/access',
+                                    system: SecurityTagSystem.access,
                                     code: 'fake',
                                 },
                             },
@@ -117,7 +118,7 @@ describe('mongoQueryStringify Tests', () => {
                     {
                         'meta.security': {
                             $elemMatch: {
-                                system: 'https://www.icanbwell.com/access',
+                                system: SecurityTagSystem.access,
                                 code: 'fake',
                             },
                         },
@@ -154,7 +155,7 @@ describe('mongoQueryStringify Tests', () => {
                         {
                             'meta.security': {
                                 $elemMatch: {
-                                    system: 'https://www.icanbwell.com/access',
+                                    system: SecurityTagSystem.access,
                                     code: 'fake',
                                 },
                             },
@@ -176,7 +177,7 @@ describe('mongoQueryStringify Tests', () => {
                         {
                             'meta.security': {
                                 $elemMatch: {
-                                    system: 'https://www.icanbwell.com/access',
+                                    system: SecurityTagSystem.access,
                                     code: 'fake',
                                 },
                             },

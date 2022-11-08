@@ -1,4 +1,5 @@
 const {PreSaveHandler} = require('./preSaveHandler');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
@@ -7,11 +8,11 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
              * @type {string[]}
              */
             let sourceAssigningAuthorityCodes = resource.meta.security.filter(
-                s => s.system === 'https://www.icanbwell.com/sourceAssigningAuthority').map(s => s.code);
+                s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
             // if no sourceAssigningAuthorityCodes so fall back to owner tags
             if (sourceAssigningAuthorityCodes.length === 0) {
                 sourceAssigningAuthorityCodes = resource.meta.security.filter(
-                    s => s.system === 'https://www.icanbwell.com/owner').map(s => s.code);
+                    s => s.system === SecurityTagSystem.owner).map(s => s.code);
             }
             if (sourceAssigningAuthorityCodes.length > 0) {
                 resource._sourceAssigningAuthority = resource._sourceAssigningAuthority || {};

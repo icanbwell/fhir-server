@@ -7,7 +7,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('Claim Merge Tests', () => {
     beforeEach(async () => {
@@ -23,45 +23,23 @@ describe('Claim Merge Tests', () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
-                .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/1/$merge')
                 .send(explanationOfBenefitBundleResource)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/ExplanationOfBenefit?_count=10')
-                .set(getHeaders())
-                .expect(200);
-            let body = resp.body;
-            console.log('------- response 5 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 5  ------------');
-            expect(body.length).toBe(2);
-            body.forEach((element) => {
-                delete element['meta']['lastUpdated'];
-            });
-            let expected = expectedExplanationOfBenefitBundleResource;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                // element['meta'] = {'versionId': '1'};
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body).toStrictEqual(expected);
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedExplanationOfBenefitBundleResource);
         });
     });
 });

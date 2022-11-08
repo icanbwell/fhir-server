@@ -21,8 +21,8 @@ describe('Practitioner Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Practitioner search_by_identifier.test.js Tests', () => {
-        test('search_by_identifier.test.js works', async () => {
+    describe('Practitioner search_by_identifier Tests', () => {
+        test('search_by_identifier works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server

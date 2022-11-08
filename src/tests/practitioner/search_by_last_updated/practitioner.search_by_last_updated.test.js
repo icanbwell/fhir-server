@@ -29,29 +29,19 @@ describe('PractitionerReturnIdTests', () => {
         test('search by lastUpdated equals', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders());
-
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusOk();
-            expect(resp.body['created']).toBe(true);
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            expect(resp.body.length).toBe(1);
-            console.log('------- end response 3 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
 
             resp = await request
                 .get(
@@ -60,241 +50,158 @@ describe('PractitionerReturnIdTests', () => {
                         '&_useTwoStepOptimization=0'
                 )
                 .set(getHeaders());
-
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            delete expected[0]['meta']['lastUpdated'];
-            delete expected[0]['$schema'];
-            // expected[0]['meta'] = { 'versionId': '2' };
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('search by lastUpdated greater than or equals', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=ge2021-01-01')
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            delete expected[0]['meta']['lastUpdated'];
-            delete expected[0]['$schema'];
-            // expected[0]['meta'] = { 'versionId': '2' };
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('search by lastUpdated greater than', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
 
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=gt2021-01-01')
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            delete expected[0]['meta']['lastUpdated'];
-            delete expected[0]['$schema'];
-            // expected[0]['meta'] = { 'versionId': '2' };
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('search by lastUpdated less than or equals', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=le2029-01-01')
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            delete expected[0]['meta']['lastUpdated'];
-            delete expected[0]['$schema'];
-            // expected[0]['meta'] = { 'versionId': '2' };
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('search by lastUpdated less than', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=lt2029-01-01')
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            delete expected[0]['meta']['lastUpdated'];
-            delete expected[0]['$schema'];
-            // expected[0]['meta'] = { 'versionId': '2' };
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('search by lastUpdated less than and greater than (found)', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=lt2029-01-01&_lastUpdated=gt2021-01-01')
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(1);
-            delete body[0]['meta']['lastUpdated'];
-            let expected = expectedPractitionerResource;
-            delete expected[0]['meta']['lastUpdated'];
-            delete expected[0]['$schema'];
-            // expected[0]['meta'] = { 'versionId': '2' };
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('search by lastUpdated less than and greater than (not found)', async () => {
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=lt2021-01-10&_lastUpdated=gt2021-01-01')
                 .set(getHeaders())
                 .expect(200);
-
-            console.log('------- response Practitioner ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            expect(body.length).toBe(0);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
         });
     });
 });

@@ -11,7 +11,7 @@ const async = require('async');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
-const {assertTypeEquals, assertIsValid, assertFail} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
 const {ScopesManager} = require('../security/scopesManager');
@@ -330,19 +330,21 @@ class MergeManager {
                         id,
                         'merge_error');
                 }
-                assertFail({
-                    source: 'MergeManager',
-                    message: 'Failed to load data',
-                    args: {
-                        id: id,
-                        resourceType: resourceType,
-                        created: false,
-                        updated: false,
-                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                        operationOutcome: operationOutcome
-                    },
-                    error: e
-                });
+                throw new RethrownError(
+                    {
+                        message: 'Failed to load data',
+                        error: e,
+                        source: 'MergeManager',
+                        args: {
+                            id: id,
+                            resourceType: resourceType,
+                            created: false,
+                            updated: false,
+                            issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                            operationOutcome: operationOutcome
+                        },
+                    }
+                );
             }
         });
     }

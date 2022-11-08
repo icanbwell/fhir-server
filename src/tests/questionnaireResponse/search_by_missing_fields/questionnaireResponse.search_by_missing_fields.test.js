@@ -24,21 +24,16 @@ describe('Questionnaire Response Tests', () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/QuestionnaireResponse')
-                .set(getHeaders())
-                .expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/QuestionnaireResponse/1/$merge')
                 .send(questionnaireResponseBundle)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
                 .get('/4_0_0/QuestionnaireResponse?patient:missing=true')

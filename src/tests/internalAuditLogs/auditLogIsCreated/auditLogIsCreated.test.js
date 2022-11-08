@@ -38,11 +38,10 @@ describe('InternalAuditLog Tests', () => {
              */
             const postRequestProcessor = container.postRequestProcessor;
             // first confirm there are no practitioners
-            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
             await postRequestProcessor.waitTillDoneAsync();
             // check that InternalAuditLog is created
             /**
@@ -83,12 +82,10 @@ describe('InternalAuditLog Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             await postRequestProcessor.waitTillDoneAsync();
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
@@ -114,12 +111,9 @@ describe('InternalAuditLog Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
             await postRequestProcessor.waitTillDoneAsync();
@@ -153,13 +147,10 @@ describe('InternalAuditLog Tests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/0/$merge')
                 .send(practitionerResource2)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response practitionerResource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(false);
-            expect(resp.body['updated']).toBe(false);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: false, updated: false});
+
             await postRequestProcessor.waitTillDoneAsync();
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
@@ -182,13 +173,10 @@ describe('InternalAuditLog Tests', () => {
             expect(logs).toStrictEqual(expectedAuditEvents2);
 
             // now check that we get the right record back
-            resp = await request.get('/4_0_0/Practitioner/0').set(getHeaders()).expect(200);
-            console.log('------- response Practitioner sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            delete body['meta']['lastUpdated'];
+            resp = await request.get('/4_0_0/Practitioner/0').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
             await postRequestProcessor.waitTillDoneAsync();
             // one audit log should be created
             logs = await internalAuditEventCollection.find({}).toArray();
@@ -211,11 +199,8 @@ describe('InternalAuditLog Tests', () => {
             });
             expect(logs).toStrictEqual(expectedAuditEvents3);
 
-            let expected = expectedSinglePractitionerResource[0];
-            delete expected['meta']['lastUpdated'];
-            delete expected['$schema'];
-
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedSinglePractitionerResource);
         });
     });
 });

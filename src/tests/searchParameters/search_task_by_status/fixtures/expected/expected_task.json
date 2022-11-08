@@ -12,6 +12,13 @@
             "system": "https://www.icanbwell.com/legacyId",
             "use": "old",
             "value": "1077064060"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "01867dc5-c112-4543-995c-c6d0df3fa0c7"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "instantiatesCanonical": "https://fhir.dev.bwell.zone/4_0_0/ActivityDefinition/d4ded4d6-30a5-448b-9083-880581df8b00",

@@ -10,7 +10,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('Organization Response Tests', () => {
     beforeEach(async () => {
@@ -24,82 +24,42 @@ describe('Organization Response Tests', () => {
     describe('OrganizationResponse Bundles', () => {
         test('OrganizationResponse can search by null', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/4_0_0/Organization').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/Organization').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
             resp = await request
                 .post('/4_0_0/Organization/test1/$merge')
                 .send(organizationResponseBundle1)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             resp = await request
                 .post('/4_0_0/Organization/test2/$merge')
                 .send(organizationResponseBundle2)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3  ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             resp = await request
                 .post('/4_0_0/Organization/test3/$merge')
                 .send(organizationResponseBundle3)
-                .set(getHeaders())
-                .expect(200);
-            console.log('------- response 4 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 4  ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             resp = await request
                 .get('/4_0_0/Organization?identifier:missing=true')
-                .set(getHeaders())
-                .expect(200);
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            console.log('------- response 5 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 5  ------------');
-            expect(body.length).toBe(2);
-            body.forEach((element) => {
-                delete element['meta']['lastUpdated'];
-            });
-            let expected = expectedOrganizationResponseBundle;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                // element['meta'] = {'versionId': '1'};
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body).toStrictEqual(expected);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedOrganizationResponseBundle);
+
             resp = await request
                 .get('/4_0_0/Organization?identifier:missing=false')
-                .set(getHeaders())
-                .expect(200);
-            // clear out the lastUpdated column since that changes
-            body = resp.body;
-            console.log('------- response 6 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 6  ------------');
-            expect(body.length).toBe(1);
-            body.forEach((element) => {
-                delete element['meta']['lastUpdated'];
-            });
-            expected = expectedOrganizationResponseBundle2;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body).toStrictEqual(expected);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedOrganizationResponseBundle2);
         });
     });
 });

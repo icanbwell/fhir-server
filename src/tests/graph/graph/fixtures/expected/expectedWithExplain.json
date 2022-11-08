@@ -30,6 +30,13 @@
                 },
                 "use": "official",
                 "value": "1376656959"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "1376656959"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
               }
             ],
             "meta": {
@@ -76,6 +83,13 @@
               "text": "Claim Number"
             },
             "value": "230916613368"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "WPS-Claim-230916613368"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "insurance": [

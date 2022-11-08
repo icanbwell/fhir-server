@@ -45,6 +45,13 @@
               "text": "Claim Number"
             },
             "value": "230916613369"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "WPS-Claim-230916613369"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "insurance": [
@@ -88,12 +95,6 @@
         },
         "use": "Claim"
       }
-    }
-  ],
-  "link": [
-    {
-      "relation": "self",
-      "url": "http://localhost:3000/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$graph?contained=true"
     }
   ],
   "resourceType": "Bundle",

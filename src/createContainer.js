@@ -340,7 +340,8 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                databaseBulkInserter: c.databaseBulkInserter
+                databaseBulkInserter: c.databaseBulkInserter,
+                resourceMerger: c.resourceMerger
             }
         )
     );

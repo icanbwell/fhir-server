@@ -33,8 +33,7 @@ describe('search_by_source', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge?validate=true')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 

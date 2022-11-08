@@ -21,7 +21,9 @@ const {
     getGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {cleanMeta} = require('../../customMatchers');
+const {removeNull} = require('../../../utils/nullRemover');
 
 describe('GraphQL ExplanationOfBenefit Tests', () => {
     beforeEach(async () => {
@@ -90,8 +92,22 @@ describe('GraphQL ExplanationOfBenefit Tests', () => {
                 .set(getGraphQLHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedGraphQLResponse[0], (r) => {
-                delete r['meta'];
+            expect(resp).toHaveResponse(expectedGraphQLResponse, (r) => {
+                r.entry.map(e => e.resource).forEach(resource => {
+                    cleanMeta(resource);
+                    removeNull(resource);
+                    if (resource.provider) {
+                        cleanMeta(resource.provider);
+                    }
+                });
+                if (r.meta && r.meta.tag) {
+                    r.meta.tag.forEach((tag) => {
+                        if (tag['system'] === 'https://www.icanbwell.com/query' && tag['display']) {
+                            delete tag['display'];
+                        }
+                    });
+                }
+
                 return r;
             });
         });

@@ -1,6 +1,7 @@
 const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {assertIsValid} = require('../../utils/assertType');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 class ScopesManager {
     constructor() {
@@ -91,7 +92,7 @@ class ScopesManager {
          * @type {string[]}
          */
         const accessCodesForResource = resource.meta.security
-            .filter(s => s.system === 'https://www.icanbwell.com/access')
+            .filter(s => s.system === SecurityTagSystem.access)
             .map(s => s.code);
         /**
          * @type {string}
@@ -137,7 +138,7 @@ class ScopesManager {
             resource &&
             resource.meta &&
             resource.meta.security &&
-            resource.meta.security.some(s => s.system === 'https://www.icanbwell.com/access')
+            resource.meta.security.some(s => s.system === SecurityTagSystem.access)
         );
     }
 

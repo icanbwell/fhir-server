@@ -35,6 +35,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
+const {cleanMeta} = require('../../customMatchers');
 
 class MockConfigManagerWithTwoStepOptimizationBundle extends ConfigManager {
     get enableTwoStepOptimization() {
@@ -130,7 +131,12 @@ describe('GraphQL Patient Tests', () => {
                 })
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedGraphQlResponse);
+            expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
+                r.explanationOfBenefit.forEach(resource => {
+                    cleanMeta(resource);
+                });
+                return r;
+            });
         });
         test('GraphQL Patient for missing person', async () => {
             const request = await createTestRequest((c) => {

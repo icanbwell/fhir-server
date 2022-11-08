@@ -12,6 +12,7 @@ const {PostRequestProcessor} = require('./postRequestProcessor');
 const {DatabaseBulkInserter} = require('../dataLayer/databaseBulkInserter');
 const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals} = require('./assertType');
+const {SecurityTagSystem} = require('./securityTagSystem');
 
 class AuditLogger {
     /**
@@ -91,11 +92,11 @@ class AuditLogger {
                 lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
                 security: [
                     {
-                        'system': 'https://www.icanbwell.com/owner',
+                        'system': SecurityTagSystem.owner,
                         'code': 'bwell'
                     },
                     {
-                        'system': 'https://www.icanbwell.com/access',
+                        'system': SecurityTagSystem.access,
                         'code': 'bwell'
                     }
                 ]

@@ -6,6 +6,7 @@ const {SourceIdColumnHandler} = require('../../../../preSaveHandlers/handlers/so
 const {UuidColumnHandler} = require('../../../../preSaveHandlers/handlers/uuidColumnHandler');
 const {AccessColumnHandler} = require('../../../../preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('../../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const {SecurityTagSystem} = require('../../../../utils/securityTagSystem');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -27,11 +28,11 @@ describe('Patient Tests', () => {
                 'meta': {
                     'security': [
                         {
-                            'system': 'https://www.icanbwell.com/access',
+                            'system': SecurityTagSystem.access,
                             'code': 'myAccess'
                         },
                         {
-                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority',
+                            'system': SecurityTagSystem.sourceAssigningAuthority,
                             'code': 'myAssigningAuthority'
                         },
                     ]

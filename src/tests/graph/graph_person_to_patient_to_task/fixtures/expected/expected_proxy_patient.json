@@ -25,6 +25,13 @@
                 "system": "https://www.icanbwell.com/legacyId",
                 "use": "old",
                 "value": "98548363"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "8f9cd53e-6445-4003-8caf-569487868ce9"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
               }
             ],
             "instantiatesCanonical": "https://fhir.dev.bwell.zone/4_0_0/ActivityDefinition/d4ded4d6-30a5-448b-9083-880581df8b00",
@@ -60,6 +67,13 @@
               ]
             },
             "value": "bwell-e4c2a7117b1a455bb7824f8929e80826"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "0318898e65044aaab3115d048d44c434"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "meta": {
@@ -156,6 +170,13 @@
               {
                 "system": "https://www.icanbwell.com/activityName",
                 "value": "Get Out and Move"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "615221a8-2e14-4218-a38e-f83a8dbfd8c0"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
               }
             ],
             "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/34ad8566-9e53-4d2e-9049-d0dd8c46e904",
@@ -211,6 +232,13 @@
               {
                 "system": "https://www.icanbwell.com/activityName",
                 "value": "Get Out and Move"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "b59bed1b-5bc1-46ce-be79-2f8a07ce7324"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
               }
             ],
             "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/34ad8566-9e53-4d2e-9049-d0dd8c46e904",
@@ -268,6 +296,13 @@
               ]
             },
             "value": "QWERTY"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "aab16fc4c5914e38b489bcd096369623"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "meta": {
