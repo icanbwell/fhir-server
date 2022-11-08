@@ -71,7 +71,6 @@ function getPatientForm(params) {
     patientArray.push(givenNameField(params));
     patientArray.push(familyNameField(params));
     patientArray.push(emailField(params));
-    patientArray.push(identifierField(params));
     return patientArray;
 }
 
@@ -80,7 +79,6 @@ function getPersonForm(params) {
     personArray.push(givenNameField(params));
     personArray.push(familyNameField(params));
     personArray.push(emailField(params));
-    personArray.push(identifierField(params));
     return personArray;
 }
 
@@ -94,7 +92,6 @@ function getPractitionerForm(params) {
         sortField: 'identifier',
         value: params.identifier ? params.identifier.replace(identifierUrl, '') : '',
     });
-    practitionerArray.push(identifierField(params));
     return practitionerArray;
 }
 
@@ -144,18 +141,20 @@ const getFormData = (req, resourceName) => {
     }
 
     formData.push({
-        label: 'Source',
-        name: '_source',
-        sortField: 'meta.source',
-        value: params._source ? params._source : '',
-    });
-
-    formData.push({
         label: 'Id',
         name: 'id',
         sortField: 'id',
         value: params.id ? params.id : '',
         useExactMatch: true
+    });
+
+    formData.push(identifierField(params));
+
+    formData.push({
+        label: 'Source',
+        name: '_source',
+        sortField: 'meta.source',
+        value: params._source ? params._source : '',
     });
 
     return formData;
