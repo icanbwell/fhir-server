@@ -1,0 +1,81 @@
+{
+  "resourceType": "Person",
+  "id": "002126287fbd412d8b52115e48edbd4c",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2022-11-07T21:48:55.000Z",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem2"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "healthsystem2"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "FHIR_id",
+            "display": "bWell FHIR id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "bwell-002126287fbd412d8b52115e48edbd4c"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Family",
+      "given": [
+        "Given"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+919999999999",
+      "use": "home"
+    },
+    {
+      "system": "email",
+      "value": "foo@bar.com",
+      "use": "home"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1996-01-01",
+  "address": [
+    {
+      "line": [
+        "301 W. Second St., Austin, Texas 78701"
+      ],
+      "city": "Austin",
+      "state": "Texas",
+      "postalCode": "78701"
+    }
+  ],
+  "link": [
+    {
+      "target": {
+        "reference": "Patient/aab16fc4c5914e38b489bcd096369623",
+        "type": "Patient"
+      },
+      "assurance": "level4"
+    },
+    {
+      "target": {
+        "reference": "Patient/0318898e65044aaab3115d048d44c434",
+        "type": "Patient"
+      }
+    }
+  ]
+}

@@ -45,10 +45,10 @@ class PatientProxyQueryRewriter extends QueryRewriter {
             if (resourceType === 'Patient') {
                 if (argName === 'id') {
                     if (Array.isArray(argValue)) {
-                        if (argValue.some(a => a.startsWith(personProxyPrefix))) {
+                        if (argValue.some(a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix))) {
                             args[`${argName}`] = await async.mapSeries(
                                 argValue,
-                                async a => a.startsWith(personProxyPrefix) ?
+                                async a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                     await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                                         {
                                             base_version,
@@ -56,8 +56,9 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                             includePatientPrefix: false
                                         }) : a
                             );
+                            args[`${argName}`] = args[`${argName}`].join(',');
                         }
-                    } else if (typeof argValue === 'string' && argValue.startsWith(personProxyPrefix)) {
+                    } else if (typeof argValue === 'string' && (argValue.startsWith(personProxyPrefix) || argValue.startsWith(patientReferencePlusPersonProxyPrefix))) {
                         args[`${argName}`] = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                             {
                                 base_version,
@@ -79,6 +80,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                         id: a, includePatientPrefix: true
                                     }) : a
                         );
+                        args[`${argName}`] = args[`${argName}`].join(',');
                     }
                 } else if (typeof argValue === 'string' && argValue.startsWith(patientReferencePlusPersonProxyPrefix)) {
                     args[`${argName}`] = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(

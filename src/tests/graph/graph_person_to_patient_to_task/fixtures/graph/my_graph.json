@@ -1,0 +1,26 @@
+{
+  "resourceType": "GraphDefinition",
+  "start": "Person",
+  "link": [
+    {
+      "description": "Associated Patient",
+      "path": "link[x].target",
+      "target": [
+        {
+          "type": "Patient",
+          "link": [
+            {
+              "description": "Associated Task",
+              "target": [
+                {
+                  "type": "Task",
+                  "params": "subject={ref}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
