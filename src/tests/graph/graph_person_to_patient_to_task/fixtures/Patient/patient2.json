@@ -1,0 +1,69 @@
+{
+  "resourceType": "Patient",
+  "id": "0318898e65044aaab3115d048d44c434",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2022-08-23T21:32:06.000Z",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "healthsystem1"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "FHIR_id",
+            "display": "bWell FHIR id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "bwell-e4c2a7117b1a455bb7824f8929e80826"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "qbebhcwilt",
+      "given": [
+        "Sweetie"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+15125550156",
+      "use": "home"
+    },
+    {
+      "system": "email",
+      "value": "bwell+86856qwbfu@mailinator.com",
+      "use": "home"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1991-09-10",
+  "address": [
+    {
+      "line": [
+        "801 W 5th St"
+      ],
+      "city": "Austin",
+      "state": "TX",
+      "postalCode": "78703"
+    }
+  ]
+}
