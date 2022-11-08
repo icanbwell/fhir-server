@@ -11,6 +11,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {IdentifierSystem} = require('../../../utils/identifierSystem');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -47,6 +48,7 @@ describe('Practitioner Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
             expectedPractitionerResources.entry[0].resource.id = id;
+            expectedPractitionerResources.entry[0].resource.identifier.filter(i => i.system === IdentifierSystem.sourceId)[0].value = id;
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
