@@ -76,7 +76,7 @@ init:
 # "@asymmetrik/node-fhir-server-core": "https://gitpkg.now.sh/icanbwell/node-fhir-server-core/packages/node-fhir-server-core?master",
 
 .PHONY:update
-update:
+update:down
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	npm install --location=global yarn && \
 	rm -f yarn.lock && \
