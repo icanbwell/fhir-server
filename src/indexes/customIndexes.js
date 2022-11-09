@@ -223,7 +223,8 @@ module.exports = {
             },
             {
                 keys: {
-                    'identifier.value': 1
+                    'identifier.value': 1,
+                    'identifier.system': 1,
                 },
                 options: {
                     name: 'identifier.value_1'
@@ -242,7 +243,8 @@ module.exports = {
         'Patient_4_0_0': [
             {
                 keys: {
-                    'identifier.value': 1
+                    'identifier.value': 1,
+                    'identifier.system': 1
                 },
                 options: {
                     name: 'identifier.value_1'
