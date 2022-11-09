@@ -79,6 +79,7 @@ init:
 update:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	npm install --location=global yarn && \
+	rm -f yarn.lock && \
 	yarn install --no-optional && \
 	npm i --package-lock-only
 
