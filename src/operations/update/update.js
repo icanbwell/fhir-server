@@ -275,7 +275,7 @@ class UpdateOperation {
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                    throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+                    throw new BadRequestError(new Error(mergeResults.length > 0 ? JSON.stringify(mergeResults[0].issue) : 'No merge result'));
                 }
 
                 if (resourceType !== 'AuditEvent') {
