@@ -3,6 +3,17 @@ const advSearchJson = require('../fhir/generator/json/definitions.json/search-pa
 const searchLimit = 100;
 const searchLimitForIds = 10000;
 
+/**
+ * @typedef FieldInfo
+ * @type {Object}
+ * @property {string} label
+ * @property {string} name
+ * @property {string} [sortField]
+ * @property {*} value
+ * @property {boolean|undefined} [useExactMatch]
+ */
+
+
 function getSearchParams(req) {
     const bodyEntries = Object.entries(req.body);
     // eslint-disable-next-line no-unused-vars
@@ -25,6 +36,10 @@ function getModifierParams(req) {
     );
 }
 
+/**
+ * @param params
+ * @return {FieldInfo}
+ */
 function givenNameField(params) {
     return {
         label: 'Given (Name)',
@@ -35,6 +50,10 @@ function givenNameField(params) {
     };
 }
 
+/**
+ * @param params
+ * @return {FieldInfo}
+ */
 function familyNameField(params) {
     return {
         label: 'Family (Name)',
@@ -45,6 +64,10 @@ function familyNameField(params) {
     };
 }
 
+/**
+ * @param params
+ * @return {FieldInfo}
+ */
 function emailField(params) {
     return {
         label: 'Email',
@@ -55,6 +78,10 @@ function emailField(params) {
     };
 }
 
+/**
+ * @param params
+ * @return {FieldInfo}
+ */
 // eslint-disable-next-line no-unused-vars
 function identifierField(params) {
     return {
@@ -66,7 +93,14 @@ function identifierField(params) {
     };
 }
 
+/**
+ * @param params
+ * @return {FieldInfo[]}
+ */
 function getPatientForm(params) {
+    /**
+     * @type {FieldInfo[]}
+     */
     let patientArray = [];
     patientArray.push(givenNameField(params));
     patientArray.push(familyNameField(params));
@@ -75,18 +109,29 @@ function getPatientForm(params) {
 }
 
 function getPersonForm(params) {
+    /**
+     * @type {FieldInfo[]}
+     */
     let personArray = [];
     personArray.push({
         label: 'Name',
         name: 'name',
         sortField: 'name',
-        value: params.name ? params.name : ''
+        value: params.name ? params.name : '',
+        useExactMatch: true
     });
     personArray.push(emailField(params));
     return personArray;
 }
 
+/**
+ * @param params
+ * @return {FieldInfo[]}
+ */
 function getPractitionerForm(params) {
+    /**
+     * @type {FieldInfo[]}
+     */
     const practitionerArray = [];
     practitionerArray.push(givenNameField(params));
     practitionerArray.push(familyNameField(params));
@@ -99,7 +144,14 @@ function getPractitionerForm(params) {
     return practitionerArray;
 }
 
+/**
+ * @param params
+ * @return {FieldInfo[]}
+ */
 function getOrganizationForm(params) {
+    /**
+     * @type {FieldInfo[]}
+     */
     const formElements = [];
     formElements.push({
         label: 'Name',
@@ -110,7 +162,14 @@ function getOrganizationForm(params) {
     return formElements;
 }
 
+/**
+ * @param params
+ * @return {FieldInfo[]}
+ */
 function getEncounterForm(params) {
+    /**
+     * @type {FieldInfo[]}
+     */
     const formElements = [];
     formElements.push({
         columnHeader: 'Period',
@@ -122,8 +181,16 @@ function getEncounterForm(params) {
     return formElements;
 }
 
+/**
+ * @param req
+ * @param {string} resourceName
+ * @return {FieldInfo[]}
+ */
 const getFormData = (req, resourceName) => {
     const params = getModifierParams(req);
+    /**
+     * @type {FieldInfo[]}
+     */
     let formData = [];
 
     switch (resourceName) {
@@ -164,9 +231,21 @@ const getFormData = (req, resourceName) => {
     return formData;
 };
 
+/**
+ *
+ * @param req
+ * @param resourceName
+ * @return {FieldInfo[]}
+ */
 const getAdvSearchFormData = (req, resourceName) => {
+    /**
+     * @type {FieldInfo[]}
+     */
     const basicFormData = getFormData(req, resourceName);
     const params = getModifierParams(req);
+    /**
+     * @type {FieldInfo[]}
+     */
     let advFormData = [];
     const resourceFields = advSearchJson.entry.filter((entry) => {
         return entry.resource.base.includes(resourceName) && entry.resource.type === 'string';
