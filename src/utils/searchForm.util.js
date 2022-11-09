@@ -326,7 +326,15 @@ const getFieldValue = (res, name) => {
         case 'family':
             return res.name ? res.name.map((n) => n.family).join(', ') : '';
         case 'name':
-            return res.name ? res.name : '';
+            return res.name ?
+                (typeof res.name === 'object' ?
+                    Array.isArray(res.name) ?
+                        res.name.map(n => n.family).join(',') :
+                        Object.hasOwn(res.name, 'family') ?
+                            `${res.name.family}` :
+                            JSON.stringify(res.name) :
+                    res.name) :
+                '';
         case 'id':
             return res.id ? res.id : '';
         case 'email':
