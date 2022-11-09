@@ -8,7 +8,7 @@
   },
   "parserOptions": {
     "ecmaVersion": 2021,
-    parser: "@typescript-eslint/parser"
+    "project": "./tsconfig.json"
   },
   "plugins": [
     "security",
@@ -112,16 +112,16 @@
       }
     ],
     // http://eslint.org/docs/rules/#strict-mode
-//    "strict": [
-//      2,
-//      "global"
-//    ],
+    //    "strict": [
+    //      2,
+    //      "global"
+    //    ],
     "yoda": [
       2,
       "never"
     ],
     "no-process-exit": "off",
-//    "require-await": "error",
+    //    "require-await": "error",
     "security/detect-non-literal-fs-filename": "off",
     "node/no-unpublished-require": "off",
     "no-undef": "error",

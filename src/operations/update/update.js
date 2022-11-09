@@ -185,12 +185,13 @@ class UpdateOperation {
 
         try {
             // Get current record
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
             /**
              * @type {Resource | null}
              */
-            let data = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findOneAsync({query: {id: id.toString()}});
+            let data = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
             // create a resource with incoming data
             /**
              * @type {function(?Object): Resource}

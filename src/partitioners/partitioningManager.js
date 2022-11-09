@@ -45,6 +45,9 @@ class PartitioningManager {
 
     }
 
+    /**
+     * @return {Promise<void>}
+     */
     async loadPartitionsFromDatabaseAsync() {
         // if cache is still valid then just return
         if (this.partitionCacheLastLoaded &&
@@ -131,17 +134,17 @@ class PartitioningManager {
     /**
      * Gets the database connection for the given collection
      * @param {string} resourceType
-     * @returns {import('mongodb').Db}
+     * @returns {Promise<import('mongodb').Db>}
      */
     async getDatabaseConnectionAsync({resourceType}) {
-        return this.mongoDatabaseManager.getDatabaseForResource({resourceType});
+        return await this.mongoDatabaseManager.getDatabaseForResourceAsync({resourceType});
     }
 
     /**
      * returns the collection name for this resource
      * @param {Resource} resource
      * @param {string} base_version
-     * @returns {string}
+     * @returns {Promise<string>}
      */
     async getPartitionNameByResourceAsync({resource, base_version}) {
         assertIsValid(resource, 'Resource is null');
@@ -229,7 +232,7 @@ class PartitioningManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
-     * @returns {string[]}
+     * @returns {Promise<string[]>}
      */
     async getPartitionNamesByQueryAsync({resourceType, base_version, query}) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
@@ -277,7 +280,7 @@ class PartitioningManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
-     * @returns {string[]}
+     * @returns {Promise<string[]>}
      */
     async getAllHistoryPartitionsForResourceTypeAsync({resourceType, base_version, query}) {
         assertIsValid(resourceType, 'resourceType is empty');

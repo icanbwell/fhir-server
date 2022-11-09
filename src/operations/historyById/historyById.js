@@ -181,7 +181,7 @@ class HistoryByIdOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
+            const explanations = (cursor && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ? (await cursor.explainAsync()) : [];
             if (cursor && args['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
@@ -246,7 +246,7 @@ class HistoryByIdOperation {
                     total_count: resources.length,
                     args,
                     originalQuery: {},
-                    collectionName: resources.length > 0 ? resourceLocator.getHistoryCollectionNameAsync(resources[0]) : null,
+                    collectionName: resources.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(resources[0])) : null,
                     originalOptions: {},
                     stopTime,
                     startTime,

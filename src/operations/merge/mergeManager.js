@@ -262,6 +262,9 @@ class MergeManager {
         await mutex.runExclusive(async () => {
             try {
                 // Query our collection for this id
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                    {resourceType: resourceToMerge.resourceType, base_version}
+                );
                 /**
                  * @type {Resource|null}
                  */
@@ -272,9 +275,7 @@ class MergeManager {
                             id: id.toString()
                         }
                     ) :
-                    await this.databaseQueryFactory.createQuery(
-                        {resourceType: resourceToMerge.resourceType, base_version}
-                    ).findOneAsync({query: {id: id.toString()}});
+                    await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
 
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {

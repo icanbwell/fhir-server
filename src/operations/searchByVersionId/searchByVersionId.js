@@ -152,11 +152,12 @@ class SearchByVersionIdOperation {
              */
             let resource;
             try {
-                resource = await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
                         resourceType, base_version
                     }
-                ).findOneAsync({
+                );
+                resource = await databaseHistoryManager.findOneAsync({
                     query: query
                 });
             } catch (e) {

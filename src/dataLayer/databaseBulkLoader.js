@@ -78,13 +78,14 @@ class DatabaseBulkLoader {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkLoaderTimer.startTimer();
         try {
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
             /**
              * cursor
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findResourcesInDatabaseAsync({resources});
+            const cursor = await databaseQueryManager.findResourcesInDatabaseAsync({resources});
 
             /**
              * @type {Resource[]}

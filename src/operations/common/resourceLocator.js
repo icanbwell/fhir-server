@@ -53,7 +53,7 @@ class ResourceLocator {
     /**
      * returns the collection name for this resource
      * @param {Resource} resource
-     * @returns {string}
+     * @returns {Promise<string>}
      */
     async getCollectionNameAsync(resource) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
@@ -65,7 +65,7 @@ class ResourceLocator {
     /**
      * returns unique collections names for the provided resources
      * @param {Resource[]} resources
-     * @returns {string[]}
+     * @returns {Promise<string[]>}
      */
     async getCollectionNamesAsync({resources}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
@@ -78,7 +78,7 @@ class ResourceLocator {
     /**
      * returns all the collection names for resourceType
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
-     * @returns {string[]}
+     * @returns {Promise<string[]>}
      */
     async getCollectionNamesForQueryAsync({query}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
@@ -92,7 +92,7 @@ class ResourceLocator {
     /**
      * returns the first collection name for resourceType.   Use for debugging only
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
-     * @returns {string}
+     * @returns {Promise<string>}
      */
     async getFirstCollectionNameForQueryDebugOnlyAsync({query}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
@@ -110,7 +110,7 @@ class ResourceLocator {
     /**
      * returns the history collection name for the given resource
      * @param {Resource} resource
-     * @returns {string}
+     * @returns {Promise<string>}
      */
     async getHistoryCollectionNameAsync(resource) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
@@ -127,7 +127,7 @@ class ResourceLocator {
     /**
      * returns all the collection names for resourceType
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
-     * @returns {string[]}
+     * @returns {Promise<string[]>}
      */
     async getHistoryCollectionNamesForQueryAsync({query}) {
         assertIsValid(!this._resourceType.endsWith('_History'), `resourceType ${this._resourceType} has an invalid postfix`);
@@ -140,11 +140,11 @@ class ResourceLocator {
 
     /**
      * Gets the database connection for the given collection
-     * @returns {import('mongodb').Db}
+     * @returns {Promise<import('mongodb').Db>}
      */
     async getDatabaseConnectionAsync() {
         // noinspection JSValidateTypes
-        return this.mongoDatabaseManager.getDatabaseForResource(
+        return await this.mongoDatabaseManager.getDatabaseForResourceAsync(
             {
                 resourceType: this._resourceType
             });

@@ -272,13 +272,14 @@ class GraphHelper {
              * @type {number}
              */
             const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
             /**
              * mongo db cursor
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findAsync({query, options});
+            let cursor = await databaseQueryManager.findAsync({query, options});
 
             /**
              * @type {import('mongodb').Document[]}
@@ -440,13 +441,14 @@ class GraphHelper {
              * @type {number}
              */
             const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType: relatedResourceType, base_version}
+            );
             /**
              * mongo db cursor
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType: relatedResourceType, base_version}
-            ).findAsync({query, options});
+            let cursor = await databaseQueryManager.findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
             // find matching field name in searchParameter list.  We will use this to match up to parent
@@ -1076,13 +1078,14 @@ class GraphHelper {
              */
             const optionsForQueries = [];
 
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
             /**
              * mongo db cursor
              * @type {DatabasePartitionedCursor}
              */
-            let cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findAsync({query, options});
+            let cursor = await databaseQueryManager.findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
             queries.push(query);

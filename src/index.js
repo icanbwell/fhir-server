@@ -13,7 +13,8 @@ const main = async function () {
     } catch (e) {
         console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e) }));
         Sentry.captureException(e);
-        await new ErrorReporter(getImageVersion()).reportErrorAsync({
+        const errorReporter = new ErrorReporter(getImageVersion());
+        await errorReporter.reportErrorAsync({
             source: 'main',
             message: 'uncaughtException',
             error: e,

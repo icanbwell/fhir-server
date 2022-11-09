@@ -55,6 +55,7 @@ services:
             PARTITION_RESOURCES: 'AuditEvent'
             AUTH_CUSTOM_GROUP: "cognito:groups"
             AUTH_CUSTOM_SCOPE: "custom:scope"
+            VALIDATE_SCHEMA: "1"
         ports:
             - '3000:3000'
         volumes:
@@ -66,7 +67,7 @@ services:
             test: ['CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1']
 
     mongo:
-        image: mongo:5.0.12
+        image: mongo:5.0.13
         ports:
             - '27017:27017'
         environment:

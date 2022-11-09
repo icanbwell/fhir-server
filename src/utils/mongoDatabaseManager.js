@@ -54,9 +54,9 @@ class MongoDatabaseManager {
      * @param {string} resourceType
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseForResource({resourceType}) {
+    async getDatabaseForResourceAsync({resourceType}) {
         return (resourceType === 'AuditEvent') ?
-            await this.getAuditDbAsync() : await this.getClientDbAsync();
+            (await this.getAuditDbAsync()) : (await this.getClientDbAsync());
     }
 
     getClientConfig() {
@@ -124,6 +124,9 @@ class MongoDatabaseManager {
         return client;
     }
 
+    /**
+     * @return {Promise<void>}
+     */
     async connectAsync() {
         if (clientConnection) {
             return;
@@ -141,6 +144,9 @@ class MongoDatabaseManager {
         auditClientDb = auditEventClient.db(auditConfig.db_name);
     }
 
+    /**
+     * @return {Promise<void>}
+     */
     async dropDatabasesAsync() {
         // not implemented for production but can be implemented by sub-classes for tests
     }
