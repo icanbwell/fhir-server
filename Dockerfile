@@ -12,6 +12,7 @@ RUN #npm install -g npm@latest && npm upgrade --global yarn && yarn set version 
 
 RUN mkdir /srv/src
 COPY package.json /srv/src/package.json
+COPY yarn.lock /srv/src/yarn.lock
 
 RUN echo "$NODE_ENV"
 RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
@@ -41,6 +42,7 @@ WORKDIR /srv/src
 # Copy our package.json & install our dependencies
 USER node
 COPY --chown=node:node package.json /srv/src/package.json
+COPY --chown=node:node yarn.lock /srv/src/yarn.lock
 COPY --chown=node:node .snyk /srv/src/.snyk
 
 COPY --from=build /srv/src/node_modules /srv/src/node_modules
