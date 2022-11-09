@@ -76,8 +76,12 @@ function getPatientForm(params) {
 
 function getPersonForm(params) {
     let personArray = [];
-    personArray.push(givenNameField(params));
-    personArray.push(familyNameField(params));
+    personArray.push({
+        label: 'Name',
+        name: 'name',
+        sortField: 'name',
+        value: params.name ? params.name : ''
+    });
     personArray.push(emailField(params));
     return personArray;
 }

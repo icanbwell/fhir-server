@@ -210,6 +210,65 @@ module.exports = {
                     name: 'helix_observation_effective_2'
                 }
             }
+        ],
+        'Person_4_0_0': [
+            {
+                keys: {
+                    'telecom.system': 1,
+                    'telecom.code': 1
+                },
+                options: {
+                    name: 'telecom.system_code_1'
+                }
+            },
+            {
+                keys: {
+                    'identifier.value': 1
+                },
+                options: {
+                    name: 'identifier.value_1'
+                }
+            },
+            {
+                keys: {
+                    'name.family': 1,
+                    'name.given': 1
+                },
+                options: {
+                    name: 'name.family_1'
+                }
+            }
+        ],
+        'Patient_4_0_0': [
+            {
+                keys: {
+                    'identifier.value': 1
+                },
+                options: {
+                    name: 'identifier.value_1'
+                }
+            },
+            {
+                keys: {
+                    'name.family': 1,
+                    'name.given': 1
+                },
+                options: {
+                    name: 'name.family_1'
+                }
+            }
+        ],
+        'Task_4_0_0': [
+            {
+                keys: {
+                    'for.reference': 1,
+                    'status': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'for_reference_status_1'
+                }
+            }
         ]
     }
 };
