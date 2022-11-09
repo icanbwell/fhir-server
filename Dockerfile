@@ -7,13 +7,14 @@ ARG NODE_ENV=production
 RUN apt-get -y update && apt-get -y install curl autoconf build-essential && apt-get clean
 
 # update npm
-RUN npm install -g npm@latest
+RUN npm install -g npm@latest && npm upgrade --global yarn
+RUN #npm install -g npm@latest && npm upgrade --global yarn && yarn set version berry
 
 RUN mkdir /srv/src
 COPY package.json /srv/src/package.json
 
 RUN echo "$NODE_ENV"
-RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src && rm --force package-lock.json && yarn clean cache && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
+RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
 
 #RUN cd /srv/src && rm --force package-lock.json && yarn install --no-optional
 # Download the Amazon DocumentDB Certificate Authority (CA) certificate required to authenticate to your cluster
