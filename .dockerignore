@@ -5,7 +5,6 @@
 .pytest_cache
 tmp
 .vscode
-yarn.lock
 package-lock.json
 node_modules
 grafana
