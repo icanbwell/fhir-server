@@ -134,7 +134,8 @@ module.exports.commonAfterEach = async () => {
     }
     nock.cleanAll();
     nock.restore();
-    await new TestMongoDatabaseManager().dropDatabasesAsync();
+    const testMongoDatabaseManager = new TestMongoDatabaseManager();
+    await testMongoDatabaseManager.dropDatabasesAsync();
 
     if (mongo) {
         await mongo.stop();

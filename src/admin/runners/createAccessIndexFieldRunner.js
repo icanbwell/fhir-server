@@ -68,7 +68,8 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
          */
         let hasUpdate = false;
         if (accessCodes.length > 0 && !doc['_access']) {
-            doc = await new AccessColumnHandler().preSaveAsync({resource: doc});
+            const accessColumnHandler = new AccessColumnHandler();
+            doc = await accessColumnHandler.preSaveAsync({resource: doc});
             setCommand['_access'] = doc._access;
             hasUpdate = true;
         }
@@ -84,21 +85,24 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 s => s.system === SecurityTagSystem.owner).map(s => s.code);
         }
         if (sourceAssigningAuthorityCodes.length > 0 && !doc['_sourceAssigningAuthority']) {
-            doc = await new SourceAssigningAuthorityColumnHandler().preSaveAsync({resource: doc});
+            const sourceAssigningAuthorityColumnHandler = new SourceAssigningAuthorityColumnHandler();
+            doc = await sourceAssigningAuthorityColumnHandler.preSaveAsync({resource: doc});
             setCommand['_sourceAssigningAuthority'] = doc._sourceAssigningAuthority;
             setCommand['meta'] = doc.meta;
             hasUpdate = true;
         }
         // Step 3: add _sourceId
         if (!doc['_sourceId']) {
-            doc = await new SourceIdColumnHandler().preSaveAsync({resource: doc});
+            const sourceIdColumnHandler = new SourceIdColumnHandler();
+            doc = await sourceIdColumnHandler.preSaveAsync({resource: doc});
             setCommand['_sourceId'] = doc._sourceId;
             setCommand['meta'] = doc.meta;
             hasUpdate = true;
         }
         // Step 4: add _uuid
         if (!doc['_uuid']) {
-            doc = await new UuidColumnHandler().preSaveAsync({resource: doc});
+            const uuidColumnHandler = new UuidColumnHandler();
+            doc = await uuidColumnHandler.preSaveAsync({resource: doc});
             setCommand['_uuid'] = doc._uuid;
             setCommand['meta'] = doc.meta;
             hasUpdate = true;

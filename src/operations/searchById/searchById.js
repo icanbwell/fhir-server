@@ -169,9 +169,10 @@ class SearchByIdOperation {
                 filter
             });
             try {
-                resource = await this.databaseQueryFactory.createQuery(
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
                     {resourceType, base_version}
-                ).findOneAsync({query});
+                );
+                resource = await databaseQueryManager.findOneAsync({query});
             } catch (e) {
                 throw new BadRequestError(e);
             }

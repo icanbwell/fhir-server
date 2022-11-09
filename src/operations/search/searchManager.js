@@ -345,12 +345,13 @@ class SearchManager {
         let cursorBatchSize = null;
         // run the query and get the results
         // Now run the query to get a cursor we will enumerate next
+        const databaseQueryManager = this.databaseQueryFactory.createQuery(
+            {resourceType, base_version}
+        );
         /**
          * @type {DatabasePartitionedCursor}
          */
-        let cursorQuery = await this.databaseQueryFactory.createQuery(
-            {resourceType, base_version}
-        ).findAsync({query, options});
+        let cursorQuery = await databaseQueryManager.findAsync({query, options});
 
         if (isStreaming) {
             cursorQuery = cursorQuery.maxTimeMS({milliSecs: 60 * 60 * 1000}); // if streaming then set time out to an hour
@@ -556,14 +557,13 @@ class SearchManager {
             // https://www.hl7.org/fhir/search.html#total
             // if _total is passed then calculate the total count for matching records also
             // don't use the options since they set a limit and skip
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
             if (args['_total'] === 'estimate') {
-                return await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
-                ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
+                return await databaseQueryManager.exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
             } else {
-                return await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
-                ).exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
+                return await databaseQueryManager.exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
             }
         } catch (e) {
             throw new RethrownError({
@@ -650,12 +650,13 @@ class SearchManager {
             originalOptions = [options];
             const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            ).findAsync({query, options});
+            const cursor = await databaseQueryManager.findAsync({query, options});
             /**
              * @type {import('mongodb').DefaultSchema[]}
              */

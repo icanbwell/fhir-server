@@ -70,6 +70,9 @@ class ResourcePreparerTransform extends Transform {
         try {
             const chunks = Array.isArray(chunk) ? chunk : [chunk];
 
+            /**
+             * @type {Promise<Resource[]>[]}
+             */
             const promises = chunks.map(chunk1 =>
                 this.processChunkAsync(chunk1)
             );

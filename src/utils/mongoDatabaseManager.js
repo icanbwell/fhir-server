@@ -56,7 +56,7 @@ class MongoDatabaseManager {
      */
     async getDatabaseForResourceAsync({resourceType}) {
         return (resourceType === 'AuditEvent') ?
-            await this.getAuditDbAsync() : await this.getClientDbAsync();
+            (await this.getAuditDbAsync()) : (await this.getClientDbAsync());
     }
 
     getClientConfig() {

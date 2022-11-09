@@ -175,12 +175,13 @@ class RemoveOperation {
             // Delete our resource record
             let res;
             try {
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version}
+                );
                 /**
                  * @type {DeleteManyResult}
                  */
-                res = await this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
-                ).deleteManyAsync({query});
+                res = await databaseQueryManager.deleteManyAsync({query});
 
                 // log access to audit logs
                 await this.auditLogger.logAuditEntryAsync(

@@ -100,9 +100,10 @@ class PatchOperation {
             // Query our collection for this observation
             let data;
             try {
-                data = await this.databaseQueryFactory.createQuery(
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
                     {resourceType, base_version}
-                ).findOneAsync({query: {id: id.toString()}});
+                );
+                data = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
             } catch (e) {
                 throw new BadRequestError(e);
             }

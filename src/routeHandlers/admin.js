@@ -133,7 +133,8 @@ async function handleAdmin(
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const id = req.query['id'];
                     if (id) {
-                        const json = await (new AdminLogManager()).getLogAsync(id);
+                        const adminLogManager = new AdminLogManager();
+                        const json = await adminLogManager.getLogAsync(id);
                         // const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
                         // const parameters = {
                         //     id,
