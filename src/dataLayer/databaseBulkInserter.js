@@ -184,7 +184,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 );
             }
             if (doc._id) {
-                this.errorReporter.reportMessageAsync({
+                await this.errorReporter.reportMessageAsync({
                     source: 'DatabaseBulkInserter.insertOneAsync',
                     message: '_id still present',
                     args: {
@@ -560,7 +560,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         delete operation.insertOne.document['_id'];
                     }
                     if (!useHistoryCollection && resource._id) {
-                        this.errorReporter.reportMessageAsync({
+                        await this.errorReporter.reportMessageAsync({
                             source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
                             message: '_id still present',
                             args: {

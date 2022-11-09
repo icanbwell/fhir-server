@@ -188,9 +188,9 @@ class UpdateOperation {
             /**
              * @type {Resource | null}
              */
-            let data = await this.databaseQueryFactory.createQuery(
+            let data = await (this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
-            ).findOneAsync({query: {id: id.toString()}});
+            )).findOneAsync({query: {id: id.toString()}});
             // create a resource with incoming data
             /**
              * @type {function(?Object): Resource}
