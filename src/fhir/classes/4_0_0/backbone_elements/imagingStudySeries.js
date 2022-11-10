@@ -88,7 +88,7 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -118,7 +118,7 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -228,7 +228,7 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -289,7 +289,7 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.specimen = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.specimen = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -324,7 +324,7 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 let ImagingStudyPerformer = require('../backbone_elements/imagingStudyPerformer.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.map(v => new ImagingStudyPerformer(v)) : [new ImagingStudyPerformer(valueProvided)];
+                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImagingStudyPerformer(v)) : [new ImagingStudyPerformer(valueProvided)];
             }
         });
 
@@ -342,7 +342,7 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 let ImagingStudyInstance = require('../backbone_elements/imagingStudyInstance.js');
-                this.__data.instance = Array.isArray(valueProvided) ? valueProvided.map(v => new ImagingStudyInstance(v)) : [new ImagingStudyInstance(valueProvided)];
+                this.__data.instance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImagingStudyInstance(v)) : [new ImagingStudyInstance(valueProvided)];
             }
         });
 

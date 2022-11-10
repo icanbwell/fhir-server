@@ -110,7 +110,7 @@ class ClaimItem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -140,7 +140,7 @@ class ClaimItem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -174,7 +174,7 @@ class ClaimItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.careTeamSequence = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.careTeamSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -191,7 +191,7 @@ class ClaimItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.diagnosisSequence = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.diagnosisSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -208,7 +208,7 @@ class ClaimItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.procedureSequence = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.procedureSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -226,7 +226,7 @@ class ClaimItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.informationSequence = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.informationSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -302,7 +302,7 @@ class ClaimItem extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -320,7 +320,7 @@ class ClaimItem extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.programCode = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.programCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -503,7 +503,7 @@ class ClaimItem extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.udi = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.udi = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -539,7 +539,7 @@ class ClaimItem extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subSite = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.subSite = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -558,7 +558,7 @@ class ClaimItem extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.encounter = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.encounter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -577,7 +577,7 @@ class ClaimItem extends Element {
                     return;
                 }
                 let ClaimDetail = require('../backbone_elements/claimDetail.js');
-                this.__data.detail = Array.isArray(valueProvided) ? valueProvided.map(v => new ClaimDetail(v)) : [new ClaimDetail(valueProvided)];
+                this.__data.detail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimDetail(v)) : [new ClaimDetail(valueProvided)];
             }
         });
 

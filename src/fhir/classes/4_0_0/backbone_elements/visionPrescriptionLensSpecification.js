@@ -89,7 +89,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -119,7 +119,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -224,7 +224,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 let VisionPrescriptionPrism = require('../backbone_elements/visionPrescriptionPrism.js');
-                this.__data.prism = Array.isArray(valueProvided) ? valueProvided.map(v => new VisionPrescriptionPrism(v)) : [new VisionPrescriptionPrism(valueProvided)];
+                this.__data.prism = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new VisionPrescriptionPrism(v)) : [new VisionPrescriptionPrism(valueProvided)];
             }
         });
 
@@ -362,7 +362,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 

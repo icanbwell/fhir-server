@@ -66,7 +66,7 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -96,7 +96,7 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -133,7 +133,7 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.network = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.network = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -151,7 +151,7 @@ class InsurancePlanCoverage extends Element {
                     return;
                 }
                 let InsurancePlanBenefit = require('../backbone_elements/insurancePlanBenefit.js');
-                this.__data.benefit = Array.isArray(valueProvided) ? valueProvided.map(v => new InsurancePlanBenefit(v)) : [new InsurancePlanBenefit(valueProvided)];
+                this.__data.benefit = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InsurancePlanBenefit(v)) : [new InsurancePlanBenefit(valueProvided)];
             }
         });
 

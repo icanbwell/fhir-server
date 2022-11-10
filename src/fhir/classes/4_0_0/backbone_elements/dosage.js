@@ -90,7 +90,7 @@ class Dosage extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -120,7 +120,7 @@ class Dosage extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -176,7 +176,7 @@ class Dosage extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.additionalInstruction = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.additionalInstruction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -318,7 +318,7 @@ class Dosage extends Element {
                     return;
                 }
                 let DosageDoseAndRate = require('../backbone_elements/dosageDoseAndRate.js');
-                this.__data.doseAndRate = Array.isArray(valueProvided) ? valueProvided.map(v => new DosageDoseAndRate(v)) : [new DosageDoseAndRate(valueProvided)];
+                this.__data.doseAndRate = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DosageDoseAndRate(v)) : [new DosageDoseAndRate(valueProvided)];
             }
         });
 

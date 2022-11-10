@@ -65,7 +65,7 @@ class TestScriptMetadata extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -95,7 +95,7 @@ class TestScriptMetadata extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -113,7 +113,7 @@ class TestScriptMetadata extends Element {
                     return;
                 }
                 let TestScriptLink = require('../backbone_elements/testScriptLink.js');
-                this.__data.link = Array.isArray(valueProvided) ? valueProvided.map(v => new TestScriptLink(v)) : [new TestScriptLink(valueProvided)];
+                this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptLink(v)) : [new TestScriptLink(valueProvided)];
             }
         });
 
@@ -132,7 +132,7 @@ class TestScriptMetadata extends Element {
                     return;
                 }
                 let TestScriptCapability = require('../backbone_elements/testScriptCapability.js');
-                this.__data.capability = Array.isArray(valueProvided) ? valueProvided.map(v => new TestScriptCapability(v)) : [new TestScriptCapability(valueProvided)];
+                this.__data.capability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptCapability(v)) : [new TestScriptCapability(valueProvided)];
             }
         });
 

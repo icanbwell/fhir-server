@@ -70,7 +70,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -100,7 +100,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -138,7 +138,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 let MeasureReportComponent = require('../backbone_elements/measureReportComponent.js');
-                this.__data.component = Array.isArray(valueProvided) ? valueProvided.map(v => new MeasureReportComponent(v)) : [new MeasureReportComponent(valueProvided)];
+                this.__data.component = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureReportComponent(v)) : [new MeasureReportComponent(valueProvided)];
             }
         });
 
@@ -157,7 +157,7 @@ class MeasureReportStratum extends Element {
                     return;
                 }
                 let MeasureReportPopulation1 = require('../backbone_elements/measureReportPopulation1.js');
-                this.__data.population = Array.isArray(valueProvided) ? valueProvided.map(v => new MeasureReportPopulation1(v)) : [new MeasureReportPopulation1(valueProvided)];
+                this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureReportPopulation1(v)) : [new MeasureReportPopulation1(valueProvided)];
             }
         });
 

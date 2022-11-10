@@ -75,7 +75,7 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -105,7 +105,7 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -202,7 +202,7 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 let ValueSetParameter = require('../backbone_elements/valueSetParameter.js');
-                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.map(v => new ValueSetParameter(v)) : [new ValueSetParameter(valueProvided)];
+                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetParameter(v)) : [new ValueSetParameter(valueProvided)];
             }
         });
 
@@ -220,7 +220,7 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 let ValueSetContains = require('../backbone_elements/valueSetContains.js');
-                this.__data.contains = Array.isArray(valueProvided) ? valueProvided.map(v => new ValueSetContains(v)) : [new ValueSetContains(valueProvided)];
+                this.__data.contains = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetContains(v)) : [new ValueSetContains(valueProvided)];
             }
         });
 

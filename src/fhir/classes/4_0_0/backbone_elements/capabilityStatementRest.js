@@ -79,7 +79,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -109,7 +109,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -183,7 +183,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 let CapabilityStatementResource = require('../backbone_elements/capabilityStatementResource.js');
-                this.__data.resource = Array.isArray(valueProvided) ? valueProvided.map(v => new CapabilityStatementResource(v)) : [new CapabilityStatementResource(valueProvided)];
+                this.__data.resource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementResource(v)) : [new CapabilityStatementResource(valueProvided)];
             }
         });
 
@@ -201,7 +201,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 let CapabilityStatementInteraction1 = require('../backbone_elements/capabilityStatementInteraction1.js');
-                this.__data.interaction = Array.isArray(valueProvided) ? valueProvided.map(v => new CapabilityStatementInteraction1(v)) : [new CapabilityStatementInteraction1(valueProvided)];
+                this.__data.interaction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementInteraction1(v)) : [new CapabilityStatementInteraction1(valueProvided)];
             }
         });
 
@@ -222,7 +222,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 let CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
-                this.__data.searchParam = Array.isArray(valueProvided) ? valueProvided.map(v => new CapabilityStatementSearchParam(v)) : [new CapabilityStatementSearchParam(valueProvided)];
+                this.__data.searchParam = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementSearchParam(v)) : [new CapabilityStatementSearchParam(valueProvided)];
             }
         });
 
@@ -241,7 +241,7 @@ class CapabilityStatementRest extends Element {
                     return;
                 }
                 let CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');
-                this.__data.operation = Array.isArray(valueProvided) ? valueProvided.map(v => new CapabilityStatementOperation(v)) : [new CapabilityStatementOperation(valueProvided)];
+                this.__data.operation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementOperation(v)) : [new CapabilityStatementOperation(valueProvided)];
             }
         });
 
@@ -260,7 +260,7 @@ class CapabilityStatementRest extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.compartment = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.compartment = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 

@@ -79,7 +79,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -109,7 +109,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -242,7 +242,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 let SubstanceNucleicAcidLinkage = require('../backbone_elements/substanceNucleicAcidLinkage.js');
-                this.__data.linkage = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceNucleicAcidLinkage(v)) : [new SubstanceNucleicAcidLinkage(valueProvided)];
+                this.__data.linkage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceNucleicAcidLinkage(v)) : [new SubstanceNucleicAcidLinkage(valueProvided)];
             }
         });
 
@@ -260,7 +260,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 let SubstanceNucleicAcidSugar = require('../backbone_elements/substanceNucleicAcidSugar.js');
-                this.__data.sugar = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceNucleicAcidSugar(v)) : [new SubstanceNucleicAcidSugar(valueProvided)];
+                this.__data.sugar = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceNucleicAcidSugar(v)) : [new SubstanceNucleicAcidSugar(valueProvided)];
             }
         });
 

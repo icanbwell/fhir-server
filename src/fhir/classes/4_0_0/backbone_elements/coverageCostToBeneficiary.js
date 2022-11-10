@@ -69,7 +69,7 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -99,7 +99,7 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -172,7 +172,7 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 let CoverageException = require('../backbone_elements/coverageException.js');
-                this.__data.exception = Array.isArray(valueProvided) ? valueProvided.map(v => new CoverageException(v)) : [new CoverageException(valueProvided)];
+                this.__data.exception = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageException(v)) : [new CoverageException(valueProvided)];
             }
         });
 

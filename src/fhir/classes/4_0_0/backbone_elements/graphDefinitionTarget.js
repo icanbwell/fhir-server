@@ -72,7 +72,7 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -102,7 +102,7 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -171,7 +171,7 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 let GraphDefinitionCompartment = require('../backbone_elements/graphDefinitionCompartment.js');
-                this.__data.compartment = Array.isArray(valueProvided) ? valueProvided.map(v => new GraphDefinitionCompartment(v)) : [new GraphDefinitionCompartment(valueProvided)];
+                this.__data.compartment = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new GraphDefinitionCompartment(v)) : [new GraphDefinitionCompartment(valueProvided)];
             }
         });
 
@@ -189,7 +189,7 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 let GraphDefinitionLink = require('../backbone_elements/graphDefinitionLink.js');
-                this.__data.link = Array.isArray(valueProvided) ? valueProvided.map(v => new GraphDefinitionLink(v)) : [new GraphDefinitionLink(valueProvided)];
+                this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new GraphDefinitionLink(v)) : [new GraphDefinitionLink(valueProvided)];
             }
         });
 

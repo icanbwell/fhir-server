@@ -73,7 +73,7 @@ class StructureMapGroup extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -103,7 +103,7 @@ class StructureMapGroup extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -192,7 +192,7 @@ class StructureMapGroup extends Element {
                     return;
                 }
                 let StructureMapInput = require('../backbone_elements/structureMapInput.js');
-                this.__data.input = Array.isArray(valueProvided) ? valueProvided.map(v => new StructureMapInput(v)) : [new StructureMapInput(valueProvided)];
+                this.__data.input = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapInput(v)) : [new StructureMapInput(valueProvided)];
             }
         });
 
@@ -210,7 +210,7 @@ class StructureMapGroup extends Element {
                     return;
                 }
                 let StructureMapRule = require('../backbone_elements/structureMapRule.js');
-                this.__data.rule = Array.isArray(valueProvided) ? valueProvided.map(v => new StructureMapRule(v)) : [new StructureMapRule(valueProvided)];
+                this.__data.rule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapRule(v)) : [new StructureMapRule(valueProvided)];
             }
         });
 

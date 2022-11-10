@@ -109,7 +109,7 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -139,7 +139,7 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -247,7 +247,7 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -267,7 +267,7 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.documentation = Array.isArray(valueProvided) ? valueProvided.map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
+                this.__data.documentation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
             }
         });
 
@@ -286,7 +286,7 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 let RequestGroupCondition = require('../backbone_elements/requestGroupCondition.js');
-                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.map(v => new RequestGroupCondition(v)) : [new RequestGroupCondition(valueProvided)];
+                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RequestGroupCondition(v)) : [new RequestGroupCondition(valueProvided)];
             }
         });
 
@@ -305,7 +305,7 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 let RequestGroupRelatedAction = require('../backbone_elements/requestGroupRelatedAction.js');
-                this.__data.relatedAction = Array.isArray(valueProvided) ? valueProvided.map(v => new RequestGroupRelatedAction(v)) : [new RequestGroupRelatedAction(valueProvided)];
+                this.__data.relatedAction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RequestGroupRelatedAction(v)) : [new RequestGroupRelatedAction(valueProvided)];
             }
         });
 
@@ -430,7 +430,7 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -568,7 +568,7 @@ class RequestGroupAction extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.action = Array.isArray(valueProvided) ? valueProvided.map(v => new RequestGroupAction(v)) : [new RequestGroupAction(valueProvided)];
+                this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RequestGroupAction(v)) : [new RequestGroupAction(valueProvided)];
             }
         });
 

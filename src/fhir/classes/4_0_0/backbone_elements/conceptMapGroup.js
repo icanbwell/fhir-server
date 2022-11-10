@@ -74,7 +74,7 @@ class ConceptMapGroup extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -104,7 +104,7 @@ class ConceptMapGroup extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -195,7 +195,7 @@ class ConceptMapGroup extends Element {
                     return;
                 }
                 let ConceptMapElement = require('../backbone_elements/conceptMapElement.js');
-                this.__data.element = Array.isArray(valueProvided) ? valueProvided.map(v => new ConceptMapElement(v)) : [new ConceptMapElement(valueProvided)];
+                this.__data.element = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConceptMapElement(v)) : [new ConceptMapElement(valueProvided)];
             }
         });
 

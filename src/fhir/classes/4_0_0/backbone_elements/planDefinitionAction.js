@@ -131,7 +131,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -161,7 +161,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -269,7 +269,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -287,7 +287,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reason = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.reason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -307,7 +307,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.documentation = Array.isArray(valueProvided) ? valueProvided.map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
+                this.__data.documentation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
             }
         });
 
@@ -325,7 +325,7 @@ class PlanDefinitionAction extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.goalId = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.goalId = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -379,7 +379,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                this.__data.trigger = Array.isArray(valueProvided) ? valueProvided.map(v => new TriggerDefinition(v)) : [new TriggerDefinition(valueProvided)];
+                this.__data.trigger = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TriggerDefinition(v)) : [new TriggerDefinition(valueProvided)];
             }
         });
 
@@ -398,7 +398,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let PlanDefinitionCondition = require('../backbone_elements/planDefinitionCondition.js');
-                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.map(v => new PlanDefinitionCondition(v)) : [new PlanDefinitionCondition(valueProvided)];
+                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PlanDefinitionCondition(v)) : [new PlanDefinitionCondition(valueProvided)];
             }
         });
 
@@ -416,7 +416,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
-                this.__data.input = Array.isArray(valueProvided) ? valueProvided.map(v => new DataRequirement(v)) : [new DataRequirement(valueProvided)];
+                this.__data.input = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirement(v)) : [new DataRequirement(valueProvided)];
             }
         });
 
@@ -434,7 +434,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
-                this.__data.output = Array.isArray(valueProvided) ? valueProvided.map(v => new DataRequirement(v)) : [new DataRequirement(valueProvided)];
+                this.__data.output = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirement(v)) : [new DataRequirement(valueProvided)];
             }
         });
 
@@ -453,7 +453,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let PlanDefinitionRelatedAction = require('../backbone_elements/planDefinitionRelatedAction.js');
-                this.__data.relatedAction = Array.isArray(valueProvided) ? valueProvided.map(v => new PlanDefinitionRelatedAction(v)) : [new PlanDefinitionRelatedAction(valueProvided)];
+                this.__data.relatedAction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PlanDefinitionRelatedAction(v)) : [new PlanDefinitionRelatedAction(valueProvided)];
             }
         });
 
@@ -578,7 +578,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let PlanDefinitionParticipant = require('../backbone_elements/planDefinitionParticipant.js');
-                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.map(v => new PlanDefinitionParticipant(v)) : [new PlanDefinitionParticipant(valueProvided)];
+                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PlanDefinitionParticipant(v)) : [new PlanDefinitionParticipant(valueProvided)];
             }
         });
 
@@ -755,7 +755,7 @@ class PlanDefinitionAction extends Element {
                     return;
                 }
                 let PlanDefinitionDynamicValue = require('../backbone_elements/planDefinitionDynamicValue.js');
-                this.__data.dynamicValue = Array.isArray(valueProvided) ? valueProvided.map(v => new PlanDefinitionDynamicValue(v)) : [new PlanDefinitionDynamicValue(valueProvided)];
+                this.__data.dynamicValue = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PlanDefinitionDynamicValue(v)) : [new PlanDefinitionDynamicValue(valueProvided)];
             }
         });
 
@@ -775,7 +775,7 @@ class PlanDefinitionAction extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.action = Array.isArray(valueProvided) ? valueProvided.map(v => new PlanDefinitionAction(v)) : [new PlanDefinitionAction(valueProvided)];
+                this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PlanDefinitionAction(v)) : [new PlanDefinitionAction(valueProvided)];
             }
         });
 

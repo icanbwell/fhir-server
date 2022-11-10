@@ -193,7 +193,7 @@ class CoverageEligibilityResponse extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -222,7 +222,7 @@ class CoverageEligibilityResponse extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -252,7 +252,7 @@ class CoverageEligibilityResponse extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -270,7 +270,7 @@ class CoverageEligibilityResponse extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -308,7 +308,7 @@ class CoverageEligibilityResponse extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.purpose = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.purpose = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -487,7 +487,7 @@ class CoverageEligibilityResponse extends Resource {
                     return;
                 }
                 let CoverageEligibilityResponseInsurance = require('../backbone_elements/coverageEligibilityResponseInsurance.js');
-                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.map(v => new CoverageEligibilityResponseInsurance(v)) : [new CoverageEligibilityResponseInsurance(valueProvided)];
+                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityResponseInsurance(v)) : [new CoverageEligibilityResponseInsurance(valueProvided)];
             }
         });
 
@@ -541,7 +541,7 @@ class CoverageEligibilityResponse extends Resource {
                     return;
                 }
                 let CoverageEligibilityResponseError = require('../backbone_elements/coverageEligibilityResponseError.js');
-                this.__data.error = Array.isArray(valueProvided) ? valueProvided.map(v => new CoverageEligibilityResponseError(v)) : [new CoverageEligibilityResponseError(valueProvided)];
+                this.__data.error = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityResponseError(v)) : [new CoverageEligibilityResponseError(valueProvided)];
             }
         });
 

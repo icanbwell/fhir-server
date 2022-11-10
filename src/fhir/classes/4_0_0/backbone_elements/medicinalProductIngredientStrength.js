@@ -74,7 +74,7 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -104,7 +104,7 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -215,7 +215,7 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.country = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.country = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -233,7 +233,7 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 let MedicinalProductIngredientReferenceStrength = require('../backbone_elements/medicinalProductIngredientReferenceStrength.js');
-                this.__data.referenceStrength = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicinalProductIngredientReferenceStrength(v)) : [new MedicinalProductIngredientReferenceStrength(valueProvided)];
+                this.__data.referenceStrength = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductIngredientReferenceStrength(v)) : [new MedicinalProductIngredientReferenceStrength(valueProvided)];
             }
         });
 

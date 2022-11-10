@@ -174,7 +174,7 @@ class MedicinalProductPharmaceutical extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -203,7 +203,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -233,7 +233,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -251,7 +251,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -305,7 +305,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -323,7 +323,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.device = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.device = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -341,7 +341,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     return;
                 }
                 let MedicinalProductPharmaceuticalCharacteristics = require('../backbone_elements/medicinalProductPharmaceuticalCharacteristics.js');
-                this.__data.characteristics = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicinalProductPharmaceuticalCharacteristics(v)) : [new MedicinalProductPharmaceuticalCharacteristics(valueProvided)];
+                this.__data.characteristics = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPharmaceuticalCharacteristics(v)) : [new MedicinalProductPharmaceuticalCharacteristics(valueProvided)];
             }
         });
 
@@ -360,7 +360,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     return;
                 }
                 let MedicinalProductPharmaceuticalRouteOfAdministration = require('../backbone_elements/medicinalProductPharmaceuticalRouteOfAdministration.js');
-                this.__data.routeOfAdministration = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicinalProductPharmaceuticalRouteOfAdministration(v)) : [new MedicinalProductPharmaceuticalRouteOfAdministration(valueProvided)];
+                this.__data.routeOfAdministration = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPharmaceuticalRouteOfAdministration(v)) : [new MedicinalProductPharmaceuticalRouteOfAdministration(valueProvided)];
             }
         });
 

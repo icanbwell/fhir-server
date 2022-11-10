@@ -196,7 +196,7 @@ class DocumentReference extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -225,7 +225,7 @@ class DocumentReference extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -255,7 +255,7 @@ class DocumentReference extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -294,7 +294,7 @@ class DocumentReference extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -368,7 +368,7 @@ class DocumentReference extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -424,7 +424,7 @@ class DocumentReference extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.author = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -480,7 +480,7 @@ class DocumentReference extends Resource {
                     return;
                 }
                 let DocumentReferenceRelatesTo = require('../backbone_elements/documentReferenceRelatesTo.js');
-                this.__data.relatesTo = Array.isArray(valueProvided) ? valueProvided.map(v => new DocumentReferenceRelatesTo(v)) : [new DocumentReferenceRelatesTo(valueProvided)];
+                this.__data.relatesTo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DocumentReferenceRelatesTo(v)) : [new DocumentReferenceRelatesTo(valueProvided)];
             }
         });
 
@@ -519,7 +519,7 @@ class DocumentReference extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -538,7 +538,7 @@ class DocumentReference extends Resource {
                     return;
                 }
                 let DocumentReferenceContent = require('../backbone_elements/documentReferenceContent.js');
-                this.__data.content = Array.isArray(valueProvided) ? valueProvided.map(v => new DocumentReferenceContent(v)) : [new DocumentReferenceContent(valueProvided)];
+                this.__data.content = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DocumentReferenceContent(v)) : [new DocumentReferenceContent(valueProvided)];
             }
         });
 

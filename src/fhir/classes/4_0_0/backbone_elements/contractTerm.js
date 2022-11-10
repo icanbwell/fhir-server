@@ -87,7 +87,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -117,7 +117,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -281,7 +281,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 let ContractSecurityLabel = require('../backbone_elements/contractSecurityLabel.js');
-                this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractSecurityLabel(v)) : [new ContractSecurityLabel(valueProvided)];
+                this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractSecurityLabel(v)) : [new ContractSecurityLabel(valueProvided)];
             }
         });
 
@@ -317,7 +317,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 let ContractAsset = require('../backbone_elements/contractAsset.js');
-                this.__data.asset = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractAsset(v)) : [new ContractAsset(valueProvided)];
+                this.__data.asset = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractAsset(v)) : [new ContractAsset(valueProvided)];
             }
         });
 
@@ -336,7 +336,7 @@ class ContractTerm extends Element {
                     return;
                 }
                 let ContractAction = require('../backbone_elements/contractAction.js');
-                this.__data.action = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractAction(v)) : [new ContractAction(valueProvided)];
+                this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractAction(v)) : [new ContractAction(valueProvided)];
             }
         });
 
@@ -353,7 +353,7 @@ class ContractTerm extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.group = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractTerm(v)) : [new ContractTerm(valueProvided)];
+                this.__data.group = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractTerm(v)) : [new ContractTerm(valueProvided)];
             }
         });
 

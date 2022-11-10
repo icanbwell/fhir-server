@@ -15,7 +15,7 @@
             </thead>
             <tbody>
             <% performers.forEach(function(performer){ %>
-                <% if (performer.function) { %>
+                <% if (performer.function && performer.function.type) { %>
                         <% if (performer.function.type.coding) { %>
                             <% performer.function.type.coding.forEach(function(coding){ %>
                                 <tr>

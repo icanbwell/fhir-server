@@ -216,7 +216,7 @@ class MedicationDispense extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -245,7 +245,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -275,7 +275,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -297,7 +297,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -315,7 +315,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -478,7 +478,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingInformation = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.supportingInformation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -496,7 +496,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let MedicationDispensePerformer = require('../backbone_elements/medicationDispensePerformer.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicationDispensePerformer(v)) : [new MedicationDispensePerformer(valueProvided)];
+                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationDispensePerformer(v)) : [new MedicationDispensePerformer(valueProvided)];
             }
         });
 
@@ -532,7 +532,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.authorizingPrescription = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.authorizingPrescription = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -661,7 +661,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.receiver = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.receiver = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -680,7 +680,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 
@@ -698,7 +698,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Dosage = require('../backbone_elements/dosage.js');
-                this.__data.dosageInstruction = Array.isArray(valueProvided) ? valueProvided.map(v => new Dosage(v)) : [new Dosage(valueProvided)];
+                this.__data.dosageInstruction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Dosage(v)) : [new Dosage(valueProvided)];
             }
         });
 
@@ -740,7 +740,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.detectedIssue = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.detectedIssue = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -759,7 +759,7 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.eventHistory = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.eventHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 

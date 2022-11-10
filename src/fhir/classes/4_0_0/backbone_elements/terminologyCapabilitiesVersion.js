@@ -74,7 +74,7 @@ class TerminologyCapabilitiesVersion extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -104,7 +104,7 @@ class TerminologyCapabilitiesVersion extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -173,7 +173,7 @@ class TerminologyCapabilitiesVersion extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.language = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.language = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -191,7 +191,7 @@ class TerminologyCapabilitiesVersion extends Element {
                     return;
                 }
                 let TerminologyCapabilitiesFilter = require('../backbone_elements/terminologyCapabilitiesFilter.js');
-                this.__data.filter = Array.isArray(valueProvided) ? valueProvided.map(v => new TerminologyCapabilitiesFilter(v)) : [new TerminologyCapabilitiesFilter(valueProvided)];
+                this.__data.filter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TerminologyCapabilitiesFilter(v)) : [new TerminologyCapabilitiesFilter(valueProvided)];
             }
         });
 
@@ -208,7 +208,7 @@ class TerminologyCapabilitiesVersion extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 

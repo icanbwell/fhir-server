@@ -78,7 +78,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -108,7 +108,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -251,7 +251,7 @@ class SpecimenDefinitionContainer extends Element {
                     return;
                 }
                 let SpecimenDefinitionAdditive = require('../backbone_elements/specimenDefinitionAdditive.js');
-                this.__data.additive = Array.isArray(valueProvided) ? valueProvided.map(v => new SpecimenDefinitionAdditive(v)) : [new SpecimenDefinitionAdditive(valueProvided)];
+                this.__data.additive = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SpecimenDefinitionAdditive(v)) : [new SpecimenDefinitionAdditive(valueProvided)];
             }
         });
 

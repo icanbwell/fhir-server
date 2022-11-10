@@ -199,7 +199,7 @@ class SubstanceSpecification extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -228,7 +228,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -258,7 +258,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -365,7 +365,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.source = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -400,7 +400,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let SubstanceSpecificationMoiety = require('../backbone_elements/substanceSpecificationMoiety.js');
-                this.__data.moiety = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationMoiety(v)) : [new SubstanceSpecificationMoiety(valueProvided)];
+                this.__data.moiety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationMoiety(v)) : [new SubstanceSpecificationMoiety(valueProvided)];
             }
         });
 
@@ -419,7 +419,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let SubstanceSpecificationProperty = require('../backbone_elements/substanceSpecificationProperty.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationProperty(v)) : [new SubstanceSpecificationProperty(valueProvided)];
+                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationProperty(v)) : [new SubstanceSpecificationProperty(valueProvided)];
             }
         });
 
@@ -473,7 +473,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let SubstanceSpecificationCode = require('../backbone_elements/substanceSpecificationCode.js');
-                this.__data.code = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationCode(v)) : [new SubstanceSpecificationCode(valueProvided)];
+                this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationCode(v)) : [new SubstanceSpecificationCode(valueProvided)];
             }
         });
 
@@ -491,7 +491,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let SubstanceSpecificationName = require('../backbone_elements/substanceSpecificationName.js');
-                this.__data.name = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
+                this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
             }
         });
 
@@ -510,7 +510,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
-                this.__data.molecularWeight = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationMolecularWeight(v)) : [new SubstanceSpecificationMolecularWeight(valueProvided)];
+                this.__data.molecularWeight = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationMolecularWeight(v)) : [new SubstanceSpecificationMolecularWeight(valueProvided)];
             }
         });
 
@@ -528,7 +528,7 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 let SubstanceSpecificationRelationship = require('../backbone_elements/substanceSpecificationRelationship.js');
-                this.__data.relationship = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationRelationship(v)) : [new SubstanceSpecificationRelationship(valueProvided)];
+                this.__data.relationship = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationRelationship(v)) : [new SubstanceSpecificationRelationship(valueProvided)];
             }
         });
 

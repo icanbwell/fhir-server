@@ -72,7 +72,7 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -102,7 +102,7 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -188,7 +188,7 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 let ExampleScenarioVersion = require('../backbone_elements/exampleScenarioVersion.js');
-                this.__data.version = Array.isArray(valueProvided) ? valueProvided.map(v => new ExampleScenarioVersion(v)) : [new ExampleScenarioVersion(valueProvided)];
+                this.__data.version = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExampleScenarioVersion(v)) : [new ExampleScenarioVersion(valueProvided)];
             }
         });
 
@@ -207,7 +207,7 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 let ExampleScenarioContainedInstance = require('../backbone_elements/exampleScenarioContainedInstance.js');
-                this.__data.containedInstance = Array.isArray(valueProvided) ? valueProvided.map(v => new ExampleScenarioContainedInstance(v)) : [new ExampleScenarioContainedInstance(valueProvided)];
+                this.__data.containedInstance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExampleScenarioContainedInstance(v)) : [new ExampleScenarioContainedInstance(valueProvided)];
             }
         });
 

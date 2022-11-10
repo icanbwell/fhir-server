@@ -85,7 +85,7 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -115,7 +115,7 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -277,7 +277,7 @@ class ProdCharacteristic extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.color = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.color = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -294,7 +294,7 @@ class ProdCharacteristic extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.imprint = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.imprint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -313,7 +313,7 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
-                this.__data.image = Array.isArray(valueProvided) ? valueProvided.map(v => new Attachment(v)) : [new Attachment(valueProvided)];
+                this.__data.image = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Attachment(v)) : [new Attachment(valueProvided)];
             }
         });
 

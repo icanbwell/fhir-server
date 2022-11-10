@@ -191,7 +191,7 @@ class PaymentReconciliation extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -220,7 +220,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -250,7 +250,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -268,7 +268,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -481,7 +481,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 let PaymentReconciliationDetail = require('../backbone_elements/paymentReconciliationDetail.js');
-                this.__data.detail = Array.isArray(valueProvided) ? valueProvided.map(v => new PaymentReconciliationDetail(v)) : [new PaymentReconciliationDetail(valueProvided)];
+                this.__data.detail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PaymentReconciliationDetail(v)) : [new PaymentReconciliationDetail(valueProvided)];
             }
         });
 
@@ -517,7 +517,7 @@ class PaymentReconciliation extends Resource {
                     return;
                 }
                 let PaymentReconciliationProcessNote = require('../backbone_elements/paymentReconciliationProcessNote.js');
-                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.map(v => new PaymentReconciliationProcessNote(v)) : [new PaymentReconciliationProcessNote(valueProvided)];
+                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PaymentReconciliationProcessNote(v)) : [new PaymentReconciliationProcessNote(valueProvided)];
             }
         });
 

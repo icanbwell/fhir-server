@@ -94,7 +94,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -124,7 +124,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -192,7 +192,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.code = Array.isArray(valueProvided) ? valueProvided.map(v => new Coding(v)) : [new Coding(valueProvided)];
+                this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
 
@@ -267,7 +267,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 let QuestionnaireEnableWhen = require('../backbone_elements/questionnaireEnableWhen.js');
-                this.__data.enableWhen = Array.isArray(valueProvided) ? valueProvided.map(v => new QuestionnaireEnableWhen(v)) : [new QuestionnaireEnableWhen(valueProvided)];
+                this.__data.enableWhen = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireEnableWhen(v)) : [new QuestionnaireEnableWhen(valueProvided)];
             }
         });
 
@@ -395,7 +395,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 let QuestionnaireAnswerOption = require('../backbone_elements/questionnaireAnswerOption.js');
-                this.__data.answerOption = Array.isArray(valueProvided) ? valueProvided.map(v => new QuestionnaireAnswerOption(v)) : [new QuestionnaireAnswerOption(valueProvided)];
+                this.__data.answerOption = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireAnswerOption(v)) : [new QuestionnaireAnswerOption(valueProvided)];
             }
         });
 
@@ -414,7 +414,7 @@ class QuestionnaireItem extends Element {
                     return;
                 }
                 let QuestionnaireInitial = require('../backbone_elements/questionnaireInitial.js');
-                this.__data.initial = Array.isArray(valueProvided) ? valueProvided.map(v => new QuestionnaireInitial(v)) : [new QuestionnaireInitial(valueProvided)];
+                this.__data.initial = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireInitial(v)) : [new QuestionnaireInitial(valueProvided)];
             }
         });
 
@@ -431,7 +431,7 @@ class QuestionnaireItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.map(v => new QuestionnaireItem(v)) : [new QuestionnaireItem(valueProvided)];
+                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireItem(v)) : [new QuestionnaireItem(valueProvided)];
             }
         });
 

@@ -67,7 +67,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -97,7 +97,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -115,7 +115,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 let ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
-                this.__data.applicability = Array.isArray(valueProvided) ? valueProvided.map(v => new ChargeItemDefinitionApplicability(v)) : [new ChargeItemDefinitionApplicability(valueProvided)];
+                this.__data.applicability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemDefinitionApplicability(v)) : [new ChargeItemDefinitionApplicability(valueProvided)];
             }
         });
 
@@ -138,7 +138,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 let ChargeItemDefinitionPriceComponent = require('../backbone_elements/chargeItemDefinitionPriceComponent.js');
-                this.__data.priceComponent = Array.isArray(valueProvided) ? valueProvided.map(v => new ChargeItemDefinitionPriceComponent(v)) : [new ChargeItemDefinitionPriceComponent(valueProvided)];
+                this.__data.priceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemDefinitionPriceComponent(v)) : [new ChargeItemDefinitionPriceComponent(valueProvided)];
             }
         });
 

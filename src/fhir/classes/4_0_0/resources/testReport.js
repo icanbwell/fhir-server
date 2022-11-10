@@ -184,7 +184,7 @@ class TestReport extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -213,7 +213,7 @@ class TestReport extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -243,7 +243,7 @@ class TestReport extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -403,7 +403,7 @@ class TestReport extends Resource {
                     return;
                 }
                 let TestReportParticipant = require('../backbone_elements/testReportParticipant.js');
-                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.map(v => new TestReportParticipant(v)) : [new TestReportParticipant(valueProvided)];
+                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestReportParticipant(v)) : [new TestReportParticipant(valueProvided)];
             }
         });
 
@@ -440,7 +440,7 @@ class TestReport extends Resource {
                     return;
                 }
                 let TestReportTest = require('../backbone_elements/testReportTest.js');
-                this.__data.test = Array.isArray(valueProvided) ? valueProvided.map(v => new TestReportTest(v)) : [new TestReportTest(valueProvided)];
+                this.__data.test = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestReportTest(v)) : [new TestReportTest(valueProvided)];
             }
         });
 

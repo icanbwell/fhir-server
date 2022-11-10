@@ -197,7 +197,7 @@ class Patient extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -226,7 +226,7 @@ class Patient extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -256,7 +256,7 @@ class Patient extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -274,7 +274,7 @@ class Patient extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -317,7 +317,7 @@ class Patient extends Resource {
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
-                this.__data.name = Array.isArray(valueProvided) ? valueProvided.map(v => new HumanName(v)) : [new HumanName(valueProvided)];
+                this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new HumanName(v)) : [new HumanName(valueProvided)];
             }
         });
 
@@ -336,7 +336,7 @@ class Patient extends Resource {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
 
@@ -423,7 +423,7 @@ class Patient extends Resource {
                     return;
                 }
                 let Address = require('../complex_types/address.js');
-                this.__data.address = Array.isArray(valueProvided) ? valueProvided.map(v => new Address(v)) : [new Address(valueProvided)];
+                this.__data.address = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Address(v)) : [new Address(valueProvided)];
             }
         });
 
@@ -493,7 +493,7 @@ class Patient extends Resource {
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
-                this.__data.photo = Array.isArray(valueProvided) ? valueProvided.map(v => new Attachment(v)) : [new Attachment(valueProvided)];
+                this.__data.photo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Attachment(v)) : [new Attachment(valueProvided)];
             }
         });
 
@@ -511,7 +511,7 @@ class Patient extends Resource {
                     return;
                 }
                 let PatientContact = require('../backbone_elements/patientContact.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.map(v => new PatientContact(v)) : [new PatientContact(valueProvided)];
+                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientContact(v)) : [new PatientContact(valueProvided)];
             }
         });
 
@@ -530,7 +530,7 @@ class Patient extends Resource {
                     return;
                 }
                 let PatientCommunication = require('../backbone_elements/patientCommunication.js');
-                this.__data.communication = Array.isArray(valueProvided) ? valueProvided.map(v => new PatientCommunication(v)) : [new PatientCommunication(valueProvided)];
+                this.__data.communication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientCommunication(v)) : [new PatientCommunication(valueProvided)];
             }
         });
 
@@ -548,7 +548,7 @@ class Patient extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.generalPractitioner = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.generalPractitioner = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -584,7 +584,7 @@ class Patient extends Resource {
                     return;
                 }
                 let PatientLink = require('../backbone_elements/patientLink.js');
-                this.__data.link = Array.isArray(valueProvided) ? valueProvided.map(v => new PatientLink(v)) : [new PatientLink(valueProvided)];
+                this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientLink(v)) : [new PatientLink(valueProvided)];
             }
         });
 

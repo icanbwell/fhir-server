@@ -248,7 +248,7 @@ class ExplanationOfBenefit extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -277,7 +277,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -307,7 +307,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -325,7 +325,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -587,7 +587,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitRelated = require('../backbone_elements/explanationOfBenefitRelated.js');
-                this.__data.related = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitRelated(v)) : [new ExplanationOfBenefitRelated(valueProvided)];
+                this.__data.related = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitRelated(v)) : [new ExplanationOfBenefitRelated(valueProvided)];
             }
         });
 
@@ -769,7 +769,7 @@ class ExplanationOfBenefit extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.preAuthRef = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.preAuthRef = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -788,7 +788,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let Period = require('../complex_types/period.js');
-                this.__data.preAuthRefPeriod = Array.isArray(valueProvided) ? valueProvided.map(v => new Period(v)) : [new Period(valueProvided)];
+                this.__data.preAuthRefPeriod = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Period(v)) : [new Period(valueProvided)];
             }
         });
 
@@ -806,7 +806,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitCareTeam = require('../backbone_elements/explanationOfBenefitCareTeam.js');
-                this.__data.careTeam = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitCareTeam(v)) : [new ExplanationOfBenefitCareTeam(valueProvided)];
+                this.__data.careTeam = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitCareTeam(v)) : [new ExplanationOfBenefitCareTeam(valueProvided)];
             }
         });
 
@@ -825,7 +825,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitSupportingInfo = require('../backbone_elements/explanationOfBenefitSupportingInfo.js');
-                this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitSupportingInfo(v)) : [new ExplanationOfBenefitSupportingInfo(valueProvided)];
+                this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitSupportingInfo(v)) : [new ExplanationOfBenefitSupportingInfo(valueProvided)];
             }
         });
 
@@ -843,7 +843,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitDiagnosis = require('../backbone_elements/explanationOfBenefitDiagnosis.js');
-                this.__data.diagnosis = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitDiagnosis(v)) : [new ExplanationOfBenefitDiagnosis(valueProvided)];
+                this.__data.diagnosis = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitDiagnosis(v)) : [new ExplanationOfBenefitDiagnosis(valueProvided)];
             }
         });
 
@@ -862,7 +862,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitProcedure = require('../backbone_elements/explanationOfBenefitProcedure.js');
-                this.__data.procedure = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitProcedure(v)) : [new ExplanationOfBenefitProcedure(valueProvided)];
+                this.__data.procedure = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitProcedure(v)) : [new ExplanationOfBenefitProcedure(valueProvided)];
             }
         });
 
@@ -899,7 +899,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitInsurance = require('../backbone_elements/explanationOfBenefitInsurance.js');
-                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitInsurance(v)) : [new ExplanationOfBenefitInsurance(valueProvided)];
+                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitInsurance(v)) : [new ExplanationOfBenefitInsurance(valueProvided)];
             }
         });
 
@@ -937,7 +937,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitItem = require('../backbone_elements/explanationOfBenefitItem.js');
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitItem(v)) : [new ExplanationOfBenefitItem(valueProvided)];
+                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitItem(v)) : [new ExplanationOfBenefitItem(valueProvided)];
             }
         });
 
@@ -955,7 +955,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitAddItem = require('../backbone_elements/explanationOfBenefitAddItem.js');
-                this.__data.addItem = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitAddItem(v)) : [new ExplanationOfBenefitAddItem(valueProvided)];
+                this.__data.addItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitAddItem(v)) : [new ExplanationOfBenefitAddItem(valueProvided)];
             }
         });
 
@@ -974,7 +974,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
-                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(valueProvided)];
+                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(valueProvided)];
             }
         });
 
@@ -992,7 +992,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitTotal = require('../backbone_elements/explanationOfBenefitTotal.js');
-                this.__data.total = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitTotal(v)) : [new ExplanationOfBenefitTotal(valueProvided)];
+                this.__data.total = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitTotal(v)) : [new ExplanationOfBenefitTotal(valueProvided)];
             }
         });
 
@@ -1066,7 +1066,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitProcessNote = require('../backbone_elements/explanationOfBenefitProcessNote.js');
-                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitProcessNote(v)) : [new ExplanationOfBenefitProcessNote(valueProvided)];
+                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitProcessNote(v)) : [new ExplanationOfBenefitProcessNote(valueProvided)];
             }
         });
 
@@ -1102,7 +1102,7 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 let ExplanationOfBenefitBenefitBalance = require('../backbone_elements/explanationOfBenefitBenefitBalance.js');
-                this.__data.benefitBalance = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitBenefitBalance(v)) : [new ExplanationOfBenefitBenefitBalance(valueProvided)];
+                this.__data.benefitBalance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitBenefitBalance(v)) : [new ExplanationOfBenefitBenefitBalance(valueProvided)];
             }
         });
 

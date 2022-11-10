@@ -195,7 +195,7 @@ class Coverage extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -224,7 +224,7 @@ class Coverage extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -254,7 +254,7 @@ class Coverage extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -272,7 +272,7 @@ class Coverage extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -456,7 +456,7 @@ class Coverage extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.payor = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.payor = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -474,7 +474,7 @@ class Coverage extends Resource {
                     return;
                 }
                 let CoverageClass = require('../backbone_elements/coverageClass.js');
-                this.__data.class = Array.isArray(valueProvided) ? valueProvided.map(v => new CoverageClass(v)) : [new CoverageClass(valueProvided)];
+                this.__data.class = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageClass(v)) : [new CoverageClass(valueProvided)];
             }
         });
 
@@ -532,7 +532,7 @@ class Coverage extends Resource {
                     return;
                 }
                 let CoverageCostToBeneficiary = require('../backbone_elements/coverageCostToBeneficiary.js');
-                this.__data.costToBeneficiary = Array.isArray(valueProvided) ? valueProvided.map(v => new CoverageCostToBeneficiary(v)) : [new CoverageCostToBeneficiary(valueProvided)];
+                this.__data.costToBeneficiary = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageCostToBeneficiary(v)) : [new CoverageCostToBeneficiary(valueProvided)];
             }
         });
 
@@ -568,7 +568,7 @@ class Coverage extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.contract = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.contract = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 

@@ -190,7 +190,7 @@ class Consent extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -219,7 +219,7 @@ class Consent extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -249,7 +249,7 @@ class Consent extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -267,7 +267,7 @@ class Consent extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -322,7 +322,7 @@ class Consent extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -378,7 +378,7 @@ class Consent extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -397,7 +397,7 @@ class Consent extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.organization = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.organization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -453,7 +453,7 @@ class Consent extends Resource {
                     return;
                 }
                 let ConsentPolicy = require('../backbone_elements/consentPolicy.js');
-                this.__data.policy = Array.isArray(valueProvided) ? valueProvided.map(v => new ConsentPolicy(v)) : [new ConsentPolicy(valueProvided)];
+                this.__data.policy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConsentPolicy(v)) : [new ConsentPolicy(valueProvided)];
             }
         });
 
@@ -490,7 +490,7 @@ class Consent extends Resource {
                     return;
                 }
                 let ConsentVerification = require('../backbone_elements/consentVerification.js');
-                this.__data.verification = Array.isArray(valueProvided) ? valueProvided.map(v => new ConsentVerification(v)) : [new ConsentVerification(valueProvided)];
+                this.__data.verification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConsentVerification(v)) : [new ConsentVerification(valueProvided)];
             }
         });
 

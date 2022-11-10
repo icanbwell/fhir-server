@@ -186,7 +186,7 @@ class RelatedPerson extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -215,7 +215,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -245,7 +245,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -263,7 +263,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -316,7 +316,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.relationship = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.relationship = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -334,7 +334,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
-                this.__data.name = Array.isArray(valueProvided) ? valueProvided.map(v => new HumanName(v)) : [new HumanName(valueProvided)];
+                this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new HumanName(v)) : [new HumanName(valueProvided)];
             }
         });
 
@@ -352,7 +352,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
 
@@ -405,7 +405,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let Address = require('../complex_types/address.js');
-                this.__data.address = Array.isArray(valueProvided) ? valueProvided.map(v => new Address(v)) : [new Address(valueProvided)];
+                this.__data.address = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Address(v)) : [new Address(valueProvided)];
             }
         });
 
@@ -423,7 +423,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
-                this.__data.photo = Array.isArray(valueProvided) ? valueProvided.map(v => new Attachment(v)) : [new Attachment(valueProvided)];
+                this.__data.photo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Attachment(v)) : [new Attachment(valueProvided)];
             }
         });
 
@@ -460,7 +460,7 @@ class RelatedPerson extends Resource {
                     return;
                 }
                 let RelatedPersonCommunication = require('../backbone_elements/relatedPersonCommunication.js');
-                this.__data.communication = Array.isArray(valueProvided) ? valueProvided.map(v => new RelatedPersonCommunication(v)) : [new RelatedPersonCommunication(valueProvided)];
+                this.__data.communication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedPersonCommunication(v)) : [new RelatedPersonCommunication(valueProvided)];
             }
         });
 

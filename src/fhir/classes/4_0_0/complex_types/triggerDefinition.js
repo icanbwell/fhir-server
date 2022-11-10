@@ -77,7 +77,7 @@ class TriggerDefinition extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -202,7 +202,7 @@ class TriggerDefinition extends Element {
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
-                this.__data.data = Array.isArray(valueProvided) ? valueProvided.map(v => new DataRequirement(v)) : [new DataRequirement(valueProvided)];
+                this.__data.data = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirement(v)) : [new DataRequirement(valueProvided)];
             }
         });
 

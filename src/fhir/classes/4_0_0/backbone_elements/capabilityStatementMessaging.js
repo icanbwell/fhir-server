@@ -71,7 +71,7 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -101,7 +101,7 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -120,7 +120,7 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 let CapabilityStatementEndpoint = require('../backbone_elements/capabilityStatementEndpoint.js');
-                this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.map(v => new CapabilityStatementEndpoint(v)) : [new CapabilityStatementEndpoint(valueProvided)];
+                this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementEndpoint(v)) : [new CapabilityStatementEndpoint(valueProvided)];
             }
         });
 
@@ -176,7 +176,7 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 let CapabilityStatementSupportedMessage = require('../backbone_elements/capabilityStatementSupportedMessage.js');
-                this.__data.supportedMessage = Array.isArray(valueProvided) ? valueProvided.map(v => new CapabilityStatementSupportedMessage(v)) : [new CapabilityStatementSupportedMessage(valueProvided)];
+                this.__data.supportedMessage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementSupportedMessage(v)) : [new CapabilityStatementSupportedMessage(valueProvided)];
             }
         });
 

@@ -189,7 +189,7 @@ class VerificationResult extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -218,7 +218,7 @@ class VerificationResult extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -248,7 +248,7 @@ class VerificationResult extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -266,7 +266,7 @@ class VerificationResult extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.target = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -283,7 +283,7 @@ class VerificationResult extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.targetLocation = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.targetLocation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -375,7 +375,7 @@ class VerificationResult extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.validationProcess = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.validationProcess = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -463,7 +463,7 @@ class VerificationResult extends Resource {
                     return;
                 }
                 let VerificationResultPrimarySource = require('../backbone_elements/verificationResultPrimarySource.js');
-                this.__data.primarySource = Array.isArray(valueProvided) ? valueProvided.map(v => new VerificationResultPrimarySource(v)) : [new VerificationResultPrimarySource(valueProvided)];
+                this.__data.primarySource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new VerificationResultPrimarySource(v)) : [new VerificationResultPrimarySource(valueProvided)];
             }
         });
 
@@ -499,7 +499,7 @@ class VerificationResult extends Resource {
                     return;
                 }
                 let VerificationResultValidator = require('../backbone_elements/verificationResultValidator.js');
-                this.__data.validator = Array.isArray(valueProvided) ? valueProvided.map(v => new VerificationResultValidator(v)) : [new VerificationResultValidator(valueProvided)];
+                this.__data.validator = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new VerificationResultValidator(v)) : [new VerificationResultValidator(valueProvided)];
             }
         });
 

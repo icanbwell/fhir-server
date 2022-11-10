@@ -66,7 +66,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -96,7 +96,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -114,7 +114,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
-                this.__data.areaUnderCurve = Array.isArray(valueProvided) ? valueProvided.map(v => new Quantity(v)) : [new Quantity(valueProvided)];
+                this.__data.areaUnderCurve = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Quantity(v)) : [new Quantity(valueProvided)];
             }
         });
 
@@ -132,7 +132,7 @@ class MedicationKnowledgeKinetics extends Element {
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
-                this.__data.lethalDose50 = Array.isArray(valueProvided) ? valueProvided.map(v => new Quantity(v)) : [new Quantity(valueProvided)];
+                this.__data.lethalDose50 = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Quantity(v)) : [new Quantity(valueProvided)];
             }
         });
 

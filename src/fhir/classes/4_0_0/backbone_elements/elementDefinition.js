@@ -457,7 +457,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -487,7 +487,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -523,7 +523,7 @@ class ElementDefinition extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.representation = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.representation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -601,7 +601,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.code = Array.isArray(valueProvided) ? valueProvided.map(v => new Coding(v)) : [new Coding(valueProvided)];
+                this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
 
@@ -721,7 +721,7 @@ class ElementDefinition extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.alias = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.alias = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -818,7 +818,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 let ElementDefinitionType = require('../backbone_elements/elementDefinitionType.js');
-                this.__data.type = Array.isArray(valueProvided) ? valueProvided.map(v => new ElementDefinitionType(v)) : [new ElementDefinitionType(valueProvided)];
+                this.__data.type = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ElementDefinitionType(v)) : [new ElementDefinitionType(valueProvided)];
             }
         });
 
@@ -3517,7 +3517,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 let ElementDefinitionExample = require('../backbone_elements/elementDefinitionExample.js');
-                this.__data.example = Array.isArray(valueProvided) ? valueProvided.map(v => new ElementDefinitionExample(v)) : [new ElementDefinitionExample(valueProvided)];
+                this.__data.example = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ElementDefinitionExample(v)) : [new ElementDefinitionExample(valueProvided)];
             }
         });
 
@@ -3862,7 +3862,7 @@ class ElementDefinition extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -3881,7 +3881,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 let ElementDefinitionConstraint = require('../backbone_elements/elementDefinitionConstraint.js');
-                this.__data.constraint = Array.isArray(valueProvided) ? valueProvided.map(v => new ElementDefinitionConstraint(v)) : [new ElementDefinitionConstraint(valueProvided)];
+                this.__data.constraint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ElementDefinitionConstraint(v)) : [new ElementDefinitionConstraint(valueProvided)];
             }
         });
 
@@ -3997,7 +3997,7 @@ class ElementDefinition extends Element {
                     return;
                 }
                 let ElementDefinitionMapping = require('../backbone_elements/elementDefinitionMapping.js');
-                this.__data.mapping = Array.isArray(valueProvided) ? valueProvided.map(v => new ElementDefinitionMapping(v)) : [new ElementDefinitionMapping(valueProvided)];
+                this.__data.mapping = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ElementDefinitionMapping(v)) : [new ElementDefinitionMapping(valueProvided)];
             }
         });
 

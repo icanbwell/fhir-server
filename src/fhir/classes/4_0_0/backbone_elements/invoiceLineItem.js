@@ -69,7 +69,7 @@ class InvoiceLineItem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -99,7 +99,7 @@ class InvoiceLineItem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -175,7 +175,7 @@ class InvoiceLineItem extends Element {
                     return;
                 }
                 let InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
-                this.__data.priceComponent = Array.isArray(valueProvided) ? valueProvided.map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(valueProvided)];
+                this.__data.priceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(valueProvided)];
             }
         });
 

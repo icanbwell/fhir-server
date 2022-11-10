@@ -77,7 +77,7 @@ class StructureMapTarget extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -107,7 +107,7 @@ class StructureMapTarget extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -192,7 +192,7 @@ class StructureMapTarget extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.listMode = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.listMode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -244,7 +244,7 @@ class StructureMapTarget extends Element {
                     return;
                 }
                 let StructureMapParameter = require('../backbone_elements/structureMapParameter.js');
-                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.map(v => new StructureMapParameter(v)) : [new StructureMapParameter(valueProvided)];
+                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapParameter(v)) : [new StructureMapParameter(valueProvided)];
             }
         });
 
