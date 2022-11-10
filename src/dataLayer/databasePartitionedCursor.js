@@ -116,8 +116,19 @@ class DatabasePartitionedCursor {
                 // return Promise.reject(new Error('woops'));
                 const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
-                    const ResourceCreator = getResource(this.base_version, this.resourceType);
-                    return new ResourceCreator(result);
+                    try {
+                        const ResourceCreator = getResource(this.base_version, this.resourceType);
+                        return new ResourceCreator(result);
+                    } catch (e) {
+                        throw new RethrownError({
+                            message: `Error hydrating resource from database: ${this.resourceType}/${result.id}`,
+                            collections: this._cursors.map(c => c.collection),
+                            databases: this._cursors.map(c => c.db),
+                            error: e,
+                            query: this.query,
+                            id: result.id
+                        });
+                    }
                 } else {
                     assertFail({
                         source: 'DatabasePartitionedCursor.next',
