@@ -88,7 +88,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -118,7 +118,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -174,7 +174,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.author = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -277,7 +277,7 @@ class CompositionSection extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.entry = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.entry = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -313,7 +313,7 @@ class CompositionSection extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.section = Array.isArray(valueProvided) ? valueProvided.map(v => new CompositionSection(v)) : [new CompositionSection(valueProvided)];
+                this.__data.section = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionSection(v)) : [new CompositionSection(valueProvided)];
             }
         });
 

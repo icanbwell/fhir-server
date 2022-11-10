@@ -80,7 +80,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -110,7 +110,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -201,7 +201,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.map(v => new Coding(v)) : [new Coding(valueProvided)];
+                this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
 
@@ -270,7 +270,7 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 let AuditEventDetail = require('../backbone_elements/auditEventDetail.js');
-                this.__data.detail = Array.isArray(valueProvided) ? valueProvided.map(v => new AuditEventDetail(v)) : [new AuditEventDetail(valueProvided)];
+                this.__data.detail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new AuditEventDetail(v)) : [new AuditEventDetail(valueProvided)];
             }
         });
 

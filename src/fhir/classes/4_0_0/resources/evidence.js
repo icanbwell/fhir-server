@@ -218,7 +218,7 @@ class Evidence extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -247,7 +247,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -277,7 +277,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -319,7 +319,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -490,7 +490,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
 
@@ -526,7 +526,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 
@@ -548,7 +548,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
 
@@ -566,7 +566,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -660,7 +660,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.topic = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.topic = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -679,7 +679,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.author = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
 
@@ -698,7 +698,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.editor = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                this.__data.editor = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
 
@@ -717,7 +717,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.reviewer = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                this.__data.reviewer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
 
@@ -736,7 +736,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.endorser = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                this.__data.endorser = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
 
@@ -755,7 +755,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.relatedArtifact = Array.isArray(valueProvided) ? valueProvided.map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
+                this.__data.relatedArtifact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
             }
         });
 
@@ -793,7 +793,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.exposureVariant = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.exposureVariant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -812,7 +812,7 @@ class Evidence extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.outcome = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.outcome = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 

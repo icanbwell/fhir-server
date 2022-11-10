@@ -73,7 +73,7 @@ class ValueSetInclude extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -103,7 +103,7 @@ class ValueSetInclude extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -157,7 +157,7 @@ class ValueSetInclude extends Element {
                     return;
                 }
                 let ValueSetConcept = require('../backbone_elements/valueSetConcept.js');
-                this.__data.concept = Array.isArray(valueProvided) ? valueProvided.map(v => new ValueSetConcept(v)) : [new ValueSetConcept(valueProvided)];
+                this.__data.concept = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetConcept(v)) : [new ValueSetConcept(valueProvided)];
             }
         });
 
@@ -177,7 +177,7 @@ class ValueSetInclude extends Element {
                     return;
                 }
                 let ValueSetFilter = require('../backbone_elements/valueSetFilter.js');
-                this.__data.filter = Array.isArray(valueProvided) ? valueProvided.map(v => new ValueSetFilter(v)) : [new ValueSetFilter(valueProvided)];
+                this.__data.filter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetFilter(v)) : [new ValueSetFilter(valueProvided)];
             }
         });
 
@@ -197,7 +197,7 @@ class ValueSetInclude extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.valueSet = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.valueSet = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 

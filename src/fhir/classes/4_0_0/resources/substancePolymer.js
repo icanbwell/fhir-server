@@ -172,7 +172,7 @@ class SubstancePolymer extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -201,7 +201,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -231,7 +231,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -285,7 +285,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.copolymerConnectivity = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.copolymerConnectivity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -302,7 +302,7 @@ class SubstancePolymer extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.modification = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.modification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -320,7 +320,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 let SubstancePolymerMonomerSet = require('../backbone_elements/substancePolymerMonomerSet.js');
-                this.__data.monomerSet = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstancePolymerMonomerSet(v)) : [new SubstancePolymerMonomerSet(valueProvided)];
+                this.__data.monomerSet = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerMonomerSet(v)) : [new SubstancePolymerMonomerSet(valueProvided)];
             }
         });
 
@@ -338,7 +338,7 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 let SubstancePolymerRepeat = require('../backbone_elements/substancePolymerRepeat.js');
-                this.__data.repeat = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstancePolymerRepeat(v)) : [new SubstancePolymerRepeat(valueProvided)];
+                this.__data.repeat = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerRepeat(v)) : [new SubstancePolymerRepeat(valueProvided)];
             }
         });
 

@@ -143,7 +143,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     {% endif %}
     {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
             {% if property.is_list %}
-                this.__data.{{ property.name }} = Array.isArray(valueProvided) ? valueProvided.map(v => new {{ property.cleaned_type | replace(".","") }}(v)) : [new {{ property.cleaned_type | replace(".","") }}(valueProvided)];
+                this.__data.{{ property.name }} = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new {{ property.cleaned_type | replace(".","") }}(v)) : [new {{ property.cleaned_type | replace(".","") }}(valueProvided)];
             {%  else %}
                 this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(valueProvided);
             {% endif %}
@@ -151,7 +151,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
                 const {getResource} = require('../../../../operations/common/getResource');
             {% if property.is_list %}
                 if (Array.isArray(valueProvided)) {
-                    this.__data.{{ property.name }} = valueProvided.map(v => {
+                    this.__data.{{ property.name }} = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -165,7 +165,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             {% endif %}
     {%  else %}
             {% if property.is_list %}
-                this.__data.{{ property.name }} = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.{{ property.name }} = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             {%  else %}
                 this.__data.{{ property.name }} = valueProvided;
             {% endif %}

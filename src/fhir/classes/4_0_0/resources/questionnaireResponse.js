@@ -184,7 +184,7 @@ class QuestionnaireResponse extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -213,7 +213,7 @@ class QuestionnaireResponse extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -243,7 +243,7 @@ class QuestionnaireResponse extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -283,7 +283,7 @@ class QuestionnaireResponse extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -303,7 +303,7 @@ class QuestionnaireResponse extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -450,7 +450,7 @@ class QuestionnaireResponse extends Resource {
                     return;
                 }
                 let QuestionnaireResponseItem = require('../backbone_elements/questionnaireResponseItem.js');
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.map(v => new QuestionnaireResponseItem(v)) : [new QuestionnaireResponseItem(valueProvided)];
+                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireResponseItem(v)) : [new QuestionnaireResponseItem(valueProvided)];
             }
         });
 

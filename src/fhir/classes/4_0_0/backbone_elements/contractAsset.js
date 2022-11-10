@@ -91,7 +91,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -121,7 +121,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -157,7 +157,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.type = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -175,7 +175,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.typeReference = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.typeReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -193,7 +193,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subtype = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.subtype = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -231,7 +231,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let ContractContext = require('../backbone_elements/contractContext.js');
-                this.__data.context = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractContext(v)) : [new ContractContext(valueProvided)];
+                this.__data.context = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractContext(v)) : [new ContractContext(valueProvided)];
             }
         });
 
@@ -267,7 +267,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.periodType = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.periodType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -285,7 +285,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let Period = require('../complex_types/period.js');
-                this.__data.period = Array.isArray(valueProvided) ? valueProvided.map(v => new Period(v)) : [new Period(valueProvided)];
+                this.__data.period = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Period(v)) : [new Period(valueProvided)];
             }
         });
 
@@ -303,7 +303,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let Period = require('../complex_types/period.js');
-                this.__data.usePeriod = Array.isArray(valueProvided) ? valueProvided.map(v => new Period(v)) : [new Period(valueProvided)];
+                this.__data.usePeriod = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Period(v)) : [new Period(valueProvided)];
             }
         });
 
@@ -339,7 +339,7 @@ class ContractAsset extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.linkId = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.linkId = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -357,7 +357,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let ContractAnswer = require('../backbone_elements/contractAnswer.js');
-                this.__data.answer = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractAnswer(v)) : [new ContractAnswer(valueProvided)];
+                this.__data.answer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractAnswer(v)) : [new ContractAnswer(valueProvided)];
             }
         });
 
@@ -374,7 +374,7 @@ class ContractAsset extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.securityLabelNumber = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.securityLabelNumber = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -392,7 +392,7 @@ class ContractAsset extends Element {
                     return;
                 }
                 let ContractValuedItem = require('../backbone_elements/contractValuedItem.js');
-                this.__data.valuedItem = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractValuedItem(v)) : [new ContractValuedItem(valueProvided)];
+                this.__data.valuedItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractValuedItem(v)) : [new ContractValuedItem(valueProvided)];
             }
         });
 

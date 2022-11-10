@@ -64,7 +64,7 @@ class SubstancePolymerMonomerSet extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -94,7 +94,7 @@ class SubstancePolymerMonomerSet extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -130,7 +130,7 @@ class SubstancePolymerMonomerSet extends Element {
                     return;
                 }
                 let SubstancePolymerStartingMaterial = require('../backbone_elements/substancePolymerStartingMaterial.js');
-                this.__data.startingMaterial = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstancePolymerStartingMaterial(v)) : [new SubstancePolymerStartingMaterial(valueProvided)];
+                this.__data.startingMaterial = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerStartingMaterial(v)) : [new SubstancePolymerStartingMaterial(valueProvided)];
             }
         });
 

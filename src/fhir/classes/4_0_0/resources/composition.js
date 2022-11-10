@@ -198,7 +198,7 @@ class Composition extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -227,7 +227,7 @@ class Composition extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -257,7 +257,7 @@ class Composition extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -334,7 +334,7 @@ class Composition extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -411,7 +411,7 @@ class Composition extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.author = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -463,7 +463,7 @@ class Composition extends Resource {
                     return;
                 }
                 let CompositionAttester = require('../backbone_elements/compositionAttester.js');
-                this.__data.attester = Array.isArray(valueProvided) ? valueProvided.map(v => new CompositionAttester(v)) : [new CompositionAttester(valueProvided)];
+                this.__data.attester = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionAttester(v)) : [new CompositionAttester(valueProvided)];
             }
         });
 
@@ -501,7 +501,7 @@ class Composition extends Resource {
                     return;
                 }
                 let CompositionRelatesTo = require('../backbone_elements/compositionRelatesTo.js');
-                this.__data.relatesTo = Array.isArray(valueProvided) ? valueProvided.map(v => new CompositionRelatesTo(v)) : [new CompositionRelatesTo(valueProvided)];
+                this.__data.relatesTo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionRelatesTo(v)) : [new CompositionRelatesTo(valueProvided)];
             }
         });
 
@@ -520,7 +520,7 @@ class Composition extends Resource {
                     return;
                 }
                 let CompositionEvent = require('../backbone_elements/compositionEvent.js');
-                this.__data.event = Array.isArray(valueProvided) ? valueProvided.map(v => new CompositionEvent(v)) : [new CompositionEvent(valueProvided)];
+                this.__data.event = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionEvent(v)) : [new CompositionEvent(valueProvided)];
             }
         });
 
@@ -538,7 +538,7 @@ class Composition extends Resource {
                     return;
                 }
                 let CompositionSection = require('../backbone_elements/compositionSection.js');
-                this.__data.section = Array.isArray(valueProvided) ? valueProvided.map(v => new CompositionSection(v)) : [new CompositionSection(valueProvided)];
+                this.__data.section = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionSection(v)) : [new CompositionSection(valueProvided)];
             }
         });
 

@@ -178,7 +178,7 @@ class MedicinalProductIndication extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -207,7 +207,7 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -237,7 +237,7 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -255,7 +255,7 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -309,7 +309,7 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.comorbidity = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.comorbidity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -364,7 +364,7 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 let MedicinalProductIndicationOtherTherapy = require('../backbone_elements/medicinalProductIndicationOtherTherapy.js');
-                this.__data.otherTherapy = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicinalProductIndicationOtherTherapy(v)) : [new MedicinalProductIndicationOtherTherapy(valueProvided)];
+                this.__data.otherTherapy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductIndicationOtherTherapy(v)) : [new MedicinalProductIndicationOtherTherapy(valueProvided)];
             }
         });
 
@@ -382,7 +382,7 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.undesirableEffect = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.undesirableEffect = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -400,7 +400,7 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 let Population = require('../backbone_elements/population.js');
-                this.__data.population = Array.isArray(valueProvided) ? valueProvided.map(v => new Population(v)) : [new Population(valueProvided)];
+                this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Population(v)) : [new Population(valueProvided)];
             }
         });
 

@@ -192,7 +192,7 @@ class MolecularSequence extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -221,7 +221,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -251,7 +251,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -270,7 +270,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -437,7 +437,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 let MolecularSequenceVariant = require('../backbone_elements/molecularSequenceVariant.js');
-                this.__data.variant = Array.isArray(valueProvided) ? valueProvided.map(v => new MolecularSequenceVariant(v)) : [new MolecularSequenceVariant(valueProvided)];
+                this.__data.variant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MolecularSequenceVariant(v)) : [new MolecularSequenceVariant(valueProvided)];
             }
         });
 
@@ -476,7 +476,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 let MolecularSequenceQuality = require('../backbone_elements/molecularSequenceQuality.js');
-                this.__data.quality = Array.isArray(valueProvided) ? valueProvided.map(v => new MolecularSequenceQuality(v)) : [new MolecularSequenceQuality(valueProvided)];
+                this.__data.quality = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MolecularSequenceQuality(v)) : [new MolecularSequenceQuality(valueProvided)];
             }
         });
 
@@ -513,7 +513,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 let MolecularSequenceRepository = require('../backbone_elements/molecularSequenceRepository.js');
-                this.__data.repository = Array.isArray(valueProvided) ? valueProvided.map(v => new MolecularSequenceRepository(v)) : [new MolecularSequenceRepository(valueProvided)];
+                this.__data.repository = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MolecularSequenceRepository(v)) : [new MolecularSequenceRepository(valueProvided)];
             }
         });
 
@@ -531,7 +531,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.pointer = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.pointer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -549,7 +549,7 @@ class MolecularSequence extends Resource {
                     return;
                 }
                 let MolecularSequenceStructureVariant = require('../backbone_elements/molecularSequenceStructureVariant.js');
-                this.__data.structureVariant = Array.isArray(valueProvided) ? valueProvided.map(v => new MolecularSequenceStructureVariant(v)) : [new MolecularSequenceStructureVariant(valueProvided)];
+                this.__data.structureVariant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MolecularSequenceStructureVariant(v)) : [new MolecularSequenceStructureVariant(valueProvided)];
             }
         });
 

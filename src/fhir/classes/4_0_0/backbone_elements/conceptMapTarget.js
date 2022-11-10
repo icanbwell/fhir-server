@@ -74,7 +74,7 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -104,7 +104,7 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -196,7 +196,7 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 let ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
-                this.__data.dependsOn = Array.isArray(valueProvided) ? valueProvided.map(v => new ConceptMapDependsOn(v)) : [new ConceptMapDependsOn(valueProvided)];
+                this.__data.dependsOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConceptMapDependsOn(v)) : [new ConceptMapDependsOn(valueProvided)];
             }
         });
 
@@ -218,7 +218,7 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 let ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
-                this.__data.product = Array.isArray(valueProvided) ? valueProvided.map(v => new ConceptMapDependsOn(v)) : [new ConceptMapDependsOn(valueProvided)];
+                this.__data.product = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConceptMapDependsOn(v)) : [new ConceptMapDependsOn(valueProvided)];
             }
         });
 

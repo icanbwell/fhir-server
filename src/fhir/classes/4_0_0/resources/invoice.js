@@ -193,7 +193,7 @@ class Invoice extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -222,7 +222,7 @@ class Invoice extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -252,7 +252,7 @@ class Invoice extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -271,7 +271,7 @@ class Invoice extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -397,7 +397,7 @@ class Invoice extends Resource {
                     return;
                 }
                 let InvoiceParticipant = require('../backbone_elements/invoiceParticipant.js');
-                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.map(v => new InvoiceParticipant(v)) : [new InvoiceParticipant(valueProvided)];
+                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoiceParticipant(v)) : [new InvoiceParticipant(valueProvided)];
             }
         });
 
@@ -452,7 +452,7 @@ class Invoice extends Resource {
                     return;
                 }
                 let InvoiceLineItem = require('../backbone_elements/invoiceLineItem.js');
-                this.__data.lineItem = Array.isArray(valueProvided) ? valueProvided.map(v => new InvoiceLineItem(v)) : [new InvoiceLineItem(valueProvided)];
+                this.__data.lineItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoiceLineItem(v)) : [new InvoiceLineItem(valueProvided)];
             }
         });
 
@@ -473,7 +473,7 @@ class Invoice extends Resource {
                     return;
                 }
                 let InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
-                this.__data.totalPriceComponent = Array.isArray(valueProvided) ? valueProvided.map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(valueProvided)];
+                this.__data.totalPriceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(valueProvided)];
             }
         });
 
@@ -545,7 +545,7 @@ class Invoice extends Resource {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 

@@ -74,7 +74,7 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -104,7 +104,7 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -179,7 +179,7 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 let CodeSystemDesignation = require('../backbone_elements/codeSystemDesignation.js');
-                this.__data.designation = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeSystemDesignation(v)) : [new CodeSystemDesignation(valueProvided)];
+                this.__data.designation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemDesignation(v)) : [new CodeSystemDesignation(valueProvided)];
             }
         });
 
@@ -197,7 +197,7 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 let CodeSystemProperty1 = require('../backbone_elements/codeSystemProperty1.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeSystemProperty1(v)) : [new CodeSystemProperty1(valueProvided)];
+                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemProperty1(v)) : [new CodeSystemProperty1(valueProvided)];
             }
         });
 
@@ -216,7 +216,7 @@ class CodeSystemConcept extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.concept = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeSystemConcept(v)) : [new CodeSystemConcept(valueProvided)];
+                this.__data.concept = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemConcept(v)) : [new CodeSystemConcept(valueProvided)];
             }
         });
 

@@ -71,7 +71,7 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -101,7 +101,7 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -160,7 +160,7 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 let ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
-                this.__data.include = Array.isArray(valueProvided) ? valueProvided.map(v => new ValueSetInclude(v)) : [new ValueSetInclude(valueProvided)];
+                this.__data.include = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetInclude(v)) : [new ValueSetInclude(valueProvided)];
             }
         });
 
@@ -179,7 +179,7 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 let ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
-                this.__data.exclude = Array.isArray(valueProvided) ? valueProvided.map(v => new ValueSetInclude(v)) : [new ValueSetInclude(valueProvided)];
+                this.__data.exclude = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetInclude(v)) : [new ValueSetInclude(valueProvided)];
             }
         });
 

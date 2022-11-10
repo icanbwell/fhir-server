@@ -173,7 +173,7 @@ class SubstanceNucleicAcid extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -202,7 +202,7 @@ class SubstanceNucleicAcid extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -232,7 +232,7 @@ class SubstanceNucleicAcid extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -328,7 +328,7 @@ class SubstanceNucleicAcid extends Resource {
                     return;
                 }
                 let SubstanceNucleicAcidSubunit = require('../backbone_elements/substanceNucleicAcidSubunit.js');
-                this.__data.subunit = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceNucleicAcidSubunit(v)) : [new SubstanceNucleicAcidSubunit(valueProvided)];
+                this.__data.subunit = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceNucleicAcidSubunit(v)) : [new SubstanceNucleicAcidSubunit(valueProvided)];
             }
         });
 

@@ -71,7 +71,7 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -101,7 +101,7 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -123,7 +123,7 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 let ElementDefinitionDiscriminator = require('../backbone_elements/elementDefinitionDiscriminator.js');
-                this.__data.discriminator = Array.isArray(valueProvided) ? valueProvided.map(v => new ElementDefinitionDiscriminator(v)) : [new ElementDefinitionDiscriminator(valueProvided)];
+                this.__data.discriminator = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ElementDefinitionDiscriminator(v)) : [new ElementDefinitionDiscriminator(valueProvided)];
             }
         });
 

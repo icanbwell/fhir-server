@@ -102,7 +102,7 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -132,7 +132,7 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -171,7 +171,7 @@ class CarePlanDetail extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.instantiatesCanonical = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.instantiatesCanonical = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -190,7 +190,7 @@ class CarePlanDetail extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.instantiatesUri = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.instantiatesUri = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -228,7 +228,7 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -248,7 +248,7 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -267,7 +267,7 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.goal = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.goal = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -412,7 +412,7 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 

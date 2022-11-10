@@ -215,7 +215,7 @@ class ClaimResponse extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -244,7 +244,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -274,7 +274,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -292,7 +292,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -567,7 +567,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let ClaimResponseItem = require('../backbone_elements/claimResponseItem.js');
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.map(v => new ClaimResponseItem(v)) : [new ClaimResponseItem(valueProvided)];
+                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseItem(v)) : [new ClaimResponseItem(valueProvided)];
             }
         });
 
@@ -585,7 +585,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let ClaimResponseAddItem = require('../backbone_elements/claimResponseAddItem.js');
-                this.__data.addItem = Array.isArray(valueProvided) ? valueProvided.map(v => new ClaimResponseAddItem(v)) : [new ClaimResponseAddItem(valueProvided)];
+                this.__data.addItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAddItem(v)) : [new ClaimResponseAddItem(valueProvided)];
             }
         });
 
@@ -604,7 +604,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
+                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
             }
         });
 
@@ -622,7 +622,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let ClaimResponseTotal = require('../backbone_elements/claimResponseTotal.js');
-                this.__data.total = Array.isArray(valueProvided) ? valueProvided.map(v => new ClaimResponseTotal(v)) : [new ClaimResponseTotal(valueProvided)];
+                this.__data.total = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseTotal(v)) : [new ClaimResponseTotal(valueProvided)];
             }
         });
 
@@ -715,7 +715,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let ClaimResponseProcessNote = require('../backbone_elements/claimResponseProcessNote.js');
-                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.map(v => new ClaimResponseProcessNote(v)) : [new ClaimResponseProcessNote(valueProvided)];
+                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseProcessNote(v)) : [new ClaimResponseProcessNote(valueProvided)];
             }
         });
 
@@ -733,7 +733,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.communicationRequest = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.communicationRequest = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -752,7 +752,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let ClaimResponseInsurance = require('../backbone_elements/claimResponseInsurance.js');
-                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.map(v => new ClaimResponseInsurance(v)) : [new ClaimResponseInsurance(valueProvided)];
+                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseInsurance(v)) : [new ClaimResponseInsurance(valueProvided)];
             }
         });
 
@@ -770,7 +770,7 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 let ClaimResponseError = require('../backbone_elements/claimResponseError.js');
-                this.__data.error = Array.isArray(valueProvided) ? valueProvided.map(v => new ClaimResponseError(v)) : [new ClaimResponseError(valueProvided)];
+                this.__data.error = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseError(v)) : [new ClaimResponseError(valueProvided)];
             }
         });
 

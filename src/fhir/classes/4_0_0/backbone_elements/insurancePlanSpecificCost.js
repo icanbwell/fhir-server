@@ -64,7 +64,7 @@ class InsurancePlanSpecificCost extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -94,7 +94,7 @@ class InsurancePlanSpecificCost extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -131,7 +131,7 @@ class InsurancePlanSpecificCost extends Element {
                     return;
                 }
                 let InsurancePlanBenefit1 = require('../backbone_elements/insurancePlanBenefit1.js');
-                this.__data.benefit = Array.isArray(valueProvided) ? valueProvided.map(v => new InsurancePlanBenefit1(v)) : [new InsurancePlanBenefit1(valueProvided)];
+                this.__data.benefit = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InsurancePlanBenefit1(v)) : [new InsurancePlanBenefit1(valueProvided)];
             }
         });
 

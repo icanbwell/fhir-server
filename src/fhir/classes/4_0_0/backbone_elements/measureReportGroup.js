@@ -70,7 +70,7 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -100,7 +100,7 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -137,7 +137,7 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 let MeasureReportPopulation = require('../backbone_elements/measureReportPopulation.js');
-                this.__data.population = Array.isArray(valueProvided) ? valueProvided.map(v => new MeasureReportPopulation(v)) : [new MeasureReportPopulation(valueProvided)];
+                this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureReportPopulation(v)) : [new MeasureReportPopulation(valueProvided)];
             }
         });
 
@@ -176,7 +176,7 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 let MeasureReportStratifier = require('../backbone_elements/measureReportStratifier.js');
-                this.__data.stratifier = Array.isArray(valueProvided) ? valueProvided.map(v => new MeasureReportStratifier(v)) : [new MeasureReportStratifier(valueProvided)];
+                this.__data.stratifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureReportStratifier(v)) : [new MeasureReportStratifier(valueProvided)];
             }
         });
 

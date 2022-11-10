@@ -83,7 +83,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -113,7 +113,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -201,7 +201,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.language = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.language = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -220,7 +220,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.domain = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.domain = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -238,7 +238,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -255,7 +255,7 @@ class SubstanceSpecificationName extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.synonym = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
+                this.__data.synonym = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
             }
         });
 
@@ -272,7 +272,7 @@ class SubstanceSpecificationName extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.translation = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
+                this.__data.translation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
             }
         });
 
@@ -290,7 +290,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 let SubstanceSpecificationOfficial = require('../backbone_elements/substanceSpecificationOfficial.js');
-                this.__data.official = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationOfficial(v)) : [new SubstanceSpecificationOfficial(valueProvided)];
+                this.__data.official = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationOfficial(v)) : [new SubstanceSpecificationOfficial(valueProvided)];
             }
         });
 
@@ -308,7 +308,7 @@ class SubstanceSpecificationName extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.source = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 

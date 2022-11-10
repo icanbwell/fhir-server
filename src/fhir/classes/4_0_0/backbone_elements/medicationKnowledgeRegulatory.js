@@ -68,7 +68,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -98,7 +98,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -135,7 +135,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 let MedicationKnowledgeSubstitution = require('../backbone_elements/medicationKnowledgeSubstitution.js');
-                this.__data.substitution = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicationKnowledgeSubstitution(v)) : [new MedicationKnowledgeSubstitution(valueProvided)];
+                this.__data.substitution = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeSubstitution(v)) : [new MedicationKnowledgeSubstitution(valueProvided)];
             }
         });
 
@@ -153,7 +153,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     return;
                 }
                 let MedicationKnowledgeSchedule = require('../backbone_elements/medicationKnowledgeSchedule.js');
-                this.__data.schedule = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicationKnowledgeSchedule(v)) : [new MedicationKnowledgeSchedule(valueProvided)];
+                this.__data.schedule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeSchedule(v)) : [new MedicationKnowledgeSchedule(valueProvided)];
             }
         });
 

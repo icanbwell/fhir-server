@@ -68,7 +68,7 @@ class TerminologyCapabilitiesCodeSystem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -98,7 +98,7 @@ class TerminologyCapabilitiesCodeSystem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -133,7 +133,7 @@ class TerminologyCapabilitiesCodeSystem extends Element {
                     return;
                 }
                 let TerminologyCapabilitiesVersion = require('../backbone_elements/terminologyCapabilitiesVersion.js');
-                this.__data.version = Array.isArray(valueProvided) ? valueProvided.map(v => new TerminologyCapabilitiesVersion(v)) : [new TerminologyCapabilitiesVersion(valueProvided)];
+                this.__data.version = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TerminologyCapabilitiesVersion(v)) : [new TerminologyCapabilitiesVersion(valueProvided)];
             }
         });
 

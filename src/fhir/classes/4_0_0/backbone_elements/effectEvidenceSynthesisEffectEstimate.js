@@ -74,7 +74,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -104,7 +104,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -210,7 +210,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     return;
                 }
                 let EffectEvidenceSynthesisPrecisionEstimate = require('../backbone_elements/effectEvidenceSynthesisPrecisionEstimate.js');
-                this.__data.precisionEstimate = Array.isArray(valueProvided) ? valueProvided.map(v => new EffectEvidenceSynthesisPrecisionEstimate(v)) : [new EffectEvidenceSynthesisPrecisionEstimate(valueProvided)];
+                this.__data.precisionEstimate = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EffectEvidenceSynthesisPrecisionEstimate(v)) : [new EffectEvidenceSynthesisPrecisionEstimate(valueProvided)];
             }
         });
 

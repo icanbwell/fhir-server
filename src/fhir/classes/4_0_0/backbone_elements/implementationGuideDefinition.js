@@ -73,7 +73,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -103,7 +103,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -121,7 +121,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 let ImplementationGuideGrouping = require('../backbone_elements/implementationGuideGrouping.js');
-                this.__data.grouping = Array.isArray(valueProvided) ? valueProvided.map(v => new ImplementationGuideGrouping(v)) : [new ImplementationGuideGrouping(valueProvided)];
+                this.__data.grouping = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideGrouping(v)) : [new ImplementationGuideGrouping(valueProvided)];
             }
         });
 
@@ -142,7 +142,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 let ImplementationGuideResource = require('../backbone_elements/implementationGuideResource.js');
-                this.__data.resource = Array.isArray(valueProvided) ? valueProvided.map(v => new ImplementationGuideResource(v)) : [new ImplementationGuideResource(valueProvided)];
+                this.__data.resource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideResource(v)) : [new ImplementationGuideResource(valueProvided)];
             }
         });
 
@@ -179,7 +179,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 let ImplementationGuideParameter = require('../backbone_elements/implementationGuideParameter.js');
-                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.map(v => new ImplementationGuideParameter(v)) : [new ImplementationGuideParameter(valueProvided)];
+                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideParameter(v)) : [new ImplementationGuideParameter(valueProvided)];
             }
         });
 
@@ -197,7 +197,7 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 let ImplementationGuideTemplate = require('../backbone_elements/implementationGuideTemplate.js');
-                this.__data.template = Array.isArray(valueProvided) ? valueProvided.map(v => new ImplementationGuideTemplate(v)) : [new ImplementationGuideTemplate(valueProvided)];
+                this.__data.template = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideTemplate(v)) : [new ImplementationGuideTemplate(valueProvided)];
             }
         });
 

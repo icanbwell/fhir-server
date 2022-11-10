@@ -89,7 +89,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -119,7 +119,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -137,7 +137,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.vaccineCode = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.vaccineCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -173,7 +173,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.contraindicatedVaccineCode = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.contraindicatedVaccineCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -210,7 +210,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.forecastReason = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.forecastReason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -229,7 +229,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 let ImmunizationRecommendationDateCriterion = require('../backbone_elements/immunizationRecommendationDateCriterion.js');
-                this.__data.dateCriterion = Array.isArray(valueProvided) ? valueProvided.map(v => new ImmunizationRecommendationDateCriterion(v)) : [new ImmunizationRecommendationDateCriterion(valueProvided)];
+                this.__data.dateCriterion = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationRecommendationDateCriterion(v)) : [new ImmunizationRecommendationDateCriterion(valueProvided)];
             }
         });
 
@@ -352,7 +352,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingImmunization = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.supportingImmunization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -372,7 +372,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingPatientInformation = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.supportingPatientInformation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 

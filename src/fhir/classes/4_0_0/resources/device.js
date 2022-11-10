@@ -214,7 +214,7 @@ class Device extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -243,7 +243,7 @@ class Device extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -273,7 +273,7 @@ class Device extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -292,7 +292,7 @@ class Device extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -331,7 +331,7 @@ class Device extends Resource {
                     return;
                 }
                 let DeviceUdiCarrier = require('../backbone_elements/deviceUdiCarrier.js');
-                this.__data.udiCarrier = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceUdiCarrier(v)) : [new DeviceUdiCarrier(valueProvided)];
+                this.__data.udiCarrier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceUdiCarrier(v)) : [new DeviceUdiCarrier(valueProvided)];
             }
         });
 
@@ -366,7 +366,7 @@ class Device extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.statusReason = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.statusReason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -492,7 +492,7 @@ class Device extends Resource {
                     return;
                 }
                 let DeviceDeviceName = require('../backbone_elements/deviceDeviceName.js');
-                this.__data.deviceName = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceDeviceName(v)) : [new DeviceDeviceName(valueProvided)];
+                this.__data.deviceName = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDeviceName(v)) : [new DeviceDeviceName(valueProvided)];
             }
         });
 
@@ -563,7 +563,7 @@ class Device extends Resource {
                     return;
                 }
                 let DeviceSpecialization = require('../backbone_elements/deviceSpecialization.js');
-                this.__data.specialization = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceSpecialization(v)) : [new DeviceSpecialization(valueProvided)];
+                this.__data.specialization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceSpecialization(v)) : [new DeviceSpecialization(valueProvided)];
             }
         });
 
@@ -581,7 +581,7 @@ class Device extends Resource {
                     return;
                 }
                 let DeviceVersion = require('../backbone_elements/deviceVersion.js');
-                this.__data.version = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceVersion(v)) : [new DeviceVersion(valueProvided)];
+                this.__data.version = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceVersion(v)) : [new DeviceVersion(valueProvided)];
             }
         });
 
@@ -600,7 +600,7 @@ class Device extends Resource {
                     return;
                 }
                 let DeviceProperty = require('../backbone_elements/deviceProperty.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceProperty(v)) : [new DeviceProperty(valueProvided)];
+                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceProperty(v)) : [new DeviceProperty(valueProvided)];
             }
         });
 
@@ -656,7 +656,7 @@ class Device extends Resource {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
 
@@ -710,7 +710,7 @@ class Device extends Resource {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 
@@ -729,7 +729,7 @@ class Device extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.safety = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.safety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 

@@ -209,7 +209,7 @@ class TestScript extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -238,7 +238,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -268,7 +268,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -461,7 +461,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
 
@@ -501,7 +501,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
 
@@ -519,7 +519,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -575,7 +575,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let TestScriptOrigin = require('../backbone_elements/testScriptOrigin.js');
-                this.__data.origin = Array.isArray(valueProvided) ? valueProvided.map(v => new TestScriptOrigin(v)) : [new TestScriptOrigin(valueProvided)];
+                this.__data.origin = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptOrigin(v)) : [new TestScriptOrigin(valueProvided)];
             }
         });
 
@@ -594,7 +594,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let TestScriptDestination = require('../backbone_elements/testScriptDestination.js');
-                this.__data.destination = Array.isArray(valueProvided) ? valueProvided.map(v => new TestScriptDestination(v)) : [new TestScriptDestination(valueProvided)];
+                this.__data.destination = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptDestination(v)) : [new TestScriptDestination(valueProvided)];
             }
         });
 
@@ -632,7 +632,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let TestScriptFixture = require('../backbone_elements/testScriptFixture.js');
-                this.__data.fixture = Array.isArray(valueProvided) ? valueProvided.map(v => new TestScriptFixture(v)) : [new TestScriptFixture(valueProvided)];
+                this.__data.fixture = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptFixture(v)) : [new TestScriptFixture(valueProvided)];
             }
         });
 
@@ -650,7 +650,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.profile = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.profile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -669,7 +669,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let TestScriptVariable = require('../backbone_elements/testScriptVariable.js');
-                this.__data.variable = Array.isArray(valueProvided) ? valueProvided.map(v => new TestScriptVariable(v)) : [new TestScriptVariable(valueProvided)];
+                this.__data.variable = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptVariable(v)) : [new TestScriptVariable(valueProvided)];
             }
         });
 
@@ -705,7 +705,7 @@ class TestScript extends Resource {
                     return;
                 }
                 let TestScriptTest = require('../backbone_elements/testScriptTest.js');
-                this.__data.test = Array.isArray(valueProvided) ? valueProvided.map(v => new TestScriptTest(v)) : [new TestScriptTest(valueProvided)];
+                this.__data.test = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptTest(v)) : [new TestScriptTest(valueProvided)];
             }
         });
 

@@ -104,7 +104,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -134,7 +134,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -151,7 +151,7 @@ class ExplanationOfBenefitAddItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.itemSequence = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.itemSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -169,7 +169,7 @@ class ExplanationOfBenefitAddItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.detailSequence = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.detailSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -187,7 +187,7 @@ class ExplanationOfBenefitAddItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.subDetailSequence = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.subDetailSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -205,7 +205,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.provider = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.provider = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -244,7 +244,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -262,7 +262,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.programCode = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.programCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -463,7 +463,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subSite = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.subSite = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -481,7 +481,7 @@ class ExplanationOfBenefitAddItem extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.noteNumber = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.noteNumber = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -499,7 +499,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     return;
                 }
                 let ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
-                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(valueProvided)];
+                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(valueProvided)];
             }
         });
 
@@ -517,7 +517,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     return;
                 }
                 let ExplanationOfBenefitDetail1 = require('../backbone_elements/explanationOfBenefitDetail1.js');
-                this.__data.detail = Array.isArray(valueProvided) ? valueProvided.map(v => new ExplanationOfBenefitDetail1(v)) : [new ExplanationOfBenefitDetail1(valueProvided)];
+                this.__data.detail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitDetail1(v)) : [new ExplanationOfBenefitDetail1(valueProvided)];
             }
         });
 

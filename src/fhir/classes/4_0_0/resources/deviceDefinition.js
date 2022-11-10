@@ -207,7 +207,7 @@ class DeviceDefinition extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -236,7 +236,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -266,7 +266,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -285,7 +285,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -306,7 +306,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let DeviceDefinitionUdiDeviceIdentifier = require('../backbone_elements/deviceDefinitionUdiDeviceIdentifier.js');
-                this.__data.udiDeviceIdentifier = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceDefinitionUdiDeviceIdentifier(v)) : [new DeviceDefinitionUdiDeviceIdentifier(valueProvided)];
+                this.__data.udiDeviceIdentifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionUdiDeviceIdentifier(v)) : [new DeviceDefinitionUdiDeviceIdentifier(valueProvided)];
             }
         });
 
@@ -359,7 +359,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let DeviceDefinitionDeviceName = require('../backbone_elements/deviceDefinitionDeviceName.js');
-                this.__data.deviceName = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceDefinitionDeviceName(v)) : [new DeviceDefinitionDeviceName(valueProvided)];
+                this.__data.deviceName = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionDeviceName(v)) : [new DeviceDefinitionDeviceName(valueProvided)];
             }
         });
 
@@ -413,7 +413,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let DeviceDefinitionSpecialization = require('../backbone_elements/deviceDefinitionSpecialization.js');
-                this.__data.specialization = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceDefinitionSpecialization(v)) : [new DeviceDefinitionSpecialization(valueProvided)];
+                this.__data.specialization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionSpecialization(v)) : [new DeviceDefinitionSpecialization(valueProvided)];
             }
         });
 
@@ -430,7 +430,7 @@ class DeviceDefinition extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.version = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.version = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -448,7 +448,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.safety = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.safety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -466,7 +466,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let ProductShelfLife = require('../backbone_elements/productShelfLife.js');
-                this.__data.shelfLifeStorage = Array.isArray(valueProvided) ? valueProvided.map(v => new ProductShelfLife(v)) : [new ProductShelfLife(valueProvided)];
+                this.__data.shelfLifeStorage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProductShelfLife(v)) : [new ProductShelfLife(valueProvided)];
             }
         });
 
@@ -503,7 +503,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.languageCode = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.languageCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -521,7 +521,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let DeviceDefinitionCapability = require('../backbone_elements/deviceDefinitionCapability.js');
-                this.__data.capability = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceDefinitionCapability(v)) : [new DeviceDefinitionCapability(valueProvided)];
+                this.__data.capability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionCapability(v)) : [new DeviceDefinitionCapability(valueProvided)];
             }
         });
 
@@ -540,7 +540,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let DeviceDefinitionProperty = require('../backbone_elements/deviceDefinitionProperty.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceDefinitionProperty(v)) : [new DeviceDefinitionProperty(valueProvided)];
+                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionProperty(v)) : [new DeviceDefinitionProperty(valueProvided)];
             }
         });
 
@@ -578,7 +578,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
 
@@ -631,7 +631,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 
@@ -687,7 +687,7 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 let DeviceDefinitionMaterial = require('../backbone_elements/deviceDefinitionMaterial.js');
-                this.__data.material = Array.isArray(valueProvided) ? valueProvided.map(v => new DeviceDefinitionMaterial(v)) : [new DeviceDefinitionMaterial(valueProvided)];
+                this.__data.material = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionMaterial(v)) : [new DeviceDefinitionMaterial(valueProvided)];
             }
         });
 

@@ -231,7 +231,7 @@ class Contract extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -260,7 +260,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -290,7 +290,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -309,7 +309,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -512,7 +512,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -533,7 +533,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.authority = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.authority = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -554,7 +554,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.domain = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.domain = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -572,7 +572,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.site = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.site = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -649,7 +649,7 @@ class Contract extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.alias = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.alias = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -765,7 +765,7 @@ class Contract extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subType = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.subType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -804,7 +804,7 @@ class Contract extends Resource {
                     return;
                 }
                 let ContractTerm = require('../backbone_elements/contractTerm.js');
-                this.__data.term = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractTerm(v)) : [new ContractTerm(valueProvided)];
+                this.__data.term = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractTerm(v)) : [new ContractTerm(valueProvided)];
             }
         });
 
@@ -823,7 +823,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -845,7 +845,7 @@ class Contract extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.relevantHistory = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.relevantHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -866,7 +866,7 @@ class Contract extends Resource {
                     return;
                 }
                 let ContractSigner = require('../backbone_elements/contractSigner.js');
-                this.__data.signer = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractSigner(v)) : [new ContractSigner(valueProvided)];
+                this.__data.signer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractSigner(v)) : [new ContractSigner(valueProvided)];
             }
         });
 
@@ -889,7 +889,7 @@ class Contract extends Resource {
                     return;
                 }
                 let ContractFriendly = require('../backbone_elements/contractFriendly.js');
-                this.__data.friendly = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractFriendly(v)) : [new ContractFriendly(valueProvided)];
+                this.__data.friendly = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractFriendly(v)) : [new ContractFriendly(valueProvided)];
             }
         });
 
@@ -907,7 +907,7 @@ class Contract extends Resource {
                     return;
                 }
                 let ContractLegal = require('../backbone_elements/contractLegal.js');
-                this.__data.legal = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractLegal(v)) : [new ContractLegal(valueProvided)];
+                this.__data.legal = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractLegal(v)) : [new ContractLegal(valueProvided)];
             }
         });
 
@@ -925,7 +925,7 @@ class Contract extends Resource {
                     return;
                 }
                 let ContractRule = require('../backbone_elements/contractRule.js');
-                this.__data.rule = Array.isArray(valueProvided) ? valueProvided.map(v => new ContractRule(v)) : [new ContractRule(valueProvided)];
+                this.__data.rule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractRule(v)) : [new ContractRule(valueProvided)];
             }
         });
 

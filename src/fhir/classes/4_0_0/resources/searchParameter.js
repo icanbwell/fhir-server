@@ -213,7 +213,7 @@ class SearchParameter extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -242,7 +242,7 @@ class SearchParameter extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -272,7 +272,7 @@ class SearchParameter extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -451,7 +451,7 @@ class SearchParameter extends Resource {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
 
@@ -490,7 +490,7 @@ class SearchParameter extends Resource {
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
 
@@ -509,7 +509,7 @@ class SearchParameter extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -562,7 +562,7 @@ class SearchParameter extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.base = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.base = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -649,7 +649,7 @@ class SearchParameter extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.target = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -702,7 +702,7 @@ class SearchParameter extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.comparator = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.comparator = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -719,7 +719,7 @@ class SearchParameter extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -741,7 +741,7 @@ class SearchParameter extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.chain = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.chain = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -759,7 +759,7 @@ class SearchParameter extends Resource {
                     return;
                 }
                 let SearchParameterComponent = require('../backbone_elements/searchParameterComponent.js');
-                this.__data.component = Array.isArray(valueProvided) ? valueProvided.map(v => new SearchParameterComponent(v)) : [new SearchParameterComponent(valueProvided)];
+                this.__data.component = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SearchParameterComponent(v)) : [new SearchParameterComponent(valueProvided)];
             }
         });
 

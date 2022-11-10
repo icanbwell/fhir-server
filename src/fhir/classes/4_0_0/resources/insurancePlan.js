@@ -188,7 +188,7 @@ class InsurancePlan extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -217,7 +217,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -247,7 +247,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -266,7 +266,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -301,7 +301,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.type = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -336,7 +336,7 @@ class InsurancePlan extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.alias = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.alias = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -412,7 +412,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.coverageArea = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.coverageArea = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -430,7 +430,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let InsurancePlanContact = require('../backbone_elements/insurancePlanContact.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.map(v => new InsurancePlanContact(v)) : [new InsurancePlanContact(valueProvided)];
+                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InsurancePlanContact(v)) : [new InsurancePlanContact(valueProvided)];
             }
         });
 
@@ -449,7 +449,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -467,7 +467,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.network = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.network = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -485,7 +485,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let InsurancePlanCoverage = require('../backbone_elements/insurancePlanCoverage.js');
-                this.__data.coverage = Array.isArray(valueProvided) ? valueProvided.map(v => new InsurancePlanCoverage(v)) : [new InsurancePlanCoverage(valueProvided)];
+                this.__data.coverage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InsurancePlanCoverage(v)) : [new InsurancePlanCoverage(valueProvided)];
             }
         });
 
@@ -503,7 +503,7 @@ class InsurancePlan extends Resource {
                     return;
                 }
                 let InsurancePlanPlan = require('../backbone_elements/insurancePlanPlan.js');
-                this.__data.plan = Array.isArray(valueProvided) ? valueProvided.map(v => new InsurancePlanPlan(v)) : [new InsurancePlanPlan(valueProvided)];
+                this.__data.plan = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InsurancePlanPlan(v)) : [new InsurancePlanPlan(valueProvided)];
             }
         });
 

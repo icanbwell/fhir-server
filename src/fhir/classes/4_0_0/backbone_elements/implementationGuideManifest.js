@@ -73,7 +73,7 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -103,7 +103,7 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -142,7 +142,7 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 let ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
-                this.__data.resource = Array.isArray(valueProvided) ? valueProvided.map(v => new ImplementationGuideResource1(v)) : [new ImplementationGuideResource1(valueProvided)];
+                this.__data.resource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideResource1(v)) : [new ImplementationGuideResource1(valueProvided)];
             }
         });
 
@@ -160,7 +160,7 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 let ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
-                this.__data.page = Array.isArray(valueProvided) ? valueProvided.map(v => new ImplementationGuidePage1(v)) : [new ImplementationGuidePage1(valueProvided)];
+                this.__data.page = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuidePage1(v)) : [new ImplementationGuidePage1(valueProvided)];
             }
         });
 
@@ -177,7 +177,7 @@ class ImplementationGuideManifest extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.image = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.image = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -196,7 +196,7 @@ class ImplementationGuideManifest extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.other = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.other = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 

@@ -64,7 +64,7 @@ class MedicationKnowledgeDosage extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -94,7 +94,7 @@ class MedicationKnowledgeDosage extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -130,7 +130,7 @@ class MedicationKnowledgeDosage extends Element {
                     return;
                 }
                 let Dosage = require('../backbone_elements/dosage.js');
-                this.__data.dosage = Array.isArray(valueProvided) ? valueProvided.map(v => new Dosage(v)) : [new Dosage(valueProvided)];
+                this.__data.dosage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Dosage(v)) : [new Dosage(valueProvided)];
             }
         });
 

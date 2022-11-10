@@ -68,7 +68,7 @@ class MeasureStratifier extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -98,7 +98,7 @@ class MeasureStratifier extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -175,7 +175,7 @@ class MeasureStratifier extends Element {
                     return;
                 }
                 let MeasureComponent = require('../backbone_elements/measureComponent.js');
-                this.__data.component = Array.isArray(valueProvided) ? valueProvided.map(v => new MeasureComponent(v)) : [new MeasureComponent(valueProvided)];
+                this.__data.component = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureComponent(v)) : [new MeasureComponent(valueProvided)];
             }
         });
 

@@ -68,7 +68,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -98,7 +98,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -116,7 +116,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 let ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
-                this.__data.process = Array.isArray(valueProvided) ? valueProvided.map(v => new ExampleScenarioProcess(v)) : [new ExampleScenarioProcess(valueProvided)];
+                this.__data.process = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExampleScenarioProcess(v)) : [new ExampleScenarioProcess(valueProvided)];
             }
         });
 
@@ -170,7 +170,7 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 let ExampleScenarioAlternative = require('../backbone_elements/exampleScenarioAlternative.js');
-                this.__data.alternative = Array.isArray(valueProvided) ? valueProvided.map(v => new ExampleScenarioAlternative(v)) : [new ExampleScenarioAlternative(valueProvided)];
+                this.__data.alternative = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExampleScenarioAlternative(v)) : [new ExampleScenarioAlternative(valueProvided)];
             }
         });
 

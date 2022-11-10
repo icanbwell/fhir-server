@@ -235,7 +235,7 @@ class Observation extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -264,7 +264,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -294,7 +294,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -312,7 +312,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -332,7 +332,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -351,7 +351,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -386,7 +386,7 @@ class Observation extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -452,7 +452,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.focus = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.focus = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -577,7 +577,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -808,7 +808,7 @@ class Observation extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.interpretation = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.interpretation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -826,7 +826,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 
@@ -920,7 +920,7 @@ class Observation extends Resource {
                     return;
                 }
                 let ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
-                this.__data.referenceRange = Array.isArray(valueProvided) ? valueProvided.map(v => new ObservationReferenceRange(v)) : [new ObservationReferenceRange(valueProvided)];
+                this.__data.referenceRange = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ObservationReferenceRange(v)) : [new ObservationReferenceRange(valueProvided)];
             }
         });
 
@@ -940,7 +940,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.hasMember = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.hasMember = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -960,7 +960,7 @@ class Observation extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.derivedFrom = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.derivedFrom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -982,7 +982,7 @@ class Observation extends Resource {
                     return;
                 }
                 let ObservationComponent = require('../backbone_elements/observationComponent.js');
-                this.__data.component = Array.isArray(valueProvided) ? valueProvided.map(v => new ObservationComponent(v)) : [new ObservationComponent(valueProvided)];
+                this.__data.component = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ObservationComponent(v)) : [new ObservationComponent(valueProvided)];
             }
         });
 

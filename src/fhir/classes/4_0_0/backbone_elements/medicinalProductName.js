@@ -67,7 +67,7 @@ class MedicinalProductName extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -97,7 +97,7 @@ class MedicinalProductName extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -132,7 +132,7 @@ class MedicinalProductName extends Element {
                     return;
                 }
                 let MedicinalProductNamePart = require('../backbone_elements/medicinalProductNamePart.js');
-                this.__data.namePart = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicinalProductNamePart(v)) : [new MedicinalProductNamePart(valueProvided)];
+                this.__data.namePart = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductNamePart(v)) : [new MedicinalProductNamePart(valueProvided)];
             }
         });
 
@@ -150,7 +150,7 @@ class MedicinalProductName extends Element {
                     return;
                 }
                 let MedicinalProductCountryLanguage = require('../backbone_elements/medicinalProductCountryLanguage.js');
-                this.__data.countryLanguage = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicinalProductCountryLanguage(v)) : [new MedicinalProductCountryLanguage(valueProvided)];
+                this.__data.countryLanguage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductCountryLanguage(v)) : [new MedicinalProductCountryLanguage(valueProvided)];
             }
         });
 

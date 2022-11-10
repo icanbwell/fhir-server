@@ -74,7 +74,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -104,7 +104,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -239,7 +239,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 let MedicinalProductPharmaceuticalTargetSpecies = require('../backbone_elements/medicinalProductPharmaceuticalTargetSpecies.js');
-                this.__data.targetSpecies = Array.isArray(valueProvided) ? valueProvided.map(v => new MedicinalProductPharmaceuticalTargetSpecies(v)) : [new MedicinalProductPharmaceuticalTargetSpecies(valueProvided)];
+                this.__data.targetSpecies = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPharmaceuticalTargetSpecies(v)) : [new MedicinalProductPharmaceuticalTargetSpecies(valueProvided)];
             }
         });
 

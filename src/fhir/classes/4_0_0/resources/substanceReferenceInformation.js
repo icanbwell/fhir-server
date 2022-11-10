@@ -170,7 +170,7 @@ class SubstanceReferenceInformation extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -199,7 +199,7 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -229,7 +229,7 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -264,7 +264,7 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 let SubstanceReferenceInformationGene = require('../backbone_elements/substanceReferenceInformationGene.js');
-                this.__data.gene = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceReferenceInformationGene(v)) : [new SubstanceReferenceInformationGene(valueProvided)];
+                this.__data.gene = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationGene(v)) : [new SubstanceReferenceInformationGene(valueProvided)];
             }
         });
 
@@ -282,7 +282,7 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 let SubstanceReferenceInformationGeneElement = require('../backbone_elements/substanceReferenceInformationGeneElement.js');
-                this.__data.geneElement = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceReferenceInformationGeneElement(v)) : [new SubstanceReferenceInformationGeneElement(valueProvided)];
+                this.__data.geneElement = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationGeneElement(v)) : [new SubstanceReferenceInformationGeneElement(valueProvided)];
             }
         });
 
@@ -300,7 +300,7 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 let SubstanceReferenceInformationClassification = require('../backbone_elements/substanceReferenceInformationClassification.js');
-                this.__data.classification = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceReferenceInformationClassification(v)) : [new SubstanceReferenceInformationClassification(valueProvided)];
+                this.__data.classification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationClassification(v)) : [new SubstanceReferenceInformationClassification(valueProvided)];
             }
         });
 
@@ -318,7 +318,7 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 let SubstanceReferenceInformationTarget = require('../backbone_elements/substanceReferenceInformationTarget.js');
-                this.__data.target = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceReferenceInformationTarget(v)) : [new SubstanceReferenceInformationTarget(valueProvided)];
+                this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationTarget(v)) : [new SubstanceReferenceInformationTarget(valueProvided)];
             }
         });
 

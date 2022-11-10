@@ -213,7 +213,7 @@ class Bundle extends Resource {
                     return;
                 }
                 let BundleLink = require('../backbone_elements/bundleLink.js');
-                this.__data.link = Array.isArray(valueProvided) ? valueProvided.map(v => new BundleLink(v)) : [new BundleLink(valueProvided)];
+                this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleLink(v)) : [new BundleLink(valueProvided)];
             }
         });
 
@@ -232,7 +232,7 @@ class Bundle extends Resource {
                     return;
                 }
                 let BundleEntry = require('../backbone_elements/bundleEntry.js');
-                this.__data.entry = Array.isArray(valueProvided) ? valueProvided.map(v => new BundleEntry(v)) : [new BundleEntry(valueProvided)];
+                this.__data.entry = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleEntry(v)) : [new BundleEntry(valueProvided)];
             }
         });
 

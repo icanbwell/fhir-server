@@ -174,7 +174,7 @@ class Substance extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -203,7 +203,7 @@ class Substance extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -233,7 +233,7 @@ class Substance extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -251,7 +251,7 @@ class Substance extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -287,7 +287,7 @@ class Substance extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -342,7 +342,7 @@ class Substance extends Resource {
                     return;
                 }
                 let SubstanceInstance = require('../backbone_elements/substanceInstance.js');
-                this.__data.instance = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceInstance(v)) : [new SubstanceInstance(valueProvided)];
+                this.__data.instance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceInstance(v)) : [new SubstanceInstance(valueProvided)];
             }
         });
 
@@ -360,7 +360,7 @@ class Substance extends Resource {
                     return;
                 }
                 let SubstanceIngredient = require('../backbone_elements/substanceIngredient.js');
-                this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceIngredient(v)) : [new SubstanceIngredient(valueProvided)];
+                this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceIngredient(v)) : [new SubstanceIngredient(valueProvided)];
             }
         });
 

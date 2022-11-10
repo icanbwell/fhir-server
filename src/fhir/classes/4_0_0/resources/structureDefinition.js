@@ -216,7 +216,7 @@ class StructureDefinition extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -245,7 +245,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -275,7 +275,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -318,7 +318,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -470,7 +470,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
 
@@ -510,7 +510,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
 
@@ -529,7 +529,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -586,7 +586,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
-                this.__data.keyword = Array.isArray(valueProvided) ? valueProvided.map(v => new Coding(v)) : [new Coding(valueProvided)];
+                this.__data.keyword = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
 
@@ -623,7 +623,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let StructureDefinitionMapping = require('../backbone_elements/structureDefinitionMapping.js');
-                this.__data.mapping = Array.isArray(valueProvided) ? valueProvided.map(v => new StructureDefinitionMapping(v)) : [new StructureDefinitionMapping(valueProvided)];
+                this.__data.mapping = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureDefinitionMapping(v)) : [new StructureDefinitionMapping(valueProvided)];
             }
         });
 
@@ -678,7 +678,7 @@ class StructureDefinition extends Resource {
                     return;
                 }
                 let StructureDefinitionContext = require('../backbone_elements/structureDefinitionContext.js');
-                this.__data.context = Array.isArray(valueProvided) ? valueProvided.map(v => new StructureDefinitionContext(v)) : [new StructureDefinitionContext(valueProvided)];
+                this.__data.context = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureDefinitionContext(v)) : [new StructureDefinitionContext(valueProvided)];
             }
         });
 
@@ -696,7 +696,7 @@ class StructureDefinition extends Resource {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.contextInvariant = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.contextInvariant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 

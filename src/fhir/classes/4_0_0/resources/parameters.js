@@ -129,7 +129,7 @@ class Parameters extends Resource {
                     return;
                 }
                 let ParametersParameter = require('../backbone_elements/parametersParameter.js');
-                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.map(v => new ParametersParameter(v)) : [new ParametersParameter(valueProvided)];
+                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ParametersParameter(v)) : [new ParametersParameter(valueProvided)];
             }
         });
 

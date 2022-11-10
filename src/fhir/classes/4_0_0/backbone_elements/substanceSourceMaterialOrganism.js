@@ -89,7 +89,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -119,7 +119,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -232,7 +232,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     return;
                 }
                 let SubstanceSourceMaterialAuthor = require('../backbone_elements/substanceSourceMaterialAuthor.js');
-                this.__data.author = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSourceMaterialAuthor(v)) : [new SubstanceSourceMaterialAuthor(valueProvided)];
+                this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSourceMaterialAuthor(v)) : [new SubstanceSourceMaterialAuthor(valueProvided)];
             }
         });
 

@@ -71,7 +71,7 @@ class NutritionOrderSupplement extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -101,7 +101,7 @@ class NutritionOrderSupplement extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -158,7 +158,7 @@ class NutritionOrderSupplement extends Element {
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
-                this.__data.schedule = Array.isArray(valueProvided) ? valueProvided.map(v => new Timing(v)) : [new Timing(valueProvided)];
+                this.__data.schedule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Timing(v)) : [new Timing(valueProvided)];
             }
         });
 

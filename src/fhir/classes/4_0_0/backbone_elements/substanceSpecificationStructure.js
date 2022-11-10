@@ -77,7 +77,7 @@ class SubstanceSpecificationStructure extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -107,7 +107,7 @@ class SubstanceSpecificationStructure extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -197,7 +197,7 @@ class SubstanceSpecificationStructure extends Element {
                     return;
                 }
                 let SubstanceSpecificationIsotope = require('../backbone_elements/substanceSpecificationIsotope.js');
-                this.__data.isotope = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationIsotope(v)) : [new SubstanceSpecificationIsotope(valueProvided)];
+                this.__data.isotope = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationIsotope(v)) : [new SubstanceSpecificationIsotope(valueProvided)];
             }
         });
 
@@ -234,7 +234,7 @@ class SubstanceSpecificationStructure extends Element {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.source = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -252,7 +252,7 @@ class SubstanceSpecificationStructure extends Element {
                     return;
                 }
                 let SubstanceSpecificationRepresentation = require('../backbone_elements/substanceSpecificationRepresentation.js');
-                this.__data.representation = Array.isArray(valueProvided) ? valueProvided.map(v => new SubstanceSpecificationRepresentation(v)) : [new SubstanceSpecificationRepresentation(valueProvided)];
+                this.__data.representation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationRepresentation(v)) : [new SubstanceSpecificationRepresentation(valueProvided)];
             }
         });
 

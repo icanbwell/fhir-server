@@ -79,7 +79,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -115,7 +115,7 @@ class DataRequirement extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.profile = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.profile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -177,7 +177,7 @@ class DataRequirement extends Element {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
                     return;
                 }
-                this.__data.mustSupport = Array.isArray(valueProvided) ? valueProvided.map(v => v) : [valueProvided];
+                this.__data.mustSupport = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
             }
         });
 
@@ -197,7 +197,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 let DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter.js');
-                this.__data.codeFilter = Array.isArray(valueProvided) ? valueProvided.map(v => new DataRequirementCodeFilter(v)) : [new DataRequirementCodeFilter(valueProvided)];
+                this.__data.codeFilter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementCodeFilter(v)) : [new DataRequirementCodeFilter(valueProvided)];
             }
         });
 
@@ -217,7 +217,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 let DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter.js');
-                this.__data.dateFilter = Array.isArray(valueProvided) ? valueProvided.map(v => new DataRequirementDateFilter(v)) : [new DataRequirementDateFilter(valueProvided)];
+                this.__data.dateFilter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementDateFilter(v)) : [new DataRequirementDateFilter(valueProvided)];
             }
         });
 
@@ -253,7 +253,7 @@ class DataRequirement extends Element {
                     return;
                 }
                 let DataRequirementSort = require('../complex_types/dataRequirementSort.js');
-                this.__data.sort = Array.isArray(valueProvided) ? valueProvided.map(v => new DataRequirementSort(v)) : [new DataRequirementSort(valueProvided)];
+                this.__data.sort = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementSort(v)) : [new DataRequirementSort(valueProvided)];
             }
         });
 

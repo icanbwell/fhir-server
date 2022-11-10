@@ -211,7 +211,7 @@ class Condition extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -240,7 +240,7 @@ class Condition extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -270,7 +270,7 @@ class Condition extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -290,7 +290,7 @@ class Condition extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -344,7 +344,7 @@ class Condition extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -399,7 +399,7 @@ class Condition extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.bodySite = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.bodySite = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -685,7 +685,7 @@ class Condition extends Resource {
                     return;
                 }
                 let ConditionStage = require('../backbone_elements/conditionStage.js');
-                this.__data.stage = Array.isArray(valueProvided) ? valueProvided.map(v => new ConditionStage(v)) : [new ConditionStage(valueProvided)];
+                this.__data.stage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConditionStage(v)) : [new ConditionStage(valueProvided)];
             }
         });
 
@@ -704,7 +704,7 @@ class Condition extends Resource {
                     return;
                 }
                 let ConditionEvidence = require('../backbone_elements/conditionEvidence.js');
-                this.__data.evidence = Array.isArray(valueProvided) ? valueProvided.map(v => new ConditionEvidence(v)) : [new ConditionEvidence(valueProvided)];
+                this.__data.evidence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConditionEvidence(v)) : [new ConditionEvidence(valueProvided)];
             }
         });
 
@@ -723,7 +723,7 @@ class Condition extends Resource {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 

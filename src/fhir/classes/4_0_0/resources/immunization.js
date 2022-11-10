@@ -219,7 +219,7 @@ class Immunization extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -248,7 +248,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -278,7 +278,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -296,7 +296,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -618,7 +618,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let ImmunizationPerformer = require('../backbone_elements/immunizationPerformer.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.map(v => new ImmunizationPerformer(v)) : [new ImmunizationPerformer(valueProvided)];
+                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationPerformer(v)) : [new ImmunizationPerformer(valueProvided)];
             }
         });
 
@@ -637,7 +637,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
 
@@ -655,7 +655,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -674,7 +674,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -710,7 +710,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subpotentReason = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.subpotentReason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -729,7 +729,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let ImmunizationEducation = require('../backbone_elements/immunizationEducation.js');
-                this.__data.education = Array.isArray(valueProvided) ? valueProvided.map(v => new ImmunizationEducation(v)) : [new ImmunizationEducation(valueProvided)];
+                this.__data.education = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationEducation(v)) : [new ImmunizationEducation(valueProvided)];
             }
         });
 
@@ -747,7 +747,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.programEligibility = Array.isArray(valueProvided) ? valueProvided.map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                this.__data.programEligibility = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
 
@@ -787,7 +787,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let ImmunizationReaction = require('../backbone_elements/immunizationReaction.js');
-                this.__data.reaction = Array.isArray(valueProvided) ? valueProvided.map(v => new ImmunizationReaction(v)) : [new ImmunizationReaction(valueProvided)];
+                this.__data.reaction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationReaction(v)) : [new ImmunizationReaction(valueProvided)];
             }
         });
 
@@ -806,7 +806,7 @@ class Immunization extends Resource {
                     return;
                 }
                 let ImmunizationProtocolApplied = require('../backbone_elements/immunizationProtocolApplied.js');
-                this.__data.protocolApplied = Array.isArray(valueProvided) ? valueProvided.map(v => new ImmunizationProtocolApplied(v)) : [new ImmunizationProtocolApplied(valueProvided)];
+                this.__data.protocolApplied = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationProtocolApplied(v)) : [new ImmunizationProtocolApplied(valueProvided)];
             }
         });
 

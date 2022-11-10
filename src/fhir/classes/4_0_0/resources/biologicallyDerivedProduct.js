@@ -184,7 +184,7 @@ class BiologicallyDerivedProduct extends Resource {
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.map(v => {
+                    this.__data.contained = valueProvided.filter(v => v).map(v => {
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
@@ -213,7 +213,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -243,7 +243,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.map(v => new Extension(v)) : [new Extension(valueProvided)];
+                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
 
@@ -264,7 +264,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
 
@@ -335,7 +335,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.request = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.request = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -370,7 +370,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
-                this.__data.parent = Array.isArray(valueProvided) ? valueProvided.map(v => new Reference(v)) : [new Reference(valueProvided)];
+                this.__data.parent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
 
@@ -408,7 +408,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 let BiologicallyDerivedProductProcessing = require('../backbone_elements/biologicallyDerivedProductProcessing.js');
-                this.__data.processing = Array.isArray(valueProvided) ? valueProvided.map(v => new BiologicallyDerivedProductProcessing(v)) : [new BiologicallyDerivedProductProcessing(valueProvided)];
+                this.__data.processing = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BiologicallyDerivedProductProcessing(v)) : [new BiologicallyDerivedProductProcessing(valueProvided)];
             }
         });
 
@@ -446,7 +446,7 @@ class BiologicallyDerivedProduct extends Resource {
                     return;
                 }
                 let BiologicallyDerivedProductStorage = require('../backbone_elements/biologicallyDerivedProductStorage.js');
-                this.__data.storage = Array.isArray(valueProvided) ? valueProvided.map(v => new BiologicallyDerivedProductStorage(v)) : [new BiologicallyDerivedProductStorage(valueProvided)];
+                this.__data.storage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BiologicallyDerivedProductStorage(v)) : [new BiologicallyDerivedProductStorage(valueProvided)];
             }
         });
 
