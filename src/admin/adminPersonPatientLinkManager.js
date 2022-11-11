@@ -6,6 +6,7 @@ const Person = require('../fhir/classes/4_0_0/resources/person');
 const {generateUUID} = require('../utils/uid.util');
 const moment = require('moment-timezone');
 const {SecurityTagSystem} = require('../utils/securityTagSystem');
+const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
@@ -67,11 +68,16 @@ class AdminPersonPatientLinkManager {
             if (bwellPerson.link) {
                 // check if a link target already exists in bwellPerson for sourcePersonId
                 if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${sourcePersonId}`)) {
+                    console.log(`link before (non-empty): ${JSON.stringify(bwellPerson.link)}`);
                     bwellPerson.link = bwellPerson.link.concat([
-                        new Reference(
-                            {reference: `Person/${sourcePersonId}`}
-                        )
+                        new PersonLink(
+                            {
+                                target: new Reference(
+                                    {reference: `Person/${sourcePersonId}`}
+                                )
+                            })
                     ]);
+                    console.log(`link after (non-empty): ${JSON.stringify(bwellPerson.link)}`);
                 } else {
                     return {
                         'message': `Link already exists from ${bwellPersonId} to ${sourcePersonId}`,
@@ -81,16 +87,21 @@ class AdminPersonPatientLinkManager {
                 }
             } else {
                 // no existing link array so create one
-                bwellPerson.link = [new Reference(
-                    {reference: `Person/${sourcePersonId}`}
-                )];
+                console.log(`link before (empty): ${JSON.stringify(bwellPerson.link)}`);
+                bwellPerson.link = [new PersonLink(
+                    {
+                        target: new Reference(
+                            {reference: `Person/${sourcePersonId}`}
+                        )
+                    })];
+                console.log(`link after (empty): ${JSON.stringify(bwellPerson.link)}`);
             }
             await databaseUpdateManager.replaceOneAsync({
                 doc: bwellPerson
             });
 
             return {
-                'message': `Added link from ${bwellPersonId} to ${sourcePersonId}`,
+                'message': `Added link from Person/${bwellPersonId} to Person/${sourcePersonId}`,
                 'bwellPersonId': bwellPersonId,
                 'sourcePersonId': sourcePersonId
             };
@@ -231,14 +242,16 @@ class AdminPersonPatientLinkManager {
                     'security': meta.security
                 },
                 'link': [
-                    new Reference(
-                        {reference: `Patient/${patientId}`}
-                    )
+                    new PersonLink(
+                        {
+                            target: new Reference({reference: `Patient/${patientId}`}
+                            )
+                        })
                 ]
             });
             await databaseUpdateManager.insertOneAsync({doc: sourcePerson});
             return {
-                'message': `Created Person and added link from ${sourcePersonId} to ${patientId}`,
+                'message': `Created Person and added link from Person/${sourcePersonId} to Patient/${patientId}`,
                 'patientId': patientId,
                 'sourcePersonId': sourcePersonId
             };
@@ -246,29 +259,39 @@ class AdminPersonPatientLinkManager {
             if (sourcePerson.link) {
                 // check if a link target already exists in sourcePerson for sourcePersonId
                 if (!sourcePerson.link.some(l => l.target && l.target.reference === `Patient/${patientId}`)) {
+                    console.log(`link before (non-empty): ${JSON.stringify(sourcePerson.link)}`);
                     sourcePerson.link = sourcePerson.link.concat([
-                        new Reference(
-                            {reference: `Patient/${patientId}`}
-                        )
+                        new PersonLink(
+                            {
+                                target: new Reference({reference: `Patient/${patientId}`}
+                                )
+                            })
                     ]);
+                    console.log(`link before (non-empty): ${JSON.stringify(sourcePerson.link)}`);
                 } else {
                     return {
-                        'message': `Link already exists from ${sourcePersonId} to ${patientId}`,
+                        'message': `Link already exists from Person/${sourcePersonId} to Patient/${patientId}`,
                         'patientId': patientId,
                         'sourcePersonId': sourcePersonId
                     };
                 }
             } else {
-                sourcePerson.link = [new Reference(
-                    {reference: `Patient/${patientId}`}
-                )];
+                console.log(`link before (empty): ${JSON.stringify(sourcePerson.link)}`);
+                sourcePerson.link = [
+                    new PersonLink(
+                        {
+                            target: new Reference(
+                                {reference: `Patient/${patientId}`}
+                            )
+                        })];
+                console.log(`link after: ${JSON.stringify(sourcePerson.link)}`);
             }
             await databaseUpdateManager.replaceOneAsync({
                 doc: sourcePerson
             });
 
             return {
-                'message': `Added link from ${sourcePersonId} to ${patientId}`,
+                'message': `Added link from Person/${sourcePersonId} to Patient/${patientId}`,
                 'patientId': patientId,
                 'sourcePersonId': sourcePersonId
             };
@@ -294,7 +317,9 @@ class AdminPersonPatientLinkManager {
         });
         if (!person) {
             return {
-                id: personId
+                id: personId,
+                resourceType: 'Person',
+                source: '[Resource missing]'
             };
         }
         /**
@@ -314,7 +339,7 @@ class AdminPersonPatientLinkManager {
              * @type {DatabasePartitionedCursor}
              */
             const patientCursor = await patientDatabaseManager.findAsync({
-                query: {id: {$in: [patientIds]}}
+                query: {id: {$in: patientIds}}
             });
             /**
              * @type {Patient[]}
@@ -333,6 +358,20 @@ class AdminPersonPatientLinkManager {
                     };
                 })
             );
+            const missingPatientIds = patientIds.filter(i => !patients.map(p => p.id).includes(i));
+            if (missingPatientIds.length > 0) {
+                children = children.concat(
+                    missingPatientIds.map(
+                        m => {
+                            return {
+                                id: m,
+                                resourceType: 'Patient',
+                                source: '[Resource missing]'
+                            };
+                        }
+                    )
+                );
+            }
             if (level < maximumRecursionDepth) { // avoid infinite loop
                 // now find any Person links and call them recursively
                 /**
