@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./adminHead'); %>
+</head>
+<body class="container-fluid p-0">
+<main>
+    <h3>Show Link Hierarchy from b.well Person</h3>
+
+    <form
+            class="search-form ps-3"
+            action="/admin/showPersonToPersonLink"
+            id="searchForm"
+            method="get"
+    >
+        <div class="form-group row">
+            <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
+            <input
+                    id="bwellPersonId"
+                    type="text"
+                    name=bwellPersonId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Show Link Graph</button>
+    </form>
+    <hr>
+    <h3>Create Person to Person Link</h3>
+    <form
+            class="search-form ps-3"
+            action="/admin/createPersonToPersonLink"
+            id="searchForm"
+            method="get"
+    >
+        <div class="form-group row">
+            <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
+            <input
+                    id="bwellPersonId"
+                    type="text"
+                    name=bwellPersonId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+            <label for="sourcePersonId" class="col-sm-6 col-form-label">Source Person</label>
+            <input
+                    id="sourcePersonId"
+                    type="text"
+                    name=sourcePersonId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Create Link</button>
+    </form>
+    <hr>
+    <h3>Remove Person to Person Link</h3>
+    <form
+            class="search-form ps-3"
+            action="/admin/removePersonToPersonLink"
+            id="searchForm"
+            method="get"
+    >
+        <div class="form-group row">
+            <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
+            <input
+                    id="bwellPersonId"
+                    type="text"
+                    name=bwellPersonId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+            <label for="sourcePersonId" class="col-sm-6 col-form-label">Source Person</label>
+            <input
+                    id="sourcePersonId"
+                    type="text"
+                    name=sourcePersonId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Remove Link</button>
+    </form>
+
+    <hr>
+    <h3>Create Person to Patient Link</h3>
+    <form
+            class="search-form ps-3"
+            action="/admin/createPersonToPatientLink"
+            id="searchForm"
+            method="get"
+    >
+        <div class="form-group row">
+            <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person (leave blank to create a new
+                one))</label>
+            <input
+                    id="bwellPersonId"
+                    type="text"
+                    name=bwellPersonId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+            <label for="patientId" class="col-sm-6 col-form-label">Patient</label>
+            <input
+                    id="patientId"
+                    type="text"
+                    name=patientId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Create Link</button>
+    </form>
+</main>
+
+</body>
+</html>
+

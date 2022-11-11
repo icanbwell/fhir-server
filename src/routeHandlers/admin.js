@@ -129,6 +129,12 @@ async function handleAdmin(
                     return res.render(filePath, parameters);
                 }
 
+                case 'personPatientLink': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
                 case 'searchLogResults': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const id = req.query['id'];
@@ -145,6 +151,84 @@ async function handleAdmin(
                     }
                     return res.json({
                         message: 'No id passed'
+                    });
+                }
+
+                case 'showPersonToPersonLink': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const bwellPersonId = req.query['bwellPersonId'];
+                    if (bwellPersonId) {
+                        /**
+                         * @type {AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.showPersonToPersonLinkAsync({
+                            bwellPersonId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No bwellPersonId: ${bwellPersonId} passed`
+                    });
+                }
+
+                case 'createPersonToPersonLink': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const bwellPersonId = req.query['bwellPersonId'];
+                    const sourcePersonId = req.query['sourcePersonId'];
+                    if (bwellPersonId && sourcePersonId) {
+                        /**
+                         * @type {AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.createPersonToPersonLinkAsync({
+                            bwellPersonId,
+                            sourcePersonId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No bwellPersonId: ${bwellPersonId} or sourcePersonId: ${sourcePersonId} passed`
+                    });
+                }
+
+                case 'removePersonToPersonLink': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const bwellPersonId = req.query['bwellPersonId'];
+                    const sourcePersonId = req.query['sourcePersonId'];
+                    if (bwellPersonId && sourcePersonId) {
+                        /**
+                         * @type {AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.removePersonToPersonLinkAsync({
+                            bwellPersonId,
+                            sourcePersonId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No bwellPersonId: ${bwellPersonId} or sourcePersonId: ${sourcePersonId} passed`
+                    });
+                }
+
+                case 'createPersonToPatientLink': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const sourcePersonId = req.query['sourcePersonId'];
+                    const patientId = req.query['patientId'];
+                    if (sourcePersonId && patientId) {
+                        /**
+                         * @type {AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.createPersonToPatientLinkAsync({
+                            sourcePersonId,
+                            patientId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No sourcePersonId: ${sourcePersonId} or patientId: ${patientId} passed`
                     });
                 }
 
