@@ -237,8 +237,9 @@ class CreateOperation {
                     requestId, currentDate, base_version: base_version
                 }
             );
-            if (!mergeResults || mergeResults.length === 0 || !mergeResults[0].created) {
-                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+
+            if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
+                throw new BadRequestError(new Error(mergeResults.length > 0 ? JSON.stringify(mergeResults[0].issue) : 'No merge result'));
             }
 
             // log operation
