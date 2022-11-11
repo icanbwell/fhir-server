@@ -157,6 +157,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -178,6 +179,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -208,6 +210,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -226,6 +229,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.context = undefined;
                     return;
                 }
                 this.__data.context = valueProvided;
@@ -244,6 +248,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.min,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.min = undefined;
                     return;
                 }
                 this.__data.min = valueProvided;
@@ -263,6 +268,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.max,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.max = undefined;
                     return;
                 }
                 this.__data.max = valueProvided;
@@ -281,6 +287,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -298,6 +305,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueBase64Binary,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueBase64Binary = undefined;
                     return;
                 }
                 this.__data.defaultValueBase64Binary = valueProvided;
@@ -315,6 +323,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueBoolean = undefined;
                     return;
                 }
                 this.__data.defaultValueBoolean = valueProvided;
@@ -332,6 +341,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCanonical = undefined;
                     return;
                 }
                 this.__data.defaultValueCanonical = valueProvided;
@@ -349,6 +359,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCode = undefined;
                     return;
                 }
                 this.__data.defaultValueCode = valueProvided;
@@ -366,6 +377,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDate = undefined;
                     return;
                 }
                 this.__data.defaultValueDate = valueProvided;
@@ -383,6 +395,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDateTime = undefined;
                     return;
                 }
                 this.__data.defaultValueDateTime = valueProvided;
@@ -400,6 +413,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDecimal = undefined;
                     return;
                 }
                 this.__data.defaultValueDecimal = valueProvided;
@@ -417,6 +431,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueId = undefined;
                     return;
                 }
                 this.__data.defaultValueId = valueProvided;
@@ -434,6 +449,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueInstant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueInstant = undefined;
                     return;
                 }
                 this.__data.defaultValueInstant = valueProvided;
@@ -451,6 +467,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueInteger = undefined;
                     return;
                 }
                 this.__data.defaultValueInteger = valueProvided;
@@ -468,6 +485,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueMarkdown,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueMarkdown = undefined;
                     return;
                 }
                 this.__data.defaultValueMarkdown = valueProvided;
@@ -485,6 +503,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueOid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueOid = undefined;
                     return;
                 }
                 this.__data.defaultValueOid = valueProvided;
@@ -502,6 +521,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValuePositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValuePositiveInt = undefined;
                     return;
                 }
                 this.__data.defaultValuePositiveInt = valueProvided;
@@ -519,6 +539,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueString = undefined;
                     return;
                 }
                 this.__data.defaultValueString = valueProvided;
@@ -536,6 +557,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueTime = undefined;
                     return;
                 }
                 this.__data.defaultValueTime = valueProvided;
@@ -553,6 +575,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUnsignedInt = undefined;
                     return;
                 }
                 this.__data.defaultValueUnsignedInt = valueProvided;
@@ -570,6 +593,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUri = undefined;
                     return;
                 }
                 this.__data.defaultValueUri = valueProvided;
@@ -587,6 +611,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUrl = undefined;
                     return;
                 }
                 this.__data.defaultValueUrl = valueProvided;
@@ -604,6 +629,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueUuid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUuid = undefined;
                     return;
                 }
                 this.__data.defaultValueUuid = valueProvided;
@@ -621,6 +647,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueAddress,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueAddress = undefined;
                     return;
                 }
                 let Address = require('../complex_types/address.js');
@@ -639,6 +666,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueAge = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -657,6 +685,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueAnnotation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueAnnotation = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
@@ -675,6 +704,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueAttachment = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -693,6 +723,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -711,6 +742,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCoding = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -729,6 +761,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueContactPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueContactPoint = undefined;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -747,6 +780,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueCount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCount = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -765,6 +799,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueDistance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDistance = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -783,6 +818,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -801,6 +837,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueHumanName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueHumanName = undefined;
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
@@ -819,6 +856,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueIdentifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -837,6 +875,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueMoney = undefined;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -855,6 +894,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValuePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValuePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -873,6 +913,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -891,6 +932,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -909,6 +951,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueRatio = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -927,6 +970,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -945,6 +989,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueSampledData,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueSampledData = undefined;
                     return;
                 }
                 let SampledData = require('../complex_types/sampledData.js');
@@ -963,6 +1008,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueSignature = undefined;
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');
@@ -981,6 +1027,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueTiming = undefined;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -999,6 +1046,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueContactDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueContactDetail = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -1017,6 +1065,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueContributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueContributor = undefined;
                     return;
                 }
                 let Contributor = require('../complex_types/contributor.js');
@@ -1035,6 +1084,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDataRequirement = undefined;
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
@@ -1053,6 +1103,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueExpression = undefined;
                     return;
                 }
                 let Expression = require('../complex_types/expression.js');
@@ -1071,6 +1122,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueParameterDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueParameterDefinition = undefined;
                     return;
                 }
                 let ParameterDefinition = require('../complex_types/parameterDefinition.js');
@@ -1089,6 +1141,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueRelatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueRelatedArtifact = undefined;
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
@@ -1107,6 +1160,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueTriggerDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueTriggerDefinition = undefined;
                     return;
                 }
                 let TriggerDefinition = require('../complex_types/triggerDefinition.js');
@@ -1125,6 +1179,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueUsageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUsageContext = undefined;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -1143,6 +1198,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueDosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDosage = undefined;
                     return;
                 }
                 let Dosage = require('../backbone_elements/dosage.js');
@@ -1161,6 +1217,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.defaultValueMeta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueMeta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -1179,6 +1236,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.element,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.element = undefined;
                     return;
                 }
                 this.__data.element = valueProvided;
@@ -1196,6 +1254,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.listMode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.listMode = undefined;
                     return;
                 }
                 this.__data.listMode = valueProvided;
@@ -1213,6 +1272,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.variable,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.variable = undefined;
                     return;
                 }
                 this.__data.variable = valueProvided;
@@ -1230,6 +1290,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.condition = undefined;
                     return;
                 }
                 this.__data.condition = valueProvided;
@@ -1248,6 +1309,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.check,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.check = undefined;
                     return;
                 }
                 this.__data.check = valueProvided;
@@ -1266,6 +1328,7 @@ class StructureMapSource extends Element {
             get: () => this.__data.logMessage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.logMessage = undefined;
                     return;
                 }
                 this.__data.logMessage = valueProvided;

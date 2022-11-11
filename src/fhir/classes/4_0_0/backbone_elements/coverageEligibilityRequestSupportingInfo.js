@@ -46,6 +46,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -67,6 +68,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,6 +99,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -115,6 +118,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sequence = undefined;
                     return;
                 }
                 this.__data.sequence = valueProvided;
@@ -133,6 +137,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             get: () => this.__data.information,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.information = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -152,6 +157,7 @@ class CoverageEligibilityRequestSupportingInfo extends Element {
             get: () => this.__data.appliesToAll,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.appliesToAll = undefined;
                     return;
                 }
                 this.__data.appliesToAll = valueProvided;

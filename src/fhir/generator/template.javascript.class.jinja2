@@ -115,6 +115,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             get: () => this.__data.{{ property.name -}},
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.{{ property.name -}} = undefined;
                     return;
                 }
     {% if property.is_resource %}

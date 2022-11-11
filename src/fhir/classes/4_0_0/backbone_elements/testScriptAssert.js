@@ -81,6 +81,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -102,6 +103,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -132,6 +134,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -150,6 +153,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.label,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.label = undefined;
                     return;
                 }
                 this.__data.label = valueProvided;
@@ -168,6 +172,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -185,6 +190,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.direction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.direction = undefined;
                     return;
                 }
                 this.__data.direction = valueProvided;
@@ -203,6 +209,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.compareToSourceId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.compareToSourceId = undefined;
                     return;
                 }
                 this.__data.compareToSourceId = valueProvided;
@@ -222,6 +229,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.compareToSourceExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.compareToSourceExpression = undefined;
                     return;
                 }
                 this.__data.compareToSourceExpression = valueProvided;
@@ -241,6 +249,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.compareToSourcePath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.compareToSourcePath = undefined;
                     return;
                 }
                 this.__data.compareToSourcePath = valueProvided;
@@ -259,6 +268,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.contentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contentType = undefined;
                     return;
                 }
                 this.__data.contentType = valueProvided;
@@ -277,6 +287,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.expression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.expression = undefined;
                     return;
                 }
                 this.__data.expression = valueProvided;
@@ -294,6 +305,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.headerField,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.headerField = undefined;
                     return;
                 }
                 this.__data.headerField = valueProvided;
@@ -312,6 +324,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.minimumId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minimumId = undefined;
                     return;
                 }
                 this.__data.minimumId = valueProvided;
@@ -330,6 +343,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.navigationLinks,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.navigationLinks = undefined;
                     return;
                 }
                 this.__data.navigationLinks = valueProvided;
@@ -348,6 +362,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.operator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.operator = undefined;
                     return;
                 }
                 this.__data.operator = valueProvided;
@@ -366,6 +381,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.path,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.path = undefined;
                     return;
                 }
                 this.__data.path = valueProvided;
@@ -384,6 +400,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.requestMethod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requestMethod = undefined;
                     return;
                 }
                 this.__data.requestMethod = valueProvided;
@@ -401,6 +418,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.requestURL,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requestURL = undefined;
                     return;
                 }
                 this.__data.requestURL = valueProvided;
@@ -418,6 +436,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.resource = undefined;
                     return;
                 }
                 this.__data.resource = valueProvided;
@@ -436,6 +455,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.response = undefined;
                     return;
                 }
                 this.__data.response = valueProvided;
@@ -453,6 +473,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.responseCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.responseCode = undefined;
                     return;
                 }
                 this.__data.responseCode = valueProvided;
@@ -470,6 +491,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.sourceId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sourceId = undefined;
                     return;
                 }
                 this.__data.sourceId = valueProvided;
@@ -487,6 +509,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.validateProfileId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.validateProfileId = undefined;
                     return;
                 }
                 this.__data.validateProfileId = valueProvided;
@@ -504,6 +527,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.value = undefined;
                     return;
                 }
                 this.__data.value = valueProvided;
@@ -522,6 +546,7 @@ class TestScriptAssert extends Element {
             get: () => this.__data.warningOnly,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.warningOnly = undefined;
                     return;
                 }
                 this.__data.warningOnly = valueProvided;

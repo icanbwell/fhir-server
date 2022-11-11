@@ -55,6 +55,7 @@ class DataRequirement extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,6 +77,7 @@ class DataRequirement extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -95,6 +97,7 @@ class DataRequirement extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -113,6 +116,7 @@ class DataRequirement extends Element {
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.profile = undefined;
                     return;
                 }
                 this.__data.profile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -130,6 +134,7 @@ class DataRequirement extends Element {
             get: () => this.__data.subjectCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subjectCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -148,6 +153,7 @@ class DataRequirement extends Element {
             get: () => this.__data.subjectReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subjectReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -175,6 +181,7 @@ class DataRequirement extends Element {
             get: () => this.__data.mustSupport,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.mustSupport = undefined;
                     return;
                 }
                 this.__data.mustSupport = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -194,6 +201,7 @@ class DataRequirement extends Element {
             get: () => this.__data.codeFilter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.codeFilter = undefined;
                     return;
                 }
                 let DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter.js');
@@ -214,6 +222,7 @@ class DataRequirement extends Element {
             get: () => this.__data.dateFilter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dateFilter = undefined;
                     return;
                 }
                 let DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter.js');
@@ -233,6 +242,7 @@ class DataRequirement extends Element {
             get: () => this.__data.limit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.limit = undefined;
                     return;
                 }
                 this.__data.limit = valueProvided;
@@ -250,6 +260,7 @@ class DataRequirement extends Element {
             get: () => this.__data.sort,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sort = undefined;
                     return;
                 }
                 let DataRequirementSort = require('../complex_types/dataRequirementSort.js');

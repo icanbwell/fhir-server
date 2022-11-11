@@ -44,6 +44,7 @@ class HealthcareServiceAvailableTime extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -65,6 +66,7 @@ class HealthcareServiceAvailableTime extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -95,6 +97,7 @@ class HealthcareServiceAvailableTime extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -114,6 +117,7 @@ class HealthcareServiceAvailableTime extends Element {
             get: () => this.__data.daysOfWeek,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.daysOfWeek = undefined;
                     return;
                 }
                 this.__data.daysOfWeek = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -131,6 +135,7 @@ class HealthcareServiceAvailableTime extends Element {
             get: () => this.__data.allDay,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.allDay = undefined;
                     return;
                 }
                 this.__data.allDay = valueProvided;
@@ -149,6 +154,7 @@ class HealthcareServiceAvailableTime extends Element {
             get: () => this.__data.availableStartTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.availableStartTime = undefined;
                     return;
                 }
                 this.__data.availableStartTime = valueProvided;
@@ -167,6 +173,7 @@ class HealthcareServiceAvailableTime extends Element {
             get: () => this.__data.availableEndTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.availableEndTime = undefined;
                     return;
                 }
                 this.__data.availableEndTime = valueProvided;

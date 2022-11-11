@@ -73,6 +73,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -94,6 +95,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -124,6 +126,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -142,6 +145,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -162,6 +166,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.profile = undefined;
                     return;
                 }
                 this.__data.profile = valueProvided;
@@ -185,6 +190,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.supportedProfile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.supportedProfile = undefined;
                     return;
                 }
                 this.__data.supportedProfile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -202,6 +208,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.documentation = undefined;
                     return;
                 }
                 this.__data.documentation = valueProvided;
@@ -219,6 +226,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.interaction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.interaction = undefined;
                     return;
                 }
                 let CapabilityStatementInteraction = require('../backbone_elements/capabilityStatementInteraction.js');
@@ -242,6 +250,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.versioning,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.versioning = undefined;
                     return;
                 }
                 this.__data.versioning = valueProvided;
@@ -260,6 +269,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.readHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.readHistory = undefined;
                     return;
                 }
                 this.__data.readHistory = valueProvided;
@@ -280,6 +290,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.updateCreate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.updateCreate = undefined;
                     return;
                 }
                 this.__data.updateCreate = valueProvided;
@@ -297,6 +308,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.conditionalCreate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.conditionalCreate = undefined;
                     return;
                 }
                 this.__data.conditionalCreate = valueProvided;
@@ -314,6 +326,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.conditionalRead,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.conditionalRead = undefined;
                     return;
                 }
                 this.__data.conditionalRead = valueProvided;
@@ -331,6 +344,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.conditionalUpdate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.conditionalUpdate = undefined;
                     return;
                 }
                 this.__data.conditionalUpdate = valueProvided;
@@ -348,6 +362,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.conditionalDelete,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.conditionalDelete = undefined;
                     return;
                 }
                 this.__data.conditionalDelete = valueProvided;
@@ -365,6 +380,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.referencePolicy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.referencePolicy = undefined;
                     return;
                 }
                 this.__data.referencePolicy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -382,6 +398,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.searchInclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.searchInclude = undefined;
                     return;
                 }
                 this.__data.searchInclude = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -399,6 +416,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.searchRevInclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.searchRevInclude = undefined;
                     return;
                 }
                 this.__data.searchRevInclude = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -418,6 +436,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.searchParam,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.searchParam = undefined;
                     return;
                 }
                 let CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
@@ -438,6 +457,7 @@ class CapabilityStatementResource extends Element {
             get: () => this.__data.operation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.operation = undefined;
                     return;
                 }
                 let CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');

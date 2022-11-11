@@ -53,6 +53,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -74,6 +75,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,6 +106,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -123,6 +126,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.outcome = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -141,6 +145,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.probabilityDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.probabilityDecimal = undefined;
                     return;
                 }
                 this.__data.probabilityDecimal = valueProvided;
@@ -158,6 +163,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.probabilityRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.probabilityRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -177,6 +183,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.qualitativeRisk,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.qualitativeRisk = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -198,6 +205,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.relativeRisk,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.relativeRisk = undefined;
                     return;
                 }
                 this.__data.relativeRisk = valueProvided;
@@ -215,6 +223,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.whenPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.whenPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -233,6 +242,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.whenRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.whenRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -251,6 +261,7 @@ class RiskAssessmentPrediction extends Element {
             get: () => this.__data.rationale,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.rationale = undefined;
                     return;
                 }
                 this.__data.rationale = valueProvided;

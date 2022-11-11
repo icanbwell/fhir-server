@@ -47,6 +47,7 @@ class ValueSetCompose extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,6 +69,7 @@ class ValueSetCompose extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,6 +100,7 @@ class ValueSetCompose extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,6 +121,7 @@ class ValueSetCompose extends Element {
             get: () => this.__data.lockedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.lockedDate = undefined;
                     return;
                 }
                 this.__data.lockedDate = valueProvided;
@@ -140,6 +144,7 @@ class ValueSetCompose extends Element {
             get: () => this.__data.inactive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.inactive = undefined;
                     return;
                 }
                 this.__data.inactive = valueProvided;
@@ -157,6 +162,7 @@ class ValueSetCompose extends Element {
             get: () => this.__data.include,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.include = undefined;
                     return;
                 }
                 let ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
@@ -176,6 +182,7 @@ class ValueSetCompose extends Element {
             get: () => this.__data.exclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.exclude = undefined;
                     return;
                 }
                 let ValueSetInclude = require('../backbone_elements/valueSetInclude.js');

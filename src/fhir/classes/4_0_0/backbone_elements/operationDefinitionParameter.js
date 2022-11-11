@@ -59,6 +59,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -80,6 +81,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -110,6 +112,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -128,6 +131,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -145,6 +149,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.use,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.use = undefined;
                     return;
                 }
                 this.__data.use = valueProvided;
@@ -163,6 +168,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.min,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.min = undefined;
                     return;
                 }
                 this.__data.min = valueProvided;
@@ -181,6 +187,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.max,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.max = undefined;
                     return;
                 }
                 this.__data.max = valueProvided;
@@ -198,6 +205,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.documentation = undefined;
                     return;
                 }
                 this.__data.documentation = valueProvided;
@@ -215,6 +223,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -239,6 +248,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.targetProfile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.targetProfile = undefined;
                     return;
                 }
                 this.__data.targetProfile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -257,6 +267,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.searchType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.searchType = undefined;
                     return;
                 }
                 this.__data.searchType = valueProvided;
@@ -275,6 +286,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.binding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.binding = undefined;
                     return;
                 }
                 let OperationDefinitionBinding = require('../backbone_elements/operationDefinitionBinding.js');
@@ -294,6 +306,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.referencedFrom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.referencedFrom = undefined;
                     return;
                 }
                 let OperationDefinitionReferencedFrom = require('../backbone_elements/operationDefinitionReferencedFrom.js');
@@ -312,6 +325,7 @@ class OperationDefinitionParameter extends Element {
             get: () => this.__data.part,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.part = undefined;
                     return;
                 }
                 this.__data.part = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new OperationDefinitionParameter(v)) : [new OperationDefinitionParameter(valueProvided)];

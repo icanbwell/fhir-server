@@ -67,6 +67,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -88,6 +89,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,6 +120,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -137,6 +140,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -154,6 +158,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.definitionReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definitionReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -172,6 +177,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.definitionCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definitionCanonical = undefined;
                     return;
                 }
                 this.__data.definitionCanonical = valueProvided;
@@ -189,6 +195,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.definitionCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definitionCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -207,6 +214,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.definitionExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definitionExpression = undefined;
                     return;
                 }
                 let Expression = require('../complex_types/expression.js');
@@ -225,6 +233,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.definitionDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definitionDataRequirement = undefined;
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
@@ -243,6 +252,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.definitionTriggerDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definitionTriggerDefinition = undefined;
                     return;
                 }
                 let TriggerDefinition = require('../complex_types/triggerDefinition.js');
@@ -262,6 +272,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.usageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.usageContext = undefined;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -280,6 +291,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.exclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.exclude = undefined;
                     return;
                 }
                 this.__data.exclude = valueProvided;
@@ -297,6 +309,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.participantEffectiveDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.participantEffectiveDateTime = undefined;
                     return;
                 }
                 this.__data.participantEffectiveDateTime = valueProvided;
@@ -314,6 +327,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.participantEffectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.participantEffectivePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -332,6 +346,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.participantEffectiveDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.participantEffectiveDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -350,6 +365,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.participantEffectiveTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.participantEffectiveTiming = undefined;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -368,6 +384,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.timeFromStart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timeFromStart = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -386,6 +403,7 @@ class EvidenceVariableCharacteristic extends Element {
             get: () => this.__data.groupMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.groupMeasure = undefined;
                     return;
                 }
                 this.__data.groupMeasure = valueProvided;

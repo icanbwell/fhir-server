@@ -85,6 +85,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -104,6 +105,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -125,6 +127,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -142,6 +145,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -164,6 +168,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -184,6 +189,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -215,6 +221,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -245,6 +252,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -263,6 +271,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.target,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.target = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -281,6 +290,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.targetLocation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.targetLocation = undefined;
                     return;
                 }
                 this.__data.targetLocation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -299,6 +309,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.need,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.need = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -318,6 +329,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -335,6 +347,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.statusDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.statusDate = undefined;
                     return;
                 }
                 this.__data.statusDate = valueProvided;
@@ -353,6 +366,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.validationType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.validationType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -372,6 +386,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.validationProcess,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.validationProcess = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -390,6 +405,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.frequency,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.frequency = undefined;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -408,6 +424,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.lastPerformed,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.lastPerformed = undefined;
                     return;
                 }
                 this.__data.lastPerformed = valueProvided;
@@ -425,6 +442,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.nextScheduled,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.nextScheduled = undefined;
                     return;
                 }
                 this.__data.nextScheduled = valueProvided;
@@ -442,6 +460,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.failureAction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.failureAction = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -460,6 +479,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.primarySource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.primarySource = undefined;
                     return;
                 }
                 let VerificationResultPrimarySource = require('../backbone_elements/verificationResultPrimarySource.js');
@@ -478,6 +498,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.attestation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.attestation = undefined;
                     return;
                 }
                 let VerificationResultAttestation = require('../backbone_elements/verificationResultAttestation.js');
@@ -496,6 +517,7 @@ class VerificationResult extends Resource {
             get: () => this.__data.validator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.validator = undefined;
                     return;
                 }
                 let VerificationResultValidator = require('../backbone_elements/verificationResultValidator.js');

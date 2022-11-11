@@ -93,6 +93,7 @@ class Patient extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -112,6 +113,7 @@ class Patient extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -133,6 +135,7 @@ class Patient extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -150,6 +153,7 @@ class Patient extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -172,6 +176,7 @@ class Patient extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -192,6 +197,7 @@ class Patient extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -223,6 +229,7 @@ class Patient extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -253,6 +260,7 @@ class Patient extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -271,6 +279,7 @@ class Patient extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -297,6 +306,7 @@ class Patient extends Resource {
             get: () => this.__data.active,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.active = undefined;
                     return;
                 }
                 this.__data.active = valueProvided;
@@ -314,6 +324,7 @@ class Patient extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = undefined;
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
@@ -333,6 +344,7 @@ class Patient extends Resource {
             get: () => this.__data.telecom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.telecom = undefined;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -352,6 +364,7 @@ class Patient extends Resource {
             get: () => this.__data.gender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.gender = undefined;
                     return;
                 }
                 this.__data.gender = valueProvided;
@@ -369,6 +382,7 @@ class Patient extends Resource {
             get: () => this.__data.birthDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.birthDate = undefined;
                     return;
                 }
                 this.__data.birthDate = valueProvided;
@@ -386,6 +400,7 @@ class Patient extends Resource {
             get: () => this.__data.deceasedBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.deceasedBoolean = undefined;
                     return;
                 }
                 this.__data.deceasedBoolean = valueProvided;
@@ -403,6 +418,7 @@ class Patient extends Resource {
             get: () => this.__data.deceasedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.deceasedDateTime = undefined;
                     return;
                 }
                 this.__data.deceasedDateTime = valueProvided;
@@ -420,6 +436,7 @@ class Patient extends Resource {
             get: () => this.__data.address,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.address = undefined;
                     return;
                 }
                 let Address = require('../complex_types/address.js');
@@ -438,6 +455,7 @@ class Patient extends Resource {
             get: () => this.__data.maritalStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maritalStatus = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -456,6 +474,7 @@ class Patient extends Resource {
             get: () => this.__data.multipleBirthBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.multipleBirthBoolean = undefined;
                     return;
                 }
                 this.__data.multipleBirthBoolean = valueProvided;
@@ -473,6 +492,7 @@ class Patient extends Resource {
             get: () => this.__data.multipleBirthInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.multipleBirthInteger = undefined;
                     return;
                 }
                 this.__data.multipleBirthInteger = valueProvided;
@@ -490,6 +510,7 @@ class Patient extends Resource {
             get: () => this.__data.photo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.photo = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -508,6 +529,7 @@ class Patient extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contact = undefined;
                     return;
                 }
                 let PatientContact = require('../backbone_elements/patientContact.js');
@@ -527,6 +549,7 @@ class Patient extends Resource {
             get: () => this.__data.communication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.communication = undefined;
                     return;
                 }
                 let PatientCommunication = require('../backbone_elements/patientCommunication.js');
@@ -545,6 +568,7 @@ class Patient extends Resource {
             get: () => this.__data.generalPractitioner,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.generalPractitioner = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -563,6 +587,7 @@ class Patient extends Resource {
             get: () => this.__data.managingOrganization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.managingOrganization = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -581,6 +606,7 @@ class Patient extends Resource {
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.link = undefined;
                     return;
                 }
                 let PatientLink = require('../backbone_elements/patientLink.js');

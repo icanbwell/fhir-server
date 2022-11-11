@@ -47,6 +47,7 @@ class CapabilityStatementMessaging extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,6 +69,7 @@ class CapabilityStatementMessaging extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,6 +100,7 @@ class CapabilityStatementMessaging extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,6 +120,7 @@ class CapabilityStatementMessaging extends Element {
             get: () => this.__data.endpoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.endpoint = undefined;
                     return;
                 }
                 let CapabilityStatementEndpoint = require('../backbone_elements/capabilityStatementEndpoint.js');
@@ -136,6 +140,7 @@ class CapabilityStatementMessaging extends Element {
             get: () => this.__data.reliableCache,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reliableCache = undefined;
                     return;
                 }
                 this.__data.reliableCache = valueProvided;
@@ -155,6 +160,7 @@ class CapabilityStatementMessaging extends Element {
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.documentation = undefined;
                     return;
                 }
                 this.__data.documentation = valueProvided;
@@ -173,6 +179,7 @@ class CapabilityStatementMessaging extends Element {
             get: () => this.__data.supportedMessage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.supportedMessage = undefined;
                     return;
                 }
                 let CapabilityStatementSupportedMessage = require('../backbone_elements/capabilityStatementSupportedMessage.js');

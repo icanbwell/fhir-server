@@ -59,6 +59,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -80,6 +81,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -110,6 +112,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -131,6 +134,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.subunit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subunit = undefined;
                     return;
                 }
                 this.__data.subunit = valueProvided;
@@ -154,6 +158,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sequence = undefined;
                     return;
                 }
                 this.__data.sequence = valueProvided;
@@ -171,6 +176,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.length,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.length = undefined;
                     return;
                 }
                 this.__data.length = valueProvided;
@@ -194,6 +200,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.sequenceAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sequenceAttachment = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -213,6 +220,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.nTerminalModificationId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.nTerminalModificationId = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -232,6 +240,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.nTerminalModification,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.nTerminalModification = undefined;
                     return;
                 }
                 this.__data.nTerminalModification = valueProvided;
@@ -250,6 +259,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.cTerminalModificationId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.cTerminalModificationId = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -268,6 +278,7 @@ class SubstanceProteinSubunit extends Element {
             get: () => this.__data.cTerminalModification,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.cTerminalModification = undefined;
                     return;
                 }
                 this.__data.cTerminalModification = valueProvided;

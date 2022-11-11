@@ -180,7 +180,7 @@ class GraphHelper {
                 });
             const references = propertiesForEntity
                 .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                .filter(r => r !== undefined);
+                .filter(r => r !== undefined && r !== null);
 
             if (references && references.length > 0) { // if it has a 'reference' property then it is a reference
                 return true; // we assume that if one entity has it then all entities can since they are of same type
@@ -225,7 +225,7 @@ class GraphHelper {
             const relatedReferences = parentEntities.flatMap(p =>
                 this.getPropertiesForEntity({entity: p, property})
                     .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                    .filter(r => r !== undefined)
+                    .filter(r => r !== undefined && r !== null)
             );
             // select just the ids from those reference properties
             // noinspection JSCheckFunctionSignatures
@@ -315,7 +315,7 @@ class GraphHelper {
                         p => (
                             this.getPropertiesForEntity({entity: p, property})
                                 .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                                .filter(r => r !== undefined)
+                                .filter(r => r !== undefined && r !== null)
                                 .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
                         )
                     );
@@ -391,7 +391,7 @@ class GraphHelper {
             }
             // create comma separated list of ids
             const parentResourceTypeAndIdList = parentEntities
-                .filter(p => p.entityId !== undefined)
+                .filter(p => p.entityId !== undefined && p.entityId !== null)
                 .map(p => `${p.resource.resourceType}/${p.entityId}`);
             if (parentResourceTypeAndIdList.length === 0) {
                 return;
@@ -1187,7 +1187,7 @@ class GraphHelper {
                  */
                 const relatedEntities = related_entries
                     .flatMap(r => this.getRecursiveContainedEntities(r))
-                    .filter(r => r.resource !== undefined);
+                    .filter(r => r.resource !== undefined && r.resource !== null);
                 if (contained) {
                     if (relatedEntities.length > 0) {
                         topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);

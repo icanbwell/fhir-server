@@ -50,6 +50,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,6 +123,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.presentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.presentation = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -140,6 +144,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.presentationLowLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.presentationLowLimit = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -158,6 +163,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.concentration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.concentration = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -177,6 +183,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.concentrationLowLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.concentrationLowLimit = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -195,6 +202,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.measurementPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.measurementPoint = undefined;
                     return;
                 }
                 this.__data.measurementPoint = valueProvided;
@@ -212,6 +220,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.country,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.country = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -230,6 +239,7 @@ class MedicinalProductIngredientStrength extends Element {
             get: () => this.__data.referenceStrength,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.referenceStrength = undefined;
                     return;
                 }
                 let MedicinalProductIngredientReferenceStrength = require('../backbone_elements/medicinalProductIngredientReferenceStrength.js');

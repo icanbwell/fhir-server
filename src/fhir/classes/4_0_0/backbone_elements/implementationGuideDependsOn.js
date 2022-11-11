@@ -45,6 +45,7 @@ class ImplementationGuideDependsOn extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,6 +67,7 @@ class ImplementationGuideDependsOn extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -96,6 +98,7 @@ class ImplementationGuideDependsOn extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -114,6 +117,7 @@ class ImplementationGuideDependsOn extends Element {
             get: () => this.__data.uri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.uri = undefined;
                     return;
                 }
                 this.__data.uri = valueProvided;
@@ -131,6 +135,7 @@ class ImplementationGuideDependsOn extends Element {
             get: () => this.__data.packageId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.packageId = undefined;
                     return;
                 }
                 this.__data.packageId = valueProvided;
@@ -149,6 +154,7 @@ class ImplementationGuideDependsOn extends Element {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.version = undefined;
                     return;
                 }
                 this.__data.version = valueProvided;

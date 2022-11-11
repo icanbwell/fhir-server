@@ -46,6 +46,7 @@ class MolecularSequenceStructureVariant extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -67,6 +68,7 @@ class MolecularSequenceStructureVariant extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,6 +99,7 @@ class MolecularSequenceStructureVariant extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -115,6 +118,7 @@ class MolecularSequenceStructureVariant extends Element {
             get: () => this.__data.variantType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.variantType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -134,6 +138,7 @@ class MolecularSequenceStructureVariant extends Element {
             get: () => this.__data.exact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.exact = undefined;
                     return;
                 }
                 this.__data.exact = valueProvided;
@@ -151,6 +156,7 @@ class MolecularSequenceStructureVariant extends Element {
             get: () => this.__data.length,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.length = undefined;
                     return;
                 }
                 this.__data.length = valueProvided;
@@ -168,6 +174,7 @@ class MolecularSequenceStructureVariant extends Element {
             get: () => this.__data.outer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.outer = undefined;
                     return;
                 }
                 let MolecularSequenceOuter = require('../backbone_elements/molecularSequenceOuter.js');
@@ -186,6 +193,7 @@ class MolecularSequenceStructureVariant extends Element {
             get: () => this.__data.inner,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.inner = undefined;
                     return;
                 }
                 let MolecularSequenceInner = require('../backbone_elements/molecularSequenceInner.js');

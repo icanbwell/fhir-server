@@ -50,6 +50,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,6 +122,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -139,6 +143,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.firstDose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.firstDose = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -159,6 +164,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.maxSingleDose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxSingleDose = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -179,6 +185,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.maxDosePerDay,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxDosePerDay = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -198,6 +205,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.maxDosePerTreatmentPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxDosePerTreatmentPeriod = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -218,6 +226,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.maxTreatmentPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxTreatmentPeriod = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -236,6 +245,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             get: () => this.__data.targetSpecies,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.targetSpecies = undefined;
                     return;
                 }
                 let MedicinalProductPharmaceuticalTargetSpecies = require('../backbone_elements/medicinalProductPharmaceuticalTargetSpecies.js');

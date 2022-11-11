@@ -53,6 +53,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -74,6 +75,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,6 +106,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,6 +125,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.context = undefined;
                     return;
                 }
                 this.__data.context = valueProvided;
@@ -139,6 +143,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.contextType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contextType = undefined;
                     return;
                 }
                 this.__data.contextType = valueProvided;
@@ -156,6 +161,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.element,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.element = undefined;
                     return;
                 }
                 this.__data.element = valueProvided;
@@ -173,6 +179,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.variable,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.variable = undefined;
                     return;
                 }
                 this.__data.variable = valueProvided;
@@ -190,6 +197,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.listMode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.listMode = undefined;
                     return;
                 }
                 this.__data.listMode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -207,6 +215,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.listRuleId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.listRuleId = undefined;
                     return;
                 }
                 this.__data.listRuleId = valueProvided;
@@ -224,6 +233,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.transform,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.transform = undefined;
                     return;
                 }
                 this.__data.transform = valueProvided;
@@ -241,6 +251,7 @@ class StructureMapTarget extends Element {
             get: () => this.__data.parameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.parameter = undefined;
                     return;
                 }
                 let StructureMapParameter = require('../backbone_elements/structureMapParameter.js');

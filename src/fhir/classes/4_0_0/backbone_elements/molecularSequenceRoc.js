@@ -50,6 +50,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,6 +122,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.score,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.score = undefined;
                     return;
                 }
                 this.__data.score = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -137,6 +141,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.numTP,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.numTP = undefined;
                     return;
                 }
                 this.__data.numTP = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -155,6 +160,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.numFP,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.numFP = undefined;
                     return;
                 }
                 this.__data.numFP = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -173,6 +179,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.numFN,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.numFN = undefined;
                     return;
                 }
                 this.__data.numFN = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -190,6 +197,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.precision,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.precision = undefined;
                     return;
                 }
                 this.__data.precision = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -208,6 +216,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.sensitivity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sensitivity = undefined;
                     return;
                 }
                 this.__data.sensitivity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -225,6 +234,7 @@ class MolecularSequenceRoc extends Element {
             get: () => this.__data.fMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fMeasure = undefined;
                     return;
                 }
                 this.__data.fMeasure = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

@@ -55,6 +55,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,6 +77,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -106,6 +108,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -126,6 +129,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.subunit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subunit = undefined;
                     return;
                 }
                 this.__data.subunit = valueProvided;
@@ -145,6 +149,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sequence = undefined;
                     return;
                 }
                 this.__data.sequence = valueProvided;
@@ -162,6 +167,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.length,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.length = undefined;
                     return;
                 }
                 this.__data.length = valueProvided;
@@ -179,6 +185,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.sequenceAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sequenceAttachment = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -200,6 +207,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.fivePrime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fivePrime = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -221,6 +229,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.threePrime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.threePrime = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -239,6 +248,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.linkage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.linkage = undefined;
                     return;
                 }
                 let SubstanceNucleicAcidLinkage = require('../backbone_elements/substanceNucleicAcidLinkage.js');
@@ -257,6 +267,7 @@ class SubstanceNucleicAcidSubunit extends Element {
             get: () => this.__data.sugar,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sugar = undefined;
                     return;
                 }
                 let SubstanceNucleicAcidSugar = require('../backbone_elements/substanceNucleicAcidSugar.js');

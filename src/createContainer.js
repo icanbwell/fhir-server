@@ -70,6 +70,7 @@ const {UuidColumnHandler} = require('./preSaveHandlers/handlers/uuidColumnHandle
 const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
+const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
 
 /**
  * Creates a container and sets up all the services
@@ -516,6 +517,11 @@ const createContainer = function () {
             accessIndexManager: c.accessIndexManager,
             fhirTypesManager: c.fhirTypesManager
         }));
+
+    container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
+        databaseQueryFactory: c.databaseQueryFactory,
+        databaseUpdateFactory: c.databaseUpdateFactory
+    }));
 
     return container;
 };

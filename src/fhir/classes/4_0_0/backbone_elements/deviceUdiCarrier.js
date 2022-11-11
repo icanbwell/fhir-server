@@ -50,6 +50,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,6 +123,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.deviceIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.deviceIdentifier = undefined;
                     return;
                 }
                 this.__data.deviceIdentifier = valueProvided;
@@ -146,6 +150,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.issuer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.issuer = undefined;
                     return;
                 }
                 this.__data.issuer = valueProvided;
@@ -167,6 +172,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.jurisdiction = undefined;
                     return;
                 }
                 this.__data.jurisdiction = valueProvided;
@@ -188,6 +194,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.carrierAIDC,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.carrierAIDC = undefined;
                     return;
                 }
                 this.__data.carrierAIDC = valueProvided;
@@ -206,6 +213,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.carrierHRF,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.carrierHRF = undefined;
                     return;
                 }
                 this.__data.carrierHRF = valueProvided;
@@ -223,6 +231,7 @@ class DeviceUdiCarrier extends Element {
             get: () => this.__data.entryType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.entryType = undefined;
                     return;
                 }
                 this.__data.entryType = valueProvided;

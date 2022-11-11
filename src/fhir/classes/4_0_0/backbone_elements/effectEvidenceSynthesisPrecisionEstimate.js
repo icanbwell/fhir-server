@@ -46,6 +46,7 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -67,6 +68,7 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,6 +99,7 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -115,6 +118,7 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -133,6 +137,7 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             get: () => this.__data.level,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.level = undefined;
                     return;
                 }
                 this.__data.level = valueProvided;
@@ -150,6 +155,7 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             get: () => this.__data.from,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.from = undefined;
                     return;
                 }
                 this.__data.from = valueProvided;
@@ -167,6 +173,7 @@ class EffectEvidenceSynthesisPrecisionEstimate extends Element {
             get: () => this.__data.to,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.to = undefined;
                     return;
                 }
                 this.__data.to = valueProvided;

@@ -48,6 +48,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -69,6 +70,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,6 +101,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,6 +121,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.start,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.start = undefined;
                     return;
                 }
                 this.__data.start = valueProvided;
@@ -138,6 +142,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.end,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.end = undefined;
                     return;
                 }
                 this.__data.end = valueProvided;
@@ -160,6 +165,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.observedAllele,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.observedAllele = undefined;
                     return;
                 }
                 this.__data.observedAllele = valueProvided;
@@ -182,6 +188,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.referenceAllele,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.referenceAllele = undefined;
                     return;
                 }
                 this.__data.referenceAllele = valueProvided;
@@ -202,6 +209,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.cigar,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.cigar = undefined;
                     return;
                 }
                 this.__data.cigar = valueProvided;
@@ -219,6 +227,7 @@ class MolecularSequenceVariant extends Element {
             get: () => this.__data.variantPointer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.variantPointer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

@@ -70,6 +70,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -91,6 +92,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -121,6 +123,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -140,6 +143,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.linkId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.linkId = undefined;
                     return;
                 }
                 this.__data.linkId = valueProvided;
@@ -171,6 +175,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definition = undefined;
                     return;
                 }
                 this.__data.definition = valueProvided;
@@ -189,6 +194,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -209,6 +215,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.prefix,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.prefix = undefined;
                     return;
                 }
                 this.__data.prefix = valueProvided;
@@ -227,6 +234,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = undefined;
                     return;
                 }
                 this.__data.text = valueProvided;
@@ -246,6 +254,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -264,6 +273,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.enableWhen,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.enableWhen = undefined;
                     return;
                 }
                 let QuestionnaireEnableWhen = require('../backbone_elements/questionnaireEnableWhen.js');
@@ -283,6 +293,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.enableBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.enableBehavior = undefined;
                     return;
                 }
                 this.__data.enableBehavior = valueProvided;
@@ -302,6 +313,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.required,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.required = undefined;
                     return;
                 }
                 this.__data.required = valueProvided;
@@ -321,6 +333,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.repeats,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.repeats = undefined;
                     return;
                 }
                 this.__data.repeats = valueProvided;
@@ -339,6 +352,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.readOnly,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.readOnly = undefined;
                     return;
                 }
                 this.__data.readOnly = valueProvided;
@@ -357,6 +371,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.maxLength,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxLength = undefined;
                     return;
                 }
                 this.__data.maxLength = valueProvided;
@@ -375,6 +390,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.answerValueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.answerValueSet = undefined;
                     return;
                 }
                 this.__data.answerValueSet = valueProvided;
@@ -392,6 +408,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.answerOption,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.answerOption = undefined;
                     return;
                 }
                 let QuestionnaireAnswerOption = require('../backbone_elements/questionnaireAnswerOption.js');
@@ -411,6 +428,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.initial,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.initial = undefined;
                     return;
                 }
                 let QuestionnaireInitial = require('../backbone_elements/questionnaireInitial.js');
@@ -429,6 +447,7 @@ class QuestionnaireItem extends Element {
             get: () => this.__data.item,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.item = undefined;
                     return;
                 }
                 this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireItem(v)) : [new QuestionnaireItem(valueProvided)];

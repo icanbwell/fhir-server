@@ -49,6 +49,22 @@ class DatabaseUpdateManager {
             });
         }
     }
+
+    /**
+     * Inserts a resource into the database
+     * @param {Resource} doc
+     * @return {Promise<void>}
+     */
+    async replaceOneAsync({doc}) {
+        try {
+            const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+            await collection.replaceOne({id: doc.id}, doc.toJSONInternal());
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
+    }
 }
 
 module.exports = {

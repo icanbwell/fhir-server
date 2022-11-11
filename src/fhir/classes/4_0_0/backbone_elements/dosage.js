@@ -66,6 +66,7 @@ class Dosage extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -87,6 +88,7 @@ class Dosage extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,6 +119,7 @@ class Dosage extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -136,6 +139,7 @@ class Dosage extends Element {
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sequence = undefined;
                     return;
                 }
                 this.__data.sequence = valueProvided;
@@ -153,6 +157,7 @@ class Dosage extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = undefined;
                     return;
                 }
                 this.__data.text = valueProvided;
@@ -173,6 +178,7 @@ class Dosage extends Element {
             get: () => this.__data.additionalInstruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.additionalInstruction = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -191,6 +197,7 @@ class Dosage extends Element {
             get: () => this.__data.patientInstruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patientInstruction = undefined;
                     return;
                 }
                 this.__data.patientInstruction = valueProvided;
@@ -208,6 +215,7 @@ class Dosage extends Element {
             get: () => this.__data.timing,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timing = undefined;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -226,6 +234,7 @@ class Dosage extends Element {
             get: () => this.__data.asNeededBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.asNeededBoolean = undefined;
                     return;
                 }
                 this.__data.asNeededBoolean = valueProvided;
@@ -243,6 +252,7 @@ class Dosage extends Element {
             get: () => this.__data.asNeededCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.asNeededCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -261,6 +271,7 @@ class Dosage extends Element {
             get: () => this.__data.site,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.site = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -279,6 +290,7 @@ class Dosage extends Element {
             get: () => this.__data.route,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.route = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -297,6 +309,7 @@ class Dosage extends Element {
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.method = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -315,6 +328,7 @@ class Dosage extends Element {
             get: () => this.__data.doseAndRate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.doseAndRate = undefined;
                     return;
                 }
                 let DosageDoseAndRate = require('../backbone_elements/dosageDoseAndRate.js');
@@ -333,6 +347,7 @@ class Dosage extends Element {
             get: () => this.__data.maxDosePerPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxDosePerPeriod = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -351,6 +366,7 @@ class Dosage extends Element {
             get: () => this.__data.maxDosePerAdministration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxDosePerAdministration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -369,6 +385,7 @@ class Dosage extends Element {
             get: () => this.__data.maxDosePerLifetime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxDosePerLifetime = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

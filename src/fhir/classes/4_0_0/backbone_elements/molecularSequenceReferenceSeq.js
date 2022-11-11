@@ -54,6 +54,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -75,6 +76,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -105,6 +107,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -126,6 +129,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.chromosome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.chromosome = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -146,6 +150,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.genomeBuild,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.genomeBuild = undefined;
                     return;
                 }
                 this.__data.genomeBuild = valueProvided;
@@ -165,6 +170,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.orientation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.orientation = undefined;
                     return;
                 }
                 this.__data.orientation = valueProvided;
@@ -185,6 +191,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.referenceSeqId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.referenceSeqId = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -203,6 +210,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.referenceSeqPointer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.referenceSeqPointer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -221,6 +229,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.referenceSeqString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.referenceSeqString = undefined;
                     return;
                 }
                 this.__data.referenceSeqString = valueProvided;
@@ -240,6 +249,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.strand,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.strand = undefined;
                     return;
                 }
                 this.__data.strand = valueProvided;
@@ -258,6 +268,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.windowStart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.windowStart = undefined;
                     return;
                 }
                 this.__data.windowStart = valueProvided;
@@ -278,6 +289,7 @@ class MolecularSequenceReferenceSeq extends Element {
             get: () => this.__data.windowEnd,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.windowEnd = undefined;
                     return;
                 }
                 this.__data.windowEnd = valueProvided;

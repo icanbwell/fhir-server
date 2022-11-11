@@ -85,6 +85,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -106,6 +107,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -136,6 +138,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -154,6 +157,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.prefix,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.prefix = undefined;
                     return;
                 }
                 this.__data.prefix = valueProvided;
@@ -171,6 +175,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.title = undefined;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -189,6 +194,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -208,6 +214,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.textEquivalent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.textEquivalent = undefined;
                     return;
                 }
                 this.__data.textEquivalent = valueProvided;
@@ -226,6 +233,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.priority = undefined;
                     return;
                 }
                 this.__data.priority = valueProvided;
@@ -244,6 +252,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -264,6 +273,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.documentation = undefined;
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
@@ -283,6 +293,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.condition = undefined;
                     return;
                 }
                 let RequestGroupCondition = require('../backbone_elements/requestGroupCondition.js');
@@ -302,6 +313,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.relatedAction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.relatedAction = undefined;
                     return;
                 }
                 let RequestGroupRelatedAction = require('../backbone_elements/requestGroupRelatedAction.js');
@@ -320,6 +332,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.timingDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingDateTime = undefined;
                     return;
                 }
                 this.__data.timingDateTime = valueProvided;
@@ -337,6 +350,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.timingAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingAge = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -355,6 +369,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.timingPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -373,6 +388,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.timingDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -391,6 +407,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.timingRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -409,6 +426,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.timingTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingTiming = undefined;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -427,6 +445,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.participant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.participant = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -445,6 +464,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -463,6 +483,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.groupingBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.groupingBehavior = undefined;
                     return;
                 }
                 this.__data.groupingBehavior = valueProvided;
@@ -480,6 +501,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.selectionBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.selectionBehavior = undefined;
                     return;
                 }
                 this.__data.selectionBehavior = valueProvided;
@@ -497,6 +519,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.requiredBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requiredBehavior = undefined;
                     return;
                 }
                 this.__data.requiredBehavior = valueProvided;
@@ -514,6 +537,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.precheckBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.precheckBehavior = undefined;
                     return;
                 }
                 this.__data.precheckBehavior = valueProvided;
@@ -531,6 +555,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.cardinalityBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.cardinalityBehavior = undefined;
                     return;
                 }
                 this.__data.cardinalityBehavior = valueProvided;
@@ -548,6 +573,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.resource = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -566,6 +592,7 @@ class RequestGroupAction extends Element {
             get: () => this.__data.action,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.action = undefined;
                     return;
                 }
                 this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RequestGroupAction(v)) : [new RequestGroupAction(valueProvided)];

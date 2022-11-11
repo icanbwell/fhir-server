@@ -49,6 +49,7 @@ class ImplementationGuideDefinition extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,6 +71,7 @@ class ImplementationGuideDefinition extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -100,6 +102,7 @@ class ImplementationGuideDefinition extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,6 +121,7 @@ class ImplementationGuideDefinition extends Element {
             get: () => this.__data.grouping,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.grouping = undefined;
                     return;
                 }
                 let ImplementationGuideGrouping = require('../backbone_elements/implementationGuideGrouping.js');
@@ -139,6 +143,7 @@ class ImplementationGuideDefinition extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.resource = undefined;
                     return;
                 }
                 let ImplementationGuideResource = require('../backbone_elements/implementationGuideResource.js');
@@ -158,6 +163,7 @@ class ImplementationGuideDefinition extends Element {
             get: () => this.__data.page,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.page = undefined;
                     return;
                 }
                 let ImplementationGuidePage = require('../backbone_elements/implementationGuidePage.js');
@@ -176,6 +182,7 @@ class ImplementationGuideDefinition extends Element {
             get: () => this.__data.parameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.parameter = undefined;
                     return;
                 }
                 let ImplementationGuideParameter = require('../backbone_elements/implementationGuideParameter.js');
@@ -194,6 +201,7 @@ class ImplementationGuideDefinition extends Element {
             get: () => this.__data.template,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.template = undefined;
                     return;
                 }
                 let ImplementationGuideTemplate = require('../backbone_elements/implementationGuideTemplate.js');
