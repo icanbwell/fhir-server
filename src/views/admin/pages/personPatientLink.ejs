@@ -5,8 +5,8 @@
 </head>
 <body class="container-fluid p-0">
 <main>
-    <h3>Show Link Hierarchy from b.well Person</h3>
-
+    <h3>Show Link Graph from b.well Person</h3>
+    <h6>See linked Person and Patient resources from a b.well Person (recursive)</h6>
     <form
             class="search-form ps-3"
             action="/admin/showPersonToPersonLink"
@@ -27,6 +27,7 @@
     </form>
     <hr>
     <h3>Create Person to Person Link</h3>
+    <h6>Add a link from one Person resource to another Person resource</h6>
     <form
             class="search-form ps-3"
             action="/admin/createPersonToPersonLink"
@@ -55,6 +56,7 @@
     </form>
     <hr>
     <h3>Remove Person to Person Link</h3>
+    <h6>Remove a link from one Person resource to another Person resource</h6>
     <form
             class="search-form ps-3"
             action="/admin/removePersonToPersonLink"
@@ -84,6 +86,8 @@
 
     <hr>
     <h3>Create Person to Patient Link</h3>
+    <h6>Create a link from one Person resource to a Patient resource.  Leave Source Person blank to create a new Person resource with same meta tags as the Patient resource</h6>
+
     <form
             class="search-form ps-3"
             action="/admin/createPersonToPatientLink"
