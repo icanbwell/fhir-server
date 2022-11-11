@@ -103,7 +103,7 @@ class Media extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -123,7 +123,7 @@ class Media extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -145,7 +145,7 @@ class Media extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -163,7 +163,7 @@ class Media extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -186,7 +186,7 @@ class Media extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -207,7 +207,7 @@ class Media extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -239,7 +239,7 @@ class Media extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -270,7 +270,7 @@ class Media extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -291,7 +291,7 @@ class Media extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -311,7 +311,7 @@ class Media extends Resource {
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.basedOn = null;
+                    this.__data.basedOn = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -330,7 +330,7 @@ class Media extends Resource {
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.partOf = null;
+                    this.__data.partOf = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -349,7 +349,7 @@ class Media extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -368,7 +368,7 @@ class Media extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -389,7 +389,7 @@ class Media extends Resource {
             get: () => this.__data.modality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modality = null;
+                    this.__data.modality = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -408,7 +408,7 @@ class Media extends Resource {
             get: () => this.__data.view,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.view = null;
+                    this.__data.view = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -427,7 +427,7 @@ class Media extends Resource {
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subject = null;
+                    this.__data.subject = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -446,7 +446,7 @@ class Media extends Resource {
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.encounter = null;
+                    this.__data.encounter = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -465,7 +465,7 @@ class Media extends Resource {
             get: () => this.__data.createdDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.createdDateTime = null;
+                    this.__data.createdDateTime = undefined;
                     return;
                 }
                 this.__data.createdDateTime = valueProvided;
@@ -483,7 +483,7 @@ class Media extends Resource {
             get: () => this.__data.createdPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.createdPeriod = null;
+                    this.__data.createdPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -503,7 +503,7 @@ class Media extends Resource {
             get: () => this.__data.issued,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.issued = null;
+                    this.__data.issued = undefined;
                     return;
                 }
                 this.__data.issued = valueProvided;
@@ -521,7 +521,7 @@ class Media extends Resource {
             get: () => this.__data.operator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.operator = null;
+                    this.__data.operator = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -540,7 +540,7 @@ class Media extends Resource {
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.reasonCode = null;
+                    this.__data.reasonCode = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -560,7 +560,7 @@ class Media extends Resource {
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.bodySite = null;
+                    this.__data.bodySite = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -580,7 +580,7 @@ class Media extends Resource {
             get: () => this.__data.deviceName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.deviceName = null;
+                    this.__data.deviceName = undefined;
                     return;
                 }
                 this.__data.deviceName = valueProvided;
@@ -598,7 +598,7 @@ class Media extends Resource {
             get: () => this.__data.device,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.device = null;
+                    this.__data.device = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -617,7 +617,7 @@ class Media extends Resource {
             get: () => this.__data.height,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.height = null;
+                    this.__data.height = undefined;
                     return;
                 }
                 this.__data.height = valueProvided;
@@ -635,7 +635,7 @@ class Media extends Resource {
             get: () => this.__data.width,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.width = null;
+                    this.__data.width = undefined;
                     return;
                 }
                 this.__data.width = valueProvided;
@@ -657,7 +657,7 @@ class Media extends Resource {
             get: () => this.__data.frames,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.frames = null;
+                    this.__data.frames = undefined;
                     return;
                 }
                 this.__data.frames = valueProvided;
@@ -675,7 +675,7 @@ class Media extends Resource {
             get: () => this.__data.duration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.duration = null;
+                    this.__data.duration = undefined;
                     return;
                 }
                 this.__data.duration = valueProvided;
@@ -694,7 +694,7 @@ class Media extends Resource {
             get: () => this.__data.content,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.content = null;
+                    this.__data.content = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -713,7 +713,7 @@ class Media extends Resource {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = null;
+                    this.__data.note = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');

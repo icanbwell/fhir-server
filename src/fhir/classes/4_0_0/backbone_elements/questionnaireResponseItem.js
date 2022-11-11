@@ -48,7 +48,7 @@ class QuestionnaireResponseItem extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,7 +70,7 @@ class QuestionnaireResponseItem extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,7 +101,7 @@ class QuestionnaireResponseItem extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -121,7 +121,7 @@ class QuestionnaireResponseItem extends Element {
             get: () => this.__data.linkId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.linkId = null;
+                    this.__data.linkId = undefined;
                     return;
                 }
                 this.__data.linkId = valueProvided;
@@ -140,7 +140,7 @@ class QuestionnaireResponseItem extends Element {
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definition = null;
+                    this.__data.definition = undefined;
                     return;
                 }
                 this.__data.definition = valueProvided;
@@ -159,7 +159,7 @@ class QuestionnaireResponseItem extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 this.__data.text = valueProvided;
@@ -177,7 +177,7 @@ class QuestionnaireResponseItem extends Element {
             get: () => this.__data.answer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answer = null;
+                    this.__data.answer = undefined;
                     return;
                 }
                 let QuestionnaireResponseAnswer = require('../backbone_elements/questionnaireResponseAnswer.js');
@@ -196,7 +196,7 @@ class QuestionnaireResponseItem extends Element {
             get: () => this.__data.item,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.item = null;
+                    this.__data.item = undefined;
                     return;
                 }
                 this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireResponseItem(v)) : [new QuestionnaireResponseItem(valueProvided)];

@@ -52,7 +52,7 @@ class Attachment extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -74,7 +74,7 @@ class Attachment extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -95,7 +95,7 @@ class Attachment extends Element {
             get: () => this.__data.contentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contentType = null;
+                    this.__data.contentType = undefined;
                     return;
                 }
                 this.__data.contentType = valueProvided;
@@ -114,7 +114,7 @@ class Attachment extends Element {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -132,7 +132,7 @@ class Attachment extends Element {
             get: () => this.__data.data,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.data = null;
+                    this.__data.data = undefined;
                     return;
                 }
                 this.__data.data = valueProvided;
@@ -150,7 +150,7 @@ class Attachment extends Element {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -169,7 +169,7 @@ class Attachment extends Element {
             get: () => this.__data.size,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.size = null;
+                    this.__data.size = undefined;
                     return;
                 }
                 this.__data.size = valueProvided;
@@ -187,7 +187,7 @@ class Attachment extends Element {
             get: () => this.__data.hash,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.hash = null;
+                    this.__data.hash = undefined;
                     return;
                 }
                 this.__data.hash = valueProvided;
@@ -205,7 +205,7 @@ class Attachment extends Element {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.title = null;
+                    this.__data.title = undefined;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -223,7 +223,7 @@ class Attachment extends Element {
             get: () => this.__data.creation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.creation = null;
+                    this.__data.creation = undefined;
                     return;
                 }
                 this.__data.creation = valueProvided;

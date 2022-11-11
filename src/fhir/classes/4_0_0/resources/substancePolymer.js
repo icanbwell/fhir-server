@@ -68,7 +68,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -88,7 +88,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -110,7 +110,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -128,7 +128,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -151,7 +151,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -172,7 +172,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -204,7 +204,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -235,7 +235,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -254,7 +254,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.class,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.class = null;
+                    this.__data.class = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -273,7 +273,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.geometry,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.geometry = null;
+                    this.__data.geometry = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -292,7 +292,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.copolymerConnectivity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.copolymerConnectivity = null;
+                    this.__data.copolymerConnectivity = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -311,7 +311,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.modification,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modification = null;
+                    this.__data.modification = undefined;
                     return;
                 }
                 this.__data.modification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -329,7 +329,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.monomerSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.monomerSet = null;
+                    this.__data.monomerSet = undefined;
                     return;
                 }
                 let SubstancePolymerMonomerSet = require('../backbone_elements/substancePolymerMonomerSet.js');
@@ -348,7 +348,7 @@ class SubstancePolymer extends Resource {
             get: () => this.__data.repeat,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.repeat = null;
+                    this.__data.repeat = undefined;
                     return;
                 }
                 let SubstancePolymerRepeat = require('../backbone_elements/substancePolymerRepeat.js');

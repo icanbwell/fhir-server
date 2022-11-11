@@ -57,7 +57,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -79,7 +79,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -110,7 +110,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -129,7 +129,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -148,7 +148,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.predecessor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.predecessor = null;
+                    this.__data.predecessor = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -167,7 +167,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -186,7 +186,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.request = null;
+                    this.__data.request = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -205,7 +205,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.submitter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.submitter = null;
+                    this.__data.submitter = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -224,7 +224,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.response = null;
+                    this.__data.response = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -243,7 +243,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.date = null;
+                    this.__data.date = undefined;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -262,7 +262,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.responsible,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.responsible = null;
+                    this.__data.responsible = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -281,7 +281,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.payee,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.payee = null;
+                    this.__data.payee = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -300,7 +300,7 @@ class PaymentReconciliationDetail extends Element {
             get: () => this.__data.amount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amount = null;
+                    this.__data.amount = undefined;
                     return;
                 }
                 let Money = require('../complex_types/money.js');

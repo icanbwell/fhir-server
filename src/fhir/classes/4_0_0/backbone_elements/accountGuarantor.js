@@ -43,7 +43,7 @@ class AccountGuarantor extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -65,7 +65,7 @@ class AccountGuarantor extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -96,7 +96,7 @@ class AccountGuarantor extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -115,7 +115,7 @@ class AccountGuarantor extends Element {
             get: () => this.__data.party,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.party = null;
+                    this.__data.party = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -135,7 +135,7 @@ class AccountGuarantor extends Element {
             get: () => this.__data.onHold,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onHold = null;
+                    this.__data.onHold = undefined;
                     return;
                 }
                 this.__data.onHold = valueProvided;
@@ -154,7 +154,7 @@ class AccountGuarantor extends Element {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.period = null;
+                    this.__data.period = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');

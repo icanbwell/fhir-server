@@ -46,7 +46,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,7 +68,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,7 +99,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,7 +118,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             get: () => this.__data.substance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.substance = null;
+                    this.__data.substance = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -137,7 +137,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             get: () => this.__data.strength,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.strength = null;
+                    this.__data.strength = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -156,7 +156,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             get: () => this.__data.strengthLowLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.strengthLowLimit = null;
+                    this.__data.strengthLowLimit = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -175,7 +175,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             get: () => this.__data.measurementPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.measurementPoint = null;
+                    this.__data.measurementPoint = undefined;
                     return;
                 }
                 this.__data.measurementPoint = valueProvided;
@@ -193,7 +193,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
             get: () => this.__data.country,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.country = null;
+                    this.__data.country = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');

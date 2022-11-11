@@ -55,7 +55,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -77,7 +77,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -108,7 +108,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -128,7 +128,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.system,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.system = null;
+                    this.__data.system = undefined;
                     return;
                 }
                 this.__data.system = valueProvided;
@@ -147,7 +147,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.abstract,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.abstract = null;
+                    this.__data.abstract = undefined;
                     return;
                 }
                 this.__data.abstract = valueProvided;
@@ -168,7 +168,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.inactive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.inactive = null;
+                    this.__data.inactive = undefined;
                     return;
                 }
                 this.__data.inactive = valueProvided;
@@ -190,7 +190,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.version = null;
+                    this.__data.version = undefined;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -210,7 +210,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 this.__data.code = valueProvided;
@@ -228,7 +228,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.display = null;
+                    this.__data.display = undefined;
                     return;
                 }
                 this.__data.display = valueProvided;
@@ -249,7 +249,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.designation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.designation = null;
+                    this.__data.designation = undefined;
                     return;
                 }
                 let ValueSetDesignation = require('../backbone_elements/valueSetDesignation.js');
@@ -268,7 +268,7 @@ class ValueSetContains extends Element {
             get: () => this.__data.contains,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contains = null;
+                    this.__data.contains = undefined;
                     return;
                 }
                 this.__data.contains = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetContains(v)) : [new ValueSetContains(valueProvided)];

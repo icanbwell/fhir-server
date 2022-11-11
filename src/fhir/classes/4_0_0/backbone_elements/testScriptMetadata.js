@@ -41,7 +41,7 @@ class TestScriptMetadata extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -63,7 +63,7 @@ class TestScriptMetadata extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -94,7 +94,7 @@ class TestScriptMetadata extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -113,7 +113,7 @@ class TestScriptMetadata extends Element {
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.link = null;
+                    this.__data.link = undefined;
                     return;
                 }
                 let TestScriptLink = require('../backbone_elements/testScriptLink.js');
@@ -133,7 +133,7 @@ class TestScriptMetadata extends Element {
             get: () => this.__data.capability,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.capability = null;
+                    this.__data.capability = undefined;
                     return;
                 }
                 let TestScriptCapability = require('../backbone_elements/testScriptCapability.js');

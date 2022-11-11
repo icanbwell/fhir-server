@@ -49,7 +49,7 @@ class Identifier extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,7 +71,7 @@ class Identifier extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -90,7 +90,7 @@ class Identifier extends Element {
             get: () => this.__data.use,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.use = null;
+                    this.__data.use = undefined;
                     return;
                 }
                 this.__data.use = valueProvided;
@@ -109,7 +109,7 @@ class Identifier extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -129,7 +129,7 @@ class Identifier extends Element {
             get: () => this.__data.system,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.system = null;
+                    this.__data.system = undefined;
                     return;
                 }
                 this.__data.system = valueProvided;
@@ -148,7 +148,7 @@ class Identifier extends Element {
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.value = null;
+                    this.__data.value = undefined;
                     return;
                 }
                 this.__data.value = valueProvided;
@@ -166,7 +166,7 @@ class Identifier extends Element {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.period = null;
+                    this.__data.period = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -185,7 +185,7 @@ class Identifier extends Element {
             get: () => this.__data.assigner,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.assigner = null;
+                    this.__data.assigner = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

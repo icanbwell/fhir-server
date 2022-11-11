@@ -62,7 +62,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -84,7 +84,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -115,7 +115,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -135,7 +135,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.question,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.question = null;
+                    this.__data.question = undefined;
                     return;
                 }
                 this.__data.question = valueProvided;
@@ -153,7 +153,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.operator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.operator = null;
+                    this.__data.operator = undefined;
                     return;
                 }
                 this.__data.operator = valueProvided;
@@ -171,7 +171,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerBoolean = null;
+                    this.__data.answerBoolean = undefined;
                     return;
                 }
                 this.__data.answerBoolean = valueProvided;
@@ -189,7 +189,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerDecimal = null;
+                    this.__data.answerDecimal = undefined;
                     return;
                 }
                 this.__data.answerDecimal = valueProvided;
@@ -207,7 +207,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerInteger = null;
+                    this.__data.answerInteger = undefined;
                     return;
                 }
                 this.__data.answerInteger = valueProvided;
@@ -225,7 +225,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerDate = null;
+                    this.__data.answerDate = undefined;
                     return;
                 }
                 this.__data.answerDate = valueProvided;
@@ -243,7 +243,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerDateTime = null;
+                    this.__data.answerDateTime = undefined;
                     return;
                 }
                 this.__data.answerDateTime = valueProvided;
@@ -261,7 +261,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerTime = null;
+                    this.__data.answerTime = undefined;
                     return;
                 }
                 this.__data.answerTime = valueProvided;
@@ -279,7 +279,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerString = null;
+                    this.__data.answerString = undefined;
                     return;
                 }
                 this.__data.answerString = valueProvided;
@@ -297,7 +297,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerCoding = null;
+                    this.__data.answerCoding = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -316,7 +316,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerQuantity = null;
+                    this.__data.answerQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -335,7 +335,7 @@ class QuestionnaireEnableWhen extends Element {
             get: () => this.__data.answerReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answerReference = null;
+                    this.__data.answerReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

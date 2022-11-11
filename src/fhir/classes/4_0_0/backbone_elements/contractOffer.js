@@ -57,7 +57,7 @@ class ContractOffer extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -79,7 +79,7 @@ class ContractOffer extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -110,7 +110,7 @@ class ContractOffer extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -129,7 +129,7 @@ class ContractOffer extends Element {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -148,7 +148,7 @@ class ContractOffer extends Element {
             get: () => this.__data.party,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.party = null;
+                    this.__data.party = undefined;
                     return;
                 }
                 let ContractParty = require('../backbone_elements/contractParty.js');
@@ -169,7 +169,7 @@ class ContractOffer extends Element {
             get: () => this.__data.topic,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.topic = null;
+                    this.__data.topic = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -189,7 +189,7 @@ class ContractOffer extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -209,7 +209,7 @@ class ContractOffer extends Element {
             get: () => this.__data.decision,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.decision = null;
+                    this.__data.decision = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -228,7 +228,7 @@ class ContractOffer extends Element {
             get: () => this.__data.decisionMode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.decisionMode = null;
+                    this.__data.decisionMode = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -247,7 +247,7 @@ class ContractOffer extends Element {
             get: () => this.__data.answer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.answer = null;
+                    this.__data.answer = undefined;
                     return;
                 }
                 let ContractAnswer = require('../backbone_elements/contractAnswer.js');
@@ -266,7 +266,7 @@ class ContractOffer extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 this.__data.text = valueProvided;
@@ -285,7 +285,7 @@ class ContractOffer extends Element {
             get: () => this.__data.linkId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.linkId = null;
+                    this.__data.linkId = undefined;
                     return;
                 }
                 this.__data.linkId = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -303,7 +303,7 @@ class ContractOffer extends Element {
             get: () => this.__data.securityLabelNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.securityLabelNumber = null;
+                    this.__data.securityLabelNumber = undefined;
                     return;
                 }
                 this.__data.securityLabelNumber = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

@@ -46,7 +46,7 @@ class BiologicallyDerivedProductCollection extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,7 +68,7 @@ class BiologicallyDerivedProductCollection extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,7 +99,7 @@ class BiologicallyDerivedProductCollection extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,7 +118,7 @@ class BiologicallyDerivedProductCollection extends Element {
             get: () => this.__data.collector,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.collector = null;
+                    this.__data.collector = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -138,7 +138,7 @@ class BiologicallyDerivedProductCollection extends Element {
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.source = null;
+                    this.__data.source = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -157,7 +157,7 @@ class BiologicallyDerivedProductCollection extends Element {
             get: () => this.__data.collectedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.collectedDateTime = null;
+                    this.__data.collectedDateTime = undefined;
                     return;
                 }
                 this.__data.collectedDateTime = valueProvided;
@@ -175,7 +175,7 @@ class BiologicallyDerivedProductCollection extends Element {
             get: () => this.__data.collectedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.collectedPeriod = null;
+                    this.__data.collectedPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');

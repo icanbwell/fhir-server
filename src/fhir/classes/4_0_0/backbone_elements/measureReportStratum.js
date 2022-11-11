@@ -46,7 +46,7 @@ class MeasureReportStratum extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,7 +68,7 @@ class MeasureReportStratum extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,7 +99,7 @@ class MeasureReportStratum extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,7 +120,7 @@ class MeasureReportStratum extends Element {
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.value = null;
+                    this.__data.value = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -139,7 +139,7 @@ class MeasureReportStratum extends Element {
             get: () => this.__data.component,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.component = null;
+                    this.__data.component = undefined;
                     return;
                 }
                 let MeasureReportComponent = require('../backbone_elements/measureReportComponent.js');
@@ -159,7 +159,7 @@ class MeasureReportStratum extends Element {
             get: () => this.__data.population,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.population = null;
+                    this.__data.population = undefined;
                     return;
                 }
                 let MeasureReportPopulation1 = require('../backbone_elements/measureReportPopulation1.js');
@@ -179,7 +179,7 @@ class MeasureReportStratum extends Element {
             get: () => this.__data.measureScore,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.measureScore = null;
+                    this.__data.measureScore = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

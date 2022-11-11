@@ -70,7 +70,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -90,7 +90,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -112,7 +112,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -130,7 +130,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -153,7 +153,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -174,7 +174,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -206,7 +206,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -237,7 +237,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -256,7 +256,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -275,7 +275,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.administrableDoseForm,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.administrableDoseForm = null;
+                    this.__data.administrableDoseForm = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -294,7 +294,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.unitOfPresentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.unitOfPresentation = null;
+                    this.__data.unitOfPresentation = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -313,7 +313,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.ingredient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.ingredient = null;
+                    this.__data.ingredient = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -332,7 +332,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.device,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.device = null;
+                    this.__data.device = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -351,7 +351,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.characteristics,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.characteristics = null;
+                    this.__data.characteristics = undefined;
                     return;
                 }
                 let MedicinalProductPharmaceuticalCharacteristics = require('../backbone_elements/medicinalProductPharmaceuticalCharacteristics.js');
@@ -371,7 +371,7 @@ class MedicinalProductPharmaceutical extends Resource {
             get: () => this.__data.routeOfAdministration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.routeOfAdministration = null;
+                    this.__data.routeOfAdministration = undefined;
                     return;
                 }
                 let MedicinalProductPharmaceuticalRouteOfAdministration = require('../backbone_elements/medicinalProductPharmaceuticalRouteOfAdministration.js');

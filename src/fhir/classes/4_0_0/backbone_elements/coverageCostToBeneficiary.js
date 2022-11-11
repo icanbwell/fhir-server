@@ -45,7 +45,7 @@ class CoverageCostToBeneficiary extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -67,7 +67,7 @@ class CoverageCostToBeneficiary extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,7 +98,7 @@ class CoverageCostToBeneficiary extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,7 +117,7 @@ class CoverageCostToBeneficiary extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -136,7 +136,7 @@ class CoverageCostToBeneficiary extends Element {
             get: () => this.__data.valueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueQuantity = null;
+                    this.__data.valueQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -155,7 +155,7 @@ class CoverageCostToBeneficiary extends Element {
             get: () => this.__data.valueMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueMoney = null;
+                    this.__data.valueMoney = undefined;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -175,7 +175,7 @@ class CoverageCostToBeneficiary extends Element {
             get: () => this.__data.exception,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.exception = null;
+                    this.__data.exception = undefined;
                     return;
                 }
                 let CoverageException = require('../backbone_elements/coverageException.js');

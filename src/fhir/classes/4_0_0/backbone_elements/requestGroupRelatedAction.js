@@ -45,7 +45,7 @@ class RequestGroupRelatedAction extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -67,7 +67,7 @@ class RequestGroupRelatedAction extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,7 +98,7 @@ class RequestGroupRelatedAction extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,7 +117,7 @@ class RequestGroupRelatedAction extends Element {
             get: () => this.__data.actionId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.actionId = null;
+                    this.__data.actionId = undefined;
                     return;
                 }
                 this.__data.actionId = valueProvided;
@@ -135,7 +135,7 @@ class RequestGroupRelatedAction extends Element {
             get: () => this.__data.relationship,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.relationship = null;
+                    this.__data.relationship = undefined;
                     return;
                 }
                 this.__data.relationship = valueProvided;
@@ -153,7 +153,7 @@ class RequestGroupRelatedAction extends Element {
             get: () => this.__data.offsetDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.offsetDuration = null;
+                    this.__data.offsetDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -172,7 +172,7 @@ class RequestGroupRelatedAction extends Element {
             get: () => this.__data.offsetRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.offsetRange = null;
+                    this.__data.offsetRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');

@@ -51,7 +51,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,7 +73,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,7 +104,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -123,7 +123,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.category = null;
+                    this.__data.category = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -142,7 +142,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -162,7 +162,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.parameters,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.parameters = null;
+                    this.__data.parameters = undefined;
                     return;
                 }
                 this.__data.parameters = valueProvided;
@@ -180,7 +180,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.definingSubstanceReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definingSubstanceReference = null;
+                    this.__data.definingSubstanceReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -199,7 +199,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.definingSubstanceCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definingSubstanceCodeableConcept = null;
+                    this.__data.definingSubstanceCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -218,7 +218,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.amountQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amountQuantity = null;
+                    this.__data.amountQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -237,7 +237,7 @@ class SubstanceSpecificationProperty extends Element {
             get: () => this.__data.amountString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amountString = null;
+                    this.__data.amountString = undefined;
                     return;
                 }
                 this.__data.amountString = valueProvided;

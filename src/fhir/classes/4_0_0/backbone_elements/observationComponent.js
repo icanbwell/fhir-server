@@ -67,7 +67,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -89,7 +89,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,7 +120,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -139,7 +139,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -158,7 +158,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueQuantity = null;
+                    this.__data.valueQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -177,7 +177,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueCodeableConcept = null;
+                    this.__data.valueCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -196,7 +196,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueString = null;
+                    this.__data.valueString = undefined;
                     return;
                 }
                 this.__data.valueString = valueProvided;
@@ -214,7 +214,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueBoolean = null;
+                    this.__data.valueBoolean = undefined;
                     return;
                 }
                 this.__data.valueBoolean = valueProvided;
@@ -232,7 +232,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueInteger = null;
+                    this.__data.valueInteger = undefined;
                     return;
                 }
                 this.__data.valueInteger = valueProvided;
@@ -250,7 +250,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueRange = null;
+                    this.__data.valueRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -269,7 +269,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueRatio = null;
+                    this.__data.valueRatio = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -288,7 +288,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueSampledData,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueSampledData = null;
+                    this.__data.valueSampledData = undefined;
                     return;
                 }
                 let SampledData = require('../complex_types/sampledData.js');
@@ -307,7 +307,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueTime = null;
+                    this.__data.valueTime = undefined;
                     return;
                 }
                 this.__data.valueTime = valueProvided;
@@ -325,7 +325,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueDateTime = null;
+                    this.__data.valueDateTime = undefined;
                     return;
                 }
                 this.__data.valueDateTime = valueProvided;
@@ -343,7 +343,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.valuePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valuePeriod = null;
+                    this.__data.valuePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -363,7 +363,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.dataAbsentReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dataAbsentReason = null;
+                    this.__data.dataAbsentReason = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -383,7 +383,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.interpretation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.interpretation = null;
+                    this.__data.interpretation = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -403,7 +403,7 @@ class ObservationComponent extends Element {
             get: () => this.__data.referenceRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.referenceRange = null;
+                    this.__data.referenceRange = undefined;
                     return;
                 }
                 let ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');

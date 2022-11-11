@@ -42,7 +42,7 @@ class SubstanceIngredient extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -64,7 +64,7 @@ class SubstanceIngredient extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -95,7 +95,7 @@ class SubstanceIngredient extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -114,7 +114,7 @@ class SubstanceIngredient extends Element {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.quantity = null;
+                    this.__data.quantity = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -133,7 +133,7 @@ class SubstanceIngredient extends Element {
             get: () => this.__data.substanceCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.substanceCodeableConcept = null;
+                    this.__data.substanceCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -152,7 +152,7 @@ class SubstanceIngredient extends Element {
             get: () => this.__data.substanceReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.substanceReference = null;
+                    this.__data.substanceReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

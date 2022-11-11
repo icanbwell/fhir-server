@@ -50,7 +50,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -72,7 +72,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -103,7 +103,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,7 +122,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.sequence = null;
+                    this.__data.sequence = undefined;
                     return;
                 }
                 this.__data.sequence = valueProvided;
@@ -140,7 +140,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.diagnosisCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.diagnosisCodeableConcept = null;
+                    this.__data.diagnosisCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -159,7 +159,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.diagnosisReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.diagnosisReference = null;
+                    this.__data.diagnosisReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -178,7 +178,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -197,7 +197,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.onAdmission,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onAdmission = null;
+                    this.__data.onAdmission = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -218,7 +218,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
             get: () => this.__data.packageCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.packageCode = null;
+                    this.__data.packageCode = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');

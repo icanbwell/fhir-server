@@ -41,7 +41,7 @@ class Ratio extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -63,7 +63,7 @@ class Ratio extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -82,7 +82,7 @@ class Ratio extends Element {
             get: () => this.__data.numerator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.numerator = null;
+                    this.__data.numerator = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -101,7 +101,7 @@ class Ratio extends Element {
             get: () => this.__data.denominator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.denominator = null;
+                    this.__data.denominator = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

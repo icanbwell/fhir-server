@@ -53,7 +53,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -75,7 +75,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -106,7 +106,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -127,7 +127,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -147,7 +147,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.outcome = null;
+                    this.__data.outcome = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -167,7 +167,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.contributedToDeath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contributedToDeath = null;
+                    this.__data.contributedToDeath = undefined;
                     return;
                 }
                 this.__data.contributedToDeath = valueProvided;
@@ -185,7 +185,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.onsetAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetAge = null;
+                    this.__data.onsetAge = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -204,7 +204,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.onsetRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetRange = null;
+                    this.__data.onsetRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -223,7 +223,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.onsetPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetPeriod = null;
+                    this.__data.onsetPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -242,7 +242,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.onsetString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetString = null;
+                    this.__data.onsetString = undefined;
                     return;
                 }
                 this.__data.onsetString = valueProvided;
@@ -260,7 +260,7 @@ class FamilyMemberHistoryCondition extends Element {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = null;
+                    this.__data.note = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');

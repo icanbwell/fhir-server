@@ -91,7 +91,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -111,7 +111,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -133,7 +133,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -151,7 +151,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -174,7 +174,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -195,7 +195,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -227,7 +227,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -258,7 +258,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -278,7 +278,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -298,7 +298,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.instantiatesCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.instantiatesCanonical = null;
+                    this.__data.instantiatesCanonical = undefined;
                     return;
                 }
                 this.__data.instantiatesCanonical = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -318,7 +318,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.instantiatesUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.instantiatesUri = null;
+                    this.__data.instantiatesUri = undefined;
                     return;
                 }
                 this.__data.instantiatesUri = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -337,7 +337,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.instantiates,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.instantiates = null;
+                    this.__data.instantiates = undefined;
                     return;
                 }
                 this.__data.instantiates = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -355,7 +355,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -374,7 +374,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.intent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.intent = null;
+                    this.__data.intent = undefined;
                     return;
                 }
                 this.__data.intent = valueProvided;
@@ -393,7 +393,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.patient = null;
+                    this.__data.patient = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -413,7 +413,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.encounter = null;
+                    this.__data.encounter = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -432,7 +432,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.dateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dateTime = null;
+                    this.__data.dateTime = undefined;
                     return;
                 }
                 this.__data.dateTime = valueProvided;
@@ -451,7 +451,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.orderer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.orderer = null;
+                    this.__data.orderer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -471,7 +471,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.allergyIntolerance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.allergyIntolerance = null;
+                    this.__data.allergyIntolerance = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -494,7 +494,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.foodPreferenceModifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.foodPreferenceModifier = null;
+                    this.__data.foodPreferenceModifier = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -522,7 +522,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.excludeFoodModifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.excludeFoodModifier = null;
+                    this.__data.excludeFoodModifier = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -541,7 +541,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.oralDiet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.oralDiet = null;
+                    this.__data.oralDiet = undefined;
                     return;
                 }
                 let NutritionOrderOralDiet = require('../backbone_elements/nutritionOrderOralDiet.js');
@@ -561,7 +561,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.supplement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.supplement = null;
+                    this.__data.supplement = undefined;
                     return;
                 }
                 let NutritionOrderSupplement = require('../backbone_elements/nutritionOrderSupplement.js');
@@ -581,7 +581,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.enteralFormula,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.enteralFormula = null;
+                    this.__data.enteralFormula = undefined;
                     return;
                 }
                 let NutritionOrderEnteralFormula = require('../backbone_elements/nutritionOrderEnteralFormula.js');
@@ -601,7 +601,7 @@ class NutritionOrder extends Resource {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = null;
+                    this.__data.note = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');

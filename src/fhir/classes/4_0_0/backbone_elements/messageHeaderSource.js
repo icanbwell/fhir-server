@@ -50,7 +50,7 @@ class MessageHeaderSource extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -72,7 +72,7 @@ class MessageHeaderSource extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -103,7 +103,7 @@ class MessageHeaderSource extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,7 +122,7 @@ class MessageHeaderSource extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -140,7 +140,7 @@ class MessageHeaderSource extends Element {
             get: () => this.__data.software,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.software = null;
+                    this.__data.software = undefined;
                     return;
                 }
                 this.__data.software = valueProvided;
@@ -159,7 +159,7 @@ class MessageHeaderSource extends Element {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.version = null;
+                    this.__data.version = undefined;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -178,7 +178,7 @@ class MessageHeaderSource extends Element {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contact = null;
+                    this.__data.contact = undefined;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -197,7 +197,7 @@ class MessageHeaderSource extends Element {
             get: () => this.__data.endpoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.endpoint = null;
+                    this.__data.endpoint = undefined;
                     return;
                 }
                 this.__data.endpoint = valueProvided;

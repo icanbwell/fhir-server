@@ -50,7 +50,7 @@ class CompositionAttester extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -72,7 +72,7 @@ class CompositionAttester extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -103,7 +103,7 @@ class CompositionAttester extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,7 +122,7 @@ class CompositionAttester extends Element {
             get: () => this.__data.mode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.mode = null;
+                    this.__data.mode = undefined;
                     return;
                 }
                 this.__data.mode = valueProvided;
@@ -140,7 +140,7 @@ class CompositionAttester extends Element {
             get: () => this.__data.time,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.time = null;
+                    this.__data.time = undefined;
                     return;
                 }
                 this.__data.time = valueProvided;
@@ -158,7 +158,7 @@ class CompositionAttester extends Element {
             get: () => this.__data.party,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.party = null;
+                    this.__data.party = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

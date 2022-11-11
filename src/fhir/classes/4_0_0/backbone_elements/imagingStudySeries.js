@@ -64,7 +64,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -86,7 +86,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,7 +117,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -136,7 +136,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.uid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.uid = null;
+                    this.__data.uid = undefined;
                     return;
                 }
                 this.__data.uid = valueProvided;
@@ -154,7 +154,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.number,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.number = null;
+                    this.__data.number = undefined;
                     return;
                 }
                 this.__data.number = valueProvided;
@@ -172,7 +172,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.modality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modality = null;
+                    this.__data.modality = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -191,7 +191,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -212,7 +212,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.numberOfInstances,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.numberOfInstances = null;
+                    this.__data.numberOfInstances = undefined;
                     return;
                 }
                 this.__data.numberOfInstances = valueProvided;
@@ -233,7 +233,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.endpoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.endpoint = null;
+                    this.__data.endpoint = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -256,7 +256,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.bodySite = null;
+                    this.__data.bodySite = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -278,7 +278,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.laterality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.laterality = null;
+                    this.__data.laterality = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -297,7 +297,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.specimen,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.specimen = null;
+                    this.__data.specimen = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -316,7 +316,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.started,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.started = null;
+                    this.__data.started = undefined;
                     return;
                 }
                 this.__data.started = valueProvided;
@@ -334,7 +334,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.performer = null;
+                    this.__data.performer = undefined;
                     return;
                 }
                 let ImagingStudyPerformer = require('../backbone_elements/imagingStudyPerformer.js');
@@ -353,7 +353,7 @@ class ImagingStudySeries extends Element {
             get: () => this.__data.instance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.instance = null;
+                    this.__data.instance = undefined;
                     return;
                 }
                 let ImagingStudyInstance = require('../backbone_elements/imagingStudyInstance.js');

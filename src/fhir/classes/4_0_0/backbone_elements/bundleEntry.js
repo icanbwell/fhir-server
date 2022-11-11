@@ -48,7 +48,7 @@ class BundleEntry extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,7 +70,7 @@ class BundleEntry extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,7 +101,7 @@ class BundleEntry extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,7 +120,7 @@ class BundleEntry extends Element {
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.link = null;
+                    this.__data.link = undefined;
                     return;
                 }
                 let BundleLink = require('../backbone_elements/bundleLink.js');
@@ -146,7 +146,7 @@ class BundleEntry extends Element {
             get: () => this.__data.fullUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.fullUrl = null;
+                    this.__data.fullUrl = undefined;
                     return;
                 }
                 this.__data.fullUrl = valueProvided;
@@ -165,7 +165,7 @@ class BundleEntry extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.resource = null;
+                    this.__data.resource = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -186,7 +186,7 @@ class BundleEntry extends Element {
             get: () => this.__data.search,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.search = null;
+                    this.__data.search = undefined;
                     return;
                 }
                 let BundleSearch = require('../backbone_elements/bundleSearch.js');
@@ -207,7 +207,7 @@ class BundleEntry extends Element {
             get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.request = null;
+                    this.__data.request = undefined;
                     return;
                 }
                 let BundleRequest = require('../backbone_elements/bundleRequest.js');
@@ -228,7 +228,7 @@ class BundleEntry extends Element {
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.response = null;
+                    this.__data.response = undefined;
                     return;
                 }
                 let BundleResponse = require('../backbone_elements/bundleResponse.js');

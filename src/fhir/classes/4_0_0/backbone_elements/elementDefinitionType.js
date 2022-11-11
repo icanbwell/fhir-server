@@ -49,7 +49,7 @@ class ElementDefinitionType extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,7 +71,7 @@ class ElementDefinitionType extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -102,7 +102,7 @@ class ElementDefinitionType extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -125,7 +125,7 @@ class ElementDefinitionType extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 this.__data.code = valueProvided;
@@ -149,7 +149,7 @@ class ElementDefinitionType extends Element {
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.profile = null;
+                    this.__data.profile = undefined;
                     return;
                 }
                 this.__data.profile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -174,7 +174,7 @@ class ElementDefinitionType extends Element {
             get: () => this.__data.targetProfile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.targetProfile = null;
+                    this.__data.targetProfile = undefined;
                     return;
                 }
                 this.__data.targetProfile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -194,7 +194,7 @@ class ElementDefinitionType extends Element {
             get: () => this.__data.aggregation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.aggregation = null;
+                    this.__data.aggregation = undefined;
                     return;
                 }
                 this.__data.aggregation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -213,7 +213,7 @@ class ElementDefinitionType extends Element {
             get: () => this.__data.versioning,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.versioning = null;
+                    this.__data.versioning = undefined;
                     return;
                 }
                 this.__data.versioning = valueProvided;

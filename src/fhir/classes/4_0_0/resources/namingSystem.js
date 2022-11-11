@@ -84,7 +84,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -104,7 +104,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -126,7 +126,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -144,7 +144,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -167,7 +167,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -188,7 +188,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -220,7 +220,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -251,7 +251,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -272,7 +272,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -291,7 +291,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -310,7 +310,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.kind,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.kind = null;
+                    this.__data.kind = undefined;
                     return;
                 }
                 this.__data.kind = valueProvided;
@@ -331,7 +331,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.date = null;
+                    this.__data.date = undefined;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -349,7 +349,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.publisher = null;
+                    this.__data.publisher = undefined;
                     return;
                 }
                 this.__data.publisher = valueProvided;
@@ -368,7 +368,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contact = null;
+                    this.__data.contact = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -388,7 +388,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.responsible,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.responsible = null;
+                    this.__data.responsible = undefined;
                     return;
                 }
                 this.__data.responsible = valueProvided;
@@ -407,7 +407,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -428,7 +428,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -450,7 +450,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.useContext = null;
+                    this.__data.useContext = undefined;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -470,7 +470,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.jurisdiction = null;
+                    this.__data.jurisdiction = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -490,7 +490,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.usage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.usage = null;
+                    this.__data.usage = undefined;
                     return;
                 }
                 this.__data.usage = valueProvided;
@@ -509,7 +509,7 @@ class NamingSystem extends Resource {
             get: () => this.__data.uniqueId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.uniqueId = null;
+                    this.__data.uniqueId = undefined;
                     return;
                 }
                 let NamingSystemUniqueId = require('../backbone_elements/namingSystemUniqueId.js');

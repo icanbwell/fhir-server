@@ -61,7 +61,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -83,7 +83,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -114,7 +114,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -136,7 +136,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.height,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.height = null;
+                    this.__data.height = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -158,7 +158,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.width,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.width = null;
+                    this.__data.width = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -180,7 +180,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.depth,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.depth = null;
+                    this.__data.depth = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -202,7 +202,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.weight,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.weight = null;
+                    this.__data.weight = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -224,7 +224,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.nominalVolume,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.nominalVolume = null;
+                    this.__data.nominalVolume = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -246,7 +246,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.externalDiameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.externalDiameter = null;
+                    this.__data.externalDiameter = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -266,7 +266,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.shape,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.shape = null;
+                    this.__data.shape = undefined;
                     return;
                 }
                 this.__data.shape = valueProvided;
@@ -285,7 +285,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.color,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.color = null;
+                    this.__data.color = undefined;
                     return;
                 }
                 this.__data.color = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -303,7 +303,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.imprint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.imprint = null;
+                    this.__data.imprint = undefined;
                     return;
                 }
                 this.__data.imprint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -322,7 +322,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.image,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.image = null;
+                    this.__data.image = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -342,7 +342,7 @@ class ProdCharacteristic extends Element {
             get: () => this.__data.scoring,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.scoring = null;
+                    this.__data.scoring = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');

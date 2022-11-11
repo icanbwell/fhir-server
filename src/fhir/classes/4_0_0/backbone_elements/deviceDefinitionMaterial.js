@@ -43,7 +43,7 @@ class DeviceDefinitionMaterial extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -65,7 +65,7 @@ class DeviceDefinitionMaterial extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -96,7 +96,7 @@ class DeviceDefinitionMaterial extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -115,7 +115,7 @@ class DeviceDefinitionMaterial extends Element {
             get: () => this.__data.substance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.substance = null;
+                    this.__data.substance = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -134,7 +134,7 @@ class DeviceDefinitionMaterial extends Element {
             get: () => this.__data.alternate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.alternate = null;
+                    this.__data.alternate = undefined;
                     return;
                 }
                 this.__data.alternate = valueProvided;
@@ -152,7 +152,7 @@ class DeviceDefinitionMaterial extends Element {
             get: () => this.__data.allergenicIndicator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.allergenicIndicator = null;
+                    this.__data.allergenicIndicator = undefined;
                     return;
                 }
                 this.__data.allergenicIndicator = valueProvided;

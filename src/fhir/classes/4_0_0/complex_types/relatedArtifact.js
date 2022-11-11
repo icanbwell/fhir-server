@@ -51,7 +51,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,7 +73,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -92,7 +92,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -111,7 +111,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.label,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.label = null;
+                    this.__data.label = undefined;
                     return;
                 }
                 this.__data.label = valueProvided;
@@ -130,7 +130,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.display = null;
+                    this.__data.display = undefined;
                     return;
                 }
                 this.__data.display = valueProvided;
@@ -149,7 +149,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.citation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.citation = null;
+                    this.__data.citation = undefined;
                     return;
                 }
                 this.__data.citation = valueProvided;
@@ -167,7 +167,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -186,7 +186,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.document,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.document = null;
+                    this.__data.document = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -206,7 +206,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.resource = null;
+                    this.__data.resource = undefined;
                     return;
                 }
                 this.__data.resource = valueProvided;

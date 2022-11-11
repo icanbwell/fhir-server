@@ -44,7 +44,7 @@ class InsurancePlanContact extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,7 +66,7 @@ class InsurancePlanContact extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,7 +97,7 @@ class InsurancePlanContact extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,7 +116,7 @@ class InsurancePlanContact extends Element {
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.purpose = null;
+                    this.__data.purpose = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -135,7 +135,7 @@ class InsurancePlanContact extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
@@ -155,7 +155,7 @@ class InsurancePlanContact extends Element {
             get: () => this.__data.telecom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.telecom = null;
+                    this.__data.telecom = undefined;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -174,7 +174,7 @@ class InsurancePlanContact extends Element {
             get: () => this.__data.address,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.address = null;
+                    this.__data.address = undefined;
                     return;
                 }
                 let Address = require('../complex_types/address.js');

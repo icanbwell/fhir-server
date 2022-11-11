@@ -44,7 +44,7 @@ class LocationPosition extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,7 +66,7 @@ class LocationPosition extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,7 +97,7 @@ class LocationPosition extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,7 +117,7 @@ class LocationPosition extends Element {
             get: () => this.__data.longitude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.longitude = null;
+                    this.__data.longitude = undefined;
                     return;
                 }
                 this.__data.longitude = valueProvided;
@@ -136,7 +136,7 @@ class LocationPosition extends Element {
             get: () => this.__data.latitude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.latitude = null;
+                    this.__data.latitude = undefined;
                     return;
                 }
                 this.__data.latitude = valueProvided;
@@ -155,7 +155,7 @@ class LocationPosition extends Element {
             get: () => this.__data.altitude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.altitude = null;
+                    this.__data.altitude = undefined;
                     return;
                 }
                 this.__data.altitude = valueProvided;

@@ -50,7 +50,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -72,7 +72,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -103,7 +103,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,7 +122,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -141,7 +141,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.doseRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.doseRange = null;
+                    this.__data.doseRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -160,7 +160,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.doseQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.doseQuantity = null;
+                    this.__data.doseQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -179,7 +179,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.rateRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.rateRatio = null;
+                    this.__data.rateRatio = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -198,7 +198,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.rateRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.rateRange = null;
+                    this.__data.rateRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -217,7 +217,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.rateQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.rateQuantity = null;
+                    this.__data.rateQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

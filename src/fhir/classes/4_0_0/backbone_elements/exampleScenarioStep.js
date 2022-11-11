@@ -44,7 +44,7 @@ class ExampleScenarioStep extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,7 +66,7 @@ class ExampleScenarioStep extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,7 +97,7 @@ class ExampleScenarioStep extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,7 +116,7 @@ class ExampleScenarioStep extends Element {
             get: () => this.__data.process,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.process = null;
+                    this.__data.process = undefined;
                     return;
                 }
                 let ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
@@ -135,7 +135,7 @@ class ExampleScenarioStep extends Element {
             get: () => this.__data.pause,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.pause = null;
+                    this.__data.pause = undefined;
                     return;
                 }
                 this.__data.pause = valueProvided;
@@ -153,7 +153,7 @@ class ExampleScenarioStep extends Element {
             get: () => this.__data.operation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.operation = null;
+                    this.__data.operation = undefined;
                     return;
                 }
                 let ExampleScenarioOperation = require('../backbone_elements/exampleScenarioOperation.js');
@@ -173,7 +173,7 @@ class ExampleScenarioStep extends Element {
             get: () => this.__data.alternative,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.alternative = null;
+                    this.__data.alternative = undefined;
                     return;
                 }
                 let ExampleScenarioAlternative = require('../backbone_elements/exampleScenarioAlternative.js');

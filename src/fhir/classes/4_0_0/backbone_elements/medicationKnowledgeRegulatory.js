@@ -44,7 +44,7 @@ class MedicationKnowledgeRegulatory extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,7 +66,7 @@ class MedicationKnowledgeRegulatory extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,7 +97,7 @@ class MedicationKnowledgeRegulatory extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,7 +116,7 @@ class MedicationKnowledgeRegulatory extends Element {
             get: () => this.__data.regulatoryAuthority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.regulatoryAuthority = null;
+                    this.__data.regulatoryAuthority = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -136,7 +136,7 @@ class MedicationKnowledgeRegulatory extends Element {
             get: () => this.__data.substitution,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.substitution = null;
+                    this.__data.substitution = undefined;
                     return;
                 }
                 let MedicationKnowledgeSubstitution = require('../backbone_elements/medicationKnowledgeSubstitution.js');
@@ -155,7 +155,7 @@ class MedicationKnowledgeRegulatory extends Element {
             get: () => this.__data.schedule,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.schedule = null;
+                    this.__data.schedule = undefined;
                     return;
                 }
                 let MedicationKnowledgeSchedule = require('../backbone_elements/medicationKnowledgeSchedule.js');
@@ -175,7 +175,7 @@ class MedicationKnowledgeRegulatory extends Element {
             get: () => this.__data.maxDispense,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.maxDispense = null;
+                    this.__data.maxDispense = undefined;
                     return;
                 }
                 let MedicationKnowledgeMaxDispense = require('../backbone_elements/medicationKnowledgeMaxDispense.js');

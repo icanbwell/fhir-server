@@ -43,7 +43,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -65,7 +65,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -96,7 +96,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,7 +117,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             get: () => this.__data.deviceIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.deviceIdentifier = null;
+                    this.__data.deviceIdentifier = undefined;
                     return;
                 }
                 this.__data.deviceIdentifier = valueProvided;
@@ -135,7 +135,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             get: () => this.__data.issuer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.issuer = null;
+                    this.__data.issuer = undefined;
                     return;
                 }
                 this.__data.issuer = valueProvided;
@@ -153,7 +153,7 @@ class DeviceDefinitionUdiDeviceIdentifier extends Element {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.jurisdiction = null;
+                    this.__data.jurisdiction = undefined;
                     return;
                 }
                 this.__data.jurisdiction = valueProvided;

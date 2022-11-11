@@ -43,7 +43,7 @@ class VerificationResultValidator extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -65,7 +65,7 @@ class VerificationResultValidator extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -96,7 +96,7 @@ class VerificationResultValidator extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -115,7 +115,7 @@ class VerificationResultValidator extends Element {
             get: () => this.__data.organization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.organization = null;
+                    this.__data.organization = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -134,7 +134,7 @@ class VerificationResultValidator extends Element {
             get: () => this.__data.identityCertificate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identityCertificate = null;
+                    this.__data.identityCertificate = undefined;
                     return;
                 }
                 this.__data.identityCertificate = valueProvided;
@@ -152,7 +152,7 @@ class VerificationResultValidator extends Element {
             get: () => this.__data.attestationSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.attestationSignature = null;
+                    this.__data.attestationSignature = undefined;
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');

@@ -48,7 +48,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,7 +70,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,7 +101,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -121,7 +121,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -140,7 +140,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -159,7 +159,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -178,7 +178,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.datasetId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.datasetId = null;
+                    this.__data.datasetId = undefined;
                     return;
                 }
                 this.__data.datasetId = valueProvided;
@@ -198,7 +198,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.variantsetId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.variantsetId = null;
+                    this.__data.variantsetId = undefined;
                     return;
                 }
                 this.__data.variantsetId = valueProvided;
@@ -216,7 +216,7 @@ class MolecularSequenceRepository extends Element {
             get: () => this.__data.readsetId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.readsetId = null;
+                    this.__data.readsetId = undefined;
                     return;
                 }
                 this.__data.readsetId = valueProvided;

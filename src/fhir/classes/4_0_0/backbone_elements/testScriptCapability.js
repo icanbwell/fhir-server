@@ -51,7 +51,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,7 +73,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,7 +104,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -124,7 +124,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.required,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.required = null;
+                    this.__data.required = undefined;
                     return;
                 }
                 this.__data.required = valueProvided;
@@ -143,7 +143,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.validated,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.validated = null;
+                    this.__data.validated = undefined;
                     return;
                 }
                 this.__data.validated = valueProvided;
@@ -162,7 +162,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -180,7 +180,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.origin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.origin = null;
+                    this.__data.origin = undefined;
                     return;
                 }
                 this.__data.origin = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -198,7 +198,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.destination,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.destination = null;
+                    this.__data.destination = undefined;
                     return;
                 }
                 this.__data.destination = valueProvided;
@@ -217,7 +217,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.link = null;
+                    this.__data.link = undefined;
                     return;
                 }
                 this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -237,7 +237,7 @@ class TestScriptCapability extends Element {
             get: () => this.__data.capabilities,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.capabilities = null;
+                    this.__data.capabilities = undefined;
                     return;
                 }
                 this.__data.capabilities = valueProvided;

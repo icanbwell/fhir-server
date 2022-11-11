@@ -48,7 +48,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,7 +70,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,7 +101,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,7 +120,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.resourceId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.resourceId = null;
+                    this.__data.resourceId = undefined;
                     return;
                 }
                 this.__data.resourceId = valueProvided;
@@ -138,7 +138,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.resourceType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.resourceType = null;
+                    this.__data.resourceType = undefined;
                     return;
                 }
                 this.__data.resourceType = valueProvided;
@@ -156,7 +156,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -174,7 +174,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -192,7 +192,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.version = null;
+                    this.__data.version = undefined;
                     return;
                 }
                 let ExampleScenarioVersion = require('../backbone_elements/exampleScenarioVersion.js');
@@ -212,7 +212,7 @@ class ExampleScenarioInstance extends Element {
             get: () => this.__data.containedInstance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.containedInstance = null;
+                    this.__data.containedInstance = undefined;
                     return;
                 }
                 let ExampleScenarioContainedInstance = require('../backbone_elements/exampleScenarioContainedInstance.js');

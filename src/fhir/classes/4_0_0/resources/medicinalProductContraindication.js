@@ -71,7 +71,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -91,7 +91,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -113,7 +113,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -131,7 +131,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -154,7 +154,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -175,7 +175,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -207,7 +207,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -238,7 +238,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -257,7 +257,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subject = null;
+                    this.__data.subject = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -276,7 +276,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.disease,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.disease = null;
+                    this.__data.disease = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -295,7 +295,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.diseaseStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.diseaseStatus = null;
+                    this.__data.diseaseStatus = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -314,7 +314,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.comorbidity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.comorbidity = null;
+                    this.__data.comorbidity = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -334,7 +334,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.therapeuticIndication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.therapeuticIndication = null;
+                    this.__data.therapeuticIndication = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -354,7 +354,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.otherTherapy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.otherTherapy = null;
+                    this.__data.otherTherapy = undefined;
                     return;
                 }
                 let MedicinalProductContraindicationOtherTherapy = require('../backbone_elements/medicinalProductContraindicationOtherTherapy.js');
@@ -373,7 +373,7 @@ class MedicinalProductContraindication extends Resource {
             get: () => this.__data.population,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.population = null;
+                    this.__data.population = undefined;
                     return;
                 }
                 let Population = require('../backbone_elements/population.js');

@@ -83,7 +83,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -103,7 +103,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -125,7 +125,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -143,7 +143,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -166,7 +166,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -187,7 +187,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -219,7 +219,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -250,7 +250,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -269,7 +269,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.category = null;
+                    this.__data.category = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -289,7 +289,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -308,7 +308,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -328,7 +328,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.permittedDataType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.permittedDataType = null;
+                    this.__data.permittedDataType = undefined;
                     return;
                 }
                 this.__data.permittedDataType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -347,7 +347,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.multipleResultsAllowed,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.multipleResultsAllowed = null;
+                    this.__data.multipleResultsAllowed = undefined;
                     return;
                 }
                 this.__data.multipleResultsAllowed = valueProvided;
@@ -365,7 +365,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.method = null;
+                    this.__data.method = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -385,7 +385,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.preferredReportName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.preferredReportName = null;
+                    this.__data.preferredReportName = undefined;
                     return;
                 }
                 this.__data.preferredReportName = valueProvided;
@@ -403,7 +403,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.quantitativeDetails,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.quantitativeDetails = null;
+                    this.__data.quantitativeDetails = undefined;
                     return;
                 }
                 let ObservationDefinitionQuantitativeDetails = require('../backbone_elements/observationDefinitionQuantitativeDetails.js');
@@ -423,7 +423,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.qualifiedInterval,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.qualifiedInterval = null;
+                    this.__data.qualifiedInterval = undefined;
                     return;
                 }
                 let ObservationDefinitionQualifiedInterval = require('../backbone_elements/observationDefinitionQualifiedInterval.js');
@@ -443,7 +443,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.validCodedValueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.validCodedValueSet = null;
+                    this.__data.validCodedValueSet = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -463,7 +463,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.normalCodedValueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.normalCodedValueSet = null;
+                    this.__data.normalCodedValueSet = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -483,7 +483,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.abnormalCodedValueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.abnormalCodedValueSet = null;
+                    this.__data.abnormalCodedValueSet = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -503,7 +503,7 @@ class ObservationDefinition extends Resource {
             get: () => this.__data.criticalCodedValueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.criticalCodedValueSet = null;
+                    this.__data.criticalCodedValueSet = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

@@ -125,7 +125,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -145,7 +145,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -167,7 +167,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -185,7 +185,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -208,7 +208,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -229,7 +229,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -261,7 +261,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -292,7 +292,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -317,7 +317,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -337,7 +337,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -366,7 +366,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.version = null;
+                    this.__data.version = undefined;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -386,7 +386,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -404,7 +404,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.title = null;
+                    this.__data.title = undefined;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -423,7 +423,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.shortTitle,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.shortTitle = null;
+                    this.__data.shortTitle = undefined;
                     return;
                 }
                 this.__data.shortTitle = valueProvided;
@@ -442,7 +442,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.subtitle,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subtitle = null;
+                    this.__data.subtitle = undefined;
                     return;
                 }
                 this.__data.subtitle = valueProvided;
@@ -461,7 +461,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -481,7 +481,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.experimental = null;
+                    this.__data.experimental = undefined;
                     return;
                 }
                 this.__data.experimental = valueProvided;
@@ -499,7 +499,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.subjectCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subjectCodeableConcept = null;
+                    this.__data.subjectCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -518,7 +518,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.subjectReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subjectReference = null;
+                    this.__data.subjectReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -540,7 +540,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.date = null;
+                    this.__data.date = undefined;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -559,7 +559,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.publisher = null;
+                    this.__data.publisher = undefined;
                     return;
                 }
                 this.__data.publisher = valueProvided;
@@ -578,7 +578,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contact = null;
+                    this.__data.contact = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -598,7 +598,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -616,7 +616,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.comment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.comment = null;
+                    this.__data.comment = undefined;
                     return;
                 }
                 this.__data.comment = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -638,7 +638,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.useContext = null;
+                    this.__data.useContext = undefined;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -658,7 +658,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.jurisdiction = null;
+                    this.__data.jurisdiction = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -678,7 +678,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.purpose = null;
+                    this.__data.purpose = undefined;
                     return;
                 }
                 this.__data.purpose = valueProvided;
@@ -697,7 +697,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.usage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.usage = null;
+                    this.__data.usage = undefined;
                     return;
                 }
                 this.__data.usage = valueProvided;
@@ -717,7 +717,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.copyright = null;
+                    this.__data.copyright = undefined;
                     return;
                 }
                 this.__data.copyright = valueProvided;
@@ -736,7 +736,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.approvalDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.approvalDate = null;
+                    this.__data.approvalDate = undefined;
                     return;
                 }
                 this.__data.approvalDate = valueProvided;
@@ -755,7 +755,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.lastReviewDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.lastReviewDate = null;
+                    this.__data.lastReviewDate = undefined;
                     return;
                 }
                 this.__data.lastReviewDate = valueProvided;
@@ -774,7 +774,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.effectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.effectivePeriod = null;
+                    this.__data.effectivePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -795,7 +795,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.topic,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.topic = null;
+                    this.__data.topic = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -815,7 +815,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.author = null;
+                    this.__data.author = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -835,7 +835,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.editor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.editor = null;
+                    this.__data.editor = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -855,7 +855,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.reviewer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.reviewer = null;
+                    this.__data.reviewer = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -875,7 +875,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.endorser,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.endorser = null;
+                    this.__data.endorser = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -895,7 +895,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.relatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.relatedArtifact = null;
+                    this.__data.relatedArtifact = undefined;
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
@@ -915,7 +915,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.library,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.library = null;
+                    this.__data.library = undefined;
                     return;
                 }
                 this.__data.library = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -933,7 +933,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -951,7 +951,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.variableType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.variableType = null;
+                    this.__data.variableType = undefined;
                     return;
                 }
                 this.__data.variableType = valueProvided;
@@ -970,7 +970,7 @@ class ResearchElementDefinition extends Resource {
             get: () => this.__data.characteristic,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.characteristic = null;
+                    this.__data.characteristic = undefined;
                     return;
                 }
                 let ResearchElementDefinitionCharacteristic = require('../backbone_elements/researchElementDefinitionCharacteristic.js');

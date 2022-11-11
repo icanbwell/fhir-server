@@ -54,7 +54,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,7 +76,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -107,7 +107,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -131,7 +131,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 this.__data.text = valueProvided;
@@ -150,7 +150,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.site,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.site = null;
+                    this.__data.site = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -171,7 +171,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.route,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.route = null;
+                    this.__data.route = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -193,7 +193,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.method = null;
+                    this.__data.method = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -214,7 +214,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.dose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dose = null;
+                    this.__data.dose = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -233,7 +233,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.rateRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.rateRatio = null;
+                    this.__data.rateRatio = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -252,7 +252,7 @@ class MedicationAdministrationDosage extends Element {
             get: () => this.__data.rateQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.rateQuantity = null;
+                    this.__data.rateQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

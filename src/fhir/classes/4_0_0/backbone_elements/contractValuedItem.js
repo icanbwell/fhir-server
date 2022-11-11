@@ -67,7 +67,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -89,7 +89,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,7 +120,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -139,7 +139,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.entityCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.entityCodeableConcept = null;
+                    this.__data.entityCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -158,7 +158,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.entityReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.entityReference = null;
+                    this.__data.entityReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -177,7 +177,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -197,7 +197,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.effectiveTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.effectiveTime = null;
+                    this.__data.effectiveTime = undefined;
                     return;
                 }
                 this.__data.effectiveTime = valueProvided;
@@ -216,7 +216,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.quantity = null;
+                    this.__data.quantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -235,7 +235,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.unitPrice,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.unitPrice = null;
+                    this.__data.unitPrice = undefined;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -256,7 +256,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.factor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.factor = null;
+                    this.__data.factor = undefined;
                     return;
                 }
                 this.__data.factor = valueProvided;
@@ -277,7 +277,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.points,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.points = null;
+                    this.__data.points = undefined;
                     return;
                 }
                 this.__data.points = valueProvided;
@@ -298,7 +298,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.net,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.net = null;
+                    this.__data.net = undefined;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -317,7 +317,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.payment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.payment = null;
+                    this.__data.payment = undefined;
                     return;
                 }
                 this.__data.payment = valueProvided;
@@ -335,7 +335,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.paymentDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.paymentDate = null;
+                    this.__data.paymentDate = undefined;
                     return;
                 }
                 this.__data.paymentDate = valueProvided;
@@ -353,7 +353,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.responsible,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.responsible = null;
+                    this.__data.responsible = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -372,7 +372,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.recipient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.recipient = null;
+                    this.__data.recipient = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -392,7 +392,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.linkId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.linkId = null;
+                    this.__data.linkId = undefined;
                     return;
                 }
                 this.__data.linkId = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -411,7 +411,7 @@ class ContractValuedItem extends Element {
             get: () => this.__data.securityLabelNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.securityLabelNumber = null;
+                    this.__data.securityLabelNumber = undefined;
                     return;
                 }
                 this.__data.securityLabelNumber = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

@@ -99,7 +99,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -119,7 +119,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -141,7 +141,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -159,7 +159,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -182,7 +182,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -203,7 +203,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -235,7 +235,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -266,7 +266,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -291,7 +291,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -314,7 +314,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.version = null;
+                    this.__data.version = undefined;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -334,7 +334,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -352,7 +352,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.title = null;
+                    this.__data.title = undefined;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -371,7 +371,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -391,7 +391,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.experimental = null;
+                    this.__data.experimental = undefined;
                     return;
                 }
                 this.__data.experimental = valueProvided;
@@ -412,7 +412,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.date = null;
+                    this.__data.date = undefined;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -431,7 +431,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.publisher = null;
+                    this.__data.publisher = undefined;
                     return;
                 }
                 this.__data.publisher = valueProvided;
@@ -450,7 +450,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contact = null;
+                    this.__data.contact = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -470,7 +470,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -492,7 +492,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.useContext = null;
+                    this.__data.useContext = undefined;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -512,7 +512,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.jurisdiction = null;
+                    this.__data.jurisdiction = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -533,7 +533,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.copyright = null;
+                    this.__data.copyright = undefined;
                     return;
                 }
                 this.__data.copyright = valueProvided;
@@ -554,7 +554,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.packageId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.packageId = null;
+                    this.__data.packageId = undefined;
                     return;
                 }
                 this.__data.packageId = valueProvided;
@@ -573,7 +573,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.license,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.license = null;
+                    this.__data.license = undefined;
                     return;
                 }
                 this.__data.license = valueProvided;
@@ -594,7 +594,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.fhirVersion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.fhirVersion = null;
+                    this.__data.fhirVersion = undefined;
                     return;
                 }
                 this.__data.fhirVersion = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -614,7 +614,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.dependsOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dependsOn = null;
+                    this.__data.dependsOn = undefined;
                     return;
                 }
                 let ImplementationGuideDependsOn = require('../backbone_elements/implementationGuideDependsOn.js');
@@ -634,7 +634,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.global,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.global = null;
+                    this.__data.global = undefined;
                     return;
                 }
                 let ImplementationGuideGlobal = require('../backbone_elements/implementationGuideGlobal.js');
@@ -654,7 +654,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definition = null;
+                    this.__data.definition = undefined;
                     return;
                 }
                 let ImplementationGuideDefinition = require('../backbone_elements/implementationGuideDefinition.js');
@@ -674,7 +674,7 @@ class ImplementationGuide extends Resource {
             get: () => this.__data.manifest,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.manifest = null;
+                    this.__data.manifest = undefined;
                     return;
                 }
                 let ImplementationGuideManifest = require('../backbone_elements/implementationGuideManifest.js');

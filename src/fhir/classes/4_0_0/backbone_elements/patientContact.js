@@ -51,7 +51,7 @@ class PatientContact extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,7 +73,7 @@ class PatientContact extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,7 +104,7 @@ class PatientContact extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -123,7 +123,7 @@ class PatientContact extends Element {
             get: () => this.__data.relationship,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.relationship = null;
+                    this.__data.relationship = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -142,7 +142,7 @@ class PatientContact extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
@@ -161,7 +161,7 @@ class PatientContact extends Element {
             get: () => this.__data.telecom,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.telecom = null;
+                    this.__data.telecom = undefined;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -180,7 +180,7 @@ class PatientContact extends Element {
             get: () => this.__data.address,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.address = null;
+                    this.__data.address = undefined;
                     return;
                 }
                 let Address = require('../complex_types/address.js');
@@ -200,7 +200,7 @@ class PatientContact extends Element {
             get: () => this.__data.gender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.gender = null;
+                    this.__data.gender = undefined;
                     return;
                 }
                 this.__data.gender = valueProvided;
@@ -219,7 +219,7 @@ class PatientContact extends Element {
             get: () => this.__data.organization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.organization = null;
+                    this.__data.organization = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -239,7 +239,7 @@ class PatientContact extends Element {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.period = null;
+                    this.__data.period = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');

@@ -45,7 +45,7 @@ class DataRequirementCodeFilter extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -67,7 +67,7 @@ class DataRequirementCodeFilter extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -93,7 +93,7 @@ class DataRequirementCodeFilter extends Element {
             get: () => this.__data.path,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.path = null;
+                    this.__data.path = undefined;
                     return;
                 }
                 this.__data.path = valueProvided;
@@ -113,7 +113,7 @@ class DataRequirementCodeFilter extends Element {
             get: () => this.__data.searchParam,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.searchParam = null;
+                    this.__data.searchParam = undefined;
                     return;
                 }
                 this.__data.searchParam = valueProvided;
@@ -134,7 +134,7 @@ class DataRequirementCodeFilter extends Element {
             get: () => this.__data.valueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueSet = null;
+                    this.__data.valueSet = undefined;
                     return;
                 }
                 this.__data.valueSet = valueProvided;
@@ -156,7 +156,7 @@ class DataRequirementCodeFilter extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');

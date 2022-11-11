@@ -46,7 +46,7 @@ class SubstancePolymerRepeatUnit extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,7 +68,7 @@ class SubstancePolymerRepeatUnit extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,7 +99,7 @@ class SubstancePolymerRepeatUnit extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,7 +118,7 @@ class SubstancePolymerRepeatUnit extends Element {
             get: () => this.__data.orientationOfPolymerisation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.orientationOfPolymerisation = null;
+                    this.__data.orientationOfPolymerisation = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -137,7 +137,7 @@ class SubstancePolymerRepeatUnit extends Element {
             get: () => this.__data.repeatUnit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.repeatUnit = null;
+                    this.__data.repeatUnit = undefined;
                     return;
                 }
                 this.__data.repeatUnit = valueProvided;
@@ -155,7 +155,7 @@ class SubstancePolymerRepeatUnit extends Element {
             get: () => this.__data.amount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amount = null;
+                    this.__data.amount = undefined;
                     return;
                 }
                 let SubstanceAmount = require('../backbone_elements/substanceAmount.js');
@@ -174,7 +174,7 @@ class SubstancePolymerRepeatUnit extends Element {
             get: () => this.__data.degreeOfPolymerisation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.degreeOfPolymerisation = null;
+                    this.__data.degreeOfPolymerisation = undefined;
                     return;
                 }
                 let SubstancePolymerDegreeOfPolymerisation = require('../backbone_elements/substancePolymerDegreeOfPolymerisation.js');
@@ -193,7 +193,7 @@ class SubstancePolymerRepeatUnit extends Element {
             get: () => this.__data.structuralRepresentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.structuralRepresentation = null;
+                    this.__data.structuralRepresentation = undefined;
                     return;
                 }
                 let SubstancePolymerStructuralRepresentation = require('../backbone_elements/substancePolymerStructuralRepresentation.js');

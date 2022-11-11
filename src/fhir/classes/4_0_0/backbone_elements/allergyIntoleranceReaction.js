@@ -51,7 +51,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,7 +73,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,7 +104,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -133,7 +133,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.substance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.substance = null;
+                    this.__data.substance = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -153,7 +153,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.manifestation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.manifestation = null;
+                    this.__data.manifestation = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -173,7 +173,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -191,7 +191,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.onset,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onset = null;
+                    this.__data.onset = undefined;
                     return;
                 }
                 this.__data.onset = valueProvided;
@@ -210,7 +210,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.severity = null;
+                    this.__data.severity = undefined;
                     return;
                 }
                 this.__data.severity = valueProvided;
@@ -228,7 +228,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.exposureRoute,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.exposureRoute = null;
+                    this.__data.exposureRoute = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -247,7 +247,7 @@ class AllergyIntoleranceReaction extends Element {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = null;
+                    this.__data.note = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');

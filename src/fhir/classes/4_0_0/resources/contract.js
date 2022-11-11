@@ -127,7 +127,7 @@ class Contract extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -147,7 +147,7 @@ class Contract extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -169,7 +169,7 @@ class Contract extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -187,7 +187,7 @@ class Contract extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -210,7 +210,7 @@ class Contract extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -231,7 +231,7 @@ class Contract extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -263,7 +263,7 @@ class Contract extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -294,7 +294,7 @@ class Contract extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -314,7 +314,7 @@ class Contract extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -334,7 +334,7 @@ class Contract extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -353,7 +353,7 @@ class Contract extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.version = null;
+                    this.__data.version = undefined;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -371,7 +371,7 @@ class Contract extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -393,7 +393,7 @@ class Contract extends Resource {
             get: () => this.__data.legalState,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.legalState = null;
+                    this.__data.legalState = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -413,7 +413,7 @@ class Contract extends Resource {
             get: () => this.__data.instantiatesCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.instantiatesCanonical = null;
+                    this.__data.instantiatesCanonical = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -433,7 +433,7 @@ class Contract extends Resource {
             get: () => this.__data.instantiatesUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.instantiatesUri = null;
+                    this.__data.instantiatesUri = undefined;
                     return;
                 }
                 this.__data.instantiatesUri = valueProvided;
@@ -452,7 +452,7 @@ class Contract extends Resource {
             get: () => this.__data.contentDerivative,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contentDerivative = null;
+                    this.__data.contentDerivative = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -471,7 +471,7 @@ class Contract extends Resource {
             get: () => this.__data.issued,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.issued = null;
+                    this.__data.issued = undefined;
                     return;
                 }
                 this.__data.issued = valueProvided;
@@ -489,7 +489,7 @@ class Contract extends Resource {
             get: () => this.__data.applies,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.applies = null;
+                    this.__data.applies = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -509,7 +509,7 @@ class Contract extends Resource {
             get: () => this.__data.expirationType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.expirationType = null;
+                    this.__data.expirationType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -528,7 +528,7 @@ class Contract extends Resource {
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subject = null;
+                    this.__data.subject = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -550,7 +550,7 @@ class Contract extends Resource {
             get: () => this.__data.authority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.authority = null;
+                    this.__data.authority = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -572,7 +572,7 @@ class Contract extends Resource {
             get: () => this.__data.domain,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.domain = null;
+                    this.__data.domain = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -591,7 +591,7 @@ class Contract extends Resource {
             get: () => this.__data.site,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.site = null;
+                    this.__data.site = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -613,7 +613,7 @@ class Contract extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -633,7 +633,7 @@ class Contract extends Resource {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.title = null;
+                    this.__data.title = undefined;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -653,7 +653,7 @@ class Contract extends Resource {
             get: () => this.__data.subtitle,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subtitle = null;
+                    this.__data.subtitle = undefined;
                     return;
                 }
                 this.__data.subtitle = valueProvided;
@@ -673,7 +673,7 @@ class Contract extends Resource {
             get: () => this.__data.alias,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.alias = null;
+                    this.__data.alias = undefined;
                     return;
                 }
                 this.__data.alias = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -692,7 +692,7 @@ class Contract extends Resource {
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.author = null;
+                    this.__data.author = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -712,7 +712,7 @@ class Contract extends Resource {
             get: () => this.__data.scope,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.scope = null;
+                    this.__data.scope = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -731,7 +731,7 @@ class Contract extends Resource {
             get: () => this.__data.topicCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.topicCodeableConcept = null;
+                    this.__data.topicCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -750,7 +750,7 @@ class Contract extends Resource {
             get: () => this.__data.topicReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.topicReference = null;
+                    this.__data.topicReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -773,7 +773,7 @@ class Contract extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -794,7 +794,7 @@ class Contract extends Resource {
             get: () => this.__data.subType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subType = null;
+                    this.__data.subType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -815,7 +815,7 @@ class Contract extends Resource {
             get: () => this.__data.contentDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contentDefinition = null;
+                    this.__data.contentDefinition = undefined;
                     return;
                 }
                 let ContractContentDefinition = require('../backbone_elements/contractContentDefinition.js');
@@ -835,7 +835,7 @@ class Contract extends Resource {
             get: () => this.__data.term,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.term = null;
+                    this.__data.term = undefined;
                     return;
                 }
                 let ContractTerm = require('../backbone_elements/contractTerm.js');
@@ -855,7 +855,7 @@ class Contract extends Resource {
             get: () => this.__data.supportingInfo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.supportingInfo = null;
+                    this.__data.supportingInfo = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -878,7 +878,7 @@ class Contract extends Resource {
             get: () => this.__data.relevantHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.relevantHistory = null;
+                    this.__data.relevantHistory = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -900,7 +900,7 @@ class Contract extends Resource {
             get: () => this.__data.signer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.signer = null;
+                    this.__data.signer = undefined;
                     return;
                 }
                 let ContractSigner = require('../backbone_elements/contractSigner.js');
@@ -924,7 +924,7 @@ class Contract extends Resource {
             get: () => this.__data.friendly,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.friendly = null;
+                    this.__data.friendly = undefined;
                     return;
                 }
                 let ContractFriendly = require('../backbone_elements/contractFriendly.js');
@@ -943,7 +943,7 @@ class Contract extends Resource {
             get: () => this.__data.legal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.legal = null;
+                    this.__data.legal = undefined;
                     return;
                 }
                 let ContractLegal = require('../backbone_elements/contractLegal.js');
@@ -962,7 +962,7 @@ class Contract extends Resource {
             get: () => this.__data.rule,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.rule = null;
+                    this.__data.rule = undefined;
                     return;
                 }
                 let ContractRule = require('../backbone_elements/contractRule.js');
@@ -981,7 +981,7 @@ class Contract extends Resource {
             get: () => this.__data.legallyBindingAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.legallyBindingAttachment = null;
+                    this.__data.legallyBindingAttachment = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -1000,7 +1000,7 @@ class Contract extends Resource {
             get: () => this.__data.legallyBindingReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.legallyBindingReference = null;
+                    this.__data.legallyBindingReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

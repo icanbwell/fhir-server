@@ -59,7 +59,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -81,7 +81,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -112,7 +112,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -131,7 +131,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.substanceReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.substanceReference = null;
+                    this.__data.substanceReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -150,7 +150,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.substanceCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.substanceCodeableConcept = null;
+                    this.__data.substanceCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -169,7 +169,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.relationship,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.relationship = null;
+                    this.__data.relationship = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -190,7 +190,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.isDefining,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.isDefining = null;
+                    this.__data.isDefining = undefined;
                     return;
                 }
                 this.__data.isDefining = valueProvided;
@@ -208,7 +208,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.amountQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amountQuantity = null;
+                    this.__data.amountQuantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -227,7 +227,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.amountRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amountRange = null;
+                    this.__data.amountRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -246,7 +246,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.amountRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amountRatio = null;
+                    this.__data.amountRatio = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -265,7 +265,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.amountString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amountString = null;
+                    this.__data.amountString = undefined;
                     return;
                 }
                 this.__data.amountString = valueProvided;
@@ -283,7 +283,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.amountRatioLowLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amountRatioLowLimit = null;
+                    this.__data.amountRatioLowLimit = undefined;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -303,7 +303,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.amountType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.amountType = null;
+                    this.__data.amountType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -322,7 +322,7 @@ class SubstanceSpecificationRelationship extends Element {
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.source = null;
+                    this.__data.source = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

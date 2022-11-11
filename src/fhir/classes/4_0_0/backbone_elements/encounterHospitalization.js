@@ -55,7 +55,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -77,7 +77,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -108,7 +108,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -127,7 +127,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.preAdmissionIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.preAdmissionIdentifier = null;
+                    this.__data.preAdmissionIdentifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -146,7 +146,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.origin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.origin = null;
+                    this.__data.origin = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -165,7 +165,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.admitSource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.admitSource = null;
+                    this.__data.admitSource = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -184,7 +184,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.reAdmission,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.reAdmission = null;
+                    this.__data.reAdmission = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -203,7 +203,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.dietPreference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dietPreference = null;
+                    this.__data.dietPreference = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -222,7 +222,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.specialCourtesy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.specialCourtesy = null;
+                    this.__data.specialCourtesy = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -242,7 +242,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.specialArrangement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.specialArrangement = null;
+                    this.__data.specialArrangement = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -261,7 +261,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.destination,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.destination = null;
+                    this.__data.destination = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -280,7 +280,7 @@ class EncounterHospitalization extends Element {
             get: () => this.__data.dischargeDisposition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dischargeDisposition = null;
+                    this.__data.dischargeDisposition = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');

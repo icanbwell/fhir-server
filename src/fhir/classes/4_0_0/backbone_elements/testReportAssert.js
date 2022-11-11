@@ -42,7 +42,7 @@ class TestReportAssert extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -64,7 +64,7 @@ class TestReportAssert extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -95,7 +95,7 @@ class TestReportAssert extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -114,7 +114,7 @@ class TestReportAssert extends Element {
             get: () => this.__data.result,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.result = null;
+                    this.__data.result = undefined;
                     return;
                 }
                 this.__data.result = valueProvided;
@@ -132,7 +132,7 @@ class TestReportAssert extends Element {
             get: () => this.__data.message,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.message = null;
+                    this.__data.message = undefined;
                     return;
                 }
                 this.__data.message = valueProvided;
@@ -150,7 +150,7 @@ class TestReportAssert extends Element {
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.detail = null;
+                    this.__data.detail = undefined;
                     return;
                 }
                 this.__data.detail = valueProvided;

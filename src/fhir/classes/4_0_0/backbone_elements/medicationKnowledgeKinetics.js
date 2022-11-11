@@ -42,7 +42,7 @@ class MedicationKnowledgeKinetics extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -64,7 +64,7 @@ class MedicationKnowledgeKinetics extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -95,7 +95,7 @@ class MedicationKnowledgeKinetics extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -114,7 +114,7 @@ class MedicationKnowledgeKinetics extends Element {
             get: () => this.__data.areaUnderCurve,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.areaUnderCurve = null;
+                    this.__data.areaUnderCurve = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -133,7 +133,7 @@ class MedicationKnowledgeKinetics extends Element {
             get: () => this.__data.lethalDose50,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.lethalDose50 = null;
+                    this.__data.lethalDose50 = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -153,7 +153,7 @@ class MedicationKnowledgeKinetics extends Element {
             get: () => this.__data.halfLifePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.halfLifePeriod = null;
+                    this.__data.halfLifePeriod = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

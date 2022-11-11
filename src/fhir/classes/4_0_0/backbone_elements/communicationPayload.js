@@ -44,7 +44,7 @@ class CommunicationPayload extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,7 +66,7 @@ class CommunicationPayload extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,7 +97,7 @@ class CommunicationPayload extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,7 +116,7 @@ class CommunicationPayload extends Element {
             get: () => this.__data.contentString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contentString = null;
+                    this.__data.contentString = undefined;
                     return;
                 }
                 this.__data.contentString = valueProvided;
@@ -134,7 +134,7 @@ class CommunicationPayload extends Element {
             get: () => this.__data.contentAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contentAttachment = null;
+                    this.__data.contentAttachment = undefined;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -153,7 +153,7 @@ class CommunicationPayload extends Element {
             get: () => this.__data.contentReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contentReference = null;
+                    this.__data.contentReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

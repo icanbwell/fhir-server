@@ -105,7 +105,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -125,7 +125,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -147,7 +147,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -165,7 +165,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -188,7 +188,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -209,7 +209,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -241,7 +241,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -272,7 +272,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -297,7 +297,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -317,7 +317,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -346,7 +346,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.version = null;
+                    this.__data.version = undefined;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -364,7 +364,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.title = null;
+                    this.__data.title = undefined;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -383,7 +383,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.derivedFromUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.derivedFromUri = null;
+                    this.__data.derivedFromUri = undefined;
                     return;
                 }
                 this.__data.derivedFromUri = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -402,7 +402,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.partOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.partOf = null;
+                    this.__data.partOf = undefined;
                     return;
                 }
                 this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -421,7 +421,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.replaces,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.replaces = null;
+                    this.__data.replaces = undefined;
                     return;
                 }
                 this.__data.replaces = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -439,7 +439,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -459,7 +459,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.experimental = null;
+                    this.__data.experimental = undefined;
                     return;
                 }
                 this.__data.experimental = valueProvided;
@@ -480,7 +480,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.date = null;
+                    this.__data.date = undefined;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -499,7 +499,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.publisher = null;
+                    this.__data.publisher = undefined;
                     return;
                 }
                 this.__data.publisher = valueProvided;
@@ -518,7 +518,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contact = null;
+                    this.__data.contact = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -538,7 +538,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -560,7 +560,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.useContext = null;
+                    this.__data.useContext = undefined;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -580,7 +580,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.jurisdiction = null;
+                    this.__data.jurisdiction = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -601,7 +601,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.copyright = null;
+                    this.__data.copyright = undefined;
                     return;
                 }
                 this.__data.copyright = valueProvided;
@@ -620,7 +620,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.approvalDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.approvalDate = null;
+                    this.__data.approvalDate = undefined;
                     return;
                 }
                 this.__data.approvalDate = valueProvided;
@@ -639,7 +639,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.lastReviewDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.lastReviewDate = null;
+                    this.__data.lastReviewDate = undefined;
                     return;
                 }
                 this.__data.lastReviewDate = valueProvided;
@@ -658,7 +658,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.effectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.effectivePeriod = null;
+                    this.__data.effectivePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -678,7 +678,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -698,7 +698,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.instance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.instance = null;
+                    this.__data.instance = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -717,7 +717,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.applicability,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.applicability = null;
+                    this.__data.applicability = undefined;
                     return;
                 }
                 let ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
@@ -738,7 +738,7 @@ class ChargeItemDefinition extends Resource {
             get: () => this.__data.propertyGroup,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.propertyGroup = null;
+                    this.__data.propertyGroup = undefined;
                     return;
                 }
                 let ChargeItemDefinitionPropertyGroup = require('../backbone_elements/chargeItemDefinitionPropertyGroup.js');

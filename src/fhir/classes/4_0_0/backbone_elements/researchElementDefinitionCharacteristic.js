@@ -79,7 +79,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -101,7 +101,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -132,7 +132,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -151,7 +151,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.definitionCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definitionCodeableConcept = null;
+                    this.__data.definitionCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -170,7 +170,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.definitionCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definitionCanonical = null;
+                    this.__data.definitionCanonical = undefined;
                     return;
                 }
                 this.__data.definitionCanonical = valueProvided;
@@ -188,7 +188,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.definitionExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definitionExpression = null;
+                    this.__data.definitionExpression = undefined;
                     return;
                 }
                 let Expression = require('../complex_types/expression.js');
@@ -207,7 +207,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.definitionDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definitionDataRequirement = null;
+                    this.__data.definitionDataRequirement = undefined;
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
@@ -227,7 +227,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.usageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.usageContext = null;
+                    this.__data.usageContext = undefined;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -246,7 +246,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.exclude,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.exclude = null;
+                    this.__data.exclude = undefined;
                     return;
                 }
                 this.__data.exclude = valueProvided;
@@ -264,7 +264,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.unitOfMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.unitOfMeasure = null;
+                    this.__data.unitOfMeasure = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -283,7 +283,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.studyEffectiveDescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.studyEffectiveDescription = null;
+                    this.__data.studyEffectiveDescription = undefined;
                     return;
                 }
                 this.__data.studyEffectiveDescription = valueProvided;
@@ -301,7 +301,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.studyEffectiveDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.studyEffectiveDateTime = null;
+                    this.__data.studyEffectiveDateTime = undefined;
                     return;
                 }
                 this.__data.studyEffectiveDateTime = valueProvided;
@@ -319,7 +319,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.studyEffectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.studyEffectivePeriod = null;
+                    this.__data.studyEffectivePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -338,7 +338,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.studyEffectiveDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.studyEffectiveDuration = null;
+                    this.__data.studyEffectiveDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -357,7 +357,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.studyEffectiveTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.studyEffectiveTiming = null;
+                    this.__data.studyEffectiveTiming = undefined;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -376,7 +376,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.studyEffectiveTimeFromStart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.studyEffectiveTimeFromStart = null;
+                    this.__data.studyEffectiveTimeFromStart = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -395,7 +395,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.studyEffectiveGroupMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.studyEffectiveGroupMeasure = null;
+                    this.__data.studyEffectiveGroupMeasure = undefined;
                     return;
                 }
                 this.__data.studyEffectiveGroupMeasure = valueProvided;
@@ -413,7 +413,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.participantEffectiveDescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveDescription = null;
+                    this.__data.participantEffectiveDescription = undefined;
                     return;
                 }
                 this.__data.participantEffectiveDescription = valueProvided;
@@ -431,7 +431,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.participantEffectiveDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveDateTime = null;
+                    this.__data.participantEffectiveDateTime = undefined;
                     return;
                 }
                 this.__data.participantEffectiveDateTime = valueProvided;
@@ -449,7 +449,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.participantEffectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectivePeriod = null;
+                    this.__data.participantEffectivePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -468,7 +468,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.participantEffectiveDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveDuration = null;
+                    this.__data.participantEffectiveDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -487,7 +487,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.participantEffectiveTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveTiming = null;
+                    this.__data.participantEffectiveTiming = undefined;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -506,7 +506,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.participantEffectiveTimeFromStart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveTimeFromStart = null;
+                    this.__data.participantEffectiveTimeFromStart = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -525,7 +525,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
             get: () => this.__data.participantEffectiveGroupMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.participantEffectiveGroupMeasure = null;
+                    this.__data.participantEffectiveGroupMeasure = undefined;
                     return;
                 }
                 this.__data.participantEffectiveGroupMeasure = valueProvided;

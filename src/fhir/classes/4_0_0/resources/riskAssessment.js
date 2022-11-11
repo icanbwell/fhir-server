@@ -93,7 +93,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -113,7 +113,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -135,7 +135,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -153,7 +153,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -176,7 +176,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -197,7 +197,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -229,7 +229,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -260,7 +260,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -279,7 +279,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -298,7 +298,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.basedOn = null;
+                    this.__data.basedOn = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -318,7 +318,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.parent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.parent = null;
+                    this.__data.parent = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -337,7 +337,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -355,7 +355,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.method = null;
+                    this.__data.method = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -374,7 +374,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -393,7 +393,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subject = null;
+                    this.__data.subject = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -412,7 +412,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.encounter = null;
+                    this.__data.encounter = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -431,7 +431,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.occurrenceDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.occurrenceDateTime = null;
+                    this.__data.occurrenceDateTime = undefined;
                     return;
                 }
                 this.__data.occurrenceDateTime = valueProvided;
@@ -449,7 +449,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.occurrencePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.occurrencePeriod = null;
+                    this.__data.occurrencePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -469,7 +469,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.condition = null;
+                    this.__data.condition = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -488,7 +488,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.performer = null;
+                    this.__data.performer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -507,7 +507,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.reasonCode = null;
+                    this.__data.reasonCode = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -526,7 +526,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.reasonReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.reasonReference = null;
+                    this.__data.reasonReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -546,7 +546,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.basis,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.basis = null;
+                    this.__data.basis = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -565,7 +565,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.prediction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.prediction = null;
+                    this.__data.prediction = undefined;
                     return;
                 }
                 let RiskAssessmentPrediction = require('../backbone_elements/riskAssessmentPrediction.js');
@@ -585,7 +585,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.mitigation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.mitigation = null;
+                    this.__data.mitigation = undefined;
                     return;
                 }
                 this.__data.mitigation = valueProvided;
@@ -603,7 +603,7 @@ class RiskAssessment extends Resource {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = null;
+                    this.__data.note = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');

@@ -49,7 +49,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,7 +71,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -102,7 +102,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,7 +122,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.rendering,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.rendering = null;
+                    this.__data.rendering = undefined;
                     return;
                 }
                 this.__data.rendering = valueProvided;
@@ -143,7 +143,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.resource = null;
+                    this.__data.resource = undefined;
                     return;
                 }
                 let ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
@@ -162,7 +162,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.page,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.page = null;
+                    this.__data.page = undefined;
                     return;
                 }
                 let ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
@@ -181,7 +181,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.image,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.image = null;
+                    this.__data.image = undefined;
                     return;
                 }
                 this.__data.image = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -201,7 +201,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.other,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.other = null;
+                    this.__data.other = undefined;
                     return;
                 }
                 this.__data.other = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

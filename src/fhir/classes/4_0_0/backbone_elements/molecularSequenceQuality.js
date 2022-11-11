@@ -66,7 +66,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -88,7 +88,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,7 +119,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -138,7 +138,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -156,7 +156,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.standardSequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.standardSequence = null;
+                    this.__data.standardSequence = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -176,7 +176,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.start,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.start = null;
+                    this.__data.start = undefined;
                     return;
                 }
                 this.__data.start = valueProvided;
@@ -196,7 +196,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.end,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.end = null;
+                    this.__data.end = undefined;
                     return;
                 }
                 this.__data.end = valueProvided;
@@ -215,7 +215,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.score,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.score = null;
+                    this.__data.score = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -234,7 +234,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.method = null;
+                    this.__data.method = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -256,7 +256,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.truthTP,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.truthTP = null;
+                    this.__data.truthTP = undefined;
                     return;
                 }
                 this.__data.truthTP = valueProvided;
@@ -277,7 +277,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.queryTP,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.queryTP = null;
+                    this.__data.queryTP = undefined;
                     return;
                 }
                 this.__data.queryTP = valueProvided;
@@ -299,7 +299,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.truthFN,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.truthFN = null;
+                    this.__data.truthFN = undefined;
                     return;
                 }
                 this.__data.truthFN = valueProvided;
@@ -319,7 +319,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.queryFP,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.queryFP = null;
+                    this.__data.queryFP = undefined;
                     return;
                 }
                 this.__data.queryFP = valueProvided;
@@ -339,7 +339,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.gtFP,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.gtFP = null;
+                    this.__data.gtFP = undefined;
                     return;
                 }
                 this.__data.gtFP = valueProvided;
@@ -357,7 +357,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.precision,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.precision = null;
+                    this.__data.precision = undefined;
                     return;
                 }
                 this.__data.precision = valueProvided;
@@ -375,7 +375,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.recall,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.recall = null;
+                    this.__data.recall = undefined;
                     return;
                 }
                 this.__data.recall = valueProvided;
@@ -394,7 +394,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.fScore,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.fScore = null;
+                    this.__data.fScore = undefined;
                     return;
                 }
                 this.__data.fScore = valueProvided;
@@ -413,7 +413,7 @@ class MolecularSequenceQuality extends Element {
             get: () => this.__data.roc,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.roc = null;
+                    this.__data.roc = undefined;
                     return;
                 }
                 let MolecularSequenceRoc = require('../backbone_elements/molecularSequenceRoc.js');

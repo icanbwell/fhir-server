@@ -48,7 +48,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,7 +70,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,7 +101,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,7 +120,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             get: () => this.__data.hierarchical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.hierarchical = null;
+                    this.__data.hierarchical = undefined;
                     return;
                 }
                 this.__data.hierarchical = valueProvided;
@@ -138,7 +138,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             get: () => this.__data.paging,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.paging = null;
+                    this.__data.paging = undefined;
                     return;
                 }
                 this.__data.paging = valueProvided;
@@ -156,7 +156,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             get: () => this.__data.incomplete,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.incomplete = null;
+                    this.__data.incomplete = undefined;
                     return;
                 }
                 this.__data.incomplete = valueProvided;
@@ -174,7 +174,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             get: () => this.__data.parameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.parameter = null;
+                    this.__data.parameter = undefined;
                     return;
                 }
                 let TerminologyCapabilitiesParameter = require('../backbone_elements/terminologyCapabilitiesParameter.js');
@@ -193,7 +193,7 @@ class TerminologyCapabilitiesExpansion extends Element {
             get: () => this.__data.textFilter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.textFilter = null;
+                    this.__data.textFilter = undefined;
                     return;
                 }
                 this.__data.textFilter = valueProvided;

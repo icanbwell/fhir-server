@@ -71,7 +71,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -93,7 +93,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -124,7 +124,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -143,7 +143,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -162,7 +162,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.resource = null;
+                    this.__data.resource = undefined;
                     return;
                 }
                 this.__data.resource = valueProvided;
@@ -180,7 +180,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.label,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.label = null;
+                    this.__data.label = undefined;
                     return;
                 }
                 this.__data.label = valueProvided;
@@ -199,7 +199,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -217,7 +217,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.accept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.accept = null;
+                    this.__data.accept = undefined;
                     return;
                 }
                 this.__data.accept = valueProvided;
@@ -235,7 +235,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.contentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contentType = null;
+                    this.__data.contentType = undefined;
                     return;
                 }
                 this.__data.contentType = valueProvided;
@@ -254,7 +254,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.destination,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.destination = null;
+                    this.__data.destination = undefined;
                     return;
                 }
                 this.__data.destination = valueProvided;
@@ -274,7 +274,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.encodeRequestUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.encodeRequestUrl = null;
+                    this.__data.encodeRequestUrl = undefined;
                     return;
                 }
                 this.__data.encodeRequestUrl = valueProvided;
@@ -293,7 +293,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.method = null;
+                    this.__data.method = undefined;
                     return;
                 }
                 this.__data.method = valueProvided;
@@ -312,7 +312,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.origin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.origin = null;
+                    this.__data.origin = undefined;
                     return;
                 }
                 this.__data.origin = valueProvided;
@@ -331,7 +331,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.params,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.params = null;
+                    this.__data.params = undefined;
                     return;
                 }
                 this.__data.params = valueProvided;
@@ -349,7 +349,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.requestHeader,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.requestHeader = null;
+                    this.__data.requestHeader = undefined;
                     return;
                 }
                 let TestScriptRequestHeader = require('../backbone_elements/testScriptRequestHeader.js');
@@ -368,7 +368,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.requestId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.requestId = null;
+                    this.__data.requestId = undefined;
                     return;
                 }
                 this.__data.requestId = valueProvided;
@@ -386,7 +386,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.responseId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.responseId = null;
+                    this.__data.responseId = undefined;
                     return;
                 }
                 this.__data.responseId = valueProvided;
@@ -404,7 +404,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.sourceId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.sourceId = null;
+                    this.__data.sourceId = undefined;
                     return;
                 }
                 this.__data.sourceId = valueProvided;
@@ -423,7 +423,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.targetId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.targetId = null;
+                    this.__data.targetId = undefined;
                     return;
                 }
                 this.__data.targetId = valueProvided;
@@ -441,7 +441,7 @@ class TestScriptOperation extends Element {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;

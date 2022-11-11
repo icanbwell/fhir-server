@@ -65,7 +65,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -87,7 +87,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,7 +118,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -137,7 +137,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.vaccineCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.vaccineCode = null;
+                    this.__data.vaccineCode = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -156,7 +156,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.targetDisease,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.targetDisease = null;
+                    this.__data.targetDisease = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -175,7 +175,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.contraindicatedVaccineCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contraindicatedVaccineCode = null;
+                    this.__data.contraindicatedVaccineCode = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -195,7 +195,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.forecastStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.forecastStatus = null;
+                    this.__data.forecastStatus = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -214,7 +214,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.forecastReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.forecastReason = null;
+                    this.__data.forecastReason = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -234,7 +234,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.dateCriterion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dateCriterion = null;
+                    this.__data.dateCriterion = undefined;
                     return;
                 }
                 let ImmunizationRecommendationDateCriterion = require('../backbone_elements/immunizationRecommendationDateCriterion.js');
@@ -254,7 +254,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -273,7 +273,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.series,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.series = null;
+                    this.__data.series = undefined;
                     return;
                 }
                 this.__data.series = valueProvided;
@@ -291,7 +291,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.doseNumberPositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.doseNumberPositiveInt = null;
+                    this.__data.doseNumberPositiveInt = undefined;
                     return;
                 }
                 this.__data.doseNumberPositiveInt = valueProvided;
@@ -309,7 +309,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.doseNumberString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.doseNumberString = null;
+                    this.__data.doseNumberString = undefined;
                     return;
                 }
                 this.__data.doseNumberString = valueProvided;
@@ -327,7 +327,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.seriesDosesPositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.seriesDosesPositiveInt = null;
+                    this.__data.seriesDosesPositiveInt = undefined;
                     return;
                 }
                 this.__data.seriesDosesPositiveInt = valueProvided;
@@ -345,7 +345,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.seriesDosesString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.seriesDosesString = null;
+                    this.__data.seriesDosesString = undefined;
                     return;
                 }
                 this.__data.seriesDosesString = valueProvided;
@@ -364,7 +364,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.supportingImmunization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.supportingImmunization = null;
+                    this.__data.supportingImmunization = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -385,7 +385,7 @@ class ImmunizationRecommendationRecommendation extends Element {
             get: () => this.__data.supportingPatientInformation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.supportingPatientInformation = null;
+                    this.__data.supportingPatientInformation = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

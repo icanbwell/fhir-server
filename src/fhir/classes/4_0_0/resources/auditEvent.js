@@ -80,7 +80,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -100,7 +100,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -122,7 +122,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -140,7 +140,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -163,7 +163,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -184,7 +184,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -216,7 +216,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -247,7 +247,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -268,7 +268,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -287,7 +287,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.subtype,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subtype = null;
+                    this.__data.subtype = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -307,7 +307,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.action,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.action = null;
+                    this.__data.action = undefined;
                     return;
                 }
                 this.__data.action = valueProvided;
@@ -325,7 +325,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.period = null;
+                    this.__data.period = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -344,7 +344,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.recorded,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.recorded = null;
+                    this.__data.recorded = undefined;
                     return;
                 }
                 this.__data.recorded = valueProvided;
@@ -362,7 +362,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.outcome = null;
+                    this.__data.outcome = undefined;
                     return;
                 }
                 this.__data.outcome = valueProvided;
@@ -380,7 +380,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.outcomeDesc,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.outcomeDesc = null;
+                    this.__data.outcomeDesc = undefined;
                     return;
                 }
                 this.__data.outcomeDesc = valueProvided;
@@ -398,7 +398,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.purposeOfEvent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.purposeOfEvent = null;
+                    this.__data.purposeOfEvent = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -417,7 +417,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.agent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.agent = null;
+                    this.__data.agent = undefined;
                     return;
                 }
                 let AuditEventAgent = require('../backbone_elements/auditEventAgent.js');
@@ -436,7 +436,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.source = null;
+                    this.__data.source = undefined;
                     return;
                 }
                 let AuditEventSource = require('../backbone_elements/auditEventSource.js');
@@ -455,7 +455,7 @@ class AuditEvent extends Resource {
             get: () => this.__data.entity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.entity = null;
+                    this.__data.entity = undefined;
                     return;
                 }
                 let AuditEventEntity = require('../backbone_elements/auditEventEntity.js');

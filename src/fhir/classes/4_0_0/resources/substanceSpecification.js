@@ -95,7 +95,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -115,7 +115,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -137,7 +137,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -155,7 +155,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -178,7 +178,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -199,7 +199,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -231,7 +231,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -262,7 +262,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -281,7 +281,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -300,7 +300,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -319,7 +319,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -338,7 +338,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.domain,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.domain = null;
+                    this.__data.domain = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -357,7 +357,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -375,7 +375,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.source = null;
+                    this.__data.source = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -394,7 +394,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.comment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.comment = null;
+                    this.__data.comment = undefined;
                     return;
                 }
                 this.__data.comment = valueProvided;
@@ -412,7 +412,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.moiety,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.moiety = null;
+                    this.__data.moiety = undefined;
                     return;
                 }
                 let SubstanceSpecificationMoiety = require('../backbone_elements/substanceSpecificationMoiety.js');
@@ -432,7 +432,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.property = null;
+                    this.__data.property = undefined;
                     return;
                 }
                 let SubstanceSpecificationProperty = require('../backbone_elements/substanceSpecificationProperty.js');
@@ -451,7 +451,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.referenceInformation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.referenceInformation = null;
+                    this.__data.referenceInformation = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -470,7 +470,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.structure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.structure = null;
+                    this.__data.structure = undefined;
                     return;
                 }
                 let SubstanceSpecificationStructure = require('../backbone_elements/substanceSpecificationStructure.js');
@@ -489,7 +489,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let SubstanceSpecificationCode = require('../backbone_elements/substanceSpecificationCode.js');
@@ -508,7 +508,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 let SubstanceSpecificationName = require('../backbone_elements/substanceSpecificationName.js');
@@ -528,7 +528,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.molecularWeight,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.molecularWeight = null;
+                    this.__data.molecularWeight = undefined;
                     return;
                 }
                 let SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
@@ -547,7 +547,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.relationship,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.relationship = null;
+                    this.__data.relationship = undefined;
                     return;
                 }
                 let SubstanceSpecificationRelationship = require('../backbone_elements/substanceSpecificationRelationship.js');
@@ -566,7 +566,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.nucleicAcid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.nucleicAcid = null;
+                    this.__data.nucleicAcid = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -585,7 +585,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.polymer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.polymer = null;
+                    this.__data.polymer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -604,7 +604,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.protein,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.protein = null;
+                    this.__data.protein = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -623,7 +623,7 @@ class SubstanceSpecification extends Resource {
             get: () => this.__data.sourceMaterial,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.sourceMaterial = null;
+                    this.__data.sourceMaterial = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

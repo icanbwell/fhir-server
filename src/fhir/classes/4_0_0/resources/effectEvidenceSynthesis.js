@@ -124,7 +124,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -144,7 +144,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -166,7 +166,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -184,7 +184,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -207,7 +207,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -228,7 +228,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -260,7 +260,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -291,7 +291,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -316,7 +316,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -336,7 +336,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -360,7 +360,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.version = null;
+                    this.__data.version = undefined;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -380,7 +380,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.name = null;
+                    this.__data.name = undefined;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -398,7 +398,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.title = null;
+                    this.__data.title = undefined;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -417,7 +417,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -438,7 +438,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.date = null;
+                    this.__data.date = undefined;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -457,7 +457,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.publisher = null;
+                    this.__data.publisher = undefined;
                     return;
                 }
                 this.__data.publisher = valueProvided;
@@ -476,7 +476,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contact = null;
+                    this.__data.contact = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -496,7 +496,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.description = null;
+                    this.__data.description = undefined;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -514,7 +514,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = null;
+                    this.__data.note = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
@@ -537,7 +537,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.useContext = null;
+                    this.__data.useContext = undefined;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -557,7 +557,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.jurisdiction = null;
+                    this.__data.jurisdiction = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -578,7 +578,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.copyright = null;
+                    this.__data.copyright = undefined;
                     return;
                 }
                 this.__data.copyright = valueProvided;
@@ -597,7 +597,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.approvalDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.approvalDate = null;
+                    this.__data.approvalDate = undefined;
                     return;
                 }
                 this.__data.approvalDate = valueProvided;
@@ -616,7 +616,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.lastReviewDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.lastReviewDate = null;
+                    this.__data.lastReviewDate = undefined;
                     return;
                 }
                 this.__data.lastReviewDate = valueProvided;
@@ -635,7 +635,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.effectivePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.effectivePeriod = null;
+                    this.__data.effectivePeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -656,7 +656,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.topic,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.topic = null;
+                    this.__data.topic = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -676,7 +676,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.author = null;
+                    this.__data.author = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -696,7 +696,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.editor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.editor = null;
+                    this.__data.editor = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -716,7 +716,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.reviewer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.reviewer = null;
+                    this.__data.reviewer = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -736,7 +736,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.endorser,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.endorser = null;
+                    this.__data.endorser = undefined;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -756,7 +756,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.relatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.relatedArtifact = null;
+                    this.__data.relatedArtifact = undefined;
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
@@ -775,7 +775,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.synthesisType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.synthesisType = null;
+                    this.__data.synthesisType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -794,7 +794,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.studyType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.studyType = null;
+                    this.__data.studyType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -814,7 +814,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.population,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.population = null;
+                    this.__data.population = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -834,7 +834,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.exposure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.exposure = null;
+                    this.__data.exposure = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -854,7 +854,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.exposureAlternative,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.exposureAlternative = null;
+                    this.__data.exposureAlternative = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -874,7 +874,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.outcome = null;
+                    this.__data.outcome = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -893,7 +893,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.sampleSize,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.sampleSize = null;
+                    this.__data.sampleSize = undefined;
                     return;
                 }
                 let EffectEvidenceSynthesisSampleSize = require('../backbone_elements/effectEvidenceSynthesisSampleSize.js');
@@ -913,7 +913,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.resultsByExposure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.resultsByExposure = null;
+                    this.__data.resultsByExposure = undefined;
                     return;
                 }
                 let EffectEvidenceSynthesisResultsByExposure = require('../backbone_elements/effectEvidenceSynthesisResultsByExposure.js');
@@ -932,7 +932,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.effectEstimate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.effectEstimate = null;
+                    this.__data.effectEstimate = undefined;
                     return;
                 }
                 let EffectEvidenceSynthesisEffectEstimate = require('../backbone_elements/effectEvidenceSynthesisEffectEstimate.js');
@@ -951,7 +951,7 @@ class EffectEvidenceSynthesis extends Resource {
             get: () => this.__data.certainty,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.certainty = null;
+                    this.__data.certainty = undefined;
                     return;
                 }
                 let EffectEvidenceSynthesisCertainty = require('../backbone_elements/effectEvidenceSynthesisCertainty.js');

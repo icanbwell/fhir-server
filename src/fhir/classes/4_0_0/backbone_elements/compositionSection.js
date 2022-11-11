@@ -64,7 +64,7 @@ class CompositionSection extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -86,7 +86,7 @@ class CompositionSection extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,7 +117,7 @@ class CompositionSection extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -137,7 +137,7 @@ class CompositionSection extends Element {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.title = null;
+                    this.__data.title = undefined;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -156,7 +156,7 @@ class CompositionSection extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -176,7 +176,7 @@ class CompositionSection extends Element {
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.author = null;
+                    this.__data.author = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -202,7 +202,7 @@ class CompositionSection extends Element {
             get: () => this.__data.focus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.focus = null;
+                    this.__data.focus = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -224,7 +224,7 @@ class CompositionSection extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -246,7 +246,7 @@ class CompositionSection extends Element {
             get: () => this.__data.mode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.mode = null;
+                    this.__data.mode = undefined;
                     return;
                 }
                 this.__data.mode = valueProvided;
@@ -264,7 +264,7 @@ class CompositionSection extends Element {
             get: () => this.__data.orderedBy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.orderedBy = null;
+                    this.__data.orderedBy = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -284,7 +284,7 @@ class CompositionSection extends Element {
             get: () => this.__data.entry,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.entry = null;
+                    this.__data.entry = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -304,7 +304,7 @@ class CompositionSection extends Element {
             get: () => this.__data.emptyReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.emptyReason = null;
+                    this.__data.emptyReason = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -323,7 +323,7 @@ class CompositionSection extends Element {
             get: () => this.__data.section,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.section = null;
+                    this.__data.section = undefined;
                     return;
                 }
                 this.__data.section = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionSection(v)) : [new CompositionSection(valueProvided)];

@@ -51,7 +51,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,7 +73,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,7 +104,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -128,7 +128,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 this.__data.identifier = valueProvided;
@@ -146,7 +146,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.timestamp,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.timestamp = null;
+                    this.__data.timestamp = undefined;
                     return;
                 }
                 this.__data.timestamp = valueProvided;
@@ -166,7 +166,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.total,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.total = null;
+                    this.__data.total = undefined;
                     return;
                 }
                 this.__data.total = valueProvided;
@@ -186,7 +186,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.offset,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.offset = null;
+                    this.__data.offset = undefined;
                     return;
                 }
                 this.__data.offset = valueProvided;
@@ -206,7 +206,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.parameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.parameter = null;
+                    this.__data.parameter = undefined;
                     return;
                 }
                 let ValueSetParameter = require('../backbone_elements/valueSetParameter.js');
@@ -225,7 +225,7 @@ class ValueSetExpansion extends Element {
             get: () => this.__data.contains,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contains = null;
+                    this.__data.contains = undefined;
                     return;
                 }
                 let ValueSetContains = require('../backbone_elements/valueSetContains.js');

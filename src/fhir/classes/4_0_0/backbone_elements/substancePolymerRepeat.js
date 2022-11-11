@@ -44,7 +44,7 @@ class SubstancePolymerRepeat extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,7 +66,7 @@ class SubstancePolymerRepeat extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,7 +97,7 @@ class SubstancePolymerRepeat extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,7 +116,7 @@ class SubstancePolymerRepeat extends Element {
             get: () => this.__data.numberOfUnits,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.numberOfUnits = null;
+                    this.__data.numberOfUnits = undefined;
                     return;
                 }
                 this.__data.numberOfUnits = valueProvided;
@@ -134,7 +134,7 @@ class SubstancePolymerRepeat extends Element {
             get: () => this.__data.averageMolecularFormula,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.averageMolecularFormula = null;
+                    this.__data.averageMolecularFormula = undefined;
                     return;
                 }
                 this.__data.averageMolecularFormula = valueProvided;
@@ -152,7 +152,7 @@ class SubstancePolymerRepeat extends Element {
             get: () => this.__data.repeatUnitAmountType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.repeatUnitAmountType = null;
+                    this.__data.repeatUnitAmountType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -171,7 +171,7 @@ class SubstancePolymerRepeat extends Element {
             get: () => this.__data.repeatUnit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.repeatUnit = null;
+                    this.__data.repeatUnit = undefined;
                     return;
                 }
                 let SubstancePolymerRepeatUnit = require('../backbone_elements/substancePolymerRepeatUnit.js');

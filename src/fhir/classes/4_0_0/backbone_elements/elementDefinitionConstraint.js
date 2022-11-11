@@ -53,7 +53,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -75,7 +75,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -106,7 +106,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -127,7 +127,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.key,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.key = null;
+                    this.__data.key = undefined;
                     return;
                 }
                 this.__data.key = valueProvided;
@@ -145,7 +145,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.requirements,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.requirements = null;
+                    this.__data.requirements = undefined;
                     return;
                 }
                 this.__data.requirements = valueProvided;
@@ -164,7 +164,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.severity = null;
+                    this.__data.severity = undefined;
                     return;
                 }
                 this.__data.severity = valueProvided;
@@ -183,7 +183,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.human,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.human = null;
+                    this.__data.human = undefined;
                     return;
                 }
                 this.__data.human = valueProvided;
@@ -202,7 +202,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.expression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.expression = null;
+                    this.__data.expression = undefined;
                     return;
                 }
                 this.__data.expression = valueProvided;
@@ -221,7 +221,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.xpath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.xpath = null;
+                    this.__data.xpath = undefined;
                     return;
                 }
                 this.__data.xpath = valueProvided;
@@ -240,7 +240,7 @@ class ElementDefinitionConstraint extends Element {
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.source = null;
+                    this.__data.source = undefined;
                     return;
                 }
                 this.__data.source = valueProvided;

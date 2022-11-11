@@ -54,7 +54,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,7 +76,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -107,7 +107,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -126,7 +126,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.initialFill,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.initialFill = null;
+                    this.__data.initialFill = undefined;
                     return;
                 }
                 let MedicationRequestInitialFill = require('../backbone_elements/medicationRequestInitialFill.js');
@@ -146,7 +146,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.dispenseInterval,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dispenseInterval = null;
+                    this.__data.dispenseInterval = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -166,7 +166,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.validityPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.validityPeriod = null;
+                    this.__data.validityPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -191,7 +191,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.numberOfRepeatsAllowed,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.numberOfRepeatsAllowed = null;
+                    this.__data.numberOfRepeatsAllowed = undefined;
                     return;
                 }
                 this.__data.numberOfRepeatsAllowed = valueProvided;
@@ -209,7 +209,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.quantity = null;
+                    this.__data.quantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -229,7 +229,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.expectedSupplyDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.expectedSupplyDuration = null;
+                    this.__data.expectedSupplyDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -248,7 +248,7 @@ class MedicationRequestDispenseRequest extends Element {
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.performer = null;
+                    this.__data.performer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

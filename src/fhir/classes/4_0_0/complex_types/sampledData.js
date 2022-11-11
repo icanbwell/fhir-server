@@ -51,7 +51,7 @@ class SampledData extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,7 +73,7 @@ class SampledData extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -93,7 +93,7 @@ class SampledData extends Element {
             get: () => this.__data.origin,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.origin = null;
+                    this.__data.origin = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -112,7 +112,7 @@ class SampledData extends Element {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.period = null;
+                    this.__data.period = undefined;
                     return;
                 }
                 this.__data.period = valueProvided;
@@ -131,7 +131,7 @@ class SampledData extends Element {
             get: () => this.__data.factor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.factor = null;
+                    this.__data.factor = undefined;
                     return;
                 }
                 this.__data.factor = valueProvided;
@@ -150,7 +150,7 @@ class SampledData extends Element {
             get: () => this.__data.lowerLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.lowerLimit = null;
+                    this.__data.lowerLimit = undefined;
                     return;
                 }
                 this.__data.lowerLimit = valueProvided;
@@ -169,7 +169,7 @@ class SampledData extends Element {
             get: () => this.__data.upperLimit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.upperLimit = null;
+                    this.__data.upperLimit = undefined;
                     return;
                 }
                 this.__data.upperLimit = valueProvided;
@@ -189,7 +189,7 @@ class SampledData extends Element {
             get: () => this.__data.dimensions,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.dimensions = null;
+                    this.__data.dimensions = undefined;
                     return;
                 }
                 this.__data.dimensions = valueProvided;
@@ -209,7 +209,7 @@ class SampledData extends Element {
             get: () => this.__data.data,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.data = null;
+                    this.__data.data = undefined;
                     return;
                 }
                 this.__data.data = valueProvided;

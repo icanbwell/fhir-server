@@ -65,7 +65,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -87,7 +87,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,7 +118,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -138,7 +138,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.product,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.product = null;
+                    this.__data.product = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -157,7 +157,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.eye,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.eye = null;
+                    this.__data.eye = undefined;
                     return;
                 }
                 this.__data.eye = valueProvided;
@@ -175,7 +175,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.sphere,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.sphere = null;
+                    this.__data.sphere = undefined;
                     return;
                 }
                 this.__data.sphere = valueProvided;
@@ -193,7 +193,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.cylinder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.cylinder = null;
+                    this.__data.cylinder = undefined;
                     return;
                 }
                 this.__data.cylinder = valueProvided;
@@ -211,7 +211,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.axis,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.axis = null;
+                    this.__data.axis = undefined;
                     return;
                 }
                 this.__data.axis = valueProvided;
@@ -229,7 +229,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.prism,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.prism = null;
+                    this.__data.prism = undefined;
                     return;
                 }
                 let VisionPrescriptionPrism = require('../backbone_elements/visionPrescriptionPrism.js');
@@ -248,7 +248,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.add,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.add = null;
+                    this.__data.add = undefined;
                     return;
                 }
                 this.__data.add = valueProvided;
@@ -266,7 +266,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.power,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.power = null;
+                    this.__data.power = undefined;
                     return;
                 }
                 this.__data.power = valueProvided;
@@ -284,7 +284,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.backCurve,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.backCurve = null;
+                    this.__data.backCurve = undefined;
                     return;
                 }
                 this.__data.backCurve = valueProvided;
@@ -302,7 +302,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.diameter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.diameter = null;
+                    this.__data.diameter = undefined;
                     return;
                 }
                 this.__data.diameter = valueProvided;
@@ -320,7 +320,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.duration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.duration = null;
+                    this.__data.duration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -339,7 +339,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.color,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.color = null;
+                    this.__data.color = undefined;
                     return;
                 }
                 this.__data.color = valueProvided;
@@ -357,7 +357,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.brand,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.brand = null;
+                    this.__data.brand = undefined;
                     return;
                 }
                 this.__data.brand = valueProvided;
@@ -375,7 +375,7 @@ class VisionPrescriptionLensSpecification extends Element {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = null;
+                    this.__data.note = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');

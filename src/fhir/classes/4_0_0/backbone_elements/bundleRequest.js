@@ -48,7 +48,7 @@ class BundleRequest extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,7 +70,7 @@ class BundleRequest extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,7 +101,7 @@ class BundleRequest extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -121,7 +121,7 @@ class BundleRequest extends Element {
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.method = null;
+                    this.__data.method = undefined;
                     return;
                 }
                 this.__data.method = valueProvided;
@@ -140,7 +140,7 @@ class BundleRequest extends Element {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.url = null;
+                    this.__data.url = undefined;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -159,7 +159,7 @@ class BundleRequest extends Element {
             get: () => this.__data.ifNoneMatch,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.ifNoneMatch = null;
+                    this.__data.ifNoneMatch = undefined;
                     return;
                 }
                 this.__data.ifNoneMatch = valueProvided;
@@ -178,7 +178,7 @@ class BundleRequest extends Element {
             get: () => this.__data.ifModifiedSince,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.ifModifiedSince = null;
+                    this.__data.ifModifiedSince = undefined;
                     return;
                 }
                 this.__data.ifModifiedSince = valueProvided;
@@ -197,7 +197,7 @@ class BundleRequest extends Element {
             get: () => this.__data.ifMatch,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.ifMatch = null;
+                    this.__data.ifMatch = undefined;
                     return;
                 }
                 this.__data.ifMatch = valueProvided;
@@ -218,7 +218,7 @@ class BundleRequest extends Element {
             get: () => this.__data.ifNoneExist,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.ifNoneExist = null;
+                    this.__data.ifNoneExist = undefined;
                     return;
                 }
                 this.__data.ifNoneExist = valueProvided;

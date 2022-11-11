@@ -45,7 +45,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -67,7 +67,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,7 +98,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,7 +119,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             get: () => this.__data.coverage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.coverage = null;
+                    this.__data.coverage = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -139,7 +139,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             get: () => this.__data.inforce,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.inforce = null;
+                    this.__data.inforce = undefined;
                     return;
                 }
                 this.__data.inforce = valueProvided;
@@ -157,7 +157,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             get: () => this.__data.benefitPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.benefitPeriod = null;
+                    this.__data.benefitPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -177,7 +177,7 @@ class CoverageEligibilityResponseInsurance extends Element {
             get: () => this.__data.item,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.item = null;
+                    this.__data.item = undefined;
                     return;
                 }
                 let CoverageEligibilityResponseItem = require('../backbone_elements/coverageEligibilityResponseItem.js');

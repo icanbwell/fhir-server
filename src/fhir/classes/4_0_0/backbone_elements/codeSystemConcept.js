@@ -50,7 +50,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -72,7 +72,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -103,7 +103,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -123,7 +123,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 this.__data.code = valueProvided;
@@ -142,7 +142,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.display = null;
+                    this.__data.display = undefined;
                     return;
                 }
                 this.__data.display = valueProvided;
@@ -163,7 +163,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.definition = null;
+                    this.__data.definition = undefined;
                     return;
                 }
                 this.__data.definition = valueProvided;
@@ -182,7 +182,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.designation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.designation = null;
+                    this.__data.designation = undefined;
                     return;
                 }
                 let CodeSystemDesignation = require('../backbone_elements/codeSystemDesignation.js');
@@ -201,7 +201,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.property = null;
+                    this.__data.property = undefined;
                     return;
                 }
                 let CodeSystemProperty1 = require('../backbone_elements/codeSystemProperty1.js');
@@ -222,7 +222,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.concept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.concept = null;
+                    this.__data.concept = undefined;
                     return;
                 }
                 this.__data.concept = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemConcept(v)) : [new CodeSystemConcept(valueProvided)];

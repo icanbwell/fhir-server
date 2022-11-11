@@ -88,7 +88,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -108,7 +108,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -130,7 +130,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -148,7 +148,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -171,7 +171,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -192,7 +192,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -224,7 +224,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -255,7 +255,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -275,7 +275,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -294,7 +294,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -314,7 +314,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.coordinateSystem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.coordinateSystem = null;
+                    this.__data.coordinateSystem = undefined;
                     return;
                 }
                 this.__data.coordinateSystem = valueProvided;
@@ -332,7 +332,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.patient = null;
+                    this.__data.patient = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -351,7 +351,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.specimen,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.specimen = null;
+                    this.__data.specimen = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -370,7 +370,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.device,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.device = null;
+                    this.__data.device = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -389,7 +389,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.performer = null;
+                    this.__data.performer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -408,7 +408,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.quantity = null;
+                    this.__data.quantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -428,7 +428,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.referenceSeq,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.referenceSeq = null;
+                    this.__data.referenceSeq = undefined;
                     return;
                 }
                 let MolecularSequenceReferenceSeq = require('../backbone_elements/molecularSequenceReferenceSeq.js');
@@ -451,7 +451,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.variant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.variant = null;
+                    this.__data.variant = undefined;
                     return;
                 }
                 let MolecularSequenceVariant = require('../backbone_elements/molecularSequenceVariant.js');
@@ -472,7 +472,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.observedSeq,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.observedSeq = null;
+                    this.__data.observedSeq = undefined;
                     return;
                 }
                 this.__data.observedSeq = valueProvided;
@@ -492,7 +492,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.quality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.quality = null;
+                    this.__data.quality = undefined;
                     return;
                 }
                 let MolecularSequenceQuality = require('../backbone_elements/molecularSequenceQuality.js');
@@ -512,7 +512,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.readCoverage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.readCoverage = null;
+                    this.__data.readCoverage = undefined;
                     return;
                 }
                 this.__data.readCoverage = valueProvided;
@@ -531,7 +531,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.repository,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.repository = null;
+                    this.__data.repository = undefined;
                     return;
                 }
                 let MolecularSequenceRepository = require('../backbone_elements/molecularSequenceRepository.js');
@@ -550,7 +550,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.pointer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.pointer = null;
+                    this.__data.pointer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -569,7 +569,7 @@ class MolecularSequence extends Resource {
             get: () => this.__data.structureVariant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.structureVariant = null;
+                    this.__data.structureVariant = undefined;
                     return;
                 }
                 let MolecularSequenceStructureVariant = require('../backbone_elements/molecularSequenceStructureVariant.js');

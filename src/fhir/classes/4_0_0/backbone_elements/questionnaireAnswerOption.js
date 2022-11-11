@@ -52,7 +52,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -74,7 +74,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -105,7 +105,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -124,7 +124,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.valueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueInteger = null;
+                    this.__data.valueInteger = undefined;
                     return;
                 }
                 this.__data.valueInteger = valueProvided;
@@ -142,7 +142,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.valueDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueDate = null;
+                    this.__data.valueDate = undefined;
                     return;
                 }
                 this.__data.valueDate = valueProvided;
@@ -160,7 +160,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.valueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueTime = null;
+                    this.__data.valueTime = undefined;
                     return;
                 }
                 this.__data.valueTime = valueProvided;
@@ -178,7 +178,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.valueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueString = null;
+                    this.__data.valueString = undefined;
                     return;
                 }
                 this.__data.valueString = valueProvided;
@@ -196,7 +196,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.valueCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueCoding = null;
+                    this.__data.valueCoding = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -215,7 +215,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.valueReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.valueReference = null;
+                    this.__data.valueReference = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -235,7 +235,7 @@ class QuestionnaireAnswerOption extends Element {
             get: () => this.__data.initialSelected,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.initialSelected = null;
+                    this.__data.initialSelected = undefined;
                     return;
                 }
                 this.__data.initialSelected = valueProvided;

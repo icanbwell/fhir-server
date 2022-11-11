@@ -40,7 +40,7 @@ class SubstancePolymerMonomerSet extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -62,7 +62,7 @@ class SubstancePolymerMonomerSet extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -93,7 +93,7 @@ class SubstancePolymerMonomerSet extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -112,7 +112,7 @@ class SubstancePolymerMonomerSet extends Element {
             get: () => this.__data.ratioType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.ratioType = null;
+                    this.__data.ratioType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -131,7 +131,7 @@ class SubstancePolymerMonomerSet extends Element {
             get: () => this.__data.startingMaterial,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.startingMaterial = null;
+                    this.__data.startingMaterial = undefined;
                     return;
                 }
                 let SubstancePolymerStartingMaterial = require('../backbone_elements/substancePolymerStartingMaterial.js');

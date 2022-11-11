@@ -90,7 +90,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -110,7 +110,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -132,7 +132,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -150,7 +150,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -173,7 +173,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -194,7 +194,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -226,7 +226,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -257,7 +257,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -276,7 +276,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -295,7 +295,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.status = null;
+                    this.__data.status = undefined;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -313,7 +313,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.priority = null;
+                    this.__data.priority = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -336,7 +336,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.purpose = null;
+                    this.__data.purpose = undefined;
                     return;
                 }
                 this.__data.purpose = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -355,7 +355,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.patient = null;
+                    this.__data.patient = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -374,7 +374,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.servicedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.servicedDate = null;
+                    this.__data.servicedDate = undefined;
                     return;
                 }
                 this.__data.servicedDate = valueProvided;
@@ -392,7 +392,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.servicedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.servicedPeriod = null;
+                    this.__data.servicedPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -411,7 +411,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.created,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.created = null;
+                    this.__data.created = undefined;
                     return;
                 }
                 this.__data.created = valueProvided;
@@ -429,7 +429,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.enterer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.enterer = null;
+                    this.__data.enterer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -448,7 +448,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.provider,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.provider = null;
+                    this.__data.provider = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -468,7 +468,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.insurer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.insurer = null;
+                    this.__data.insurer = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -487,7 +487,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.facility,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.facility = null;
+                    this.__data.facility = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -507,7 +507,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.supportingInfo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.supportingInfo = null;
+                    this.__data.supportingInfo = undefined;
                     return;
                 }
                 let CoverageEligibilityRequestSupportingInfo = require('../backbone_elements/coverageEligibilityRequestSupportingInfo.js');
@@ -527,7 +527,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.insurance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.insurance = null;
+                    this.__data.insurance = undefined;
                     return;
                 }
                 let CoverageEligibilityRequestInsurance = require('../backbone_elements/coverageEligibilityRequestInsurance.js');
@@ -547,7 +547,7 @@ class CoverageEligibilityRequest extends Resource {
             get: () => this.__data.item,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.item = null;
+                    this.__data.item = undefined;
                     return;
                 }
                 let CoverageEligibilityRequestItem = require('../backbone_elements/coverageEligibilityRequestItem.js');

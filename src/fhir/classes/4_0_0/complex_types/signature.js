@@ -54,7 +54,7 @@ class Signature extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,7 +76,7 @@ class Signature extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,7 +97,7 @@ class Signature extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.type = null;
+                    this.__data.type = undefined;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -116,7 +116,7 @@ class Signature extends Element {
             get: () => this.__data.when,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.when = null;
+                    this.__data.when = undefined;
                     return;
                 }
                 this.__data.when = valueProvided;
@@ -135,7 +135,7 @@ class Signature extends Element {
             get: () => this.__data.who,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.who = null;
+                    this.__data.who = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -155,7 +155,7 @@ class Signature extends Element {
             get: () => this.__data.onBehalfOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onBehalfOf = null;
+                    this.__data.onBehalfOf = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -175,7 +175,7 @@ class Signature extends Element {
             get: () => this.__data.targetFormat,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.targetFormat = null;
+                    this.__data.targetFormat = undefined;
                     return;
                 }
                 this.__data.targetFormat = valueProvided;
@@ -195,7 +195,7 @@ class Signature extends Element {
             get: () => this.__data.sigFormat,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.sigFormat = null;
+                    this.__data.sigFormat = undefined;
                     return;
                 }
                 this.__data.sigFormat = valueProvided;
@@ -214,7 +214,7 @@ class Signature extends Element {
             get: () => this.__data.data,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.data = null;
+                    this.__data.data = undefined;
                     return;
                 }
                 this.__data.data = valueProvided;

@@ -54,7 +54,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,7 +76,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -107,7 +107,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -126,7 +126,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.collector,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.collector = null;
+                    this.__data.collector = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -145,7 +145,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.collectedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.collectedDateTime = null;
+                    this.__data.collectedDateTime = undefined;
                     return;
                 }
                 this.__data.collectedDateTime = valueProvided;
@@ -163,7 +163,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.collectedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.collectedPeriod = null;
+                    this.__data.collectedPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -182,7 +182,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.duration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.duration = null;
+                    this.__data.duration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -202,7 +202,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.quantity = null;
+                    this.__data.quantity = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -221,7 +221,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.method,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.method = null;
+                    this.__data.method = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -242,7 +242,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.bodySite = null;
+                    this.__data.bodySite = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -261,7 +261,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.fastingStatusCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.fastingStatusCodeableConcept = null;
+                    this.__data.fastingStatusCodeableConcept = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -280,7 +280,7 @@ class SpecimenCollection extends Element {
             get: () => this.__data.fastingStatusDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.fastingStatusDuration = null;
+                    this.__data.fastingStatusDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

@@ -44,7 +44,7 @@ class SpecimenDefinitionHandling extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,7 +66,7 @@ class SpecimenDefinitionHandling extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,7 +97,7 @@ class SpecimenDefinitionHandling extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,7 +118,7 @@ class SpecimenDefinitionHandling extends Element {
             get: () => this.__data.temperatureQualifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.temperatureQualifier = null;
+                    this.__data.temperatureQualifier = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -137,7 +137,7 @@ class SpecimenDefinitionHandling extends Element {
             get: () => this.__data.temperatureRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.temperatureRange = null;
+                    this.__data.temperatureRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -157,7 +157,7 @@ class SpecimenDefinitionHandling extends Element {
             get: () => this.__data.maxDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.maxDuration = null;
+                    this.__data.maxDuration = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -177,7 +177,7 @@ class SpecimenDefinitionHandling extends Element {
             get: () => this.__data.instruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.instruction = null;
+                    this.__data.instruction = undefined;
                     return;
                 }
                 this.__data.instruction = valueProvided;

@@ -59,7 +59,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -81,7 +81,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -112,7 +112,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -134,7 +134,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             get: () => this.__data.maternalOrganismId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.maternalOrganismId = null;
+                    this.__data.maternalOrganismId = undefined;
                     return;
                 }
                 this.__data.maternalOrganismId = valueProvided;
@@ -154,7 +154,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             get: () => this.__data.maternalOrganismName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.maternalOrganismName = null;
+                    this.__data.maternalOrganismName = undefined;
                     return;
                 }
                 this.__data.maternalOrganismName = valueProvided;
@@ -173,7 +173,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             get: () => this.__data.paternalOrganismId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.paternalOrganismId = null;
+                    this.__data.paternalOrganismId = undefined;
                     return;
                 }
                 this.__data.paternalOrganismId = valueProvided;
@@ -192,7 +192,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             get: () => this.__data.paternalOrganismName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.paternalOrganismName = null;
+                    this.__data.paternalOrganismName = undefined;
                     return;
                 }
                 this.__data.paternalOrganismName = valueProvided;
@@ -210,7 +210,7 @@ class SubstanceSourceMaterialHybrid extends Element {
             get: () => this.__data.hybridType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.hybridType = null;
+                    this.__data.hybridType = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');

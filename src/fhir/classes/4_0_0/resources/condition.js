@@ -107,7 +107,7 @@ class Condition extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.id = null;
+                    this.__data.id = undefined;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -127,7 +127,7 @@ class Condition extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.meta = null;
+                    this.__data.meta = undefined;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -149,7 +149,7 @@ class Condition extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.implicitRules = null;
+                    this.__data.implicitRules = undefined;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -167,7 +167,7 @@ class Condition extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.language = null;
+                    this.__data.language = undefined;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -190,7 +190,7 @@ class Condition extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.text = null;
+                    this.__data.text = undefined;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -211,7 +211,7 @@ class Condition extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.contained = null;
+                    this.__data.contained = undefined;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -243,7 +243,7 @@ class Condition extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.extension = null;
+                    this.__data.extension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -274,7 +274,7 @@ class Condition extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.modifierExtension = null;
+                    this.__data.modifierExtension = undefined;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -295,7 +295,7 @@ class Condition extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.identifier = null;
+                    this.__data.identifier = undefined;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -314,7 +314,7 @@ class Condition extends Resource {
             get: () => this.__data.clinicalStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.clinicalStatus = null;
+                    this.__data.clinicalStatus = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -333,7 +333,7 @@ class Condition extends Resource {
             get: () => this.__data.verificationStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.verificationStatus = null;
+                    this.__data.verificationStatus = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -352,7 +352,7 @@ class Condition extends Resource {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.category = null;
+                    this.__data.category = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -372,7 +372,7 @@ class Condition extends Resource {
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.severity = null;
+                    this.__data.severity = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -391,7 +391,7 @@ class Condition extends Resource {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.code = null;
+                    this.__data.code = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -410,7 +410,7 @@ class Condition extends Resource {
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.bodySite = null;
+                    this.__data.bodySite = undefined;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -429,7 +429,7 @@ class Condition extends Resource {
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.subject = null;
+                    this.__data.subject = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -449,7 +449,7 @@ class Condition extends Resource {
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.encounter = null;
+                    this.__data.encounter = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -468,7 +468,7 @@ class Condition extends Resource {
             get: () => this.__data.onsetDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetDateTime = null;
+                    this.__data.onsetDateTime = undefined;
                     return;
                 }
                 this.__data.onsetDateTime = valueProvided;
@@ -486,7 +486,7 @@ class Condition extends Resource {
             get: () => this.__data.onsetAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetAge = null;
+                    this.__data.onsetAge = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -505,7 +505,7 @@ class Condition extends Resource {
             get: () => this.__data.onsetPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetPeriod = null;
+                    this.__data.onsetPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -524,7 +524,7 @@ class Condition extends Resource {
             get: () => this.__data.onsetRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetRange = null;
+                    this.__data.onsetRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -543,7 +543,7 @@ class Condition extends Resource {
             get: () => this.__data.onsetString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.onsetString = null;
+                    this.__data.onsetString = undefined;
                     return;
                 }
                 this.__data.onsetString = valueProvided;
@@ -561,7 +561,7 @@ class Condition extends Resource {
             get: () => this.__data.abatementDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.abatementDateTime = null;
+                    this.__data.abatementDateTime = undefined;
                     return;
                 }
                 this.__data.abatementDateTime = valueProvided;
@@ -579,7 +579,7 @@ class Condition extends Resource {
             get: () => this.__data.abatementAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.abatementAge = null;
+                    this.__data.abatementAge = undefined;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -598,7 +598,7 @@ class Condition extends Resource {
             get: () => this.__data.abatementPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.abatementPeriod = null;
+                    this.__data.abatementPeriod = undefined;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -617,7 +617,7 @@ class Condition extends Resource {
             get: () => this.__data.abatementRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.abatementRange = null;
+                    this.__data.abatementRange = undefined;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -636,7 +636,7 @@ class Condition extends Resource {
             get: () => this.__data.abatementString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.abatementString = null;
+                    this.__data.abatementString = undefined;
                     return;
                 }
                 this.__data.abatementString = valueProvided;
@@ -655,7 +655,7 @@ class Condition extends Resource {
             get: () => this.__data.recordedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.recordedDate = null;
+                    this.__data.recordedDate = undefined;
                     return;
                 }
                 this.__data.recordedDate = valueProvided;
@@ -673,7 +673,7 @@ class Condition extends Resource {
             get: () => this.__data.recorder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.recorder = null;
+                    this.__data.recorder = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -692,7 +692,7 @@ class Condition extends Resource {
             get: () => this.__data.asserter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.asserter = null;
+                    this.__data.asserter = undefined;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -712,7 +712,7 @@ class Condition extends Resource {
             get: () => this.__data.stage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.stage = null;
+                    this.__data.stage = undefined;
                     return;
                 }
                 let ConditionStage = require('../backbone_elements/conditionStage.js');
@@ -732,7 +732,7 @@ class Condition extends Resource {
             get: () => this.__data.evidence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.evidence = null;
+                    this.__data.evidence = undefined;
                     return;
                 }
                 let ConditionEvidence = require('../backbone_elements/conditionEvidence.js');
@@ -752,7 +752,7 @@ class Condition extends Resource {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
-                    this.__data.note = null;
+                    this.__data.note = undefined;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
