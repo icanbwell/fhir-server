@@ -53,6 +53,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -74,6 +75,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,6 +106,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,6 +125,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.who,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.who = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -140,6 +144,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.onBehalfOf,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.onBehalfOf = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -159,6 +164,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.communicationMethod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.communicationMethod = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -177,6 +183,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.date = null;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -194,6 +201,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.sourceIdentityCertificate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sourceIdentityCertificate = null;
                     return;
                 }
                 this.__data.sourceIdentityCertificate = valueProvided;
@@ -212,6 +220,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.proxyIdentityCertificate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.proxyIdentityCertificate = null;
                     return;
                 }
                 this.__data.proxyIdentityCertificate = valueProvided;
@@ -230,6 +239,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.proxySignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.proxySignature = null;
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');
@@ -249,6 +259,7 @@ class VerificationResultAttestation extends Element {
             get: () => this.__data.sourceSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sourceSignature = null;
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');

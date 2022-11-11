@@ -90,6 +90,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -109,6 +110,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -130,6 +132,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -147,6 +150,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -169,6 +173,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -189,6 +194,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -220,6 +226,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -250,6 +257,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -274,6 +282,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.url = null;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -293,6 +302,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -316,6 +326,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.version = null;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -335,6 +346,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -353,6 +365,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.status = null;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -372,6 +385,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.experimental = null;
                     return;
                 }
                 this.__data.experimental = valueProvided;
@@ -393,6 +407,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.date = null;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -411,6 +426,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.publisher = null;
                     return;
                 }
                 this.__data.publisher = valueProvided;
@@ -429,6 +445,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contact = null;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -451,6 +468,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.useContext = null;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -470,6 +488,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.jurisdiction = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -490,6 +509,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.copyright = null;
                     return;
                 }
                 this.__data.copyright = valueProvided;
@@ -509,6 +529,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.purpose = null;
                     return;
                 }
                 this.__data.purpose = valueProvided;
@@ -526,6 +547,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.actor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.actor = null;
                     return;
                 }
                 let ExampleScenarioActor = require('../backbone_elements/exampleScenarioActor.js');
@@ -544,6 +566,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.instance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.instance = null;
                     return;
                 }
                 let ExampleScenarioInstance = require('../backbone_elements/exampleScenarioInstance.js');
@@ -562,6 +585,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.process,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.process = null;
                     return;
                 }
                 let ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
@@ -580,6 +604,7 @@ class ExampleScenario extends Resource {
             get: () => this.__data.workflow,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.workflow = null;
                     return;
                 }
                 this.__data.workflow = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

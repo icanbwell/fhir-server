@@ -55,6 +55,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,6 +77,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -106,6 +108,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -125,6 +128,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.baseFormulaType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.baseFormulaType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -144,6 +148,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.baseFormulaProductName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.baseFormulaProductName = null;
                     return;
                 }
                 this.__data.baseFormulaProductName = valueProvided;
@@ -162,6 +167,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.additiveType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.additiveType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -181,6 +187,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.additiveProductName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.additiveProductName = null;
                     return;
                 }
                 this.__data.additiveProductName = valueProvided;
@@ -201,6 +208,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.caloricDensity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.caloricDensity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -221,6 +229,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.routeofAdministration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.routeofAdministration = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -242,6 +251,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.administration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.administration = null;
                     return;
                 }
                 let NutritionOrderAdministration = require('../backbone_elements/nutritionOrderAdministration.js');
@@ -261,6 +271,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.maxVolumeToDeliver,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxVolumeToDeliver = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -280,6 +291,7 @@ class NutritionOrderEnteralFormula extends Element {
             get: () => this.__data.administrationInstruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.administrationInstruction = null;
                     return;
                 }
                 this.__data.administrationInstruction = valueProvided;

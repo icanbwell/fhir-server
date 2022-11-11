@@ -56,6 +56,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -77,6 +78,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -107,6 +109,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -125,6 +128,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.number,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.number = null;
                     return;
                 }
                 this.__data.number = valueProvided;
@@ -142,6 +146,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -159,6 +164,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -176,6 +182,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.initiator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.initiator = null;
                     return;
                 }
                 this.__data.initiator = valueProvided;
@@ -193,6 +200,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.receiver,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.receiver = null;
                     return;
                 }
                 this.__data.receiver = valueProvided;
@@ -210,6 +218,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -227,6 +236,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.initiatorActive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.initiatorActive = null;
                     return;
                 }
                 this.__data.initiatorActive = valueProvided;
@@ -244,6 +254,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.receiverActive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.receiverActive = null;
                     return;
                 }
                 this.__data.receiverActive = valueProvided;
@@ -261,6 +272,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.request = null;
                     return;
                 }
                 let ExampleScenarioContainedInstance = require('../backbone_elements/exampleScenarioContainedInstance.js');
@@ -279,6 +291,7 @@ class ExampleScenarioOperation extends Element {
             get: () => this.__data.response,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.response = null;
                     return;
                 }
                 let ExampleScenarioContainedInstance = require('../backbone_elements/exampleScenarioContainedInstance.js');

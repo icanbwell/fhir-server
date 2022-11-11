@@ -44,6 +44,7 @@ class SubstancePolymerStartingMaterial extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -65,6 +66,7 @@ class SubstancePolymerStartingMaterial extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -95,6 +97,7 @@ class SubstancePolymerStartingMaterial extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -113,6 +116,7 @@ class SubstancePolymerStartingMaterial extends Element {
             get: () => this.__data.material,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.material = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -131,6 +135,7 @@ class SubstancePolymerStartingMaterial extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -149,6 +154,7 @@ class SubstancePolymerStartingMaterial extends Element {
             get: () => this.__data.isDefining,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.isDefining = null;
                     return;
                 }
                 this.__data.isDefining = valueProvided;
@@ -166,6 +172,7 @@ class SubstancePolymerStartingMaterial extends Element {
             get: () => this.__data.amount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.amount = null;
                     return;
                 }
                 let SubstanceAmount = require('../backbone_elements/substanceAmount.js');

@@ -48,6 +48,7 @@ class ClinicalImpressionFinding extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -69,6 +70,7 @@ class ClinicalImpressionFinding extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,6 +101,7 @@ class ClinicalImpressionFinding extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,6 +121,7 @@ class ClinicalImpressionFinding extends Element {
             get: () => this.__data.itemCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.itemCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -137,6 +141,7 @@ class ClinicalImpressionFinding extends Element {
             get: () => this.__data.itemReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.itemReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -155,6 +160,7 @@ class ClinicalImpressionFinding extends Element {
             get: () => this.__data.basis,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.basis = null;
                     return;
                 }
                 this.__data.basis = valueProvided;

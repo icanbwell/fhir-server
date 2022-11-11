@@ -50,6 +50,7 @@ class Meta extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class Meta extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -90,6 +92,7 @@ class Meta extends Element {
             get: () => this.__data.versionId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.versionId = null;
                     return;
                 }
                 this.__data.versionId = valueProvided;
@@ -107,6 +110,7 @@ class Meta extends Element {
             get: () => this.__data.lastUpdated,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.lastUpdated = null;
                     return;
                 }
                 this.__data.lastUpdated = valueProvided;
@@ -127,6 +131,7 @@ class Meta extends Element {
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.source = null;
                     return;
                 }
                 this.__data.source = valueProvided;
@@ -146,6 +151,7 @@ class Meta extends Element {
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.profile = null;
                     return;
                 }
                 this.__data.profile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -164,6 +170,7 @@ class Meta extends Element {
             get: () => this.__data.security,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.security = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -184,6 +191,7 @@ class Meta extends Element {
             get: () => this.__data.tag,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.tag = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');

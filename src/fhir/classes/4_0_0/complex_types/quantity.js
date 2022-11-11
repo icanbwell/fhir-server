@@ -48,6 +48,7 @@ class Quantity extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -69,6 +70,7 @@ class Quantity extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -88,6 +90,7 @@ class Quantity extends Element {
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.value = null;
                     return;
                 }
                 this.__data.value = valueProvided;
@@ -107,6 +110,7 @@ class Quantity extends Element {
             get: () => this.__data.comparator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.comparator = null;
                     return;
                 }
                 this.__data.comparator = valueProvided;
@@ -124,6 +128,7 @@ class Quantity extends Element {
             get: () => this.__data.unit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.unit = null;
                     return;
                 }
                 this.__data.unit = valueProvided;
@@ -141,6 +146,7 @@ class Quantity extends Element {
             get: () => this.__data.system,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.system = null;
                     return;
                 }
                 this.__data.system = valueProvided;
@@ -158,6 +164,7 @@ class Quantity extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = null;
                     return;
                 }
                 this.__data.code = valueProvided;

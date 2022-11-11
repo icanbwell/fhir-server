@@ -45,6 +45,7 @@ class Annotation extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,6 +67,7 @@ class Annotation extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -84,6 +86,7 @@ class Annotation extends Element {
             get: () => this.__data.authorReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.authorReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -102,6 +105,7 @@ class Annotation extends Element {
             get: () => this.__data.authorString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.authorString = null;
                     return;
                 }
                 this.__data.authorString = valueProvided;
@@ -119,6 +123,7 @@ class Annotation extends Element {
             get: () => this.__data.time,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.time = null;
                     return;
                 }
                 this.__data.time = valueProvided;
@@ -136,6 +141,7 @@ class Annotation extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 this.__data.text = valueProvided;

@@ -62,6 +62,7 @@ class Bundle extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -81,6 +82,7 @@ class Bundle extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -102,6 +104,7 @@ class Bundle extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -119,6 +122,7 @@ class Bundle extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -137,6 +141,7 @@ class Bundle extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -155,6 +160,7 @@ class Bundle extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -173,6 +179,7 @@ class Bundle extends Resource {
             get: () => this.__data.timestamp,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timestamp = null;
                     return;
                 }
                 this.__data.timestamp = valueProvided;
@@ -193,6 +200,7 @@ class Bundle extends Resource {
             get: () => this.__data.total,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.total = null;
                     return;
                 }
                 this.__data.total = valueProvided;
@@ -210,6 +218,7 @@ class Bundle extends Resource {
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.link = null;
                     return;
                 }
                 let BundleLink = require('../backbone_elements/bundleLink.js');
@@ -229,6 +238,7 @@ class Bundle extends Resource {
             get: () => this.__data.entry,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.entry = null;
                     return;
                 }
                 let BundleEntry = require('../backbone_elements/bundleEntry.js');
@@ -247,6 +257,7 @@ class Bundle extends Resource {
             get: () => this.__data.signature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.signature = null;
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');

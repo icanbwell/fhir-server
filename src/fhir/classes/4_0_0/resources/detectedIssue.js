@@ -84,6 +84,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -103,6 +104,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -124,6 +126,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -141,6 +144,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -163,6 +167,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -183,6 +188,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -214,6 +220,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -244,6 +251,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -262,6 +270,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -280,6 +289,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.status = null;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -297,6 +307,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -316,6 +327,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.severity = null;
                     return;
                 }
                 this.__data.severity = valueProvided;
@@ -333,6 +345,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.patient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patient = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -351,6 +364,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.identifiedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifiedDateTime = null;
                     return;
                 }
                 this.__data.identifiedDateTime = valueProvided;
@@ -368,6 +382,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.identifiedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifiedPeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -387,6 +402,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.author = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -406,6 +422,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.implicated,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicated = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -425,6 +442,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.evidence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.evidence = null;
                     return;
                 }
                 let DetectedIssueEvidence = require('../backbone_elements/detectedIssueEvidence.js');
@@ -443,6 +461,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detail = null;
                     return;
                 }
                 this.__data.detail = valueProvided;
@@ -461,6 +480,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.reference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reference = null;
                     return;
                 }
                 this.__data.reference = valueProvided;
@@ -481,6 +501,7 @@ class DetectedIssue extends Resource {
             get: () => this.__data.mitigation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.mitigation = null;
                     return;
                 }
                 let DetectedIssueMitigation = require('../backbone_elements/detectedIssueMitigation.js');

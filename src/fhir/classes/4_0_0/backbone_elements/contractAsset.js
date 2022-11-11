@@ -67,6 +67,7 @@ class ContractAsset extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -88,6 +89,7 @@ class ContractAsset extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,6 +120,7 @@ class ContractAsset extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -136,6 +139,7 @@ class ContractAsset extends Element {
             get: () => this.__data.scope,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.scope = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -154,6 +158,7 @@ class ContractAsset extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -172,6 +177,7 @@ class ContractAsset extends Element {
             get: () => this.__data.typeReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.typeReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -190,6 +196,7 @@ class ContractAsset extends Element {
             get: () => this.__data.subtype,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subtype = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -210,6 +217,7 @@ class ContractAsset extends Element {
             get: () => this.__data.relationship,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.relationship = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -228,6 +236,7 @@ class ContractAsset extends Element {
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.context = null;
                     return;
                 }
                 let ContractContext = require('../backbone_elements/contractContext.js');
@@ -247,6 +256,7 @@ class ContractAsset extends Element {
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.condition = null;
                     return;
                 }
                 this.__data.condition = valueProvided;
@@ -264,6 +274,7 @@ class ContractAsset extends Element {
             get: () => this.__data.periodType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.periodType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -282,6 +293,7 @@ class ContractAsset extends Element {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.period = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -300,6 +312,7 @@ class ContractAsset extends Element {
             get: () => this.__data.usePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.usePeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -319,6 +332,7 @@ class ContractAsset extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 this.__data.text = valueProvided;
@@ -337,6 +351,7 @@ class ContractAsset extends Element {
             get: () => this.__data.linkId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.linkId = null;
                     return;
                 }
                 this.__data.linkId = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -354,6 +369,7 @@ class ContractAsset extends Element {
             get: () => this.__data.answer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.answer = null;
                     return;
                 }
                 let ContractAnswer = require('../backbone_elements/contractAnswer.js');
@@ -372,6 +388,7 @@ class ContractAsset extends Element {
             get: () => this.__data.securityLabelNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.securityLabelNumber = null;
                     return;
                 }
                 this.__data.securityLabelNumber = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -389,6 +406,7 @@ class ContractAsset extends Element {
             get: () => this.__data.valuedItem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valuedItem = null;
                     return;
                 }
                 let ContractValuedItem = require('../backbone_elements/contractValuedItem.js');

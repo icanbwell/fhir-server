@@ -108,6 +108,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -127,6 +128,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -148,6 +150,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -165,6 +168,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -187,6 +191,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -207,6 +212,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -238,6 +244,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -268,6 +275,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -287,6 +295,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.url = null;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -306,6 +315,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -329,6 +339,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.version = null;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -348,6 +359,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -365,6 +377,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.title = null;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -382,6 +395,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.replaces,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.replaces = null;
                     return;
                 }
                 this.__data.replaces = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -400,6 +414,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.status = null;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -419,6 +434,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.experimental = null;
                     return;
                 }
                 this.__data.experimental = valueProvided;
@@ -439,6 +455,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.date = null;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -457,6 +474,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.publisher = null;
                     return;
                 }
                 this.__data.publisher = valueProvided;
@@ -475,6 +493,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contact = null;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -494,6 +513,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -515,6 +535,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.useContext = null;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -534,6 +555,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.jurisdiction = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -553,6 +575,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.purpose = null;
                     return;
                 }
                 this.__data.purpose = valueProvided;
@@ -572,6 +595,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.copyright = null;
                     return;
                 }
                 this.__data.copyright = valueProvided;
@@ -589,6 +613,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.base,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.base = null;
                     return;
                 }
                 this.__data.base = valueProvided;
@@ -607,6 +632,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.parent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.parent = null;
                     return;
                 }
                 this.__data.parent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -624,6 +650,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.eventCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.eventCoding = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -642,6 +669,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.eventUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.eventUri = null;
                     return;
                 }
                 this.__data.eventUri = valueProvided;
@@ -659,6 +687,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.category = null;
                     return;
                 }
                 this.__data.category = valueProvided;
@@ -678,6 +707,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.focus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.focus = null;
                     return;
                 }
                 let MessageDefinitionFocus = require('../backbone_elements/messageDefinitionFocus.js');
@@ -697,6 +727,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.responseRequired,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.responseRequired = null;
                     return;
                 }
                 this.__data.responseRequired = valueProvided;
@@ -715,6 +746,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.allowedResponse,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.allowedResponse = null;
                     return;
                 }
                 let MessageDefinitionAllowedResponse = require('../backbone_elements/messageDefinitionAllowedResponse.js');
@@ -736,6 +768,7 @@ class MessageDefinition extends Resource {
             get: () => this.__data.graph,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.graph = null;
                     return;
                 }
                 this.__data.graph = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

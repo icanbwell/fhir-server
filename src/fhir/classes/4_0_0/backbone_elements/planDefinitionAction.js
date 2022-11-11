@@ -107,6 +107,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -128,6 +129,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -158,6 +160,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -176,6 +179,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.prefix,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.prefix = null;
                     return;
                 }
                 this.__data.prefix = valueProvided;
@@ -193,6 +197,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.title = null;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -211,6 +216,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -230,6 +236,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.textEquivalent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.textEquivalent = null;
                     return;
                 }
                 this.__data.textEquivalent = valueProvided;
@@ -248,6 +255,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.priority = null;
                     return;
                 }
                 this.__data.priority = valueProvided;
@@ -266,6 +274,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -284,6 +293,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.reason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reason = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -304,6 +314,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.documentation = null;
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
@@ -323,6 +334,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.goalId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.goalId = null;
                     return;
                 }
                 this.__data.goalId = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -340,6 +352,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.subjectCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subjectCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -358,6 +371,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.subjectReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subjectReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -376,6 +390,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.trigger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.trigger = null;
                     return;
                 }
                 let TriggerDefinition = require('../complex_types/triggerDefinition.js');
@@ -395,6 +410,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.condition = null;
                     return;
                 }
                 let PlanDefinitionCondition = require('../backbone_elements/planDefinitionCondition.js');
@@ -413,6 +429,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.input,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.input = null;
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
@@ -431,6 +448,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.output,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.output = null;
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
@@ -450,6 +468,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.relatedAction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.relatedAction = null;
                     return;
                 }
                 let PlanDefinitionRelatedAction = require('../backbone_elements/planDefinitionRelatedAction.js');
@@ -468,6 +487,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.timingDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingDateTime = null;
                     return;
                 }
                 this.__data.timingDateTime = valueProvided;
@@ -485,6 +505,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.timingAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingAge = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -503,6 +524,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.timingPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingPeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -521,6 +543,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.timingDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingDuration = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -539,6 +562,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.timingRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -557,6 +581,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.timingTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timingTiming = null;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -575,6 +600,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.participant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.participant = null;
                     return;
                 }
                 let PlanDefinitionParticipant = require('../backbone_elements/planDefinitionParticipant.js');
@@ -593,6 +619,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -611,6 +638,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.groupingBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.groupingBehavior = null;
                     return;
                 }
                 this.__data.groupingBehavior = valueProvided;
@@ -628,6 +656,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.selectionBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.selectionBehavior = null;
                     return;
                 }
                 this.__data.selectionBehavior = valueProvided;
@@ -645,6 +674,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.requiredBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requiredBehavior = null;
                     return;
                 }
                 this.__data.requiredBehavior = valueProvided;
@@ -662,6 +692,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.precheckBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.precheckBehavior = null;
                     return;
                 }
                 this.__data.precheckBehavior = valueProvided;
@@ -679,6 +710,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.cardinalityBehavior,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.cardinalityBehavior = null;
                     return;
                 }
                 this.__data.cardinalityBehavior = valueProvided;
@@ -696,6 +728,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.definitionCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definitionCanonical = null;
                     return;
                 }
                 this.__data.definitionCanonical = valueProvided;
@@ -713,6 +746,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.definitionUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definitionUri = null;
                     return;
                 }
                 this.__data.definitionUri = valueProvided;
@@ -732,6 +766,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.transform,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.transform = null;
                     return;
                 }
                 this.__data.transform = valueProvided;
@@ -752,6 +787,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.dynamicValue,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dynamicValue = null;
                     return;
                 }
                 let PlanDefinitionDynamicValue = require('../backbone_elements/planDefinitionDynamicValue.js');
@@ -773,6 +809,7 @@ class PlanDefinitionAction extends Element {
             get: () => this.__data.action,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.action = null;
                     return;
                 }
                 this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PlanDefinitionAction(v)) : [new PlanDefinitionAction(valueProvided)];

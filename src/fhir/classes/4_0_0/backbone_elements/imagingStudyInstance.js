@@ -48,6 +48,7 @@ class ImagingStudyInstance extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -69,6 +70,7 @@ class ImagingStudyInstance extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,6 +101,7 @@ class ImagingStudyInstance extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,6 +120,7 @@ class ImagingStudyInstance extends Element {
             get: () => this.__data.uid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.uid = null;
                     return;
                 }
                 this.__data.uid = valueProvided;
@@ -134,6 +138,7 @@ class ImagingStudyInstance extends Element {
             get: () => this.__data.sopClass,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sopClass = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -152,6 +157,7 @@ class ImagingStudyInstance extends Element {
             get: () => this.__data.number,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.number = null;
                     return;
                 }
                 this.__data.number = valueProvided;
@@ -169,6 +175,7 @@ class ImagingStudyInstance extends Element {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.title = null;
                     return;
                 }
                 this.__data.title = valueProvided;

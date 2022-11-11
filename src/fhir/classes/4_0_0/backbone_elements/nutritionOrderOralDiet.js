@@ -49,6 +49,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,6 +71,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -100,6 +102,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,6 +122,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -139,6 +143,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.schedule,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.schedule = null;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -158,6 +163,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.nutrient,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.nutrient = null;
                     return;
                 }
                 let NutritionOrderNutrient = require('../backbone_elements/nutritionOrderNutrient.js');
@@ -177,6 +183,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.texture,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.texture = null;
                     return;
                 }
                 let NutritionOrderTexture = require('../backbone_elements/nutritionOrderTexture.js');
@@ -196,6 +203,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.fluidConsistencyType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fluidConsistencyType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -215,6 +223,7 @@ class NutritionOrderOralDiet extends Element {
             get: () => this.__data.instruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.instruction = null;
                     return;
                 }
                 this.__data.instruction = valueProvided;

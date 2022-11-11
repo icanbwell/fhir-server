@@ -60,6 +60,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -81,6 +82,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -111,6 +113,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -129,6 +132,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -147,6 +151,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -166,6 +171,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.quantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -184,6 +190,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.material,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.material = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -202,6 +209,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.alternateMaterial,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.alternateMaterial = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -220,6 +228,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.device,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.device = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -238,6 +247,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.manufacturedItem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.manufacturedItem = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -256,6 +266,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.packageItem,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.packageItem = null;
                     return;
                 }
                 this.__data.packageItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPackagedPackageItem(v)) : [new MedicinalProductPackagedPackageItem(valueProvided)];
@@ -273,6 +284,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.physicalCharacteristics,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.physicalCharacteristics = null;
                     return;
                 }
                 let ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
@@ -291,6 +303,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.otherCharacteristics,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.otherCharacteristics = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -309,6 +322,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.shelfLifeStorage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.shelfLifeStorage = null;
                     return;
                 }
                 let ProductShelfLife = require('../backbone_elements/productShelfLife.js');
@@ -327,6 +341,7 @@ class MedicinalProductPackagedPackageItem extends Element {
             get: () => this.__data.manufacturer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.manufacturer = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

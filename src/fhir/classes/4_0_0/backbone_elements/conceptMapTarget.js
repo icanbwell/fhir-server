@@ -50,6 +50,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,6 +122,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = null;
                     return;
                 }
                 this.__data.code = valueProvided;
@@ -137,6 +141,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.display = null;
                     return;
                 }
                 this.__data.display = valueProvided;
@@ -156,6 +161,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.equivalence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.equivalence = null;
                     return;
                 }
                 this.__data.equivalence = valueProvided;
@@ -174,6 +180,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.comment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.comment = null;
                     return;
                 }
                 this.__data.comment = valueProvided;
@@ -193,6 +200,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.dependsOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dependsOn = null;
                     return;
                 }
                 let ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
@@ -215,6 +223,7 @@ class ConceptMapTarget extends Element {
             get: () => this.__data.product,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.product = null;
                     return;
                 }
                 let ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');

@@ -53,6 +53,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -74,6 +75,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,6 +106,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,6 +125,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.stereochemistry,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.stereochemistry = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -140,6 +144,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.opticalActivity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.opticalActivity = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -158,6 +163,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.molecularFormula,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.molecularFormula = null;
                     return;
                 }
                 this.__data.molecularFormula = valueProvided;
@@ -176,6 +182,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.molecularFormulaByMoiety,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.molecularFormulaByMoiety = null;
                     return;
                 }
                 this.__data.molecularFormulaByMoiety = valueProvided;
@@ -194,6 +201,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.isotope,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.isotope = null;
                     return;
                 }
                 let SubstanceSpecificationIsotope = require('../backbone_elements/substanceSpecificationIsotope.js');
@@ -213,6 +221,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.molecularWeight,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.molecularWeight = null;
                     return;
                 }
                 let SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
@@ -231,6 +240,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.source = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -249,6 +259,7 @@ class SubstanceSpecificationStructure extends Element {
             get: () => this.__data.representation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.representation = null;
                     return;
                 }
                 let SubstanceSpecificationRepresentation = require('../backbone_elements/substanceSpecificationRepresentation.js');

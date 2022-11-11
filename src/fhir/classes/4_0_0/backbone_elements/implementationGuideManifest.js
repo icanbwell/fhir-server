@@ -49,6 +49,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,6 +71,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -100,6 +102,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,6 +122,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.rendering,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.rendering = null;
                     return;
                 }
                 this.__data.rendering = valueProvided;
@@ -139,6 +143,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.resource = null;
                     return;
                 }
                 let ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
@@ -157,6 +162,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.page,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.page = null;
                     return;
                 }
                 let ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
@@ -175,6 +181,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.image,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.image = null;
                     return;
                 }
                 this.__data.image = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -194,6 +201,7 @@ class ImplementationGuideManifest extends Element {
             get: () => this.__data.other,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.other = null;
                     return;
                 }
                 this.__data.other = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

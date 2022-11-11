@@ -58,6 +58,7 @@ class GoalTarget extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -79,6 +80,7 @@ class GoalTarget extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -109,6 +111,7 @@ class GoalTarget extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -128,6 +131,7 @@ class GoalTarget extends Element {
             get: () => this.__data.measure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.measure = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -146,6 +150,7 @@ class GoalTarget extends Element {
             get: () => this.__data.detailQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detailQuantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -164,6 +169,7 @@ class GoalTarget extends Element {
             get: () => this.__data.detailRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detailRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -182,6 +188,7 @@ class GoalTarget extends Element {
             get: () => this.__data.detailCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detailCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -200,6 +207,7 @@ class GoalTarget extends Element {
             get: () => this.__data.detailString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detailString = null;
                     return;
                 }
                 this.__data.detailString = valueProvided;
@@ -217,6 +225,7 @@ class GoalTarget extends Element {
             get: () => this.__data.detailBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detailBoolean = null;
                     return;
                 }
                 this.__data.detailBoolean = valueProvided;
@@ -234,6 +243,7 @@ class GoalTarget extends Element {
             get: () => this.__data.detailInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detailInteger = null;
                     return;
                 }
                 this.__data.detailInteger = valueProvided;
@@ -251,6 +261,7 @@ class GoalTarget extends Element {
             get: () => this.__data.detailRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detailRatio = null;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -269,6 +280,7 @@ class GoalTarget extends Element {
             get: () => this.__data.dueDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dueDate = null;
                     return;
                 }
                 this.__data.dueDate = valueProvided;
@@ -286,6 +298,7 @@ class GoalTarget extends Element {
             get: () => this.__data.dueDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dueDuration = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

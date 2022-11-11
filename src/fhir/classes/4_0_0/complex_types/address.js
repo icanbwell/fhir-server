@@ -60,6 +60,7 @@ class Address extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -81,6 +82,7 @@ class Address extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,6 +101,7 @@ class Address extends Element {
             get: () => this.__data.use,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.use = null;
                     return;
                 }
                 this.__data.use = valueProvided;
@@ -117,6 +120,7 @@ class Address extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -135,6 +139,7 @@ class Address extends Element {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 this.__data.text = valueProvided;
@@ -154,6 +159,7 @@ class Address extends Element {
             get: () => this.__data.line,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.line = null;
                     return;
                 }
                 this.__data.line = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -172,6 +178,7 @@ class Address extends Element {
             get: () => this.__data.city,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.city = null;
                     return;
                 }
                 this.__data.city = valueProvided;
@@ -189,6 +196,7 @@ class Address extends Element {
             get: () => this.__data.district,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.district = null;
                     return;
                 }
                 this.__data.district = valueProvided;
@@ -208,6 +216,7 @@ class Address extends Element {
             get: () => this.__data.state,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.state = null;
                     return;
                 }
                 this.__data.state = valueProvided;
@@ -225,6 +234,7 @@ class Address extends Element {
             get: () => this.__data.postalCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.postalCode = null;
                     return;
                 }
                 this.__data.postalCode = valueProvided;
@@ -242,6 +252,7 @@ class Address extends Element {
             get: () => this.__data.country,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.country = null;
                     return;
                 }
                 this.__data.country = valueProvided;
@@ -259,6 +270,7 @@ class Address extends Element {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.period = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');

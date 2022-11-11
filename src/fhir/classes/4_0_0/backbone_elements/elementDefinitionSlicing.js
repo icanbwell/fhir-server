@@ -47,6 +47,7 @@ class ElementDefinitionSlicing extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,6 +69,7 @@ class ElementDefinitionSlicing extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,6 +100,7 @@ class ElementDefinitionSlicing extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,6 +123,7 @@ class ElementDefinitionSlicing extends Element {
             get: () => this.__data.discriminator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.discriminator = null;
                     return;
                 }
                 let ElementDefinitionDiscriminator = require('../backbone_elements/elementDefinitionDiscriminator.js');
@@ -140,6 +144,7 @@ class ElementDefinitionSlicing extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -158,6 +163,7 @@ class ElementDefinitionSlicing extends Element {
             get: () => this.__data.ordered,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.ordered = null;
                     return;
                 }
                 this.__data.ordered = valueProvided;
@@ -177,6 +183,7 @@ class ElementDefinitionSlicing extends Element {
             get: () => this.__data.rules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.rules = null;
                     return;
                 }
                 this.__data.rules = valueProvided;

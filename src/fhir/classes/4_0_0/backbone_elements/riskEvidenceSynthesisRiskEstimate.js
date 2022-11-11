@@ -52,6 +52,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,6 +74,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -103,6 +105,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -121,6 +124,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -138,6 +142,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -156,6 +161,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.value,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.value = null;
                     return;
                 }
                 this.__data.value = valueProvided;
@@ -173,6 +179,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.unitOfMeasure,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.unitOfMeasure = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -191,6 +198,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.denominatorCount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.denominatorCount = null;
                     return;
                 }
                 this.__data.denominatorCount = valueProvided;
@@ -208,6 +216,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.numeratorCount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.numeratorCount = null;
                     return;
                 }
                 this.__data.numeratorCount = valueProvided;
@@ -225,6 +234,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
             get: () => this.__data.precisionEstimate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.precisionEstimate = null;
                     return;
                 }
                 let RiskEvidenceSynthesisPrecisionEstimate = require('../backbone_elements/riskEvidenceSynthesisPrecisionEstimate.js');

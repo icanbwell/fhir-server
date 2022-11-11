@@ -76,6 +76,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -97,6 +98,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -127,6 +129,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -145,6 +148,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.boundsDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.boundsDuration = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -163,6 +167,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.boundsRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.boundsRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -181,6 +186,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.boundsPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.boundsPeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -201,6 +207,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.count,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.count = null;
                     return;
                 }
                 this.__data.count = valueProvided;
@@ -219,6 +226,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.countMax,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.countMax = null;
                     return;
                 }
                 this.__data.countMax = valueProvided;
@@ -237,6 +245,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.duration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.duration = null;
                     return;
                 }
                 this.__data.duration = valueProvided;
@@ -255,6 +264,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.durationMax,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.durationMax = null;
                     return;
                 }
                 this.__data.durationMax = valueProvided;
@@ -272,6 +282,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.durationUnit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.durationUnit = null;
                     return;
                 }
                 this.__data.durationUnit = valueProvided;
@@ -291,6 +302,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.frequency,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.frequency = null;
                     return;
                 }
                 this.__data.frequency = valueProvided;
@@ -309,6 +321,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.frequencyMax,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.frequencyMax = null;
                     return;
                 }
                 this.__data.frequencyMax = valueProvided;
@@ -329,6 +342,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.period = null;
                     return;
                 }
                 this.__data.period = valueProvided;
@@ -347,6 +361,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.periodMax,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.periodMax = null;
                     return;
                 }
                 this.__data.periodMax = valueProvided;
@@ -364,6 +379,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.periodUnit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.periodUnit = null;
                     return;
                 }
                 this.__data.periodUnit = valueProvided;
@@ -382,6 +398,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.dayOfWeek,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dayOfWeek = null;
                     return;
                 }
                 this.__data.dayOfWeek = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -399,6 +416,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.timeOfDay,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.timeOfDay = null;
                     return;
                 }
                 this.__data.timeOfDay = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -417,6 +435,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.when,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.when = null;
                     return;
                 }
                 this.__data.when = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -436,6 +455,7 @@ class TimingRepeat extends Element {
             get: () => this.__data.offset,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.offset = null;
                     return;
                 }
                 this.__data.offset = valueProvided;

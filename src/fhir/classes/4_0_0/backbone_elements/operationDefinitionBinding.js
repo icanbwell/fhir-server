@@ -41,6 +41,7 @@ class OperationDefinitionBinding extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -62,6 +63,7 @@ class OperationDefinitionBinding extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -92,6 +94,7 @@ class OperationDefinitionBinding extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -112,6 +115,7 @@ class OperationDefinitionBinding extends Element {
             get: () => this.__data.strength,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.strength = null;
                     return;
                 }
                 this.__data.strength = valueProvided;
@@ -130,6 +134,7 @@ class OperationDefinitionBinding extends Element {
             get: () => this.__data.valueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueSet = null;
                     return;
                 }
                 this.__data.valueSet = valueProvided;

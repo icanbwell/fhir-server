@@ -48,6 +48,7 @@ class CarePlanActivity extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -69,6 +70,7 @@ class CarePlanActivity extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,6 +101,7 @@ class CarePlanActivity extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,6 +122,7 @@ class CarePlanActivity extends Element {
             get: () => this.__data.outcomeCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.outcomeCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -141,6 +145,7 @@ class CarePlanActivity extends Element {
             get: () => this.__data.outcomeReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.outcomeReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -159,6 +164,7 @@ class CarePlanActivity extends Element {
             get: () => this.__data.progress,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.progress = null;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
@@ -177,6 +183,7 @@ class CarePlanActivity extends Element {
             get: () => this.__data.reference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -197,6 +204,7 @@ class CarePlanActivity extends Element {
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detail = null;
                     return;
                 }
                 let CarePlanDetail = require('../backbone_elements/carePlanDetail.js');

@@ -110,6 +110,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -129,6 +130,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -150,6 +152,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -167,6 +170,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -189,6 +193,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -209,6 +214,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -240,6 +246,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -270,6 +277,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -294,6 +302,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.url = null;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -313,6 +322,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -337,6 +347,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.version = null;
                     return;
                 }
                 this.__data.version = valueProvided;
@@ -356,6 +367,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -373,6 +385,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.title = null;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -391,6 +404,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.status = null;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -410,6 +424,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.experimental,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.experimental = null;
                     return;
                 }
                 this.__data.experimental = valueProvided;
@@ -430,6 +445,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.date = null;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -447,6 +463,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.publisher,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.publisher = null;
                     return;
                 }
                 this.__data.publisher = valueProvided;
@@ -465,6 +482,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contact = null;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -484,6 +502,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -505,6 +524,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.useContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.useContext = null;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -523,6 +543,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.jurisdiction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.jurisdiction = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -542,6 +563,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.purpose = null;
                     return;
                 }
                 this.__data.purpose = valueProvided;
@@ -561,6 +583,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.copyright,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.copyright = null;
                     return;
                 }
                 this.__data.copyright = valueProvided;
@@ -579,6 +602,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.caseSensitive,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.caseSensitive = null;
                     return;
                 }
                 this.__data.caseSensitive = valueProvided;
@@ -596,6 +620,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.valueSet,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueSet = null;
                     return;
                 }
                 this.__data.valueSet = valueProvided;
@@ -613,6 +638,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.hierarchyMeaning,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.hierarchyMeaning = null;
                     return;
                 }
                 this.__data.hierarchyMeaning = valueProvided;
@@ -630,6 +656,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.compositional,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.compositional = null;
                     return;
                 }
                 this.__data.compositional = valueProvided;
@@ -649,6 +676,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.versionNeeded,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.versionNeeded = null;
                     return;
                 }
                 this.__data.versionNeeded = valueProvided;
@@ -667,6 +695,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.content,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.content = null;
                     return;
                 }
                 this.__data.content = valueProvided;
@@ -685,6 +714,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.supplements,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.supplements = null;
                     return;
                 }
                 this.__data.supplements = valueProvided;
@@ -704,6 +734,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.count,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.count = null;
                     return;
                 }
                 this.__data.count = valueProvided;
@@ -722,6 +753,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.filter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.filter = null;
                     return;
                 }
                 let CodeSystemFilter = require('../backbone_elements/codeSystemFilter.js');
@@ -741,6 +773,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.property = null;
                     return;
                 }
                 let CodeSystemProperty = require('../backbone_elements/codeSystemProperty.js');
@@ -761,6 +794,7 @@ class CodeSystem extends Resource {
             get: () => this.__data.concept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.concept = null;
                     return;
                 }
                 let CodeSystemConcept = require('../backbone_elements/codeSystemConcept.js');

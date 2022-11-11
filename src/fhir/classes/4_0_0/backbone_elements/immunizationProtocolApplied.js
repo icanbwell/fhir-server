@@ -51,6 +51,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -72,6 +73,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -102,6 +104,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -121,6 +124,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.series,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.series = null;
                     return;
                 }
                 this.__data.series = valueProvided;
@@ -139,6 +143,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.authority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.authority = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -157,6 +162,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.targetDisease,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.targetDisease = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -175,6 +181,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.doseNumberPositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.doseNumberPositiveInt = null;
                     return;
                 }
                 this.__data.doseNumberPositiveInt = valueProvided;
@@ -192,6 +199,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.doseNumberString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.doseNumberString = null;
                     return;
                 }
                 this.__data.doseNumberString = valueProvided;
@@ -209,6 +217,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.seriesDosesPositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.seriesDosesPositiveInt = null;
                     return;
                 }
                 this.__data.seriesDosesPositiveInt = valueProvided;
@@ -226,6 +235,7 @@ class ImmunizationProtocolApplied extends Element {
             get: () => this.__data.seriesDosesString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.seriesDosesString = null;
                     return;
                 }
                 this.__data.seriesDosesString = valueProvided;

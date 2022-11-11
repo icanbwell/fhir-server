@@ -53,6 +53,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -74,6 +75,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,6 +106,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -123,6 +126,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             get: () => this.__data.fraction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fraction = null;
                     return;
                 }
                 this.__data.fraction = valueProvided;
@@ -142,6 +146,7 @@ class SubstanceSourceMaterialFractionDescription extends Element {
             get: () => this.__data.materialType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.materialType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');

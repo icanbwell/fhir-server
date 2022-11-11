@@ -43,6 +43,7 @@ class MedicinalProductName extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -64,6 +65,7 @@ class MedicinalProductName extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -94,6 +96,7 @@ class MedicinalProductName extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -112,6 +115,7 @@ class MedicinalProductName extends Element {
             get: () => this.__data.productName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.productName = null;
                     return;
                 }
                 this.__data.productName = valueProvided;
@@ -129,6 +133,7 @@ class MedicinalProductName extends Element {
             get: () => this.__data.namePart,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.namePart = null;
                     return;
                 }
                 let MedicinalProductNamePart = require('../backbone_elements/medicinalProductNamePart.js');
@@ -147,6 +152,7 @@ class MedicinalProductName extends Element {
             get: () => this.__data.countryLanguage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.countryLanguage = null;
                     return;
                 }
                 let MedicinalProductCountryLanguage = require('../backbone_elements/medicinalProductCountryLanguage.js');

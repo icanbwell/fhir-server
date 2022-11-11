@@ -40,6 +40,7 @@ class ExampleScenarioContainedInstance extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -61,6 +62,7 @@ class ExampleScenarioContainedInstance extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -91,6 +93,7 @@ class ExampleScenarioContainedInstance extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -109,6 +112,7 @@ class ExampleScenarioContainedInstance extends Element {
             get: () => this.__data.resourceId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.resourceId = null;
                     return;
                 }
                 this.__data.resourceId = valueProvided;
@@ -126,6 +130,7 @@ class ExampleScenarioContainedInstance extends Element {
             get: () => this.__data.versionId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.versionId = null;
                     return;
                 }
                 this.__data.versionId = valueProvided;

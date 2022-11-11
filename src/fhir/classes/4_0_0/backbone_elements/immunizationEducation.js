@@ -45,6 +45,7 @@ class ImmunizationEducation extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,6 +67,7 @@ class ImmunizationEducation extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -96,6 +98,7 @@ class ImmunizationEducation extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -114,6 +117,7 @@ class ImmunizationEducation extends Element {
             get: () => this.__data.documentType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.documentType = null;
                     return;
                 }
                 this.__data.documentType = valueProvided;
@@ -132,6 +136,7 @@ class ImmunizationEducation extends Element {
             get: () => this.__data.reference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reference = null;
                     return;
                 }
                 this.__data.reference = valueProvided;
@@ -149,6 +154,7 @@ class ImmunizationEducation extends Element {
             get: () => this.__data.publicationDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.publicationDate = null;
                     return;
                 }
                 this.__data.publicationDate = valueProvided;
@@ -166,6 +172,7 @@ class ImmunizationEducation extends Element {
             get: () => this.__data.presentationDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.presentationDate = null;
                     return;
                 }
                 this.__data.presentationDate = valueProvided;

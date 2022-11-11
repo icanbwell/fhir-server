@@ -50,6 +50,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,6 +123,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = null;
                     return;
                 }
                 this.__data.code = valueProvided;
@@ -138,6 +142,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.display = null;
                     return;
                 }
                 this.__data.display = valueProvided;
@@ -158,6 +163,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definition = null;
                     return;
                 }
                 this.__data.definition = valueProvided;
@@ -176,6 +182,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.designation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.designation = null;
                     return;
                 }
                 let CodeSystemDesignation = require('../backbone_elements/codeSystemDesignation.js');
@@ -194,6 +201,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.property = null;
                     return;
                 }
                 let CodeSystemProperty1 = require('../backbone_elements/codeSystemProperty1.js');
@@ -214,6 +222,7 @@ class CodeSystemConcept extends Element {
             get: () => this.__data.concept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.concept = null;
                     return;
                 }
                 this.__data.concept = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemConcept(v)) : [new CodeSystemConcept(valueProvided)];

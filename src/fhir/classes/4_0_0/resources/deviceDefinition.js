@@ -103,6 +103,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -122,6 +123,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -143,6 +145,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -160,6 +163,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -182,6 +186,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -202,6 +207,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -233,6 +239,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -263,6 +270,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -282,6 +290,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -303,6 +312,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.udiDeviceIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.udiDeviceIdentifier = null;
                     return;
                 }
                 let DeviceDefinitionUdiDeviceIdentifier = require('../backbone_elements/deviceDefinitionUdiDeviceIdentifier.js');
@@ -321,6 +331,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.manufacturerString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.manufacturerString = null;
                     return;
                 }
                 this.__data.manufacturerString = valueProvided;
@@ -338,6 +349,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.manufacturerReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.manufacturerReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -356,6 +368,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.deviceName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.deviceName = null;
                     return;
                 }
                 let DeviceDefinitionDeviceName = require('../backbone_elements/deviceDefinitionDeviceName.js');
@@ -374,6 +387,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.modelNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modelNumber = null;
                     return;
                 }
                 this.__data.modelNumber = valueProvided;
@@ -391,6 +405,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -410,6 +425,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.specialization,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.specialization = null;
                     return;
                 }
                 let DeviceDefinitionSpecialization = require('../backbone_elements/deviceDefinitionSpecialization.js');
@@ -428,6 +444,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.version,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.version = null;
                     return;
                 }
                 this.__data.version = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -445,6 +462,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.safety,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.safety = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -463,6 +481,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.shelfLifeStorage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.shelfLifeStorage = null;
                     return;
                 }
                 let ProductShelfLife = require('../backbone_elements/productShelfLife.js');
@@ -481,6 +500,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.physicalCharacteristics,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.physicalCharacteristics = null;
                     return;
                 }
                 let ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
@@ -500,6 +520,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.languageCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.languageCode = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -518,6 +539,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.capability,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.capability = null;
                     return;
                 }
                 let DeviceDefinitionCapability = require('../backbone_elements/deviceDefinitionCapability.js');
@@ -537,6 +559,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.property = null;
                     return;
                 }
                 let DeviceDefinitionProperty = require('../backbone_elements/deviceDefinitionProperty.js');
@@ -556,6 +579,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.owner,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.owner = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -575,6 +599,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contact = null;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -593,6 +618,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.url = null;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -610,6 +636,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.onlineInformation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.onlineInformation = null;
                     return;
                 }
                 this.__data.onlineInformation = valueProvided;
@@ -628,6 +655,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.note = null;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
@@ -648,6 +676,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.quantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -666,6 +695,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.parentDevice,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.parentDevice = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -684,6 +714,7 @@ class DeviceDefinition extends Resource {
             get: () => this.__data.material,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.material = null;
                     return;
                 }
                 let DeviceDefinitionMaterial = require('../backbone_elements/deviceDefinitionMaterial.js');

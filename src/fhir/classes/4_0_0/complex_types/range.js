@@ -40,6 +40,7 @@ class Range extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -61,6 +62,7 @@ class Range extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -79,6 +81,7 @@ class Range extends Element {
             get: () => this.__data.low,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.low = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -97,6 +100,7 @@ class Range extends Element {
             get: () => this.__data.high,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.high = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

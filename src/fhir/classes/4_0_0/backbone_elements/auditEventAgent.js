@@ -60,6 +60,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -81,6 +82,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -111,6 +113,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -130,6 +133,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -150,6 +154,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.role,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.role = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -168,6 +173,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.who,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.who = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -188,6 +194,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.altId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.altId = null;
                     return;
                 }
                 this.__data.altId = valueProvided;
@@ -205,6 +212,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -223,6 +231,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.requestor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requestor = null;
                     return;
                 }
                 this.__data.requestor = valueProvided;
@@ -240,6 +249,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.location = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -261,6 +271,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.policy,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.policy = null;
                     return;
                 }
                 this.__data.policy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -279,6 +290,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.media,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.media = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -298,6 +310,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.network,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.network = null;
                     return;
                 }
                 let AuditEventNetwork = require('../backbone_elements/auditEventNetwork.js');
@@ -317,6 +330,7 @@ class AuditEventAgent extends Element {
             get: () => this.__data.purposeOfUse,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.purposeOfUse = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');

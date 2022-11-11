@@ -65,6 +65,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -86,6 +87,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,6 +118,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -134,6 +137,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.family,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.family = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -154,6 +158,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.genus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.genus = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -174,6 +179,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.species,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.species = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -192,6 +198,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.intraspecificType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.intraspecificType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -212,6 +219,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.intraspecificDescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.intraspecificDescription = null;
                     return;
                 }
                 this.__data.intraspecificDescription = valueProvided;
@@ -229,6 +237,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.author,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.author = null;
                     return;
                 }
                 let SubstanceSourceMaterialAuthor = require('../backbone_elements/substanceSourceMaterialAuthor.js');
@@ -247,6 +256,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.hybrid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.hybrid = null;
                     return;
                 }
                 let SubstanceSourceMaterialHybrid = require('../backbone_elements/substanceSourceMaterialHybrid.js');
@@ -265,6 +275,7 @@ class SubstanceSourceMaterialOrganism extends Element {
             get: () => this.__data.organismGeneral,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.organismGeneral = null;
                     return;
                 }
                 let SubstanceSourceMaterialOrganismGeneral = require('../backbone_elements/substanceSourceMaterialOrganismGeneral.js');

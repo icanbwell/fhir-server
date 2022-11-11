@@ -65,6 +65,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -86,6 +87,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,6 +118,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -135,6 +138,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.category = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -153,6 +157,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.productOrService,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.productOrService = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -172,6 +177,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.modifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifier = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -190,6 +196,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.provider,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.provider = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -209,6 +216,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.excluded,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.excluded = null;
                     return;
                 }
                 this.__data.excluded = valueProvided;
@@ -226,6 +234,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -243,6 +252,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -261,6 +271,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.network,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.network = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -279,6 +290,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.unit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.unit = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -298,6 +310,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.term,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.term = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -316,6 +329,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.benefit,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.benefit = null;
                     return;
                 }
                 let CoverageEligibilityResponseBenefit = require('../backbone_elements/coverageEligibilityResponseBenefit.js');
@@ -335,6 +349,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.authorizationRequired,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.authorizationRequired = null;
                     return;
                 }
                 this.__data.authorizationRequired = valueProvided;
@@ -353,6 +368,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.authorizationSupporting,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.authorizationSupporting = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -372,6 +388,7 @@ class CoverageEligibilityResponseItem extends Element {
             get: () => this.__data.authorizationUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.authorizationUrl = null;
                     return;
                 }
                 this.__data.authorizationUrl = valueProvided;

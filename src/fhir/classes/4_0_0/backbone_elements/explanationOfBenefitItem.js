@@ -90,6 +90,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -111,6 +112,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -141,6 +143,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -159,6 +162,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sequence = null;
                     return;
                 }
                 this.__data.sequence = valueProvided;
@@ -176,6 +180,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.careTeamSequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.careTeamSequence = null;
                     return;
                 }
                 this.__data.careTeamSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -193,6 +198,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.diagnosisSequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.diagnosisSequence = null;
                     return;
                 }
                 this.__data.diagnosisSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -210,6 +216,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.procedureSequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.procedureSequence = null;
                     return;
                 }
                 this.__data.procedureSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -228,6 +235,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.informationSequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.informationSequence = null;
                     return;
                 }
                 this.__data.informationSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -245,6 +253,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.revenue,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.revenue = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -264,6 +273,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.category = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -284,6 +294,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.productOrService,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.productOrService = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -303,6 +314,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.modifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifier = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -321,6 +333,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.programCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.programCode = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -339,6 +352,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.servicedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.servicedDate = null;
                     return;
                 }
                 this.__data.servicedDate = valueProvided;
@@ -356,6 +370,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.servicedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.servicedPeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -374,6 +389,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.locationCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.locationCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -392,6 +408,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.locationAddress,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.locationAddress = null;
                     return;
                 }
                 let Address = require('../complex_types/address.js');
@@ -410,6 +427,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.locationReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.locationReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -428,6 +446,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.quantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -447,6 +466,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.unitPrice,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.unitPrice = null;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -468,6 +488,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.factor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.factor = null;
                     return;
                 }
                 this.__data.factor = valueProvided;
@@ -486,6 +507,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.net,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.net = null;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -504,6 +526,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.udi,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.udi = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -522,6 +545,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.bodySite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.bodySite = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -540,6 +564,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.subSite,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subSite = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -558,6 +583,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.encounter = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -577,6 +603,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.noteNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.noteNumber = null;
                     return;
                 }
                 this.__data.noteNumber = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -596,6 +623,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.adjudication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.adjudication = null;
                     return;
                 }
                 let ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
@@ -614,6 +642,7 @@ class ExplanationOfBenefitItem extends Element {
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detail = null;
                     return;
                 }
                 let ExplanationOfBenefitDetail = require('../backbone_elements/explanationOfBenefitDetail.js');

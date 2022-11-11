@@ -99,6 +99,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -118,6 +119,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -139,6 +141,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -156,6 +159,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -178,6 +182,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -198,6 +203,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -229,6 +235,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -259,6 +266,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -279,6 +287,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -298,6 +307,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.actuality,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.actuality = null;
                     return;
                 }
                 this.__data.actuality = valueProvided;
@@ -315,6 +325,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.category = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -334,6 +345,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.event,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.event = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -352,6 +364,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subject = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -371,6 +384,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.encounter = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -389,6 +403,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.date,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.date = null;
                     return;
                 }
                 this.__data.date = valueProvided;
@@ -407,6 +422,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.detected,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detected = null;
                     return;
                 }
                 this.__data.detected = valueProvided;
@@ -424,6 +440,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.recordedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.recordedDate = null;
                     return;
                 }
                 this.__data.recordedDate = valueProvided;
@@ -442,6 +459,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.resultingCondition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.resultingCondition = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -460,6 +478,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.location,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.location = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -478,6 +497,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.seriousness,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.seriousness = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -498,6 +518,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.severity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.severity = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -516,6 +537,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.outcome,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.outcome = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -535,6 +557,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.recorder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.recorder = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -558,6 +581,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.contributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contributor = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -576,6 +600,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.suspectEntity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.suspectEntity = null;
                     return;
                 }
                 let AdverseEventSuspectEntity = require('../backbone_elements/adverseEventSuspectEntity.js');
@@ -594,6 +619,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.subjectMedicalHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subjectMedicalHistory = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -612,6 +638,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.referenceDocument,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.referenceDocument = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -630,6 +657,7 @@ class AdverseEvent extends Resource {
             get: () => this.__data.study,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.study = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

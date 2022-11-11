@@ -48,6 +48,7 @@ class GraphDefinitionTarget extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -69,6 +70,7 @@ class GraphDefinitionTarget extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -99,6 +101,7 @@ class GraphDefinitionTarget extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -117,6 +120,7 @@ class GraphDefinitionTarget extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -134,6 +138,7 @@ class GraphDefinitionTarget extends Element {
             get: () => this.__data.params,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.params = null;
                     return;
                 }
                 this.__data.params = valueProvided;
@@ -151,6 +156,7 @@ class GraphDefinitionTarget extends Element {
             get: () => this.__data.profile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.profile = null;
                     return;
                 }
                 this.__data.profile = valueProvided;
@@ -168,6 +174,7 @@ class GraphDefinitionTarget extends Element {
             get: () => this.__data.compartment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.compartment = null;
                     return;
                 }
                 let GraphDefinitionCompartment = require('../backbone_elements/graphDefinitionCompartment.js');
@@ -186,6 +193,7 @@ class GraphDefinitionTarget extends Element {
             get: () => this.__data.link,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.link = null;
                     return;
                 }
                 let GraphDefinitionLink = require('../backbone_elements/graphDefinitionLink.js');

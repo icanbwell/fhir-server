@@ -97,6 +97,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -116,6 +117,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -137,6 +139,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -154,6 +157,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -176,6 +180,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -196,6 +201,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -227,6 +233,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -257,6 +264,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -275,6 +283,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -293,6 +302,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -311,6 +321,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.domain,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.domain = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -330,6 +341,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.combinedPharmaceuticalDoseForm,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.combinedPharmaceuticalDoseForm = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -349,6 +361,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.legalStatusOfSupply,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.legalStatusOfSupply = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -368,6 +381,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.additionalMonitoringIndicator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.additionalMonitoringIndicator = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -387,6 +401,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.specialMeasures,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.specialMeasures = null;
                     return;
                 }
                 this.__data.specialMeasures = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -404,6 +419,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.paediatricUseIndicator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.paediatricUseIndicator = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -422,6 +438,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.productClassification,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.productClassification = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -441,6 +458,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.marketingStatus,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.marketingStatus = null;
                     return;
                 }
                 let MarketingStatus = require('../backbone_elements/marketingStatus.js');
@@ -459,6 +477,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.pharmaceuticalProduct,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.pharmaceuticalProduct = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -477,6 +496,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.packagedMedicinalProduct,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.packagedMedicinalProduct = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -495,6 +515,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.attachedDocument,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.attachedDocument = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -514,6 +535,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.masterFile,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.masterFile = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -532,6 +554,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.contact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contact = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -550,6 +573,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.clinicalTrial,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.clinicalTrial = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -568,6 +592,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 let MedicinalProductName = require('../backbone_elements/medicinalProductName.js');
@@ -587,6 +612,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.crossReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.crossReference = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -606,6 +632,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.manufacturingBusinessOperation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.manufacturingBusinessOperation = null;
                     return;
                 }
                 let MedicinalProductManufacturingBusinessOperation = require('../backbone_elements/medicinalProductManufacturingBusinessOperation.js');
@@ -625,6 +652,7 @@ class MedicinalProduct extends Resource {
             get: () => this.__data.specialDesignation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.specialDesignation = null;
                     return;
                 }
                 let MedicinalProductSpecialDesignation = require('../backbone_elements/medicinalProductSpecialDesignation.js');

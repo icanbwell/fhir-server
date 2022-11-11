@@ -52,6 +52,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,6 +74,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -103,6 +105,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -122,6 +125,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.sequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sequence = null;
                     return;
                 }
                 this.__data.sequence = valueProvided;
@@ -140,6 +144,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.focal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.focal = null;
                     return;
                 }
                 this.__data.focal = valueProvided;
@@ -158,6 +163,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -178,6 +184,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.coverage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.coverage = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -197,6 +204,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.businessArrangement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.businessArrangement = null;
                     return;
                 }
                 this.__data.businessArrangement = valueProvided;
@@ -216,6 +224,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.preAuthRef,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.preAuthRef = null;
                     return;
                 }
                 this.__data.preAuthRef = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -234,6 +243,7 @@ class ClaimInsurance extends Element {
             get: () => this.__data.claimResponse,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.claimResponse = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

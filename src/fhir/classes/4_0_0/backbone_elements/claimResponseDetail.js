@@ -45,6 +45,7 @@ class ClaimResponseDetail extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -66,6 +67,7 @@ class ClaimResponseDetail extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -96,6 +98,7 @@ class ClaimResponseDetail extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -114,6 +117,7 @@ class ClaimResponseDetail extends Element {
             get: () => this.__data.detailSequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detailSequence = null;
                     return;
                 }
                 this.__data.detailSequence = valueProvided;
@@ -132,6 +136,7 @@ class ClaimResponseDetail extends Element {
             get: () => this.__data.noteNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.noteNumber = null;
                     return;
                 }
                 this.__data.noteNumber = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -149,6 +154,7 @@ class ClaimResponseDetail extends Element {
             get: () => this.__data.adjudication,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.adjudication = null;
                     return;
                 }
                 let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
@@ -167,6 +173,7 @@ class ClaimResponseDetail extends Element {
             get: () => this.__data.subDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subDetail = null;
                     return;
                 }
                 let ClaimResponseSubDetail = require('../backbone_elements/claimResponseSubDetail.js');

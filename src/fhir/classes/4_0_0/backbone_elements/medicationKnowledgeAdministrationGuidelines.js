@@ -44,6 +44,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -65,6 +66,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -95,6 +97,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -113,6 +116,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             get: () => this.__data.dosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dosage = null;
                     return;
                 }
                 let MedicationKnowledgeDosage = require('../backbone_elements/medicationKnowledgeDosage.js');
@@ -131,6 +135,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             get: () => this.__data.indicationCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.indicationCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -149,6 +154,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             get: () => this.__data.indicationReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.indicationReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -168,6 +174,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
             get: () => this.__data.patientCharacteristics,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patientCharacteristics = null;
                     return;
                 }
                 let MedicationKnowledgePatientCharacteristics = require('../backbone_elements/medicationKnowledgePatientCharacteristics.js');

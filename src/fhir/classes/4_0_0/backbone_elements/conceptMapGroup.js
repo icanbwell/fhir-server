@@ -50,6 +50,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,6 +123,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.source,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.source = null;
                     return;
                 }
                 this.__data.source = valueProvided;
@@ -138,6 +142,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.sourceVersion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sourceVersion = null;
                     return;
                 }
                 this.__data.sourceVersion = valueProvided;
@@ -156,6 +161,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.target,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.target = null;
                     return;
                 }
                 this.__data.target = valueProvided;
@@ -174,6 +180,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.targetVersion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.targetVersion = null;
                     return;
                 }
                 this.__data.targetVersion = valueProvided;
@@ -192,6 +199,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.element,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.element = null;
                     return;
                 }
                 let ConceptMapElement = require('../backbone_elements/conceptMapElement.js');
@@ -212,6 +220,7 @@ class ConceptMapGroup extends Element {
             get: () => this.__data.unmapped,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.unmapped = null;
                     return;
                 }
                 let ConceptMapUnmapped = require('../backbone_elements/conceptMapUnmapped.js');

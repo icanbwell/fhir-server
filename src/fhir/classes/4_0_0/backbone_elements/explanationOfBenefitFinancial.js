@@ -50,6 +50,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,6 +122,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -137,6 +141,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.allowedUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.allowedUnsignedInt = null;
                     return;
                 }
                 this.__data.allowedUnsignedInt = valueProvided;
@@ -154,6 +159,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.allowedString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.allowedString = null;
                     return;
                 }
                 this.__data.allowedString = valueProvided;
@@ -171,6 +177,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.allowedMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.allowedMoney = null;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -189,6 +196,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.usedUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.usedUnsignedInt = null;
                     return;
                 }
                 this.__data.usedUnsignedInt = valueProvided;
@@ -206,6 +214,7 @@ class ExplanationOfBenefitFinancial extends Element {
             get: () => this.__data.usedMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.usedMoney = null;
                     return;
                 }
                 let Money = require('../complex_types/money.js');

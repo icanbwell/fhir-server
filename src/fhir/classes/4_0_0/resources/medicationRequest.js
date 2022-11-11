@@ -128,6 +128,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -147,6 +148,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -168,6 +170,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -185,6 +188,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -207,6 +211,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -227,6 +232,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -258,6 +264,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -288,6 +295,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -310,6 +318,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -329,6 +338,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.status = null;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -346,6 +356,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.statusReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.statusReason = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -364,6 +375,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.intent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.intent = null;
                     return;
                 }
                 this.__data.intent = valueProvided;
@@ -382,6 +394,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.category = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -401,6 +414,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.priority,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.priority = null;
                     return;
                 }
                 this.__data.priority = valueProvided;
@@ -419,6 +433,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.doNotPerform,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.doNotPerform = null;
                     return;
                 }
                 this.__data.doNotPerform = valueProvided;
@@ -436,6 +451,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.reportedBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reportedBoolean = null;
                     return;
                 }
                 this.__data.reportedBoolean = valueProvided;
@@ -453,6 +469,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.reportedReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reportedReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -471,6 +488,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.medicationCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.medicationCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -489,6 +507,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.medicationReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.medicationReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -508,6 +527,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.subject,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.subject = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -527,6 +547,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.encounter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.encounter = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -546,6 +567,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.supportingInformation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.supportingInformation = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -565,6 +587,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.authoredOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.authoredOn = null;
                     return;
                 }
                 this.__data.authoredOn = valueProvided;
@@ -583,6 +606,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.requester,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requester = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -602,6 +626,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.performer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.performer = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -620,6 +645,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.performerType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.performerType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -639,6 +665,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.recorder,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.recorder = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -657,6 +684,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.reasonCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reasonCode = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -675,6 +703,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.reasonReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reasonReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -694,6 +723,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.instantiatesCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.instantiatesCanonical = null;
                     return;
                 }
                 this.__data.instantiatesCanonical = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -713,6 +743,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.instantiatesUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.instantiatesUri = null;
                     return;
                 }
                 this.__data.instantiatesUri = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -731,6 +762,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.basedOn,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.basedOn = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -751,6 +783,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.groupIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.groupIdentifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -770,6 +803,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.courseOfTherapyType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.courseOfTherapyType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -789,6 +823,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.insurance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.insurance = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -808,6 +843,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.note,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.note = null;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
@@ -826,6 +862,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.dosageInstruction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dosageInstruction = null;
                     return;
                 }
                 let Dosage = require('../backbone_elements/dosage.js');
@@ -848,6 +885,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.dispenseRequest,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dispenseRequest = null;
                     return;
                 }
                 let MedicationRequestDispenseRequest = require('../backbone_elements/medicationRequestDispenseRequest.js');
@@ -869,6 +907,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.substitution,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.substitution = null;
                     return;
                 }
                 let MedicationRequestSubstitution = require('../backbone_elements/medicationRequestSubstitution.js');
@@ -888,6 +927,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.priorPrescription,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.priorPrescription = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -908,6 +948,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.detectedIssue,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detectedIssue = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -929,6 +970,7 @@ class MedicationRequest extends Resource {
             get: () => this.__data.eventHistory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.eventHistory = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

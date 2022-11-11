@@ -433,6 +433,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -454,6 +455,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -484,6 +486,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -503,6 +506,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.path,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.path = null;
                     return;
                 }
                 this.__data.path = valueProvided;
@@ -521,6 +525,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.representation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.representation = null;
                     return;
                 }
                 this.__data.representation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -541,6 +546,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.sliceName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sliceName = null;
                     return;
                 }
                 this.__data.sliceName = valueProvided;
@@ -562,6 +568,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.sliceIsConstraining,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.sliceIsConstraining = null;
                     return;
                 }
                 this.__data.sliceIsConstraining = valueProvided;
@@ -581,6 +588,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.label,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.label = null;
                     return;
                 }
                 this.__data.label = valueProvided;
@@ -598,6 +606,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -622,6 +631,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.slicing,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.slicing = null;
                     return;
                 }
                 let ElementDefinitionSlicing = require('../backbone_elements/elementDefinitionSlicing.js');
@@ -641,6 +651,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.short,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.short = null;
                     return;
                 }
                 this.__data.short = valueProvided;
@@ -663,6 +674,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.definition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.definition = null;
                     return;
                 }
                 this.__data.definition = valueProvided;
@@ -683,6 +695,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.comment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.comment = null;
                     return;
                 }
                 this.__data.comment = valueProvided;
@@ -702,6 +715,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.requirements,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requirements = null;
                     return;
                 }
                 this.__data.requirements = valueProvided;
@@ -719,6 +733,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.alias,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.alias = null;
                     return;
                 }
                 this.__data.alias = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -736,6 +751,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.min,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.min = null;
                     return;
                 }
                 this.__data.min = valueProvided;
@@ -754,6 +770,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.max,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.max = null;
                     return;
                 }
                 this.__data.max = valueProvided;
@@ -777,6 +794,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.base,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.base = null;
                     return;
                 }
                 let ElementDefinitionBase = require('../backbone_elements/elementDefinitionBase.js');
@@ -798,6 +816,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.contentReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contentReference = null;
                     return;
                 }
                 this.__data.contentReference = valueProvided;
@@ -815,6 +834,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let ElementDefinitionType = require('../backbone_elements/elementDefinitionType.js');
@@ -833,6 +853,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueBase64Binary,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueBase64Binary = null;
                     return;
                 }
                 this.__data.defaultValueBase64Binary = valueProvided;
@@ -850,6 +871,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueBoolean = null;
                     return;
                 }
                 this.__data.defaultValueBoolean = valueProvided;
@@ -867,6 +889,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCanonical = null;
                     return;
                 }
                 this.__data.defaultValueCanonical = valueProvided;
@@ -884,6 +907,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCode = null;
                     return;
                 }
                 this.__data.defaultValueCode = valueProvided;
@@ -901,6 +925,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDate = null;
                     return;
                 }
                 this.__data.defaultValueDate = valueProvided;
@@ -918,6 +943,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDateTime = null;
                     return;
                 }
                 this.__data.defaultValueDateTime = valueProvided;
@@ -935,6 +961,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDecimal = null;
                     return;
                 }
                 this.__data.defaultValueDecimal = valueProvided;
@@ -952,6 +979,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueId = null;
                     return;
                 }
                 this.__data.defaultValueId = valueProvided;
@@ -969,6 +997,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueInstant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueInstant = null;
                     return;
                 }
                 this.__data.defaultValueInstant = valueProvided;
@@ -986,6 +1015,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueInteger = null;
                     return;
                 }
                 this.__data.defaultValueInteger = valueProvided;
@@ -1003,6 +1033,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueMarkdown,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueMarkdown = null;
                     return;
                 }
                 this.__data.defaultValueMarkdown = valueProvided;
@@ -1020,6 +1051,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueOid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueOid = null;
                     return;
                 }
                 this.__data.defaultValueOid = valueProvided;
@@ -1037,6 +1069,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValuePositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValuePositiveInt = null;
                     return;
                 }
                 this.__data.defaultValuePositiveInt = valueProvided;
@@ -1054,6 +1087,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueString = null;
                     return;
                 }
                 this.__data.defaultValueString = valueProvided;
@@ -1071,6 +1105,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueTime = null;
                     return;
                 }
                 this.__data.defaultValueTime = valueProvided;
@@ -1088,6 +1123,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUnsignedInt = null;
                     return;
                 }
                 this.__data.defaultValueUnsignedInt = valueProvided;
@@ -1105,6 +1141,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUri = null;
                     return;
                 }
                 this.__data.defaultValueUri = valueProvided;
@@ -1122,6 +1159,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUrl = null;
                     return;
                 }
                 this.__data.defaultValueUrl = valueProvided;
@@ -1139,6 +1177,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueUuid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUuid = null;
                     return;
                 }
                 this.__data.defaultValueUuid = valueProvided;
@@ -1156,6 +1195,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueAddress,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueAddress = null;
                     return;
                 }
                 let Address = require('../complex_types/address.js');
@@ -1174,6 +1214,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueAge = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -1192,6 +1233,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueAnnotation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueAnnotation = null;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
@@ -1210,6 +1252,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueAttachment = null;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -1228,6 +1271,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -1246,6 +1290,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCoding = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -1264,6 +1309,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueContactPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueContactPoint = null;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -1282,6 +1328,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueCount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueCount = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -1300,6 +1347,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueDistance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDistance = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -1318,6 +1366,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDuration = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -1336,6 +1385,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueHumanName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueHumanName = null;
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
@@ -1354,6 +1404,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueIdentifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -1372,6 +1423,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueMoney = null;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -1390,6 +1442,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValuePeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValuePeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -1408,6 +1461,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueQuantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -1426,6 +1480,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -1444,6 +1499,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueRatio = null;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -1462,6 +1518,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -1480,6 +1537,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueSampledData,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueSampledData = null;
                     return;
                 }
                 let SampledData = require('../complex_types/sampledData.js');
@@ -1498,6 +1556,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueSignature = null;
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');
@@ -1516,6 +1575,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueTiming = null;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -1534,6 +1594,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueContactDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueContactDetail = null;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -1552,6 +1613,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueContributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueContributor = null;
                     return;
                 }
                 let Contributor = require('../complex_types/contributor.js');
@@ -1570,6 +1632,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDataRequirement = null;
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
@@ -1588,6 +1651,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueExpression = null;
                     return;
                 }
                 let Expression = require('../complex_types/expression.js');
@@ -1606,6 +1670,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueParameterDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueParameterDefinition = null;
                     return;
                 }
                 let ParameterDefinition = require('../complex_types/parameterDefinition.js');
@@ -1624,6 +1689,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueRelatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueRelatedArtifact = null;
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
@@ -1642,6 +1708,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueTriggerDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueTriggerDefinition = null;
                     return;
                 }
                 let TriggerDefinition = require('../complex_types/triggerDefinition.js');
@@ -1660,6 +1727,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueUsageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueUsageContext = null;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -1678,6 +1746,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueDosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueDosage = null;
                     return;
                 }
                 let Dosage = require('../backbone_elements/dosage.js');
@@ -1696,6 +1765,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.defaultValueMeta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.defaultValueMeta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -1715,6 +1785,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.meaningWhenMissing,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meaningWhenMissing = null;
                     return;
                 }
                 this.__data.meaningWhenMissing = valueProvided;
@@ -1734,6 +1805,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.orderMeaning,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.orderMeaning = null;
                     return;
                 }
                 this.__data.orderMeaning = valueProvided;
@@ -1751,6 +1823,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedBase64Binary,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedBase64Binary = null;
                     return;
                 }
                 this.__data.fixedBase64Binary = valueProvided;
@@ -1768,6 +1841,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedBoolean = null;
                     return;
                 }
                 this.__data.fixedBoolean = valueProvided;
@@ -1785,6 +1859,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedCanonical = null;
                     return;
                 }
                 this.__data.fixedCanonical = valueProvided;
@@ -1802,6 +1877,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedCode = null;
                     return;
                 }
                 this.__data.fixedCode = valueProvided;
@@ -1819,6 +1895,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedDate = null;
                     return;
                 }
                 this.__data.fixedDate = valueProvided;
@@ -1836,6 +1913,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedDateTime = null;
                     return;
                 }
                 this.__data.fixedDateTime = valueProvided;
@@ -1853,6 +1931,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedDecimal = null;
                     return;
                 }
                 this.__data.fixedDecimal = valueProvided;
@@ -1870,6 +1949,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedId = null;
                     return;
                 }
                 this.__data.fixedId = valueProvided;
@@ -1887,6 +1967,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedInstant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedInstant = null;
                     return;
                 }
                 this.__data.fixedInstant = valueProvided;
@@ -1904,6 +1985,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedInteger = null;
                     return;
                 }
                 this.__data.fixedInteger = valueProvided;
@@ -1921,6 +2003,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedMarkdown,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedMarkdown = null;
                     return;
                 }
                 this.__data.fixedMarkdown = valueProvided;
@@ -1938,6 +2021,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedOid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedOid = null;
                     return;
                 }
                 this.__data.fixedOid = valueProvided;
@@ -1955,6 +2039,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedPositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedPositiveInt = null;
                     return;
                 }
                 this.__data.fixedPositiveInt = valueProvided;
@@ -1972,6 +2057,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedString = null;
                     return;
                 }
                 this.__data.fixedString = valueProvided;
@@ -1989,6 +2075,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedTime = null;
                     return;
                 }
                 this.__data.fixedTime = valueProvided;
@@ -2006,6 +2093,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedUnsignedInt = null;
                     return;
                 }
                 this.__data.fixedUnsignedInt = valueProvided;
@@ -2023,6 +2111,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedUri = null;
                     return;
                 }
                 this.__data.fixedUri = valueProvided;
@@ -2040,6 +2129,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedUrl = null;
                     return;
                 }
                 this.__data.fixedUrl = valueProvided;
@@ -2057,6 +2147,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedUuid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedUuid = null;
                     return;
                 }
                 this.__data.fixedUuid = valueProvided;
@@ -2074,6 +2165,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedAddress,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedAddress = null;
                     return;
                 }
                 let Address = require('../complex_types/address.js');
@@ -2092,6 +2184,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedAge = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -2110,6 +2203,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedAnnotation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedAnnotation = null;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
@@ -2128,6 +2222,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedAttachment = null;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -2146,6 +2241,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -2164,6 +2260,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedCoding = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -2182,6 +2279,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedContactPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedContactPoint = null;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -2200,6 +2298,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedCount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedCount = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -2218,6 +2317,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedDistance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedDistance = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -2236,6 +2336,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedDuration = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -2254,6 +2355,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedHumanName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedHumanName = null;
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
@@ -2272,6 +2374,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedIdentifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -2290,6 +2393,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedMoney = null;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -2308,6 +2412,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedPeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -2326,6 +2431,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedQuantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -2344,6 +2450,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -2362,6 +2469,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedRatio = null;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -2380,6 +2488,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -2398,6 +2507,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedSampledData,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedSampledData = null;
                     return;
                 }
                 let SampledData = require('../complex_types/sampledData.js');
@@ -2416,6 +2526,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedSignature = null;
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');
@@ -2434,6 +2545,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedTiming = null;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -2452,6 +2564,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedContactDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedContactDetail = null;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -2470,6 +2583,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedContributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedContributor = null;
                     return;
                 }
                 let Contributor = require('../complex_types/contributor.js');
@@ -2488,6 +2602,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedDataRequirement = null;
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
@@ -2506,6 +2621,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedExpression = null;
                     return;
                 }
                 let Expression = require('../complex_types/expression.js');
@@ -2524,6 +2640,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedParameterDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedParameterDefinition = null;
                     return;
                 }
                 let ParameterDefinition = require('../complex_types/parameterDefinition.js');
@@ -2542,6 +2659,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedRelatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedRelatedArtifact = null;
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
@@ -2560,6 +2678,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedTriggerDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedTriggerDefinition = null;
                     return;
                 }
                 let TriggerDefinition = require('../complex_types/triggerDefinition.js');
@@ -2578,6 +2697,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedUsageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedUsageContext = null;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -2596,6 +2716,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedDosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedDosage = null;
                     return;
                 }
                 let Dosage = require('../backbone_elements/dosage.js');
@@ -2614,6 +2735,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.fixedMeta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.fixedMeta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -2632,6 +2754,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternBase64Binary,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternBase64Binary = null;
                     return;
                 }
                 this.__data.patternBase64Binary = valueProvided;
@@ -2649,6 +2772,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternBoolean = null;
                     return;
                 }
                 this.__data.patternBoolean = valueProvided;
@@ -2666,6 +2790,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternCanonical = null;
                     return;
                 }
                 this.__data.patternCanonical = valueProvided;
@@ -2683,6 +2808,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternCode = null;
                     return;
                 }
                 this.__data.patternCode = valueProvided;
@@ -2700,6 +2826,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternDate = null;
                     return;
                 }
                 this.__data.patternDate = valueProvided;
@@ -2717,6 +2844,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternDateTime = null;
                     return;
                 }
                 this.__data.patternDateTime = valueProvided;
@@ -2734,6 +2862,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternDecimal = null;
                     return;
                 }
                 this.__data.patternDecimal = valueProvided;
@@ -2751,6 +2880,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternId = null;
                     return;
                 }
                 this.__data.patternId = valueProvided;
@@ -2768,6 +2898,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternInstant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternInstant = null;
                     return;
                 }
                 this.__data.patternInstant = valueProvided;
@@ -2785,6 +2916,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternInteger = null;
                     return;
                 }
                 this.__data.patternInteger = valueProvided;
@@ -2802,6 +2934,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternMarkdown,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternMarkdown = null;
                     return;
                 }
                 this.__data.patternMarkdown = valueProvided;
@@ -2819,6 +2952,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternOid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternOid = null;
                     return;
                 }
                 this.__data.patternOid = valueProvided;
@@ -2836,6 +2970,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternPositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternPositiveInt = null;
                     return;
                 }
                 this.__data.patternPositiveInt = valueProvided;
@@ -2853,6 +2988,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternString = null;
                     return;
                 }
                 this.__data.patternString = valueProvided;
@@ -2870,6 +3006,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternTime = null;
                     return;
                 }
                 this.__data.patternTime = valueProvided;
@@ -2887,6 +3024,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternUnsignedInt = null;
                     return;
                 }
                 this.__data.patternUnsignedInt = valueProvided;
@@ -2904,6 +3042,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternUri = null;
                     return;
                 }
                 this.__data.patternUri = valueProvided;
@@ -2921,6 +3060,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternUrl = null;
                     return;
                 }
                 this.__data.patternUrl = valueProvided;
@@ -2938,6 +3078,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternUuid,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternUuid = null;
                     return;
                 }
                 this.__data.patternUuid = valueProvided;
@@ -2955,6 +3096,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternAddress,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternAddress = null;
                     return;
                 }
                 let Address = require('../complex_types/address.js');
@@ -2973,6 +3115,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternAge = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -2991,6 +3134,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternAnnotation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternAnnotation = null;
                     return;
                 }
                 let Annotation = require('../complex_types/annotation.js');
@@ -3009,6 +3153,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternAttachment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternAttachment = null;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -3027,6 +3172,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternCodeableConcept,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternCodeableConcept = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -3045,6 +3191,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternCoding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternCoding = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -3063,6 +3210,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternContactPoint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternContactPoint = null;
                     return;
                 }
                 let ContactPoint = require('../complex_types/contactPoint.js');
@@ -3081,6 +3229,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternCount,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternCount = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -3099,6 +3248,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternDistance,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternDistance = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -3117,6 +3267,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternDuration = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -3135,6 +3286,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternHumanName,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternHumanName = null;
                     return;
                 }
                 let HumanName = require('../complex_types/humanName.js');
@@ -3153,6 +3305,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternIdentifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternIdentifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -3171,6 +3324,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternMoney,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternMoney = null;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -3189,6 +3343,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternPeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -3207,6 +3362,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternQuantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -3225,6 +3381,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -3243,6 +3400,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternRatio = null;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -3261,6 +3419,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -3279,6 +3438,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternSampledData,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternSampledData = null;
                     return;
                 }
                 let SampledData = require('../complex_types/sampledData.js');
@@ -3297,6 +3457,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternSignature,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternSignature = null;
                     return;
                 }
                 let Signature = require('../complex_types/signature.js');
@@ -3315,6 +3476,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternTiming,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternTiming = null;
                     return;
                 }
                 let Timing = require('../backbone_elements/timing.js');
@@ -3333,6 +3495,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternContactDetail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternContactDetail = null;
                     return;
                 }
                 let ContactDetail = require('../complex_types/contactDetail.js');
@@ -3351,6 +3514,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternContributor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternContributor = null;
                     return;
                 }
                 let Contributor = require('../complex_types/contributor.js');
@@ -3369,6 +3533,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternDataRequirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternDataRequirement = null;
                     return;
                 }
                 let DataRequirement = require('../complex_types/dataRequirement.js');
@@ -3387,6 +3552,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternExpression,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternExpression = null;
                     return;
                 }
                 let Expression = require('../complex_types/expression.js');
@@ -3405,6 +3571,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternParameterDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternParameterDefinition = null;
                     return;
                 }
                 let ParameterDefinition = require('../complex_types/parameterDefinition.js');
@@ -3423,6 +3590,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternRelatedArtifact,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternRelatedArtifact = null;
                     return;
                 }
                 let RelatedArtifact = require('../complex_types/relatedArtifact.js');
@@ -3441,6 +3609,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternTriggerDefinition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternTriggerDefinition = null;
                     return;
                 }
                 let TriggerDefinition = require('../complex_types/triggerDefinition.js');
@@ -3459,6 +3628,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternUsageContext,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternUsageContext = null;
                     return;
                 }
                 let UsageContext = require('../complex_types/usageContext.js');
@@ -3477,6 +3647,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternDosage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternDosage = null;
                     return;
                 }
                 let Dosage = require('../backbone_elements/dosage.js');
@@ -3495,6 +3666,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.patternMeta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.patternMeta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -3514,6 +3686,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.example,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.example = null;
                     return;
                 }
                 let ElementDefinitionExample = require('../backbone_elements/elementDefinitionExample.js');
@@ -3532,6 +3705,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValueDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValueDate = null;
                     return;
                 }
                 this.__data.minValueDate = valueProvided;
@@ -3549,6 +3723,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValueDateTime = null;
                     return;
                 }
                 this.__data.minValueDateTime = valueProvided;
@@ -3566,6 +3741,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValueInstant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValueInstant = null;
                     return;
                 }
                 this.__data.minValueInstant = valueProvided;
@@ -3583,6 +3759,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValueTime = null;
                     return;
                 }
                 this.__data.minValueTime = valueProvided;
@@ -3600,6 +3777,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValueDecimal = null;
                     return;
                 }
                 this.__data.minValueDecimal = valueProvided;
@@ -3617,6 +3795,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValueInteger = null;
                     return;
                 }
                 this.__data.minValueInteger = valueProvided;
@@ -3634,6 +3813,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValuePositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValuePositiveInt = null;
                     return;
                 }
                 this.__data.minValuePositiveInt = valueProvided;
@@ -3651,6 +3831,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValueUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValueUnsignedInt = null;
                     return;
                 }
                 this.__data.minValueUnsignedInt = valueProvided;
@@ -3668,6 +3849,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.minValueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.minValueQuantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -3686,6 +3868,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValueDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValueDate = null;
                     return;
                 }
                 this.__data.maxValueDate = valueProvided;
@@ -3703,6 +3886,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValueDateTime = null;
                     return;
                 }
                 this.__data.maxValueDateTime = valueProvided;
@@ -3720,6 +3904,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValueInstant,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValueInstant = null;
                     return;
                 }
                 this.__data.maxValueInstant = valueProvided;
@@ -3737,6 +3922,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValueTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValueTime = null;
                     return;
                 }
                 this.__data.maxValueTime = valueProvided;
@@ -3754,6 +3940,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValueDecimal = null;
                     return;
                 }
                 this.__data.maxValueDecimal = valueProvided;
@@ -3771,6 +3958,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValueInteger = null;
                     return;
                 }
                 this.__data.maxValueInteger = valueProvided;
@@ -3788,6 +3976,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValuePositiveInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValuePositiveInt = null;
                     return;
                 }
                 this.__data.maxValuePositiveInt = valueProvided;
@@ -3805,6 +3994,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValueUnsignedInt,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValueUnsignedInt = null;
                     return;
                 }
                 this.__data.maxValueUnsignedInt = valueProvided;
@@ -3822,6 +4012,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxValueQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxValueQuantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -3842,6 +4033,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.maxLength,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.maxLength = null;
                     return;
                 }
                 this.__data.maxLength = valueProvided;
@@ -3860,6 +4052,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.condition = null;
                     return;
                 }
                 this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -3878,6 +4071,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.constraint,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.constraint = null;
                     return;
                 }
                 let ElementDefinitionConstraint = require('../backbone_elements/elementDefinitionConstraint.js');
@@ -3899,6 +4093,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.mustSupport,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.mustSupport = null;
                     return;
                 }
                 this.__data.mustSupport = valueProvided;
@@ -3921,6 +4116,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.isModifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.isModifier = null;
                     return;
                 }
                 this.__data.isModifier = valueProvided;
@@ -3939,6 +4135,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.isModifierReason,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.isModifierReason = null;
                     return;
                 }
                 this.__data.isModifierReason = valueProvided;
@@ -3957,6 +4154,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.isSummary,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.isSummary = null;
                     return;
                 }
                 this.__data.isSummary = valueProvided;
@@ -3975,6 +4173,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.binding,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.binding = null;
                     return;
                 }
                 let ElementDefinitionBinding = require('../backbone_elements/elementDefinitionBinding.js');
@@ -3994,6 +4193,7 @@ class ElementDefinition extends Element {
             get: () => this.__data.mapping,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.mapping = null;
                     return;
                 }
                 let ElementDefinitionMapping = require('../backbone_elements/elementDefinitionMapping.js');

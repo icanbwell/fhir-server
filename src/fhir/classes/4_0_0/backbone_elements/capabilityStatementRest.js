@@ -55,6 +55,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,6 +77,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -106,6 +108,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -125,6 +128,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.mode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.mode = null;
                     return;
                 }
                 this.__data.mode = valueProvided;
@@ -143,6 +147,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.documentation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.documentation = null;
                     return;
                 }
                 this.__data.documentation = valueProvided;
@@ -161,6 +166,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.security,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.security = null;
                     return;
                 }
                 let CapabilityStatementSecurity = require('../backbone_elements/capabilityStatementSecurity.js');
@@ -180,6 +186,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.resource = null;
                     return;
                 }
                 let CapabilityStatementResource = require('../backbone_elements/capabilityStatementResource.js');
@@ -198,6 +205,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.interaction,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.interaction = null;
                     return;
                 }
                 let CapabilityStatementInteraction1 = require('../backbone_elements/capabilityStatementInteraction1.js');
@@ -219,6 +227,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.searchParam,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.searchParam = null;
                     return;
                 }
                 let CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
@@ -238,6 +247,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.operation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.operation = null;
                     return;
                 }
                 let CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');
@@ -258,6 +268,7 @@ class CapabilityStatementRest extends Element {
             get: () => this.__data.compartment,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.compartment = null;
                     return;
                 }
                 this.__data.compartment = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

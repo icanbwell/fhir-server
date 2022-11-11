@@ -46,6 +46,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -67,6 +68,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -97,6 +99,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -115,6 +118,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -133,6 +137,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             get: () => this.__data.exposureState,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.exposureState = null;
                     return;
                 }
                 this.__data.exposureState = valueProvided;
@@ -150,6 +155,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             get: () => this.__data.variantState,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.variantState = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -168,6 +174,7 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
             get: () => this.__data.riskEvidenceSynthesis,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.riskEvidenceSynthesis = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

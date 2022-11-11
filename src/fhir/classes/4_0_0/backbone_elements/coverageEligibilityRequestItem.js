@@ -60,6 +60,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -81,6 +82,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -111,6 +113,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -130,6 +133,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.supportingInfoSequence,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.supportingInfoSequence = null;
                     return;
                 }
                 this.__data.supportingInfoSequence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -148,6 +152,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.category = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -166,6 +171,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.productOrService,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.productOrService = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -185,6 +191,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.modifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifier = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -204,6 +211,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.provider,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.provider = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -222,6 +230,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.quantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -240,6 +249,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.unitPrice,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.unitPrice = null;
                     return;
                 }
                 let Money = require('../complex_types/money.js');
@@ -258,6 +268,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.facility,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.facility = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -276,6 +287,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.diagnosis,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.diagnosis = null;
                     return;
                 }
                 let CoverageEligibilityRequestDiagnosis = require('../backbone_elements/coverageEligibilityRequestDiagnosis.js');
@@ -294,6 +306,7 @@ class CoverageEligibilityRequestItem extends Element {
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detail = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

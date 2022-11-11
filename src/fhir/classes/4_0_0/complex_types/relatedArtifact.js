@@ -51,6 +51,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -72,6 +73,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -90,6 +92,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -108,6 +111,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.label,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.label = null;
                     return;
                 }
                 this.__data.label = valueProvided;
@@ -126,6 +130,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.display,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.display = null;
                     return;
                 }
                 this.__data.display = valueProvided;
@@ -144,6 +149,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.citation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.citation = null;
                     return;
                 }
                 this.__data.citation = valueProvided;
@@ -161,6 +167,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.url,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.url = null;
                     return;
                 }
                 this.__data.url = valueProvided;
@@ -179,6 +186,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.document,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.document = null;
                     return;
                 }
                 let Attachment = require('../complex_types/attachment.js');
@@ -198,6 +206,7 @@ class RelatedArtifact extends Element {
             get: () => this.__data.resource,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.resource = null;
                     return;
                 }
                 this.__data.resource = valueProvided;

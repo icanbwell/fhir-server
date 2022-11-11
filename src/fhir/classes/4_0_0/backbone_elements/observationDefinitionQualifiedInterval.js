@@ -53,6 +53,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -74,6 +75,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -104,6 +106,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -123,6 +126,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.category,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.category = null;
                     return;
                 }
                 this.__data.category = valueProvided;
@@ -141,6 +145,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.range,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.range = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -160,6 +165,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.context,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.context = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -178,6 +184,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.appliesTo,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.appliesTo = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -196,6 +203,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.gender,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.gender = null;
                     return;
                 }
                 this.__data.gender = valueProvided;
@@ -214,6 +222,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.age,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.age = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -233,6 +242,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.gestationalAge,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.gestationalAge = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -251,6 +261,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
             get: () => this.__data.condition,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.condition = null;
                     return;
                 }
                 this.__data.condition = valueProvided;

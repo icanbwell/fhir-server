@@ -131,16 +131,18 @@ class AdminPersonPatientLinkManager {
                 // check if a link target already exists in bwellPerson for sourcePersonId
                 if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${sourcePersonId}`)) {
                     return {
-                        'message': `No Link exists from ${bwellPersonId} to ${sourcePersonId}`,
+                        'message': `No Link exists from Person/${bwellPersonId} to Person/${sourcePersonId}`,
                         'bwellPersonId': bwellPersonId,
                         'sourcePersonId': sourcePersonId
                     };
                 } else {
-                    bwellPerson.link = bwellPerson.link.filter(l => !(l.target && l.target.reference === `Person/${sourcePersonId}`));
+                    console.log(`link before: ${JSON.stringify(bwellPerson.link)}`);
+                    bwellPerson.link = bwellPerson.link.filter(l => (l.target.reference !== `Person/${sourcePersonId}`));
+                    console.log(`link after: ${JSON.stringify(bwellPerson.link)}`);
                 }
             } else {
                 return {
-                    'message': `No Link exists from ${bwellPersonId} to ${sourcePersonId}`,
+                    'message': `No Link exists from Person/${bwellPersonId} to Person/${sourcePersonId}`,
                     'bwellPersonId': bwellPersonId,
                     'sourcePersonId': sourcePersonId
                 };
@@ -154,7 +156,7 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Removed link from ${bwellPersonId} to ${sourcePersonId}`,
+                'message': `Removed link from Person/${bwellPersonId} to Person/${sourcePersonId}`,
                 'bwellPersonId': bwellPersonId,
                 'sourcePersonId': sourcePersonId
             };

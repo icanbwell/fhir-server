@@ -47,6 +47,7 @@ class StructureMapParameter extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,6 +69,7 @@ class StructureMapParameter extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,6 +100,7 @@ class StructureMapParameter extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,6 +119,7 @@ class StructureMapParameter extends Element {
             get: () => this.__data.valueId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueId = null;
                     return;
                 }
                 this.__data.valueId = valueProvided;
@@ -133,6 +137,7 @@ class StructureMapParameter extends Element {
             get: () => this.__data.valueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueString = null;
                     return;
                 }
                 this.__data.valueString = valueProvided;
@@ -150,6 +155,7 @@ class StructureMapParameter extends Element {
             get: () => this.__data.valueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueBoolean = null;
                     return;
                 }
                 this.__data.valueBoolean = valueProvided;
@@ -167,6 +173,7 @@ class StructureMapParameter extends Element {
             get: () => this.__data.valueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueInteger = null;
                     return;
                 }
                 this.__data.valueInteger = valueProvided;
@@ -184,6 +191,7 @@ class StructureMapParameter extends Element {
             get: () => this.__data.valueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueDecimal = null;
                     return;
                 }
                 this.__data.valueDecimal = valueProvided;

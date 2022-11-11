@@ -47,6 +47,7 @@ class PlanDefinitionRelatedAction extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,6 +69,7 @@ class PlanDefinitionRelatedAction extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,6 +100,7 @@ class PlanDefinitionRelatedAction extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,6 +119,7 @@ class PlanDefinitionRelatedAction extends Element {
             get: () => this.__data.actionId,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.actionId = null;
                     return;
                 }
                 this.__data.actionId = valueProvided;
@@ -133,6 +137,7 @@ class PlanDefinitionRelatedAction extends Element {
             get: () => this.__data.relationship,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.relationship = null;
                     return;
                 }
                 this.__data.relationship = valueProvided;
@@ -150,6 +155,7 @@ class PlanDefinitionRelatedAction extends Element {
             get: () => this.__data.offsetDuration,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.offsetDuration = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -168,6 +174,7 @@ class PlanDefinitionRelatedAction extends Element {
             get: () => this.__data.offsetRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.offsetRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');

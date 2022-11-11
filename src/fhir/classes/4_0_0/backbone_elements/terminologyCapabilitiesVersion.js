@@ -50,6 +50,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -120,6 +123,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = null;
                     return;
                 }
                 this.__data.code = valueProvided;
@@ -137,6 +141,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.isDefault,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.isDefault = null;
                     return;
                 }
                 this.__data.isDefault = valueProvided;
@@ -154,6 +159,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.compositional,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.compositional = null;
                     return;
                 }
                 this.__data.compositional = valueProvided;
@@ -171,6 +177,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];
@@ -188,6 +195,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.filter,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.filter = null;
                     return;
                 }
                 let TerminologyCapabilitiesFilter = require('../backbone_elements/terminologyCapabilitiesFilter.js');
@@ -206,6 +214,7 @@ class TerminologyCapabilitiesVersion extends Element {
             get: () => this.__data.property,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.property = null;
                     return;
                 }
                 this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => v) : [valueProvided];

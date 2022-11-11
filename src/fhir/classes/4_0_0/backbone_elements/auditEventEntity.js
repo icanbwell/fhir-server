@@ -56,6 +56,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -77,6 +78,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -107,6 +109,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -126,6 +129,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.what,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.what = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -144,6 +148,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -162,6 +167,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.role,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.role = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -180,6 +186,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.lifecycle,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.lifecycle = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -198,6 +205,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.securityLabel,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.securityLabel = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -216,6 +224,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -233,6 +242,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.description,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.description = null;
                     return;
                 }
                 this.__data.description = valueProvided;
@@ -250,6 +260,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.query,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.query = null;
                     return;
                 }
                 this.__data.query = valueProvided;
@@ -267,6 +278,7 @@ class AuditEventEntity extends Element {
             get: () => this.__data.detail,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.detail = null;
                     return;
                 }
                 let AuditEventDetail = require('../backbone_elements/auditEventDetail.js');

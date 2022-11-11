@@ -50,6 +50,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -71,6 +72,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -101,6 +103,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -119,6 +122,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -137,6 +141,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.doseRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.doseRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -155,6 +160,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.doseQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.doseQuantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -173,6 +179,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.rateRatio,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.rateRatio = null;
                     return;
                 }
                 let Ratio = require('../complex_types/ratio.js');
@@ -191,6 +198,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.rateRange,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.rateRange = null;
                     return;
                 }
                 let Range = require('../complex_types/range.js');
@@ -209,6 +217,7 @@ class DosageDoseAndRate extends Element {
             get: () => this.__data.rateQuantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.rateQuantity = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');

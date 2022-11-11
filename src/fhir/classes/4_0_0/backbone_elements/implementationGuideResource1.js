@@ -47,6 +47,7 @@ class ImplementationGuideResource1 extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -68,6 +69,7 @@ class ImplementationGuideResource1 extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -98,6 +100,7 @@ class ImplementationGuideResource1 extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -116,6 +119,7 @@ class ImplementationGuideResource1 extends Element {
             get: () => this.__data.reference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.reference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -134,6 +138,7 @@ class ImplementationGuideResource1 extends Element {
             get: () => this.__data.exampleBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.exampleBoolean = null;
                     return;
                 }
                 this.__data.exampleBoolean = valueProvided;
@@ -151,6 +156,7 @@ class ImplementationGuideResource1 extends Element {
             get: () => this.__data.exampleCanonical,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.exampleCanonical = null;
                     return;
                 }
                 this.__data.exampleCanonical = valueProvided;
@@ -168,6 +174,7 @@ class ImplementationGuideResource1 extends Element {
             get: () => this.__data.relativePath,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.relativePath = null;
                     return;
                 }
                 this.__data.relativePath = valueProvided;

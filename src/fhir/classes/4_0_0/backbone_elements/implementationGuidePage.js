@@ -49,6 +49,7 @@ class ImplementationGuidePage extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,6 +71,7 @@ class ImplementationGuidePage extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -100,6 +102,7 @@ class ImplementationGuidePage extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,6 +121,7 @@ class ImplementationGuidePage extends Element {
             get: () => this.__data.nameUrl,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.nameUrl = null;
                     return;
                 }
                 this.__data.nameUrl = valueProvided;
@@ -135,6 +139,7 @@ class ImplementationGuidePage extends Element {
             get: () => this.__data.nameReference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.nameReference = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -154,6 +159,7 @@ class ImplementationGuidePage extends Element {
             get: () => this.__data.title,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.title = null;
                     return;
                 }
                 this.__data.title = valueProvided;
@@ -171,6 +177,7 @@ class ImplementationGuidePage extends Element {
             get: () => this.__data.generation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.generation = null;
                     return;
                 }
                 this.__data.generation = valueProvided;
@@ -188,6 +195,7 @@ class ImplementationGuidePage extends Element {
             get: () => this.__data.page,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.page = null;
                     return;
                 }
                 this.__data.page = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuidePage(v)) : [new ImplementationGuidePage(valueProvided)];

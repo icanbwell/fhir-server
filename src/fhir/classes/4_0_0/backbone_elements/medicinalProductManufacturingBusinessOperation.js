@@ -49,6 +49,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -70,6 +71,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -100,6 +102,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -118,6 +121,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.operationType,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.operationType = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -136,6 +140,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.authorisationReferenceNumber,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.authorisationReferenceNumber = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -154,6 +159,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.effectiveDate,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.effectiveDate = null;
                     return;
                 }
                 this.__data.effectiveDate = valueProvided;
@@ -171,6 +177,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.confidentialityIndicator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.confidentialityIndicator = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -189,6 +196,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.manufacturer,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.manufacturer = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -207,6 +215,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
             get: () => this.__data.regulator,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.regulator = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');

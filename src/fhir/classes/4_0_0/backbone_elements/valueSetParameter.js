@@ -55,6 +55,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -76,6 +77,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -106,6 +108,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -126,6 +129,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.name,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.name = null;
                     return;
                 }
                 this.__data.name = valueProvided;
@@ -143,6 +147,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.valueString,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueString = null;
                     return;
                 }
                 this.__data.valueString = valueProvided;
@@ -160,6 +165,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.valueBoolean,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueBoolean = null;
                     return;
                 }
                 this.__data.valueBoolean = valueProvided;
@@ -177,6 +183,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.valueInteger,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueInteger = null;
                     return;
                 }
                 this.__data.valueInteger = valueProvided;
@@ -194,6 +201,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.valueDecimal,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueDecimal = null;
                     return;
                 }
                 this.__data.valueDecimal = valueProvided;
@@ -211,6 +219,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.valueUri,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueUri = null;
                     return;
                 }
                 this.__data.valueUri = valueProvided;
@@ -228,6 +237,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.valueCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueCode = null;
                     return;
                 }
                 this.__data.valueCode = valueProvided;
@@ -245,6 +255,7 @@ class ValueSetParameter extends Element {
             get: () => this.__data.valueDateTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.valueDateTime = null;
                     return;
                 }
                 this.__data.valueDateTime = valueProvided;

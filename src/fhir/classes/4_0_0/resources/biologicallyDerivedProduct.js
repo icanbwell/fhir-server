@@ -80,6 +80,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -99,6 +100,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.meta,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.meta = null;
                     return;
                 }
                 let Meta = require('../complex_types/meta.js');
@@ -120,6 +122,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.implicitRules,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.implicitRules = null;
                     return;
                 }
                 this.__data.implicitRules = valueProvided;
@@ -137,6 +140,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.language,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.language = null;
                     return;
                 }
                 this.__data.language = valueProvided;
@@ -159,6 +163,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.text,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.text = null;
                     return;
                 }
                 let Narrative = require('../complex_types/narrative.js');
@@ -179,6 +184,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.contained,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.contained = null;
                     return;
                 }
                 let ResourceContainer = require('../simple_types/resourceContainer.js');
@@ -210,6 +216,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -240,6 +247,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -261,6 +269,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.identifier,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.identifier = null;
                     return;
                 }
                 let Identifier = require('../complex_types/identifier.js');
@@ -279,6 +288,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.productCategory,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.productCategory = null;
                     return;
                 }
                 this.__data.productCategory = valueProvided;
@@ -297,6 +307,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.productCode,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.productCode = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -315,6 +326,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.status,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.status = null;
                     return;
                 }
                 this.__data.status = valueProvided;
@@ -332,6 +344,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.request,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.request = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -350,6 +363,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.quantity,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.quantity = null;
                     return;
                 }
                 this.__data.quantity = valueProvided;
@@ -367,6 +381,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.parent,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.parent = null;
                     return;
                 }
                 let Reference = require('../complex_types/reference.js');
@@ -385,6 +400,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.collection,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.collection = null;
                     return;
                 }
                 let BiologicallyDerivedProductCollection = require('../backbone_elements/biologicallyDerivedProductCollection.js');
@@ -405,6 +421,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.processing,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.processing = null;
                     return;
                 }
                 let BiologicallyDerivedProductProcessing = require('../backbone_elements/biologicallyDerivedProductProcessing.js');
@@ -425,6 +442,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.manipulation,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.manipulation = null;
                     return;
                 }
                 let BiologicallyDerivedProductManipulation = require('../backbone_elements/biologicallyDerivedProductManipulation.js');
@@ -443,6 +461,7 @@ class BiologicallyDerivedProduct extends Resource {
             get: () => this.__data.storage,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.storage = null;
                     return;
                 }
                 let BiologicallyDerivedProductStorage = require('../backbone_elements/biologicallyDerivedProductStorage.js');

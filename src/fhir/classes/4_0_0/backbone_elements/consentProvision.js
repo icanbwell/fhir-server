@@ -60,6 +60,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -81,6 +82,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -111,6 +113,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -130,6 +133,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 this.__data.type = valueProvided;
@@ -147,6 +151,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.period,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.period = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -166,6 +171,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.actor,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.actor = null;
                     return;
                 }
                 let ConsentActor = require('../backbone_elements/consentActor.js');
@@ -184,6 +190,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.action,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.action = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -203,6 +210,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.securityLabel,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.securityLabel = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -222,6 +230,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.purpose,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.purpose = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -242,6 +251,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.class,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.class = null;
                     return;
                 }
                 let Coding = require('../complex_types/coding.js');
@@ -260,6 +270,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.code,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.code = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -279,6 +290,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.dataPeriod,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.dataPeriod = null;
                     return;
                 }
                 let Period = require('../complex_types/period.js');
@@ -297,6 +309,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.data,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.data = null;
                     return;
                 }
                 let ConsentData = require('../backbone_elements/consentData.js');
@@ -315,6 +328,7 @@ class ConsentProvision extends Element {
             get: () => this.__data.provision,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.provision = null;
                     return;
                 }
                 this.__data.provision = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConsentProvision(v)) : [new ConsentProvision(valueProvided)];

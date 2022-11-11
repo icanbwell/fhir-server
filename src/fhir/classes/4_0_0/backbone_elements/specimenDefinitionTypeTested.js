@@ -52,6 +52,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.id,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.id = null;
                     return;
                 }
                 this.__data.id = valueProvided;
@@ -73,6 +74,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.extension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.extension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -103,6 +105,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.modifierExtension,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.modifierExtension = null;
                     return;
                 }
                 let Extension = require('../extensions/extension.js');
@@ -121,6 +124,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.isDerived,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.isDerived = null;
                     return;
                 }
                 this.__data.isDerived = valueProvided;
@@ -138,6 +142,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.type,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.type = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -156,6 +161,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.preference,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.preference = null;
                     return;
                 }
                 this.__data.preference = valueProvided;
@@ -173,6 +179,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.container,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.container = null;
                     return;
                 }
                 let SpecimenDefinitionContainer = require('../backbone_elements/specimenDefinitionContainer.js');
@@ -192,6 +199,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.requirement,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.requirement = null;
                     return;
                 }
                 this.__data.requirement = valueProvided;
@@ -210,6 +218,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.retentionTime,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.retentionTime = null;
                     return;
                 }
                 let Quantity = require('../complex_types/quantity.js');
@@ -228,6 +237,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.rejectionCriterion,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.rejectionCriterion = null;
                     return;
                 }
                 let CodeableConcept = require('../complex_types/codeableConcept.js');
@@ -247,6 +257,7 @@ class SpecimenDefinitionTypeTested extends Element {
             get: () => this.__data.handling,
             set: valueProvided => {
                 if (valueProvided === undefined || valueProvided === null || (Array.isArray(valueProvided) && valueProvided.length === 0)) {
+                    this.__data.handling = null;
                     return;
                 }
                 let SpecimenDefinitionHandling = require('../backbone_elements/specimenDefinitionHandling.js');
