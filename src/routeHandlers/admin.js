@@ -216,7 +216,7 @@ async function handleAdmin(
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const sourcePersonId = req.query['sourcePersonId'];
                     const patientId = req.query['patientId'];
-                    if (sourcePersonId && patientId) {
+                    if (patientId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
                          */
@@ -228,7 +228,7 @@ async function handleAdmin(
                         return res.json(json);
                     }
                     return res.json({
-                        message: `No sourcePersonId: ${sourcePersonId} or patientId: ${patientId} passed`
+                        message: `No patientId: ${patientId} passed`
                     });
                 }
 
