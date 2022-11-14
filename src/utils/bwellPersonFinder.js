@@ -31,7 +31,7 @@ class BwellPersonFinder {
         });
 
         let personId = null;
-        let person = await databaseQueryManager.findOneAsync({ query: { link: `Patient/${patientId}`}});
+        let person = await databaseQueryManager.findOneAsync({ query: { 'link.target.reference': `Patient/${patientId}`}});
         if (person) {
             personId = person.id;
         }

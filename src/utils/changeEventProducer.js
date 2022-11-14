@@ -443,25 +443,25 @@ class ChangeEventProducer {
 
                 let personId = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientId});
                 if (personId) {
-                    const proxyPatientId = `Patient/person.${personId}`;
+                    const proxyPatientId = `person.${personId}`;
                     await this.onPatientChangeAsync({
-                            requestId, proxyPatientId, timestamp: currentDate
+                            requestId, patientId: proxyPatientId, timestamp: currentDate
                         }
                     );
                 }
             }
         }
         if (resourceType === 'Person') {
-            const proxyPatientId = `Patient/person.${doc.id}`;
+            const proxyPatientId = `person.${doc.id}`;
             if (eventType === 'C') {
                 await this.onPatientCreateAsync({
-                        requestId, proxyPatientId, timestamp: currentDate
+                        requestId, patientId: proxyPatientId, timestamp: currentDate
                     }
                 );
             }
             else {
                 await this.onPatientChangeAsync({
-                        requestId, proxyPatientId, timestamp: currentDate
+                        requestId, patientId: proxyPatientId, timestamp: currentDate
                     }
                 );
             }

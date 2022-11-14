@@ -1,6 +1,6 @@
 {
     "resourceType": "Person",
-    "id": "0000000001000",
+    "id": "81236",
     "meta": {
         "security": [
             {
@@ -27,7 +27,7 @@
     "link": [
         {
             "target": {
-                "reference": "Patient/00100000000",
+                "reference": "Patient/2354",
                 "type": "Patient"
             },
             "assurance": "level4"
