@@ -71,6 +71,7 @@ const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHa
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
 const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
+const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 
 /**
  * Creates a container and sets up all the services
@@ -521,6 +522,10 @@ const createContainer = function () {
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory
+    }));
+
+    container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
+        databaseQueryFactory: c.databaseQueryFactory
     }));
 
     return container;
