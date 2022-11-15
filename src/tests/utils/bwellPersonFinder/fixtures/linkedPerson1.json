@@ -1,15 +1,15 @@
 {
     "resourceType": "Person",
-    "id": "81236",
+    "id": "otherOne",
     "meta": {
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "bwell"
+                "code": "medstar"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "bwell"
+                "code": "medstar"
             }
         ]
     },
@@ -23,5 +23,14 @@
         }
     ],
     "gender": "male",
-    "birthDate": "1996-03-03"
+    "birthDate": "1996-03-03",
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/1234",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        }
+    ]
 }

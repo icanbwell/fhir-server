@@ -1,15 +1,15 @@
 {
     "resourceType": "Person",
-    "id": "81236",
+    "id": "otherOne",
     "meta": {
         "security": [
             {
                 "system": "https://www.icanbwell.com/access",
-                "code": "bwell"
+                "code": "medstar"
             },
             {
                 "system": "https://www.icanbwell.com/owner",
-                "code": "bwell"
+                "code": "medstar"
             }
         ]
     },
@@ -27,8 +27,15 @@
     "link": [
         {
             "target": {
-                "reference": "Patient/2354",
+                "reference": "Patient/1234",
                 "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Person/5678",
+                "type": "Person"
             },
             "assurance": "level4"
         }

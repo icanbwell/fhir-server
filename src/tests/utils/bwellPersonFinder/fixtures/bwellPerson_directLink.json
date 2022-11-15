@@ -23,5 +23,14 @@
         }
     ],
     "gender": "male",
-    "birthDate": "1996-03-03"
+    "birthDate": "1996-03-03",
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/1234",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        }
+    ]
 }

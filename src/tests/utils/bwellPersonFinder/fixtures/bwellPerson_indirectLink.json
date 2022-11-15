@@ -23,5 +23,14 @@
         }
     ],
     "gender": "male",
-    "birthDate": "1996-03-03"
+    "birthDate": "1996-03-03",
+    "link": [
+        {
+            "target": {
+                "reference": "Person/5678",
+                "type": "Person"
+            },
+            "assurance": "level4"
+        }
+    ]
 }

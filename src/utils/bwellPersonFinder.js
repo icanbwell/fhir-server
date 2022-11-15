@@ -1,4 +1,3 @@
-//const async = require('async');
 const {assertTypeEquals} = require('./assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 
@@ -24,19 +23,52 @@ class BwellPersonFinder {
      * @param {string} patientId
      * @return {Promise<string>}
      */
-    async getBwellPersonIdAsync({patientId}) {
+    async getBwellPersonIdAsync({ patientId}) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
         });
 
-        let personId = null;
-        let person = await databaseQueryManager.findOneAsync({ query: { 'link.target.reference': `Patient/${patientId}`}});
-        if (person) {
-            personId = person.id;
+        return await this.searchForBwellPersonAsync({
+            currentSubject: `Patient/${patientId}`,
+            databaseQueryManager: databaseQueryManager,
+            visitedSubjects: new Set()
+        });
+    }
+
+    /**
+     * recursively search through links to find a bwell Person
+     * @param {string} currentSubject
+     * @param {DatabaseQueryManager} databaseQueryManager for performing queries
+     * @param {Set} visitedSubjects subjects that have already been visited (to avoid infinite loops)
+     * @return {Promise<string>}
+     */
+    async searchForBwellPersonAsync({currentSubject, databaseQueryManager, visitedSubjects}) {
+        if (visitedSubjects.has(currentSubject)) {
+            return null;
         }
 
-        return personId;
+        visitedSubjects.add(currentSubject);
+
+        let foundPersonId = null;
+        let linkedPersons = await databaseQueryManager.findAsync({ query: { 'link.target.reference': currentSubject }});
+        while (!foundPersonId && linkedPersons && await linkedPersons.hasNext()) {
+            let nextPerson = await linkedPersons.next();
+
+            if (nextPerson.meta.security.find(s => s.system === 'https://www.icanbwell.com/access' && s.code === 'bwell') &&
+                nextPerson.meta.security.find(s => s.system === 'https://www.icanbwell.com/owner' && s.code === 'bwell')) {
+                foundPersonId = nextPerson.id;
+            }
+            else {
+                foundPersonId = await this.searchForBwellPersonAsync({
+                    currentSubject: `Person/${nextPerson.id}`,
+                    databaseQueryManager: databaseQueryManager,
+                    visitedSubjects: visitedSubjects
+                });
+            }
+        }
+
+        return foundPersonId;
     }
 }
 

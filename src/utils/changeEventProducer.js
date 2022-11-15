@@ -425,6 +425,7 @@ class ChangeEventProducer {
          * @type {string}
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
+
         /**
          * @type {string|null}
          */
