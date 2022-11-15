@@ -17,6 +17,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {string} patientChangeTopic
      * @param {string} taskChangeTopic
      * @param {string} observationChangeTopic
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor({
                     kafkaClient,
@@ -24,6 +25,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
                     patientChangeTopic,
                     taskChangeTopic,
                     observationChangeTopic,
+                    bwellPersonFinder
                 }) {
         super({
             kafkaClient,
@@ -31,6 +33,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
             patientChangeTopic,
             taskChangeTopic,
             observationChangeTopic,
+            bwellPersonFinder
         });
     }
 }
@@ -61,6 +64,7 @@ describe('databaseBulkInserter Tests', () => {
                             taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             observationChangeTopic:
                                 env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            bwellPersonFinder: c.bwellPersonFinder
                         })
                 );
                 return container1;
