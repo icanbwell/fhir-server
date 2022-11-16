@@ -12,6 +12,7 @@ const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEv
 const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
 const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
 const Period = require('../fhir/classes/4_0_0/complex_types/period');
+const {BwellPersonFinder} = require('./bwellPersonFinder');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -27,13 +28,15 @@ class ChangeEventProducer {
      * @param {string} patientChangeTopic
      * @param {string} taskChangeTopic
      * @param {string} observationChangeTopic
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor({
                     kafkaClient,
                     resourceManager,
                     patientChangeTopic,
                     taskChangeTopic,
-                    observationChangeTopic
+                    observationChangeTopic,
+                    bwellPersonFinder
                 }) {
         /**
          * @type {KafkaClient}
@@ -60,6 +63,11 @@ class ChangeEventProducer {
          */
         this.observationChangeTopic = observationChangeTopic;
         assertIsValid(observationChangeTopic);
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
         /**
          * id, resource
          * @type {Map<string, Object>}
@@ -417,6 +425,7 @@ class ChangeEventProducer {
          * @type {string}
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
+
         /**
          * @type {string|null}
          */
@@ -430,6 +439,30 @@ class ChangeEventProducer {
             } else {
                 await this.onPatientChangeAsync({
                         requestId, patientId, timestamp: currentDate
+                    }
+                );
+
+                let personId = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientId});
+                if (personId) {
+                    const proxyPatientId = `person.${personId}`;
+                    await this.onPatientChangeAsync({
+                            requestId, patientId: proxyPatientId, timestamp: currentDate
+                        }
+                    );
+                }
+            }
+        }
+        if (resourceType === 'Person') {
+            const proxyPatientId = `person.${doc.id}`;
+            if (eventType === 'C') {
+                await this.onPatientCreateAsync({
+                        requestId, patientId: proxyPatientId, timestamp: currentDate
+                    }
+                );
+            }
+            else {
+                await this.onPatientChangeAsync({
+                        requestId, patientId: proxyPatientId, timestamp: currentDate
                     }
                 );
             }

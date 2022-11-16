@@ -1,0 +1,36 @@
+{
+    "resourceType": "Person",
+    "id": "otherOne",
+    "meta": {
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "medstar"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "medstar"
+            }
+        ]
+    },
+    "name": [
+        {
+            "use": "official",
+            "family": "Irving",
+            "given": [
+                "Lloyd"
+            ]
+        }
+    ],
+    "gender": "male",
+    "birthDate": "1996-03-03",
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/1234",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        }
+    ]
+}
