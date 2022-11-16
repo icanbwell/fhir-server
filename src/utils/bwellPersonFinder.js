@@ -55,6 +55,8 @@ class BwellPersonFinder {
 
         let foundPersonId = null;
         let linkedPersons = await databaseQueryManager.findAsync({ query: { 'link.target.reference': currentSubject }});
+
+        // iterate over linked Persons (breadth search)
         while (!foundPersonId && linkedPersons && await linkedPersons.hasNext()) {
             let nextPerson = await linkedPersons.next();
 
@@ -63,6 +65,7 @@ class BwellPersonFinder {
                 foundPersonId = nextPerson.id;
             }
             else {
+                // recurse through to next layer of linked Persons (depth search)
                 foundPersonId = await this.searchForBwellPersonAsync({
                     currentSubject: `Person/${nextPerson.id}`,
                     databaseQueryManager: databaseQueryManager,
