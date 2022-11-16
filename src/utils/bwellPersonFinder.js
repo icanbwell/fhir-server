@@ -1,5 +1,8 @@
 const {assertTypeEquals} = require('./assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const {SecurityTagSystem} = require('./securityTagSystem');
+
+const BwellMasterPersonCode = 'bwell';
 
 class BwellPersonFinder {
     /**
@@ -55,8 +58,8 @@ class BwellPersonFinder {
         while (!foundPersonId && linkedPersons && await linkedPersons.hasNext()) {
             let nextPerson = await linkedPersons.next();
 
-            if (nextPerson.meta.security.find(s => s.system === 'https://www.icanbwell.com/access' && s.code === 'bwell') &&
-                nextPerson.meta.security.find(s => s.system === 'https://www.icanbwell.com/owner' && s.code === 'bwell')) {
+            if (nextPerson.meta.security.find(s => s.system === SecurityTagSystem.access && s.code === BwellMasterPersonCode) &&
+                nextPerson.meta.security.find(s => s.system === SecurityTagSystem.owner && s.code === BwellMasterPersonCode)) {
                 foundPersonId = nextPerson.id;
             }
             else {
