@@ -260,6 +260,19 @@ describe('patient Tests', () => {
                 expect(resp.body.entry[1].resource.id).toBe('patient-123-b');
             });
 
+            test('Only persons linked to the patients are returned', async () => {
+                const request = await createTestRequest();
+
+
+                let resp = await request
+                  .get('/4_0_0/person/?_bundle=1')
+                  .set(getHeadersWithCustomPayload(patient_123_payload));
+                // noinspection JSUnresolvedFunction
+                expect(resp).toHaveResourceCount(2);
+                expect(resp.body.entry[0].resource.id).toBe('person-123-a');
+                expect(resp.body.entry[1].resource.id).toBe('person-123-b');
+            });
+
             test('No resources are returned if user has no fhir ids', async () => {
                 const request = await createTestRequest();
                 // ACT & ASSERT
@@ -322,6 +335,17 @@ describe('patient Tests', () => {
                 let resp = await request
                     .get('/4_0_0/Patient/other-patient')
                     .set(getHeadersWithCustomPayload(patient_123_payload));
+                // noinspection JSUnresolvedFunction
+                expect(resp).toHaveStatusCode(404);
+                expect(resp.body.issue[0].code).toBe('not-found');
+            });
+
+            test('A user cannot access another person by id', async () => {
+                const request = await createTestRequest();
+                // Make sure patient-123 access other-patient
+                let resp = await request
+                  .get('/4_0_0/Person/other-person')
+                  .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveStatusCode(404);
                 expect(resp.body.issue[0].code).toBe('not-found');
