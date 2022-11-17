@@ -148,13 +148,15 @@ class GraphOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                id: graphDefinitionRaw.id,
-                resourceType: 'GraphDefinition',
-                resourceToValidate: graphDefinitionRaw,
-                path: path,
-                currentDate: currentDate
-            });
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
+                {
+                    id: graphDefinitionRaw.id,
+                    resourceType: 'GraphDefinition',
+                    resourceToValidate: graphDefinitionRaw,
+                    path: path,
+                    currentDate: currentDate
+                }
+            );
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
                 logDebug({user, args: {message: 'GraphDefinition schema failed validation'}});

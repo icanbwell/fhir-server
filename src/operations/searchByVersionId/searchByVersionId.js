@@ -91,11 +91,11 @@ class SearchByVersionIdOperation {
         const startTime = Date.now();
         const {
             /** @type {string[]} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
             /** @type {string | null} */
             user,
             /** @type {string | null} */
@@ -138,11 +138,11 @@ class SearchByVersionIdOperation {
                 user,
                 scope,
                 isUser,
-                patients,
+                patientIdsFromJwtToken,
                 args: Object.assign(args, {id: id.toString()}), // add id filter to query
                 resourceType,
                 useAccessIndex,
-                fhirPersonId,
+                personIdFromJwtToken,
                 filter
             });
 

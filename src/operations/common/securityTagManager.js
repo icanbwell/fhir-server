@@ -143,15 +143,15 @@ class SecurityTagManager {
 
     /**
      * Gets Patient Filter Query
-     * @param {string[] | null} patients
+     * @param {string[] | null} patientIds
      * @param {import('mongodb').Document} query
      * @param {string} resourceType
      * @return {import('mongodb').Document}
      */
-    getQueryWithPatientFilter({patients, query, resourceType}) {
-        if (patients) {
+    getQueryWithPatientFilter({patientIds, query, resourceType}) {
+        if (patientIds) {
             const inQuery = {
-                '$in': resourceType === 'Patient' ? patients : patients.map(p => `Patient/${p}`)
+                '$in': resourceType === 'Patient' ? patientIds : patientIds.map(p => `Patient/${p}`)
             };
             /*
             * Patients are filtered on id. For some reason, AllergyIntolerance and Immunization don't have a subject field

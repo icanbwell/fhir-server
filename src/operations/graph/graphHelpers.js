@@ -257,11 +257,11 @@ class GraphHelper {
                 user: requestInfo.user,
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
-                patients: requestInfo.patients,
+                patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
                 args: Object.assign({'base_version': base_version}, {'id': relatedReferenceIds}), // add id filter to query
                 resourceType,
                 useAccessIndex,
-                fhirPersonId: requestInfo.fhirPersonId,
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                 filter: true
             });
 
@@ -423,11 +423,11 @@ class GraphHelper {
                 user: requestInfo.user,
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
-                patients: requestInfo.patients,
+                patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
                 args,
                 resourceType: relatedResourceType,
                 useAccessIndex,
-                fhirPersonId: requestInfo.fhirPersonId,
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                 filter: true
             });
 
@@ -1047,11 +1047,11 @@ class GraphHelper {
                 user: requestInfo.user,
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
-                patients: requestInfo.patients,
+                patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
                 args: Object.assign({'base_version': base_version}, {'id': idList}), // add id filter to query
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
-                fhirPersonId: requestInfo.fhirPersonId,
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
                 filter: true
             });
 
