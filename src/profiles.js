@@ -5107,6 +5107,8 @@ const profiles = {
     Person: {
         service: './src/services/person/person.service.js',
         versions: [VERSIONS['4_0_0']],
+        filterByPerson: true,
+        filterBy: 'link.target.reference',
         operation: [
             {
                 name: 'everything',
