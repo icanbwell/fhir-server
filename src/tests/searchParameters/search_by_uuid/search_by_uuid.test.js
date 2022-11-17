@@ -10,7 +10,8 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {IdentifierSystem} = require('../../../utils/identifierSystem');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -37,6 +38,14 @@ describe('Practitioner Tests', () => {
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
                 .get('/4_0_0/Practitioner/?_bundle=1&id=1679033641')
+                .set(getHeaders());
+            // read the uuid for the resource
+            const uuid = resp.body.entry[0].resource.identifier.filter(i => i.system === IdentifierSystem.uuid)[0].value;
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerResources);
+
+            resp = await request
+                .get(`/4_0_0/Practitioner/?_bundle=1&id=${uuid}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResources);
