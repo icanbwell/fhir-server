@@ -191,8 +191,9 @@ class SearchManager {
                 resourceType, securityTags, query, useAccessIndex
             });
         if (hasPatientScope) {
-            if (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0) {
-                query = {id: ''}; // return nothing since no patient ids were passed
+            if (this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
+                (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
+                query = {id: '__invalid__'}; // return nothing since no patient ids were passed
             } else {
                 query = this.securityTagManager.getQueryWithPatientFilter(
                     {
