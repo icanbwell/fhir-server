@@ -151,13 +151,17 @@ class SearchManager {
          */
         let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
         /**
+         * @type {string[]}
+         */
+        const patientIdsLinkedToPersonId = personIdFromJwtToken ? await this.getLinkedPatientsAsync(
+            {
+                base_version, isUser, personIdFromJwtToken
+            }) : [];
+        /**
          * @type {string[]|null}
          */
         const allPatientIdsFromJwtToken = patientIdsFromJwtToken ? patientIdsFromJwtToken.concat(
-            await this.getLinkedPatientsAsync(
-                {
-                    base_version, isUser, personIdFromJwtToken
-                })) : null;
+            patientIdsLinkedToPersonId) : patientIdsLinkedToPersonId;
         /**
          * @type {import('mongodb').Document}
          */
@@ -187,7 +191,7 @@ class SearchManager {
                 resourceType, securityTags, query, useAccessIndex
             });
         if (hasPatientScope) {
-            if (!patientIdsFromJwtToken || patientIdsFromJwtToken.length === 0) {
+            if (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0) {
                 query = {id: ''}; // return nothing since no patient ids were passed
             } else {
                 query = this.securityTagManager.getQueryWithPatientFilter(

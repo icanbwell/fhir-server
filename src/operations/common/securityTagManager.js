@@ -70,6 +70,12 @@ class SecurityTagManager {
                 andQuery
             );
             return query;
+        } else if (Object.keys(query).length === 0) { // empty query then just replace
+            return {
+                $and: [
+                    andQuery
+                ]
+            };
         } else {
             return {
                 $and: [
