@@ -404,34 +404,34 @@ describe('patient Tests', () => {
             });
         });
 
-        describe('App clients security filtering', () => {
+        describe('App clients security filtering if no patient id is passed', () => {
             //Make sure app clients can access all patients
-            test('App clients can access all id-filtered resources', async () => {
+            test('App clients cannot access all id-filtered resources if no patient id is passed', async () => {
                 const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/Patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
-                expect(resp).toHaveResourceCount(5);
+                expect(resp).toHaveResourceCount(0);
             });
 
-            test('App clients can access all patient-filtered resources', async () => {
+            test('App clients cannot access all patient-filtered resources if no patient id is passed', async () => {
                 const request = await createTestRequest();
                 //Make sure app clients can access all patient filtered resources
                 let resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
-                expect(resp).toHaveResourceCount(4);
+                expect(resp).toHaveResourceCount(0);
             });
 
-            test('App clients can access all subject-filtered resources', async () => {
+            test('App clients cannot access all subject-filtered resources if no patient id is passed', async () => {
                 const request = await createTestRequest();
                 let resp = await request
                     .get('/4_0_0/Condition/?_bundle=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
-                expect(resp).toHaveResourceCount(3);
+                expect(resp).toHaveResourceCount(0);
             });
         });
 
