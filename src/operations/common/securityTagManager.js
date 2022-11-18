@@ -155,7 +155,7 @@ class SecurityTagManager {
      * @return {import('mongodb').Document}
      */
     getQueryWithPatientFilter({patientIds, query, resourceType}) {
-        if (patientIds) {
+        if (patientIds && patientIds.length > 0) {
             const inQuery = {
                 '$in': resourceType === 'Patient' ? patientIds : patientIds.map(p => `Patient/${p}`)
             };
