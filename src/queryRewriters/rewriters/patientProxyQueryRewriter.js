@@ -69,7 +69,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                 }
             } else { // resourceType other than Patient
                 if (Array.isArray(argValue)) {
-                    if (argValue.some(a => a.startsWith(patientReferencePlusPersonProxyPrefix))) {
+                    if (argValue.some(a => typeof argValue === 'string' && a.startsWith(patientReferencePlusPersonProxyPrefix))) {
                         // replace with patient ids from person
                         args[`${argName}`] = await async.mapSeries(
                             argValue,
