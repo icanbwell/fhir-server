@@ -172,6 +172,24 @@ async function handleAdmin(
                     });
                 }
 
+                case 'deletePerson': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const personId = req.query['personId'];
+                    if (personId) {
+                        /**
+                         * @type {AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.deletePersonAsync({
+                            personId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No personId: ${personId} passed`
+                    });
+                }
+
                 case 'createPersonToPersonLink': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const bwellPersonId = req.query['bwellPersonId'];

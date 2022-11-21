@@ -322,6 +322,32 @@ class AdminPersonPatientLinkManager {
                 source: '[Resource missing]'
             };
         }
+        // find parents
+        // find all links to this Person
+        /**
+         * @type {DatabasePartitionedCursor}
+         */
+        const personsLinkingToThisPersonId = await databaseQueryManager.findAsync(
+            {
+                query: {
+                    'link.target.reference': `Person/${personId}`
+                }
+            }
+        );
+
+        const parentPersons = (await personsLinkingToThisPersonId.toArray()).map(p => {
+            return {
+                id: p.id,
+                resourceType: p.resourceType,
+                source: p.meta ? p.meta.source : null,
+                owner: p.meta && p.meta.security ?
+                    p.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
+                access: p.meta && p.meta.security ?
+                    p.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : [],
+            };
+        });
+
+
         /**
          * @type {{id:string, source: string|null, security: string[]}[]}
          */
@@ -400,6 +426,9 @@ class AdminPersonPatientLinkManager {
         if (children.length > 0) {
             result.children = children;
         }
+        if (parentPersons.length > 0) {
+            result.parents = parentPersons;
+        }
         return result;
     }
 
@@ -416,6 +445,52 @@ class AdminPersonPatientLinkManager {
                 personId: bwellPersonId, level: 1
             }
         );
+        return result;
+    }
+
+    /**
+     * gets hierarchy
+     * @param {string} personId
+     * @return {Promise<{deletedCount: (number|null), error: (Error|null)}>}
+     */
+    async deletePersonAsync({personId}) {
+        personId = personId.replace('Person/', '');
+
+        /**
+         * @type {DatabaseQueryManager}
+         */
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Person',
+            base_version: '4_0_0'
+        });
+        // find all links to this Person
+        /**
+         * @type {DatabasePartitionedCursor}
+         */
+        const personsLinkingToThisPersonId = await databaseQueryManager.findAsync(
+            {
+                query: {
+                    'link.target.reference': `Person/${personId}`
+                }
+            }
+        );
+        const parentPersonResponses = [];
+        // iterate and remove links to this person
+        while (await personsLinkingToThisPersonId.hasNext()) {
+            const parentPerson = await personsLinkingToThisPersonId.next();
+            const removePersonResult = await this.removePersonToPersonLinkAsync({
+                bwellPersonId: parentPerson.id,
+                externalPersonId: personId
+            });
+            parentPersonResponses.push(removePersonResult);
+        }
+        /**
+         * @type {{deletedCount: (number|null), error: (Error|null)}}
+         */
+        const result = await databaseQueryManager.deleteManyAsync({
+            query: {id: personId},
+        });
+        result['linksRemoved'] = parentPersonResponses;
         return result;
     }
 }
