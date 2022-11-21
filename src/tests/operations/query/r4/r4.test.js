@@ -264,5 +264,31 @@ describe('r4 search Tests', () => {
             });
             expect(result.query.$and['0'].active).toStrictEqual(false);
         });
+        test('r4 works when both id and id:above are passed', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            const args = {
+                'id': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
+                'id:above': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient', args
+            });
+            expect(result.query.$and['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(result.query.$and['1'].id).toStrictEqual({
+                '$gt': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+            });
+        });
     });
 });
