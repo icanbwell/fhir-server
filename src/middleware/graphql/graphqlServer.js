@@ -66,7 +66,7 @@ const graphql = async (fnCreateContainer) => {
                 user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
                     (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
                     ((!req.user || typeof req.user === 'string') ? req.user : req.user.id),
-                patients: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds,
+                patientIdsFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.patientIdsFromJwtToken,
                 scope: req.authInfo && req.authInfo.scope,
                 remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
                 requestId: req.id,
@@ -76,7 +76,7 @@ const graphql = async (fnCreateContainer) => {
                 host: req.hostname,
                 body: req.body,
                 isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
-                fhirPersonId: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId,
+                personIdFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.personIdFromJwtToken,
                 headers: req.headers
             });
         return {

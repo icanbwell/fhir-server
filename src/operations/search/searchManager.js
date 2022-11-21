@@ -29,6 +29,7 @@ const {R4SearchQueryCreator} = require('../query/r4');
 const {ConfigManager} = require('../../utils/configManager');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
+const {ScopesManager} = require('../security/scopesManager');
 
 class SearchManager {
     /**
@@ -42,6 +43,7 @@ class SearchManager {
      * @param {ConfigManager} configManager
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
+     * @param {ScopesManager} scopesManager
      */
     constructor(
         {
@@ -53,7 +55,8 @@ class SearchManager {
             r4SearchQueryCreator,
             configManager,
             queryRewriterManager,
-            personToPatientIdsExpander
+            personToPatientIdsExpander,
+            scopesManager
         }
     ) {
         /**
@@ -103,6 +106,12 @@ class SearchManager {
          */
         this.personToPatientIdsExpander = personToPatientIdsExpander;
         assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
+
+        /**
+         * @type {ScopesManager}
+         */
+        this.scopesManager = scopesManager;
+        assertTypeEquals(scopesManager, ScopesManager);
     }
 
     /**
@@ -110,11 +119,11 @@ class SearchManager {
      * @param {string | null} user
      * @param {string | null} scope
      * @param {boolean | null} isUser
-     * @param {string[] | null} patients
+     * @param {string[] | null} patientIdsFromJwtToken
      * @param {Object?} args
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
-     * @param {string} fhirPersonId
+     * @param {string} personIdFromJwtToken
      * @param {boolean} filter
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
@@ -122,12 +131,11 @@ class SearchManager {
         {
             user, scope,
             isUser,
-            patients,
+            patientIdsFromJwtToken,
             args,
             resourceType,
             useAccessIndex,
-            fhirPersonId,
-            filter = true
+            personIdFromJwtToken,
         }
     ) {
         /**
@@ -135,6 +143,7 @@ class SearchManager {
          */
         const {base_version} = args;
         assertIsValid(base_version);
+        const hasPatientScope = this.scopesManager.hasPatientScope({scope});
         // see if any query rewriters want to rewrite the args
         args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});
         /**
@@ -142,13 +151,17 @@ class SearchManager {
          */
         let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
         /**
+         * @type {string[]}
+         */
+        const patientIdsLinkedToPersonId = personIdFromJwtToken ? await this.getLinkedPatientsAsync(
+            {
+                base_version, isUser, personIdFromJwtToken
+            }) : [];
+        /**
          * @type {string[]|null}
          */
-        const allPatients = patients ? patients.concat(
-            await this.getLinkedPatientsAsync(
-                {
-                    base_version, isUser, fhirPersonId
-                })) : null;
+        const allPatientIdsFromJwtToken = patientIdsFromJwtToken ? patientIdsFromJwtToken.concat(
+            patientIdsLinkedToPersonId) : patientIdsLinkedToPersonId;
         /**
          * @type {import('mongodb').Document}
          */
@@ -177,8 +190,17 @@ class SearchManager {
             {
                 resourceType, securityTags, query, useAccessIndex
             });
-        if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && filter) {
-            query = this.securityTagManager.getQueryWithPatientFilter({patients: allPatients, query, resourceType});
+        if (hasPatientScope) {
+            if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
+                (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
+                query = {id: '__invalid__'}; // return nothing since no patient ids were passed
+            } else {
+                query = this.securityTagManager.getQueryWithPatientFilter(
+                    {
+                        patientIds: allPatientIdsFromJwtToken, query, resourceType
+                    }
+                );
+            }
         }
 
         ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({
@@ -429,17 +451,17 @@ class SearchManager {
     /**
      * Gets Patient id from identifiers
      * @param {string} base_version
-     * @param {string} fhirPersonId
+     * @param {string} personIdFromJwtToken
      * @return {Promise<string[]>}
      */
     async getPatientIdsByPersonIdentifiersAsync(
         {
             base_version,
-            fhirPersonId
+            personIdFromJwtToken
         }
     ) {
         assertIsValid(base_version);
-        assertIsValid(fhirPersonId);
+        assertIsValid(personIdFromJwtToken);
         try {
             const databaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: 'Person',
@@ -447,12 +469,12 @@ class SearchManager {
             });
             return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
                 databaseQueryManager,
-                personId: fhirPersonId,
+                personId: personIdFromJwtToken,
                 level: 1
             });
         } catch (e) {
             throw new RethrownError({
-                message: `Error getting patient id for person id: ${fhirPersonId}`,
+                message: `Error getting patient id for person id: ${personIdFromJwtToken}`,
                 error: e
             });
         }
@@ -561,9 +583,15 @@ class SearchManager {
                 {resourceType, base_version}
             );
             if (args['_total'] === 'estimate') {
-                return await databaseQueryManager.exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
+                return await databaseQueryManager.exactDocumentCountAsync({
+                    query,
+                    options: {maxTimeMS: maxMongoTimeMS}
+                });
             } else {
-                return await databaseQueryManager.exactDocumentCountAsync({query, options: {maxTimeMS: maxMongoTimeMS}});
+                return await databaseQueryManager.exactDocumentCountAsync({
+                    query,
+                    options: {maxTimeMS: maxMongoTimeMS}
+                });
             }
         } catch (e) {
             throw new RethrownError({
@@ -1076,25 +1104,25 @@ class SearchManager {
      * Gets linked patients
      * @param {string} base_version
      * @param {boolean | null} isUser
-     * @param {string} fhirPersonId
+     * @param {string} personIdFromJwtToken
      * @return {Promise<string[]>}
      */
     async getLinkedPatientsAsync(
         {
-            base_version, isUser, fhirPersonId
+            base_version, isUser, personIdFromJwtToken
         }
     ) {
         try {
-            if (isTrue(env.ENABLE_PATIENT_FILTERING) && isUser && fhirPersonId) {
+            if (isUser && personIdFromJwtToken) {
                 return await this.getPatientIdsByPersonIdentifiersAsync(
                     {
-                        base_version, fhirPersonId
+                        base_version, personIdFromJwtToken
                     });
             }
             return [];
         } catch (e) {
             throw new RethrownError({
-                message: `Error get linked patients for person id: ${fhirPersonId}`,
+                message: `Error get linked patients for person id: ${personIdFromJwtToken}`,
                 error: e
             });
         }

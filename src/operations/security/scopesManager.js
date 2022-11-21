@@ -159,6 +159,19 @@ class ScopesManager {
         const adminScopes = scopes.filter(s => s.startsWith('admin/'));
         return {scope, adminScopes};
     }
+
+    /**
+     * returns whether the scope has a patient scope
+     * @param {string} scope
+     * @return {boolean}
+     */
+    hasPatientScope({scope}) {
+        assertIsValid(scope);
+        if (scope.includes('patient/')) {
+            return true;
+        }
+        return false;
+    }
 }
 
 module.exports = {

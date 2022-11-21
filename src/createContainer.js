@@ -210,7 +210,8 @@ const createContainer = function () {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 configManager: c.configManager,
                 queryRewriterManager: c.queryRewriterManager,
-                personToPatientIdsExpander: c.personToPatientIdsExpander
+                personToPatientIdsExpander: c.personToPatientIdsExpander,
+                scopesManager: c.scopesManager
             }
         )
     );

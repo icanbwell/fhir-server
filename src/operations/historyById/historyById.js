@@ -111,11 +111,11 @@ class HistoryByIdOperation {
             /** @type {string | null} */
             host,
             /** @type {string[]} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -145,11 +145,11 @@ class HistoryByIdOperation {
             user,
             scope,
             isUser,
-            patients,
+            patientIdsFromJwtToken,
             args: Object.assign(args, {id: id.toString()}), // add id filter to query
             resourceType,
             useAccessIndex,
-            fhirPersonId,
+            personIdFromJwtToken,
             filter
         });
 

@@ -51,6 +51,10 @@ class ConfigManager {
     get streamResponse() {
         return isTrue(env.STREAM_RESPONSE);
     }
+
+    get doNotRequirePersonOrPatientIdForPatientScope() {
+        return isTrue(env.DO_NOT_REQUIRE_PERSON_OR_PATIENT_FOR_PATIENT_SCOPE);
+    }
 }
 
 module.exports = {
