@@ -175,46 +175,46 @@ async function handleAdmin(
                 case 'createPersonToPersonLink': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const bwellPersonId = req.query['bwellPersonId'];
-                    const sourcePersonId = req.query['sourcePersonId'];
-                    if (bwellPersonId && sourcePersonId) {
+                    const externalPersonId = req.query['externalPersonId'];
+                    if (bwellPersonId && externalPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.createPersonToPersonLinkAsync({
                             bwellPersonId,
-                            sourcePersonId
+                            externalPersonId
                         });
                         return res.json(json);
                     }
                     return res.json({
-                        message: `No bwellPersonId: ${bwellPersonId} or sourcePersonId: ${sourcePersonId} passed`
+                        message: `No bwellPersonId: ${bwellPersonId} or externalPersonId: ${externalPersonId} passed`
                     });
                 }
 
                 case 'removePersonToPersonLink': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const bwellPersonId = req.query['bwellPersonId'];
-                    const sourcePersonId = req.query['sourcePersonId'];
-                    if (bwellPersonId && sourcePersonId) {
+                    const externalPersonId = req.query['externalPersonId'];
+                    if (bwellPersonId && externalPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.removePersonToPersonLinkAsync({
                             bwellPersonId,
-                            sourcePersonId
+                            externalPersonId
                         });
                         return res.json(json);
                     }
                     return res.json({
-                        message: `No bwellPersonId: ${bwellPersonId} or sourcePersonId: ${sourcePersonId} passed`
+                        message: `No bwellPersonId: ${bwellPersonId} or externalPersonId: ${externalPersonId} passed`
                     });
                 }
 
                 case 'createPersonToPatientLink': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
-                    const sourcePersonId = req.query['sourcePersonId'];
+                    const externalPersonId = req.query['externalPersonId'];
                     const patientId = req.query['patientId'];
                     if (patientId) {
                         /**
@@ -222,7 +222,7 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.createPersonToPatientLinkAsync({
-                            sourcePersonId,
+                            externalPersonId,
                             patientId
                         });
                         return res.json(json);

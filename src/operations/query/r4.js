@@ -139,70 +139,72 @@ class R4SearchQueryCreator {
                             filterById({
                                 queryParameterValue, and_segments, propertyObj, columns
                             });
-                            continue; // skip processing rest of this loop
-                        }
-                        switch (propertyObj.type) {
-                            case fhirFilterTypes.string:
-                                filterByString({
-                                    queryParameterValue, and_segments, propertyObj, columns
-                                });
-                                break;
-                            case fhirFilterTypes.uri:
-                                filterByUri({
-                                    and_segments, propertyObj, queryParameterValue, columns
-                                });
-                                break;
-                            case fhirFilterTypes.dateTime:
-                            case fhirFilterTypes.date:
-                            case fhirFilterTypes.period:
-                            case fhirFilterTypes.instant:
-                                filterByDateTime(
-                                    {
-                                        queryParameterValue,
-                                        propertyObj,
-                                        and_segments,
-                                        resourceType,
-                                        columns
-                                    }
-                                );
-                                break;
-                            case fhirFilterTypes.token:
-                                if (propertyObj.field === 'meta.security') {
-                                    filterBySecurityTag({
-                                        queryParameterValue, propertyObj, and_segments, columns,
-                                        fnUseAccessIndex: (accessCode) =>
-                                            this.configManager.useAccessIndex &&
-                                            this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
-                                                resourceType,
-                                                accessCodes: [accessCode]
-                                            })
+                        } else {
+                            switch (propertyObj.type) {
+                                case fhirFilterTypes.string:
+                                    filterByString({
+                                        queryParameterValue, and_segments, propertyObj, columns
                                     });
-                                } else {
-                                    filterByToken({
-                                        queryParameterValue, propertyObj, and_segments, columns
-                                    });
-                                }
-                                break;
-                            case fhirFilterTypes.reference:
-                                if (isUrl(queryParameterValue)) {
-                                    filterByCanonical({
+                                    break;
+                                case fhirFilterTypes.uri:
+                                    filterByUri({
                                         and_segments, propertyObj, queryParameterValue, columns
                                     });
-                                } else {
-                                    filterByReference(
+                                    break;
+                                case fhirFilterTypes.dateTime:
+                                case fhirFilterTypes.date:
+                                case fhirFilterTypes.period:
+                                case fhirFilterTypes.instant:
+                                    filterByDateTime(
                                         {
+                                            queryParameterValue,
                                             propertyObj,
                                             and_segments,
-                                            queryParameterValue,
+                                            resourceType,
                                             columns
                                         }
                                     );
-                                }
-                                break;
-                            default:
-                                throw new Error('Unknown type=' + propertyObj.type);
+                                    break;
+                                case fhirFilterTypes.token:
+                                    if (propertyObj.field === 'meta.security') {
+                                        filterBySecurityTag({
+                                            queryParameterValue, propertyObj, and_segments, columns,
+                                            fnUseAccessIndex: (accessCode) =>
+                                                this.configManager.useAccessIndex &&
+                                                this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
+                                                    resourceType,
+                                                    accessCodes: [accessCode]
+                                                })
+                                        });
+                                    } else {
+                                        filterByToken({
+                                            queryParameterValue, propertyObj, and_segments, columns
+                                        });
+                                    }
+                                    break;
+                                case fhirFilterTypes.reference:
+                                    if (isUrl(queryParameterValue)) {
+                                        filterByCanonical({
+                                            and_segments, propertyObj, queryParameterValue, columns
+                                        });
+                                    } else {
+                                        filterByReference(
+                                            {
+                                                propertyObj,
+                                                and_segments,
+                                                queryParameterValue,
+                                                columns
+                                            }
+                                        );
+                                    }
+                                    break;
+                                default:
+                                    throw new Error('Unknown type=' + propertyObj.type);
+                            }
                         }
-                    } else if (args[`${queryParameter}:missing`]) {
+                    }
+
+                    if (args[`${queryParameter}:missing`]) {
                         filterByMissing({
                             args, queryParameter, and_segments, propertyObj, columns
                         });

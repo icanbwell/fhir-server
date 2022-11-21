@@ -27,9 +27,11 @@ describe('AuditEventReturnIdTests', () => {
 
     describe('AuditEvent Search By Id Tests', () => {
         test('search by single id works', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction

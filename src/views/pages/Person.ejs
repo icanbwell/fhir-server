@@ -52,12 +52,16 @@
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationRequest', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationRequest" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationStatement', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationStatement" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Observation', property:'patient'}], id:`Patient/person.${res.id}`, name: "Observation" }); %>
-            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Person', property:'patient'}], id:`Patient/person.${res.id}`, name: "Person" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Person', property:'link'}], id:`Person/${res.id}`, name: "Person" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Procedure', property:'patient'}], id:`Patient/person.${res.id}`, name: "Procedure" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'patient'}], id:`Patient/person.${res.id}`, name: "Schedule" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ServiceRequest', property:'patient'}], id:`Patient/person.${res.id}`, name: "ServiceRequest" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Task', property:'patient'}], id:`Patient/person.${res.id}`, name: "Task" }); %>
 
+            <div>
+                <h4>Connected Graph (Admin Access Required)</h4>
+                <a href="/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %>">/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %></a>
+            </div>
 
             <%- include('../partials/json', {res: res, index: index}); %>
         </div>

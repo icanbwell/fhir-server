@@ -52,10 +52,12 @@ describe('AuditEvent when all is set Tests', () => {
 
     describe('AuditEvent accessIndex Tests when all is set', () => {
         test('accessIndex works for audit event when all is set', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithAllPartitionedResources());
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManagerWithAllPartitionedResources());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             const container = getTestContainer();
 
