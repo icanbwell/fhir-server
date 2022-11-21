@@ -61,10 +61,12 @@ describe('AuditEvent Tests', () => {
 
     describe('AuditEvent accessIndex Tests', () => {
         test('accessIndex works for access codes that have an index', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             const container = getTestContainer();
             // first confirm there are no AuditEvent
@@ -130,10 +132,12 @@ describe('AuditEvent Tests', () => {
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
         test('accessIndex is not used for access codes that do not have an index', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             const container = getTestContainer();
             // first confirm there are no AuditEvent

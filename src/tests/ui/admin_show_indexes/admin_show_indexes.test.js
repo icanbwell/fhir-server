@@ -26,18 +26,22 @@ describe('Show Indexes UI Tests', () => {
 
     describe('Show Indexes Tests', () => {
         test('admin search fails without scope', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             let resp = await request.get('/admin/indexes?id=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(403);
         });
         test('admin search passes with scope and json format', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             /**
              * @type {SimpleContainer}
@@ -75,9 +79,11 @@ describe('Show Indexes UI Tests', () => {
             expect(resp).toHaveStatusOk();
         });
         test('admin search passes with scope', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             /**
              * @type {SimpleContainer}

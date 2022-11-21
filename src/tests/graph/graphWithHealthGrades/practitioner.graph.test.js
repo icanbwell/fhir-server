@@ -52,10 +52,12 @@ describe('Claim Graph Contained Tests', () => {
 
     describe('Graph Contained Tests', () => {
         test('Graph contained with multiple targets works properly', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('configManager', () => new MockConfigManager());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('configManager', () => new MockConfigManager());
+                return container;
             });
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
