@@ -449,7 +449,7 @@ class AdminPersonPatientLinkManager {
     }
 
     /**
-     * gets hierarchy
+     * deletes a Person and remove any links to it
      * @param {string} personId
      * @return {Promise<{deletedCount: (number|null), error: (Error|null)}>}
      */
