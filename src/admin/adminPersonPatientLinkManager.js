@@ -40,12 +40,12 @@ class AdminPersonPatientLinkManager {
     /**
      * creates a person to person link
      * @param {string} bwellPersonId
-     * @param {string} sourcePersonId
+     * @param {string} externalPersonId
      * @return {Promise<Object>}
      */
-    async createPersonToPersonLinkAsync({bwellPersonId, sourcePersonId}) {
+    async createPersonToPersonLinkAsync({bwellPersonId, externalPersonId}) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
-        sourcePersonId = sourcePersonId.replace('Person/', '');
+        externalPersonId = externalPersonId.replace('Person/', '');
         /**
          * @type {DatabaseQueryManager}
          */
@@ -66,23 +66,23 @@ class AdminPersonPatientLinkManager {
         });
         if (bwellPerson) {
             if (bwellPerson.link) {
-                // check if a link target already exists in bwellPerson for sourcePersonId
-                if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${sourcePersonId}`)) {
+                // check if a link target already exists in bwellPerson for externalPersonId
+                if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${externalPersonId}`)) {
                     console.log(`link before (non-empty): ${JSON.stringify(bwellPerson.link)}`);
                     bwellPerson.link = bwellPerson.link.concat([
                         new PersonLink(
                             {
                                 target: new Reference(
-                                    {reference: `Person/${sourcePersonId}`}
+                                    {reference: `Person/${externalPersonId}`}
                                 )
                             })
                     ]);
                     console.log(`link after (non-empty): ${JSON.stringify(bwellPerson.link)}`);
                 } else {
                     return {
-                        'message': `Link already exists from ${bwellPersonId} to ${sourcePersonId}`,
+                        'message': `Link already exists from ${bwellPersonId} to ${externalPersonId}`,
                         'bwellPersonId': bwellPersonId,
-                        'sourcePersonId': sourcePersonId
+                        'externalPersonId': externalPersonId
                     };
                 }
             } else {
@@ -91,7 +91,7 @@ class AdminPersonPatientLinkManager {
                 bwellPerson.link = [new PersonLink(
                     {
                         target: new Reference(
-                            {reference: `Person/${sourcePersonId}`}
+                            {reference: `Person/${externalPersonId}`}
                         )
                     })];
                 console.log(`link after (empty): ${JSON.stringify(bwellPerson.link)}`);
@@ -101,15 +101,15 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Added link from Person/${bwellPersonId} to Person/${sourcePersonId}`,
+                'message': `Added link from Person/${bwellPersonId} to Person/${externalPersonId}`,
                 'bwellPersonId': bwellPersonId,
-                'sourcePersonId': sourcePersonId
+                'externalPersonId': externalPersonId
             };
         } else {
             return {
                 'message': `No Person found with id ${bwellPersonId}`,
                 'bwellPersonId': bwellPersonId,
-                'sourcePersonId': sourcePersonId
+                'externalPersonId': externalPersonId
             };
         }
     }
@@ -117,12 +117,12 @@ class AdminPersonPatientLinkManager {
     /**
      * removes a person to person link
      * @param {string} bwellPersonId
-     * @param {string} sourcePersonId
+     * @param {string} externalPersonId
      * @return {Promise<Object>}
      */
-    async removePersonToPersonLinkAsync({bwellPersonId, sourcePersonId}) {
+    async removePersonToPersonLinkAsync({bwellPersonId, externalPersonId}) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
-        sourcePersonId = sourcePersonId.replace('Person/', '');
+        externalPersonId = externalPersonId.replace('Person/', '');
 
         /**
          * @type {DatabaseQueryManager}
@@ -139,23 +139,23 @@ class AdminPersonPatientLinkManager {
         });
         if (bwellPerson) {
             if (bwellPerson.link) {
-                // check if a link target already exists in bwellPerson for sourcePersonId
-                if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${sourcePersonId}`)) {
+                // check if a link target already exists in bwellPerson for externalPersonId
+                if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${externalPersonId}`)) {
                     return {
-                        'message': `No Link exists from Person/${bwellPersonId} to Person/${sourcePersonId}`,
+                        'message': `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
                         'bwellPersonId': bwellPersonId,
-                        'sourcePersonId': sourcePersonId
+                        'externalPersonId': externalPersonId
                     };
                 } else {
                     console.log(`link before: ${JSON.stringify(bwellPerson.link)}`);
-                    bwellPerson.link = bwellPerson.link.filter(l => (l.target.reference !== `Person/${sourcePersonId}`));
+                    bwellPerson.link = bwellPerson.link.filter(l => (l.target.reference !== `Person/${externalPersonId}`));
                     console.log(`link after: ${JSON.stringify(bwellPerson.link)}`);
                 }
             } else {
                 return {
-                    'message': `No Link exists from Person/${bwellPersonId} to Person/${sourcePersonId}`,
+                    'message': `No Link exists from Person/${bwellPersonId} to Person/${externalPersonId}`,
                     'bwellPersonId': bwellPersonId,
-                    'sourcePersonId': sourcePersonId
+                    'externalPersonId': externalPersonId
                 };
             }
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
@@ -167,27 +167,27 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Removed link from Person/${bwellPersonId} to Person/${sourcePersonId}`,
+                'message': `Removed link from Person/${bwellPersonId} to Person/${externalPersonId}`,
                 'bwellPersonId': bwellPersonId,
-                'sourcePersonId': sourcePersonId
+                'externalPersonId': externalPersonId
             };
         } else {
             return {
                 'message': `No Person found with id ${bwellPersonId}`,
                 'bwellPersonId': bwellPersonId,
-                'sourcePersonId': sourcePersonId
+                'externalPersonId': externalPersonId
             };
         }
     }
 
     /**
      * creates a person to patient link
-     * @param {string} sourcePersonId
+     * @param {string} externalPersonId
      * @param {string} patientId
      * @return {Promise<Object>}
      */
-    async createPersonToPatientLinkAsync({sourcePersonId, patientId}) {
-        sourcePersonId = sourcePersonId.replace('Person/', '');
+    async createPersonToPatientLinkAsync({externalPersonId, patientId}) {
+        externalPersonId = externalPersonId.replace('Person/', '');
         patientId = patientId.replace('Patient/', '');
 
         /**
@@ -206,7 +206,7 @@ class AdminPersonPatientLinkManager {
          * @type {Person}
          */
         let sourcePerson = await databaseQueryManager.findOneAsync({
-            query: {id: sourcePersonId}
+            query: {id: externalPersonId}
         });
         if (!sourcePerson) {
             // create it
@@ -225,7 +225,7 @@ class AdminPersonPatientLinkManager {
                 return {
                     'message': `No Patient found for id: ${patientId}`,
                     'patientId': patientId,
-                    'sourcePersonId': sourcePersonId
+                    'externalPersonId': externalPersonId
                 };
             }
             /**
@@ -251,13 +251,13 @@ class AdminPersonPatientLinkManager {
             });
             await databaseUpdateManager.insertOneAsync({doc: sourcePerson});
             return {
-                'message': `Created Person and added link from Person/${sourcePersonId} to Patient/${patientId}`,
+                'message': `Created Person and added link from Person/${externalPersonId} to Patient/${patientId}`,
                 'patientId': patientId,
-                'sourcePersonId': sourcePersonId
+                'externalPersonId': externalPersonId
             };
         } else {
             if (sourcePerson.link) {
-                // check if a link target already exists in sourcePerson for sourcePersonId
+                // check if a link target already exists in sourcePerson for externalPersonId
                 if (!sourcePerson.link.some(l => l.target && l.target.reference === `Patient/${patientId}`)) {
                     console.log(`link before (non-empty): ${JSON.stringify(sourcePerson.link)}`);
                     sourcePerson.link = sourcePerson.link.concat([
@@ -270,9 +270,9 @@ class AdminPersonPatientLinkManager {
                     console.log(`link before (non-empty): ${JSON.stringify(sourcePerson.link)}`);
                 } else {
                     return {
-                        'message': `Link already exists from Person/${sourcePersonId} to Patient/${patientId}`,
+                        'message': `Link already exists from Person/${externalPersonId} to Patient/${patientId}`,
                         'patientId': patientId,
-                        'sourcePersonId': sourcePersonId
+                        'externalPersonId': externalPersonId
                     };
                 }
             } else {
@@ -291,9 +291,9 @@ class AdminPersonPatientLinkManager {
             });
 
             return {
-                'message': `Added link from Person/${sourcePersonId} to Patient/${patientId}`,
+                'message': `Added link from Person/${externalPersonId} to Patient/${patientId}`,
                 'patientId': patientId,
-                'sourcePersonId': sourcePersonId
+                'externalPersonId': externalPersonId
             };
         }
     }
