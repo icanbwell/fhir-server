@@ -1,6 +1,20 @@
 const {customIndexes} = require('./customIndexes');
+const {assertTypeEquals} = require('../utils/assertType');
+const {ConfigManager} = require('../utils/configManager');
 
 class IndexProvider {
+    /**
+     * cosntructor
+     * @param {ConfigManager} configManager
+     */
+    constructor({
+                    configManager
+                }) {
+
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
+
     getIndexes() {
         return customIndexes;
     }
@@ -11,7 +25,7 @@ class IndexProvider {
      * @returns {boolean}
      */
     hasIndexForAccessCodes({accessCodes}) {
-        const accessCodesWithIndexes = ['medstar', 'Thedacare'];
+        const accessCodesWithIndexes = this.configManager.accessTagsIndexed || ['medstar', 'Thedacare'];
         return accessCodes.every(ac => accessCodesWithIndexes.includes(ac));
     }
 }

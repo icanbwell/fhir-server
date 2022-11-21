@@ -55,6 +55,16 @@ class ConfigManager {
     get doNotRequirePersonOrPatientIdForPatientScope() {
         return isTrue(env.DO_NOT_REQUIRE_PERSON_OR_PATIENT_FOR_PATIENT_SCOPE);
     }
+
+    /**
+     * @returns {string[]}
+     */
+    get accessTagsIndexed() {
+        return (
+            env.ACCESS_TAGS_INDEXED && env.ACCESS_TAGS_INDEXED.split(',')
+                .map((col) => col.trim())
+        ) || null;
+    }
 }
 
 module.exports = {

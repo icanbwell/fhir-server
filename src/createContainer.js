@@ -147,7 +147,9 @@ const createContainer = function () {
             mongoDatabaseManager: c.mongoDatabaseManager
         }));
     container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
-    container.register('indexProvider', () => new IndexProvider());
+    container.register('indexProvider', (c) => new IndexProvider({
+        configManager: c.configManager
+    }));
     container.register('mongoDatabaseManager', () => new MongoDatabaseManager());
     container.register('indexManager', (c) => new IndexManager(
         {
