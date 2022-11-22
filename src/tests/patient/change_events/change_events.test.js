@@ -77,6 +77,7 @@ describe('Patient Change Event Tests', () => {
                 .post('/4_0_0/Patient/2354/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
+            // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
@@ -129,6 +130,7 @@ describe('Patient Change Event Tests', () => {
                 .post('/4_0_0/Patient/2354/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
+            // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
