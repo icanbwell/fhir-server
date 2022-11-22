@@ -21,7 +21,7 @@ const {
     getGraphQLHeaders,
     getUnAuthenticatedGraphQLHeaders,
     createTestRequest,
-    getTestContainer,
+    getTestContainer, getRequestId,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const env = require('var');
@@ -118,7 +118,7 @@ describe('GraphQL Patient Tests', () => {
             console.log(JSON.stringify(resp.body, null, 2));
             console.log('------- end response practitioner  ------------');
 
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
             // clear out audit table
             await internalAuditEventCollection.deleteMany({});
@@ -148,7 +148,7 @@ describe('GraphQL Patient Tests', () => {
             expect(body).toStrictEqual(expectedUpdateGraphQlResponse);
 
             // check that the audit entry is made
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             const auditLogs = JSON.stringify(await internalAuditEventCollection.find({}).toArray());
             console.log(auditLogs);
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);

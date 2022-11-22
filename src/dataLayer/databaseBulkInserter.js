@@ -19,6 +19,7 @@ const {RethrownError} = require('../utils/rethrownError');
 const {isTrue} = require('../utils/isTrue');
 const {databaseBulkInserterTimer} = require('../utils/prometheus.utils');
 const {PreSaveManager} = require('../preSaveHandlers/preSave');
+const {RequestSpecificCache} = require('../utils/requestSpecificCache');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -45,6 +46,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ChangeEventProducer} changeEventProducer
      * @param {PreSaveManager} preSaveManager
+     * @param {RequestSpecificCache} requestSpecificCache
      */
     constructor({
                     resourceManager,
@@ -53,7 +55,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     mongoCollectionManager,
                     resourceLocatorFactory,
                     changeEventProducer,
-                    preSaveManager
+                    preSaveManager,
+                    requestSpecificCache
                 }) {
         super();
 
@@ -100,85 +103,114 @@ class DatabaseBulkInserter extends EventEmitter {
         assertTypeEquals(preSaveManager, PreSaveManager);
 
         // https://www.mongodb.com/docs/drivers/node/current/usage-examples/bulkWrite/
+
         /**
-         * This map stores an entry per resourceType where the value is a list of operations to perform
-         * on that resourceType
-         * <resourceType, list of operations>
-         * @type {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
+         * @type {RequestSpecificCache}
          */
-        this.operationsByResourceTypeMap = new Map();
-        /**
-         * This map stores an entry per resourceType where the value is a list of operations to perform
-         * on that resourceType
-         * <resourceType, list of operations>
-         * @type {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
-         */
-        this.historyOperationsByResourceTypeMap = new Map();
-        /**
-         * list of ids inserted
-         * <resourceType, list of ids>
-         * @type {Map<string, string[]>}
-         */
-        this.insertedIdsByResourceTypeMap = new Map();
-        /**
-         * list of ids updated
-         * <resourceType, list of ids>
-         * @type {Map<string, string[]>}
-         */
-        this.updatedIdsByResourceTypeMap = new Map();
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
     }
 
     /**
+     * This map stores an entry per resourceType where the value is a list of operations to perform
+     * on that resourceType
+     * <resourceType, list of operations>
+     * @param {string} requestId
+     * @return {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
+     */
+    getOperationsByResourceTypeMap({requestId}) {
+        return this.requestSpecificCache.getMap({requestId, name: 'OperationsByResourceTypeMap'});
+    }
+
+    /**
+     * This map stores an entry per resourceType where the value is a list of operations to perform
+     * on that resourceType
+     * <resourceType, list of operations>
+     * @param {string} requestId
+     * @return {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
+     */
+    getHistoryOperationsByResourceTypeMap({requestId}) {
+        return this.requestSpecificCache.getMap({requestId, name: 'HistoryOperationsByResourceTypeMap'});
+    }
+
+    /**
+     * @param {string} requestId
+     * @return {Map<string, string[]>}
+     */
+    getInsertedIdsByResourceTypeMap({requestId}) {
+        return this.requestSpecificCache.getMap({requestId, name: 'InsertedIdsByResourceTypeMap'});
+    }
+
+    /**
+     * @param {string} requestId
+     * @return {Map<string, string[]>}
+     */
+    getUpdatedIdsByResourceTypeMap({requestId}) {
+        return this.requestSpecificCache.getMap({requestId, name: 'UpdatedIdsByResourceTypeMap'});
+    }
+
+
+    /**
      * Adds an operation
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
      * @private
      */
-    addOperationForResourceType({resourceType, operation}) {
+    addOperationForResourceType({requestId, resourceType, operation}) {
+        assertIsValid(requestId, 'requestId is null');
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
         assertIsValid(operation, `operation: ${operation} is null`);
         assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
         assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
         // If there is no entry for this collection then create one
-        if (!(this.operationsByResourceTypeMap.has(resourceType))) {
-            this.operationsByResourceTypeMap.set(`${resourceType}`, []);
-            this.insertedIdsByResourceTypeMap.set(`${resourceType}`, []);
-            this.updatedIdsByResourceTypeMap.set(`${resourceType}`, []);
+        const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
+        if (!(operationsByResourceTypeMap.has(resourceType))) {
+            operationsByResourceTypeMap.set(`${resourceType}`, []);
+            const insertedIdsByResourceTypeMap = this.getInsertedIdsByResourceTypeMap({requestId});
+            insertedIdsByResourceTypeMap.set(`${resourceType}`, []);
+            const updatedIdsByResourceTypeMap = this.getUpdatedIdsByResourceTypeMap({requestId});
+            updatedIdsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        this.operationsByResourceTypeMap.get(resourceType).push(operation);
+        operationsByResourceTypeMap.get(resourceType).push(operation);
     }
 
     /**
      * Adds a history operation
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
      * @private
      */
-    addHistoryOperationForResourceType({resourceType, operation}) {
+    addHistoryOperationForResourceType({requestId, resourceType, operation}) {
         // If there is no entry for this collection then create one
-        if (!(this.historyOperationsByResourceTypeMap.has(resourceType))) {
-            this.historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
+        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
+        if (!(historyOperationsByResourceTypeMap.has(resourceType))) {
+            historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        this.historyOperationsByResourceTypeMap.get(resourceType).push(operation);
+        historyOperationsByResourceTypeMap.get(resourceType).push(operation);
     }
 
     /**
      * Inserts item into collection
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneAsync({resourceType, doc}) {
+    async insertOneAsync({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
             // check to see if we already have this insert and if so use replace
-            if (this.insertedIdsByResourceTypeMap.get(resourceType) &&
-                this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
+            const insertedIdsByResourceTypeMap = this.getInsertedIdsByResourceTypeMap({requestId});
+            if (insertedIdsByResourceTypeMap.get(resourceType) &&
+                insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
                 return await this.replaceOneAsync(
                     {
+                        requestId,
                         resourceType, id: doc.id, doc
                     }
                 );
@@ -193,15 +225,17 @@ class DatabaseBulkInserter extends EventEmitter {
                 });
             }
             // else insert it
+            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.insertOneAsync',
                 args:
                     {
                         message: 'start',
-                        bufferLength: this.operationsByResourceTypeMap.size
+                        bufferLength: operationsByResourceTypeMap.size
                     }
             });
             this.addOperationForResourceType({
+                    requestId,
                     resourceType,
                     operation: {
                         insertOne: {
@@ -210,7 +244,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             );
-            this.insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
+            insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -220,14 +254,16 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Inserts item into history collection
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync({resourceType, doc}) {
+    async insertOneHistoryAsync({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
+                    requestId,
                     resourceType,
                     operation: {
                         insertOne: {
@@ -245,19 +281,21 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Replaces a document in Mongo with this one
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {string} id
      * @param {Resource} doc
      * @param {boolean} [upsert]
      * @returns {Promise<void>}
      */
-    async replaceOneAsync({resourceType, id, doc, upsert = false}) {
+    async replaceOneAsync({requestId, resourceType, id, doc, upsert = false}) {
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
             // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
             // noinspection JSCheckFunctionSignatures
             this.addOperationForResourceType({
+                    requestId,
                     resourceType,
                     operation: {
                         replaceOne: {
@@ -268,7 +306,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             );
-            this.updatedIdsByResourceTypeMap.get(resourceType).push(doc.id);
+            const updatedIdsByResourceTypeMap = this.getUpdatedIdsByResourceTypeMap({requestId});
+            updatedIdsByResourceTypeMap.get(resourceType).push(doc.id);
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -285,12 +324,13 @@ class DatabaseBulkInserter extends EventEmitter {
      */
     async executeAsync({requestId, currentDate, base_version}) {
         try {
+            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
                 args:
                     {
                         message: 'start',
-                        bufferLength: this.operationsByResourceTypeMap.size
+                        bufferLength: operationsByResourceTypeMap.size
                     }
             });
             // run both the operations on the main tables and the history tables in parallel
@@ -298,7 +338,7 @@ class DatabaseBulkInserter extends EventEmitter {
              * @type {BulkResultEntry[]}
              */
             const resultsByResourceType = await async.map(
-                this.operationsByResourceTypeMap.entries(),
+                operationsByResourceTypeMap.entries(),
                 async x => await this.performBulkForResourceTypeWithMapEntryAsync(
                     {
                         requestId, currentDate,
@@ -307,18 +347,22 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 ));
 
-            if (this.historyOperationsByResourceTypeMap.size > 0) {
-                this.postRequestProcessor.add(async () => {
-                        await async.map(
-                            this.historyOperationsByResourceTypeMap.entries(),
-                            async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                                {
-                                    requestId, currentDate,
-                                    mapEntry: x, base_version,
-                                    useHistoryCollection: true
-                                }
-                            ));
-                        this.historyOperationsByResourceTypeMap.clear();
+            const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
+            if (historyOperationsByResourceTypeMap.size > 0) {
+                this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            await async.map(
+                                historyOperationsByResourceTypeMap.entries(),
+                                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                                    {
+                                        requestId, currentDate,
+                                        mapEntry: x, base_version,
+                                        useHistoryCollection: true
+                                    }
+                                ));
+                            historyOperationsByResourceTypeMap.clear();
+                        }
                     }
                 );
             }
@@ -333,7 +377,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     /**
                      * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                      */
-                    const operationsForResourceType = this.operationsByResourceTypeMap.get(erroredMerge.resourceType);
+                    const operationsForResourceType = operationsByResourceTypeMap.get(erroredMerge.resourceType);
                     await this.errorReporter.reportErrorAsync(
                         {
                             source: 'databaseBulkInserter',
@@ -354,7 +398,8 @@ class DatabaseBulkInserter extends EventEmitter {
              * @type {MergeResultEntry[]}
              */
             const mergeResultEntries = [];
-            for (const [resourceType, ids] of this.insertedIdsByResourceTypeMap) {
+            const insertedIdsByResourceTypeMap = this.getInsertedIdsByResourceTypeMap({requestId});
+            for (const [resourceType, ids] of insertedIdsByResourceTypeMap) {
                 /**
                  * @type {BulkResultEntry|null}
                  */
@@ -390,7 +435,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         /**
                          * @type {Resource}
                          */
-                        const resource = this.operationsByResourceTypeMap
+                        const resource = operationsByResourceTypeMap
                             .get(resourceType)
                             .filter(x => x.insertOne && x.insertOne.document.id === id)[0].insertOne.document;
 
@@ -403,7 +448,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             }
-            for (const [resourceType, ids] of this.updatedIdsByResourceTypeMap) {
+            const updatedIdsByResourceTypeMap = this.getUpdatedIdsByResourceTypeMap({requestId});
+            for (const [resourceType, ids] of updatedIdsByResourceTypeMap) {
                 /**
                  * @type {BulkResultEntry|null}
                  */
@@ -434,7 +480,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         mergeResultEntries.push(
                             mergeResultEntry
                         );
-                        const resources = this.operationsByResourceTypeMap
+                        const resources = operationsByResourceTypeMap
                             .get(resourceType);
                         if (resources !== undefined) {
                             /**
@@ -453,16 +499,16 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             }
 
-            this.operationsByResourceTypeMap.clear();
-            this.insertedIdsByResourceTypeMap.clear();
-            this.updatedIdsByResourceTypeMap.clear();
+            operationsByResourceTypeMap.clear();
+            insertedIdsByResourceTypeMap.clear();
+            updatedIdsByResourceTypeMap.clear();
 
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
                 args:
                     {
                         message: 'end',
-                        bufferLength: this.operationsByResourceTypeMap.size
+                        bufferLength: operationsByResourceTypeMap.size
                     }
             });
             return mergeResultEntries;

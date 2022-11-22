@@ -132,6 +132,7 @@ class SearchBundleOperation {
             requestId
         } = requestInfo;
 
+        assertIsValid(requestId, 'requestId is null');
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,

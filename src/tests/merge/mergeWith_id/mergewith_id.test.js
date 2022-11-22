@@ -10,7 +10,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer,
+    createTestRequest, getTestContainer, getRequestId,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const deepcopy = require('deepcopy');
@@ -60,7 +60,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -99,7 +99,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -172,7 +172,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             // ACT & ASSERT
             // add the resources to FHIR server
@@ -233,7 +233,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
