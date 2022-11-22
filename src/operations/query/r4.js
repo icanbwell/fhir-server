@@ -101,13 +101,13 @@ class R4SearchQueryCreator {
          * this is used to pick index hints
          * @type {Set}
          */
-        let columns = new Set();
+        let totalColumns = new Set();
         /**
          * and segments
          * these are combined to create the query
          * @type {Object[]}
          */
-        let and_segments = [];
+        let total_and_segments = [];
 
         // add FHIR queries
         for (const [searchParameterResourceType, searchParameterObj] of Object.entries(searchParameterQueries)) {
@@ -123,105 +123,141 @@ class R4SearchQueryCreator {
                             field: propertyObj.field
                         }
                     );
-                    /**
-                     * @type {string | string[]}
-                     */
-                    let queryParameterValue = args[`${queryParameter}`];
-                    queryParameterValue = convertGraphQLParameters(
-                        queryParameterValue,
-                        args,
-                        queryParameter
-                    );
+
                     // if just a query parameter is passed then check it
-                    if (queryParameterValue) {
+                    let actualArg = args[queryParameter] ? queryParameter : null;
+                    if (!actualArg) {
+                        for (const argName in args) {
+                            if (argName.startsWith(`${queryParameter}:`)) {
+                                actualArg = argName;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (actualArg) {
+                        /**
+                         * @type {string | string[]}
+                         */
+                        let queryParameterValue = args[actualArg];
+                        queryParameterValue = convertGraphQLParameters(
+                            queryParameterValue,
+                            args,
+                            queryParameter
+                        );
+
                         // handle id differently since it is a token, but we want to do exact match
                         if (queryParameter === '_id') {
                             filterById({
-                                queryParameterValue, and_segments, propertyObj, columns
+                                queryParameterValue, and_segments: total_and_segments, propertyObj, columns: totalColumns
                             });
                             continue; // skip processing rest of this loop
-                        }
-                        switch (propertyObj.type) {
-                            case fhirFilterTypes.string:
-                                filterByString({
-                                    queryParameterValue, and_segments, propertyObj, columns
-                                });
-                                break;
-                            case fhirFilterTypes.uri:
-                                filterByUri({
-                                    and_segments, propertyObj, queryParameterValue, columns
-                                });
-                                break;
-                            case fhirFilterTypes.dateTime:
-                            case fhirFilterTypes.date:
-                            case fhirFilterTypes.period:
-                            case fhirFilterTypes.instant:
-                                filterByDateTime(
-                                    {
-                                        queryParameterValue,
-                                        propertyObj,
-                                        and_segments,
-                                        resourceType,
-                                        columns
-                                    }
-                                );
-                                break;
-                            case fhirFilterTypes.token:
-                                if (propertyObj.field === 'meta.security') {
-                                    filterBySecurityTag({
-                                        queryParameterValue, propertyObj, and_segments, columns,
-                                        fnUseAccessIndex: (accessCode) =>
-                                            this.configManager.useAccessIndex &&
-                                            this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
-                                                resourceType,
-                                                accessCodes: [accessCode]
-                                            })
+                        } else if (args[`${queryParameter}:text`]) {
+                            // handle partial text search differently because I can't figure out how to get it to combine with other search types
+                            filterByPartialText({
+                                args, queryParameter, and_segments: total_and_segments, propertyObj, columns: totalColumns
+                            });
+                        } else {
+                            // track columns and and_segments from current iteration to correctly combine search types and modifiers
+                            let columns = new Set();
+                            let and_segments = [];
+
+                            switch (propertyObj.type) {
+                                case fhirFilterTypes.string:
+                                    filterByString({
+                                        queryParameterValue, and_segments, propertyObj, columns
                                     });
-                                } else {
-                                    filterByToken({
-                                        queryParameterValue, propertyObj, and_segments, columns
-                                    });
-                                }
-                                break;
-                            case fhirFilterTypes.reference:
-                                if (isUrl(queryParameterValue)) {
-                                    filterByCanonical({
+                                    break;
+                                case fhirFilterTypes.uri:
+                                    filterByUri({
                                         and_segments, propertyObj, queryParameterValue, columns
                                     });
-                                } else {
-                                    filterByReference(
+                                    break;
+                                case fhirFilterTypes.dateTime:
+                                case fhirFilterTypes.date:
+                                case fhirFilterTypes.period:
+                                case fhirFilterTypes.instant:
+                                    filterByDateTime(
                                         {
+                                            queryParameterValue,
                                             propertyObj,
                                             and_segments,
-                                            queryParameterValue,
+                                            resourceType,
                                             columns
                                         }
                                     );
+                                    break;
+                                case fhirFilterTypes.token:
+                                    if (propertyObj.field === 'meta.security') {
+                                        filterBySecurityTag({
+                                            queryParameterValue, propertyObj, and_segments, columns,
+                                            fnUseAccessIndex: (accessCode) =>
+                                                this.configManager.useAccessIndex &&
+                                                this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
+                                                    resourceType,
+                                                    accessCodes: [accessCode]
+                                                })
+                                        });
+                                    } else {
+                                        filterByToken({
+                                            queryParameterValue, propertyObj, and_segments, columns
+                                        });
+                                    }
+                                    break;
+                                case fhirFilterTypes.reference:
+                                    if (isUrl(queryParameterValue)) {
+                                        filterByCanonical({
+                                            and_segments, propertyObj, queryParameterValue, columns
+                                        });
+                                    } else {
+                                        filterByReference(
+                                            {
+                                                propertyObj,
+                                                and_segments,
+                                                queryParameterValue,
+                                                columns
+                                            }
+                                        );
+                                    }
+                                    break;
+                                default:
+                                    throw new Error('Unknown type=' + propertyObj.type);
+                            }
+
+                            if (args[`${queryParameter}:missing`]) {
+                                filterByMissing({
+                                    and_segments: total_and_segments, queryParameterValue: args[`${queryParameter}:missing`], columns
+                                });
+                            } else if (args[`${queryParameter}:contains`]) {
+                                filterByContains({
+                                    and_segments: total_and_segments, queryParameterValue: args[`${queryParameter}:contains`], columns
+                                });
+                            } else if (args[`${queryParameter}:above`] && args[`${queryParameter}:below`]) {
+                                filterByAboveAndBelow({
+                                    and_segments: total_and_segments,
+                                    aboveParameterValue: args[`${queryParameter}:above`],
+                                    belowParameterValue: args[`${queryParameter}:below`],
+                                    columns
+                                });
+                            } else if (args[`${queryParameter}:above`]) {
+                                filterByAbove({
+                                    and_segments: total_and_segments, queryParameterValue: args[`${queryParameter}:above`], columns
+                                });
+                            } else if (args[`${queryParameter}:below`]) {
+                                filterByBelow({
+                                    and_segments: total_and_segments, queryParameterValue: args[`${queryParameter}:below`], columns
+                                });
+                            } else {
+                                // add unmodified segments back into total if they are not added by a modifier loop
+                                for (let segment of and_segments) {
+                                    total_and_segments.push(segment);
                                 }
-                                break;
-                            default:
-                                throw new Error('Unknown type=' + propertyObj.type);
+                            }
+
+                            for (let column of columns) {
+                                totalColumns.add(column);
+                            }
                         }
-                    } else if (args[`${queryParameter}:missing`]) {
-                        filterByMissing({
-                            args, queryParameter, and_segments, propertyObj, columns
-                        });
-                    } else if (args[`${queryParameter}:contains`]) {
-                        filterByContains({
-                            and_segments, propertyObj, queryParameter, args, columns
-                        });
-                    } else if (args[`${queryParameter}:above`] && args[`${queryParameter}:below`]) {
-                        filterByAboveAndBelow({
-                            and_segments, propertyObj, args, queryParameter, columns
-                        });
-                    } else if (args[`${queryParameter}:above`]) {
-                        filterByAbove(and_segments, propertyObj, args, queryParameter, columns);
-                    } else if (args[`${queryParameter}:below`]) {
-                        filterByBelow(and_segments, propertyObj, args, queryParameter, columns);
-                    } else if (args[`${queryParameter}:text`]) {
-                        filterByPartialText({
-                            args, queryParameter, and_segments, propertyObj, columns
-                        });
                     }
                 }
             }
@@ -233,14 +269,14 @@ class R4SearchQueryCreator {
          */
         let query = {};
 
-        if (and_segments.length !== 0) {
+        if (total_and_segments.length !== 0) {
             // noinspection JSUndefinedPropertyAssignment
-            query.$and = and_segments;
+            query.$and = total_and_segments;
         }
 
         return {
             query: query,
-            columns: columns,
+            columns: totalColumns,
         };
     }
 }
