@@ -114,6 +114,28 @@
         </div>
         <button type="submit" class="btn btn-primary mb-2">Create Link</button>
     </form>
+    <hr>
+    <h3>Delete b.well Person</h3>
+    <h6>Delete a Person record (And remove links from other Person records)</h6>
+    <form
+            class="search-form ps-3"
+            action="/admin/deletePerson"
+            id="searchForm"
+            method="get"
+    >
+        <div class="form-group row">
+            <label for="personId" class="col-sm-6 col-form-label">Person</label>
+            <input
+                    id="personId"
+                    type="text"
+                    name=personId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Show Link Graph</button>
+    </form>
+
 </main>
 
 </body>
