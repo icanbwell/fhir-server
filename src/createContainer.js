@@ -491,7 +491,8 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 fhirOperationsManager: c.fhirOperationsManager,
                 fhirResponseWriter: c.fhirResponseWriter,
-                configManager: c.configManager
+                configManager: c.configManager,
+                requestSpecificCache: c.requestSpecificCache
             }
         )
     );
@@ -505,7 +506,8 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 fhirOperationsManager: c.fhirOperationsManager,
-                fhirResponseWriter: c.fhirResponseWriter
+                fhirResponseWriter: c.fhirResponseWriter,
+                requestSpecificCache: c.requestSpecificCache
             }
         )
     );
