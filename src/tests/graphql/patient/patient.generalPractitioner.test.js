@@ -124,7 +124,7 @@ describe('GraphQL Patient Tests', () => {
             await internalAuditEventCollection.deleteMany({});
 
             resp = await request
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -145,7 +145,8 @@ describe('GraphQL Patient Tests', () => {
                 console.log(body.errors);
                 expect(body.errors).toBeUndefined();
             }
-            expect(body).toStrictEqual(expectedUpdateGraphQlResponse);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedUpdateGraphQlResponse);
 
             // check that the audit entry is made
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
@@ -202,7 +203,7 @@ describe('GraphQL Patient Tests', () => {
             console.log('------- end response practitioner  ------------');
 
             await request
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -260,7 +261,7 @@ describe('GraphQL Patient Tests', () => {
             console.log('------- end response practitioner  ------------');
 
             resp = await request
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -324,7 +325,7 @@ describe('GraphQL Patient Tests', () => {
             console.log('------- end response practitioner  ------------');
 
             resp = await request
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},

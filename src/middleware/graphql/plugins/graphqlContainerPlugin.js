@@ -20,7 +20,7 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
      */
     async requestDidStart(requestContext) {
         const container = requestContext.context ? requestContext.context.container : null;
-        const requestId = requestContext.context ? requestContext.context.requestId : null;
+        const requestId = requestContext.context && requestContext.context.req ? requestContext.context.req.id : null;
 
         return {
             async executionDidStart() {

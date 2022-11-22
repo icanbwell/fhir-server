@@ -82,7 +82,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
             console.log('------- end response practitioner  ------------');
 
             resp = await request
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -99,7 +99,8 @@ describe('GraphQL Patient Update Care Team Tests', () => {
                 console.log(body.errors);
                 expect(body.errors).toBeUndefined();
             }
-            expect(body).toStrictEqual(expectedGraphQlResponse);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQlResponse);
             resp = await request.get('/4_0_0/CareTeam/').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(1);
             console.log('------- response careTeam ------------');
