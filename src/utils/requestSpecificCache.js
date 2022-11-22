@@ -56,6 +56,14 @@ class RequestSpecificCache {
     }
 
     /**
+     * Gets all request ids
+     * @return {string[]}
+     */
+    getRequestIds() {
+        return Array.from(this.mapCache.keys()) + Array.from(this.listCache.keys());
+    }
+
+    /**
      * clears the cache for this requestId
      * @param requestId
      */
