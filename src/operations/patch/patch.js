@@ -145,7 +145,7 @@ class PatchOperation {
             let res;
             doc = omitPropertyFromResource(doc, '_id');
 
-            await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
+            await this.databaseBulkInserter.replaceOneAsync({requestId, resourceType, id, doc});
             await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
             /**
              * @type {MergeResultEntry[]}

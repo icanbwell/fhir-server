@@ -334,6 +334,7 @@ class MergeOperation {
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesAsync(
                 {
+                    requestId,
                     base_version,
                     requestedResources: resourcesIncomingArray
                 }

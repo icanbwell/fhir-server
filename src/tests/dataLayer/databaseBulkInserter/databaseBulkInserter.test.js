@@ -91,14 +91,18 @@ describe('databaseBulkInserter Tests', () => {
              */
             const databaseBulkInserter = container.databaseBulkInserter;
 
-            await databaseBulkInserter.insertOneAsync({resourceType: 'Patient', doc: new Patient(patient)});
             await databaseBulkInserter.insertOneAsync({
+                requestId: '999',
+                resourceType: 'Patient', doc: new Patient(patient)});
+            await databaseBulkInserter.insertOneAsync({
+                requestId: '555',
                 resourceType: 'Observation',
                 doc: new Observation(observation),
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.replaceOneAsync({
+                requestId: '123',
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),

@@ -230,7 +230,7 @@ class UpdateOperation {
                     smartMerge: false
                 });
                 if (doc) { // if there is a change
-                    await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
+                    await this.databaseBulkInserter.replaceOneAsync({requestId, resourceType, id, doc});
                 }
             } else {
                 // not found so insert
@@ -261,7 +261,7 @@ class UpdateOperation {
                 }
 
                 doc = resource_incoming;
-                await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
+                await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             }
 
             if (doc) {

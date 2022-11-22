@@ -130,11 +130,13 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Adds an operation
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
      * @private
      */
-    addOperationForResourceType({resourceType, operation}) {
+    addOperationForResourceType({requestId, resourceType, operation}) {
+        assertIsValid(requestId, 'requestId is null');
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
         assertIsValid(operation, `operation: ${operation} is null`);
         assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
@@ -151,11 +153,12 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Adds a history operation
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {import('mongodb').BulkWriteOperation<DefaultSchema>} operation
      * @private
      */
-    addHistoryOperationForResourceType({resourceType, operation}) {
+    addHistoryOperationForResourceType({requestId, resourceType, operation}) {
         // If there is no entry for this collection then create one
         if (!(this.historyOperationsByResourceTypeMap.has(resourceType))) {
             this.historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
@@ -166,11 +169,12 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Inserts item into collection
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneAsync({resourceType, doc}) {
+    async insertOneAsync({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
@@ -179,6 +183,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 this.insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
                 return await this.replaceOneAsync(
                     {
+                        requestId,
                         resourceType, id: doc.id, doc
                     }
                 );
@@ -202,6 +207,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
             });
             this.addOperationForResourceType({
+                    requestId,
                     resourceType,
                     operation: {
                         insertOne: {
@@ -220,14 +226,16 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Inserts item into history collection
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync({resourceType, doc}) {
+    async insertOneHistoryAsync({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
+                    requestId,
                     resourceType,
                     operation: {
                         insertOne: {
@@ -245,19 +253,21 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Replaces a document in Mongo with this one
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {string} id
      * @param {Resource} doc
      * @param {boolean} [upsert]
      * @returns {Promise<void>}
      */
-    async replaceOneAsync({resourceType, id, doc, upsert = false}) {
+    async replaceOneAsync({requestId, resourceType, id, doc, upsert = false}) {
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
             // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
             // noinspection JSCheckFunctionSignatures
             this.addOperationForResourceType({
+                    requestId,
                     resourceType,
                     operation: {
                         replaceOne: {

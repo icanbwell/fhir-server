@@ -227,7 +227,7 @@ class CreateOperation {
             logDebug({user, args: {message: 'Inserting', doc: doc}});
 
             // Insert our resource record
-            await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
+            await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
             /**
              * @type {MergeResultEntry[]}

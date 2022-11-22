@@ -27,11 +27,12 @@ class DatabaseBulkLoader {
 
     /**
      * Finds all documents with the specified resource type and ids
+     * @param {string} requestId
      * @param {string} base_version
      * @param {Resource[]} requestedResources
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async loadResourcesAsync({base_version, requestedResources}) {
+    async loadResourcesAsync({requestId, base_version, requestedResources}) {
         try {
             /**
              * merge results grouped by resourceType
@@ -49,6 +50,7 @@ class DatabaseBulkLoader {
                 Object.entries(groupByResourceType),
                 async x => await this.getResourcesAsync(
                     {
+                        requestId,
                         base_version,
                         resourceType: x[0],
                         resources: x[1]
@@ -69,12 +71,13 @@ class DatabaseBulkLoader {
 
     /**
      * Get resources by id for this resourceType
+     * @param {string} requestId
      * @param {string} base_version
      * @param {string} resourceType
      * @param {Resource[]} resources
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
-    async getResourcesAsync({base_version, resourceType, resources}) {
+    async getResourcesAsync({requestId, base_version, resourceType, resources}) {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkLoaderTimer.startTimer();
         try {
@@ -130,11 +133,12 @@ class DatabaseBulkLoader {
 
     /**
      * gets resources from list
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {string} id
      * @return {null|Resource}
      */
-    getResourceFromExistingList({resourceType, id}) {
+    getResourceFromExistingList({requestId, resourceType, id}) {
         // see if there is cache for this resourceType
         /**
          * @type {Resource[]}
@@ -151,9 +155,10 @@ class DatabaseBulkLoader {
 
     /**
      * Adds a new resource to the cache
+     * @param {string} requestId
      * @param {Resource} resource
      */
-    addResourceToExistingList({resource}) {
+    addResourceToExistingList({requestId, resource}) {
         /**
          * @type {Resource[]}
          */
@@ -171,9 +176,10 @@ class DatabaseBulkLoader {
 
     /**
      * Updates an existing resource in the cache
+     * @param {string} requestId
      * @param {Resource} resource
      */
-    updateResourceInExistingList({resource}) {
+    updateResourceInExistingList({requestId, resource}) {
         /**
          * @type {Resource[]}
          */
