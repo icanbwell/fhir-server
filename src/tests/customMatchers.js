@@ -311,12 +311,16 @@ function toHaveResponse(resp, expected, fnCleanResource) {
         // clean out meta for graphql
         if (expected.data) {
             for (const [, value] of Object.entries(expected.data)) {
-                cleanMeta(value);
+                if (value) {
+                    cleanMeta(value);
+                }
             }
         }
         if (body.data) {
             for (const [, value] of Object.entries(body.data)) {
-                cleanMeta(value);
+                if (value) {
+                    cleanMeta(value);
+                }
             }
         }
     }
