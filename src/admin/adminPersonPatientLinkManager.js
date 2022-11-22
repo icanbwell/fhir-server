@@ -323,30 +323,33 @@ class AdminPersonPatientLinkManager {
             };
         }
         // find parents
-        // find all links to this Person
-        /**
-         * @type {DatabasePartitionedCursor}
-         */
-        const personsLinkingToThisPersonId = await databaseQueryManager.findAsync(
-            {
-                query: {
-                    'link.target.reference': `Person/${personId}`
+        let parentPersons = [];
+
+        if (level === 1) {
+            // find all links to this Person
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            const personsLinkingToThisPersonId = await databaseQueryManager.findAsync(
+                {
+                    query: {
+                        'link.target.reference': `Person/${personId}`
+                    }
                 }
-            }
-        );
+            );
 
-        const parentPersons = (await personsLinkingToThisPersonId.toArray()).map(p => {
-            return {
-                id: p.id,
-                resourceType: p.resourceType,
-                source: p.meta ? p.meta.source : null,
-                owner: p.meta && p.meta.security ?
-                    p.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
-                access: p.meta && p.meta.security ?
-                    p.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : [],
-            };
-        });
-
+            parentPersons = (await personsLinkingToThisPersonId.toArray()).map(p => {
+                return {
+                    id: p.id,
+                    resourceType: p.resourceType,
+                    source: p.meta ? p.meta.source : null,
+                    owner: p.meta && p.meta.security ?
+                        p.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
+                    access: p.meta && p.meta.security ?
+                        p.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : [],
+                };
+            });
+        }
 
         /**
          * @type {{id:string, source: string|null, security: string[]}[]}
