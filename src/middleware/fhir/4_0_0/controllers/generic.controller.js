@@ -104,7 +104,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -130,7 +131,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -159,7 +161,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -191,7 +194,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -220,7 +224,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -252,7 +257,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -279,7 +285,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -313,7 +320,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -340,7 +348,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }
@@ -367,7 +376,8 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
             }
         };
     }

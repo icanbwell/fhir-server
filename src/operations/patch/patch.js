@@ -146,7 +146,7 @@ class PatchOperation {
             doc = omitPropertyFromResource(doc, '_id');
 
             await this.databaseBulkInserter.replaceOneAsync({requestId, resourceType, id, doc});
-            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+            await this.databaseBulkInserter.insertOneHistoryAsync({requestId, resourceType, doc: doc.clone()});
             /**
              * @type {MergeResultEntry[]}
              */
@@ -172,7 +172,10 @@ class PatchOperation {
                 requestId, eventType: 'U', resourceType, doc
             });
 
-            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => await this.changeEventProducer.flushAsync(requestId)
+            });
 
             return {
                 id: doc.id,

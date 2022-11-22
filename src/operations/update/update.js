@@ -266,7 +266,7 @@ class UpdateOperation {
 
             if (doc) {
                 // Insert/update our resource record
-                await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+                await this.databaseBulkInserter.insertOneHistoryAsync({requestId, resourceType, doc: doc.clone()});
                 /**
                  * @type {MergeResultEntry[]}
                  */
@@ -308,7 +308,10 @@ class UpdateOperation {
                 await this.changeEventProducer.fireEventsAsync({
                     requestId, eventType: 'U', resourceType, doc
                 });
-                this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => await this.changeEventProducer.flushAsync(requestId)
+                });
                 return result;
             } else {
                 // not modified

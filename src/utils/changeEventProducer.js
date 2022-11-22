@@ -84,7 +84,7 @@ class ChangeEventProducer {
      * @return {Map<string, Object>} id, resource
      */
     getPatientMessageMap({requestId}) {
-        return this.requestSpecificCache.get({requestId, name: 'PatientMessageMap'});
+        return this.requestSpecificCache.getMap({requestId, name: 'PatientMessageMap'});
     }
 
     /**
@@ -93,7 +93,7 @@ class ChangeEventProducer {
      * @return {Map<string, Object>} id, resource
      */
     getTaskMessageMap({requestId}) {
-        return this.requestSpecificCache.get({requestId, name: 'TaskMessageMap'});
+        return this.requestSpecificCache.getMap({requestId, name: 'TaskMessageMap'});
     }
 
     /**
@@ -102,7 +102,7 @@ class ChangeEventProducer {
      * @return {Map<string, Object>} id, resource
      */
     getObservationMessageMap({requestId}) {
-        return this.requestSpecificCache.get({requestId, name: 'ObservationMessageMap'});
+        return this.requestSpecificCache.getMap({requestId, name: 'ObservationMessageMap'});
     }
 
     /**

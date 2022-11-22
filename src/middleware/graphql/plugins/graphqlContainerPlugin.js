@@ -20,6 +20,7 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
      */
     async requestDidStart(requestContext) {
         const container = requestContext.context ? requestContext.context.container : null;
+        const requestId = requestContext.context ? requestContext.context.requestId : null;
 
         return {
             async executionDidStart() {
@@ -28,7 +29,7 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
                         if (container) {
                             const postRequestProcessor = container.postRequestProcessor;
                             if (postRequestProcessor) {
-                                await postRequestProcessor.executeAsync();
+                                await postRequestProcessor.executeAsync({requestId});
                             }
                         }
                     }

@@ -504,6 +504,7 @@ class MergeManager {
 
             await this.databaseBulkInserter.insertOneHistoryAsync(
                 {
+                    requestId,
                     resourceType: resourceToMerge.resourceType, doc: historyResource
                 });
         } catch (e) {
@@ -540,6 +541,7 @@ class MergeManager {
             const historyResource = resourceToMerge.clone();
 
             await this.databaseBulkInserter.insertOneHistoryAsync({
+                    requestId,
                     resourceType: resourceToMerge.resourceType,
                     doc: historyResource
                 }

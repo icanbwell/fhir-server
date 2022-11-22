@@ -119,7 +119,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @return {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
     getOperationsByResourceTypeMap({requestId}) {
-        return this.requestSpecificCache.get({requestId, name: 'OperationsByResourceTypeMap'});
+        return this.requestSpecificCache.getMap({requestId, name: 'OperationsByResourceTypeMap'});
     }
 
     /**
@@ -130,7 +130,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @return {Map<string, (import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
     getHistoryOperationsByResourceTypeMap({requestId}) {
-        return this.requestSpecificCache.get({requestId, name: 'HistoryOperationsByResourceTypeMap'});
+        return this.requestSpecificCache.getMap({requestId, name: 'HistoryOperationsByResourceTypeMap'});
     }
 
     /**
@@ -138,7 +138,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @return {Map<string, string[]>}
      */
     getInsertedIdsByResourceTypeMap({requestId}) {
-        return this.requestSpecificCache.get({requestId, name: 'InsertedIdsByResourceTypeMap'});
+        return this.requestSpecificCache.getMap({requestId, name: 'InsertedIdsByResourceTypeMap'});
     }
 
     /**
@@ -146,7 +146,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @return {Map<string, string[]>}
      */
     getUpdatedIdsByResourceTypeMap({requestId}) {
-        return this.requestSpecificCache.get({requestId, name: 'UpdatedIdsByResourceTypeMap'});
+        return this.requestSpecificCache.getMap({requestId, name: 'UpdatedIdsByResourceTypeMap'});
     }
 
 
@@ -349,17 +349,20 @@ class DatabaseBulkInserter extends EventEmitter {
 
             const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
             if (historyOperationsByResourceTypeMap.size > 0) {
-                this.postRequestProcessor.add(async () => {
-                        await async.map(
-                            historyOperationsByResourceTypeMap.entries(),
-                            async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                                {
-                                    requestId, currentDate,
-                                    mapEntry: x, base_version,
-                                    useHistoryCollection: true
-                                }
-                            ));
-                        historyOperationsByResourceTypeMap.clear();
+                this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            await async.map(
+                                historyOperationsByResourceTypeMap.entries(),
+                                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                                    {
+                                        requestId, currentDate,
+                                        mapEntry: x, base_version,
+                                        useHistoryCollection: true
+                                    }
+                                ));
+                            historyOperationsByResourceTypeMap.clear();
+                        }
                     }
                 );
             }

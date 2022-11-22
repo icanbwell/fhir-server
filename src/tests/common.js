@@ -346,3 +346,12 @@ module.exports.wrapResourceInBundle = (resource) => {
         ],
     };
 };
+
+
+/**
+ * @param resp
+ * @return {string|undefined}
+ */
+module.exports.getRequestId = (resp) => {
+    return resp.headers['x-request-id'];
+};

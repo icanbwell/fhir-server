@@ -10,7 +10,7 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getTestContainer,
+    getTestContainer, getRequestId,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 
@@ -47,7 +47,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -87,7 +87,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -122,7 +122,7 @@ describe('Patient Change Event Tests', () => {
                 .send(person1nolinkResource)
                 .set(getHeaders());
 
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             mockKafkaClient.clear();
 
             resp = await request
@@ -139,7 +139,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveStatusCode(200);
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -174,7 +174,7 @@ describe('Patient Change Event Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             mockKafkaClient.clear();
 
             resp = await request
@@ -191,7 +191,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -236,7 +236,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */

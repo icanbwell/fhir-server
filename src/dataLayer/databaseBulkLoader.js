@@ -65,7 +65,7 @@ class DatabaseBulkLoader {
                     }
                 )
             );
-            const bulkCache = this.requestSpecificCache.get({requestId, name: this.cacheName});
+            const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
             // Now add them to our cache
             for (const {resourceType, resources} of result) {
                 bulkCache.set(resourceType, resources);
@@ -149,7 +149,7 @@ class DatabaseBulkLoader {
      * @return {null|Resource}
      */
     getResourceFromExistingList({requestId, resourceType, id}) {
-        const bulkCache = this.requestSpecificCache.get({requestId, name: this.cacheName});
+        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
         // see if there is cache for this resourceType
         /**
          * @type {Resource[]}
@@ -170,7 +170,7 @@ class DatabaseBulkLoader {
      * @param {Resource} resource
      */
     addResourceToExistingList({requestId, resource}) {
-        const bulkCache = this.requestSpecificCache.get({requestId, name: this.cacheName});
+        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
         /**
          * @type {Resource[]}
          */
@@ -192,7 +192,7 @@ class DatabaseBulkLoader {
      * @param {Resource} resource
      */
     updateResourceInExistingList({requestId, resource}) {
-        const bulkCache = this.requestSpecificCache.get({requestId, name: this.cacheName});
+        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
         /**
          * @type {Resource[]}
          */

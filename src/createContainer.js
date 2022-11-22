@@ -262,7 +262,8 @@ const createContainer = function () {
         }));
     container.register('postRequestProcessor', (c) => new PostRequestProcessor(
         {
-            errorReporter: c.errorReporter
+            errorReporter: c.errorReporter,
+            requestSpecificCache: c.requestSpecificCache
         }));
     container.register('auditLogger', (c) => new AuditLogger(
             {
