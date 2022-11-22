@@ -310,7 +310,7 @@ class UpdateOperation {
                 });
                 this.postRequestProcessor.add({
                     requestId,
-                    fnTask: async () => await this.changeEventProducer.flushAsync(requestId)
+                    fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
                 });
                 return result;
             } else {

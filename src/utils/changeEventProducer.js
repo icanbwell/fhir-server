@@ -538,7 +538,7 @@ class ChangeEventProducer {
      * @param {string} requestId
      * @return {Promise<void>}
      */
-    async flushAsync(requestId) {
+    async flushAsync({requestId}) {
         const patientMessageMap = this.getPatientMessageMap({requestId});
         if (!env.ENABLE_EVENTS_KAFKA) {
             patientMessageMap.clear();

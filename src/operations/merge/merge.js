@@ -367,7 +367,7 @@ class MergeOperation {
             // flush any event handlers
             this.postRequestProcessor.add({
                 requestId,
-                fnTask: async () => await this.changeEventProducer.flushAsync(requestId)
+                fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
             });
 
             // add in any pre-merge failures
