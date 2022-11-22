@@ -17,6 +17,7 @@ const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin')
 const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {generateUUID} = require('../../utils/uid.util');
+const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 
 
 /**
@@ -46,7 +47,8 @@ const graphql = async (fnCreateContainer) => {
         ),
         getBundleMetaApolloServerPlugin(),
         getApolloServerLoggingPlugin('graphqlv2'),
-        getGraphqlContainerPlugin()
+        getGraphqlContainerPlugin(),
+        getAddRequestIdToResponseHeadersPlugin()
         // ApolloServerPluginLandingPageDisabled()
     ];
 

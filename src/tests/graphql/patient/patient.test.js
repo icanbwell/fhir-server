@@ -137,6 +137,7 @@ describe('GraphQL Patient Tests', () => {
                 });
                 return r;
             });
+            expect(resp.headers['X-Request-Id']).toBeDefined();
         });
         test('GraphQL Patient for missing person', async () => {
             const request = await createTestRequest((c) => {

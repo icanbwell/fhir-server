@@ -129,7 +129,7 @@ class MyFHIRServer {
                 /** @type {import('http').ServerResponse} **/ res,
                 next
             ) => {
-                req.id = req.headers['X-REQUEST-ID'] || generateUUID();
+                req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
                 next();
             }
         );
