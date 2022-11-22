@@ -434,18 +434,21 @@ class DatabaseBulkInserter extends EventEmitter {
                         mergeResultEntries.push(
                             mergeResultEntry
                         );
-                        /**
-                         * @type {Resource}
-                         */
-                        const resource = this.operationsByResourceTypeMap
-                            .get(resourceType)
-                            .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
-                        await this.changeEventProducer.fireEventsAsync({
-                            requestId,
-                            eventType: 'U',
-                            resourceType: resourceType,
-                            doc: resource
-                        });
+                        const resources = this.operationsByResourceTypeMap
+                            .get(resourceType);
+                        if (resources !== undefined) {
+                            /**
+                             * @type {Resource}
+                             */
+                            const resource = resources
+                                .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
+                            await this.changeEventProducer.fireEventsAsync({
+                                requestId,
+                                eventType: 'U',
+                                resourceType: resourceType,
+                                doc: resource
+                            });
+                        }
                     }
                 }
             }
