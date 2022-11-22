@@ -72,6 +72,7 @@ const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handl
 const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
 const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
 const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
+const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 
 /**
  * Creates a container and sets up all the services
@@ -84,6 +85,9 @@ const createContainer = function () {
     container.register('configManager', () => new ConfigManager());
 
     container.register('scopesManager', () => new ScopesManager());
+
+    container.register('requestSpecificCache', () => new RequestSpecificCache());
+
     container.register('enrichmentManager', () => new EnrichmentManager({
         enrichmentProviders: [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()]
     }));
@@ -137,7 +141,8 @@ const createContainer = function () {
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             taskChangeTopic: env.KAFKA_TASK_CHANGE_TOPIC || 'business.events',
             observationChangeTopic: env.KAFKA_OBSERVATION_CHANGE_TOPIC || 'business.events',
-            bwellPersonFinder: c.bwellPersonFinder
+            bwellPersonFinder: c.bwellPersonFinder,
+            requestSpecificCache: c.requestSpecificCache
         }
     ));
 
@@ -245,13 +250,15 @@ const createContainer = function () {
                 mongoCollectionManager: c.mongoCollectionManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 changeEventProducer: c.changeEventProducer,
-                preSaveManager: c.preSaveManager
+                preSaveManager: c.preSaveManager,
+                requestSpecificCache: c.requestSpecificCache
             }
         )
     );
     container.register('databaseBulkLoader', (c) => new DatabaseBulkLoader(
         {
-            databaseQueryFactory: c.databaseQueryFactory
+            databaseQueryFactory: c.databaseQueryFactory,
+            requestSpecificCache: c.requestSpecificCache
         }));
     container.register('postRequestProcessor', (c) => new PostRequestProcessor(
         {

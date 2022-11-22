@@ -4,6 +4,7 @@ const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {assertTypeEquals} = require('../utils/assertType');
 const {RethrownError} = require('../utils/rethrownError');
 const {databaseBulkLoaderTimer} = require('../utils/prometheus.utils');
+const {RequestSpecificCache} = require('../utils/requestSpecificCache');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -12,17 +13,24 @@ class DatabaseBulkLoader {
     /**
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor({databaseQueryFactory}) {
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+    constructor({
+                    databaseQueryFactory,
+                    requestSpecificCache
+                }) {
         /**
-         * @type {Map<string, Resource[]>}
+         * @type {RequestSpecificCache}
          */
-        this.bulkCache = new Map();
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
         /**
          * @type {DatabaseQueryFactory}
          */
         this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        this.cacheName = 'bulkLoaderCache';
     }
 
     /**
@@ -57,9 +65,10 @@ class DatabaseBulkLoader {
                     }
                 )
             );
+            const bulkCache = this.requestSpecificCache.get({requestId, name: this.cacheName});
             // Now add them to our cache
             for (const {resourceType, resources} of result) {
-                this.bulkCache.set(resourceType, resources);
+                bulkCache.set(resourceType, resources);
             }
             return result;
         } catch (e) {
@@ -77,6 +86,7 @@ class DatabaseBulkLoader {
      * @param {Resource[]} resources
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
+    // eslint-disable-next-line no-unused-vars
     async getResourcesAsync({requestId, base_version, resourceType, resources}) {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkLoaderTimer.startTimer();
@@ -139,11 +149,12 @@ class DatabaseBulkLoader {
      * @return {null|Resource}
      */
     getResourceFromExistingList({requestId, resourceType, id}) {
+        const bulkCache = this.requestSpecificCache.get({requestId, name: this.cacheName});
         // see if there is cache for this resourceType
         /**
          * @type {Resource[]}
          */
-        const cacheEntryResources = this.bulkCache.get(resourceType);
+        const cacheEntryResources = bulkCache.get(resourceType);
         if (cacheEntryResources) {
             return getFirstResourceOrNull(
                 cacheEntryResources.filter(e => e.id === id.toString())
@@ -159,18 +170,19 @@ class DatabaseBulkLoader {
      * @param {Resource} resource
      */
     addResourceToExistingList({requestId, resource}) {
+        const bulkCache = this.requestSpecificCache.get({requestId, name: this.cacheName});
         /**
          * @type {Resource[]}
          */
-        let cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        let cacheEntryResources = bulkCache.get(resource.resourceType);
         const resourceCopy = resource.clone(); // copy to avoid someone changing this object in the future
         if (cacheEntryResources) {
             // remove the resource with same id
             cacheEntryResources = cacheEntryResources.filter(c => c.id !== resource.id);
             cacheEntryResources.push(resourceCopy);
-            this.bulkCache.set(resource.resourceType, cacheEntryResources);
+            bulkCache.set(resource.resourceType, cacheEntryResources);
         } else {
-            this.bulkCache.set(resource.resourceType, [resourceCopy]);
+            bulkCache.set(resource.resourceType, [resourceCopy]);
         }
     }
 
@@ -180,18 +192,19 @@ class DatabaseBulkLoader {
      * @param {Resource} resource
      */
     updateResourceInExistingList({requestId, resource}) {
+        const bulkCache = this.requestSpecificCache.get({requestId, name: this.cacheName});
         /**
          * @type {Resource[]}
          */
-        let cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        let cacheEntryResources = bulkCache.get(resource.resourceType);
         const resourceCopy = resource.clone(); // copy to avoid someone changing this object in the future
         if (cacheEntryResources) {
             // remove the resource with same id
             cacheEntryResources = cacheEntryResources.filter(c => c.id !== resource.id);
             cacheEntryResources.push(resourceCopy);
-            this.bulkCache.set(resource.resourceType, cacheEntryResources);
+            bulkCache.set(resource.resourceType, cacheEntryResources);
         } else {
-            this.bulkCache.set(resource.resourceType, [resourceCopy]);
+            bulkCache.set(resource.resourceType, [resourceCopy]);
         }
     }
 }
