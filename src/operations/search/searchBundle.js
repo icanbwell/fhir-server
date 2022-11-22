@@ -117,9 +117,9 @@ class SearchBundleOperation {
             /** @type {string | null} */
             originalUrl: url,
             /** @type {string[] | null} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string | null} */
@@ -132,6 +132,7 @@ class SearchBundleOperation {
             requestId
         } = requestInfo;
 
+        assertIsValid(requestId, 'requestId is null');
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,
@@ -180,8 +181,8 @@ class SearchBundleOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patients, args, resourceType, useAccessIndex, filter,
-                    fhirPersonId
+                    user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex, filter,
+                    personIdFromJwtToken
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

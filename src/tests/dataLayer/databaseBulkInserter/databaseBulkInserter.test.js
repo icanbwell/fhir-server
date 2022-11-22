@@ -17,6 +17,8 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {string} patientChangeTopic
      * @param {string} taskChangeTopic
      * @param {string} observationChangeTopic
+     * @param {BwellPersonFinder} bwellPersonFinder
+     * @param {RequestSpecificCache} requestSpecificCache
      */
     constructor({
                     kafkaClient,
@@ -24,6 +26,8 @@ class MockChangeEventProducer extends ChangeEventProducer {
                     patientChangeTopic,
                     taskChangeTopic,
                     observationChangeTopic,
+                    bwellPersonFinder,
+                    requestSpecificCache
                 }) {
         super({
             kafkaClient,
@@ -31,6 +35,8 @@ class MockChangeEventProducer extends ChangeEventProducer {
             patientChangeTopic,
             taskChangeTopic,
             observationChangeTopic,
+            bwellPersonFinder,
+            requestSpecificCache
         });
     }
 }
@@ -61,6 +67,8 @@ describe('databaseBulkInserter Tests', () => {
                             taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             observationChangeTopic:
                                 env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            bwellPersonFinder: c.bwellPersonFinder,
+                            requestSpecificCache: c.requestSpecificCache
                         })
                 );
                 return container1;
@@ -86,15 +94,20 @@ describe('databaseBulkInserter Tests', () => {
              * @type {DatabaseBulkInserter}
              */
             const databaseBulkInserter = container.databaseBulkInserter;
+            const requestId1 = '1234';
 
-            await databaseBulkInserter.insertOneAsync({resourceType: 'Patient', doc: new Patient(patient)});
             await databaseBulkInserter.insertOneAsync({
+                requestId: requestId1,
+                resourceType: 'Patient', doc: new Patient(patient)});
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId1,
                 resourceType: 'Observation',
                 doc: new Observation(observation),
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.replaceOneAsync({
+                requestId: requestId1,
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
@@ -102,7 +115,6 @@ describe('databaseBulkInserter Tests', () => {
 
             // now execute the bulk inserts
             const base_version = '4_0_0';
-            const requestId1 = '1234';
             await databaseBulkInserter.executeAsync({
                 requestId: requestId1,
                 currentDate,

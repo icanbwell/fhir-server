@@ -155,11 +155,11 @@ class FhirOperationsManager {
         /**
          * @type {string[] | null}
          */
-        const patients = req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds;
+        const patientIdsFromJwtToken = req.authInfo && req.authInfo.context && req.authInfo.context.patientIdsFromJwtToken;
         /**
          * @type {string|null}
          */
-        const fhirPersonId = req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId;
+        const personIdFromJwtToken = req.authInfo && req.authInfo.context && req.authInfo.context.personIdFromJwtToken;
         /**
          * @type {string}
          */
@@ -167,7 +167,7 @@ class FhirOperationsManager {
         /**
          * @type {string|null}
          */
-        const remoteIpAddress = req.headers['X-Forwarded-For'] || req.connection.remoteAddress;
+        const remoteIpAddress = req.headers['X-Forwarded-For'] || req.socket.remoteAddress;
         /**
          * @type {string|null}
          */
@@ -214,8 +214,8 @@ class FhirOperationsManager {
                 body,
                 accept,
                 isUser,
-                patients,
-                fhirPersonId,
+                patientIdsFromJwtToken,
+                personIdFromJwtToken,
                 headers
             }
         );

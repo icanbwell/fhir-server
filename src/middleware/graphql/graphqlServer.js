@@ -16,6 +16,8 @@ const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPl
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
+const {generateUUID} = require('../../utils/uid.util');
+const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 
 
 /**
@@ -45,7 +47,8 @@ const graphql = async (fnCreateContainer) => {
         ),
         getBundleMetaApolloServerPlugin(),
         getApolloServerLoggingPlugin('graphqlv2'),
-        getGraphqlContainerPlugin()
+        getGraphqlContainerPlugin(),
+        getAddRequestIdToResponseHeadersPlugin()
         // ApolloServerPluginLandingPageDisabled()
     ];
 
@@ -58,6 +61,8 @@ const graphql = async (fnCreateContainer) => {
     async function getContext({req, res}) {
         const container = fnCreateContainer();
 
+        req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
+
         /**
          * @type {FhirRequestInfo}
          */
@@ -66,9 +71,9 @@ const graphql = async (fnCreateContainer) => {
                 user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
                     (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
                     ((!req.user || typeof req.user === 'string') ? req.user : req.user.id),
-                patients: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPatientIds,
+                patientIdsFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.patientIdsFromJwtToken,
                 scope: req.authInfo && req.authInfo.scope,
-                remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                remoteIpAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
                 requestId: req.id,
                 protocol: req.protocol,
                 originalUrl: req.originalUrl,
@@ -76,14 +81,15 @@ const graphql = async (fnCreateContainer) => {
                 host: req.hostname,
                 body: req.body,
                 isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
-                fhirPersonId: req.authInfo && req.authInfo.context && req.authInfo.context.fhirPersonId,
-                headers: req.headers
+                personIdFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.personIdFromJwtToken,
+                headers: req.headers,
             });
         return {
             req,
             res,
             fhirRequestInfo,
-            dataApi: new FhirDataSource(container, fhirRequestInfo)
+            dataApi: new FhirDataSource(container, fhirRequestInfo),
+            container: container
         };
 
     }

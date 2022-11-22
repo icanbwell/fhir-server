@@ -49,7 +49,7 @@ class AdminLogManager {
         const body = {
             query: {
                 term: {
-                    'fields.id': id
+                    'fields.id.keyword': id
                 }
             }
         };

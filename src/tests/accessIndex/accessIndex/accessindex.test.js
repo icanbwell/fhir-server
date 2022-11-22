@@ -7,7 +7,7 @@ const expectedAuditEventResources = require('./fixtures/expected/expected_AuditE
 const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getRequestId} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {ConfigManager} = require('../../../utils/configManager');
@@ -61,10 +61,12 @@ describe('AuditEvent Tests', () => {
 
     describe('AuditEvent accessIndex Tests', () => {
         test('accessIndex works for access codes that have an index', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             const container = getTestContainer();
             // first confirm there are no AuditEvent
@@ -85,7 +87,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {MongoDatabaseManager}
              */
@@ -130,10 +132,12 @@ describe('AuditEvent Tests', () => {
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);
         });
         test('accessIndex is not used for access codes that do not have an index', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                return c;
+            const request = await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                return container;
             });
             const container = getTestContainer();
             // first confirm there are no AuditEvent
@@ -154,7 +158,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {MongoDatabaseManager}
              */
@@ -223,7 +227,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             /**
              * @type {MongoDatabaseManager}
@@ -276,7 +280,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back

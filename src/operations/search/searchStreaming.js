@@ -120,9 +120,9 @@ class SearchStreamingOperation {
             /** @type {string | null} */
             host,
             /** @type {string[] | null} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
@@ -179,8 +179,8 @@ class SearchStreamingOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patients, args, resourceType, useAccessIndex, filter,
-                    fhirPersonId
+                    user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex, filter,
+                    personIdFromJwtToken
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

@@ -1,0 +1,27 @@
+{
+    "resourceType": "Person",
+    "id": "81236",
+    "meta": {
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            }
+        ]
+    },
+    "name": [
+        {
+            "use": "official",
+            "family": "Irving",
+            "given": [
+                "Lloyd"
+            ]
+        }
+    ],
+    "gender": "male",
+    "birthDate": "1996-03-03"
+}

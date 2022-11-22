@@ -307,6 +307,22 @@ function toHaveResponse(resp, expected, fnCleanResource) {
         } else {
             cleanMeta(expected);
         }
+
+        // clean out meta for graphql
+        if (expected.data) {
+            for (const [, value] of Object.entries(expected.data)) {
+                if (value) {
+                    cleanMeta(value);
+                }
+            }
+        }
+        if (body.data) {
+            for (const [, value] of Object.entries(body.data)) {
+                if (value) {
+                    cleanMeta(value);
+                }
+            }
+        }
     }
     return checkContent({
         actual: body, expected, utils, options, expand: this.expand,

@@ -227,8 +227,8 @@ class CreateOperation {
             logDebug({user, args: {message: 'Inserting', doc: doc}});
 
             // Insert our resource record
-            await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
-            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+            await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
+            await this.databaseBulkInserter.insertOneHistoryAsync({requestId, resourceType, doc: doc.clone()});
             /**
              * @type {MergeResultEntry[]}
              */
@@ -255,7 +255,10 @@ class CreateOperation {
             await this.changeEventProducer.fireEventsAsync({
                 requestId, eventType: 'U', resourceType, doc
             });
-            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
+            });
 
             return doc;
         } catch (/** @type {Error} */ e) {

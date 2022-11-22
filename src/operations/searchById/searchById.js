@@ -111,11 +111,11 @@ class SearchByIdOperation {
         const startTime = Date.now();
         const {
             /** @type {string[]} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
             /** @type {string | null} */
             user,
             /** @type {string | null} */
@@ -161,11 +161,11 @@ class SearchByIdOperation {
                 user,
                 scope,
                 isUser,
-                patients,
+                patientIdsFromJwtToken,
                 args,
                 resourceType,
                 useAccessIndex,
-                fhirPersonId,
+                personIdFromJwtToken,
                 filter
             });
             try {

@@ -110,16 +110,16 @@ const verify = (jwt_payload, done) => {
             context['isUser'] = isUser;
             const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
             if (jwt_payload['custom:bwell_fhir_ids']) {
-                const fhirPatientIds = jwt_payload['custom:bwell_fhir_ids'].split('|');
-                if (fhirPatientIds && fhirPatientIds.length > 0) {
-                    context['fhirPatientIds'] = fhirPatientIds;
+                const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
+                if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
+                    context['patientIdsFromJwtToken'] = patientIdsFromJwtToken;
                 }
             } else if (fhirPatientId) {
-                context['fhirPatientIds'] = [fhirPatientId];
+                context['patientIdsFromJwtToken'] = [fhirPatientId];
             }
-            const fhirPersonId = jwt_payload['custom:bwell_fhir_person_id'];
-            if (fhirPersonId) {
-                context['fhirPersonId'] = fhirPersonId;
+            const personIdFromJwtToken = jwt_payload['custom:bwell_fhir_person_id'];
+            if (personIdFromJwtToken) {
+                context['personIdFromJwtToken'] = personIdFromJwtToken;
             }
         }
 

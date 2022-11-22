@@ -80,7 +80,7 @@ class DatabaseQueryManager {
     }
 
     /**
-     * Finds one resource by looking in multiple partitions of a resource type
+     * Deletes resources
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').DeleteOptions} options
      * @return {Promise<DeleteManyResult>}

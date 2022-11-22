@@ -13,6 +13,8 @@ const {
 } = require('apollo-server-core');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
+const {generateUUID} = require('../../utils/uid.util');
+const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 
 /**
  * @param {function (): SimpleContainer} fnCreateContainer
@@ -44,10 +46,12 @@ const graphql = async (fnCreateContainer) => {
                     }
                 ),
                 getApolloServerLoggingPlugin('graphqlv1'),
-                getGraphqlContainerPlugin()
+                getGraphqlContainerPlugin(),
+                getAddRequestIdToResponseHeadersPlugin()
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
+                req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
                 return {
                     req,
                     res,
@@ -55,7 +59,7 @@ const graphql = async (fnCreateContainer) => {
                         (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
                         ((!req.user || typeof req.user === 'string') ? req.user : req.user.id),
                     scope: req.authInfo && req.authInfo.scope,
-                    remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                    remoteIpAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
                     requestId: req.id,
                     protocol: req.protocol,
                     originalUrl: req.originalUrl,

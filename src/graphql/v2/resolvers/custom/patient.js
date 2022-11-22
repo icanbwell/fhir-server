@@ -1,6 +1,6 @@
-const { RemoveOperation } = require('../../../../operations/remove/remove');
-const { MergeOperation } = require('../../../../operations/merge/merge');
-const { assertTypeEquals } = require('../../../../utils/assertType');
+const {RemoveOperation} = require('../../../../operations/remove/remove');
+const {MergeOperation} = require('../../../../operations/merge/merge');
+const {assertTypeEquals, assertIsValid} = require('../../../../utils/assertType');
 
 /**
  method to match general practitioners to an id and remove from the provided list
@@ -127,7 +127,7 @@ module.exports = {
     },
     Mutation: {
         updateGeneralPractitioner:
-            // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
             /**
              * @param {Resource|null} parent
              * @param {Object} args
@@ -140,6 +140,7 @@ module.exports = {
                  * @type {SimpleContainer}
                  */
                 const container = context.container;
+                assertIsValid(container, 'container is not defined');
                 const deletePractitioner = args.remove;
                 const patients = await context.dataApi.getResources(
                     parent,
@@ -195,7 +196,7 @@ module.exports = {
                         throw new Error(`Practitioner not found ${args.practitionerId}`);
                     }
                     patientToChange.generalPractitioner = [
-                        { reference: `Practitioner/${practitioners[0].id}` },
+                        {reference: `Practitioner/${practitioners[0].id}`},
                     ];
                 }
                 /**
@@ -211,7 +212,7 @@ module.exports = {
                 assertTypeEquals(mergeOperation, MergeOperation);
                 const result = await mergeOperation.merge(
                     requestInfo,
-                    { ...args, base_version: '4_0_0' },
+                    {...args, base_version: '4_0_0'},
                     'Patient'
                 );
                 if (result && result[0].operationOutcome) {

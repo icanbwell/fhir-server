@@ -1,4 +1,4 @@
-NODE_VERSION=16.18.0
+NODE_VERSION=16.18.1
 
 .PHONY:build
 build:
@@ -27,7 +27,7 @@ up:
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev_fhir_1`" != "healthy" ]; then docker ps && docker logs fhir-dev_fhir_1 && printf "========== ERROR: fhir-dev_mongo_1 did not start. Run docker logs fhir-dev_fhir_1 =========\n" && exit 1; fi
 	@echo "\nElastic Search Kibana: http://localhost:5601/ (admin:admin)" && \
 	echo "Elastic Search: https://localhost:9200/fhir-logs-*/_search (admin:admin)" && \
-	echo FHIR server GraphQL: http://localhost:3000/graphql && \
+	echo FHIR server GraphQL: http://localhost:3000/graphqlv2 && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Prometheus: http://localhost:9090 && \
 	echo Grafana: http://localhost:3010 && \

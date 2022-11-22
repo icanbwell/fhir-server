@@ -71,6 +71,8 @@ const {AccessColumnHandler} = require('./preSaveHandlers/handlers/accessColumnHa
 const {SourceAssigningAuthorityColumnHandler} = require('./preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander');
 const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
+const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
+const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 
 /**
  * Creates a container and sets up all the services
@@ -83,6 +85,9 @@ const createContainer = function () {
     container.register('configManager', () => new ConfigManager());
 
     container.register('scopesManager', () => new ScopesManager());
+
+    container.register('requestSpecificCache', () => new RequestSpecificCache());
+
     container.register('enrichmentManager', () => new EnrichmentManager({
         enrichmentProviders: [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()]
     }));
@@ -136,6 +141,8 @@ const createContainer = function () {
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             taskChangeTopic: env.KAFKA_TASK_CHANGE_TOPIC || 'business.events',
             observationChangeTopic: env.KAFKA_OBSERVATION_CHANGE_TOPIC || 'business.events',
+            bwellPersonFinder: c.bwellPersonFinder,
+            requestSpecificCache: c.requestSpecificCache
         }
     ));
 
@@ -145,7 +152,9 @@ const createContainer = function () {
             mongoDatabaseManager: c.mongoDatabaseManager
         }));
     container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
-    container.register('indexProvider', () => new IndexProvider());
+    container.register('indexProvider', (c) => new IndexProvider({
+        configManager: c.configManager
+    }));
     container.register('mongoDatabaseManager', () => new MongoDatabaseManager());
     container.register('indexManager', (c) => new IndexManager(
         {
@@ -208,7 +217,8 @@ const createContainer = function () {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 configManager: c.configManager,
                 queryRewriterManager: c.queryRewriterManager,
-                personToPatientIdsExpander: c.personToPatientIdsExpander
+                personToPatientIdsExpander: c.personToPatientIdsExpander,
+                scopesManager: c.scopesManager
             }
         )
     );
@@ -240,17 +250,20 @@ const createContainer = function () {
                 mongoCollectionManager: c.mongoCollectionManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 changeEventProducer: c.changeEventProducer,
-                preSaveManager: c.preSaveManager
+                preSaveManager: c.preSaveManager,
+                requestSpecificCache: c.requestSpecificCache
             }
         )
     );
     container.register('databaseBulkLoader', (c) => new DatabaseBulkLoader(
         {
-            databaseQueryFactory: c.databaseQueryFactory
+            databaseQueryFactory: c.databaseQueryFactory,
+            requestSpecificCache: c.requestSpecificCache
         }));
     container.register('postRequestProcessor', (c) => new PostRequestProcessor(
         {
-            errorReporter: c.errorReporter
+            errorReporter: c.errorReporter,
+            requestSpecificCache: c.requestSpecificCache
         }));
     container.register('auditLogger', (c) => new AuditLogger(
             {
@@ -478,7 +491,8 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 fhirOperationsManager: c.fhirOperationsManager,
                 fhirResponseWriter: c.fhirResponseWriter,
-                configManager: c.configManager
+                configManager: c.configManager,
+                requestSpecificCache: c.requestSpecificCache
             }
         )
     );
@@ -492,7 +506,8 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 fhirOperationsManager: c.fhirOperationsManager,
-                fhirResponseWriter: c.fhirResponseWriter
+                fhirResponseWriter: c.fhirResponseWriter,
+                requestSpecificCache: c.requestSpecificCache
             }
         )
     );
@@ -521,6 +536,10 @@ const createContainer = function () {
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,
         databaseUpdateFactory: c.databaseUpdateFactory
+    }));
+
+    container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
+        databaseQueryFactory: c.databaseQueryFactory
     }));
 
     return container;

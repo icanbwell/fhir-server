@@ -1,0 +1,12 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "AuditEvent"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

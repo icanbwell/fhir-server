@@ -129,7 +129,7 @@ module.exports.commonAfterEach = async () => {
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillDoneAsync(20);
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
     }
     nock.cleanAll();
@@ -345,4 +345,13 @@ module.exports.wrapResourceInBundle = (resource) => {
             },
         ],
     };
+};
+
+
+/**
+ * @param resp
+ * @return {string|undefined}
+ */
+module.exports.getRequestId = (resp) => {
+    return resp.headers['x-request-id'];
 };

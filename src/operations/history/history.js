@@ -108,11 +108,11 @@ class HistoryOperation {
             /** @type {string | null} */
             host,
             /** @type {string[]} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -144,11 +144,11 @@ class HistoryOperation {
             user,
             scope,
             isUser,
-            patients,
-            args: args,
+            patientIdsFromJwtToken,
+            args,
             resourceType,
             useAccessIndex,
-            fhirPersonId,
+            personIdFromJwtToken,
             filter
         });
 
