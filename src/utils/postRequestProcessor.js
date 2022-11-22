@@ -140,6 +140,18 @@ class PostRequestProcessor {
         }
         return true;
     }
+
+    /**
+     * Waits till all requests are done
+     * @param {number|null|undefined} [timeoutInSeconds]
+     * @return {Promise<void>}
+     */
+    async waitTillAllRequestsDoneAsync({timeoutInSeconds}) {
+        const requestIds = this.requestSpecificCache.getRequestIds();
+        for (const requestId of requestIds) {
+            await this.waitTillDoneAsync({requestId, timeoutInSeconds});
+        }
+    }
 }
 
 module.exports = {

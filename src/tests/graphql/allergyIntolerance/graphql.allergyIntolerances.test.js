@@ -70,7 +70,7 @@ describe('GraphQL AllergyIntolerance Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -78,23 +78,8 @@ describe('GraphQL AllergyIntolerance Tests', () => {
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
-            expect(body.data.allergyIntolerance.length).toBe(1);
-            let expected = expectedAllergyIntoleranceBundleResource;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                // element['meta'] = {'versionId': '1'};
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body.data.allergyIntolerance).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedAllergyIntoleranceBundleResource);
         });
     });
 });

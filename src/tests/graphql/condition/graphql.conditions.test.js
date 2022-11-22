@@ -16,7 +16,7 @@ const {
     getGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('GraphQL Condition Tests', () => {
     beforeEach(async () => {
@@ -65,7 +65,7 @@ describe('GraphQL Condition Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -73,24 +73,9 @@ describe('GraphQL Condition Tests', () => {
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
-            expect(body.errors).toBeUndefined();
-            expect(body.data.condition.length).toBe(10);
-            let expected = expectedConditionBundleResource;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                // element['meta'] = {'versionId': '1'};
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body.data.condition).toStrictEqual(expected);
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedConditionBundleResource);
         });
     });
 });

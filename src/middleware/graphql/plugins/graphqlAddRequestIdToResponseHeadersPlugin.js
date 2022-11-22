@@ -18,6 +18,8 @@ class AddRequestIdToResponseHeadersPlugin /*extends ApolloServerPlugin*/ {
                 }
                 if (context.requestId && !response.headersSent) {
                     response.http.headers.set('X-Request-ID', String(context.requestId));
+                } else if (context.req && context.req.id && !response.headersSent) {
+                    response.http.headers.set('X-Request-ID', String(context.req.id));
                 }
             }
         };

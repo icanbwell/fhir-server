@@ -82,13 +82,14 @@ const graphql = async (fnCreateContainer) => {
                 body: req.body,
                 isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
                 personIdFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.personIdFromJwtToken,
-                headers: req.headers
+                headers: req.headers,
             });
         return {
             req,
             res,
             fhirRequestInfo,
-            dataApi: new FhirDataSource(container, fhirRequestInfo)
+            dataApi: new FhirDataSource(container, fhirRequestInfo),
+            container: container
         };
 
     }

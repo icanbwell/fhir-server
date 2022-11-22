@@ -121,9 +121,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveResourceCount(2);
 
             resp = await request
-                // .get('/graphql/?query=' + graphqlQueryText)
-                // .set(getHeaders())
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -226,7 +224,7 @@ describe('GraphQL Patient Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -296,7 +294,7 @@ describe('GraphQL Patient Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -368,7 +366,7 @@ describe('GraphQL Patient Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
