@@ -125,11 +125,11 @@ module.exports.commonBeforeEach = async () => {
  */
 module.exports.commonAfterEach = async () => {
     if (testContainer) {
-        /**
-         * @type {PostRequestProcessor}
-         */
-        const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillDoneAsync(20);
+        // /**
+        //  * @type {PostRequestProcessor}
+        //  */
+        // const postRequestProcessor = testContainer.postRequestProcessor;
+        // await postRequestProcessor.waitTillDoneAsync(20);
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
     }
     nock.cleanAll();
