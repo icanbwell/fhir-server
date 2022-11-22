@@ -5,6 +5,7 @@ const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor')
 const {assertTypeEquals} = require('../../../../utils/assertType');
 const {FhirResponseWriter} = require('../../fhirResponseWriter');
 const {ConfigManager} = require('../../../../utils/configManager');
+const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache');
 
 /**
  * @typedef FhirService
@@ -32,13 +33,15 @@ class GenericController {
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {FhirResponseWriter} fhirResponseWriter
      * @param {ConfigManager} configManager
+     * @param {RequestSpecificCache} requestSpecificCache
      */
     constructor(
         {
             postRequestProcessor,
             fhirOperationsManager,
             fhirResponseWriter,
-            configManager
+            configManager,
+            requestSpecificCache
         }
     ) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
@@ -63,6 +66,12 @@ class GenericController {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {RequestSpecificCache}
+         */
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
     }
 
     /**
@@ -106,6 +115,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -133,6 +143,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -163,6 +174,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -196,6 +208,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -226,6 +239,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -259,6 +273,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -287,6 +302,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -322,6 +338,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -350,6 +367,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -378,6 +396,7 @@ class GenericController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }

@@ -2,6 +2,7 @@ const {FhirOperationsManager} = require('../../../../operations/fhirOperationsMa
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
 const {FhirResponseWriter} = require('../../fhirResponseWriter');
+const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache');
 
 class CustomOperationsController {
     /**
@@ -9,10 +10,13 @@ class CustomOperationsController {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {FhirResponseWriter} fhirResponseWriter
+     * @param {RequestSpecificCache} requestSpecificCache
      */
     constructor({
-                    postRequestProcessor, fhirOperationsManager,
-                    fhirResponseWriter
+                    postRequestProcessor,
+                    fhirOperationsManager,
+                    fhirResponseWriter,
+                    requestSpecificCache
                 }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
@@ -29,6 +33,12 @@ class CustomOperationsController {
          */
         this.fhirResponseWriter = fhirResponseWriter;
         assertTypeEquals(fhirResponseWriter, FhirResponseWriter);
+
+        /**
+         * @type {RequestSpecificCache}
+         */
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
     }
 
     /**
@@ -69,6 +79,7 @@ class CustomOperationsController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
@@ -97,6 +108,7 @@ class CustomOperationsController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
+                this.requestSpecificCache.clear({requestId});
             }
         };
     }
