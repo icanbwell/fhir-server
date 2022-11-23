@@ -125,35 +125,32 @@ class R4SearchQueryCreator {
                     );
 
                     // if just a query parameter is passed then check it
-                    let actualArg = args[queryParameter] ? queryParameter : null;
-                    if (!actualArg) {
+                    /**
+                     * @type {string | string[]}
+                     */
+                    let queryParameterValue = args[queryParameter];
+                    if (!queryParameterValue) {
                         for (const argName in args) {
                             if (argName.startsWith(`${queryParameter}:`)) {
-                                actualArg = argName;
+                                queryParameterValue = args[argName];
                                 break;
                             }
                         }
                     }
 
-                    if (actualArg) {
-                        /**
-                         * @type {string | string[]}
-                         */
-                        let queryParameterValue = args[actualArg];
+                    if (queryParameterValue) {
                         queryParameterValue = convertGraphQLParameters(
                             queryParameterValue,
                             args,
                             queryParameter
                         );
 
-                        // handle id differently since it is a token, but we want to do exact match
-                        if (queryParameter === '_id') {
-                            filterById({
-                                queryParameterValue, and_segments: total_and_segments, propertyObj, columns: totalColumns
+                        // handle missing and partial text so they do not combine with the search fields based on type
+                        if (args[`${queryParameter}:missing`]) {
+                            filterByMissing({
+                                args, queryParameter, and_segments: total_and_segments, propertyObj, columns: totalColumns
                             });
-                            continue; // skip processing rest of this loop
                         } else if (args[`${queryParameter}:text`]) {
-                            // handle partial text search differently because I can't figure out how to get it to combine with other search types
                             filterByPartialText({
                                 args, queryParameter, and_segments: total_and_segments, propertyObj, columns: totalColumns
                             });
@@ -162,73 +159,77 @@ class R4SearchQueryCreator {
                             let columns = new Set();
                             let and_segments = [];
 
-                            switch (propertyObj.type) {
-                                case fhirFilterTypes.string:
-                                    filterByString({
-                                        queryParameterValue, and_segments, propertyObj, columns
-                                    });
-                                    break;
-                                case fhirFilterTypes.uri:
-                                    filterByUri({
-                                        and_segments, propertyObj, queryParameterValue, columns
-                                    });
-                                    break;
-                                case fhirFilterTypes.dateTime:
-                                case fhirFilterTypes.date:
-                                case fhirFilterTypes.period:
-                                case fhirFilterTypes.instant:
-                                    filterByDateTime(
-                                        {
-                                            queryParameterValue,
-                                            propertyObj,
-                                            and_segments,
-                                            resourceType,
-                                            columns
-                                        }
-                                    );
-                                    break;
-                                case fhirFilterTypes.token:
-                                    if (propertyObj.field === 'meta.security') {
-                                        filterBySecurityTag({
-                                            queryParameterValue, propertyObj, and_segments, columns,
-                                            fnUseAccessIndex: (accessCode) =>
-                                                this.configManager.useAccessIndex &&
-                                                this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
-                                                    resourceType,
-                                                    accessCodes: [accessCode]
-                                                })
+                            // handle id differently since it is a token, but we want to do exact match
+                            if (queryParameter === '_id') {
+                                filterById({
+                                    queryParameterValue, and_segments, propertyObj, columns
+                                });
+                            } else {
+                                switch (propertyObj.type) {
+                                    case fhirFilterTypes.string:
+                                        filterByString({
+                                            queryParameterValue, and_segments, propertyObj, columns
                                         });
-                                    } else {
-                                        filterByToken({
-                                            queryParameterValue, propertyObj, and_segments, columns
-                                        });
-                                    }
-                                    break;
-                                case fhirFilterTypes.reference:
-                                    if (isUrl(queryParameterValue)) {
-                                        filterByCanonical({
+                                        break;
+                                    case fhirFilterTypes.uri:
+                                        filterByUri({
                                             and_segments, propertyObj, queryParameterValue, columns
                                         });
-                                    } else {
-                                        filterByReference(
+                                        break;
+                                    case fhirFilterTypes.dateTime:
+                                    case fhirFilterTypes.date:
+                                    case fhirFilterTypes.period:
+                                    case fhirFilterTypes.instant:
+                                        filterByDateTime(
                                             {
+                                                queryParameterValue,
                                                 propertyObj,
                                                 and_segments,
-                                                queryParameterValue,
+                                                resourceType,
                                                 columns
                                             }
                                         );
-                                    }
-                                    break;
-                                default:
-                                    throw new Error('Unknown type=' + propertyObj.type);
+                                        break;
+                                    case fhirFilterTypes.token:
+                                        if (propertyObj.field === 'meta.security') {
+                                            filterBySecurityTag({
+                                                queryParameterValue, propertyObj, and_segments, columns,
+                                                fnUseAccessIndex: (accessCode) =>
+                                                    this.configManager.useAccessIndex &&
+                                                    this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
+                                                        resourceType,
+                                                        accessCodes: [accessCode]
+                                                    })
+                                            });
+                                        } else {
+                                            filterByToken({
+                                                queryParameterValue, propertyObj, and_segments, columns
+                                            });
+                                        }
+                                        break;
+                                    case fhirFilterTypes.reference:
+                                        if (isUrl(queryParameterValue)) {
+                                            filterByCanonical({
+                                                and_segments, propertyObj, queryParameterValue, columns
+                                            });
+                                        } else {
+                                            filterByReference(
+                                                {
+                                                    propertyObj,
+                                                    and_segments,
+                                                    queryParameterValue,
+                                                    columns
+                                                }
+                                            );
+                                        }
+                                        break;
+                                    default:
+                                        throw new Error('Unknown type=' + propertyObj.type);
+                                }
                             }
 
-                            if (args[`${queryParameter}:missing`]) {
-                                filterByMissing({
-                                    and_segments: total_and_segments, queryParameterValue: args[`${queryParameter}:missing`], columns
-                                });
-                            } else if (args[`${queryParameter}:contains`]) {
+                            // handle contains, above, and below modifiers based on search types
+                            if (args[`${queryParameter}:contains`]) {
                                 filterByContains({
                                     and_segments: total_and_segments, queryParameterValue: args[`${queryParameter}:contains`], columns
                                 });
