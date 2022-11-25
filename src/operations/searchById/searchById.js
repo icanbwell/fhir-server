@@ -175,7 +175,9 @@ class SearchByIdOperation {
             }
 
             if (resource) {
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                    resource: resource, user, scope
+                }))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                         resource.resourceType + ' with id ' + id);

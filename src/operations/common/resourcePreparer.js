@@ -87,7 +87,12 @@ class ResourcePreparer {
         if (args['_elements']) {
             if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({resourceType})) {
                 // if the whole resource is returned then we have security tags to check again to be double sure
-                if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+                if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(
+                    {
+                        resource: element, user, scope
+                    }
+                )
+                ) {
                     return [];
                 }
             }
@@ -104,7 +109,9 @@ class ResourcePreparer {
             resources.push(element_to_return);
         } else {
             // if the whole resource is returned then we have security tags to check again to be double sure
-            if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(element, user, scope)) {
+            if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource: element, user, scope
+            })) {
                 return [];
             }
             /**

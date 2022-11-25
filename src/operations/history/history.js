@@ -202,7 +202,9 @@ class HistoryOperation {
             if (!resource) {
                 throw new NotFoundError();
             }
-            if (this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
+            if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource: resource, user, scope
+            })) {
                 resources.push(resource);
             }
         }

@@ -193,7 +193,10 @@ class HistoryByIdOperation {
                  */
                 const resource = await cursor.next();
                 if (resource) {
-                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
+                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                            resource: resource, user, scope
+                        }
+                    )) {
                         resources.push(resource);
                     }
                 }

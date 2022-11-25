@@ -49,19 +49,17 @@ class GraphHelper {
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {SearchManager} searchManager
      */
-    constructor(
-        {
-            databaseQueryFactory,
-            securityTagManager,
-            scopesManager,
-            scopesValidator,
-            configManager,
-            bundleManager,
-            resourceLocatorFactory,
-            r4SearchQueryCreator,
-            searchManager
-        }
-    ) {
+    constructor({
+                    databaseQueryFactory,
+                    securityTagManager,
+                    scopesManager,
+                    scopesValidator,
+                    configManager,
+                    bundleManager,
+                    resourceLocatorFactory,
+                    r4SearchQueryCreator,
+                    searchManager
+                }) {
         /**
          * @type {DatabaseQueryFactory}
          */
@@ -176,10 +174,9 @@ class GraphHelper {
             /**
              * @type {*[]}
              */
-            const propertiesForEntity = this.getPropertiesForEntity(
-                {
-                    entity, property, filterProperty, filterValue
-                });
+            const propertiesForEntity = this.getPropertiesForEntity({
+                entity, property, filterProperty, filterValue
+            });
             const references = propertiesForEntity
                 .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                 .filter(r => r !== undefined && r !== null);
@@ -204,18 +201,17 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @returns {QueryItem}
      */
-    async getForwardReferencesAsync(
-        {
-            requestInfo,
-            base_version,
-            resourceType,
-            parentEntities,
-            property,
-            filterProperty,
-            filterValue,
-            explain,
-            debug
-        }) {
+    async getForwardReferencesAsync({
+                                        requestInfo,
+                                        base_version,
+                                        resourceType,
+                                        parentEntities,
+                                        property,
+                                        filterProperty,
+                                        filterValue,
+                                        explain,
+                                        debug
+                                    }) {
         try {
             // throw new Error('I am here');
             // Promise.reject(new Error('woops'));
@@ -224,11 +220,9 @@ class GraphHelper {
             }
 
             // get values of this property from all the entities
-            const relatedReferences = parentEntities.flatMap(p =>
-                this.getPropertiesForEntity({entity: p, property})
-                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                    .filter(r => r !== undefined && r !== null)
-            );
+            const relatedReferences = parentEntities.flatMap(p => this.getPropertiesForEntity({entity: p, property})
+                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                .filter(r => r !== undefined && r !== null));
             // select just the ids from those reference properties
             // noinspection JSCheckFunctionSignatures
             let relatedReferenceIds = relatedReferences
@@ -252,8 +246,7 @@ class GraphHelper {
 
             let {
                 /** @type {import('mongodb').Document}**/
-                query,
-                // /** @type {Set} **/
+                query, // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
                 user: requestInfo.user,
@@ -273,9 +266,7 @@ class GraphHelper {
              * @type {number}
              */
             const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            );
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({resourceType, base_version});
             /**
              * mongo db cursor
              * @type {DatabasePartitionedCursor}
@@ -301,52 +292,39 @@ class GraphHelper {
 
                 if (relatedResource) {
                     // create a class to hold information about this resource
-                    const relatedEntityAndContained = new ResourceEntityAndContained(
-                        {
-                            entityId: relatedResource.id,
-                            entityResourceType: relatedResource.resourceType,
-                            includeInOutput: true,
-                            resource: relatedResource,
-                            containedEntries: []
-                        }
-                    );
+                    const relatedEntityAndContained = new ResourceEntityAndContained({
+                        entityId: relatedResource.id,
+                        entityResourceType: relatedResource.resourceType,
+                        includeInOutput: true,
+                        resource: relatedResource,
+                        containedEntries: []
+                    });
 
                     // find matching parent and add to containedEntries
-                    const matchingParentEntities = parentEntities.filter(
-                        p => (
-                            this.getPropertiesForEntity({entity: p, property})
-                                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                                .filter(r => r !== undefined && r !== null)
-                                .includes(`${relatedResource.resourceType}/${relatedResource.id}`)
-                        )
-                    );
+                    const matchingParentEntities = parentEntities.filter(p => (this.getPropertiesForEntity({
+                        entity: p,
+                        property
+                    })
+                        .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                        .filter(r => r !== undefined && r !== null)
+                        .includes(`${relatedResource.resourceType}/${relatedResource.id}`)));
 
                     if (matchingParentEntities.length === 0) {
-                        throw new Error(
-                            `Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` +
-                            ' in parent entities' +
-                            ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                            ` using property ${property}`
-                        );
+                        throw new Error(`Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` + ' in parent entities' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using property ${property}`);
                     }
 
                     // add it to each one since there can be multiple resources that point to the same related resource
                     for (const matchingParentEntity of matchingParentEntities) {
-                        matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(
-                            relatedEntityAndContained
-                        );
+                        matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(relatedEntityAndContained);
                     }
                 }
             }
             return {query, resourceType, property, explanations};
         } catch (e) {
-            throw new RethrownError(
-                {
-                    message: `Error in getForwardReferencesAsync(): ${resourceType}, ` +
-                        `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
-                    error: e
-                }
-            );
+            throw new RethrownError({
+                message: `Error in getForwardReferencesAsync(): ${resourceType}, ` + `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
+                error: e
+            });
         }
     }
 
@@ -372,20 +350,18 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @returns {QueryItem}
      */
-    async getReverseReferencesAsync(
-        {
-            requestInfo,
-            base_version,
-            parentResourceType,
-            relatedResourceType,
-            parentEntities,
-            filterProperty,
-            filterValue,
-            reverse_filter,
-            explain,
-            debug
-        }
-    ) {
+    async getReverseReferencesAsync({
+                                        requestInfo,
+                                        base_version,
+                                        parentResourceType,
+                                        relatedResourceType,
+                                        parentEntities,
+                                        filterProperty,
+                                        filterValue,
+                                        reverse_filter,
+                                        explain,
+                                        debug
+                                    }) {
         try {
             if (!(reverse_filter)) {
                 throw new Error('reverse_filter must be set');
@@ -397,10 +373,7 @@ class GraphHelper {
             if (parentResourceTypeAndIdList.length === 0) {
                 return;
             }
-            const reverseFilterWithParentIds = reverse_filter.replace(
-                '{ref}',
-                parentResourceTypeAndIdList.join(',')
-            );
+            const reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
             /**
              * @type {Object}
              */
@@ -417,8 +390,7 @@ class GraphHelper {
              */
             let {
                 /** @type {import('mongodb').Document}**/
-                query,
-                // /** @type {Set} **/
+                query, // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
                 user: requestInfo.user,
@@ -441,9 +413,10 @@ class GraphHelper {
              * @type {number}
              */
             const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType: relatedResourceType, base_version}
-            );
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: relatedResourceType,
+                base_version
+            });
             /**
              * mongo db cursor
              * @type {DatabasePartitionedCursor}
@@ -482,21 +455,17 @@ class GraphHelper {
                         }
                     }
                     // create the entry
-                    const resourceEntityAndContained = new ResourceEntityAndContained(
-                        {
-                            entityId: relatedResourcePropertyCurrent.id,
-                            entityResourceType: relatedResourcePropertyCurrent.resourceType,
-                            includeInOutput: true,
-                            resource: relatedResourcePropertyCurrent,
-                            containedEntries: []
-                        }
-                    );
+                    const resourceEntityAndContained = new ResourceEntityAndContained({
+                        entityId: relatedResourcePropertyCurrent.id,
+                        entityResourceType: relatedResourcePropertyCurrent.resourceType,
+                        includeInOutput: true,
+                        resource: relatedResourcePropertyCurrent,
+                        containedEntries: []
+                    });
                     // now match to parent entity, so we can put under correct contained property
-                    const properties = this.getPropertiesForEntity(
-                        {
-                            entity: resourceEntityAndContained, property: fieldForSearchParameter
-                        }
-                    );
+                    const properties = this.getPropertiesForEntity({
+                        entity: resourceEntityAndContained, property: fieldForSearchParameter
+                    });
                     // the reference property can be a single item or an array.
                     /**
                      * @type {string[]}
@@ -504,38 +473,23 @@ class GraphHelper {
                     const references = properties
                         .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                         .filter(r => r !== undefined);
-                    const matchingParentEntities = parentEntities.filter(
-                        p => references.includes(`${p.resource.resourceType}/${p.resource.id}`)
-                    );
+                    const matchingParentEntities = parentEntities.filter(p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
 
                     if (matchingParentEntities.length === 0) {
-                        throw new Error(
-                            'Reverse Reference: No match found for parent entities' +
-                            ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                            ` using property ${fieldForSearchParameter}` +
-                            ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`
-                        );
+                        throw new Error('Reverse Reference: No match found for parent entities' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using property ${fieldForSearchParameter}` + ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`);
                     }
 
                     for (const matchingParentEntity of matchingParentEntities) {
-                        matchingParentEntity.containedEntries.push(
-                            resourceEntityAndContained
-                        );
+                        matchingParentEntity.containedEntries.push(resourceEntityAndContained);
                     }
                 }
             }
             return {query, resourceType: relatedResourceType, reverse_filter, explanations};
         } catch (e) {
-            throw new RethrownError(
-                {
-                    message: 'Error in getReverseReferencesAsync(): ' +
-                        `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` +
-                        `parents:${parentEntities.map(p => p.entityId)}, ` +
-                        `filterProperty=${filterProperty}, filterValue=${filterValue}, ` +
-                        `reverseFilter=${reverse_filter}`,
-                    error: e
-                }
-            );
+            throw new RethrownError({
+                message: 'Error in getReverseReferencesAsync(): ' + `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` + `parents:${parentEntities.map(p => p.entityId)}, ` + `filterProperty=${filterProperty}, filterValue=${filterValue}, ` + `reverseFilter=${reverse_filter}`,
+                error: e
+            });
         }
     }
 
@@ -636,17 +590,16 @@ class GraphHelper {
      * @param target
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
-    async processLinkTargetAsync(
-        {
-            requestInfo,
-            base_version,
-            parentResourceType,
-            link,
-            parentEntities,
-            explain,
-            debug,
-            target
-        }) {
+    async processLinkTargetAsync({
+                                     requestInfo,
+                                     base_version,
+                                     parentResourceType,
+                                     link,
+                                     parentEntities,
+                                     explain,
+                                     debug,
+                                     target
+                                 }) {
         /**
          * @type {QueryItem[]}
          */
@@ -671,39 +624,28 @@ class GraphHelper {
             const originalProperty = link.path.replace('[x]', '');
             const {filterProperty, filterValue, property} = this.getFilterFromPropertyPath(originalProperty);
             // find parent entities that have a valid property
-            parentEntities = parentEntities.filter(
-                p => this.doesEntityHaveProperty(
-                    {
-                        entity: p, property, filterProperty, filterValue
-                    })
-            );
+            parentEntities = parentEntities.filter(p => this.doesEntityHaveProperty({
+                entity: p, property, filterProperty, filterValue
+            }));
             // if this is a reference then get related resources
-            if (this.isPropertyAReference(
-                {
-                    entities: parentEntities, property, filterProperty, filterValue
-                })) {
+            if (this.isPropertyAReference({
+                entities: parentEntities, property, filterProperty, filterValue
+            })) {
                 await this.scopesValidator.verifyHasValidScopesAsync({
-                    requestInfo,
-                    args: {},
-                    resourceType,
-                    startTime: Date.now(),
-                    action: 'graph',
-                    accessRequested: 'read'
+                    requestInfo, args: {}, resourceType, startTime: Date.now(), action: 'graph', accessRequested: 'read'
                 });
 
-                const queryItem = await this.getForwardReferencesAsync(
-                    {
-                        requestInfo,
-                        base_version,
-                        resourceType,
-                        parentEntities,
-                        property,
-                        filterProperty,
-                        filterValue,
-                        explain,
-                        debug
-                    }
-                );
+                const queryItem = await this.getForwardReferencesAsync({
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    parentEntities,
+                    property,
+                    filterProperty,
+                    filterValue,
+                    explain,
+                    debug
+                });
                 if (queryItem) {
                     queryItems.push(queryItem);
                 }
@@ -715,21 +657,16 @@ class GraphHelper {
                     /**
                      * @type {Object[]}
                      */
-                    const children = this.getPropertiesForEntity(
-                        {
-                            entity: parentEntity, property, filterProperty, filterValue
-                        });
+                    const children = this.getPropertiesForEntity({
+                        entity: parentEntity, property, filterProperty, filterValue
+                    });
                     /**
                      * @type {NonResourceEntityAndContained[]}
                      */
-                    const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained(
-                            {
-                                includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
-                                item: c,
-                                containedEntries: []
-                            }
-                        )
-                    );
+                    const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained({
+                        includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
+                        item: c, containedEntries: []
+                    }));
                     childEntries = childEntries.concat(childEntriesForCurrentEntity);
                     parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
                 }
@@ -738,34 +675,23 @@ class GraphHelper {
             if (target.type) { // if caller has requested this entity or just wants a nested entity
                 // reverse link
                 await this.scopesValidator.verifyHasValidScopesAsync({
-                    requestInfo,
-                    args: {},
-                    resourceType,
-                    startTime: Date.now(),
-                    action: 'graph',
-                    accessRequested: 'read'
+                    requestInfo, args: {}, resourceType, startTime: Date.now(), action: 'graph', accessRequested: 'read'
                 });
                 if (!parentResourceType) {
-                    throw new Error(
-                        'processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' +
-                        ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` +
-                        ` using target.params: ${target.params}`
-                    );
+                    throw new Error('processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using target.params: ${target.params}`);
                 }
-                const queryItem = await this.getReverseReferencesAsync(
-                    {
-                        requestInfo,
-                        base_version,
-                        parentResourceType,
-                        relatedResourceType: resourceType,
-                        parentEntities,
-                        filterProperty: null,
-                        filterValue: null,
-                        reverse_filter: target.params,
-                        explain,
-                        debug
-                    }
-                );
+                const queryItem = await this.getReverseReferencesAsync({
+                    requestInfo,
+                    base_version,
+                    parentResourceType,
+                    relatedResourceType: resourceType,
+                    parentEntities,
+                    filterProperty: null,
+                    filterValue: null,
+                    reverse_filter: target.params,
+                    explain,
+                    debug
+                });
                 if (queryItem) {
                     queryItems.push(queryItem);
                 }
@@ -774,8 +700,7 @@ class GraphHelper {
         }
 
         // filter childEntries to find entries of same type as parentResource
-        childEntries = childEntries.filter(c =>
-            (!target.type && !c.resource) || // either there is no target type so choose non-resources
+        childEntries = childEntries.filter(c => (!target.type && !c.resource) || // either there is no target type so choose non-resources
             (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
         );
         if (childEntries && childEntries.length > 0) {
@@ -798,17 +723,15 @@ class GraphHelper {
                     /**
                      * @type {QueryItem[]}
                      */
-                    const recursiveQueries = await this.processOneGraphLinkAsync(
-                        {
-                            requestInfo,
-                            base_version,
-                            parentResourceType: childResourceType,
-                            link: childLink,
-                            parentEntities: childEntries,
-                            explain,
-                            debug
-                        }
-                    );
+                    const recursiveQueries = await this.processOneGraphLinkAsync({
+                        requestInfo,
+                        base_version,
+                        parentResourceType: childResourceType,
+                        link: childLink,
+                        parentEntities: childEntries,
+                        explain,
+                        debug
+                    });
                     for (const recursiveQuery of recursiveQueries) {
                         queryItems.push(recursiveQuery);
                     }
@@ -829,16 +752,15 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @returns {QueryItem[]}
      */
-    async processOneGraphLinkAsync(
-        {
-            requestInfo,
-            base_version,
-            parentResourceType,
-            link,
-            parentEntities,
-            explain,
-            debug
-        }) {
+    async processOneGraphLinkAsync({
+                                       requestInfo,
+                                       base_version,
+                                       parentResourceType,
+                                       link,
+                                       parentEntities,
+                                       explain,
+                                       debug
+                                   }) {
         try {
             /**
              * @type {{type: string}[]}
@@ -847,35 +769,19 @@ class GraphHelper {
             /**
              * @type {{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}[]}
              */
-            const result = await async.map(
-                link_targets,
-                async (target) => await this.processLinkTargetAsync(
-                    {
-                        requestInfo,
-                        base_version,
-                        parentResourceType,
-                        link,
-                        parentEntities,
-                        explain,
-                        debug,
-                        target
-                    }
-                )
-            );
+            const result = await async.map(link_targets, async (target) => await this.processLinkTargetAsync({
+                requestInfo, base_version, parentResourceType, link, parentEntities, explain, debug, target
+            }));
             /**
              * @type {QueryItem[]}
              */
             const queryItems = result.flatMap(r => r.queryItems);
             return queryItems;
         } catch (e) {
-            throw new RethrownError(
-                {
-                    message: 'Error in processOneGraphLinkAsync(): ' +
-                        `parentResourceType: ${parentResourceType} , ` +
-                        `parents:${parentEntities.map(p => p.entityId)}, `,
-                    error: e
-                }
-            );
+            throw new RethrownError({
+                message: 'Error in processOneGraphLinkAsync(): ' + `parentResourceType: ${parentResourceType} , ` + `parents:${parentEntities.map(p => p.entityId)}, `,
+                error: e
+            });
         }
     }
 
@@ -890,56 +796,38 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
-    async processGraphLinksAsync(
-        {
-            requestInfo,
-            base_version,
-            parentResourceType,
-            parentEntities,
-            linkItems,
-            explain,
-            debug
-        }
-    ) {
+    async processGraphLinksAsync({
+                                     requestInfo,
+                                     base_version,
+                                     parentResourceType,
+                                     parentEntities,
+                                     linkItems,
+                                     explain,
+                                     debug
+                                 }) {
         try {
             /**
              * @type {ResourceEntityAndContained[]}
              */
-            const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained(
-                {
-                    entityId: parentEntity.id,
-                    entityResourceType: parentEntity.resourceType,
-                    includeInOutput: true,
-                    resource: parentEntity,
-                    containedEntries: []
-                }
-            ));
+            const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained({
+                entityId: parentEntity.id,
+                entityResourceType: parentEntity.resourceType,
+                includeInOutput: true,
+                resource: parentEntity,
+                containedEntries: []
+            }));
             /**
              * @type {QueryItem[]}
              */
-            const queryItems = await async.flatMap(
-                linkItems,
-                async (link) => await this.processOneGraphLinkAsync(
-                    {
-                        requestInfo,
-                        base_version,
-                        parentResourceType,
-                        link,
-                        parentEntities: resultEntities,
-                        explain,
-                        debug
-                    })
-            );
+            const queryItems = await async.flatMap(linkItems, async (link) => await this.processOneGraphLinkAsync({
+                requestInfo, base_version, parentResourceType, link, parentEntities: resultEntities, explain, debug
+            }));
             return {entities: resultEntities, queryItems};
         } catch (e) {
-            throw new RethrownError(
-                {
-                    message: 'Error in processGraphLinksAsync(): ' +
-                        `parentResourceType: ${parentResourceType} , ` +
-                        `parents:${parentEntities.map(p => p.entityId)}, `,
-                    error: e
-                }
-            );
+            throw new RethrownError({
+                message: 'Error in processGraphLinksAsync(): ' + `parentResourceType: ${parentResourceType} , ` + `parents:${parentEntities.map(p => p.entityId)}, `,
+                error: e
+            });
         }
     }
 
@@ -978,12 +866,9 @@ class GraphHelper {
          */
         let result = [];
         if (entityAndContained.includeInOutput) { // only include entities the caller has requested
-            result = result.concat([
-                new BundleEntry({
-                    fullUrl: entityAndContained.fullUrl,
-                    resource: entityAndContained.resource
-                })
-            ]);
+            result = result.concat([new BundleEntry({
+                fullUrl: entityAndContained.fullUrl, resource: entityAndContained.resource
+            })]);
         }
 
         // now recurse
@@ -999,11 +884,7 @@ class GraphHelper {
      * @returns {*[]}
      */
     removeDuplicatesWithLambda(array, fnCompare) {
-        return array.filter((value, index, self) =>
-                index === self.findIndex((t) => (
-                    fnCompare(t, value)
-                ))
-        );
+        return array.filter((value, index, self) => index === self.findIndex((t) => (fnCompare(t, value))));
     }
 
     /**
@@ -1019,19 +900,17 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
-    async processMultipleIdsAsync(
-        {
-            base_version,
-            requestInfo,
-            resourceType,
-            graphDefinition,
-            contained,
-            hash_references,
-            idList,
-            explain,
-            debug
-        }
-    ) {
+    async processMultipleIdsAsync({
+                                      base_version,
+                                      requestInfo,
+                                      resourceType,
+                                      graphDefinition,
+                                      contained,
+                                      hash_references,
+                                      idList,
+                                      explain,
+                                      debug
+                                  }) {
         try {
             /**
              * @type {BundleEntry[]}
@@ -1040,8 +919,7 @@ class GraphHelper {
 
             let {
                 /** @type {import('mongodb').Document}**/
-                query,
-                // /** @type {Set} **/
+                query, // /** @type {Set} **/
                 // columns
             } = await this.searchManager.constructQueryAsync({
                 user: requestInfo.user,
@@ -1077,9 +955,7 @@ class GraphHelper {
              */
             const optionsForQueries = [];
 
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            );
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({resourceType, base_version});
             /**
              * mongo db cursor
              * @type {DatabasePartitionedCursor}
@@ -1128,16 +1004,15 @@ class GraphHelper {
             /**
              * @type {{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}}
              */
-            const {entities: allRelatedEntries, queryItems} = await this.processGraphLinksAsync(
-                {
-                    requestInfo,
-                    base_version,
-                    parentResourceType: resourceType,
-                    parentEntities: topLevelBundleEntries.map(e => e.resource),
-                    linkItems,
-                    explain,
-                    debug
-                });
+            const {entities: allRelatedEntries, queryItems} = await this.processGraphLinksAsync({
+                requestInfo,
+                base_version,
+                parentResourceType: resourceType,
+                parentEntities: topLevelBundleEntries.map(e => e.resource),
+                linkItems,
+                explain,
+                debug
+            });
 
             for (const q of queryItems) {
                 if (q.query) {
@@ -1155,8 +1030,7 @@ class GraphHelper {
                 /**
                  * @type {ResourceEntityAndContained}
                  */
-                const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id &&
-                    e.entityResourceType === topLevelBundleEntry.resource.resourceType);
+                const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
                 /**
                  * @type {[EntityAndContainedBase]}
                  */
@@ -1174,11 +1048,9 @@ class GraphHelper {
                         related_references.push(relatedItemElementElement.concat('/', related_item['resource']['id']));
                     }
                     if (related_references.length > 0) {
-                        topLevelBundleEntry.resource = await this.convertToHashedReferencesAsync(
-                            {
-                                parent_entity: topLevelBundleEntry.resource,
-                                linkReferences: related_references
-                            });
+                        topLevelBundleEntry.resource = await this.convertToHashedReferencesAsync({
+                            parent_entity: topLevelBundleEntry.resource, linkReferences: related_references
+                        });
                     }
                 }
                 /**
@@ -1196,19 +1068,14 @@ class GraphHelper {
                 }
             }
 
-            entries = this.removeDuplicatesWithLambda(entries,
-                (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            entries = this.removeDuplicatesWithLambda(entries, (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
 
             return {entries, queries, options: optionsForQueries, explanations};
         } catch (e) {
-            throw new RethrownError(
-                {
-                    message: 'Error in processMultipleIdsAsync(): ' +
-                        `resourceType: ${resourceType} , ` +
-                        `id:${idList.join(',')}, `,
-                    error: e
-                }
-            );
+            throw new RethrownError({
+                message: 'Error in processMultipleIdsAsync(): ' + `resourceType: ${resourceType} , ` + `id:${idList.join(',')}, `,
+                error: e
+            });
         }
     }
 
@@ -1224,17 +1091,16 @@ class GraphHelper {
      * @param {Object} args
      * @return {Promise<Bundle>}
      */
-    async processGraphAsync(
-        {
-            requestInfo,
-            base_version,
-            resourceType,
-            id,
-            graphDefinitionJson,
-            contained,
-            hash_references,
-            args
-        }) {
+    async processGraphAsync({
+                                requestInfo,
+                                base_version,
+                                resourceType,
+                                id,
+                                graphDefinitionJson,
+                                contained,
+                                hash_references,
+                                args
+                            }) {
         try {
             /**
              * @type {number}
@@ -1256,36 +1122,29 @@ class GraphHelper {
             /**
              * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
              */
-            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
-                {
-                    base_version,
-                    requestInfo,
-                    resourceType,
-                    graphDefinition,
-                    contained,
-                    hash_references,
-                    idList: id,
-                    explain: args && args['_explain'] ? true : false,
-                    debug: args && args['_debug'] ? true : false,
-                }
-            );
+            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync({
+                base_version,
+                requestInfo,
+                resourceType,
+                graphDefinition,
+                contained,
+                hash_references,
+                idList: id,
+                explain: args && args['_explain'] ? true : false,
+                debug: args && args['_debug'] ? true : false,
+            });
 
             // remove duplicate resources
             /**
              * @type {BundleEntry[]}
              */
-            let uniqueEntries = this.removeDuplicatesWithLambda(entries,
-                (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            let uniqueEntries = this.removeDuplicatesWithLambda(entries, (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
 
             /**
              * @type {string[]}
              */
             const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
-            uniqueEntries = uniqueEntries.filter(
-                e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
-                    accessCodes, requestInfo.user, requestInfo.scope, e.resource
-                )
-            );
+            uniqueEntries = uniqueEntries.filter(e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, requestInfo.user, requestInfo.scope, e.resource));
 
             /**
              * @type {string}
@@ -1295,8 +1154,7 @@ class GraphHelper {
                 /**
                  * @type {ResourceLocator}
                  */
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                    {resourceType, base_version});
+                const resourceLocator = this.resourceLocatorFactory.createResourceLocator({resourceType, base_version});
                 collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
                     query: queries[0]
                 });
@@ -1312,28 +1170,26 @@ class GraphHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager.createBundle(
-                {
-                    type: 'collection',
-                    requestId: requestInfo.requestId,
-                    originalUrl: requestInfo.originalUrl,
-                    host: requestInfo.host,
-                    protocol: requestInfo.protocol,
-                    last_id: null,
-                    resources,
-                    base_version,
-                    total_count: null,
-                    args: args,
-                    originalQuery: queries,
-                    collectionName,
-                    originalOptions: options,
-                    columns: new Set(),
-                    stopTime,
-                    startTime,
-                    user: requestInfo.user,
-                    explanations
-                }
-            );
+            const bundle = this.bundleManager.createBundle({
+                type: 'collection',
+                requestId: requestInfo.requestId,
+                originalUrl: requestInfo.originalUrl,
+                host: requestInfo.host,
+                protocol: requestInfo.protocol,
+                last_id: null,
+                resources,
+                base_version,
+                total_count: null,
+                args: args,
+                originalQuery: queries,
+                collectionName,
+                originalOptions: options,
+                columns: new Set(),
+                stopTime,
+                startTime,
+                user: requestInfo.user,
+                explanations
+            });
             return bundle;
             // create a bundle
             // return new Bundle({
@@ -1344,14 +1200,9 @@ class GraphHelper {
             //     entry: uniqueEntries
             // });
         } catch (e) {
-            throw new RethrownError(
-                {
-                    message: 'Error in processGraphAsync(): ' +
-                        `resourceType: ${resourceType} , ` +
-                        `id:${id}, `,
-                    error: e
-                }
-            );
+            throw new RethrownError({
+                message: 'Error in processGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, `, error: e
+            });
         }
     }
 
@@ -1365,16 +1216,14 @@ class GraphHelper {
      * @param {Object} args
      * @return {Promise<Bundle>}
      */
-    async deleteGraphAsync(
-        {
-            requestInfo,
-            base_version,
-            resourceType,
-            id,
-            graphDefinitionJson,
-            args
-        }) {
+    async deleteGraphAsync({
+                               requestInfo, base_version, resourceType, id, graphDefinitionJson, args
+                           }) {
         try {
+            /**
+             * @type {number}
+             */
+            const startTime = Date.now();
             /**
              * @type {Bundle}
              */
@@ -1400,9 +1249,15 @@ class GraphHelper {
                 const resource = entry.resource;
                 const resultResourceType = resource.resourceType;
                 const idList = [resource.id];
-                const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                    {resourceType: resultResourceType, base_version}
-                );
+                const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                    resourceType: resultResourceType,
+                    base_version
+                });
+                await this.scopesValidator.verifyHasValidScopesAsync({
+                    requestInfo, args, resourceType: resultResourceType, action: 'graph', accessRequested: 'write',
+                    startTime
+                });
+
                 /**
                  * @type {{deletedCount: (number|null), error: (Error|null)}}
                  */
@@ -1411,17 +1266,13 @@ class GraphHelper {
                         query: {id: {$in: idList}}
                     });
                 for (const resultResourceId of idList) {
-                    deleteOperationBundleEntries.push(
-                        new BundleEntry({
-                            resource: new Resource(
-                                {
-                                    id: resultResourceId,
-                                    resourceType: resultResourceType
-                                }
-                            )
+                    deleteOperationBundleEntries.push(new BundleEntry({
+                        resource: new Resource({
+                            id: resultResourceId, resourceType: resultResourceType
                         })
-                    );
+                    }));
                 }
+
             }
             const deleteOperationBundle = new Bundle({
                 id: requestInfo.requestId,
@@ -1431,14 +1282,9 @@ class GraphHelper {
             });
             return deleteOperationBundle;
         } catch (e) {
-            throw new RethrownError(
-                {
-                    message: 'Error in deleteGraphAsync(): ' +
-                        `resourceType: ${resourceType} , ` +
-                        `id:${id}, `,
-                    error: e
-                }
-            );
+            throw new RethrownError({
+                message: 'Error in deleteGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, `, error: e
+            });
         }
     }
 }
