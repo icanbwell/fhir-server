@@ -73,6 +73,7 @@ const {PersonToPatientIdsExpander} = require('./utils/personToPatientIdsExpander
 const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkManager');
 const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 const {RequestSpecificCache} = require('./utils/requestSpecificCache');
+const {PatientFilterManager} = require('./fhir/patientFilterManager');
 
 /**
  * Creates a container and sets up all the services
@@ -87,6 +88,9 @@ const createContainer = function () {
     container.register('scopesManager', () => new ScopesManager());
 
     container.register('requestSpecificCache', () => new RequestSpecificCache());
+
+    container.register('patientFilterManager', () => new PatientFilterManager());
+
 
     container.register('enrichmentManager', () => new EnrichmentManager({
         enrichmentProviders: [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()]
@@ -226,7 +230,8 @@ const createContainer = function () {
     container.register('securityTagManager', (c) => new SecurityTagManager(
         {
             scopesManager: c.scopesManager,
-            accessIndexManager: c.accessIndexManager
+            accessIndexManager: c.accessIndexManager,
+            patientFilterManager: c.patientFilterManager
         }));
 
     container.register('mergeManager', (c) => new MergeManager(

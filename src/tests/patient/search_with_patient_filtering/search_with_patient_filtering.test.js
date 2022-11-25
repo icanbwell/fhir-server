@@ -264,9 +264,8 @@ describe('patient Tests', () => {
             test('Only persons linked to the patients are returned', async () => {
                 const request = await createTestRequest();
 
-
                 let resp = await request
-                  .get('/4_0_0/person/?_bundle=1')
+                  .get('/4_0_0/person/?_bundle=1&_debug=1')
                   .set(getHeadersWithCustomPayload(patient_123_payload));
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveResourceCount(2);

@@ -1,10 +1,10 @@
 const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
-const {profiles} = require('../../profiles');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
 const {AccessIndexManager} = require('./accessIndexManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {PatientFilterManager} = require('../../fhir/patientFilterManager');
 
 /**
  * This class manages queries for security tags
@@ -14,8 +14,9 @@ class SecurityTagManager {
      * constructor
      * @param {ScopesManager} scopesManager
      * @param {AccessIndexManager} accessIndexManager
+     * @param {PatientFilterManager} patientFilterManager
      */
-    constructor({scopesManager, accessIndexManager}) {
+    constructor({scopesManager, accessIndexManager, patientFilterManager}) {
         /**
          * @type {ScopesManager}
          */
@@ -27,6 +28,9 @@ class SecurityTagManager {
          */
         this.accessIndexManager = accessIndexManager;
         assertTypeEquals(accessIndexManager, AccessIndexManager);
+
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -159,13 +163,11 @@ class SecurityTagManager {
             const inQuery = {
                 '$in': resourceType === 'Patient' ? patientIds : patientIds.map(p => `Patient/${p}`)
             };
-            /*
-            * Patients are filtered on id. For some reason, AllergyIntolerance and Immunization don't have a subject field
-            * like other Clinical Resources, filter on patient.reference. All other fields are filtered on subject.reference.
-            * */
-            let profile = profiles[`${resourceType}`];
-            if (profile.filterByPerson) {
-                const patientsQuery = {[profile.filterBy]: inQuery};
+            const patientFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
+                resourceType
+            });
+            if (patientFilterProperty) {
+                const patientsQuery = {[patientFilterProperty]: inQuery};
                 query = this.appendAndQuery(query, patientsQuery);
             }
         }
