@@ -141,7 +141,20 @@ class FhirRouter {
             }
 
             let lowercaseMethod = op.method.toLowerCase();
-            let interaction = lowercaseMethod === 'post' ? INTERACTIONS.OPERATIONS_POST : INTERACTIONS.OPERATIONS_GET;
+            let interaction;
+            switch (lowercaseMethod) {
+                case 'post':
+                    interaction = INTERACTIONS.OPERATIONS_POST;
+                    break;
+
+                case 'delete':
+                    interaction = INTERACTIONS.OPERATIONS_DELETE;
+                    break;
+
+                default:
+                    interaction = INTERACTIONS.OPERATIONS_GET;
+            }
+
             let route = routes.find(rt => rt.interaction === interaction);
             let corsOptions = Object.assign({}, corsDefaults, {
                 methods: [route.type.toUpperCase()]
@@ -151,16 +164,29 @@ class FhirRouter {
              */
             const resourceType = key;
 
-            const operationsControllerRouteHandler = lowercaseMethod === 'post' ?
-                this.customOperationsController.operationsPost({
-                    name: functionName,
-                    resourceType
-                }) :
-                this.customOperationsController.operationsGet({
-                    name: functionName,
-                    resourceType
-                })
-            ;
+            let operationsControllerRouteHandler;
+
+            switch (lowercaseMethod) {
+                case 'post':
+                    operationsControllerRouteHandler = this.customOperationsController.operationsPost({
+                        name: functionName,
+                        resourceType
+                    });
+                    break;
+
+                case 'delete':
+                    operationsControllerRouteHandler = this.customOperationsController.operationsDelete({
+                        name: functionName,
+                        resourceType
+                    });
+                    break;
+
+                default:
+                    operationsControllerRouteHandler = this.customOperationsController.operationsGet({
+                        name: functionName,
+                        resourceType
+                    });
+            }
 
             if (profile.baseUrls && profile.baseUrls.length && profile.baseUrls.includes('/')) {
                 const operationsRoute = '/'.concat(op.route).replace(/\$/g, '([$])'); // Enable cors with preflight

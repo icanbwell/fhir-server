@@ -62,7 +62,8 @@ exports.INTERACTIONS = {
     DELETE: 'remove',
     PATCH: 'patch',
     OPERATIONS_POST: 'operationsPost',
-    OPERATIONS_GET: 'operationsGet'
+    OPERATIONS_GET: 'operationsGet',
+    OPERATIONS_DELETE: 'operationsDelete'
 };
 /**
  * These are currently the only versions we support
