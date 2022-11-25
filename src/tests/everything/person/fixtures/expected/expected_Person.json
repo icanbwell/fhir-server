@@ -1,0 +1,122 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "active": true,
+        "address": [
+          {
+            "city": "Austin",
+            "country": "Some country",
+            "id": "2011-10-05T14:48:00.000Z",
+            "line": [
+              "301 W, in a yellow submarine"
+            ],
+            "period": {
+              "id": "2011-10-05T14:48:00.000Z"
+            },
+            "postalCode": "78701",
+            "state": "Texas"
+          }
+        ],
+        "gender": "male",
+        "id": "personTopLevel",
+        "identifier": [
+          {
+            "system": "http://www.walgreens.com/profileid",
+            "value": "1000000-a-02"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "personTopLevel"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
+            "target": {
+              "reference": "Patient/patient1"
+            }
+          },
+          {
+            "assurance": "level4",
+            "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
+            "target": {
+              "reference": "Person/person1"
+            }
+          }
+        ],
+        "meta": {
+          "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+          "security": [
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "source": "https://www.icanbwell.com",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Azamar",
+            "given": [
+              "Daniel"
+            ],
+            "use": "nickname"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "id": "2011-10-05T14:48:00.000Z",
+            "system": "phone",
+            "use": "home",
+            "value": "+52123456789"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "patient1",
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "source": "http://healthsystem1health.org/provider",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ],
+            "text": "t",
+            "use": "usual"
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}
