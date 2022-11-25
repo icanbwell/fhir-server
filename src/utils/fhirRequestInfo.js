@@ -20,6 +20,7 @@ class FhirRequestInfo {
      * @param {string[] | null} [patientIdsFromJwtToken]
      * @param {string | null} [personIdFromJwtToken]
      * @param {Object} headers
+     * @param {string} method
      */
     constructor(
         {
@@ -36,7 +37,8 @@ class FhirRequestInfo {
             isUser,
             patientIdsFromJwtToken,
             personIdFromJwtToken,
-            headers
+            headers,
+            method
         }
     ) {
         assertIsValid(!user || typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
@@ -96,6 +98,10 @@ class FhirRequestInfo {
          * @type {Object}
          */
         this.headers = headers;
+        /**
+         * @type {string}
+         */
+        this.method = method;
     }
 }
 

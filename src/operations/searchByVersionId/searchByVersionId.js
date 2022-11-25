@@ -77,10 +77,8 @@ class SearchByVersionIdOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      */
-    async searchByVersionId(requestInfo, args, resourceType,
-                            filter = true) {
+    async searchByVersionId(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -143,7 +141,6 @@ class SearchByVersionIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
-                filter
             });
 
             query['meta.versionId'] = `${version_id}`;

@@ -20,6 +20,8 @@ const {BundleManager} = require('../common/bundleManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
+const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 
 /**
@@ -261,8 +263,7 @@ class GraphHelper {
                 args: Object.assign({'base_version': base_version}, {'id': relatedReferenceIds}), // add id filter to query
                 resourceType,
                 useAccessIndex,
-                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                filter: true
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken
             });
 
             if (filterProperty) {
@@ -427,8 +428,7 @@ class GraphHelper {
                 args,
                 resourceType: relatedResourceType,
                 useAccessIndex,
-                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                filter: true
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken
             });
 
             const options = {};
@@ -1052,7 +1052,6 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                filter: true
             });
 
             /**
@@ -1348,6 +1347,93 @@ class GraphHelper {
             throw new RethrownError(
                 {
                     message: 'Error in processGraphAsync(): ' +
+                        `resourceType: ${resourceType} , ` +
+                        `id:${id}, `,
+                    error: e
+                }
+            );
+        }
+    }
+
+    /**
+     * process GraphDefinition and returns a bundle with all the related resources
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} base_version
+     * @param {string} resourceType
+     * @param {string | string[]} id (accepts a single id or a list of ids)
+     * @param {*} graphDefinitionJson (a GraphDefinition resource)
+     * @param {Object} args
+     * @return {Promise<Bundle>}
+     */
+    async deleteGraphAsync(
+        {
+            requestInfo,
+            base_version,
+            resourceType,
+            id,
+            graphDefinitionJson,
+            args
+        }) {
+        try {
+            /**
+             * @type {Bundle}
+             */
+            const bundle = await this.processGraphAsync({
+                requestInfo,
+                base_version,
+                resourceType,
+                id,
+                contained: false,
+                hash_references: false,
+                graphDefinitionJson,
+                args
+            });
+            // now iterate and delete by resuourceType and Id
+            /**
+             * @type {BundleEntry[]}
+             */
+            const deleteOperationBundleEntries = [];
+            for (const entry of bundle.entry) {
+                /**
+                 * @type {Resource}
+                 */
+                const resource = entry.resource;
+                const resultResourceType = resource.resourceType;
+                const idList = [resource.id];
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                    {resourceType: resultResourceType, base_version}
+                );
+                /**
+                 * @type {{deletedCount: (number|null), error: (Error|null)}}
+                 */
+                    // eslint-disable-next-line no-unused-vars
+                const result = await databaseQueryManager.deleteManyAsync({
+                        query: {id: {$in: idList}}
+                    });
+                for (const resultResourceId of idList) {
+                    deleteOperationBundleEntries.push(
+                        new BundleEntry({
+                            resource: new Resource(
+                                {
+                                    id: resultResourceId,
+                                    resourceType: resultResourceType
+                                }
+                            )
+                        })
+                    );
+                }
+            }
+            const deleteOperationBundle = new Bundle({
+                id: requestInfo.requestId,
+                type: 'batch-response',
+                entry: deleteOperationBundleEntries,
+                total: deleteOperationBundleEntries.length
+            });
+            return deleteOperationBundle;
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error in deleteGraphAsync(): ' +
                         `resourceType: ${resourceType} , ` +
                         `id:${id}, `,
                     error: e

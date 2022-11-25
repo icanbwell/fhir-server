@@ -85,9 +85,8 @@ class HistoryOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      */
-    async history(requestInfo, args, resourceType, filter = true) {
+    async history(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -149,7 +148,6 @@ class HistoryOperation {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
-            filter
         });
 
         // noinspection JSValidateTypes

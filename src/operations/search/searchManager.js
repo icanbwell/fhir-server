@@ -124,7 +124,6 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
-     * @param {boolean} filter
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
     async constructQueryAsync(

@@ -70,6 +70,14 @@ describe('Claim Graph Delete By Id Contained Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedResource_230916613368);
+
+            // verify that no resources are returned now
+            resp = await request
+                .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368/$graph')
+                .set(getHeaders())
+                .send(graphDefinitionResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
         });
     });
 });

@@ -198,6 +198,11 @@ class FhirOperationsManager {
         const body = req.body;
 
         /**
+         * @type {string}
+         */
+        const method = req.method;
+
+        /**
          * @type {Object}
          */
         const headers = req.headers;
@@ -216,7 +221,8 @@ class FhirOperationsManager {
                 isUser,
                 patientIdsFromJwtToken,
                 personIdFromJwtToken,
-                headers
+                headers,
+                method
             }
         );
     }

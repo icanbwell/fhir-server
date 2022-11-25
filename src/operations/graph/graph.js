@@ -87,7 +87,11 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            requestId
+            requestId,
+            /**
+             * @type {string}
+             */
+            method
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -178,18 +182,28 @@ class GraphOperation {
             /**
              * @type {Bundle}
              */
-            const resultBundle = await this.graphHelper.processGraphAsync(
-                {
-                    requestInfo,
-                    base_version,
-                    resourceType,
-                    id,
-                    graphDefinitionJson: graphDefinitionRaw,
-                    contained,
-                    hash_references,
-                    args
-                }
-            );
+            const resultBundle = (method.toLowerCase() === 'delete') ?
+                await this.graphHelper.deleteGraphAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        id,
+                        graphDefinitionJson: graphDefinitionRaw,
+                        args
+                    }
+                ) : await this.graphHelper.processGraphAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        id,
+                        graphDefinitionJson: graphDefinitionRaw,
+                        contained,
+                        hash_references,
+                        args
+                    }
+                );
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
@@ -199,6 +213,7 @@ class GraphOperation {
                     startTime,
                     action: currentOperationName
                 });
+
             return resultBundle;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync(
