@@ -1,4 +1,3 @@
-/* eslint-disable security/detect-object-injection */
 // const controllersR401 = require('@asymmetrik/node-fhir-server-core/dist/server/resources/4_0_1/controllers');
 
 // const controllersR4 = require('@asymmetrik/node-fhir-server-core/dist/server/resources/4_0_0/controllers');
