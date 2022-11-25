@@ -1,0 +1,17 @@
+{
+  "resourceType": "GraphDefinition",
+  "id": "o",
+  "name": "person_everything",
+  "status": "active",
+  "start": "Person",
+  "link": [
+    {
+      "path": "link.target",
+      "target": [
+        {
+          "type": "Patient"
+        }
+      ]
+    }
+  ]
+}
