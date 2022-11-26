@@ -7,7 +7,7 @@
  * @param {boolean} negation
  * @return {Object[]}
  */
-const {negateEqualsIfNeeded} = require('../../../utils/mongoNegator');
+const {negateEqualsIfNegation} = require('../../../utils/mongoNegator');
 
 function filterByCanonical({propertyObj, queryParameterValue, columns, negation}) {
     /**
@@ -38,7 +38,7 @@ function filterByCanonical({propertyObj, queryParameterValue, columns, negation}
     } else {
         and_segments.push(
             {
-                [`${propertyObj.field}`]: negateEqualsIfNeeded({value: queryParameterValue, negation}),
+                [`${propertyObj.field}`]: negateEqualsIfNegation({value: queryParameterValue, negation}),
             }
         );
     }

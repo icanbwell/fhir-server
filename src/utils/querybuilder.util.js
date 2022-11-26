@@ -5,7 +5,7 @@
 
 const moment = require('moment-timezone');
 const {escapeRegExp} = require('./regexEscaper');
-const {negateQueryIfNeeded, negateEqualsIfNeeded} = require('./mongoNegator');
+const {negateQueryIfNegation, negateEqualsIfNegation} = require('./mongoNegator');
 /**
  * @name stringQueryBuilder
  * @description builds mongo default query for string inputs, no modifiers
@@ -16,7 +16,7 @@ const {negateQueryIfNeeded, negateEqualsIfNeeded} = require('./mongoNegator');
 const stringQueryBuilder = function ({target, negation}) {
     // noinspection RegExpDuplicateCharacterInClass
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
-    return negateQueryIfNeeded({
+    return negateQueryIfNegation({
         // eslint-disable-next-line security/detect-non-literal-regexp
         query: {$regex: new RegExp('^' + escapeRegExp(t2), 'i')},
         negation
@@ -182,7 +182,7 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
 
     const queryBuilderElementMatch = {};
     if (system) {
-        queryBuilder[`${field}.system`] = negateEqualsIfNeeded({value: system, negation});
+        queryBuilder[`${field}.system`] = negateEqualsIfNegation({value: system, negation});
         queryBuilderElementMatch['system'] = system;
     }
 
@@ -199,7 +199,7 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
                 $in: values
             };
         } else {
-            queryBuilder[`${field}.${type}`] = negateEqualsIfNeeded({value: value, negation});
+            queryBuilder[`${field}.${type}`] = negateEqualsIfNegation({value: value, negation});
             queryBuilderElementMatch[`${type}`] = value;
         }
     }
@@ -207,7 +207,7 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag,
     if (system && value) {
         // $elemMatch so we match on BOTH system and value in the same array element
         queryBuilder = {};
-        queryBuilder[`${field}`] = negateQueryIfNeeded({query: {$elemMatch: queryBuilderElementMatch}, negation});
+        queryBuilder[`${field}`] = negateQueryIfNegation({query: {$elemMatch: queryBuilderElementMatch}, negation});
     }
     return queryBuilder;
 };
@@ -253,7 +253,7 @@ const exactMatchQueryBuilder = function ({target, field, exists_flag, negation})
                     $in: values
                 };
         } else {
-            queryBuilder[`${field}`] = negateEqualsIfNeeded({value: value, negation});
+            queryBuilder[`${field}`] = negateEqualsIfNegation({value: value, negation});
         }
     }
 
@@ -286,7 +286,7 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
 
     // Check if target is a url
     if (match) {
-        queryBuilder[`${field}`] = negateEqualsIfNeeded({value: match[2], negation});
+        queryBuilder[`${field}`] = negateEqualsIfNegation({value: match[2], negation});
     }
     // target = type/id
     else if (target.includes(',')) { // list was passed
@@ -311,12 +311,12 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
                 {$nin: idList.map(i => `${type}/${i}`)} :
                 {$in: idList.map(i => `${type}/${i}`)};
         } else {
-            queryBuilder[`${field}`] = negateEqualsIfNeeded({value: `${type}/${id}`, negation});
+            queryBuilder[`${field}`] = negateEqualsIfNegation({value: `${type}/${id}`, negation});
         }
     }
     // target = id The type may be there so we need to check the end of the field for the id
     else {
-        queryBuilder[`${field}`] = negateQueryIfNeeded(
+        queryBuilder[`${field}`] = negateQueryIfNegation(
             {
                 // eslint-disable-next-line security/detect-non-literal-regexp
                 query: {$regex: new RegExp(escapeRegExp(`${target}$`))},
@@ -355,15 +355,15 @@ const numberQueryBuilder = function ({target, negation}) {
     // Missing eq(default), sa, eb, and ap prefixes
     switch (prefix) {
         case 'lt':
-            return negateQueryIfNeeded({query: {$lt: number}, negation});
+            return negateQueryIfNegation({query: {$lt: number}, negation});
         case 'le':
-            return negateQueryIfNeeded({query: {$lte: number}, negation});
+            return negateQueryIfNegation({query: {$lte: number}, negation});
         case 'gt':
-            return negateQueryIfNeeded({query: {$gt: number}, negation});
+            return negateQueryIfNegation({query: {$gt: number}, negation});
         case 'ge':
-            return negateQueryIfNeeded({query: {$gte: number}, negation});
+            return negateQueryIfNegation({query: {$gte: number}, negation});
         case 'ne':
-            return negateQueryIfNeeded({query: {$ne: number}, negation});
+            return negateQueryIfNegation({query: {$ne: number}, negation});
     }
 
     // Return an approximation query
@@ -375,7 +375,7 @@ const numberQueryBuilder = function ({target, negation}) {
     }
     const aprox = (1 / 10 ** decimals) * 5;
 
-    return negateQueryIfNeeded({query: {$gte: number - aprox, $lt: number + aprox}, negation});
+    return negateQueryIfNegation({query: {$gte: number - aprox, $lt: number + aprox}, negation});
 };
 
 /**
@@ -391,10 +391,10 @@ const quantityQueryBuilder = function ({target, field, negation}) {
     let [num, system, code] = target.split('|');
 
     if (system) {
-        qB[`${field}.system`] = negateEqualsIfNeeded({value: system, negation});
+        qB[`${field}.system`] = negateEqualsIfNegation({value: system, negation});
     }
     if (code) {
-        qB[`${field}.code`] = negateEqualsIfNeeded({value: code, negation});
+        qB[`${field}.code`] = negateEqualsIfNegation({value: code, negation});
     }
 
     if (Number.isNaN(num)) {
@@ -405,24 +405,24 @@ const quantityQueryBuilder = function ({target, field, negation}) {
         // Missing eq(default), sa, eb, and ap prefixes
         switch (prefix) {
             case 'lt':
-                qB[`${field}.value`] = negateQueryIfNeeded({query: {$lt: num}, negation});
+                qB[`${field}.value`] = negateQueryIfNegation({query: {$lt: num}, negation});
                 break;
             case 'le':
-                qB[`${field}.value`] = negateQueryIfNeeded({query: {$lte: num}, negation});
+                qB[`${field}.value`] = negateQueryIfNegation({query: {$lte: num}, negation});
                 break;
             case 'gt':
-                qB[`${field}.value`] = negateQueryIfNeeded({query: {$gt: num}, negation});
+                qB[`${field}.value`] = negateQueryIfNegation({query: {$gt: num}, negation});
                 break;
             case 'ge':
-                qB[`${field}.value`] = negateQueryIfNeeded({query: {$gte: num}, negation});
+                qB[`${field}.value`] = negateQueryIfNegation({query: {$gte: num}, negation});
                 break;
             case 'ne':
-                qB[`${field}.value`] = negateQueryIfNeeded({query: {$ne: num}, negation});
+                qB[`${field}.value`] = negateQueryIfNegation({query: {$ne: num}, negation});
                 break;
         }
     } else {
         //no prefixes
-        qB[`${field}.value`] = negateQueryIfNeeded({query: Number(num), negation});
+        qB[`${field}.value`] = negateQueryIfNegation({query: Number(num), negation});
     }
 
     return qB;
@@ -672,7 +672,7 @@ const dateQueryBuilder = function ({date, type, path, negation}) {
                         {$and: [{[pS]: {$lte: str}}, {[pE]: undefined}]},
                         {$and: [{$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]}, {[pS]: undefined}]},
                     ];
-                    return negateQueryIfNeeded({query: toReturn, negation});
+                    return negateQueryIfNegation({query: toReturn, negation});
                 }
                 const tempFill = pArr.toString().replace(/,/g, ')|(?:') + ')'; //turning the pArr to a string that can be used as a regex
                 if (type === 'timing') {
@@ -703,9 +703,9 @@ const dateQueryBuilder = function ({date, type, path, negation}) {
                             ],
                         },
                     ];
-                    return negateQueryIfNeeded({query: toReturn, negation});
+                    return negateQueryIfNegation({query: toReturn, negation});
                 }
-                return negateQueryIfNeeded({
+                return negateQueryIfNegation({
                     query: {
                         // eslint-disable-next-line security/detect-non-literal-regexp
                         $regex: new RegExp(
@@ -724,7 +724,7 @@ const dateQueryBuilder = function ({date, type, path, negation}) {
                 // convert to format that mongo uses to store
                 const datetime_utc = moment_dt.utc().format('YYYY-MM-DDTHH:mm:ssZ');
                 return {
-                    [prefix]: negateEqualsIfNeeded({value: datetime_utc, negation})
+                    [prefix]: negateEqualsIfNegation({value: datetime_utc, negation})
                 };
             }
         }
@@ -782,7 +782,7 @@ const dateQueryBuilderNative = function ({dateSearchParameter, type, path, negat
         default:
             throw new Error(`${operation} is not supported.`);
     }
-    return negateQueryIfNeeded({query, negation});
+    return negateQueryIfNegation({query, negation});
 };
 
 /**
@@ -958,9 +958,9 @@ const partialTextQueryBuilder = function ({field, partialText, ignoreCase, negat
         // eslint-disable-next-line security/detect-non-literal-regexp
     const regexObject = new RegExp(escapeRegExp(`${partialText}`));
     if (ignoreCase) {
-        queryBuilder[`${field}`] = negateQueryIfNeeded({query: {$regex: regexObject, '$options': 'i'}, negation});
+        queryBuilder[`${field}`] = negateQueryIfNegation({query: {$regex: regexObject, '$options': 'i'}, negation});
     } else {
-        queryBuilder[`${field}`] = negateQueryIfNeeded({query: {$regex: regexObject}, negation});
+        queryBuilder[`${field}`] = negateQueryIfNegation({query: {$regex: regexObject}, negation});
     }
 
     return queryBuilder;

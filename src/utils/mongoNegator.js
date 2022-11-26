@@ -4,7 +4,7 @@
  * @param {boolean} negation
  * @return {Object}
  */
-function negateQueryIfNeeded({query, negation}) {
+function negateQueryIfNegation({query, negation}) {
     return negation ? {$not: query} : query;
 }
 
@@ -14,11 +14,26 @@ function negateQueryIfNeeded({query, negation}) {
  * @param {boolean} negation
  * @return {string|number|Object}
  */
-function negateEqualsIfNeeded({value, negation}) {
+function negateEqualsIfNegation({value, negation}) {
     return negation ? {$ne: value} : value;
 }
 
+/**
+ * replace Or with And If negation
+ * @param {Object} query
+ * @param {boolean} negation
+ * @return {Object}
+ */
+function replaceOrWithAndIfNegation({query, negation}) {
+    if (negation) {
+        query['$and'] = query['$or'];
+        delete query['$or'];
+    }
+    return query;
+}
+
 module.exports = {
-    negateQueryIfNeeded,
-    negateEqualsIfNeeded
+    negateQueryIfNegation,
+    negateEqualsIfNegation,
+    replaceOrWithAndIfNegation
 };

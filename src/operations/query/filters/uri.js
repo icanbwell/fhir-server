@@ -1,4 +1,4 @@
-const {negateEqualsIfNeeded} = require('../../../utils/mongoNegator');
+const {negateEqualsIfNegation} = require('../../../utils/mongoNegator');
 
 /**
  * filters by uri
@@ -16,7 +16,7 @@ function filterByUri({propertyObj, queryParameterValue, columns, negation}) {
     const and_segments = [];
     and_segments.push(
         {
-            [`${propertyObj.field}`]: negateEqualsIfNeeded({value: queryParameterValue, negation})
+            [`${propertyObj.field}`]: negateEqualsIfNegation({value: queryParameterValue, negation})
         }
     );
     columns.add(`${propertyObj.field}`);
