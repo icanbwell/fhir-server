@@ -159,16 +159,37 @@ class SecurityTagManager {
      * @return {import('mongodb').Document}
      */
     getQueryWithPatientFilter({patientIds, query, resourceType}) {
+        if (!this.patientFilterManager.canAccessResourceWithPatientScope({resourceType})) {
+            throw new ForbiddenError(`Resource type ${resourceType} cannot be accessed via a patient scope`);
+        }
         if (patientIds && patientIds.length > 0) {
             const inQuery = {
                 '$in': resourceType === 'Patient' ? patientIds : patientIds.map(p => `Patient/${p}`)
             };
+            /**
+             * @type {string|string[]|null}
+             */
             const patientFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
                 resourceType
             });
             if (patientFilterProperty) {
-                const patientsQuery = {[patientFilterProperty]: inQuery};
-                query = this.appendAndQuery(query, patientsQuery);
+                if (Array.isArray(patientFilterProperty)) {
+                    /**
+                     * @type {string[]}
+                     */
+                    const patientFilterList = patientFilterProperty;
+                    const patientsQuery = {
+                        '$or': patientFilterList.map(p => {
+                                return {[p]: inQuery};
+                            }
+                        )
+                    };
+                    query = this.appendAndQuery(query, patientsQuery);
+                } else {
+                    const patientsQuery = {[patientFilterProperty]: inQuery};
+                    query = this.appendAndQuery(query, patientsQuery);
+                }
+
             }
         }
         return query;

@@ -1,10 +1,6 @@
 class PatientFilterManager {
-    /**
-     * @param {string} resourceType
-     * @return {string|null}
-     */
-    getPatientPropertyForResource({resourceType}) {
-        const mapping = {
+    constructor() {
+        this.patientFilterMapping = {
             Annotation: 'authorReference.reference',
             Signature: 'who.reference',
             Account: 'subject.reference',
@@ -79,8 +75,29 @@ class PatientFilterManager {
             Task: 'for.reference',
             VisionPrescription: 'patient.reference'
         };
+        this.resourcesWithoutPatientData = [
+            'Practitioner',
+            'Organization',
+            'Libary',
+            'PlanDefinition',
+            'GuidanceResponse',
+            'Measure',
+            'Location',
+            'HealthcareService'
+        ];
+    }
 
-        return mapping[`${resourceType}`];
+    /**
+     * @param {string} resourceType
+     * @return {string|string[]|null}
+     */
+    getPatientPropertyForResource({resourceType}) {
+        return this.patientFilterMapping[`${resourceType}`];
+    }
+
+    canAccessResourceWithPatientScope({resourceType}) {
+        return Object.hasOwn(this.patientFilterMapping.hasOwnProperty, resourceType) ||
+            this.resourcesWithoutPatientData.includes(resourceType);
     }
 }
 
