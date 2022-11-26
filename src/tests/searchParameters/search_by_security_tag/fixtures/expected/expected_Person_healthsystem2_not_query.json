@@ -88,7 +88,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Person_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'healthsystem2'}}}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Person_4_0_0.find({'$and':[{'$nor':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'healthsystem1'}}}]}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

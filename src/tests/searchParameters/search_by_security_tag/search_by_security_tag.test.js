@@ -6,6 +6,7 @@ const person3Resource = require('./fixtures/Person/person3.json');
 // expected
 const expectedPersonHealthSystem1Resources = require('./fixtures/expected/expected_Person_healthsystem1.json');
 const expectedPersonHealthSystem2Resources = require('./fixtures/expected/expected_Person_healthsystem2.json');
+const expectedPersonHealthSystem2NotQueryResources = require('./fixtures/expected/expected_Person_healthsystem2_not_query.json');
 
 const {
     commonBeforeEach,
@@ -53,22 +54,22 @@ describe('Person Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Medication back
             resp = await request
-                .get('/4_0_0/Person?_security=https://www.icanbwell.com/owner%7Chealthsystem1&_bundle=1&')
+                .get('/4_0_0/Person?_security=https://www.icanbwell.com/owner%7Chealthsystem1&_bundle=1&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonHealthSystem1Resources);
 
             resp = await request
-                .get('/4_0_0/Person?_security=https://www.icanbwell.com/owner%7Chealthsystem2&_bundle=1&')
+                .get('/4_0_0/Person?_security=https://www.icanbwell.com/owner%7Chealthsystem2&_bundle=1&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonHealthSystem2Resources);
 
             resp = await request
-                .get('/4_0_0/Person?_security:not=https://www.icanbwell.com/owner%7Chealthsystem1&_bundle=1&')
+                .get('/4_0_0/Person?_security:not=https://www.icanbwell.com/owner%7Chealthsystem1&_bundle=1&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonHealthSystem2Resources);
+            expect(resp).toHaveResponse(expectedPersonHealthSystem2NotQueryResources);
         });
     });
 });
