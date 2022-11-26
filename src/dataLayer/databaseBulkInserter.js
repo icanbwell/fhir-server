@@ -439,11 +439,14 @@ class DatabaseBulkInserter extends EventEmitter {
                             .get(resourceType)
                             .filter(x => x.insertOne && x.insertOne.document.id === id)[0].insertOne.document;
 
-                        await this.changeEventProducer.fireEventsAsync({
+                        this.postRequestProcessor.add({
                             requestId,
-                            eventType: 'C',
-                            resourceType: resourceType,
-                            doc: resource
+                            fnTask: async () => await this.changeEventProducer.fireEventsAsync({
+                                requestId,
+                                eventType: 'C',
+                                resourceType: resourceType,
+                                doc: resource
+                            })
                         });
                     }
                 }
@@ -488,11 +491,15 @@ class DatabaseBulkInserter extends EventEmitter {
                              */
                             const resource = resources
                                 .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
-                            await this.changeEventProducer.fireEventsAsync({
+
+                            this.postRequestProcessor.add({
                                 requestId,
-                                eventType: 'U',
-                                resourceType: resourceType,
-                                doc: resource
+                                fnTask: async () => await this.changeEventProducer.fireEventsAsync({
+                                    requestId,
+                                    eventType: 'U',
+                                    resourceType: resourceType,
+                                    doc: resource
+                                })
                             });
                         }
                     }
