@@ -372,6 +372,9 @@ class GraphHelper {
             if (parentResourceTypeAndIdList.length === 0) {
                 return;
             }
+            /**
+             * @type {string}
+             */
             const reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
             /**
              * @type {Object}

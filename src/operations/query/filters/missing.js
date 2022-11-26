@@ -5,11 +5,15 @@ const {isTrue} = require('../../../utils/isTrue');
  * https://www.hl7.org/fhir/search.html#modifiers
  * @param {Object} args
  * @param {string} queryParameter
- * @param {Object[]} and_segments
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @return {Object[]}
  */
-function filterByMissing({args, queryParameter, and_segments, propertyObj, columns}) {
+function filterByMissing({args, queryParameter, propertyObj, columns}) {
+    /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     // handle check for missing values
     const missing_flag = isTrue(args[`${queryParameter}:missing`]);
     if (missing_flag === true) {
@@ -26,6 +30,7 @@ function filterByMissing({args, queryParameter, and_segments, propertyObj, colum
         });
     }
     columns.add(`${propertyObj.field}`);
+    return and_segments;
 }
 
 module.exports = {

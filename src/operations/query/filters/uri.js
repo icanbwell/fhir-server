@@ -1,16 +1,21 @@
 /**
  * filters by uri
  * https://www.hl7.org/fhir/search.html#uri
- * @param {Object[]} and_segments
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
+ * @return {Object[]}
  */
-function filterByUri({and_segments, propertyObj, queryParameterValue, columns}) {
+function filterByUri({propertyObj, queryParameterValue, columns}) {
+        /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     and_segments.push({[`${propertyObj.field}`]: queryParameterValue});
     columns.add(`${propertyObj.field}`);
+    return and_segments;
 }
 
 module.exports = {
-    filterByUri: filterByUri
+    filterByUri
 };

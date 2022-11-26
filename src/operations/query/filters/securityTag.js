@@ -5,20 +5,22 @@ const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
  * Filters by token
  * https://www.hl7.org/fhir/search.html#token
  * @param {string | string[]} queryParameterValue
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
- * @param {Object[]} and_segments
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @param {function(code): boolean} fnUseAccessIndex function that returns whether to use access index for this code
- * @returns {string[]}
+ * @returns {Object[]}
  */
 function filterBySecurityTag(
     {
         queryParameterValue,
         propertyObj,
-        and_segments,
         columns,
         fnUseAccessIndex
     }) {
+    /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }
@@ -122,7 +124,7 @@ function filterBySecurityTag(
             columns.add(`${propertyObj.field}.coding.code`);
         }
     }
-    return queryParameterValue;
+    return and_segments;
 }
 
 module.exports = {

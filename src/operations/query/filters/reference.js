@@ -3,12 +3,16 @@ const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
 /**
  * Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
- * @param {Object[]} and_segments
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
+ * @return {Object[]}
  */
-function filterByReference({propertyObj, and_segments, queryParameterValue, columns}) {
+function filterByReference({propertyObj, queryParameterValue, columns}) {
+    /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     if (propertyObj.target.length === 1) {
         // handle simple case without an OR to keep it simple
         const target = propertyObj.target[0];
@@ -72,6 +76,7 @@ function filterByReference({propertyObj, and_segments, queryParameterValue, colu
         }
     }
     columns.add(propertyObj.fields ? `${propertyObj.fields.map(f => `${f}.reference`)}` : `${propertyObj.field}.reference`);
+    return and_segments;
 }
 
 module.exports = {

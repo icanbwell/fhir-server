@@ -9,13 +9,16 @@ function isPeriodField(fieldString) {
  * filters by date
  * https://www.hl7.org/fhir/search.html#date
  * @param {string | string[]} queryParameterValue
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
- * @param {Object[]} and_segments
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string} resourceType
  * @param {Set} columns
- * @returns {*[]}
+ * @returns {Object[]}
  */
-function filterByDateTime({queryParameterValue, propertyObj, and_segments, resourceType, columns}) {
+function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns}) {
+        /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }
@@ -81,7 +84,7 @@ function filterByDateTime({queryParameterValue, propertyObj, and_segments, resou
         }
     }
     columns.add(`${propertyObj.field}`);
-    return queryParameterValue;
+    return and_segments;
 }
 
 module.exports = {

@@ -1,12 +1,16 @@
 /**
  * filters by canonical uri
  * https://www.hl7.org/fhir/search.html#uri
- * @param {Object[]} and_segments
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
+ * @return {Object[]}
  */
-function filterByCanonical({and_segments, propertyObj, queryParameterValue, columns}) {
+function filterByCanonical({propertyObj, queryParameterValue, columns}) {
+        /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     // handle simple case without an OR to keep it simple
     if (propertyObj.fields && Array.isArray(propertyObj.fields)) {
         and_segments.push({
@@ -25,6 +29,7 @@ function filterByCanonical({and_segments, propertyObj, queryParameterValue, colu
         );
     }
     columns.add(propertyObj.fields ? `${propertyObj.fields}` : `${propertyObj.field}`);
+    return and_segments;
 }
 
 module.exports = {

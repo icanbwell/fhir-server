@@ -13,13 +13,17 @@ function paramMatch(fields, name) {
 /**
  * filters by contains
  * https://www.hl7.org/fhir/search.html#string
- * @param {Object[]} and_segments
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string} queryParameter
  * @param {Object} args
  * @param {Set} columns
+ * @return {Object[]}
  */
-function filterByContains({and_segments, propertyObj, queryParameter, args, columns}) {
+function filterByContains({propertyObj, queryParameter, args, columns}) {
+    /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     and_segments.push({
         [`${propertyObj.field || paramMatch(propertyObj.fields, queryParameter)}`]:
             {
@@ -28,8 +32,9 @@ function filterByContains({and_segments, propertyObj, queryParameter, args, colu
             },
     });
     columns.add(`${propertyObj.field}`);
+    return and_segments;
 }
 
 module.exports = {
-    filterByContains: filterByContains
+    filterByContains
 };

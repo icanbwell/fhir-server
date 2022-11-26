@@ -4,12 +4,15 @@ const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/quer
  * Filters by token
  * https://www.hl7.org/fhir/search.html#token
  * @param {string | string[]} queryParameterValue
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
- * @param {Object[]} and_segments
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @returns {*[]}
+ * @returns {Object[]}
  */
-function filterByToken({queryParameterValue, propertyObj, and_segments, columns}) {
+function filterByToken({queryParameterValue, propertyObj, columns}) {
+    /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     if (!Array.isArray(queryParameterValue)) {
         queryParameterValue = [queryParameterValue];
     }
@@ -190,7 +193,7 @@ function filterByToken({queryParameterValue, propertyObj, and_segments, columns}
             }
         }
     }
-    return queryParameterValue;
+    return and_segments;
 }
 
 module.exports = {
