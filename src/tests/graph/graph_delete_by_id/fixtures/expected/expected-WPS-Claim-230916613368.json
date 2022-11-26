@@ -3,13 +3,13 @@
     {
       "resource": {
         "id": "WPS-Claim-230916613368",
-        "resourceType": "Resource"
+        "resourceType": "ExplanationOfBenefit"
       }
     },
     {
       "resource": {
         "id": "1376656959",
-        "resourceType": "Resource"
+        "resourceType": "Practitioner"
       }
     }
   ],
