@@ -21,10 +21,12 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
         if (propertyObj.fieldFilter === '[system/@value=\'email\']') {
             and_segments.push(
                 tokenQueryBuilder(
-                    tokenQueryItem,
-                    'value',
-                    `${propertyObj.field}`,
-                    'email'
+                    {
+                        target: tokenQueryItem,
+                        type: 'value',
+                        field: `${propertyObj.field}`,
+                        required: 'email'
+                    }
                 )
             );
             columns.add(`${propertyObj.field}.system`);
@@ -32,10 +34,12 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
         } else if (propertyObj.fieldFilter === '[system/@value=\'phone\']') {
             and_segments.push(
                 tokenQueryBuilder(
-                    tokenQueryItem,
-                    'value',
-                    `${propertyObj.field}`,
-                    'phone'
+                    {
+                        target: tokenQueryItem,
+                        type: 'value',
+                        field: `${propertyObj.field}`,
+                        required: 'phone'
+                    }
                 )
             );
             columns.add(`${propertyObj.field}.system`);
@@ -44,10 +48,11 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
             // http://www.hl7.org/fhir/search.html#token
             and_segments.push(
                 tokenQueryBuilder(
-                    tokenQueryItem,
-                    'value',
-                    `${propertyObj.field}`,
-                    ''
+                    {
+                        target: tokenQueryItem,
+                        type: 'value',
+                        field: `${propertyObj.field}`
+                    }
                 )
             );
             columns.add(`${propertyObj.field}.system`);
@@ -59,10 +64,11 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
             // http://www.hl7.org/fhir/search.html#token
             and_segments.push(
                 tokenQueryBuilder(
-                    tokenQueryItem,
-                    'code',
-                    `${propertyObj.field}`,
-                    ''
+                    {
+                        target: tokenQueryItem,
+                        type: 'code',
+                        field: `${propertyObj.field}`
+                    }
                 )
             );
             columns.add(`${propertyObj.field}.system`);
@@ -73,10 +79,11 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                 case 'Coding':
                     and_segments.push(
                         tokenQueryBuilder(
-                            tokenQueryItem,
-                            'code',
-                            `${propertyObj.field}`,
-                            ''
+                            {
+                                target: tokenQueryItem,
+                                type: 'code',
+                                field: `${propertyObj.field}`,
+                            }
                         )
                     );
                     columns.add(`${propertyObj.field}.system`);
@@ -86,10 +93,11 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                 case 'CodeableConcept':
                     and_segments.push(
                         tokenQueryBuilder(
-                            tokenQueryItem,
-                            'code',
-                            `${propertyObj.field}.coding`,
-                            ''
+                            {
+                                target: tokenQueryItem,
+                                type: 'code',
+                                field: `${propertyObj.field}.coding`,
+                            }
                         )
                     );
                     columns.add(`${propertyObj.field}.coding.system`);
@@ -99,10 +107,11 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                 case 'Identifier':
                     and_segments.push(
                         tokenQueryBuilder(
-                            tokenQueryItem,
-                            'value',
-                            `${propertyObj.field}`,
-                            ''
+                            {
+                                target: tokenQueryItem,
+                                type: 'value',
+                                field: `${propertyObj.field}`,
+                            }
                         )
                     );
                     columns.add(`${propertyObj.field}.system`);
@@ -113,9 +122,10 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                 case 'ContactPoint':
                     and_segments.push(
                         exactMatchQueryBuilder(
-                            tokenQueryItem,
-                            `${propertyObj.field}.value`,
-                            ''
+                            {
+                                target: tokenQueryItem,
+                                field: `${propertyObj.field}.value`,
+                            }
                         )
                     );
                     columns.add(`${propertyObj.field}.value`);
@@ -124,9 +134,10 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                 case 'code':
                     and_segments.push(
                         exactMatchQueryBuilder(
-                            tokenQueryItem,
-                            `${propertyObj.field}`,
-                            ''
+                            {
+                                target: tokenQueryItem,
+                                field: `${propertyObj.field}`,
+                            }
                         )
                     );
                     columns.add(`${propertyObj.field}`);
@@ -135,9 +146,10 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                 case 'boolean':
                     and_segments.push(
                         exactMatchQueryBuilder(
-                            tokenQueryItem === 'true' ? true : false,
-                            `${propertyObj.field}`,
-                            ''
+                            {
+                                target: tokenQueryItem === 'true' ? true : false,
+                                field: `${propertyObj.field}`,
+                            }
                         )
                     );
                     columns.add(`${propertyObj.field}`);
@@ -146,9 +158,10 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                 case 'uri':
                     and_segments.push(
                         exactMatchQueryBuilder(
-                            tokenQueryItem,
-                            `${propertyObj.field}`,
-                            ''
+                            {
+                                target: tokenQueryItem,
+                                field: `${propertyObj.field}`,
+                            }
                         )
                     );
                     columns.add(`${propertyObj.field}`);
@@ -157,9 +170,10 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                 case 'string':
                     and_segments.push(
                         exactMatchQueryBuilder(
-                            tokenQueryItem,
-                            `${propertyObj.field}`,
-                            ''
+                            {
+                                target: tokenQueryItem,
+                                field: `${propertyObj.field}`,
+                            }
                         )
                     );
                     columns.add(`${propertyObj.field}`);
@@ -170,21 +184,24 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                     and_segments.push({
                         $or: [
                             exactMatchQueryBuilder(
-                                tokenQueryItem,
-                                `${propertyObj.field}`,
-                                ''
+                                {
+                                    target: tokenQueryItem,
+                                    field: `${propertyObj.field}`,
+                                }
                             ),
                             tokenQueryBuilder(
-                                tokenQueryItem,
-                                'code',
-                                `${propertyObj.field}`,
-                                ''
+                                {
+                                    target: tokenQueryItem,
+                                    type: 'code',
+                                    field: `${propertyObj.field}`,
+                                }
                             ),
                             tokenQueryBuilder(
-                                tokenQueryItem,
-                                'code',
-                                `${propertyObj.field}.coding`,
-                                ''
+                                {
+                                    target: tokenQueryItem,
+                                    type: 'code',
+                                    field: `${propertyObj.field}.coding`,
+                                }
                             ),
                         ],
                     });

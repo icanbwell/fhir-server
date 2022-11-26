@@ -15,7 +15,7 @@ function isPeriodField(fieldString) {
  * @returns {Object[]}
  */
 function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns}) {
-        /**
+    /**
      * @type {Object[]}
      */
     const and_segments = [];
@@ -34,16 +34,18 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
             const rangeArray = appendArray ? appendArray : [];
             rangeArray.push({
                 [`${fieldName}.start`]: dateQueryBuilder(
-                    `le${dateQueryItem.slice(alphaLength)}`,
-                    propertyObj.type,
-                    ''
+                    {
+                        date: `le${dateQueryItem.slice(alphaLength)}`,
+                        type: propertyObj.type,
+                    }
                 ),
             });
             rangeArray.push({
                 [`${fieldName}.end`]: dateQueryBuilder(
-                    `ge${dateQueryItem.slice(alphaLength)}`,
-                    propertyObj.type,
-                    ''
+                    {
+                        date: `ge${dateQueryItem.slice(alphaLength)}`,
+                        type: propertyObj.type,
+                    }
                 ),
             });
             if (!appendArray) {
@@ -59,7 +61,9 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     return isPeriodField(f) ?
                         {$and: dateRangeSegments('effectivePeriod')} :
                         {
-                            [`${f}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
+                            [`${f}`]: dateQueryBuilder({
+                                date: dateQueryItem, type: propertyObj.type
+                            }),
                         };
                 }),
             });
@@ -71,15 +75,18 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
             // this field stores the date as a native date, so we can do faster queries
             and_segments.push({
                 [`${propertyObj.field}`]: dateQueryBuilderNative(
-                    dateQueryItem,
-                    propertyObj.type,
-                    ''
+                    {
+                        dateSearchParameter: dateQueryItem,
+                        type: propertyObj.type,
+                    }
                 ),
             });
         } else {
             // if this is date as a string
             and_segments.push({
-                [`${propertyObj.field}`]: dateQueryBuilder(dateQueryItem, propertyObj.type, ''),
+                [`${propertyObj.field}`]: dateQueryBuilder({
+                    date: dateQueryItem, type: propertyObj.type
+                }),
             });
         }
     }

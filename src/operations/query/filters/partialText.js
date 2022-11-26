@@ -25,15 +25,19 @@ function filterByPartialText({args, queryParameter, propertyObj, columns}) {
             '$or': [
                 // 1. search in text field
                 partialTextQueryBuilder(
-                    `${propertyObj.field}.text`,
-                    textToSearchFor,
-                    true
+                    {
+                        field: `${propertyObj.field}.text`,
+                        partialText: textToSearchFor,
+                        ignoreCase: true
+                    }
                 ),
                 // 2. search in display field for every coding
                 partialTextQueryBuilder(
-                    `${propertyObj.field}.coding.display`,
-                    textToSearchFor,
-                    true
+                    {
+                        field: `${propertyObj.field}.coding.display`,
+                        partialText: textToSearchFor,
+                        ignoreCase: true
+                    }
                 )
             ]
         }
