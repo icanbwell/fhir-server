@@ -4,9 +4,10 @@
  * @param {string | string[]} queryParameterValue
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @param {boolean} negation
  * @return {Object[]}
  */
-function filterById({queryParameterValue, propertyObj, columns}) {
+function filterById({queryParameterValue, propertyObj, columns, negation}) {
     /**
      * @type {Object[]}
      */
@@ -14,22 +15,29 @@ function filterById({queryParameterValue, propertyObj, columns}) {
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
         and_segments.push({
-            [`${propertyObj.field}`]: {
-                $in: queryParameterValue,
-            },
+            [`${propertyObj.field}`]: negation ?
+                {
+                    $nin: queryParameterValue,
+                } :
+                {
+                    $in: queryParameterValue,
+                },
         });
     } else if (queryParameterValue.includes(',')) {
         // see if this is a comma separated list
         const value_list = queryParameterValue.split(',');
         and_segments.push({
-            [`${propertyObj.field}`]: {
-                $in: value_list,
-            },
+            [`${propertyObj.field}`]: negation ?
+                {
+                    $nin: value_list,
+                } : {
+                    $in: value_list,
+                },
         });
     } else {
         // single value is passed
         and_segments.push({
-            [`${propertyObj.field}`]: queryParameterValue,
+            [`${propertyObj.field}`]: negation ? {$ne: queryParameterValue} : queryParameterValue,
         });
     }
     columns.add(`${propertyObj.field}`);

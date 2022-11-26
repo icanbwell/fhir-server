@@ -34,7 +34,8 @@ function filterBySecurityTag(
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        required: 'email'
+                        required: 'email',
+                        negation
                     }
                 )
             );
@@ -47,7 +48,8 @@ function filterBySecurityTag(
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        required: 'phone'
+                        required: 'phone',
+                        negation
                     }
                 )
             );
@@ -61,6 +63,7 @@ function filterBySecurityTag(
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
+                        negation
                     }
                 )
             );
@@ -99,7 +102,7 @@ function filterBySecurityTag(
                                 target: tokenQueryItem,
                                 type: 'code',
                                 field: `${propertyObj.field}`,
-                                negation: negation
+                                negation
                             }
                         )
                     );
@@ -114,6 +117,7 @@ function filterBySecurityTag(
                             target: tokenQueryItem,
                             type: 'code',
                             field: `${propertyObj.field}`,
+                            negation
                         }
                     )
                 );
@@ -122,24 +126,49 @@ function filterBySecurityTag(
             }
 
         } else {
-            and_segments.push({
-                $or: [
-                    tokenQueryBuilder(
-                        {
-                            target: tokenQueryItem,
-                            type: 'code',
-                            field: `${propertyObj.field}`,
-                        }
-                    ),
-                    tokenQueryBuilder(
-                        {
-                            target: tokenQueryItem,
-                            type: 'code',
-                            field: `${propertyObj.field}.coding`,
-                        }
-                    ),
-                ],
-            });
+            if (negation) {
+                and_segments.push({
+                    $and: [
+                        tokenQueryBuilder(
+                            {
+                                target: tokenQueryItem,
+                                type: 'code',
+                                field: `${propertyObj.field}`,
+                                negation
+                            }
+                        ),
+                        tokenQueryBuilder(
+                            {
+                                target: tokenQueryItem,
+                                type: 'code',
+                                field: `${propertyObj.field}.coding`,
+                                negation
+                            }
+                        ),
+                    ],
+                });
+            } else {
+                and_segments.push({
+                    $or: [
+                        tokenQueryBuilder(
+                            {
+                                target: tokenQueryItem,
+                                type: 'code',
+                                field: `${propertyObj.field}`,
+                                negation
+                            }
+                        ),
+                        tokenQueryBuilder(
+                            {
+                                target: tokenQueryItem,
+                                type: 'code',
+                                field: `${propertyObj.field}.coding`,
+                                negation
+                            }
+                        ),
+                    ],
+                });
+            }
             columns.add(`${propertyObj.field}.coding.system`);
             columns.add(`${propertyObj.field}.coding.code`);
         }

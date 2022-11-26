@@ -4,9 +4,12 @@
  * @param {string | string[]} queryParameterValue
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @param {boolean} negation
  * @return {Object[]}
  */
-function filterByString({queryParameterValue, propertyObj, columns}) {
+const {negateQueryIfNeeded} = require('../../../utils/mongoNegator');
+
+function filterByString({queryParameterValue, propertyObj, columns, negation}) {
     /**
      * @type {Object[]}
      */
@@ -14,21 +17,36 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
         if (propertyObj.fields) {
-            and_segments.push({
-                $or: propertyObj.fields.map((f) => {
-                    return {
-                        [`${f}`]: {
-                            $in: queryParameterValue
-                        }
-                    };
-                }),
-            });
+            if (negation) {
+                and_segments.push({
+                    $and: propertyObj.fields.map((f) => {
+                        return {
+                            [`${f}`]: {
+                                $nin: queryParameterValue
+                            }
+                        };
+                    }),
+                });
+            } else {
+                and_segments.push({
+                    $or: propertyObj.fields.map((f) => {
+                        return {
+                            [`${f}`]: {
+                                $in: queryParameterValue
+                            }
+                        };
+                    }),
+                });
+
+            }
             columns.add(`${propertyObj.fields}`);
         } else {
             and_segments.push({
-                [`${propertyObj.field}`]: {
-                    $in: queryParameterValue,
-                },
+                [`${propertyObj.field}`]: negateQueryIfNeeded({
+                    query: {
+                        $in: queryParameterValue,
+                    }, negation
+                }),
             });
             columns.add(`${propertyObj.field}`);
         }
@@ -37,37 +55,62 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
         const value_list = queryParameterValue.split(',');
 
         if (propertyObj.fields) {
-            and_segments.push({
-                $or: propertyObj.fields.map((f) => {
-                    return {
-                        [`${f}`]: {
-                            $in: value_list
-                        }
-                    };
-                }),
-            });
+            if (negation) {
+                and_segments.push({
+                    $and: propertyObj.fields.map((f) => {
+                        return {
+                            [`${f}`]: {
+                                $nin: value_list
+                            }
+                        };
+                    }),
+                });
+            } else {
+                and_segments.push({
+                    $or: propertyObj.fields.map((f) => {
+                        return {
+                            [`${f}`]: {
+                                $in: value_list
+                            }
+                        };
+                    }),
+                });
+
+            }
             columns.add(`${propertyObj.fields}`);
         } else {
             and_segments.push({
-                [`${propertyObj.field}`]: {
-                    $in: value_list,
-                },
+                [`${propertyObj.field}`]: negateQueryIfNeeded({
+                    query: {
+                        $in: value_list,
+                    }, negation
+                }),
             });
             columns.add(`${propertyObj.field}`);
         }
     } else if (propertyObj.fields) {
-        // single value is passed
-        and_segments.push({
-            $or: propertyObj.fields.map((f) => {
-                return {
-                    [`${f}`]: queryParameterValue
-                };
-            }),
-        });
+        if (negation) {
+            and_segments.push({
+                $and: propertyObj.fields.map((f) => {
+                    return {
+                        [`${f}`]: {$ne: queryParameterValue}
+                    };
+                }),
+            });
+        } else {
+            and_segments.push({
+                $or: propertyObj.fields.map((f) => {
+                    return {
+                        [`${f}`]: queryParameterValue
+                    };
+                }),
+            });
+
+        }
         columns.add(`${propertyObj.fields}`);
     } else {
         and_segments.push({
-            [`${propertyObj.field}`]: queryParameterValue,
+            [`${propertyObj.field}`]: negation ? {$ne: queryParameterValue} : queryParameterValue,
         });
         columns.add(`${propertyObj.field}`);
     }

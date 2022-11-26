@@ -4,14 +4,15 @@
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
+ * @param {boolean} negation
  * @return {Object[]}
  */
-function filterByUri({propertyObj, queryParameterValue, columns}) {
-        /**
+function filterByUri({propertyObj, queryParameterValue, columns, negation}) {
+    /**
      * @type {Object[]}
      */
     const and_segments = [];
-    and_segments.push({[`${propertyObj.field}`]: queryParameterValue});
+    and_segments.push({[`${propertyObj.field}`]: negation ? {$ne: queryParameterValue} : queryParameterValue});
     columns.add(`${propertyObj.field}`);
     return and_segments;
 }

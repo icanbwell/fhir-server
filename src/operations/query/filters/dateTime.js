@@ -12,9 +12,10 @@ function isPeriodField(fieldString) {
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string} resourceType
  * @param {Set} columns
+ * @param {boolean} negation
  * @returns {Object[]}
  */
-function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns}) {
+function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns, negation}) {
     /**
      * @type {Object[]}
      */
@@ -37,6 +38,7 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     {
                         date: `le${dateQueryItem.slice(alphaLength)}`,
                         type: propertyObj.type,
+                        negation
                     }
                 ),
             });
@@ -45,6 +47,7 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     {
                         date: `ge${dateQueryItem.slice(alphaLength)}`,
                         type: propertyObj.type,
+                        negation
                     }
                 ),
             });
@@ -56,17 +59,34 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
             dateRangeSegments('period', and_segments);
         } else if (propertyObj.fields) {
             // if there are multiple fields
-            and_segments.push({
-                $or: propertyObj.fields.map((f) => {
-                    return isPeriodField(f) ?
-                        {$and: dateRangeSegments('effectivePeriod')} :
-                        {
-                            [`${f}`]: dateQueryBuilder({
-                                date: dateQueryItem, type: propertyObj.type
-                            }),
-                        };
-                }),
-            });
+            if (negation) {
+                and_segments.push({
+                    $and: propertyObj.fields.map((f) => {
+                        return isPeriodField(f) ?
+                            {$and: dateRangeSegments('effectivePeriod')} :
+                            {
+                                [`${f}`]: dateQueryBuilder({
+                                    date: dateQueryItem, type: propertyObj.type,
+                                    negation
+                                }),
+                            };
+                    }),
+                });
+            } else {
+                and_segments.push({
+                    $or: propertyObj.fields.map((f) => {
+                        return isPeriodField(f) ?
+                            {$and: dateRangeSegments('effectivePeriod')} :
+                            {
+                                [`${f}`]: dateQueryBuilder({
+                                    date: dateQueryItem, type: propertyObj.type,
+                                    negation
+                                }),
+                            };
+                    }),
+                });
+
+            }
         } else if (
             propertyObj.field === 'meta.lastUpdated' ||
             isColumnDateType(resourceType, propertyObj.field)
@@ -78,6 +98,7 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     {
                         dateSearchParameter: dateQueryItem,
                         type: propertyObj.type,
+                        negation
                     }
                 ),
             });
@@ -85,7 +106,8 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
             // if this is date as a string
             and_segments.push({
                 [`${propertyObj.field}`]: dateQueryBuilder({
-                    date: dateQueryItem, type: propertyObj.type
+                    date: dateQueryItem, type: propertyObj.type,
+                    negation
                 }),
             });
         }

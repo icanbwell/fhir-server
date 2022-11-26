@@ -143,7 +143,8 @@ class R4SearchQueryCreator {
                         // handle id differently since it is a token, but we want to do exact match
                         if (queryParameter === '_id') {
                             filterById({
-                                queryParameterValue, propertyObj, columns
+                                queryParameterValue, propertyObj, columns,
+                                negation
                             }).forEach(q => and_segments.push(q));
                         } else {
                             switch (propertyObj.type) {
@@ -233,7 +234,13 @@ class R4SearchQueryCreator {
                         }).forEach(q => and_segments.push(q));
                     } else if (args[`${queryParameter}:text`]) {
                         filterByPartialText({
-                            args, queryParameter, propertyObj, columns
+                            args, queryParameter, propertyObj, columns,
+                            negation: false
+                        }).forEach(q => and_segments.push(q));
+                    } else if (args[`${queryParameter}:not:text`] || args[`${queryParameter}:text:not`]) {
+                        filterByPartialText({
+                            args, queryParameter, propertyObj, columns,
+                            negation: true
                         }).forEach(q => and_segments.push(q));
                     }
                 }

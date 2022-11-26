@@ -7,9 +7,10 @@ const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {string} queryParameter
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @param {boolean} negation
  * @return {Object[]}
  */
-function filterByPartialText({args, queryParameter, propertyObj, columns}) {
+function filterByPartialText({args, queryParameter, propertyObj, columns, negation}) {
     /**
      * @type {Object[]}
      */
@@ -28,7 +29,8 @@ function filterByPartialText({args, queryParameter, propertyObj, columns}) {
                     {
                         field: `${propertyObj.field}.text`,
                         partialText: textToSearchFor,
-                        ignoreCase: true
+                        ignoreCase: true,
+                        negation
                     }
                 ),
                 // 2. search in display field for every coding
@@ -36,7 +38,8 @@ function filterByPartialText({args, queryParameter, propertyObj, columns}) {
                     {
                         field: `${propertyObj.field}.coding.display`,
                         partialText: textToSearchFor,
-                        ignoreCase: true
+                        ignoreCase: true,
+                        negation
                     }
                 )
             ]

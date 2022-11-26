@@ -310,7 +310,7 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient', args
             });
-            expect(result.query.$and['0'].$not.id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(result.query.$and['0'].id.$ne).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
         });
         test('r4 works with :not for _security', async () => {
             await createTestRequest((container) => {

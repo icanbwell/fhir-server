@@ -6,9 +6,10 @@ const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/quer
  * @param {string | string[]} queryParameterValue
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @param {boolean} negation
  * @returns {Object[]}
  */
-function filterByToken({queryParameterValue, propertyObj, columns}) {
+function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
     /**
      * @type {Object[]}
      */
@@ -25,7 +26,8 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        required: 'email'
+                        required: 'email',
+                        negation: negation
                     }
                 )
             );
@@ -38,7 +40,8 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        required: 'phone'
+                        required: 'phone',
+                        negation: negation
                     }
                 )
             );
@@ -51,7 +54,8 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                     {
                         target: tokenQueryItem,
                         type: 'value',
-                        field: `${propertyObj.field}`
+                        field: `${propertyObj.field}`,
+                        negation: negation
                     }
                 )
             );
@@ -67,7 +71,8 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                     {
                         target: tokenQueryItem,
                         type: 'code',
-                        field: `${propertyObj.field}`
+                        field: `${propertyObj.field}`,
+                        negation: negation
                     }
                 )
             );
@@ -83,6 +88,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                                 target: tokenQueryItem,
                                 type: 'code',
                                 field: `${propertyObj.field}`,
+                                negation: negation
                             }
                         )
                     );
@@ -97,6 +103,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                                 target: tokenQueryItem,
                                 type: 'code',
                                 field: `${propertyObj.field}.coding`,
+                                negation: negation
                             }
                         )
                     );
@@ -111,6 +118,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                                 target: tokenQueryItem,
                                 type: 'value',
                                 field: `${propertyObj.field}`,
+                                negation: negation
                             }
                         )
                     );
@@ -125,6 +133,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                             {
                                 target: tokenQueryItem,
                                 field: `${propertyObj.field}.value`,
+                                negation
                             }
                         )
                     );
@@ -137,6 +146,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                             {
                                 target: tokenQueryItem,
                                 field: `${propertyObj.field}`,
+                                negation
                             }
                         )
                     );
@@ -149,6 +159,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                             {
                                 target: tokenQueryItem === 'true' ? true : false,
                                 field: `${propertyObj.field}`,
+                                negation
                             }
                         )
                     );
@@ -161,6 +172,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                             {
                                 target: tokenQueryItem,
                                 field: `${propertyObj.field}`,
+                                negation
                             }
                         )
                     );
@@ -173,6 +185,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                             {
                                 target: tokenQueryItem,
                                 field: `${propertyObj.field}`,
+                                negation
                             }
                         )
                     );
@@ -187,6 +200,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                                 {
                                     target: tokenQueryItem,
                                     field: `${propertyObj.field}`,
+                                    negation
                                 }
                             ),
                             tokenQueryBuilder(
@@ -194,6 +208,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                                     target: tokenQueryItem,
                                     type: 'code',
                                     field: `${propertyObj.field}`,
+                                    negation: negation
                                 }
                             ),
                             tokenQueryBuilder(
@@ -201,6 +216,7 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                                     target: tokenQueryItem,
                                     type: 'code',
                                     field: `${propertyObj.field}.coding`,
+                                    negation: negation
                                 }
                             ),
                         ],

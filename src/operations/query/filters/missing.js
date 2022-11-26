@@ -34,5 +34,5 @@ function filterByMissing({args, queryParameter, propertyObj, columns}) {
 }
 
 module.exports = {
-    filterByMissing: filterByMissing
+    filterByMissing
 };
