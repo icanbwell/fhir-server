@@ -11,6 +11,7 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
+const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -88,6 +89,12 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
+
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientResources);
         });
     });
 });
