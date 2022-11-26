@@ -2,6 +2,7 @@ const practitionerEverythingGraph = require('../../graphs/practitioner/everythin
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const personEverythingGraph = require('../../graphs/person/everything.json');
+const patientEverythingGraph = require('../../graphs/patient/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {GraphOperation} = require('../graph/graph');
 const {ScopesValidator} = require('../security/scopesValidator');
@@ -105,6 +106,17 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Person') {
                 requestInfo.body = personEverythingGraph;
+                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
+                return result;
+            } else if (resourceType === 'Patient') {
+                requestInfo.body = patientEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
