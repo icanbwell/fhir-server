@@ -11,7 +11,9 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
+const expectedPersonContainedResources = require('./fixtures/expected/expected_Person_contained.json');
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
+const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -83,18 +85,29 @@ describe('Person Tests', () => {
 
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right Person back
-            resp = await request
-                .get('/4_0_0/Person/personTopLevel/$everything')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonResources);
-
+            // First get patient everything
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything?contained=true')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientContainedResources);
+
+            // Second get person everything
+            resp = await request
+                .get('/4_0_0/Person/personTopLevel/$everything')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonResources);
+            resp = await request
+                .get('/4_0_0/Person/personTopLevel/$everything?contained=true')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonContainedResources);
         });
     });
 });
