@@ -21,7 +21,7 @@ const expectedPatientContainedResources = require('./fixtures/expected/expected_
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
-describe('Person Tests', () => {
+describe('Person and Patient $everything Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -30,8 +30,8 @@ describe('Person Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Person person Tests', () => {
-        test('person works', async () => {
+    describe('Person and Patient $everything Tests', () => {
+        test('Person and Patient $everything works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
