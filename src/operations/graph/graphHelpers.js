@@ -21,7 +21,6 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
-const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 
 /**
@@ -1266,8 +1265,9 @@ class GraphHelper {
                         query: {id: {$in: idList}}
                     });
                 for (const resultResourceId of idList) {
+                    const ResourceCreator = getResource(base_version, resultResourceType);
                     deleteOperationBundleEntries.push(new BundleEntry({
-                        resource: new Resource({
+                        resource: new ResourceCreator({
                             id: resultResourceId, resourceType: resultResourceType
                         })
                     }));

@@ -72,7 +72,7 @@ class EverythingOperation {
             query.id = id;
             // Grab an instance of our DB and collection
             if (resourceType === 'Practitioner') {
-                requestInfo.body = practitionerEverythingGraph;
+                args.resource = practitionerEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -83,7 +83,7 @@ class EverythingOperation {
                 });
                 return result;
             } else if (resourceType === 'Organization') {
-                requestInfo.body = organizationEverythingGraph;
+                args.resource = organizationEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -94,7 +94,7 @@ class EverythingOperation {
                 });
                 return result;
             } else if (resourceType === 'Slot') {
-                requestInfo.body = slotEverythingGraph;
+                args.resource = slotEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -105,7 +105,7 @@ class EverythingOperation {
                 });
                 return result;
             } else if (resourceType === 'Person') {
-                requestInfo.body = personEverythingGraph;
+                args.resource = personEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -116,7 +116,7 @@ class EverythingOperation {
                 });
                 return result;
             } else if (resourceType === 'Patient') {
-                requestInfo.body = patientEverythingGraph;
+                args.resource = patientEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,

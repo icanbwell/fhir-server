@@ -130,7 +130,8 @@ class GraphOperation {
             /**
              * @type {Object|null}
              */
-            let graphDefinitionRaw = args.resource ? args.resource : body;
+            let graphDefinitionRaw = args.resource && Object.keys(args.resource).length > 0 ?
+                args.resource : body;
 
             // check if this is a Parameters resourceType
             if (graphDefinitionRaw.resourceType === 'Parameters') {
