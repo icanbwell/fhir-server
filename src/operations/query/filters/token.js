@@ -1,4 +1,5 @@
 const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/querybuilder.util');
+const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
 
 /**
  * Filters by token
@@ -194,33 +195,39 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
 
                 default:
                     // can't detect type so use multiple methods
-                    and_segments.push({
-                        $or: [
-                            exactMatchQueryBuilder(
-                                {
-                                    target: tokenQueryItem,
-                                    field: `${propertyObj.field}`,
-                                    negation
-                                }
-                            ),
-                            tokenQueryBuilder(
-                                {
-                                    target: tokenQueryItem,
-                                    type: 'code',
-                                    field: `${propertyObj.field}`,
-                                    negation: negation
-                                }
-                            ),
-                            tokenQueryBuilder(
-                                {
-                                    target: tokenQueryItem,
-                                    type: 'code',
-                                    field: `${propertyObj.field}.coding`,
-                                    negation: negation
-                                }
-                            ),
-                        ],
-                    });
+                    and_segments.push(
+                        replaceOrWithNorIfNegation(
+                            {
+                                query: {
+                                    $or: [
+                                        exactMatchQueryBuilder(
+                                            {
+                                                target: tokenQueryItem,
+                                                field: `${propertyObj.field}`,
+                                                negation
+                                            }
+                                        ),
+                                        tokenQueryBuilder(
+                                            {
+                                                target: tokenQueryItem,
+                                                type: 'code',
+                                                field: `${propertyObj.field}`,
+                                                negation: negation
+                                            }
+                                        ),
+                                        tokenQueryBuilder(
+                                            {
+                                                target: tokenQueryItem,
+                                                type: 'code',
+                                                field: `${propertyObj.field}.coding`,
+                                                negation: negation
+                                            }
+                                        ),
+                                    ],
+                                },
+                                negation
+                            })
+                    );
                     columns.add(`${propertyObj.field}.coding.system`);
                     columns.add(`${propertyObj.field}.coding.code`);
             }

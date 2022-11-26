@@ -1,5 +1,6 @@
 const {dateQueryBuilder, dateQueryBuilderNative} = require('../../../utils/querybuilder.util');
 const {isColumnDateType} = require('../../common/isColumnDateType');
+const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
 
 function isPeriodField(fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod';
@@ -59,34 +60,23 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
             dateRangeSegments('period', and_segments);
         } else if (propertyObj.fields) {
             // if there are multiple fields
-            if (negation) {
-                and_segments.push({
-                    $and: propertyObj.fields.map((f) => {
-                        return isPeriodField(f) ?
-                            {$and: dateRangeSegments('effectivePeriod')} :
-                            {
-                                [`${f}`]: dateQueryBuilder({
-                                    date: dateQueryItem, type: propertyObj.type,
-                                    negation
-                                }),
-                            };
-                    }),
-                });
-            } else {
-                and_segments.push({
-                    $or: propertyObj.fields.map((f) => {
-                        return isPeriodField(f) ?
-                            {$and: dateRangeSegments('effectivePeriod')} :
-                            {
-                                [`${f}`]: dateQueryBuilder({
-                                    date: dateQueryItem, type: propertyObj.type,
-                                    negation
-                                }),
-                            };
-                    }),
-                });
-
-            }
+            and_segments.push(
+                replaceOrWithNorIfNegation(
+                    {
+                        query: {
+                            $or: propertyObj.fields.map((f) => {
+                                return isPeriodField(f) ?
+                                    {$and: dateRangeSegments('effectivePeriod')} :
+                                    {
+                                        [`${f}`]: dateQueryBuilder({
+                                            date: dateQueryItem, type: propertyObj.type,
+                                            negation: false // the NOR above handles this
+                                        }),
+                                    };
+                            }),
+                        }
+                    })
+            );
         } else if (
             propertyObj.field === 'meta.lastUpdated' ||
             isColumnDateType(resourceType, propertyObj.field)

@@ -24,9 +24,9 @@ function negateEqualsIfNegation({value, negation}) {
  * @param {boolean} negation
  * @return {Object}
  */
-function replaceOrWithAndIfNegation({query, negation}) {
+function replaceOrWithNorIfNegation({query, negation}) {
     if (negation) {
-        query['$and'] = query['$or'];
+        query['$nor'] = query['$or'];
         delete query['$or'];
     }
     return query;
@@ -35,5 +35,5 @@ function replaceOrWithAndIfNegation({query, negation}) {
 module.exports = {
     negateQueryIfNegation,
     negateEqualsIfNegation,
-    replaceOrWithAndIfNegation
+    replaceOrWithNorIfNegation
 };
