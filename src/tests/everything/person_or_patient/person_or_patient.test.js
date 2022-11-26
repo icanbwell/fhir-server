@@ -10,8 +10,11 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 
 // expected
-const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
-const expectedPersonContainedResources = require('./fixtures/expected/expected_Person_contained.json');
+const expectedPersonTopLevelResources = require('./fixtures/expected/expected_Person_personTopLevel.json');
+const expectedPersonTopLevelContainedResources = require('./fixtures/expected/expected_Person_personTopLevel_contained.json');
+const expectedPerson1Resources = require('./fixtures/expected/expected_Person_person1.json');
+const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained.json');
+
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
@@ -97,17 +100,29 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientContainedResources);
 
-            // Second get person everything
+            // Second get person everything from topLevel
             resp = await request
                 .get('/4_0_0/Person/personTopLevel/$everything')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonResources);
+            expect(resp).toHaveResponse(expectedPersonTopLevelResources);
             resp = await request
                 .get('/4_0_0/Person/personTopLevel/$everything?contained=true')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonContainedResources);
+            expect(resp).toHaveResponse(expectedPersonTopLevelContainedResources);
+
+            // Third get person everything from person1
+            resp = await request
+                .get('/4_0_0/Person/person1/$everything')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPerson1Resources);
+            resp = await request
+                .get('/4_0_0/Person/person1/$everything?contained=true')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPerson1ContainedResources);
         });
     });
 });
