@@ -323,6 +323,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<MergeResultEntry[]>}
      */
     async executeAsync({requestId, currentDate, base_version}) {
+        assertIsValid(requestId, 'requestId is null');
         try {
             const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
             await logVerboseAsync({
