@@ -95,6 +95,14 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
  * @return {Promise<void>}
  */
 module.exports.commonBeforeEach = async () => {
+    if (testContainer) {
+        /**
+         * @type {PostRequestProcessor}
+         */
+        const postRequestProcessor = testContainer.postRequestProcessor;
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+        await testContainer.mongoDatabaseManager.dropDatabasesAsync();
+    }
     jest.setTimeout(30000);
     env['VALIDATE_SCHEMA'] = true;
     process.env.AUTH_ENABLED = '1';
