@@ -1,5 +1,4 @@
 const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/querybuilder.util');
-const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
 
 /**
  * Filters by token
@@ -7,10 +6,9 @@ const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
  * @param {string | string[]} queryParameterValue
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @param {boolean} negation
  * @returns {Object[]}
  */
-function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
+function filterByToken({queryParameterValue, propertyObj, columns}) {
     /**
      * @type {Object[]}
      */
@@ -27,8 +25,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        required: 'email',
-                        negation: negation
+                        required: 'email'
                     }
                 )
             );
@@ -41,8 +38,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        required: 'phone',
-                        negation: negation
+                        required: 'phone'
                     }
                 )
             );
@@ -55,8 +51,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                     {
                         target: tokenQueryItem,
                         type: 'value',
-                        field: `${propertyObj.field}`,
-                        negation: negation
+                        field: `${propertyObj.field}`
                     }
                 )
             );
@@ -72,8 +67,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                     {
                         target: tokenQueryItem,
                         type: 'code',
-                        field: `${propertyObj.field}`,
-                        negation: negation
+                        field: `${propertyObj.field}`
                     }
                 )
             );
@@ -88,8 +82,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                             {
                                 target: tokenQueryItem,
                                 type: 'code',
-                                field: `${propertyObj.field}`,
-                                negation: negation
+                                field: `${propertyObj.field}`
                             }
                         )
                     );
@@ -103,8 +96,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                             {
                                 target: tokenQueryItem,
                                 type: 'code',
-                                field: `${propertyObj.field}.coding`,
-                                negation: negation
+                                field: `${propertyObj.field}.coding`
                             }
                         )
                     );
@@ -118,8 +110,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                             {
                                 target: tokenQueryItem,
                                 type: 'value',
-                                field: `${propertyObj.field}`,
-                                negation: negation
+                                field: `${propertyObj.field}`
                             }
                         )
                     );
@@ -133,8 +124,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                         exactMatchQueryBuilder(
                             {
                                 target: tokenQueryItem,
-                                field: `${propertyObj.field}.value`,
-                                negation
+                                field: `${propertyObj.field}.value`
                             }
                         )
                     );
@@ -146,8 +136,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                         exactMatchQueryBuilder(
                             {
                                 target: tokenQueryItem,
-                                field: `${propertyObj.field}`,
-                                negation
+                                field: `${propertyObj.field}`
                             }
                         )
                     );
@@ -159,8 +148,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                         exactMatchQueryBuilder(
                             {
                                 target: tokenQueryItem === 'true' ? true : false,
-                                field: `${propertyObj.field}`,
-                                negation
+                                field: `${propertyObj.field}`
                             }
                         )
                     );
@@ -172,8 +160,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                         exactMatchQueryBuilder(
                             {
                                 target: tokenQueryItem,
-                                field: `${propertyObj.field}`,
-                                negation
+                                field: `${propertyObj.field}`
                             }
                         )
                     );
@@ -185,8 +172,7 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
                         exactMatchQueryBuilder(
                             {
                                 target: tokenQueryItem,
-                                field: `${propertyObj.field}`,
-                                negation
+                                field: `${propertyObj.field}`
                             }
                         )
                     );
@@ -195,38 +181,30 @@ function filterByToken({queryParameterValue, propertyObj, columns, negation}) {
 
                 default:
                     // can't detect type so use multiple methods
-                    and_segments.push(
-                        replaceOrWithNorIfNegation(
-                            {
-                                query: {
-                                    $or: [
-                                        exactMatchQueryBuilder(
-                                            {
-                                                target: tokenQueryItem,
-                                                field: `${propertyObj.field}`,
-                                                negation
-                                            }
-                                        ),
-                                        tokenQueryBuilder(
-                                            {
-                                                target: tokenQueryItem,
-                                                type: 'code',
-                                                field: `${propertyObj.field}`,
-                                                negation: negation
-                                            }
-                                        ),
-                                        tokenQueryBuilder(
-                                            {
-                                                target: tokenQueryItem,
-                                                type: 'code',
-                                                field: `${propertyObj.field}.coding`,
-                                                negation: negation
-                                            }
-                                        ),
-                                    ],
-                                },
-                                negation
-                            })
+                    and_segments.push({
+                            $or: [
+                                exactMatchQueryBuilder(
+                                    {
+                                        target: tokenQueryItem,
+                                        field: `${propertyObj.field}`
+                                    }
+                                ),
+                                tokenQueryBuilder(
+                                    {
+                                        target: tokenQueryItem,
+                                        type: 'code',
+                                        field: `${propertyObj.field}`
+                                    }
+                                ),
+                                tokenQueryBuilder(
+                                    {
+                                        target: tokenQueryItem,
+                                        type: 'code',
+                                        field: `${propertyObj.field}.coding`
+                                    }
+                                ),
+                            ],
+                        },
                     );
                     columns.add(`${propertyObj.field}.coding.system`);
                     columns.add(`${propertyObj.field}.coding.code`);

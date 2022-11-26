@@ -8,7 +8,6 @@ const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @param {function(code): boolean} fnUseAccessIndex function that returns whether to use access index for this code
- * @param {boolean} negation
  * @returns {Object[]}
  */
 function filterBySecurityTag(
@@ -17,7 +16,6 @@ function filterBySecurityTag(
         propertyObj,
         columns,
         fnUseAccessIndex,
-        negation
     }) {
     /**
      * @type {Object[]}
@@ -34,8 +32,7 @@ function filterBySecurityTag(
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        required: 'email',
-                        negation
+                        required: 'email'
                     }
                 )
             );
@@ -48,8 +45,7 @@ function filterBySecurityTag(
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        required: 'phone',
-                        negation
+                        required: 'phone'
                     }
                 )
             );
@@ -63,7 +59,6 @@ function filterBySecurityTag(
                         target: tokenQueryItem,
                         type: 'value',
                         field: `${propertyObj.field}`,
-                        negation
                     }
                 )
             );
@@ -82,17 +77,10 @@ function filterBySecurityTag(
                 if (system === SecurityTagSystem.access && fnUseAccessIndex(value)) {
                     // http://www.hl7.org/fhir/search.html#token
                     const field = `_access.${value}`;
-                    if (negation) {
-                        and_segments.push(
-                            {
-                                [field]: {$ne: 1}
-                            });
-                    } else {
-                        and_segments.push(
-                            {
-                                [field]: 1
-                            });
-                    }
+                    and_segments.push(
+                        {
+                            [field]: 1
+                        });
 
                     columns.add(`${field}`);
                 } else {
@@ -101,8 +89,7 @@ function filterBySecurityTag(
                             {
                                 target: tokenQueryItem,
                                 type: 'code',
-                                field: `${propertyObj.field}`,
-                                negation
+                                field: `${propertyObj.field}`
                             }
                         )
                     );
@@ -116,8 +103,7 @@ function filterBySecurityTag(
                         {
                             target: tokenQueryItem,
                             type: 'code',
-                            field: `${propertyObj.field}`,
-                            negation
+                            field: `${propertyObj.field}`
                         }
                     )
                 );
@@ -126,49 +112,25 @@ function filterBySecurityTag(
             }
 
         } else {
-            if (negation) {
-                and_segments.push({
-                    $and: [
-                        tokenQueryBuilder(
-                            {
-                                target: tokenQueryItem,
-                                type: 'code',
-                                field: `${propertyObj.field}`,
-                                negation
-                            }
-                        ),
-                        tokenQueryBuilder(
-                            {
-                                target: tokenQueryItem,
-                                type: 'code',
-                                field: `${propertyObj.field}.coding`,
-                                negation
-                            }
-                        ),
-                    ],
-                });
-            } else {
-                and_segments.push({
-                    $or: [
-                        tokenQueryBuilder(
-                            {
-                                target: tokenQueryItem,
-                                type: 'code',
-                                field: `${propertyObj.field}`,
-                                negation
-                            }
-                        ),
-                        tokenQueryBuilder(
-                            {
-                                target: tokenQueryItem,
-                                type: 'code',
-                                field: `${propertyObj.field}.coding`,
-                                negation
-                            }
-                        ),
-                    ],
-                });
-            }
+            and_segments.push({
+                $or: [
+                    tokenQueryBuilder(
+                        {
+                            target: tokenQueryItem,
+                            type: 'code',
+                            field: `${propertyObj.field}`
+                        }
+                    ),
+                    tokenQueryBuilder(
+                        {
+                            target: tokenQueryItem,
+                            type: 'code',
+                            field: `${propertyObj.field}.coding`
+                        }
+                    ),
+                ],
+            });
+
             columns.add(`${propertyObj.field}.coding.system`);
             columns.add(`${propertyObj.field}.coding.code`);
         }

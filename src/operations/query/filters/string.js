@@ -4,16 +4,9 @@
  * @param {string | string[]} queryParameterValue
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @param {boolean} negation
  * @return {Object[]}
  */
-const {
-    negateQueryIfNegation,
-    negateEqualsIfNegation,
-    replaceOrWithNorIfNegation
-} = require('../../../utils/mongoNegator');
-
-function filterByString({queryParameterValue, propertyObj, columns, negation}) {
+function filterByString({queryParameterValue, propertyObj, columns}) {
     /**
      * @type {Object[]}
      */
@@ -21,31 +14,21 @@ function filterByString({queryParameterValue, propertyObj, columns, negation}) {
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
         if (propertyObj.fields) {
-            and_segments.push(
-                replaceOrWithNorIfNegation(
-                    {
-                        query: {
-                            $or: propertyObj.fields.map((f) => {
-                                return {
-                                    [`${f}`]: {
-                                        $in: queryParameterValue
-                                    }
-                                };
-                            }),
-                        },
-                        negation
-                    }
-                )
-            );
-
-            columns.add(`${propertyObj.fields}`);
-        } else {
             and_segments.push({
-                [`${propertyObj.field}`]: negateQueryIfNegation({
-                    query: {
-                        $in: queryParameterValue,
-                    }, negation
+                $or: propertyObj.fields.map((f) => {
+                    return {
+                        [`${f}`]: {
+                            $in: queryParameterValue}
+                    };
                 }),
+            });
+            columns.add(`${propertyObj.fields}`);
+        }
+        else {
+            and_segments.push({
+                [`${propertyObj.field}`]: {
+                    $in: queryParameterValue,
+                },
             });
             columns.add(`${propertyObj.field}`);
         }
@@ -54,51 +37,37 @@ function filterByString({queryParameterValue, propertyObj, columns, negation}) {
         const value_list = queryParameterValue.split(',');
 
         if (propertyObj.fields) {
-            and_segments.push(
-                replaceOrWithNorIfNegation(
-                    {
-                        query: {
-                            $or: propertyObj.fields.map((f) => {
-                                return {
-                                    [`${f}`]: {
-                                        $in: value_list
-                                    }
-                                };
-                            }),
-                        },
-                        negation
-                    })
-            );
+            and_segments.push({
+                $or: propertyObj.fields.map((f) => {
+                    return {
+                        [`${f}`]: {
+                            $in: value_list
+                        }
+                    };
+                }),
+            });
             columns.add(`${propertyObj.fields}`);
         } else {
             and_segments.push({
-                [`${propertyObj.field}`]: negateQueryIfNegation({
-                    query: {
-                        $in: value_list,
-                    }, negation
-                }),
+                [`${propertyObj.field}`]: {
+                    $in: value_list,
+                },
             });
             columns.add(`${propertyObj.field}`);
         }
     } else if (propertyObj.fields) {
-        and_segments.push(
-            replaceOrWithNorIfNegation(
-                {
-                    query: {
-                        $or: propertyObj.fields.map((f) => {
-                            return {
-                                [`${f}`]: queryParameterValue
-                            };
-                        }),
-                    },
-                    negation
-                })
-        );
-
+        // single value is passed
+        and_segments.push({
+            $or: propertyObj.fields.map((f) => {
+                    return {
+                        [`${f}`]: queryParameterValue
+                    };
+                }),
+        });
         columns.add(`${propertyObj.fields}`);
     } else {
         and_segments.push({
-            [`${propertyObj.field}`]: negateEqualsIfNegation({value: queryParameterValue, negation}),
+            [`${propertyObj.field}`]: queryParameterValue,
         });
         columns.add(`${propertyObj.field}`);
     }

@@ -1,6 +1,5 @@
 const {dateQueryBuilder, dateQueryBuilderNative} = require('../../../utils/querybuilder.util');
 const {isColumnDateType} = require('../../common/isColumnDateType');
-const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
 
 function isPeriodField(fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod';
@@ -13,10 +12,9 @@ function isPeriodField(fieldString) {
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string} resourceType
  * @param {Set} columns
- * @param {boolean} negation
  * @returns {Object[]}
  */
-function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns, negation}) {
+function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns}) {
     /**
      * @type {Object[]}
      */
@@ -39,7 +37,6 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     {
                         date: `le${dateQueryItem.slice(alphaLength)}`,
                         type: propertyObj.type,
-                        negation
                     }
                 ),
             });
@@ -48,7 +45,6 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     {
                         date: `ge${dateQueryItem.slice(alphaLength)}`,
                         type: propertyObj.type,
-                        negation
                     }
                 ),
             });
@@ -61,21 +57,17 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
         } else if (propertyObj.fields) {
             // if there are multiple fields
             and_segments.push(
-                replaceOrWithNorIfNegation(
-                    {
-                        query: {
-                            $or: propertyObj.fields.map((f) => {
-                                return isPeriodField(f) ?
-                                    {$and: dateRangeSegments('effectivePeriod')} :
-                                    {
-                                        [`${f}`]: dateQueryBuilder({
-                                            date: dateQueryItem, type: propertyObj.type,
-                                            negation: false // the NOR above handles this
-                                        }),
-                                    };
-                            }),
-                        }
-                    })
+                {
+                    $or: propertyObj.fields.map((f) => {
+                        return isPeriodField(f) ?
+                            {$and: dateRangeSegments('effectivePeriod')} :
+                            {
+                                [`${f}`]: dateQueryBuilder({
+                                    date: dateQueryItem, type: propertyObj.type,
+                                }),
+                            };
+                    }),
+                }
             );
         } else if (
             propertyObj.field === 'meta.lastUpdated' ||
@@ -87,8 +79,7 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                 [`${propertyObj.field}`]: dateQueryBuilderNative(
                     {
                         dateSearchParameter: dateQueryItem,
-                        type: propertyObj.type,
-                        negation
+                        type: propertyObj.type
                     }
                 ),
             });
@@ -96,8 +87,7 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
             // if this is date as a string
             and_segments.push({
                 [`${propertyObj.field}`]: dateQueryBuilder({
-                    date: dateQueryItem, type: propertyObj.type,
-                    negation
+                    date: dateQueryItem, type: propertyObj.type
                 }),
             });
         }

@@ -1,5 +1,4 @@
 const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
-const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
 
 /**
  * Filters by missing
@@ -8,10 +7,9 @@ const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
  * @param {string} queryParameter
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @param {boolean} negation
  * @return {Object[]}
  */
-function filterByPartialText({args, queryParameter, propertyObj, columns, negation}) {
+function filterByPartialText({args, queryParameter, propertyObj, columns}) {
     /**
      * @type {Object[]}
      */
@@ -24,32 +22,26 @@ function filterByPartialText({args, queryParameter, propertyObj, columns, negati
     const textToSearchFor = args[`${queryParameter}:text`];
 
     and_segments.push(
-        replaceOrWithNorIfNegation(
-            {
-                query: {
-                    '$or': [
-                        // 1. search in text field
-                        partialTextQueryBuilder(
-                            {
-                                field: `${propertyObj.field}.text`,
-                                partialText: textToSearchFor,
-                                ignoreCase: true,
-                                negation: false // the NOR above handles this
-                            }
-                        ),
-                        // 2. search in display field for every coding
-                        partialTextQueryBuilder(
-                            {
-                                field: `${propertyObj.field}.coding.display`,
-                                partialText: textToSearchFor,
-                                ignoreCase: true,
-                                negation: false
-                            }
-                        )
-                    ]
-                },
-                negation
-            })
+        {
+            '$or': [
+                // 1. search in text field
+                partialTextQueryBuilder(
+                    {
+                        field: `${propertyObj.field}.text`,
+                        partialText: textToSearchFor,
+                        ignoreCase: true,
+                    }
+                ),
+                // 2. search in display field for every coding
+                partialTextQueryBuilder(
+                    {
+                        field: `${propertyObj.field}.coding.display`,
+                        partialText: textToSearchFor,
+                        ignoreCase: true,
+                    }
+                )
+            ]
+        },
     );
     columns.add(`${propertyObj.field}`);
     return and_segments;

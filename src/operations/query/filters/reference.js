@@ -1,5 +1,4 @@
 const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
-const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
 
 /**
  * Filters by reference
@@ -7,10 +6,9 @@ const {replaceOrWithNorIfNegation} = require('../../../utils/mongoNegator');
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
- * @param {boolean} negation
  * @return {Object[]}
  */
-function filterByReference({propertyObj, queryParameterValue, columns, negation}) {
+function filterByReference({propertyObj, queryParameterValue, columns}) {
     /**
      * @type {Object[]}
      */
@@ -23,22 +21,17 @@ function filterByReference({propertyObj, queryParameterValue, columns, negation}
         const target = propertyObj.target[0];
         if (propertyObj.fields && Array.isArray(propertyObj.fields)) {
             and_segments.push(
-                replaceOrWithNorIfNegation(
-                    {
-                        query: {
-                            $or: propertyObj.fields.map((field1) =>
-                                referenceQueryBuilder({
-                                        target_type: target,
-                                        target: queryParameterValue.includes('/') ? queryParameterValue
-                                            : `${target}/` + queryParameterValue,
-                                        field: `${field1}.reference`,
-                                        negation: false // The NOR above handles this
-                                    }
-                                )
-                            ),
-                        },
-                        negation
-                    })
+                {
+                    $or: propertyObj.fields.map((field1) =>
+                        referenceQueryBuilder({
+                                target_type: target,
+                                target: queryParameterValue.includes('/') ? queryParameterValue
+                                    : `${target}/` + queryParameterValue,
+                                field: `${field1}.reference`,
+                            }
+                        )
+                    ),
+                },
             );
         } else {
             and_segments.push(
@@ -47,8 +40,7 @@ function filterByReference({propertyObj, queryParameterValue, columns, negation}
                         target_type: target,
                         target: queryParameterValue.includes('/') ? queryParameterValue
                             : `${target}/` + queryParameterValue,
-                        field: `${propertyObj.field}.reference`,
-                        negation
+                        field: `${propertyObj.field}.reference`
                     }
                 )
             );
@@ -65,30 +57,24 @@ function filterByReference({propertyObj, queryParameterValue, columns, negation}
                     {
                         target_type: target,
                         target: queryParameterValue,
-                        field: field,
-                        negation
+                        field: field
                     }
                 )
             );
         } else {
             // else search for these ids in all the target resources
             and_segments.push(
-                replaceOrWithNorIfNegation(
-                    {
-                        query: {
-                            $or: propertyObj.target.map((target1) =>
-                                referenceQueryBuilder({
-                                        target_type: target1,
-                                        target: queryParameterValue.includes('/') ? queryParameterValue
-                                            : `${target1}/` + queryParameterValue,
-                                        field: `${field}`,
-                                        negation: false // The NOR above handles this
-                                    }
-                                )
-                            ),
-                        },
-                        negation
-                    })
+                {
+                    $or: propertyObj.target.map((target1) =>
+                        referenceQueryBuilder({
+                                target_type: target1,
+                                target: queryParameterValue.includes('/') ? queryParameterValue
+                                    : `${target1}/` + queryParameterValue,
+                                field: `${field}`,
+                            }
+                        )
+                    ),
+                },
             );
         }
     }

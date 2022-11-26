@@ -143,19 +143,18 @@ class R4SearchQueryCreator {
                         // handle id differently since it is a token, but we want to do exact match
                         if (queryParameter === '_id') {
                             filterById({
-                                queryParameterValue, propertyObj, columns,
-                                negation: false
+                                queryParameterValue, propertyObj, columns
                             }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                         } else {
                             switch (propertyObj.type) {
                                 case fhirFilterTypes.string:
                                     filterByString({
-                                        queryParameterValue, propertyObj, columns, negation: false
+                                        queryParameterValue, propertyObj, columns
                                     }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                                     break;
                                 case fhirFilterTypes.uri:
                                     filterByUri({
-                                        propertyObj, queryParameterValue, columns, negation: false
+                                        propertyObj, queryParameterValue, columns
                                     }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                                     break;
                                 case fhirFilterTypes.dateTime:
@@ -167,8 +166,7 @@ class R4SearchQueryCreator {
                                             queryParameterValue,
                                             propertyObj,
                                             resourceType,
-                                            columns,
-                                            negation: false
+                                            columns
                                         }
                                     ).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                                     break;
@@ -176,7 +174,6 @@ class R4SearchQueryCreator {
                                     if (propertyObj.field === 'meta.security') {
                                         filterBySecurityTag({
                                             queryParameterValue, propertyObj, columns,
-                                            negation: false,
                                             fnUseAccessIndex: (accessCode) =>
                                                 this.configManager.useAccessIndex &&
                                                 this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
@@ -186,14 +183,14 @@ class R4SearchQueryCreator {
                                         }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                                     } else {
                                         filterByToken({
-                                            queryParameterValue, propertyObj, columns, negation: false
+                                            queryParameterValue, propertyObj, columns
                                         }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                                     }
                                     break;
                                 case fhirFilterTypes.reference:
                                     if (isUrl(queryParameterValue)) {
                                         filterByCanonical({
-                                            propertyObj, queryParameterValue, columns, negation: false
+                                            propertyObj, queryParameterValue, columns
                                         }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                                     } else {
                                         filterByReference(
@@ -201,7 +198,6 @@ class R4SearchQueryCreator {
                                                 propertyObj,
                                                 queryParameterValue,
                                                 columns,
-                                                negation: false
                                             }
                                         ).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                                     }
@@ -235,12 +231,10 @@ class R4SearchQueryCreator {
                     } else if (args[`${queryParameter}:text`]) {
                         filterByPartialText({
                             args, queryParameter, propertyObj, columns,
-                            negation: false
                         }).forEach(q => and_segments.push(q));
                     } else if (args[`${queryParameter}:not:text`] || args[`${queryParameter}:text:not`]) {
                         filterByPartialText({
                             args, queryParameter, propertyObj, columns,
-                            negation: false
                         }).forEach(q => and_segments.push({$nor: [q]}));
                     }
                 }
