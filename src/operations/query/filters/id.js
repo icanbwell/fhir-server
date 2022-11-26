@@ -1,3 +1,5 @@
+const {negateEqualsIfNeeded} = require('../../../utils/mongoNegator');
+
 /**
  * Filters by id
  * https://www.hl7.org/fhir/search.html#id
@@ -37,7 +39,7 @@ function filterById({queryParameterValue, propertyObj, columns, negation}) {
     } else {
         // single value is passed
         and_segments.push({
-            [`${propertyObj.field}`]: negation ? {$ne: queryParameterValue} : queryParameterValue,
+            [`${propertyObj.field}`]: negateEqualsIfNeeded({value: queryParameterValue, negation}),
         });
     }
     columns.add(`${propertyObj.field}`);

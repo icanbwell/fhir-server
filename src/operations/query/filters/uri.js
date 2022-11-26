@@ -1,3 +1,5 @@
+const {negateEqualsIfNeeded} = require('../../../utils/mongoNegator');
+
 /**
  * filters by uri
  * https://www.hl7.org/fhir/search.html#uri
@@ -12,7 +14,11 @@ function filterByUri({propertyObj, queryParameterValue, columns, negation}) {
      * @type {Object[]}
      */
     const and_segments = [];
-    and_segments.push({[`${propertyObj.field}`]: negation ? {$ne: queryParameterValue} : queryParameterValue});
+    and_segments.push(
+        {
+            [`${propertyObj.field}`]: negateEqualsIfNeeded({value: queryParameterValue, negation})
+        }
+    );
     columns.add(`${propertyObj.field}`);
     return and_segments;
 }
