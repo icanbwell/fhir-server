@@ -36,7 +36,7 @@ class PatientFilterManager {
             DeviceRequest: 'subject.reference',
             DeviceUseStatement: 'subject.reference',
             DiagnosticReport: 'subject.reference',
-            DocumentManifest: 'subjcet.reference',
+            DocumentManifest: 'subject.reference',
             DocumentReference: 'subject.reference',
             Encounter: 'subject.reference',
             EnrollmentRequest: 'candidate.reference',
