@@ -112,11 +112,7 @@ class CustomOperationsController {
                 const result = await this.fhirOperationsManager[`${name}`](args, {
                     req
                 }, resourceType);
-                if (name === 'merge') {
-                    this.fhirResponseWriter.merge({req, res, result});
-                } else {
-                    this.fhirResponseWriter.readCustomOperation({req, res, result});
-                }
+                this.fhirResponseWriter.readCustomOperation({req, res, result});
             } catch (e) {
                 next(e);
             } finally {
