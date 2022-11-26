@@ -96,7 +96,7 @@ class PatientFilterManager {
     }
 
     canAccessResourceWithPatientScope({resourceType}) {
-        return Object.hasOwn(this.patientFilterMapping.hasOwnProperty, resourceType) ||
+        return Object.hasOwn(this.patientFilterMapping, resourceType) ||
             this.resourcesWithoutPatientData.includes(resourceType);
     }
 }
