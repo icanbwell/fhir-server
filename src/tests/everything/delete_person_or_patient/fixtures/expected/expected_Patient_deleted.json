@@ -14,24 +14,12 @@
     },
     {
       "resource": {
-        "id": "personTopLevel",
-        "resourceType": "Person"
-      }
-    },
-    {
-      "resource": {
         "id": "person1",
-        "resourceType": "Person"
-      }
-    },
-    {
-      "resource": {
-        "id": "person2",
         "resourceType": "Person"
       }
     }
   ],
   "resourceType": "Bundle",
-  "total": 5,
+  "total": 3,
   "type": "batch-response"
 }

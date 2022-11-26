@@ -94,6 +94,13 @@ describe('Delete Person and Patient $everything Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
+
+            // make sure the topLevel Person is not deleted
+            resp = await request
+                .get('/4_0_0/Person/personTopLevel')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
         });
     });
 });
