@@ -126,10 +126,16 @@ class PostRequestProcessor {
     async waitTillDoneAsync({requestId, timeoutInSeconds}) {
         assertIsValid(requestId, 'requestId is null');
         const queue = this.getQueue({requestId});
-        console.log(JSON.stringify({
-            message: `waitTillDoneAsync: ${requestId}`,
-            count: queue.length
-        }));
+        await logSystemEventAsync(
+            {
+                event: 'waitTillDoneAsync',
+                message: `waitTillDoneAsync: ${requestId}`,
+                args: {
+                    requestId: requestId,
+                    count: queue.length
+                }
+            }
+        );
         if (queue.length === 0) {
             return true;
         }

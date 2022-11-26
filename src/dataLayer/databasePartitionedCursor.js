@@ -6,6 +6,7 @@ const {getResource} = require('../operations/common/getResource');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
 const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
+const {logSystemEventAsync} = require('../operations/common/logging');
 
 /**
  * @typedef CursorInfo
@@ -47,11 +48,11 @@ class DatabasePartitionedCursor {
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
         this.query = query;
-        console.log(JSON.stringify({
-            message: 'Created DatabasePartitionedCursor',
-            collections: this._cursors.map(c => c.collection),
-            query: query
-        }));
+        // console.log(JSON.stringify({
+        //     message: 'Created DatabasePartitionedCursor',
+        //     collections: this._cursors.map(c => c.collection),
+        //     query: query
+        // }));
 
         partitionedCollectionsCount.labels(resourceType).observe(cursors.length);
     }
@@ -74,11 +75,16 @@ class DatabasePartitionedCursor {
      */
     async hasNext() {
         while (this._cursors.length > 0) {
-            console.log(JSON.stringify({
-                message: 'DatabasePartitionedCursor: hasNext',
-                collections: this._cursors.map(c => c.collection),
-                query: this.query
-            }));
+            await logSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: hasNext',
+                    message: 'DatabasePartitionedCursor: hasNext',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
 
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
@@ -105,11 +111,16 @@ class DatabasePartitionedCursor {
      */
     async next() {
         while (this._cursors.length > 0) {
-            console.log(JSON.stringify({
-                message: 'DatabasePartitionedCursor: next',
-                collections: this._cursors.map(c => c.collection),
-                query: this.query
-            }));
+            await logSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: next',
+                    message: 'DatabasePartitionedCursor: next',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
 
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
