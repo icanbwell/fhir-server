@@ -74,18 +74,22 @@ describe('databaseBulkInserter Tests', () => {
                 return container1;
             });
 
+            // noinspection JSCheckFunctionSignatures
             const onPatientCreateAsyncMock = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
                 .mockImplementation(() => {
                 });
+            // noinspection JSCheckFunctionSignatures
             const onPatientChangeAsyncMock = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
                 .mockImplementation(() => {
                 });
+            // noinspection JSCheckFunctionSignatures
             const onObservationCreateAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onObservationCreateAsync')
                 .mockImplementation(() => {
                 });
+            // noinspection JSCheckFunctionSignatures
             const onObservationChangeAsync = jest
                 .spyOn(MockChangeEventProducer.prototype, 'onObservationChangeAsync')
                 .mockImplementation(() => {
@@ -94,20 +98,21 @@ describe('databaseBulkInserter Tests', () => {
              * @type {DatabaseBulkInserter}
              */
             const databaseBulkInserter = container.databaseBulkInserter;
-            const requestId1 = '1234';
+            const requestId = '1234';
 
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId1,
-                resourceType: 'Patient', doc: new Patient(patient)});
+                requestId: requestId,
+                resourceType: 'Patient', doc: new Patient(patient)
+            });
             await databaseBulkInserter.insertOneAsync({
-                requestId: requestId1,
+                requestId: requestId,
                 resourceType: 'Observation',
                 doc: new Observation(observation),
             });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.replaceOneAsync({
-                requestId: requestId1,
+                requestId: requestId,
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
@@ -116,10 +121,17 @@ describe('databaseBulkInserter Tests', () => {
             // now execute the bulk inserts
             const base_version = '4_0_0';
             await databaseBulkInserter.executeAsync({
-                requestId: requestId1,
+                requestId: requestId,
                 currentDate,
                 base_version
             });
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.executeAsync({requestId});
+            await postRequestProcessor.waitTillDoneAsync({requestId});
 
             /**
              * @type {MongoDatabaseManager}
