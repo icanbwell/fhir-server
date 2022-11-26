@@ -453,7 +453,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @return {Promise<string[]>}
      */
-    async getPatientIdsByPersonIdentifiersAsync(
+    async getPatientIdsByPersonIdAsync(
         {
             base_version,
             personIdFromJwtToken
@@ -1113,7 +1113,7 @@ class SearchManager {
     ) {
         try {
             if (isUser && personIdFromJwtToken) {
-                return await this.getPatientIdsByPersonIdentifiersAsync(
+                return await this.getPatientIdsByPersonIdAsync(
                     {
                         base_version, personIdFromJwtToken
                     });

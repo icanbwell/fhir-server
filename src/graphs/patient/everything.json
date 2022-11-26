@@ -88,6 +88,14 @@
     {
       "target": [
         {
+          "type": "Observation",
+          "params": "patient={ref}"
+        }
+      ]
+    },
+    {
+      "target": [
+        {
           "type": "Procedure",
           "params": "patient={ref}"
         }
