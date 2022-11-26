@@ -144,18 +144,18 @@ class R4SearchQueryCreator {
                         if (queryParameter === '_id') {
                             filterById({
                                 queryParameterValue, propertyObj, columns
-                            }).forEach(q => and_segments.push(negation ? {$not: q} : q));
+                            }).forEach(q => and_segments.push(q));
                         } else {
                             switch (propertyObj.type) {
                                 case fhirFilterTypes.string:
                                     filterByString({
                                         queryParameterValue, propertyObj, columns, negation
-                                    }).forEach(q => and_segments.push(negation ? {$not: q} : q));
+                                    }).forEach(q => and_segments.push(q));
                                     break;
                                 case fhirFilterTypes.uri:
                                     filterByUri({
                                         propertyObj, queryParameterValue, columns, negation
-                                    }).forEach(q => and_segments.push(negation ? {$not: q} : q));
+                                    }).forEach(q => and_segments.push(q));
                                     break;
                                 case fhirFilterTypes.dateTime:
                                 case fhirFilterTypes.date:
@@ -169,7 +169,7 @@ class R4SearchQueryCreator {
                                             columns,
                                             negation
                                         }
-                                    ).forEach(q => and_segments.push(negation ? {$not: q} : q));
+                                    ).forEach(q => and_segments.push(q));
                                     break;
                                 case fhirFilterTypes.token:
                                     if (propertyObj.field === 'meta.security') {
@@ -182,18 +182,18 @@ class R4SearchQueryCreator {
                                                     resourceType,
                                                     accessCodes: [accessCode]
                                                 })
-                                        }).forEach(q => and_segments.push(negation ? {$not: q} : q));
+                                        }).forEach(q => and_segments.push(q));
                                     } else {
                                         filterByToken({
                                             queryParameterValue, propertyObj, columns, negation
-                                        }).forEach(q => and_segments.push(negation ? {$not: q} : q));
+                                        }).forEach(q => and_segments.push(q));
                                     }
                                     break;
                                 case fhirFilterTypes.reference:
                                     if (isUrl(queryParameterValue)) {
                                         filterByCanonical({
                                             propertyObj, queryParameterValue, columns, negation
-                                        }).forEach(q => and_segments.push(negation ? {$not: q} : q));
+                                        }).forEach(q => and_segments.push(q));
                                     } else {
                                         filterByReference(
                                             {
@@ -202,7 +202,7 @@ class R4SearchQueryCreator {
                                                 columns,
                                                 negation
                                             }
-                                        ).forEach(q => and_segments.push(negation ? {$not: q} : q));
+                                        ).forEach(q => and_segments.push(q));
                                     }
                                     break;
                                 default:

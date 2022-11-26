@@ -327,12 +327,12 @@ describe('r4 search Tests', () => {
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
             const args = {
-                '_security:not': 'https://www.icanbwell.com/access%7Cbwell',
+                '_security:not': 'https://www.icanbwell.com/access|bwell',
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient', args
             });
-            expect(result.query.$and['0'].$not['meta.security.code']).toStrictEqual('https://www.icanbwell.com/access%7Cbwell');
+            expect(result.query.$and['0']['meta.security'].$not.$elemMatch.code).toStrictEqual('bwell');
         });
     });
 });

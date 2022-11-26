@@ -99,6 +99,7 @@ function filterBySecurityTag(
                                 target: tokenQueryItem,
                                 type: 'code',
                                 field: `${propertyObj.field}`,
+                                negation: negation
                             }
                         )
                     );

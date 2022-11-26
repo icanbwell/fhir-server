@@ -99,8 +99,9 @@ const nameQueryBuilder = function ({target}) {
  * @param {?string} target what we are searching for
  * @param {string} type codeable concepts use a code field and identifiers use a value
  * @param {string} field path to system and value from field
- * @param {string} [required] the required system if specified
- * @param {?boolean} [exists_flag] whether to check for existence
+ * @param {string|undefined} [required] the required system if specified
+ * @param {boolean|undefined} [exists_flag] whether to check for existence
+ * @param {boolean|undefined} [negation]
  * @return {JSON} queryBuilder
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
@@ -110,7 +111,7 @@ const nameQueryBuilder = function ({target}) {
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const tokenQueryBuilder = function ({target, type, field, required, exists_flag = null}) {
+const tokenQueryBuilder = function ({target, type, field, required, exists_flag, negation}) {
     let queryBuilder = {};
     let system = '';
     let value;
@@ -137,21 +138,24 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag 
 
     const queryBuilderElementMatch = {};
     if (system) {
-        queryBuilder[`${field}.system`] = system;
+        queryBuilder[`${field}.system`] = negation ? {$ne: system} : system;
         queryBuilderElementMatch['system'] = system;
     }
 
     if (value) {
         if (value.includes(',')) {
             const values = value.split(',');
-            queryBuilder[`${field}.${type}`] = {
-                $in: values
-            };
+            queryBuilder[`${field}.${type}`] = negation ?
+                {
+                    $nin: values
+                } : {
+                    $in: values
+                };
             queryBuilderElementMatch[`${type}`] = {
                 $in: values
             };
         } else {
-            queryBuilder[`${field}.${type}`] = value;
+            queryBuilder[`${field}.${type}`] = negation ? {$ne: value} : value;
             queryBuilderElementMatch[`${type}`] = value;
         }
     }
@@ -159,7 +163,7 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag 
     if (system && value) {
         // $elemMatch so we match on BOTH system and value in the same array element
         queryBuilder = {};
-        queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+        queryBuilder[`${field}`] = negation ? {$not: {$elemMatch: queryBuilderElementMatch}} : {$elemMatch: queryBuilderElementMatch};
     }
     return queryBuilder;
 };
