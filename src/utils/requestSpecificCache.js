@@ -61,7 +61,7 @@ class RequestSpecificCache {
      * @return {string[]}
      */
     getRequestIds() {
-        return Array.from(this.mapCache.keys()).concat(Array.from(this.listCache.keys()));
+        return Array.from(new Set(Array.from(this.mapCache.keys()).concat(Array.from(this.listCache.keys()))));
     }
 
     /**
