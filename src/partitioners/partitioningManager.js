@@ -5,6 +5,7 @@ const {YearMonthPartitioner} = require('./yearMonthPartitioner');
 const moment = require('moment-timezone');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 const async = require('async');
+const {logSystemEventAsync} = require('../operations/common/logging');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -90,10 +91,15 @@ class PartitioningManager {
                 }
             }
             this.partitionCacheLastLoaded = moment.utc();
-            console.log(JSON.stringify({
-                message: 'loadPartitionsFromDatabaseAsync',
-                cache: Array.from(this.partitionsCache.entries())
-            }));
+            await logSystemEventAsync(
+                {
+                    event: 'loadPartitionsFromDatabaseAsync',
+                    message: 'loadPartitionsFromDatabaseAsync',
+                    args: {
+                        cache: Array.from(this.partitionsCache.entries())
+                    }
+                }
+            );
         } finally {
             release();
         }

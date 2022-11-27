@@ -405,7 +405,7 @@ function toHaveResourceCount(resp, expected) {
     const body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
     if (!(Array.isArray(body))) {
         if (body.resourceType === 'Bundle') {
-            count = body.entry.length;
+            count = body.entry ? body.entry.length : 0;
         } else if (body.resourceType) {
             count = 1;
         } else {

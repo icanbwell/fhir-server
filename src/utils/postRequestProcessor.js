@@ -27,9 +27,9 @@ class PostRequestProcessor {
          */
         this.errorReporter = errorReporter;
         /**
-         * @type {boolean}
+         * @type {Map<string,boolean>}
          */
-        this.startedExecuting = false;
+        this.executionRunningForRequestIdMap = new Map();
         /**
          * @type {RequestSpecificCache}
          */
@@ -58,6 +58,26 @@ class PostRequestProcessor {
     }
 
     /**
+     * @param {string} requestId
+     * @return {boolean}
+     */
+    executionRunningForRequest({requestId}) {
+        return this.executionRunningForRequestIdMap.get(requestId) || false;
+    }
+
+    /**
+     * @param {string} requestId
+     * @param {boolean} value
+     */
+    setExecutionRunningForRequest({requestId, value}) {
+        if (value) {
+            this.executionRunningForRequestIdMap.set(requestId, true);
+        } else {
+            this.executionRunningForRequestIdMap.delete(requestId);
+        }
+    }
+
+    /**
      * Run all the tasks
      * @param {string} requestId
      * @return {Promise<void>}
@@ -65,7 +85,7 @@ class PostRequestProcessor {
     async executeAsync({requestId}) {
         assertIsValid(requestId, 'requestId is null');
         const queue = this.getQueue({requestId});
-        if (this.startedExecuting || queue.length === 0) {
+        if (this.executionRunningForRequest({requestId}) || queue.length === 0) {
             return;
         }
         const tasksInQueueBefore = queue.length;
@@ -74,7 +94,17 @@ class PostRequestProcessor {
             if (queue.length === 0) {
                 return;
             }
-            this.startedExecuting = true;
+            this.setExecutionRunningForRequest({requestId, value: true});
+            await logSystemEventAsync(
+                {
+                    event: 'executeAsync',
+                    message: `executeAsync: ${requestId}`,
+                    args: {
+                        requestId: requestId,
+                        count: queue.length
+                    }
+                }
+            );
             /**
              * @type {function(): void}
              */
@@ -86,13 +116,18 @@ class PostRequestProcessor {
                     await this.errorReporter.reportErrorAsync({
                         source: 'PostRequestProcessor',
                         message: 'Error running post request task',
-                        error: e
+                        error: e,
+                        args: {
+                            requestId: requestId,
+                        }
                     });
                     await logSystemErrorAsync(
                         {
                             event: 'postRequestProcessor',
                             message: 'Error running task',
-                            args: {},
+                            args: {
+                                requestId: requestId,
+                            },
                             error: e
                         }
                     );
@@ -100,7 +135,7 @@ class PostRequestProcessor {
                 }
                 task = queue.shift();
             }
-            this.startedExecuting = false;
+            this.setExecutionRunningForRequest({requestId, value: false});
         });
         // If we processed any tasks then log it
         if (tasksInQueueBefore > 0) {
@@ -110,7 +145,8 @@ class PostRequestProcessor {
                     message: 'Finished',
                     args: {
                         tasksInQueueBefore: tasksInQueueBefore,
-                        tasksInQueueAfter: queue.length
+                        tasksInQueueAfter: queue.length,
+                        requestId: requestId,
                     }
                 }
             );
@@ -126,16 +162,26 @@ class PostRequestProcessor {
     async waitTillDoneAsync({requestId, timeoutInSeconds}) {
         assertIsValid(requestId, 'requestId is null');
         const queue = this.getQueue({requestId});
+        await logSystemEventAsync(
+            {
+                event: 'waitTillDoneAsync',
+                message: `waitTillDoneAsync: ${requestId}`,
+                args: {
+                    requestId: requestId,
+                    count: queue.length
+                }
+            }
+        );
         if (queue.length === 0) {
             return true;
         }
-        assertIsValid(this.startedExecuting || queue.length === 0, 'executeAsync is not running so queue will never empty');
+        assertIsValid(this.executionRunningForRequest({requestId}) || queue.length === 0, `executeAsync is not running so queue will never empty for requestId: ${requestId}`);
         let secondsWaiting = 0;
         while (queue.length > 0) {
             await new Promise((r) => setTimeout(r, 1000));
             secondsWaiting += 1;
             if (timeoutInSeconds && secondsWaiting > timeoutInSeconds) {
-                throw new Error(`PostRequestProcessor.waitTillDoneAsync() did not finish in specified time: ${timeoutInSeconds}`);
+                throw new Error(`PostRequestProcessor.waitTillDoneAsync() for ${requestId} did not finish in specified time: ${timeoutInSeconds}`);
             }
         }
         return true;

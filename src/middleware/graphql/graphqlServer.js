@@ -83,6 +83,7 @@ const graphql = async (fnCreateContainer) => {
                 isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
                 personIdFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.personIdFromJwtToken,
                 headers: req.headers,
+                method: req.method
             });
         return {
             req,

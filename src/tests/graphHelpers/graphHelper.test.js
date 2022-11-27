@@ -53,6 +53,7 @@ describe('graphHelper Tests', () => {
         originalUrl: '',
         host: 'host',
         headers: {},
+        method: 'post'
     });
 
     describe('graphHelper Tests', () => {

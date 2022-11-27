@@ -217,7 +217,9 @@ class UpdateOperation {
             if (data && data.meta) {
                 // found an existing resource
                 foundResource = data;
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                    resource: foundResource, user, scope
+                }))) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
@@ -305,12 +307,14 @@ class UpdateOperation {
                         action: currentOperationName,
                         result: JSON.stringify(result)
                     });
-                await this.changeEventProducer.fireEventsAsync({
-                    requestId, eventType: 'U', resourceType, doc
-                });
                 this.postRequestProcessor.add({
                     requestId,
-                    fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
+                    fnTask: async () => {
+                        await this.changeEventProducer.fireEventsAsync({
+                            requestId, eventType: 'U', resourceType, doc
+                        });
+                        await this.changeEventProducer.flushAsync({requestId});
+                    }
                 });
                 return result;
             } else {

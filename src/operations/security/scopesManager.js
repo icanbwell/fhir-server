@@ -112,7 +112,7 @@ class ScopesManager {
      * @param {string} scope
      * @return {boolean}
      */
-    isAccessToResourceAllowedBySecurityTags(resource, user, scope) {
+    isAccessToResourceAllowedBySecurityTags({resource, user, scope}) {
         if (env.AUTH_ENABLED !== '1') {
             return true;
         }

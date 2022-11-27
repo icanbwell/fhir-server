@@ -92,12 +92,10 @@ class SearchBundleOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
-        requestInfo, args, resourceType,
-        filter = true
+        requestInfo, args, resourceType
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
@@ -181,7 +179,7 @@ class SearchBundleOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex, filter,
+                    user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex,
                     personIdFromJwtToken
                 }));
         } catch (e) {

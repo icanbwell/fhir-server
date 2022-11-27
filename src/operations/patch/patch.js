@@ -168,13 +168,15 @@ class PatchOperation {
                     action: currentOperationName
                 });
 
-            await this.changeEventProducer.fireEventsAsync({
-                requestId, eventType: 'U', resourceType, doc
-            });
 
             this.postRequestProcessor.add({
                 requestId,
-                fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
+                fnTask: async () => {
+                    await this.changeEventProducer.fireEventsAsync({
+                        requestId, eventType: 'U', resourceType, doc
+                    });
+                    await this.changeEventProducer.flushAsync({requestId});
+                }
             });
 
             return {

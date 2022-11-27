@@ -87,10 +87,8 @@ class HistoryByIdOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      */
-    async historyById(requestInfo, args, resourceType,
-                      filter = true) {
+    async historyById(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -150,7 +148,6 @@ class HistoryByIdOperation {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
-            filter
         });
 
         // noinspection JSValidateTypes
@@ -196,7 +193,10 @@ class HistoryByIdOperation {
                  */
                 const resource = await cursor.next();
                 if (resource) {
-                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
+                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                            resource: resource, user, scope
+                        }
+                    )) {
                         resources.push(resource);
                     }
                 }

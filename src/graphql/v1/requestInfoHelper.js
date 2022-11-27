@@ -19,5 +19,6 @@ module.exports.getRequestInfo = (context) => {
         patientIdsFromJwtToken: context.patients,
         personIdFromJwtToken: context.personIdFromJwtToken,
         headers: context.headers,
+        method: context.method
     });
 };

@@ -1,16 +1,18 @@
-
 /**
  * Filters by string
  * https://www.hl7.org/fhir/search.html#string
  * @param {string | string[]} queryParameterValue
- * @param {Object[]} and_segments
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @return {Object[]}
  */
-function filterByString({queryParameterValue, and_segments, propertyObj, columns}) {
+function filterByString({queryParameterValue, propertyObj, columns}) {
+    /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
-
         if (propertyObj.fields) {
             and_segments.push({
                 $or: propertyObj.fields.map((f) => {
@@ -69,8 +71,9 @@ function filterByString({queryParameterValue, and_segments, propertyObj, columns
         });
         columns.add(`${propertyObj.field}`);
     }
+    return and_segments;
 }
 
 module.exports = {
-    filterByString: filterByString
+    filterByString
 };

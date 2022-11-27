@@ -32,7 +32,7 @@ class ScopesValidator {
      * @param {string} resourceType
      * @param {number|null} startTime
      * @param {string} action
-     * @param {string} accessRequested
+     * @param {string} accessRequested (can be either 'read' or 'write')
      */
     async verifyHasValidScopesAsync(
         {

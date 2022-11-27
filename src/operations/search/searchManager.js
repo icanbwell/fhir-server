@@ -124,7 +124,6 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
-     * @param {boolean} filter
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
     async constructQueryAsync(
@@ -454,7 +453,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @return {Promise<string[]>}
      */
-    async getPatientIdsByPersonIdentifiersAsync(
+    async getPatientIdsByPersonIdAsync(
         {
             base_version,
             personIdFromJwtToken
@@ -1114,7 +1113,7 @@ class SearchManager {
     ) {
         try {
             if (isUser && personIdFromJwtToken) {
-                return await this.getPatientIdsByPersonIdentifiersAsync(
+                return await this.getPatientIdsByPersonIdAsync(
                     {
                         base_version, personIdFromJwtToken
                     });

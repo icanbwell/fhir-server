@@ -125,7 +125,10 @@ class MergeManager {
          * @type {Resource}
          */
         let foundResource = currentResource;
-        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
+        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource: foundResource, user, scope
+            }
+        ))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 foundResource.resourceType + ' with id ' + id);
@@ -190,7 +193,9 @@ class MergeManager {
             }
         }
 
-        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resourceToMerge, user, scope))) {
+        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+            resource: resourceToMerge, user, scope
+        }))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 resourceToMerge.resourceType + ' with id ' + resourceToMerge.id);

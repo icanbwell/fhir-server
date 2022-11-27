@@ -77,10 +77,8 @@ class SearchByVersionIdOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      */
-    async searchByVersionId(requestInfo, args, resourceType,
-                            filter = true) {
+    async searchByVersionId(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -143,7 +141,6 @@ class SearchByVersionIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
-                filter
             });
 
             query['meta.versionId'] = `${version_id}`;
@@ -165,7 +162,9 @@ class SearchByVersionIdOperation {
             }
 
             if (resource) {
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                    resource: resource, user, scope
+                }))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                         resource.resourceType + ' with id ' + id);

@@ -79,7 +79,46 @@ class CustomOperationsController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
-                this.requestSpecificCache.clear({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
+            }
+        };
+    }
+
+    /**
+     * @description Controller for all DELETE operations
+     * @param {name: string, resourceType: string}
+     */
+    operationsDelete(
+        {
+            name,
+            resourceType
+        }) {
+        return async (
+            /** @type {import('http').IncomingMessage}*/req,
+            /** @type {import('http').ServerResponse}*/res,
+            /** @type {function() : void}*/next) => {
+            let {
+                base_version,
+                id
+            } = req.sanitized_args;
+            let resource_body = req.body;
+            let args = {
+                id,
+                base_version,
+                resource: resource_body
+            };
+
+            try {
+                const result = await this.fhirOperationsManager[`${name}`](args, {
+                    req
+                }, resourceType);
+                this.fhirResponseWriter.readCustomOperation({req, res, result});
+            } catch (e) {
+                next(e);
+            } finally {
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
             }
         };
     }
@@ -108,7 +147,7 @@ class CustomOperationsController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
-                this.requestSpecificCache.clear({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
             }
         };
     }

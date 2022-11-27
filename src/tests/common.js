@@ -131,6 +131,11 @@ module.exports.commonAfterEach = async () => {
         const postRequestProcessor = testContainer.postRequestProcessor;
         await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
+        /**
+         * @type {RequestSpecificCache}
+         */
+        const requestSpecificCache = testContainer.requestSpecificCache;
+        await requestSpecificCache.clearAllAsync();
     }
     nock.cleanAll();
     nock.restore();

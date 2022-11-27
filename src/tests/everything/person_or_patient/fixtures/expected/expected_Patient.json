@@ -1,0 +1,132 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "patient1",
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "source": "http://healthsystem1health.org/provider",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ],
+            "text": "t",
+            "use": "usual"
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "resource": {
+        "code": {
+          "coding": [
+            {
+              "code": "BMI001",
+              "system": "http://www.icanbwell.com/cql/library"
+            },
+            {
+              "code": "1.0.0",
+              "system": "http://www.icanbwell.com/cql/libraryVersion"
+            },
+            {
+              "code": "InAgeCohort",
+              "system": "http://www.icanbwell.com/cql/rule"
+            }
+          ]
+        },
+        "effectivePeriod": {
+          "end": "2021-12-31T00:00:00.000Z",
+          "start": "2021-01-01T00:00:00.000Z"
+        },
+        "id": "2354-InAgeCohort",
+        "issued": "2021-01-01T12:00:00Z",
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "B",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "B",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "source": "/patients",
+          "versionId": "1"
+        },
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/patient1"
+        },
+        "valueBoolean": false
+      }
+    },
+    {
+      "resource": {
+        "birthDate": "1990-01-01",
+        "gender": "male",
+        "id": "person1",
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "reference": "Patient/patient1",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "PATIENT2",
+            "given": [
+              "OTHER"
+            ],
+            "text": "t",
+            "use": "usual"
+          }
+        ],
+        "resourceType": "Person"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

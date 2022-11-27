@@ -1,6 +1,8 @@
 const practitionerEverythingGraph = require('../../graphs/practitioner/everything.json');
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
+const personEverythingGraph = require('../../graphs/person/everything.json');
+const patientEverythingGraph = require('../../graphs/patient/everything.json');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {GraphOperation} = require('../graph/graph');
 const {ScopesValidator} = require('../security/scopesValidator');
@@ -70,7 +72,7 @@ class EverythingOperation {
             query.id = id;
             // Grab an instance of our DB and collection
             if (resourceType === 'Practitioner') {
-                requestInfo.body = practitionerEverythingGraph;
+                args.resource = practitionerEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -81,7 +83,7 @@ class EverythingOperation {
                 });
                 return result;
             } else if (resourceType === 'Organization') {
-                requestInfo.body = organizationEverythingGraph;
+                args.resource = organizationEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -92,7 +94,29 @@ class EverythingOperation {
                 });
                 return result;
             } else if (resourceType === 'Slot') {
-                requestInfo.body = slotEverythingGraph;
+                args.resource = slotEverythingGraph;
+                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
+                return result;
+            } else if (resourceType === 'Person') {
+                args.resource = personEverythingGraph;
+                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
+                await this.fhirLoggingManager.logOperationSuccessAsync({
+                    requestInfo,
+                    args,
+                    resourceType,
+                    startTime,
+                    action: currentOperationName
+                });
+                return result;
+            } else if (resourceType === 'Patient') {
+                args.resource = patientEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
