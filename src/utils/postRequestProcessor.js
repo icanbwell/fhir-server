@@ -27,9 +27,9 @@ class PostRequestProcessor {
          */
         this.errorReporter = errorReporter;
         /**
-         * @type {boolean}
+         * @type {Map<string,boolean>}
          */
-        this.startedExecuting = false;
+        this.executionRunningForRequestIdMap = new Map();
         /**
          * @type {RequestSpecificCache}
          */
@@ -58,6 +58,26 @@ class PostRequestProcessor {
     }
 
     /**
+     * @param {string} requestId
+     * @return {boolean}
+     */
+    executionRunningForRequest({requestId}) {
+        return this.executionRunningForRequestIdMap.get(requestId) || false;
+    }
+
+    /**
+     * @param {string} requestId
+     * @param {boolean} value
+     */
+    setExecutionRunningForRequest({requestId, value}) {
+        if (value) {
+            this.executionRunningForRequestIdMap.set(requestId, true);
+        } else {
+            this.executionRunningForRequestIdMap.delete(requestId);
+        }
+    }
+
+    /**
      * Run all the tasks
      * @param {string} requestId
      * @return {Promise<void>}
@@ -65,7 +85,7 @@ class PostRequestProcessor {
     async executeAsync({requestId}) {
         assertIsValid(requestId, 'requestId is null');
         const queue = this.getQueue({requestId});
-        if (this.startedExecuting || queue.length === 0) {
+        if (this.executionRunningForRequest({requestId}) || queue.length === 0) {
             return;
         }
         const tasksInQueueBefore = queue.length;
@@ -74,7 +94,7 @@ class PostRequestProcessor {
             if (queue.length === 0) {
                 return;
             }
-            this.startedExecuting = true;
+            this.setExecutionRunningForRequest({requestId, value: true});
             await logSystemEventAsync(
                 {
                     event: 'executeAsync',
@@ -115,7 +135,7 @@ class PostRequestProcessor {
                 }
                 task = queue.shift();
             }
-            this.startedExecuting = false;
+            this.setExecutionRunningForRequest({requestId, value: false});
         });
         // If we processed any tasks then log it
         if (tasksInQueueBefore > 0) {
@@ -155,7 +175,7 @@ class PostRequestProcessor {
         if (queue.length === 0) {
             return true;
         }
-        assertIsValid(this.startedExecuting || queue.length === 0, `executeAsync is not running so queue will never empty for requestId: ${requestId}`);
+        assertIsValid(this.executionRunningForRequest({requestId}) || queue.length === 0, `executeAsync is not running so queue will never empty for requestId: ${requestId}`);
         let secondsWaiting = 0;
         while (queue.length > 0) {
             await new Promise((r) => setTimeout(r, 1000));
