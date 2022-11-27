@@ -79,7 +79,7 @@ class CustomOperationsController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
-                this.requestSpecificCache.clear({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
             }
         };
     }
@@ -118,7 +118,7 @@ class CustomOperationsController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
-                this.requestSpecificCache.clear({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
             }
         };
     }
@@ -147,7 +147,7 @@ class CustomOperationsController {
             } finally {
                 const requestId = req.id;
                 await this.postRequestProcessor.executeAsync({requestId});
-                this.requestSpecificCache.clear({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
             }
         };
     }

@@ -135,7 +135,7 @@ module.exports.commonAfterEach = async () => {
          * @type {RequestSpecificCache}
          */
         const requestSpecificCache = testContainer.requestSpecificCache;
-        await requestSpecificCache.clearAll();
+        await requestSpecificCache.clearAllAsync();
     }
     nock.cleanAll();
     nock.restore();

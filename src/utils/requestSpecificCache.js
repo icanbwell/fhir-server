@@ -1,4 +1,5 @@
 const {assertIsValid} = require('./assertType');
+const {logSystemEventAsync} = require('../operations/common/logging');
 
 class RequestSpecificCache {
     constructor() {
@@ -67,7 +68,16 @@ class RequestSpecificCache {
      * clears the cache for this requestId
      * @param requestId
      */
-    clear({requestId}) {
+    async clearAsync({requestId}) {
+        await logSystemEventAsync(
+            {
+                event: 'clearAsync',
+                message: `clearAsync: ${requestId}`,
+                args: {
+                    requestId: requestId,
+                }
+            }
+        );
         if (!this.mapCache.has(requestId)) {
             this.mapCache.delete(requestId);
         }
@@ -79,9 +89,9 @@ class RequestSpecificCache {
     /**
      * clears the cache for all request ids
      */
-    clearAll() {
+    async clearAllAsync() {
         for (const requestId of this.getRequestIds()) {
-            this.clear({requestId});
+            await this.clearAsync({requestId});
         }
     }
 }

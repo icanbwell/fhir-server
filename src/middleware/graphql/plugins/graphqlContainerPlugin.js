@@ -31,7 +31,7 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
                             const requestSpecificCache = container.requestSpecificCache;
                             if (postRequestProcessor) {
                                 await postRequestProcessor.executeAsync({requestId});
-                                requestSpecificCache.clear({requestId});
+                                await requestSpecificCache.clearAsync({requestId});
                             }
                         }
                     }
