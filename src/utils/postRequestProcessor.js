@@ -75,6 +75,16 @@ class PostRequestProcessor {
                 return;
             }
             this.startedExecuting = true;
+            await logSystemEventAsync(
+                {
+                    event: 'executeAsync',
+                    message: `executeAsync: ${requestId}`,
+                    args: {
+                        requestId: requestId,
+                        count: queue.length
+                    }
+                }
+            );
             /**
              * @type {function(): void}
              */
@@ -86,13 +96,18 @@ class PostRequestProcessor {
                     await this.errorReporter.reportErrorAsync({
                         source: 'PostRequestProcessor',
                         message: 'Error running post request task',
-                        error: e
+                        error: e,
+                        args: {
+                            requestId: requestId,
+                        }
                     });
                     await logSystemErrorAsync(
                         {
                             event: 'postRequestProcessor',
                             message: 'Error running task',
-                            args: {},
+                            args: {
+                                requestId: requestId,
+                            },
                             error: e
                         }
                     );
@@ -110,7 +125,8 @@ class PostRequestProcessor {
                     message: 'Finished',
                     args: {
                         tasksInQueueBefore: tasksInQueueBefore,
-                        tasksInQueueAfter: queue.length
+                        tasksInQueueAfter: queue.length,
+                        requestId: requestId,
                     }
                 }
             );
@@ -139,7 +155,7 @@ class PostRequestProcessor {
         if (queue.length === 0) {
             return true;
         }
-        assertIsValid(this.startedExecuting || queue.length === 0, 'executeAsync is not running so queue will never empty');
+        assertIsValid(this.startedExecuting || queue.length === 0, `executeAsync is not running so queue will never empty for requestId: ${requestId}`);
         let secondsWaiting = 0;
         while (queue.length > 0) {
             await new Promise((r) => setTimeout(r, 1000));

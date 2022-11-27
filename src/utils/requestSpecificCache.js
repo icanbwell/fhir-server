@@ -75,6 +75,15 @@ class RequestSpecificCache {
             this.listCache.delete(requestId);
         }
     }
+
+    /**
+     * clears the cache for all request ids
+     */
+    clearAll() {
+        for (const requestId of this.getRequestIds()) {
+            this.clear({requestId});
+        }
+    }
 }
 
 module.exports = {
