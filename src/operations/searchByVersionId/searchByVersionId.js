@@ -141,6 +141,7 @@ class SearchByVersionIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
+                isHistoryCollection: true
             });
 
             const queryForVersionId = {
