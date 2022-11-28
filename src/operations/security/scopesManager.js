@@ -143,21 +143,33 @@ class ScopesManager {
     }
 
     /**
-     * Gets admin scopes from the request
-     * @param {import('http').IncomingMessage} req
-     * @returns {{adminScopes: string[], scope: string}}
+     * Gets admin scopes from the passed in scope string
+     * @param {string|undefined} scope
+     * @returns {string[]}
      */
-    getAdminScopes({req}) {
-        /**
-         * @type {string}
-         */
-        const scope = req.authInfo && req.authInfo.scope;
+    getAdminScopes({scope}) {
+        if (!scope) {
+            return [];
+        }
         /**
          * @type {string[]}
          */
         const scopes = scope.split(' ');
         const adminScopes = scopes.filter(s => s.startsWith('admin/'));
-        return {scope, adminScopes};
+        return adminScopes;
+    }
+
+    /**
+     * Gets scope from request
+     * @param {import('http').IncomingMessage} req
+     * @return {string|undefined}
+     */
+    getScopeFromRequest({req}) {
+        /**
+         * @type {string}
+         */
+        const scope = req.authInfo && req.authInfo.scope;
+        return scope;
     }
 
     /**

@@ -11,27 +11,6 @@ const {isTrue} = require('../utils/isTrue');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 
 /**
- * Gets admin scopes from the request
- * @param {import('http').IncomingMessage} req
- * @returns {{adminScopes: string[], scope: string}}
- */
-function getAdminScopes({req}) {
-    /**
-     * @type {string}
-     */
-    const scope = req.authInfo && req.authInfo.scope;
-    if (!scope) {
-        return {scope, adminScopes: []};
-    }
-    /**
-     * @type {string[]}
-     */
-    const scopes = scope.split(' ');
-    const adminScopes = scopes.filter(s => s.startsWith('admin/'));
-    return {scope, adminScopes};
-}
-
-/**
  * shows indexes
  * @param {import('http').IncomingMessage} req
  * @param {SimpleContainer} container
@@ -119,13 +98,24 @@ async function handleAdmin(
     try {
         const operation = req.params['op'];
         console.log(`op=${operation}`);
-        const {scope, adminScopes} = getAdminScopes({req});
 
         // set up all the standard services in the container
         /**
          * @type {SimpleContainer}
          */
         const container = fnCreateContainer();
+        /**
+         * @type {ScopesManager}
+         */
+        const scopesManager = container.scopesManager;
+        /**
+         * @type {string|undefined}
+         */
+        const scope = scopesManager.getScopeFromRequest({req});
+        /**
+         * @type {string[]}
+         */
+        const adminScopes = scopesManager.getAdminScopes({scope});
 
         if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
@@ -339,20 +329,12 @@ async function handleAdmin(
                 message: `Missing scopes for admin/*.read in ${scope}`
             });
         }
-        // }
-        //     res.status(200).json({
-        //         success: true,
-        //         image: env.DOCKER_IMAGE || '',
-        //     });
-        // res.set('Content-Type', 'text/html');
-        // res.send(Buffer.from('<html><body><h2>Test String</h2></body></html>'));
     } finally {
         await mongoDatabaseManager.disconnectClientAsync(client);
     }
 }
 
 module.exports = {
-    handleAdmin,
-    getAdminScopes
+    handleAdmin
 };
 
