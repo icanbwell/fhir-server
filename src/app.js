@@ -73,7 +73,7 @@ function createApp(fnCreateContainer) {
     app.use(useragent.express());
 
     // middleware for oAuth
-    app.use(passport.initialize({}));
+    app.use(passport.initialize());
 
     // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
@@ -145,6 +145,7 @@ function createApp(fnCreateContainer) {
         /** @type {import('express').Response} */ res,) => {
         const home_options = {
             resources: resourceDefinitions,
+            user: req.user
         };
         return res.render(__dirname + '/views/pages/home', home_options);
     });
@@ -189,7 +190,7 @@ function createApp(fnCreateContainer) {
     // eslint-disable-next-line new-cap
     const adminRouter = express.Router();
     if (isTrue(env.AUTH_ENABLED)) {
-        adminRouter.use(passport.initialize({}));
+        adminRouter.use(passport.initialize());
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     }
     adminRouter.get('/admin/:op?', (req, res) => handleAdmin(
@@ -216,7 +217,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
-                        router.use(passport.initialize({}));
+                        router.use(passport.initialize());
                         router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     }
                     // noinspection JSCheckFunctionSignatures
@@ -230,7 +231,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
-                        router1.use(passport.initialize({}));
+                        router1.use(passport.initialize());
                         router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     }
                     // noinspection JSCheckFunctionSignatures
@@ -248,7 +249,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
-                        router.use(passport.initialize({}));
+                        router.use(passport.initialize());
                         router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     }
                     // noinspection JSCheckFunctionSignatures
@@ -257,10 +258,13 @@ function createApp(fnCreateContainer) {
                 })
                 .then((_) => graphqlv1(fnCreateContainer))
                 .then((graphqlMiddlewareV1) => {
+                    /**
+                     * @type {import('express').Router}
+                     */
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
-                        router1.use(passport.initialize({}));
+                        router1.use(passport.initialize());
                         router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     }
                     // noinspection JSCheckFunctionSignatures
