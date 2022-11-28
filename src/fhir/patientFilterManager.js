@@ -37,7 +37,7 @@ class PatientFilterManager {
             Encounter: 'subject.reference',
             EnrollmentRequest: 'candidate.reference',
             EpisodeOfCare: 'patient.reference',
-            ExplanationOfBenefit: 'subject.reference',
+            ExplanationOfBenefit: 'patient.reference',
             FamilyMemberHistory: 'patient.reference',
             Flag: 'subject.reference',
             Goal: 'subject.reference',
