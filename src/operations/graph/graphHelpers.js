@@ -1273,6 +1273,7 @@ class GraphHelper {
                  */
                     // eslint-disable-next-line no-unused-vars
                 const result = await databaseQueryManager.deleteManyAsync({
+                        requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}
                     });
                 for (const resultResourceId of idList) {

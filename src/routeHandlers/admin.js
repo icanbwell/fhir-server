@@ -183,6 +183,7 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.deletePersonAsync({
+                            requestId: req.id,
                             personId
                         });
                         return res.json(json);

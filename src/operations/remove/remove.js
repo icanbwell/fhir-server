@@ -181,7 +181,10 @@ class RemoveOperation {
                 /**
                  * @type {DeleteManyResult}
                  */
-                res = await databaseQueryManager.deleteManyAsync({query});
+                res = await databaseQueryManager.deleteManyAsync({
+                    requestId,
+                    query
+                });
 
                 // log access to audit logs
                 await this.auditLogger.logAuditEntryAsync(

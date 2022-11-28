@@ -456,10 +456,11 @@ class AdminPersonPatientLinkManager {
 
     /**
      * deletes a Person and remove any links to it
+     * @param {string} requestId
      * @param {string} personId
      * @return {Promise<{deletedCount: (number|null), error: (Error|null)}>}
      */
-    async deletePersonAsync({personId}) {
+    async deletePersonAsync({requestId, personId}) {
         personId = personId.replace('Person/', '');
 
         /**
@@ -495,6 +496,7 @@ class AdminPersonPatientLinkManager {
          */
         const result = await databaseQueryManager.deleteManyAsync({
             query: {id: personId},
+            requestId
         });
         result['linksRemoved'] = parentPersonResponses;
         return result;

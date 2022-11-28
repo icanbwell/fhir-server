@@ -22,6 +22,7 @@ const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {RequestSpecificCache} = require('../utils/requestSpecificCache');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const Extension = require('../fhir/classes/4_0_0/extensions/extension');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -277,7 +278,15 @@ class DatabaseBulkInserter extends EventEmitter {
                                     request: new BundleRequest(
                                         {
                                             method,
-                                            url: `${base_version}/${resourceType}/${doc.id}`
+                                            url: `${base_version}/${resourceType}/${doc.id}`,
+                                            extension: [
+                                                new Extension(
+                                                    {
+                                                        url: 'https://www.icanbwell.com/requestId',
+                                                        valueString: requestId
+                                                    }
+                                                )
+                                            ]
                                         }
                                     )
                                 }
@@ -621,7 +630,7 @@ class DatabaseBulkInserter extends EventEmitter {
                      * @type {string}
                      */
                     const collectionName = useHistoryCollection ?
-                        await resourceLocator.getHistoryCollectionNameAsync(resource) :
+                        await resourceLocator.getHistoryCollectionNameAsync(resource.resource ? resource.resource : resource) :
                         await resourceLocator.getCollectionNameAsync(resource);
                     if (!(operationsByCollectionNames.has(collectionName))) {
                         operationsByCollectionNames.set(`${collectionName}`, []);

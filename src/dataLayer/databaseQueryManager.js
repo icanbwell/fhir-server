@@ -4,6 +4,9 @@ const {ResourceLocator} = require('../operations/common/resourceLocator');
 const {assertTypeEquals} = require('../utils/assertType');
 const {getResource} = require('../operations/common/getResource');
 const {RethrownError} = require('../utils/rethrownError');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const Extension = require('../fhir/classes/4_0_0/extensions/extension');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -82,10 +85,11 @@ class DatabaseQueryManager {
     /**
      * Deletes resources
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {requestId} requestId
      * @param {import('mongodb').DeleteOptions} options
      * @return {Promise<DeleteManyResult>}
      */
-    async deleteManyAsync({query, options = {}}) {
+    async deleteManyAsync({query, requestId, options = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -95,6 +99,42 @@ class DatabaseQueryManager {
             });
             let deletedCount = 0;
             for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * @type {DatabasePartitionedCursor}
+                 */
+                const resourcesCursor = await this.findAsync({
+                    query, options
+                });
+                // find the history collection for each
+                while (await resourcesCursor.hasNext()) {
+                    /**
+                     * @type {Resource|null}
+                     */
+                    const resource = await resourcesCursor.next();
+                    if (resource) {
+                        /**
+                         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+                         */
+                        const historyCollection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(resource);
+                        historyCollection.insertOne(new BundleEntry({
+                            resource,
+                            request: new BundleRequest(
+                                {
+                                    method: 'DELETE',
+                                    url: `${this._base_version}/${resource.resourceType}/${resource.id}`,
+                                    extension: [
+                                        new Extension(
+                                            {
+                                                url: 'https://www.icanbwell.com/requestId',
+                                                valueString: requestId
+                                            }
+                                        )
+                                    ]
+                                }
+                            )
+                        }));
+                    }
+                }
                 /**
                  * @type {import('mongodb').DeleteWriteOpResultObject}
                  */
