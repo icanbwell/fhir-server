@@ -278,7 +278,7 @@ class DatabaseBulkInserter extends EventEmitter {
                                     request: new BundleRequest(
                                         {
                                             method,
-                                            url: `${base_version}/${resourceType}/${doc.id}`,
+                                            url: `/${base_version}/${resourceType}/${doc.id}`,
                                             extension: [
                                                 new Extension(
                                                     {

@@ -7,6 +7,7 @@ const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
 const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
 const {logSystemEventAsync} = require('../operations/common/logging');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 /**
  * @typedef CursorInfo
@@ -107,7 +108,7 @@ class DatabasePartitionedCursor {
 
     /**
      * Get the next available document from the cursors, returns null if no more documents are available
-     * @return {Promise<Resource|null>}
+     * @return {Promise<Resource|BundleEntry|null>}
      */
     async next() {
         while (this._cursors.length > 0) {
@@ -127,12 +128,16 @@ class DatabasePartitionedCursor {
                 // return Promise.reject(new Error('woops'));
                 const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
+                    const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;
                     try {
-                        const ResourceCreator = getResource(this.base_version, this.resourceType);
+                        if (resourceType === 'BundleEntry') {
+                            return new BundleEntry(result);
+                        }
+                        const ResourceCreator = getResource(this.base_version, resourceType);
                         return new ResourceCreator(result);
                     } catch (e) {
                         throw new RethrownError({
-                            message: `Error hydrating resource from database: ${this.resourceType}/${result.id}`,
+                            message: `Error hydrating resource from database: ${resourceType}/${result.id}`,
                             collections: this._cursors.map(c => c.collection),
                             databases: this._cursors.map(c => c.db),
                             error: e,
