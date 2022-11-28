@@ -143,9 +143,23 @@ class SearchByVersionIdOperation {
                 personIdFromJwtToken,
             });
 
-            query['meta.versionId'] = `${version_id}`;
+            const queryForVersionId = {
+                '$or': [
+                    {
+                        'meta.versionId': version_id
+                    },
+                    {
+                        'resource.meta.versionId': version_id
+                    },
+                ]
+            };
+            if (query.$and) {
+                query.$and.push(queryForVersionId);
+            } else {
+                query.$and = [queryForVersionId];
+            }
             /**
-             * @type {Resource|null}
+             * @type {Resource|BundleEntry|null}
              */
             let resource;
             try {
@@ -157,6 +171,9 @@ class SearchByVersionIdOperation {
                 resource = await databaseHistoryManager.findOneAsync({
                     query: query
                 });
+                if (resource.resource) { // is a bundle entry
+                    resource = resource.resource;
+                }
             } catch (e) {
                 throw new BadRequestError(e);
             }

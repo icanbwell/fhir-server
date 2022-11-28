@@ -12,6 +12,8 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
 const {isTrue} = require('../../utils/isTrue');
+const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const {ResourceManager} = require('../common/resourceManager');
 
 class HistoryByIdOperation {
     /**
@@ -24,6 +26,7 @@ class HistoryByIdOperation {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
+     * @param {ResourceManager} resourceManager
      */
     constructor(
         {
@@ -34,7 +37,8 @@ class HistoryByIdOperation {
             bundleManager,
             resourceLocatorFactory,
             configManager,
-            searchManager
+            searchManager,
+            resourceManager
         }
     ) {
         /**
@@ -80,6 +84,12 @@ class HistoryByIdOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {ResourceManager}
+         */
+        this.resourceManager = resourceManager;
+        assertTypeEquals(resourceManager, ResourceManager);
     }
 
     /**
@@ -184,24 +194,33 @@ class HistoryByIdOperation {
                 cursor.clear();
             }
             /**
-             * @type {Resource[]}
+             * @type {BundleEntry[]}
              */
-            const resources = [];
+            const entries = [];
             while (await cursor.hasNext()) {
                 /**
-                 * @type {Resource|null}
+                 * @type {Resource|BundleEntry|null}
                  */
-                const resource = await cursor.next();
+                let resource = await cursor.next();
                 if (resource) {
+                    if (!resource.resource) { // it is not a bundle entry
+                        resource = new BundleEntry(
+                            {
+                                resource: resource,
+                                fullUrl: this.resourceManager.getFullUrlForResource(
+                                    {protocol, host, base_version, resource})
+                            }
+                        );
+                    }
                     if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
                             resource: resource, user, scope
                         }
                     )) {
-                        resources.push(resource);
+                        entries.push(resource);
                     }
                 }
             }
-            if (resources.length === 0) {
+            if (entries.length === 0) {
                 throw new NotFoundError();
             }
             await this.fhirLoggingManager.logOperationSuccessAsync(
@@ -234,19 +253,19 @@ class HistoryByIdOperation {
             //    rather than via the RESTful interface.
             //    If the entry.request.method is a PUT or a POST, the entry SHALL contain a resource.
             // return resources;
-            return this.bundleManager.createBundle(
+            return this.bundleManager.createBundleFromEntries(
                 {
                     type: 'history',
                     requestId: requestInfo.requestId,
                     originalUrl: url,
                     host,
                     protocol,
-                    resources,
+                    entries,
                     base_version,
-                    total_count: resources.length,
+                    total_count: entries.length,
                     args,
                     originalQuery: {},
-                    collectionName: resources.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(resources[0])) : null,
+                    collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
                     originalOptions: {},
                     stopTime,
                     startTime,
