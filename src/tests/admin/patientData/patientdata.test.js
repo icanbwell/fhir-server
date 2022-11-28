@@ -1,6 +1,12 @@
 // test file
 const patient1Resource = require('./fixtures/Patient/patient1.json');
+const patient2Resource = require('./fixtures/Patient/patient2.json');
+
 const observation1Resource = require('./fixtures/Observation/observation1.json');
+
+const personResource = require('./fixtures/Person/person.json');
+const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
+
 
 // expected
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
@@ -44,7 +50,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/showPatientDataGraph')
+                .get('/admin/showPatientDataGraph?patientId=patient1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp.body.message).toBe('Missing scopes for admin/*.read in user/*.read user/*.write access/*.*');
@@ -68,9 +74,30 @@ describe('Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             // ACT & ASSERT
             resp = await request
-                .get('/admin/showPatientDataGraph?patientId=00100000000')
+                .get('/admin/showPatientDataGraph?patientId=patient1')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);

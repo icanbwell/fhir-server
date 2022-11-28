@@ -25,7 +25,7 @@
               "end": "2021-12-31T00:00:00.000Z",
               "start": "2021-01-01T00:00:00.000Z"
             },
-            "id": "2354-InAgeCohort",
+            "id": "observation1",
             "issued": "2021-01-01T12:00:00Z",
             "meta": {
               "security": [
@@ -52,13 +52,13 @@
             "resourceType": "Observation",
             "status": "final",
             "subject": {
-              "reference": "Patient/00100000000"
+              "reference": "Patient/patient1"
             },
             "valueBoolean": false
           }
         ],
         "gender": "female",
-        "id": "00100000000",
+        "id": "patient1",
         "meta": {
           "security": [
             {
