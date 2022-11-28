@@ -551,7 +551,9 @@ const createContainer = function () {
     container.register('adminPersonPatientDataManager', (c) => new AdminPersonPatientDataManager(
         {
             fhirOperationsManager: c.fhirOperationsManager,
-            everythingOperation: c.everythingOperation
+            everythingOperation: c.everythingOperation,
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseUpdateFactory: c.databaseUpdateFactory
         }));
 
     return container;

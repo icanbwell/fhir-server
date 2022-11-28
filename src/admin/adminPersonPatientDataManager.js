@@ -83,14 +83,14 @@ class AdminPersonPatientDataManager {
          */
         const databaseQueryManagerForPerson = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
         /**
          * @type {DatabaseUpdateManager}
          */
         const databaseUpdateManagerForPerson = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
         /**
          * @type {BundleEntry[]}
@@ -108,6 +108,28 @@ class AdminPersonPatientDataManager {
             })
         );
         return updatedRecords;
+    }
+
+    /**
+     * @description deletes the person data graph
+     * @param {import('http').IncomingMessage} req
+     * @param {string} personId
+     * @return {Promise<Bundle>}
+     */
+    async deletePersonDataGraphAsync({req, personId}) {
+        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
+        requestInfo.method = 'DELETE';
+        const bundle = await this.everythingOperation.everything(requestInfo, {
+            'base_version': base_version,
+            'id': personId
+        }, 'Person');
+        // now also remove any connections to this Patient record
+        /**
+         * @type {BundleEntry[]}
+         */
+        const bundleEntries = await this.removeLinksFromOtherPersonsAsync({bundle});
+        bundleEntries.forEach(e => bundle.entry.push(e));
+        return bundle;
     }
 
     /**
@@ -134,13 +156,17 @@ class AdminPersonPatientDataManager {
          * @type {string[]}
          */
         const deletedResourceIds = bundle.entry.filter(e => e.resource.resourceType === resourceType).map(e => e.resource.id);
-        for (const deletedResourceId of deletedResourceIds) {
+        if (deletedResourceIds && deletedResourceIds.length > 0) {
+            /**
+             * @type {string[]}
+             */
+            const deletedResourceIdsWithResourceType = deletedResourceIds.map(deletedResourceId => `${resourceType}/${deletedResourceId}`);
             /**
              * @type {DatabasePartitionedCursor}
              */
             const personRecordsWithLinkToDeletedResourceIdCursor = await databaseQueryManagerForPerson.findAsync({
                 query: {
-                    'link.target.reference': `${resourceType}/${deletedResourceId}`
+                    'link.target.reference': {'$in': deletedResourceIdsWithResourceType}
                 }
             });
             /**
@@ -148,7 +174,7 @@ class AdminPersonPatientDataManager {
              */
             const personRecordsWithLinkToDeletedResourceId = await personRecordsWithLinkToDeletedResourceIdCursor.toArrayAsync();
             for (const /** @type {Person} */ person of personRecordsWithLinkToDeletedResourceId) {
-                person.link = person.link.filter(l => l.target.reference !== `${resourceType}/${deletedResourceId}`);
+                person.link = person.link.filter(l => !deletedResourceIdsWithResourceType.includes(l.target.reference));
                 await databaseUpdateManagerForPerson.replaceOneAsync({
                     doc: person
                 });
@@ -171,29 +197,6 @@ class AdminPersonPatientDataManager {
             }
         }
         return updatedRecords;
-    }
-
-    /**
-     * @description deletes the person data graph
-     * @param {import('http').IncomingMessage} req
-     * @param {string} personId
-     * @return {Promise<Bundle>}
-     */
-    async deletePersonDataGraphAsync({req, personId}) {
-        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        requestInfo.method = 'DELETE';
-        const bundle = await this.everythingOperation.everything(requestInfo, {
-            'base_version': base_version,
-            'id': personId
-        }, 'Person');
-        // now also remove any connections to this Patient record
-        /**
-         * @type {BundleEntry[]}
-         */
-        const bundleEntries = await this.removeLinksFromOtherPersonsAsync({bundle});
-        bundleEntries.forEach(e => bundle.entry.push(e));
-        return bundle;
-
     }
 }
 
