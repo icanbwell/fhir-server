@@ -6,8 +6,9 @@ const {DatabaseUpdateFactory} = require('../dataLayer/databaseUpdateFactory');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const Person = require('../fhir/classes/4_0_0/resources/person');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const {VERSIONS} = require('../middleware/fhir/utils/constants');
 
-const base_version = '4_0_0';
+const base_version = VERSIONS['4_0_0'];
 
 class AdminPersonPatientDataManager {
 

@@ -7,10 +7,13 @@ const {generateUUID} = require('../utils/uid.util');
 const moment = require('moment-timezone');
 const {SecurityTagSystem} = require('../utils/securityTagSystem');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
+const {VERSIONS} = require('../middleware/fhir/utils/constants');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
 const personReferencePrefix = 'Person/';
+
+const base_version = VERSIONS['4_0_0'];
 
 class AdminPersonPatientLinkManager {
     /**
@@ -51,11 +54,11 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
         const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
 
         /**
@@ -129,7 +132,7 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
         /**
          * @type {Person}
@@ -160,7 +163,7 @@ class AdminPersonPatientLinkManager {
             }
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
                 resourceType: 'Person',
-                base_version: '4_0_0'
+                base_version: base_version
             });
             await databaseUpdateManager.replaceOneAsync({
                 doc: bwellPerson
@@ -195,11 +198,11 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
         const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
 
         /**
@@ -213,7 +216,7 @@ class AdminPersonPatientLinkManager {
             // first read the meta tags from the patient
             const patientDatabaseQueryManager = this.databaseQueryFactory.createQuery({
                 resourceType: 'Patient',
-                base_version: '4_0_0'
+                base_version: base_version
             });
             /**
              * @type {Patient|null}
@@ -310,7 +313,7 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
         const person = await databaseQueryManager.findOneAsync({
             query: {id: personId},
@@ -362,7 +365,7 @@ class AdminPersonPatientLinkManager {
                 .map(l => l.target.reference.replace(patientReferencePrefix, ''));
 
             const patientDatabaseManager = this.databaseQueryFactory.createQuery({
-                resourceType: 'Patient', base_version: '4_0_0'
+                resourceType: 'Patient', base_version: base_version
             });
             /**
              * @type {DatabasePartitionedCursor}
@@ -464,7 +467,7 @@ class AdminPersonPatientLinkManager {
          */
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
-            base_version: '4_0_0'
+            base_version: base_version
         });
         // find all links to this Person
         /**
