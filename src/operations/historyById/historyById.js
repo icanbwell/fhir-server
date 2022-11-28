@@ -157,8 +157,7 @@ class HistoryByIdOperation {
             args: Object.assign(args, {id: id.toString()}), // add id filter to query
             resourceType,
             useAccessIndex,
-            personIdFromJwtToken,
-            isHistoryCollection: true
+            personIdFromJwtToken
         });
 
         // noinspection JSValidateTypes
