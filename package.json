@@ -11,6 +11,7 @@
   "scripts": {
     "start": "NODE_ENV=production node src/index.js",
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
+    "dev_debug": "NODE_ENV=development DEBUG=express:router ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
     "test": "NODE_ENV=test npm run lint && npm run test:jest",
     "test_shards": "NODE_ENV=test npm run lint && npm run test:jest_shard1 && npm run test:jest_shard2 && npm run test:jest_shard3 && npm run test:jest_shard4 && npm run test:jest_shard5",
     "lint": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jshint",

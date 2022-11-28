@@ -1,0 +1,72 @@
+{
+  "resourceType": "Parameters",
+  "parameter": [
+    {
+      "name": "graph",
+      "resource": {
+        "resourceType": "GraphDefinition",
+        "id": "2390a38e-ded5-4ae1-9848-81e352baaa0a",
+        "name": "2390a38e-ded5-4ae1-9848-81e352baaa0a",
+        "start": "Patient",
+        "link": [
+          {
+            "target": [
+              {
+                "type": "Encounter",
+                "params": "patient={ref}"
+              }
+            ]
+          },
+          {
+            "target": [
+              {
+                "type": "SupportedResourceType",
+                "params": "patient={ref}"
+              }
+            ]
+          },
+          {
+            "target": [
+              {
+                "type": "Observation",
+                "params": "patient={ref}"
+              }
+            ]
+          },
+          {
+            "target": [
+              {
+                "type": "MedicationDispense",
+                "params": "patient={ref}"
+              }
+            ]
+          },
+          {
+            "target": [
+              {
+                "type": "ChargeItem",
+                "params": "patient={ref}"
+              }
+            ]
+          },
+          {
+            "target": [
+              {
+                "type": "Coverage",
+                "params": "patient={ref}"
+              }
+            ]
+          },
+          {
+            "target": [
+              {
+                "type": "Condition",
+                "params": "patient={ref}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

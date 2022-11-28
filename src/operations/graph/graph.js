@@ -109,6 +109,10 @@ class GraphOperation {
              */
             let {base_version, id} = args;
 
+            if (!id) {
+                throw new BadRequestError(new Error('No id parameter was passed'));
+            }
+
             id = id.split(',');
             /**
              * @type {boolean}
