@@ -64,12 +64,8 @@ function cleanMeta(resource) {
  * @param {Object} request
  */
 function cleanRequestId(request) {
-    if (request && request.extension) {
-        for (const extension of request.extension) {
-            if (extension.url === 'https://www.icanbwell.com/requestId') {
-                delete extension.valueString;
-            }
-        }
+    if (request && request.id) {
+        delete request.id;
     }
 }
 
