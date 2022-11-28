@@ -40,7 +40,8 @@ class AdminPersonPatientDataManager {
         requestInfo.method = 'GET';
         return await this.everythingOperation.everything(requestInfo, {
             'base_version': base_version,
-            id: patientId
+            'contained': true,
+            'id': patientId
         }, 'Patient');
     }
 
@@ -55,7 +56,7 @@ class AdminPersonPatientDataManager {
         requestInfo.method = 'DELETE';
         return await this.everythingOperation.everything(requestInfo, {
             'base_version': base_version,
-            id: patientId
+            'id': patientId
         }, 'Patient');
     }
 
@@ -70,7 +71,8 @@ class AdminPersonPatientDataManager {
         requestInfo.method = 'GET';
         return await this.everythingOperation.everything(requestInfo, {
             'base_version': base_version,
-            id: personId
+            'contained': true,
+            'id': personId
         }, 'Person');
     }
 
@@ -85,7 +87,7 @@ class AdminPersonPatientDataManager {
         requestInfo.method = 'DELETE';
         return await this.everythingOperation.everything(requestInfo, {
             'base_version': base_version,
-            id: personId
+            'id': personId
         }, 'Person');
     }
 }

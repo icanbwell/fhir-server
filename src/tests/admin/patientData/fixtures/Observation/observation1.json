@@ -42,7 +42,7 @@
         ]
     },
     "subject": {
-        "reference": "Patient/2354"
+        "reference": "Patient/00100000000"
     },
     "effectivePeriod": {
         "start": "2021-01-01T00:00:00.000Z",
