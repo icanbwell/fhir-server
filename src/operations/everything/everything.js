@@ -2,7 +2,9 @@ const practitionerEverythingGraph = require('../../graphs/practitioner/everythin
 const organizationEverythingGraph = require('../../graphs/organization/everything.json');
 const slotEverythingGraph = require('../../graphs/slot/everything.json');
 const personEverythingGraph = require('../../graphs/person/everything.json');
+const personEverythingForDeletionGraph = require('../../graphs/person/everything_for_deletion.json');
 const patientEverythingGraph = require('../../graphs/patient/everything.json');
+const patientEverythingForDeletionGraph = require('../../graphs/patient/everything_for_deletion.json');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {GraphOperation} = require('../graph/graph');
 const {ScopesValidator} = require('../security/scopesValidator');
@@ -46,6 +48,7 @@ class EverythingOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @return {Promise<Bundle>}
      */
     async everything(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
@@ -105,7 +108,7 @@ class EverythingOperation {
                 });
                 return result;
             } else if (resourceType === 'Person') {
-                args.resource = personEverythingGraph;
+                args.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -116,7 +119,7 @@ class EverythingOperation {
                 });
                 return result;
             } else if (resourceType === 'Patient') {
-                args.resource = patientEverythingGraph;
+                args.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
                 const result = await this.graphOperation.graph(requestInfo, args, resourceType);
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,

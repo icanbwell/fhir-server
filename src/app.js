@@ -60,7 +60,7 @@ function createApp(fnCreateContainer) {
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
     /**
-     * @type {Express}
+     * @type {import('express').Express}
      */
     const app = express();
 
@@ -73,7 +73,7 @@ function createApp(fnCreateContainer) {
     app.use(useragent.express());
 
     // middleware for oAuth
-    app.use(passport.initialize({}));
+    app.use(passport.initialize());
 
     // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
@@ -140,9 +140,12 @@ function createApp(fnCreateContainer) {
     });
 
     // render the home page
-    app.get('/', (req, res) => {
+    app.get('/', (
+        /** @type {import('express').Request} */ req,
+        /** @type {import('express').Response} */ res,) => {
         const home_options = {
             resources: resourceDefinitions,
+            user: req.user
         };
         return res.render(__dirname + '/views/pages/home', home_options);
     });
@@ -179,6 +182,7 @@ function createApp(fnCreateContainer) {
 
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes
+        // noinspection JSCheckFunctionSignatures
         passport.use('adminStrategy', strategy);
         app.use(cors(fhirServerConfig.server.corsOptions));
     }
@@ -186,11 +190,15 @@ function createApp(fnCreateContainer) {
     // eslint-disable-next-line new-cap
     const adminRouter = express.Router();
     if (isTrue(env.AUTH_ENABLED)) {
-        adminRouter.use(passport.initialize({}));
+        adminRouter.use(passport.initialize());
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     }
-    adminRouter.get('/admin/:op?', handleAdmin);
-    adminRouter.post('/admin/:op?', handleAdmin);
+    adminRouter.get('/admin/:op?', (req, res) => handleAdmin(
+        fnCreateContainer, req, res
+    ));
+    adminRouter.post('/admin/:op?', (req, res) => handleAdmin(
+        fnCreateContainer, req, res
+    ));
     app.use(adminRouter);
 
     if (isTrue(env.AUTH_ENABLED)) {
@@ -209,7 +217,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
-                        router.use(passport.initialize({}));
+                        router.use(passport.initialize());
                         router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     }
                     // noinspection JSCheckFunctionSignatures
@@ -223,7 +231,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
-                        router1.use(passport.initialize({}));
+                        router1.use(passport.initialize());
                         router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     }
                     // noinspection JSCheckFunctionSignatures
@@ -241,7 +249,7 @@ function createApp(fnCreateContainer) {
                     // eslint-disable-next-line new-cap
                     const router = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
-                        router.use(passport.initialize({}));
+                        router.use(passport.initialize());
                         router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     }
                     // noinspection JSCheckFunctionSignatures
@@ -250,10 +258,13 @@ function createApp(fnCreateContainer) {
                 })
                 .then((_) => graphqlv1(fnCreateContainer))
                 .then((graphqlMiddlewareV1) => {
+                    /**
+                     * @type {import('express').Router}
+                     */
                     // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
-                        router1.use(passport.initialize({}));
+                        router1.use(passport.initialize());
                         router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                     }
                     // noinspection JSCheckFunctionSignatures

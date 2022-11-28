@@ -15,6 +15,9 @@ const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
 
 // let connection;
 // let db;
+/**
+ * @type {import('mongodb-memory-server').MongoMemoryServer|undefined|null}
+ */
 let mongo;
 /**
  * @type {import('http').Server}
@@ -143,7 +146,7 @@ module.exports.commonAfterEach = async () => {
     await testMongoDatabaseManager.dropDatabasesAsync();
 
     if (mongo) {
-        await mongo.stop();
+        await mongo.stop({doCleanup: true});
         mongo = null;
     }
     if (server) {

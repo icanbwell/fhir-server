@@ -1,7 +1,7 @@
 {
   "resourceType": "GraphDefinition",
   "id": "o",
-  "name": "person_everything",
+  "name": "patient_everything",
   "status": "active",
   "start": "Patient",
   "link": [
@@ -105,7 +105,17 @@
       "target": [
         {
           "type": "Person",
-          "params": "patient={ref}&_security:not=https://www.icanbwell.com/owner|bwell"
+          "params": "patient={ref}",
+          "link": [
+            {
+              "target": [
+                {
+                  "type": "Person",
+                  "params": "link={ref}"
+                }
+              ]
+            }
+          ]
         }
       ]
     },

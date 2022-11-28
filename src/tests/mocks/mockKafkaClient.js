@@ -5,7 +5,7 @@ class MockKafkaClient extends KafkaClient {
      * constructor
      */
     constructor() {
-        super({ clientId: undefined, brokers: [], ssl: false });
+        super({ clientId: undefined, brokers: [], ssl: false, sasl: null });
         /**
          * @type {KafkaClientMessage[]}
          */
@@ -17,10 +17,11 @@ class MockKafkaClient extends KafkaClient {
      * init
      * @param {string} clientId
      * @param {string[]} brokers
-     * @param ssl
+     * @param {boolean} ssl
+     * @param {import('kafkajs').SASLOptions} sasl
      */
     // eslint-disable-next-line no-unused-vars
-    init(clientId, brokers, ssl) {
+    init(clientId, brokers, ssl, sasl) {
         // do nothing
     }
 

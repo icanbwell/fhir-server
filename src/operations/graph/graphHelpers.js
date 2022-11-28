@@ -21,6 +21,7 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
+const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 
 
 /**
@@ -1218,9 +1219,16 @@ class GraphHelper {
      * @param {Object} args
      * @return {Promise<Bundle>}
      */
-    async deleteGraphAsync({
-                               requestInfo, base_version, resourceType, id, graphDefinitionJson, args
-                           }) {
+    async deleteGraphAsync(
+        {
+            requestInfo,
+            base_version,
+            resourceType,
+            id,
+            graphDefinitionJson,
+            args
+        }
+    ) {
         try {
             /**
              * @type {number}
@@ -1249,8 +1257,17 @@ class GraphHelper {
                  * @type {Resource}
                  */
                 const resource = entry.resource;
+                /**
+                 * @type {string}
+                 */
                 const resultResourceType = resource.resourceType;
+                /**
+                 * @type {string[]}
+                 */
                 const idList = [resource.id];
+                /**
+                 * @type {DatabaseQueryManager}
+                 */
                 const databaseQueryManager = this.databaseQueryFactory.createQuery({
                     resourceType: resultResourceType,
                     base_version
@@ -1263,8 +1280,9 @@ class GraphHelper {
                 /**
                  * @type {{deletedCount: (number|null), error: (Error|null)}}
                  */
-                    // eslint-disable-next-line no-unused-vars
+                // eslint-disable-next-line no-unused-vars
                 const result = await databaseQueryManager.deleteManyAsync({
+                        requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}
                     });
                 for (const resultResourceId of idList) {
@@ -1272,7 +1290,14 @@ class GraphHelper {
                     deleteOperationBundleEntries.push(new BundleEntry({
                         resource: new ResourceCreator({
                             id: resultResourceId, resourceType: resultResourceType
-                        })
+                        }),
+                        request: new BundleRequest(
+                            {
+                                id: requestInfo.requestId,
+                                method: 'DELETE',
+                                url: `/${base_version}/${resultResourceType}/${resultResourceId}`
+                            }
+                        )
                     }));
                 }
 

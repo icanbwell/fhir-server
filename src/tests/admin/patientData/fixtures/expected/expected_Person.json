@@ -1,0 +1,319 @@
+{
+  "entry": [
+    {
+      "id": "person1",
+      "resource": {
+        "active": true,
+        "address": [
+          {
+            "city": "Austin",
+            "country": "Some country",
+            "id": "2011-10-05T14:48:00.000Z",
+            "line": [
+              "301 W, in a yellow submarine"
+            ],
+            "period": {
+              "id": "2011-10-05T14:48:00.000Z"
+            },
+            "postalCode": "78701",
+            "state": "Texas"
+          }
+        ],
+        "contained": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "BMI001",
+                  "system": "http://www.icanbwell.com/cql/library"
+                },
+                {
+                  "code": "1.0.0",
+                  "system": "http://www.icanbwell.com/cql/libraryVersion"
+                },
+                {
+                  "code": "InAgeCohort",
+                  "system": "http://www.icanbwell.com/cql/rule"
+                }
+              ]
+            },
+            "effectivePeriod": {
+              "end": "2021-12-31T00:00:00.000Z",
+              "start": "2021-01-01T00:00:00.000Z"
+            },
+            "id": "observation1",
+            "issued": "2021-01-01T12:00:00Z",
+            "meta": {
+              "security": [
+                {
+                  "code": "A",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "A",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "B",
+                  "system": "https://www.icanbwell.com/vendor"
+                },
+                {
+                  "code": "B",
+                  "system": "https://www.icanbwell.com/access"
+                }
+              ],
+              "source": "/patients",
+              "versionId": "1"
+            },
+            "resourceType": "Observation",
+            "status": "final",
+            "subject": {
+              "reference": "Patient/patient1"
+            },
+            "valueBoolean": false
+          },
+          {
+            "birthDate": "2017-01-01",
+            "gender": "female",
+            "id": "patient1",
+            "meta": {
+              "security": [
+                {
+                  "code": "medstar",
+                  "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "medstar",
+                  "system": "https://www.icanbwell.com/owner"
+                }
+              ],
+              "source": "http://medstarhealth.org/provider",
+              "versionId": "1"
+            },
+            "name": [
+              {
+                "family": "PATIENT1",
+                "given": [
+                  "SHYLA"
+                ],
+                "text": "t",
+                "use": "usual"
+              }
+            ],
+            "resourceType": "Patient"
+          },
+          {
+            "active": true,
+            "address": [
+              {
+                "city": "Austin",
+                "country": "Some country",
+                "id": "2011-10-05T14:48:00.000Z",
+                "line": [
+                  "301 W, in a yellow submarine"
+                ],
+                "period": {
+                  "id": "2011-10-05T14:48:00.000Z"
+                },
+                "postalCode": "78701",
+                "state": "Texas"
+              }
+            ],
+            "gender": "male",
+            "id": "person1",
+            "identifier": [
+              {
+                "system": "http://www.walgreens.com/profileid",
+                "value": "1000000-a-02"
+              },
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "person1"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
+            "implicitRules": "some-implicit-rule",
+            "language": "english",
+            "link": [
+              {
+                "assurance": "level4",
+                "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
+                "target": {
+                  "reference": "Patient/patient1"
+                }
+              }
+            ],
+            "managingOrganization": {
+              "display": "some-text-to-display",
+              "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
+              "reference": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab",
+              "type": "foo://example.com:8042/over/there?name=ferret#"
+            },
+            "meta": {
+              "extension": [
+                {
+                  "id": "2011-10-05T14:48:00.000Z",
+                  "url": "someurl",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "code": "code-1",
+                        "display": "some-display",
+                        "system": "foo://example.com:8042/over/there?name=ferret#"
+                      }
+                    ],
+                    "id": "2011-10-05T14:48:00.000Z",
+                    "text": "some-text"
+                  }
+                }
+              ],
+              "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+              "profile": [
+                "some-profile"
+              ],
+              "security": [
+                {
+                  "code": "healthsystem1",
+                  "system": "https://www.icanbwell.com/owner"
+                },
+                {
+                  "code": "healthsystem1",
+                  "system": "https://www.icanbwell.com/access"
+                }
+              ],
+              "source": "https://www.icanbwell.com",
+              "versionId": "1"
+            },
+            "name": [
+              {
+                "family": "Azamar",
+                "given": [
+                  "Daniel"
+                ],
+                "use": "nickname"
+              }
+            ],
+            "photo": {
+              "contentType": "image/jpeg",
+              "data": "someLongString",
+              "hash": "whatANiceHash!",
+              "id": "2011-10-05T14:48:00.000Z",
+              "language": "english",
+              "size": 1024,
+              "title": "what a nice picture!",
+              "url": "someurl.com"
+            },
+            "resourceType": "Person",
+            "telecom": [
+              {
+                "id": "2011-10-05T14:48:00.000Z",
+                "system": "phone",
+                "use": "home",
+                "value": "+52123456789"
+              }
+            ]
+          }
+        ],
+        "gender": "male",
+        "id": "person1",
+        "identifier": [
+          {
+            "system": "http://www.walgreens.com/profileid",
+            "value": "1000000-a-02"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "person1"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "implicitRules": "some-implicit-rule",
+        "language": "english",
+        "link": [
+          {
+            "assurance": "level4",
+            "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
+            "target": {
+              "reference": "Patient/patient1"
+            }
+          }
+        ],
+        "managingOrganization": {
+          "display": "some-text-to-display",
+          "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
+          "reference": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab",
+          "type": "foo://example.com:8042/over/there?name=ferret#"
+        },
+        "meta": {
+          "extension": [
+            {
+              "id": "2011-10-05T14:48:00.000Z",
+              "url": "someurl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "code": "code-1",
+                    "display": "some-display",
+                    "system": "foo://example.com:8042/over/there?name=ferret#"
+                  }
+                ],
+                "id": "2011-10-05T14:48:00.000Z",
+                "text": "some-text"
+              }
+            }
+          ],
+          "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+          "profile": [
+            "some-profile"
+          ],
+          "security": [
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "source": "https://www.icanbwell.com",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "Azamar",
+            "given": [
+              "Daniel"
+            ],
+            "use": "nickname"
+          }
+        ],
+        "photo": {
+          "contentType": "image/jpeg",
+          "data": "someLongString",
+          "hash": "whatANiceHash!",
+          "id": "2011-10-05T14:48:00.000Z",
+          "language": "english",
+          "size": 1024,
+          "title": "what a nice picture!",
+          "url": "someurl.com"
+        },
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "id": "2011-10-05T14:48:00.000Z",
+            "system": "phone",
+            "use": "home",
+            "value": "+52123456789"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "type": "collection"
+}

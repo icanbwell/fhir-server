@@ -74,6 +74,7 @@ const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkM
 const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
+const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
 
 /**
  * Creates a container and sets up all the services
@@ -293,7 +294,9 @@ const createContainer = function () {
         )
     );
 
-    container.register('bundleManager', () => new BundleManager());
+    container.register('bundleManager', (c) => new BundleManager({
+        resourceManager: c.resourceManager
+    }));
     // register fhir operations
     container.register('searchBundleOperation', (c) => new SearchBundleOperation(
             {
@@ -417,7 +420,8 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
             configManager: c.configManager,
-            searchManager: c.searchManager
+            searchManager: c.searchManager,
+            resourceManager: c.resourceManager
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -429,7 +433,8 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
             configManager: c.configManager,
-            searchManager: c.searchManager
+            searchManager: c.searchManager,
+            resourceManager: c.resourceManager
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -546,6 +551,14 @@ const createContainer = function () {
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
         databaseQueryFactory: c.databaseQueryFactory
     }));
+
+    container.register('adminPersonPatientDataManager', (c) => new AdminPersonPatientDataManager(
+        {
+            fhirOperationsManager: c.fhirOperationsManager,
+            everythingOperation: c.everythingOperation,
+            databaseQueryFactory: c.databaseQueryFactory,
+            databaseUpdateFactory: c.databaseUpdateFactory
+        }));
 
     return container;
 };

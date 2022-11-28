@@ -5,32 +5,10 @@ const {mongoConfig} = require('../config');
 // const env = require('var');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
-const {createContainer} = require('../createContainer');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
-
-/**
- * Gets admin scopes from the request
- * @param {import('http').IncomingMessage} req
- * @returns {{adminScopes: string[], scope: string}}
- */
-function getAdminScopes({req}) {
-    /**
-     * @type {string}
-     */
-    const scope = req.authInfo && req.authInfo.scope;
-    if (!scope) {
-        return {scope, adminScopes: []};
-    }
-    /**
-     * @type {string[]}
-     */
-    const scopes = scope.split(' ');
-    const adminScopes = scopes.filter(s => s.startsWith('admin/'));
-    return {scope, adminScopes};
-}
 
 /**
  * shows indexes
@@ -100,9 +78,16 @@ async function synchronizeIndexesAsync(
     return;
 }
 
+/**
+ * Handles admin routes
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('http').ServerResponse} res
+ */
 async function handleAdmin(
-    /** @type {import('http').IncomingMessage} **/ req,
-    /** @type {import('http').ServerResponse} **/ res
+    fnCreateContainer,
+    req,
+    res
 ) {
     console.info('Running admin');
     const mongoDatabaseManager = new MongoDatabaseManager();
@@ -113,13 +98,24 @@ async function handleAdmin(
     try {
         const operation = req.params['op'];
         console.log(`op=${operation}`);
-        const {scope, adminScopes} = getAdminScopes({req});
 
         // set up all the standard services in the container
         /**
          * @type {SimpleContainer}
          */
-        const container = createContainer();
+        const container = fnCreateContainer();
+        /**
+         * @type {ScopesManager}
+         */
+        const scopesManager = container.scopesManager;
+        /**
+         * @type {string|undefined}
+         */
+        const scope = scopesManager.getScopeFromRequest({req});
+        /**
+         * @type {string[]}
+         */
+        const adminScopes = scopesManager.getAdminScopes({scope});
 
         if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
@@ -130,6 +126,12 @@ async function handleAdmin(
                 }
 
                 case 'personPatientLink': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
+                case 'patientData': {
                     const parameters = {};
                     const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
                     return res.render(filePath, parameters);
@@ -181,6 +183,7 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.deletePersonAsync({
+                            requestId: req.id,
                             personId
                         });
                         return res.json(json);
@@ -250,6 +253,45 @@ async function handleAdmin(
                     });
                 }
 
+                case 'deletePatientDataGraph': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const patientId = req.query['id'];
+                    if (patientId) {
+                        /**
+                         * @type {AdminPersonPatientDataManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
+                            req,
+                            patientId,
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No id: ${patientId} passed`
+                    });
+                }
+
+                case 'deletePersonDataGraph': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const personId = req.query['id'];
+                    if (personId) {
+                        /**
+                         * @type {AdminPersonPatientDataManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        const json = await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
+                            req,
+                            personId,
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No id: ${personId} passed`
+                    });
+                }
+
+
                 case 'indexes': {
                     return await showIndexesAsync(
                         {
@@ -288,20 +330,12 @@ async function handleAdmin(
                 message: `Missing scopes for admin/*.read in ${scope}`
             });
         }
-        // }
-        //     res.status(200).json({
-        //         success: true,
-        //         image: env.DOCKER_IMAGE || '',
-        //     });
-        // res.set('Content-Type', 'text/html');
-        // res.send(Buffer.from('<html><body><h2>Test String</h2></body></html>'));
     } finally {
         await mongoDatabaseManager.disconnectClientAsync(client);
     }
 }
 
 module.exports = {
-    handleAdmin,
-    getAdminScopes
+    handleAdmin
 };
 

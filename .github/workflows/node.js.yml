@@ -11,50 +11,25 @@ on:
         branches: [master]
 
 jobs:
-    setup:
-        runs-on: ubuntu-latest
-        outputs:
-            test-chunks: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
-            test-chunk-ids: ${{ steps['set-test-chunk-ids'].outputs['test-chunk-ids'] }}
-        steps:
-            - uses: actions/checkout@v3
-            - name: Use Node.js 16.18.x
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 16.18.x
-            - run: yarn install
-            - run: npm run build --if-present
-            - id: set-test-chunks
-              name: Set Chunks
-              run: echo "::set-output name=test-chunks::$(npx jest --listTests --json | jq -cM '[_nwise(length / 8 | floor)]')"
-            - id: set-test-chunk-ids
-              name: Set Chunk IDs
-              run: echo "::set-output name=test-chunk-ids::$(echo $CHUNKS | jq -cM 'to_entries | map(.key)')"
-              env:
-                  CHUNKS: ${{ steps['set-test-chunks'].outputs['test-chunks'] }}
-
     build:
         runs-on: ubuntu-latest
         name: test (chunk ${{ matrix.chunk }})
-        needs:
-            - setup
         strategy:
-            matrix:
-                chunk: ${{ fromJson(needs.setup.outputs['test-chunk-ids']) }}
-            fail-fast: false
+          matrix:
+            shard: [1, 2, 3, 4, 5, 6, 7, 8]
+          fail-fast: false
         steps:
             - uses: actions/checkout@v3
-            - name: Use Node.js 16.18.x
+            - name: Use Node.js 16.18.1
               uses: actions/setup-node@v3
               with:
-                  node-version: 16.18.x
+                  node-version: 16.18.1
             - run: | # retry since mongo memory server fails to download sometimes
                 yarn install || yarn install
             - run: npm run build --if-present
             - name: jest
               run: |
                 export NODE_OPTIONS="--max_old_space_size=8192"
-                echo $CHUNKS | jq '.[${{ matrix.chunk }}] | .[] | @text' | xargs node --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit
+                node --max_old_space_size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
               env:
-                  CHUNKS: ${{ needs.setup.outputs['test-chunks'] }}
                   NODE_OPTIONS: "--max_old_space_size=8192"

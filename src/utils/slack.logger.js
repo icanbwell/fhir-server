@@ -176,7 +176,7 @@ class ErrorReporter {
         /**
          * @type {string|null}
          */
-        const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.id;
+        const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id;
         const self = this;
         const request = {
             method: req.method,
@@ -193,6 +193,11 @@ class ErrorReporter {
             {
                 title: 'Request Id',
                 value: req.id,
+                short: true
+            },
+            {
+                title: 'Request Id Lookup',
+                value: `${req.protocol}://${req.host}/admin/searchLogResults?id=${req.id}`,
                 short: true
             },
             {

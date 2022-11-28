@@ -12,11 +12,17 @@
     "start": "NODE_ENV=production node src/index.js",
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
     "test": "NODE_ENV=test npm run lint && npm run test:jest",
+    "test_shards": "NODE_ENV=test npm run lint && npm run test:jest_shard1 && npm run test:jest_shard2 && npm run test:jest_shard3 && npm run test:jest_shard4 && npm run test:jest_shard5",
     "lint": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jshint",
     "test:failed": "NODE_ENV=test npm run test:lint && npm run test:jest --onlyFailures",
     "test:lint": "NODE_OPTIONS=--max_old_space_size=8096 eslint \"src/**/*.js\"",
     "test:ejslint": "ejslint \"src/**/*.ejs\"",
     "test:jshint": "jshint \"src/\"",
+    "test:jest_shard1": "NODE_OPTIONS=--max_old_space_size=8192 node --max_old_space_size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=1/5 .",
+    "test:jest_shard2": "NODE_OPTIONS=--max_old_space_size=8192 node --max_old_space_size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=2/5 .",
+    "test:jest_shard3": "NODE_OPTIONS=--max_old_space_size=8192 node --max_old_space_size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=3/5 .",
+    "test:jest_shard4": "NODE_OPTIONS=--max_old_space_size=8192 node --max_old_space_size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=4/5 .",
+    "test:jest_shard4": "NODE_OPTIONS=--max_old_space_size=8192 node --max_old_space_size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=5/5 .",
     "test:jest": "node --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit .",
     "test:jestInspect": "NODE_ENV=test NODE_OPTIONS=--max_old_space_size=12328 node --max-old-space-size=12328 --inspect-brk --expose-gc ./node_modules/.bin/jest --no-watchman --silent --useStderr --logHeapUsage --detectOpenHandles -i src/tests/practitioner/complex_merge src/tests/patient/search_with_patient_filtering/search_with_patient_filtering.test.js",
     "test:integration": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/complex_merge",
@@ -44,6 +50,7 @@
     ],
     "reporters": [
       "default",
+      "github-actions",
       "jest-failure-reporter"
     ],
     "coveragePathIgnorePatterns": [
@@ -56,7 +63,8 @@
     "setupFilesAfterEnv": [
       "<rootDir>/src/tests/testSetup.js"
     ],
-    "testTimeout": 60000
+    "testTimeout": 60000,
+    "workerIdleMemoryLimit": "3MB"
   },
   "graphql-schema-linter": {
     "rules": [
@@ -175,7 +183,19 @@
     "jest-extended": "^3.2.0",
     "vm2": "^3.9.11",
     "yargs": "^17.6.2",
-    "@types/node": "^16.18.1"
+    "@types/node": "^16.18.1",
+    "@types/express": "^4.17.14",
+    "@types/jest": "^29.2.3",
+    "@types/jsonwebtoken": "^8.5.9",
+    "@types/supertest": "^2.0.12",
+    "@types/superagent": "^4.1.16",
+    "@types/ejs": "^3.1.1",
+    "@types/graphql": "^14.5.0",
+    "@types/async": "^3.2.16",
+    "@types/passport": "^1.0.11",
+    "@types/passport-jwt": "^3.0.7",
+    "@types/mongodb": "^4.0.7",
+    "@types/kafkajs": "^1.9.0"
   },
   "private": false,
   "snyk": false

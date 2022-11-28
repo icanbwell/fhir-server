@@ -1,6 +1,52 @@
 {
   "entry": [
     {
+      "id": "-733797173",
+      "resource": {
+        "id": "-733797173",
+        "identifier": [
+          {
+            "system": "bwell",
+            "use": "usual",
+            "value": "-733797173"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "-733797173"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "source": "https://www.foo.com",
+          "versionId": "1"
+        },
+        "providedBy": {
+          "reference": "Organization/733797173"
+        },
+        "resourceType": "HealthcareService",
+        "specialty": [
+          {
+            "coding": [
+              {
+                "code": "261QP2300X",
+                "display": "Primary Care and Student Health",
+                "system": "http://nucc.org/provider-taxonomy"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "733797173",
       "resource": {
         "active": true,
         "address": [
@@ -109,6 +155,7 @@
       }
     },
     {
+      "id": "UHG-MDER",
       "resource": {
         "description": "Baltimore Region",
         "id": "UHG-MDER",
@@ -256,50 +303,6 @@
               }
             ],
             "text": "ER Indicator"
-          }
-        ]
-      }
-    },
-    {
-      "resource": {
-        "id": "-733797173",
-        "identifier": [
-          {
-            "system": "bwell",
-            "use": "usual",
-            "value": "-733797173"
-          },
-          {
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "-733797173"
-          },
-          {
-            "system": "https://www.icanbwell.com/uuid"
-          }
-        ],
-        "meta": {
-          "security": [
-            {
-              "code": "medstar",
-              "system": "https://www.icanbwell.com/access"
-            }
-          ],
-          "source": "https://www.foo.com",
-          "versionId": "1"
-        },
-        "providedBy": {
-          "reference": "Organization/733797173"
-        },
-        "resourceType": "HealthcareService",
-        "specialty": [
-          {
-            "coding": [
-              {
-                "code": "261QP2300X",
-                "display": "Primary Care and Student Health",
-                "system": "http://nucc.org/provider-taxonomy"
-              }
-            ]
           }
         ]
       }
