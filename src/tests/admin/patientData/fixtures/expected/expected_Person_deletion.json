@@ -1,6 +1,17 @@
 {
   "entry": [
     {
+      "id": "topLevelPerson",
+      "request": {
+        "method": "PATCH",
+        "url": "/4_0_0/Person/topLevelPerson"
+      },
+      "resource": {
+        "id": "topLevelPerson",
+        "resourceType": "Person"
+      }
+    },
+    {
       "request": {
         "method": "DELETE",
         "url": "/4_0_0/Person/person1"
@@ -28,16 +39,6 @@
       "resource": {
         "id": "observation1",
         "resourceType": "Observation"
-      }
-    },
-    {
-      "request": {
-        "method": "PATCH",
-        "url": "/4_0_0/Person/topLevelPerson"
-      },
-      "resource": {
-        "id": "topLevelPerson",
-        "resourceType": "Person"
       }
     }
   ],

@@ -1,6 +1,7 @@
 {
   "entry": [
     {
+      "id": "WPS-Claim-230916613368",
       "resource": {
         "contained": [
           {
@@ -145,6 +146,7 @@
       }
     },
     {
+      "id": "WPS-Claim-230916613369",
       "resource": {
         "contained": [
           {

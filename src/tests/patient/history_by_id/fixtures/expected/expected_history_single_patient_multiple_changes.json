@@ -1,12 +1,8 @@
 {
   "entry": [
     {
+      "id": "00100000000",
       "request": {
-        "extension": [
-          {
-            "url": "https://www.icanbwell.com/requestId"
-          }
-        ],
         "method": "POST",
         "url": "/4_0_0/Patient/00100000000"
       },
@@ -42,12 +38,8 @@
       }
     },
     {
+      "id": "00100000000",
       "request": {
-        "extension": [
-          {
-            "url": "https://www.icanbwell.com/requestId"
-          }
-        ],
         "method": "POST",
         "url": "/4_0_0/Patient/00100000000"
       },

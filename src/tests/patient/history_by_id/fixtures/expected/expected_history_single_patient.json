@@ -1,13 +1,8 @@
 {
   "entry": [
     {
+      "id": "00100000000",
       "request": {
-        "extension": [
-          {
-            "url": "https://www.icanbwell.com/requestId",
-            "valueString": "560fde01-63e9-46e7-92ac-92777cc1d7dc"
-          }
-        ],
         "method": "POST",
         "url": "/4_0_0/Patient/00100000000"
       },
