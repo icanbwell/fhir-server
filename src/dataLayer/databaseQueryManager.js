@@ -6,6 +6,7 @@ const {getResource} = require('../operations/common/getResource');
 const {RethrownError} = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const moment = require('moment-timezone');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -115,8 +116,13 @@ class DatabaseQueryManager {
                          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                          */
                         const historyCollection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(resource);
+                        /**
+                         * @type {Resource}
+                         */
+                        const historyResource = resource.clone();
+                        historyResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                         historyCollection.insertOne(new BundleEntry({
-                            resource,
+                            resource: historyResource,
                             request: new BundleRequest(
                                 {
                                     id: requestId,
