@@ -153,7 +153,7 @@ class FhirOperationsManager {
          */
         const user = (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
             (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
-            ((!req.user || typeof req.user === 'string') ? req.user : req.user.id);
+            ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id);
         /**
          * @type {boolean}
          */
