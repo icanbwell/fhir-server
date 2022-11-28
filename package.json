@@ -63,7 +63,8 @@
     "setupFilesAfterEnv": [
       "<rootDir>/src/tests/testSetup.js"
     ],
-    "testTimeout": 60000
+    "testTimeout": 60000,
+    "workerIdleMemoryLimit": "3MB"
   },
   "graphql-schema-linter": {
     "rules": [

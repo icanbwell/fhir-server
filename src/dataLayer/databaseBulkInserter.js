@@ -22,7 +22,6 @@ const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {RequestSpecificCache} = require('../utils/requestSpecificCache');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const Extension = require('../fhir/classes/4_0_0/extensions/extension');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -277,16 +276,9 @@ class DatabaseBulkInserter extends EventEmitter {
                                     resource: doc,
                                     request: new BundleRequest(
                                         {
+                                            id: requestId,
                                             method,
-                                            url: `/${base_version}/${resourceType}/${doc.id}`,
-                                            extension: [
-                                                new Extension(
-                                                    {
-                                                        url: 'https://www.icanbwell.com/requestId',
-                                                        valueString: requestId
-                                                    }
-                                                )
-                                            ]
+                                            url: `/${base_version}/${resourceType}/${doc.id}`
                                         }
                                     )
                                 }

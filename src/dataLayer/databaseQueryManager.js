@@ -6,7 +6,6 @@ const {getResource} = require('../operations/common/getResource');
 const {RethrownError} = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const Extension = require('../fhir/classes/4_0_0/extensions/extension');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -120,16 +119,9 @@ class DatabaseQueryManager {
                             resource,
                             request: new BundleRequest(
                                 {
+                                    id: requestId,
                                     method: 'DELETE',
-                                    url: `${this._base_version}/${resource.resourceType}/${resource.id}`,
-                                    extension: [
-                                        new Extension(
-                                            {
-                                                url: 'https://www.icanbwell.com/requestId',
-                                                valueString: requestId
-                                            }
-                                        )
-                                    ]
+                                    url: `${this._base_version}/${resource.resourceType}/${resource.id}`
                                 }
                             )
                         }));

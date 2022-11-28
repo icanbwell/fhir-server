@@ -68,17 +68,21 @@ class AdminPersonPatientDataManager {
         /**
          * @type {BundleEntry[]}
          */
-        const bundleEntries = await this.removeLinksFromOtherPersonsAsync({bundle});
+        const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
+            requestId: req.id,
+            bundle
+        });
         bundleEntries.forEach(e => bundle.entry.push(e));
         return bundle;
     }
 
     /**
      * @description Removes links from other Person records pointing to the resources in this bundle
+     * @param {string} requestId
      * @param {Bundle} bundle
      * @return {Promise<BundleEntry[]>}
      */
-    async removeLinksFromOtherPersonsAsync({bundle}) {
+    async removeLinksFromOtherPersonsAsync({requestId, bundle}) {
         /**
          * @type {DatabaseQueryManager}
          */
@@ -100,11 +104,13 @@ class AdminPersonPatientDataManager {
         updatedRecords = updatedRecords.concat(
             await this.removeLinksToResourceTypeAsync(
                 {
+                    requestId,
                     bundle, resourceType: 'Patient', databaseQueryManagerForPerson, databaseUpdateManagerForPerson
                 })
         );
         updatedRecords = updatedRecords.concat(
             await this.removeLinksToResourceTypeAsync({
+                requestId,
                 bundle, resourceType: 'Person', databaseQueryManagerForPerson, databaseUpdateManagerForPerson
             })
         );
@@ -128,13 +134,17 @@ class AdminPersonPatientDataManager {
         /**
          * @type {BundleEntry[]}
          */
-        const bundleEntries = await this.removeLinksFromOtherPersonsAsync({bundle});
+        const bundleEntries = await this.removeLinksFromOtherPersonsAsync({
+            requestId: req.id,
+            bundle
+        });
         bundleEntries.forEach(e => bundle.entry.push(e));
         return bundle;
     }
 
     /**
      * Removes link from Person to the resources in the bundle of resourceType
+     * @param {string} requestId
      * @param {Bundle} bundle
      * @param {string} resourceType
      * @param {DatabaseQueryManager} databaseQueryManagerForPerson
@@ -143,6 +153,7 @@ class AdminPersonPatientDataManager {
      */
     async removeLinksToResourceTypeAsync(
         {
+            requestId,
             bundle,
             resourceType,
             databaseQueryManagerForPerson,
@@ -196,6 +207,7 @@ class AdminPersonPatientDataManager {
                             ),
                             request: new BundleRequest(
                                 {
+                                    id: requestId,
                                     method: 'PATCH',
                                     url: `/${base_version}/Person/${person.id}`
                                 }

@@ -1284,6 +1284,7 @@ class GraphHelper {
                         }),
                         request: new BundleRequest(
                             {
+                                id: requestInfo.requestId,
                                 method: 'DELETE',
                                 url: `/${base_version}/${resultResourceType}/${resultResourceId}`
                             }
