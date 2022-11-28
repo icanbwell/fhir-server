@@ -86,7 +86,7 @@ update:down
 .PHONY:tests
 tests:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	npm test
+	npm run test_shards
 
 .PHONY:failed_tests
 failed_tests:
