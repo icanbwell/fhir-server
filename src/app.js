@@ -179,6 +179,7 @@ function createApp(fnCreateContainer) {
 
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes
+        // noinspection JSCheckFunctionSignatures
         passport.use('adminStrategy', strategy);
         app.use(cors(fhirServerConfig.server.corsOptions));
     }
@@ -189,8 +190,12 @@ function createApp(fnCreateContainer) {
         adminRouter.use(passport.initialize({}));
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     }
-    adminRouter.get('/admin/:op?', handleAdmin);
-    adminRouter.post('/admin/:op?', handleAdmin);
+    adminRouter.get('/admin/:op?', (req, res) => handleAdmin(
+        fnCreateContainer, req, res
+    ));
+    adminRouter.post('/admin/:op?', (req, res) => handleAdmin(
+        fnCreateContainer, req, res
+    ));
     app.use(adminRouter);
 
     if (isTrue(env.AUTH_ENABLED)) {

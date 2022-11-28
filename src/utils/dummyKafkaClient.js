@@ -10,17 +10,18 @@ class DummyKafkaClient extends KafkaClient {
      * @param {string[]|undefined} brokers
      */
     constructor({clientId, brokers}) {
-        super({clientId, brokers, ssl: false});
+        super({clientId, brokers, ssl: false, sasl: null});
     }
 
     /**
      * init
      * @param {string} clientId
      * @param {string[]} brokers
-     * @param ssl
+     * @param {boolean} ssl
+     * @param {import('kafkajs').SASLOptions} sasl
      */
     // eslint-disable-next-line no-unused-vars
-    init(clientId, brokers, ssl) {
+    init(clientId, brokers, ssl, sasl) {
     }
 
     /**

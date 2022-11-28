@@ -46,6 +46,7 @@ class EverythingOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @return {Promise<Bundle>}
      */
     async everything(requestInfo, args, resourceType) {
         assertIsValid(requestInfo !== undefined);

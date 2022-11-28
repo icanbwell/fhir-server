@@ -74,6 +74,7 @@ const {AdminPersonPatientLinkManager} = require('./admin/adminPersonPatientLinkM
 const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
+const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
 
 /**
  * Creates a container and sets up all the services
@@ -546,6 +547,12 @@ const createContainer = function () {
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
         databaseQueryFactory: c.databaseQueryFactory
     }));
+
+    container.register('adminPersonPatientDataManager', (c) => new AdminPersonPatientDataManager(
+        {
+            fhirOperationsManager: c.fhirOperationsManager,
+            everythingOperation: c.everythingOperation
+        }));
 
     return container;
 };

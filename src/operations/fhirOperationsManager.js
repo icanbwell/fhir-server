@@ -15,7 +15,7 @@ const {GraphOperation} = require('./graph/graph');
 const {get_all_args} = require('./common/get_all_args');
 const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
-const {assertTypeEquals} = require('../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const env = require('var');
 
 
@@ -141,7 +141,13 @@ class FhirOperationsManager {
         assertTypeEquals(expandOperation, ExpandOperation);
     }
 
+    /**
+     * @description Creates a FhirRequestInfo from the passed in request
+     * @param {import('http').IncomingMessage} req
+     * @return {FhirRequestInfo}
+     */
     getRequestInfo(req) {
+        assertIsValid(req, 'req is null');
         /**
          * @type {string | null}
          */

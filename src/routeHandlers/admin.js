@@ -5,7 +5,6 @@ const {mongoConfig} = require('../config');
 // const env = require('var');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
-const {createContainer} = require('../createContainer');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
@@ -100,9 +99,16 @@ async function synchronizeIndexesAsync(
     return;
 }
 
+/**
+ * Handles admin routes
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('http').ServerResponse} res
+ */
 async function handleAdmin(
-    /** @type {import('http').IncomingMessage} **/ req,
-    /** @type {import('http').ServerResponse} **/ res
+    fnCreateContainer,
+    req,
+    res
 ) {
     console.info('Running admin');
     const mongoDatabaseManager = new MongoDatabaseManager();
@@ -119,7 +125,7 @@ async function handleAdmin(
         /**
          * @type {SimpleContainer}
          */
-        const container = createContainer();
+        const container = fnCreateContainer();
 
         if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
@@ -249,6 +255,83 @@ async function handleAdmin(
                         message: `No patientId: ${patientId} passed`
                     });
                 }
+
+                case 'showPatientDataGraph': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const patientId = req.query['patientId'];
+                    if (patientId) {
+                        /**
+                         * @type {AdminPersonPatientDataManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        const json = await adminPersonPatientLinkManager.showPatientDataGraphAsync({
+                            req,
+                            patientId,
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No patientId: ${patientId} passed`
+                    });
+                }
+
+                case 'deletePatientDataGraph': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const patientId = req.query['patientId'];
+                    if (patientId) {
+                        /**
+                         * @type {AdminPersonPatientDataManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
+                            req,
+                            patientId,
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No patientId: ${patientId} passed`
+                    });
+                }
+
+                case 'showPersonDataGraph': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const personId = req.query['personId'];
+                    if (personId) {
+                        /**
+                         * @type {AdminPersonPatientDataManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        const json = await adminPersonPatientLinkManager.showPersonDataGraphAsync({
+                            req,
+                            personId,
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No personId: ${personId} passed`
+                    });
+                }
+
+                case 'deletePersonDataGraph': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const personId = req.query['personId'];
+                    if (personId) {
+                        /**
+                         * @type {AdminPersonPatientDataManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        const json = await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
+                            req,
+                            personId,
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No personId: ${personId} passed`
+                    });
+                }
+
 
                 case 'indexes': {
                     return await showIndexesAsync(
