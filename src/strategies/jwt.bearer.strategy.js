@@ -123,7 +123,7 @@ const verify = (jwt_payload, done) => {
             }
         }
 
-        return done(null, {id: client_id, isUser}, {scope, context});
+        return done(null, {id: client_id, isUser, name: username}, {scope, context});
     }
 
     return done(null, false);

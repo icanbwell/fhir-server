@@ -176,7 +176,7 @@ class ErrorReporter {
         /**
          * @type {string|null}
          */
-        const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.id;
+        const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id;
         const self = this;
         const request = {
             method: req.method,

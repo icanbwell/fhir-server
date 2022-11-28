@@ -255,7 +255,12 @@ class MyFHIRServer {
     configureHtmlRenderer() {
         if (isTrue(env.RENDER_HTML)) {
             // noinspection JSCheckFunctionSignatures
-            this.app.use(htmlRenderer);
+            this.app.use((req, res, next) => htmlRenderer({
+                container: this.container,
+                req,
+                res,
+                next
+            }));
         }
         return this;
     }
