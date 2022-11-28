@@ -17,6 +17,15 @@
         "id": "observation1",
         "resourceType": "Observation"
       }
+    },
+    {
+      "resource": {
+        "id": "topLevelPerson",
+        "resourceType": "Person"
+      },
+      "search": {
+        "mode": "include"
+      }
     }
   ],
   "resourceType": "Bundle",

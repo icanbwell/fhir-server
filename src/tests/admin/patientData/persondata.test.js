@@ -11,6 +11,8 @@ const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 const expectedPersonDeletionResources = require('./fixtures/expected/expected_Person_deletion.json');
+const expectedTopLevelPersonResources = require('./fixtures/expected/expected_TopLevelPerson.json');
+
 
 const {
     commonBeforeEach,
@@ -168,7 +170,7 @@ describe('Person Tests', () => {
                 .get('/4_0_0/Person/topLevelPerson')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+            expect(resp).toHaveResponse(expectedTopLevelPersonResources);
         });
     });
 });
