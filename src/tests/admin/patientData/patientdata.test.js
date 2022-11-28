@@ -11,6 +11,7 @@ const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 // expected
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientDeletionResources = require('./fixtures/expected/expected_Patient_deletion.json');
+const expectedTopLevelPersonResources = require('./fixtures/expected/expected_TopLevelPerson.json');
 
 const {
     commonBeforeEach,
@@ -161,7 +162,7 @@ describe('Patient Tests', () => {
                 .get('/4_0_0/Person/topLevelPerson')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(1);
+            expect(resp).toHaveResponse(expectedTopLevelPersonResources);
         });
     });
 });

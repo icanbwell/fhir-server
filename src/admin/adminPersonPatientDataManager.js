@@ -170,10 +170,17 @@ class AdminPersonPatientDataManager {
                 }
             });
             /**
-             * @type {Person[]}
+             * @type {import('mongodb').DefaultSchema[]}
              */
             const personRecordsWithLinkToDeletedResourceId = await personRecordsWithLinkToDeletedResourceIdCursor.toArrayAsync();
-            for (const /** @type {Person} */ person of personRecordsWithLinkToDeletedResourceId) {
+            for (
+                const /** @type {import('mongodb').DefaultSchema} */
+                personRecordWithLinkToDeletedResourceId of personRecordsWithLinkToDeletedResourceId
+                ) {
+                /**
+                 * @type {Person}
+                 */
+                const person = new Person(personRecordWithLinkToDeletedResourceId);
                 person.link = person.link.filter(l => !deletedResourceIdsWithResourceType.includes(l.target.reference));
                 await databaseUpdateManagerForPerson.replaceOneAsync({
                     doc: person

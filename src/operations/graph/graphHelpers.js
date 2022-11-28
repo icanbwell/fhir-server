@@ -1218,9 +1218,16 @@ class GraphHelper {
      * @param {Object} args
      * @return {Promise<Bundle>}
      */
-    async deleteGraphAsync({
-                               requestInfo, base_version, resourceType, id, graphDefinitionJson, args
-                           }) {
+    async deleteGraphAsync(
+        {
+            requestInfo,
+            base_version,
+            resourceType,
+            id,
+            graphDefinitionJson,
+            args
+        }
+    ) {
         try {
             /**
              * @type {number}

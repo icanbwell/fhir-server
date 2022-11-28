@@ -17,6 +17,15 @@
         "id": "person1",
         "resourceType": "Person"
       }
+    },
+    {
+      "resource": {
+        "id": "topLevelPerson",
+        "resourceType": "Person"
+      },
+      "search": {
+        "mode": "include"
+      }
     }
   ],
   "resourceType": "Bundle",

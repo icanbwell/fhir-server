@@ -196,11 +196,16 @@ class DatabasePartitionedCursor {
      */
     async toArrayAsync() {
         try {
-            console.log(JSON.stringify({
-                message: 'DatabasePartitionedCursor: toArray',
-                collections: this._cursors.map(c => c.collection),
-                query: this.query
-            }));
+            await logSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: toArray',
+                    message: 'DatabasePartitionedCursor: toArray',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
 
             return await async.flatMap(this._cursors, async (c) => await c.cursor.toArray());
         } catch (e) {
@@ -255,11 +260,16 @@ class DatabasePartitionedCursor {
      */
     async explainAsync() {
         try {
-            console.log(JSON.stringify({
-                message: 'DatabasePartitionedCursor: explain',
-                collections: this._cursors.map(c => c.collection),
-                query: this.query
-            }));
+            await logSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: explain',
+                    message: 'DatabasePartitionedCursor: explain',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
             // explanation is needed only from the first collection
             return this._cursors.length > 0 ? [(await this._cursors[0].cursor.explain())] : [];
         } catch (e) {
