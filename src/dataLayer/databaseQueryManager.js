@@ -122,6 +122,7 @@ class DatabaseQueryManager {
                         const historyResource = resource.clone();
                         historyResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                         historyCollection.insertOne(new BundleEntry({
+                            id: historyResource.id,
                             resource: historyResource,
                             request: new BundleRequest(
                                 {

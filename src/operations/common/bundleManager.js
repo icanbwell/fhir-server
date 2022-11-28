@@ -87,6 +87,7 @@ class BundleManager {
         const entries = resources.map((resource) => {
             return new BundleEntry(
                 {
+                    id: resource.id,
                     resource: resource,
                     fullUrl: this.resourceManager.getFullUrlForResource(
                         {protocol, host, base_version, resource})

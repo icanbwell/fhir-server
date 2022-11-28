@@ -207,6 +207,7 @@ class HistoryByIdOperation {
                     if (!resource.resource) { // it is not a bundle entry
                         resource = new BundleEntry(
                             {
+                                id: resource.id,
                                 resource: resource,
                                 fullUrl: this.resourceManager.getFullUrlForResource(
                                     {protocol, host, base_version, resource})

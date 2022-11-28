@@ -200,6 +200,7 @@ class AdminPersonPatientDataManager {
                 updatedRecords.push(
                     new BundleEntry(
                         {
+                            id: person.id,
                             resource: new Person(
                                 {
                                     id: person.id,

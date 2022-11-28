@@ -273,6 +273,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         insertOne: {
                             document: new BundleEntry(
                                 {
+                                    id: doc.id,
                                     resource: doc,
                                     request: new BundleRequest(
                                         {
