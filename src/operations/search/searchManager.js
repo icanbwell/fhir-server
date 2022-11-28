@@ -124,6 +124,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
+     * @param {boolean|undefined} [isHistoryCollection]
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
     async constructQueryAsync(
@@ -135,6 +136,7 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
+            isHistoryCollection
         }
     ) {
         /**
@@ -179,7 +181,7 @@ class SearchManager {
                 query = buildDstu2SearchQuery(args);
             } else {
                 ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType, args
+                    resourceType, args, isHistoryCollection
                 }));
             }
         } catch (e) {

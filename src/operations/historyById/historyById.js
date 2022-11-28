@@ -158,6 +158,7 @@ class HistoryByIdOperation {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
+            isHistoryCollection: true
         });
 
         // noinspection JSValidateTypes

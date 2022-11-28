@@ -57,9 +57,10 @@ class R4SearchQueryCreator {
      * Builds a mongo query for search parameters
      * @param {string} resourceType
      * @param {Object} args
+     * @param {boolean|undefined} [isHistoryCollection]
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
-    buildR4SearchQuery({resourceType, args}) {
+    buildR4SearchQuery({resourceType, args, isHistoryCollection}) {
         // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
         // ---- start of backward compatibility mappings ---
         if (args['source'] && !args['_source']) {
@@ -143,7 +144,7 @@ class R4SearchQueryCreator {
                         // handle id differently since it is a token, but we want to do exact match
                         if (queryParameter === '_id') {
                             filterById({
-                                queryParameterValue, propertyObj, columns
+                                queryParameterValue, propertyObj, columns, isHistoryCollection
                             }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
                         } else {
                             switch (propertyObj.type) {
