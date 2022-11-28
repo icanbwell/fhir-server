@@ -104,6 +104,7 @@ class MergeManager {
      * @param {string} scope
      * @param {string} currentDate
      * @param {string} requestId
+     * @param {string} base_version
      * @returns {Promise<void>}
      */
     async mergeExistingAsync(
@@ -113,7 +114,8 @@ class MergeManager {
             user,
             scope,
             currentDate,
-            requestId
+            requestId,
+            base_version
         }) {
         /**
          * @type {string}
@@ -156,6 +158,7 @@ class MergeManager {
         }
         if (patched_resource_incoming) {
             await this.performMergeDbUpdateAsync({
+                    base_version,
                     requestId,
                     resourceToMerge: patched_resource_incoming
                 }
@@ -217,6 +220,7 @@ class MergeManager {
         }
 
         await this.performMergeDbInsertAsync({
+            base_version,
             requestId,
             resourceToMerge
         });
@@ -291,7 +295,8 @@ class MergeManager {
                 if (currentResource && currentResource.meta) {
                     await this.mergeExistingAsync(
                         {
-                            resourceToMerge, currentResource, user, scope, currentDate, requestId
+                            resourceToMerge, currentResource, user, scope, currentDate, requestId,
+                            base_version
                         }
                     );
                     this.databaseBulkLoader.updateResourceInExistingList({requestId, resource: resourceToMerge});
@@ -477,12 +482,14 @@ class MergeManager {
     /**
      * performs the db update
      * @param {string} requestId
+     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync(
         {
             requestId,
+            base_version,
             resourceToMerge
         }
     ) {
@@ -510,7 +517,9 @@ class MergeManager {
             await this.databaseBulkInserter.insertOneHistoryAsync(
                 {
                     requestId,
-                    resourceType: resourceToMerge.resourceType, doc: historyResource
+                    resourceType: resourceToMerge.resourceType, doc: historyResource,
+                    method: 'POST',
+                    base_version
                 });
         } catch (e) {
             throw new RethrownError({
@@ -523,12 +532,14 @@ class MergeManager {
     /**
      * performs the db insert
      * @param {string} requestId
+     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync(
         {
             requestId,
+            base_version,
             resourceToMerge
         }) {
         try {
@@ -548,7 +559,9 @@ class MergeManager {
             await this.databaseBulkInserter.insertOneHistoryAsync({
                     requestId,
                     resourceType: resourceToMerge.resourceType,
-                    doc: historyResource
+                    doc: historyResource,
+                    method: 'POST',
+                    base_version
                 }
             );
         } catch (e) {

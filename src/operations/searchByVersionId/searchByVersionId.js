@@ -159,7 +159,7 @@ class SearchByVersionIdOperation {
                 query.$and = [queryForVersionId];
             }
             /**
-             * @type {Resource|BundleEntry|null}
+             * @type {Resource|null}
              */
             let resource;
             try {
@@ -171,9 +171,6 @@ class SearchByVersionIdOperation {
                 resource = await databaseHistoryManager.findOneAsync({
                     query: query
                 });
-                if (resource.resource) { // is a bundle entry
-                    resource = resource.resource;
-                }
             } catch (e) {
                 throw new BadRequestError(e);
             }

@@ -102,7 +102,7 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, /** @type {string} */ requestId} = requestInfo;
+        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method} = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -228,7 +228,11 @@ class CreateOperation {
 
             // Insert our resource record
             await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
-            await this.databaseBulkInserter.insertOneHistoryAsync({requestId, resourceType, doc: doc.clone()});
+            await this.databaseBulkInserter.insertOneHistoryAsync({
+                requestId, resourceType, doc: doc.clone(),
+                base_version,
+                method
+            });
             /**
              * @type {MergeResultEntry[]}
              */
