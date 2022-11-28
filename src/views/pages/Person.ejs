@@ -59,8 +59,20 @@
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Task', property:'patient'}], id:`Patient/person.${res.id}`, name: "Task" }); %>
 
             <div>
-                <h4>Connected Graph (Admin Access Required)</h4>
-                <a href="/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %>">/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %></a>
+                <h4>Person Data Graph (in json)</h4>
+                <a href="/4_0_0/Person/<%= res.id; %>/$everything?contained=true&_format=json">/4_0_0/Person/<%= res.id; %>/$everything?contained=true&_format=jso</a>
+            </div>
+
+            <div>
+                <h3>Admin Functions (Admin Access Required)</h3>
+                <div>
+                    <h4>Connected Person-Patient Graph</h4>
+                    <a href="/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %>">/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %></a>
+                </div>
+                <div>
+                    <h4>Delete all data</h4>
+                    <a href="/admin/deletePersonDataGraph?personId=<%= res.id; %>">/admin/deletePersonDataGraph?personId=<%= res.id; %></a>
+                </div>
             </div>
 
             <%- include('../partials/json', {res: res, index: index}); %>

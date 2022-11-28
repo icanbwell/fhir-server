@@ -141,6 +141,12 @@ async function handleAdmin(
                     return res.render(filePath, parameters);
                 }
 
+                case 'patientData': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
                 case 'searchLogResults': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const id = req.query['id'];
@@ -256,28 +262,9 @@ async function handleAdmin(
                     });
                 }
 
-                case 'showPatientDataGraph': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
-                    const patientId = req.query['patientId'];
-                    if (patientId) {
-                        /**
-                         * @type {AdminPersonPatientDataManager}
-                         */
-                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
-                        const json = await adminPersonPatientLinkManager.showPatientDataGraphAsync({
-                            req,
-                            patientId,
-                        });
-                        return res.json(json);
-                    }
-                    return res.json({
-                        message: `No patientId: ${patientId} passed`
-                    });
-                }
-
                 case 'deletePatientDataGraph': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
-                    const patientId = req.query['patientId'];
+                    const patientId = req.query['id'];
                     if (patientId) {
                         /**
                          * @type {AdminPersonPatientDataManager}
@@ -290,32 +277,13 @@ async function handleAdmin(
                         return res.json(json);
                     }
                     return res.json({
-                        message: `No patientId: ${patientId} passed`
-                    });
-                }
-
-                case 'showPersonDataGraph': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
-                    const personId = req.query['personId'];
-                    if (personId) {
-                        /**
-                         * @type {AdminPersonPatientDataManager}
-                         */
-                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
-                        const json = await adminPersonPatientLinkManager.showPersonDataGraphAsync({
-                            req,
-                            personId,
-                        });
-                        return res.json(json);
-                    }
-                    return res.json({
-                        message: `No personId: ${personId} passed`
+                        message: `No id: ${patientId} passed`
                     });
                 }
 
                 case 'deletePersonDataGraph': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
-                    const personId = req.query['personId'];
+                    const personId = req.query['id'];
                     if (personId) {
                         /**
                          * @type {AdminPersonPatientDataManager}
@@ -328,7 +296,7 @@ async function handleAdmin(
                         return res.json(json);
                     }
                     return res.json({
-                        message: `No personId: ${personId} passed`
+                        message: `No id: ${personId} passed`
                     });
                 }
 

@@ -31,7 +31,7 @@ describe('Patient Tests', () => {
     });
 
     describe('Patient patientData Tests', () => {
-        test('patientData fails without admin permissions', async () => {
+        test('patientData delete fails without admin permissions', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -51,7 +51,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/showPatientDataGraph?patientId=patient1')
+                .get('/admin/deletePatientDataGraph?id=patient1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp.body.message).toBe('Missing scopes for admin/*.read in user/*.read user/*.write access/*.*');
@@ -98,7 +98,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/showPatientDataGraph?patientId=patient1')
+                .get('/4_0_0/Patient/patient1/$everything?contained=true')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientResources);
@@ -145,13 +145,13 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/deletePatientDataGraph?patientId=patient1')
+                .get('/admin/deletePatientDataGraph?id=patient1')
                 .set(getHeadersWithCustomToken('user/*.* admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientDeletionResources);
 
             resp = await request
-                .get('/admin/showPatientDataGraph?patientId=patient1')
+                .get('/4_0_0/Patient/patient1/$everything')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);

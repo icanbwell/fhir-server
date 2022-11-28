@@ -81,6 +81,19 @@
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'patient'}], id:`Patient/${res.id}`, name: "Schedule" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ServiceRequest', property:'patient'}], id:`Patient/${res.id}`, name: "ServiceRequest" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Task', property:'patient'}], id:`Patient/${res.id}`, name: "Task" }); %>
+            <hr>
+            <div>
+                <h4>Patient Data Graph (in json)</h4>
+                <a href="/4_0_0/Patient/<%= res.id; %>/$everything?_format=json">/4_0_0/Patient/<%= res.id; %>/$everything?_format=json</a>
+            </div>
+            <hr>
+            <div>
+                <h3>Admin Functions (Admin Access Required)</h3>
+                <div>
+                    <h4>Delete all data</h4>
+                    <a href="/admin/deletePatientDataGraph?id=<%= res.id; %>">/admin/deletePatientDataGraph?id=<%= res.id; %></a>
+                </div>
+            </div>
 
             <%- include('../partials/json', {res: res, index: index}); %>
         </div>

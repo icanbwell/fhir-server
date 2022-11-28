@@ -5,23 +5,26 @@
 </head>
 <body class="container-fluid p-0">
 <main>
+    <h1>Patient</h1>
     <h3>Show Patient Data Graph</h3>
     <h6>Shows the graph of patient data (same as $everything endpoint)</h6>
     <form
             class="search-form ps-3"
-            action="/admin/showPatientDataGraph"
+            action="/4_0_0/Patient/$everything"
             id="searchForm"
             method="get"
     >
         <div class="form-group row">
-            <label for="patientId" class="col-sm-6 col-form-label">Patient Id</label>
+            <label for="id" class="col-sm-6 col-form-label">Patient Id</label>
             <input
-                    id="patientId"
+                    id="id"
                     type="text"
-                    name=patientId
+                    name=id
                     class="form-control form-control-sm clear-allowed"
                     autocomplete="nope"
             />
+            <input id="_format" name="_format" type="hidden" value="json"/>
+            <input id="contained" name="contained" type="hidden" value="true"/>
         </div>
         <button type="submit" class="btn btn-primary mb-2">Show Patient Data</button>
     </form>
@@ -35,34 +38,37 @@
             method="get"
     >
         <div class="form-group row">
-            <label for="patientId" class="col-sm-6 col-form-label">Patient Id</label>
+            <label for="id" class="col-sm-6 col-form-label">Patient Id</label>
             <input
-                    id="patientId"
+                    id="id"
                     type="text"
-                    name=patientId
+                    name=id
                     class="form-control form-control-sm clear-allowed"
                     autocomplete="nope"
             />
         </div>
         <button type="submit" class="btn btn-primary mb-2">Delete Patient Data</button>
     </form>
+    <h1>Person</h1>
     <h3>Show Person Data Graph</h3>
     <h6>Shows the graph of person data (same as $everything endpoint)</h6>
     <form
             class="search-form ps-3"
-            action="/admin/showPersonDataGraph"
+            action="/4_0_0/Person/$everything"
             id="searchForm"
             method="get"
     >
         <div class="form-group row">
-            <label for="personId" class="col-sm-6 col-form-label">PersonId Id</label>
+            <label for="id" class="col-sm-6 col-form-label">PersonId Id</label>
             <input
-                    id="personId"
+                    id="id"
                     type="text"
-                    name=personId
+                    name=id
                     class="form-control form-control-sm clear-allowed"
                     autocomplete="nope"
             />
+            <input id="_format" name="_format" type="hidden" value="json"/>
+            <input id="contained" name="contained" type="hidden" value="true"/>
         </div>
         <button type="submit" class="btn btn-primary mb-2">Show Person Data</button>
     </form>
@@ -77,11 +83,11 @@
             method="get"
     >
         <div class="form-group row">
-            <label for="personId" class="col-sm-6 col-form-label">Person Id</label>
+            <label for="id" class="col-sm-6 col-form-label">Person Id</label>
             <input
-                    id="personId"
+                    id="id"
                     type="text"
-                    name=personId
+                    name=id
                     class="form-control form-control-sm clear-allowed"
                     autocomplete="nope"
             />

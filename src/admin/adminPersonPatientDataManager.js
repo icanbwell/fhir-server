@@ -30,22 +30,6 @@ class AdminPersonPatientDataManager {
     }
 
     /**
-     * @description Gets the patient data graph
-     * @param {import('http').IncomingMessage} req
-     * @param {string} patientId
-     * @return {Promise<Bundle>}
-     */
-    async showPatientDataGraphAsync({req, patientId}) {
-        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        requestInfo.method = 'GET';
-        return await this.everythingOperation.everything(requestInfo, {
-            'base_version': base_version,
-            'contained': true,
-            'id': patientId
-        }, 'Patient');
-    }
-
-    /**
      * @description Deletes the patient data graph
      * @param {import('http').IncomingMessage} req
      * @param {string} patientId
@@ -58,22 +42,6 @@ class AdminPersonPatientDataManager {
             'base_version': base_version,
             'id': patientId
         }, 'Patient');
-    }
-
-    /**
-     * @description Shows the person data graph
-     * @param {import('http').IncomingMessage} req
-     * @param {string} personId
-     * @return {Promise<Bundle>}
-     */
-    async showPersonDataGraphAsync({req, personId}) {
-        const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-        requestInfo.method = 'GET';
-        return await this.everythingOperation.everything(requestInfo, {
-            'base_version': base_version,
-            'contained': true,
-            'id': personId
-        }, 'Person');
     }
 
     /**

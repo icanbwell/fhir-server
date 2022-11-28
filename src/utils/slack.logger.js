@@ -196,6 +196,11 @@ class ErrorReporter {
                 short: true
             },
             {
+                title: 'Request Id Lookup',
+                value: `${req.protocol}://${req.host}/admin/searchLogResults?id=${req.id}`,
+                short: true
+            },
+            {
                 title: 'Request Method',
                 value: req.method,
                 short: true
