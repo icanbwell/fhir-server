@@ -85,7 +85,7 @@ class DatabaseQueryManager {
     /**
      * Deletes resources
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
-     * @param {requestId} requestId
+     * @param {string} requestId
      * @param {import('mongodb').DeleteOptions} options
      * @return {Promise<DeleteManyResult>}
      */
