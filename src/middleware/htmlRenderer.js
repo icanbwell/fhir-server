@@ -16,9 +16,9 @@ const sanitize = require('sanitize-filename');
 /**
  * middleware to render HTML
  * @param {SimpleContainer} container
- * @param {import('http').IncomingMessage} req
- * @param {import('http').ServerResponse} res
- * @param {function() : void} next
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
  */
 const htmlRenderer = ({container, req, res, next}) => {
     const parts = req.url.split(/[/?,&]+/);

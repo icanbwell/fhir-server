@@ -34,6 +34,9 @@ class MyFHIRServer {
         // super(config, app);
         this.config = config;
         // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
+        /**
+         * @type {import('express').Express}
+         */
         this.app = app ? app : express(); // Setup some environment variables handy for setup
 
         /**
@@ -255,7 +258,11 @@ class MyFHIRServer {
     configureHtmlRenderer() {
         if (isTrue(env.RENDER_HTML)) {
             // noinspection JSCheckFunctionSignatures
-            this.app.use((req, res, next) => htmlRenderer({
+            this.app.use((
+                /** @type {import('express').Request} */ req,
+                /** @type {import('express').Response} */ res,
+                /** @type {import('express').NextFunction} */ next
+            ) => htmlRenderer({
                 container: this.container,
                 req,
                 res,
@@ -291,19 +298,26 @@ class MyFHIRServer {
 
         // Generic catch all error handler
         // Errors should be thrown with next and passed through
+        // noinspection JSValidateTypes
         this.app.use(
             (
-                err,
-                /** @type {import('http').IncomingMessage} */ req,
-                /** @type {import('http').ServerResponse} */ res,
-                next
+                /** @type {import('express').ErrorRequestHandler} */ err,
+                /** @type {import('express').Request} */ req,
+                /** @type {import('express').Response} */ res,
+                /** @type {import('express').NextFunction} */ next
             ) => {
+                // noinspection JSValidateTypes
+                /**
+                 * This is needed otherwise PyCharm thinks res is the NextFunction
+                 * @type {import('express').Response}
+                 */
+                const res1 = res;
                 // get base from URL instead of params since it might not be forwarded
                 const base = req.url.split('/')[1];
                 const isValidBaseVersion = isValidVersion(base);
                 if (!isValidBaseVersion) {
-                    res.status(404);
-                    res.end();
+                    res1.status(404);
+                    res1.end();
                     return;
                 }
                 try {
@@ -315,18 +329,18 @@ class MyFHIRServer {
                     if (res.headersSent) {
                         // usually means we are streaming data so can't change headers
                         // next();
-                        res.end();
+                        res1.end();
                     } else {
                         if (req.id && !res.headersSent) {
-                            res.setHeader('X-Request-ID', String(req.id));
+                            res1.setHeader('X-Request-ID', String(req.id));
                         }
                         // If there is an error and it is an OperationOutcome
                         if (err && err.resourceType === OperationOutcome.resourceType) {
                             const status = err.statusCode || 500;
-                            res.status(status).json(err);
+                            res1.status(status).json(err);
                         } else if (err instanceof ServerError) {
                             const status = err.statusCode || 500;
-                            res.status(status).json(new OperationOutcome(err));
+                            res1.status(status).json(new OperationOutcome(err));
                         } else if (err) {
                             const status = err.statusCode || 500;
                             const error = err.issue && err.issue.length > 0 ?
@@ -346,7 +360,7 @@ class MyFHIRServer {
                                 });
 
                             // logger.error(error);
-                            res.status(status).json(error);
+                            res1.status(status).json(error);
                         } else {
                             next();
                         }
@@ -358,7 +372,7 @@ class MyFHIRServer {
                         isValidBaseVersion ? base : VERSIONS['4_0_1'],
                         'operationoutcome'
                     );
-                    res.status(500).json(new OperationOutcome({
+                    res1.status(500).json(new OperationOutcome({
                         issue: [
                             {
                                 severity: 'error',

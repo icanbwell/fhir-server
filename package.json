@@ -182,7 +182,8 @@
     "jest-extended": "^3.1.0",
     "vm2": "^3.9.11",
     "yargs": "^17.6.2",
-    "@types/node": "^16.18.0"
+    "@types/node": "^16.18.0",
+    "@types/express": "^4.17.14"
   },
   "private": false,
   "snyk": false
