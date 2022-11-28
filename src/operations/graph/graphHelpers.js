@@ -1257,8 +1257,17 @@ class GraphHelper {
                  * @type {Resource}
                  */
                 const resource = entry.resource;
+                /**
+                 * @type {string}
+                 */
                 const resultResourceType = resource.resourceType;
+                /**
+                 * @type {string[]}
+                 */
                 const idList = [resource.id];
+                /**
+                 * @type {DatabaseQueryManager}
+                 */
                 const databaseQueryManager = this.databaseQueryFactory.createQuery({
                     resourceType: resultResourceType,
                     base_version
@@ -1271,7 +1280,7 @@ class GraphHelper {
                 /**
                  * @type {{deletedCount: (number|null), error: (Error|null)}}
                  */
-                    // eslint-disable-next-line no-unused-vars
+                // eslint-disable-next-line no-unused-vars
                 const result = await databaseQueryManager.deleteManyAsync({
                         requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}

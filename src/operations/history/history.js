@@ -270,7 +270,7 @@ class HistoryOperation {
                 protocol,
                 entries,
                 base_version,
-                total_count: resources.length,
+                total_count: entries.length,
                 args,
                 originalQuery: {},
                 collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
