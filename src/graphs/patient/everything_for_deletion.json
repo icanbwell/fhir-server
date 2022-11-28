@@ -1,7 +1,7 @@
 {
   "resourceType": "GraphDefinition",
   "id": "o",
-  "name": "patient_everything",
+  "name": "patient_everything_for_deletion",
   "status": "active",
   "start": "Patient",
   "link": [
@@ -105,17 +105,7 @@
       "target": [
         {
           "type": "Person",
-          "params": "patient={ref}",
-          "link": [
-            {
-              "target": [
-                {
-                  "type": "Person",
-                  "params": "link={ref}"
-                }
-              ]
-            }
-          ]
+          "params": "patient={ref}&_security:not=https://www.icanbwell.com/owner|bwell"
         }
       ]
     },
