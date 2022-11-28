@@ -60,7 +60,7 @@ function createApp(fnCreateContainer) {
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
 
     /**
-     * @type {Express}
+     * @type {import('express').Express}
      */
     const app = express();
 
@@ -140,7 +140,10 @@ function createApp(fnCreateContainer) {
     });
 
     // render the home page
-    app.get('/', (req, res) => {
+    app.get('/', (
+        /** @type {import('express').Request} */ req,
+        /** @type {import('express').Response} */ res,) => {
+        // return res.json({'message': 'home'});
         const home_options = {
             resources: resourceDefinitions,
         };

@@ -21,6 +21,7 @@ const sanitize = require('sanitize-filename');
  * @param {import('express').NextFunction} next
  */
 const htmlRenderer = ({container, req, res, next}) => {
+    console.log('In Html Renderer');
     const parts = req.url.split(/[/?,&]+/);
     if (parts && parts.length > 2 && !parts.includes('raw=1') && parts[1] === '4_0_0' && shouldReturnHtml(req)) {
         // If the request is from a browser for HTML then return HTML page instead of json

@@ -257,7 +257,14 @@ class MyFHIRServer {
      */
     configureHtmlRenderer() {
         if (isTrue(env.RENDER_HTML)) {
-            // noinspection JSCheckFunctionSignatures
+            console.log(`Registering htmlRenderer: ${this.container}`);
+            // this.app.use((
+            //     /** @type {import('express').Request} */ req,
+            //     /** @type {import('express').Response} */ res,
+            //     /** @type {import('express').NextFunction} */ next
+            // ) => {
+            //     res.json({'message': 'done'});
+            // });
             this.app.use((
                 /** @type {import('express').Request} */ req,
                 /** @type {import('express').Response} */ res,
