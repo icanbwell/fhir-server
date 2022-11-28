@@ -1,0 +1,25 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "id": "patient1",
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "resource": {
+        "id": "observation1",
+        "resourceType": "Observation"
+      }
+    },
+    {
+      "resource": {
+        "id": "person1",
+        "resourceType": "Person"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 3,
+  "type": "batch-response"
+}
