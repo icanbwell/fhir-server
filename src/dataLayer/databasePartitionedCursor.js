@@ -194,7 +194,7 @@ class DatabasePartitionedCursor {
      * In that case, cursor.rewind() can be used to reset the cursor.
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
-    async toArray() {
+    async toArrayAsync() {
         try {
             console.log(JSON.stringify({
                 message: 'DatabasePartitionedCursor: toArray',

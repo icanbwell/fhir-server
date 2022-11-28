@@ -338,7 +338,7 @@ class AdminPersonPatientLinkManager {
                 }
             );
 
-            parentPersons = (await personsLinkingToThisPersonId.toArray()).map(p => {
+            parentPersons = (await personsLinkingToThisPersonId.toArrayAsync()).map(p => {
                 return {
                     id: p.id,
                     resourceType: p.resourceType,
@@ -373,7 +373,7 @@ class AdminPersonPatientLinkManager {
             /**
              * @type {Patient[]}
              */
-            const patients = await patientCursor.toArray();
+            const patients = await patientCursor.toArrayAsync();
             children = children.concat(
                 patients.map((p) => {
                     return {
