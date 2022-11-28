@@ -5,7 +5,7 @@ const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const {DatabaseUpdateFactory} = require('../dataLayer/databaseUpdateFactory');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const Person = require('../fhir/classes/4_0_0/resources/person');
-const BundleSearch = require('../fhir/classes/4_0_0/backbone_elements/bundleSearch');
+const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 
 const base_version = '4_0_0';
 
@@ -193,9 +193,10 @@ class AdminPersonPatientDataManager {
                                     id: person.id,
                                 }
                             ),
-                            search: new BundleSearch(
+                            request: new BundleRequest(
                                 {
-                                    mode: 'include'
+                                    method: 'PATCH',
+                                    url: `/${base_version}/Person/${person.id}`
                                 }
                             )
                         }

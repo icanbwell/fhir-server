@@ -21,6 +21,7 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
+const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 
 
 /**
@@ -1279,7 +1280,13 @@ class GraphHelper {
                     deleteOperationBundleEntries.push(new BundleEntry({
                         resource: new ResourceCreator({
                             id: resultResourceId, resourceType: resultResourceType
-                        })
+                        }),
+                        request: new BundleRequest(
+                            {
+                                method: 'DELETE',
+                                url: `/${base_version}/${resultResourceType}/${resultResourceId}`
+                            }
+                        )
                     }));
                 }
 
