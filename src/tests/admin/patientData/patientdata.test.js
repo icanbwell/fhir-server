@@ -155,6 +155,13 @@ describe('Patient Tests', () => {
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
+
+            // make sure top level person is NOT deleted
+            resp = await request
+                .get('/4_0_0/Person/topLevelPerson')
+                .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
         });
     });
 });
