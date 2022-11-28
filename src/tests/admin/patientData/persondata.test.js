@@ -58,7 +58,7 @@ describe('Person Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/showPersonDataGraph?personId=person1')
+                .get('/admin/deletePersonDataGraph?id=person1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp.body.message).toBe('Missing scopes for admin/*.read in user/*.read user/*.write access/*.*');
@@ -105,7 +105,7 @@ describe('Person Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/showPersonDataGraph?personId=person1')
+                .get('/4_0_0/Person/person1/$everything?contained=true')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
@@ -152,13 +152,13 @@ describe('Person Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/deletePersonDataGraph?personId=person1')
+                .get('/admin/deletePersonDataGraph?id=person1')
                 .set(getHeadersWithCustomToken('user/*.* admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonDeletionResources);
 
             resp = await request
-                .get('/admin/showPersonDataGraph?personId=person1')
+                .get('/4_0_0/Person/person1/$everything')
                 .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
