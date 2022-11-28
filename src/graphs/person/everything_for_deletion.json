@@ -111,7 +111,7 @@
               "target": [
                 {
                   "type": "Person",
-                  "params": "patient={ref}"
+                  "params": "patient={ref}&_security:not=https://www.icanbwell.com/owner|bwell"
                 }
               ]
             },
