@@ -1,6 +1,7 @@
 {
   "entry": [
     {
+      "id": "patient1",
       "resource": {
         "birthDate": "2017-01-01",
         "contained": [
