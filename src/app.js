@@ -143,7 +143,6 @@ function createApp(fnCreateContainer) {
     app.get('/', (
         /** @type {import('express').Request} */ req,
         /** @type {import('express').Response} */ res,) => {
-        // return res.json({'message': 'home'});
         const home_options = {
             resources: resourceDefinitions,
         };

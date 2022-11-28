@@ -31,6 +31,7 @@
             </table>
         </div>
         <!-- prettier-ignore -->
+        <%- include('../partials/footer', {url: locals.url ? url : '', currentYear: locals.currentYear, meta: locals.meta ? meta : {}}); %>
         <script type="text/javascript" src="/js/home.js"></script>
     </body>
 </html>
