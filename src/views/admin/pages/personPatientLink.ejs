@@ -1,143 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <%- include('./adminHead'); %>
-</head>
-<body class="container-fluid p-0">
-    <main>
-        <h3>Show Link Graph from b.well Person</h3>
-        <h6>See linked Person and Patient resources from a b.well Person (recursive)</h6>
-        <form
-                class="search-form ps-3"
-                action="/admin/showPersonToPersonLink"
-                id="searchForm"
-                method="get"
-        >
-            <div class="form-group row">
-                <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
-                <input
-                        id="bwellPersonId"
-                        type="text"
-                        name=bwellPersonId
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
-                />
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Show Link Graph</button>
-        </form>
-        <hr>
-        <h3>Create Person to Person Link</h3>
-        <h6>Add a link from one Person resource to another Person resource</h6>
-        <form
-                class="search-form ps-3"
-                action="/admin/createPersonToPersonLink"
-                id="searchForm"
-                method="get"
-        >
-            <div class="form-group row">
-                <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
-                <input
-                        id="bwellPersonId"
-                        type="text"
-                        name=bwellPersonId
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
-                />
-                <label for="externalPersonId" class="col-sm-6 col-form-label">External Person</label>
-                <input
-                        id="externalPersonId"
-                        type="text"
-                        name=externalPersonId
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
-                />
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Create Link</button>
-        </form>
-        <hr>
-        <h3>Remove Person to Person Link</h3>
-        <h6>Remove a link from one Person resource to another Person resource</h6>
-        <form
-                class="search-form ps-3"
-                action="/admin/removePersonToPersonLink"
-                id="searchForm"
-                method="get"
-        >
-            <div class="form-group row">
-                <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
-                <input
-                        id="bwellPersonId"
-                        type="text"
-                        name=bwellPersonId
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
-                />
-                <label for="externalPersonId" class="col-sm-6 col-form-label">External Person</label>
-                <input
-                        id="externalPersonId"
-                        type="text"
-                        name=externalPersonId
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
-                />
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Remove Link</button>
-        </form>
+    <head>
+        <%- include('./adminHead'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <main>
+            <h3>Show Link Graph from b.well Person</h3>
+            <h6>See linked Person and Patient resources from a b.well Person (recursive)</h6>
+            <form
+                    class="search-form ps-3"
+                    action="/admin/showPersonToPersonLink"
+                    id="searchForm"
+                    method="get"
+            >
+                <div class="form-group row">
+                    <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
+                    <input
+                            id="bwellPersonId"
+                            type="text"
+                            name=bwellPersonId
+                            class="form-control form-control-sm clear-allowed"
+                            autocomplete="nope"
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Show Link Graph</button>
+            </form>
+            <hr>
+            <h3>Create Person to Person Link</h3>
+            <h6>Add a link from one Person resource to another Person resource</h6>
+            <form
+                    class="search-form ps-3"
+                    action="/admin/createPersonToPersonLink"
+                    id="searchForm"
+                    method="get"
+            >
+                <div class="form-group row">
+                    <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
+                    <input
+                            id="bwellPersonId"
+                            type="text"
+                            name=bwellPersonId
+                            class="form-control form-control-sm clear-allowed"
+                            autocomplete="nope"
+                    />
+                    <label for="externalPersonId" class="col-sm-6 col-form-label">External Person</label>
+                    <input
+                            id="externalPersonId"
+                            type="text"
+                            name=externalPersonId
+                            class="form-control form-control-sm clear-allowed"
+                            autocomplete="nope"
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Create Link</button>
+            </form>
+            <hr>
+            <h3>Remove Person to Person Link</h3>
+            <h6>Remove a link from one Person resource to another Person resource</h6>
+            <form
+                    class="search-form ps-3"
+                    action="/admin/removePersonToPersonLink"
+                    id="searchForm"
+                    method="get"
+            >
+                <div class="form-group row">
+                    <label for="bwellPersonId" class="col-sm-6 col-form-label">b.well Person</label>
+                    <input
+                            id="bwellPersonId"
+                            type="text"
+                            name=bwellPersonId
+                            class="form-control form-control-sm clear-allowed"
+                            autocomplete="nope"
+                    />
+                    <label for="externalPersonId" class="col-sm-6 col-form-label">External Person</label>
+                    <input
+                            id="externalPersonId"
+                            type="text"
+                            name=externalPersonId
+                            class="form-control form-control-sm clear-allowed"
+                            autocomplete="nope"
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Remove Link</button>
+            </form>
 
-        <hr>
-        <h3>Create Person to Patient Link</h3>
-        <h6>Create a link from one Person resource to a Patient resource.  Leave External Person blank to create a new Person resource with same meta tags as the Patient resource</h6>
+            <hr>
+            <h3>Create Person to Patient Link</h3>
+            <h6>Create a link from one Person resource to a Patient resource.  Leave External Person blank to create a new Person resource with same meta tags as the Patient resource</h6>
 
-        <form
-                class="search-form ps-3"
-                action="/admin/createPersonToPatientLink"
-                id="searchForm"
-                method="get"
-        >
-            <div class="form-group row">
-                <label for="externalPersonId" class="col-sm-12 col-form-label">External Person (leave blank to create new)</label>
-                <input
-                        id="externalPersonId"
-                        type="text"
-                        name=externalPersonId
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
-                />
-                <label for="patientId" class="col-sm-6 col-form-label">Patient</label>
-                <input
-                        id="patientId"
-                        type="text"
-                        name=patientId
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
-                />
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Create Link</button>
-        </form>
-        <hr>
-        <h3>Delete b.well Person</h3>
-        <h6>Delete a Person record (And remove links from other Person records)</h6>
-        <form
-                class="search-form ps-3"
-                action="/admin/deletePerson"
-                id="searchForm"
-                method="get"
-        >
-            <div class="form-group row">
-                <label for="personId" class="col-sm-6 col-form-label">Person</label>
-                <input
-                        id="personId"
-                        type="text"
-                        name=personId
-                        class="form-control form-control-sm clear-allowed"
-                        autocomplete="nope"
-                />
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Show Link Graph</button>
-        </form>
+            <form
+                    class="search-form ps-3"
+                    action="/admin/createPersonToPatientLink"
+                    id="searchForm"
+                    method="get"
+            >
+                <div class="form-group row">
+                    <label for="externalPersonId" class="col-sm-12 col-form-label">External Person (leave blank to create new)</label>
+                    <input
+                            id="externalPersonId"
+                            type="text"
+                            name=externalPersonId
+                            class="form-control form-control-sm clear-allowed"
+                            autocomplete="nope"
+                    />
+                    <label for="patientId" class="col-sm-6 col-form-label">Patient</label>
+                    <input
+                            id="patientId"
+                            type="text"
+                            name=patientId
+                            class="form-control form-control-sm clear-allowed"
+                            autocomplete="nope"
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Create Link</button>
+            </form>
+            <hr>
+            <h3>Delete b.well Person</h3>
+            <h6>Delete a Person record (And remove links from other Person records)</h6>
+            <form
+                    class="search-form ps-3"
+                    action="/admin/deletePerson"
+                    id="searchForm"
+                    method="get"
+            >
+                <div class="form-group row">
+                    <label for="personId" class="col-sm-6 col-form-label">Person</label>
+                    <input
+                            id="personId"
+                            type="text"
+                            name=personId
+                            class="form-control form-control-sm clear-allowed"
+                            autocomplete="nope"
+                    />
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">Show Link Graph</button>
+            </form>
 
-    </main>
+        </main>
 
-</body>
+    </body>
 </html>
 
