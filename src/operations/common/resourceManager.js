@@ -62,6 +62,18 @@ class ResourceManager {
             return patientReference;
         }
     }
+
+    /**
+     * generates a full url for an entity
+     * @param {string} protocol
+     * @param {string} host
+     * @param {string} base_version
+     * @param {Resource} resource
+     * @return {string}
+     */
+    getFullUrlForResource({protocol, host, base_version, resource}) {
+        return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
+    }
 }
 
 module.exports = {

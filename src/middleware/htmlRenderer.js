@@ -15,11 +15,13 @@ const sanitize = require('sanitize-filename');
 
 /**
  * middleware to render HTML
- * @param {import('http').IncomingMessage} req
- * @param {import('http').ServerResponse} res
- * @param {function() : void} next
+ * @param {SimpleContainer} container
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
  */
-const htmlRenderer = (req, res, next) => {
+const htmlRenderer = ({container, req, res, next}) => {
+    console.log('In Html Renderer');
     const parts = req.url.split(/[/?,&]+/);
     if (parts && parts.length > 2 && !parts.includes('raw=1') && parts[1] === '4_0_0' && shouldReturnHtml(req)) {
         // If the request is from a browser for HTML then return HTML page instead of json
@@ -52,6 +54,17 @@ const htmlRenderer = (req, res, next) => {
 
             const resourceDefinition = resourceDefinitions.find((r) => r.name === resourceName);
 
+            /**
+             * @type {ScopesManager}
+             */
+            const scopesManager = container.scopesManager;
+            /**
+             * @type {string|undefined}
+             */
+            const scope = scopesManager.getScopeFromRequest({req});
+
+            const admin = scopesManager.getAdminScopes({scope}).length > 0;
+
             const options = {
                 meta: meta,
                 resources: parsedData,
@@ -71,6 +84,10 @@ const htmlRenderer = (req, res, next) => {
                 limit: limit,
                 searchUtils: searchUtils,
                 searchMethod: req.method,
+                scope: scope,
+                admin: admin,
+                requestId: req.id,
+                user: req.user
             };
 
             if (resourceDefinition) {

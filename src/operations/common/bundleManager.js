@@ -5,24 +5,27 @@ const {mongoQueryAndOptionsStringify, mongoQueryStringify} = require('../../util
 const {logDebug} = require('./logging');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {MongoExplainPlanHelper} = require('../../utils/mongoExplainPlanHelper');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ResourceManager} = require('./resourceManager');
 
 /**
  * This class creates a Bundle resource out of a list of resources
  */
 class BundleManager {
-    constructor() {
-    }
-
     /**
-     * generates a full url for an entity
-     * @param {string} protocol
-     * @param {string} host
-     * @param {string} base_version
-     * @param {Resource} resource
-     * @return {string}
+     * constructor
+     * @param {ResourceManager} resourceManager
      */
-    getFullUrlForResource({protocol, host, base_version, resource}) {
-        return `${protocol}://${host}/${base_version}/${resource.resourceType}/${resource.id}`;
+    constructor(
+        {
+            resourceManager
+        }
+    ) {
+        /**
+         * @type {ResourceManager}
+         */
+        this.resourceManager = resourceManager;
+        assertTypeEquals(resourceManager, ResourceManager);
     }
 
     /**
@@ -61,6 +64,104 @@ class BundleManager {
             protocol,
             last_id,
             resources,
+            base_version,
+            total_count,
+            args,
+            originalQuery,
+            collectionName,
+            databaseName,
+            originalOptions,
+            columns,
+            stopTime,
+            startTime,
+            useTwoStepSearchOptimization,
+            indexHint,
+            cursorBatchSize,
+            user,
+            explanations,
+            allCollectionsToSearch
+        }) {
+        /**
+         * @type {BundleEntry[]}
+         */
+        const entries = resources.map((resource) => {
+            return new BundleEntry(
+                {
+                    id: resource.id,
+                    resource: resource,
+                    fullUrl: this.resourceManager.getFullUrlForResource(
+                        {protocol, host, base_version, resource})
+                }
+            );
+        });
+        /**
+         * @type {Bundle}
+         */
+        const bundle = this.createBundleFromEntries(
+            {
+                requestId,
+                type,
+                originalUrl,
+                host,
+                protocol,
+                last_id,
+                entries,
+                base_version,
+                total_count,
+                args,
+                originalQuery,
+                collectionName,
+                databaseName,
+                originalOptions,
+                columns,
+                stopTime,
+                startTime,
+                useTwoStepSearchOptimization,
+                indexHint,
+                cursorBatchSize,
+                user,
+                explanations,
+                allCollectionsToSearch
+            });
+        return bundle;
+    }
+
+    /**
+     * creates a bundle from the given resources
+     * @param {string} requestId
+     * @param {string} type
+     * @param {string | null} originalUrl
+     * @param {string | null} host
+     * @param {string | null} protocol
+     * @param {string | null} [last_id]
+     * @param {BundleEntry[]} entries
+     * @param {string} base_version
+     * @param {number|null} [total_count]
+     * @param {Object} args
+     * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
+     * @param {string} collectionName
+     * @param {string | undefined} [databaseName]
+     * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
+     * @param {Set|undefined} [columns]
+     * @param {number} stopTime
+     * @param {number} startTime
+     * @param {boolean|undefined} [useTwoStepSearchOptimization]
+     * @param {string|undefined} [indexHint]
+     * @param {number | undefined} [cursorBatchSize]
+     * @param {string | null} user
+     * @param {import('mongodb').Document[]} explanations
+     * @param {string[]|undefined} [allCollectionsToSearch]
+     * @return {Bundle}
+     */
+    createBundleFromEntries(
+        {
+            requestId,
+            type,
+            originalUrl,
+            host,
+            protocol,
+            last_id,
+            entries,
             base_version,
             total_count,
             args,
@@ -120,18 +221,6 @@ class BundleManager {
          * @type {function({Object}):Resource}
          */
         const Bundle = getResource(base_version, 'bundle');
-        /**
-         * @type {BundleEntry[]}
-         */
-        const entries = resources.map((resource) => {
-            return new BundleEntry(
-                {
-                    resource: resource,
-                    fullUrl: this.getFullUrlForResource(
-                        {protocol, host, base_version, resource})
-                }
-            );
-        });
         // noinspection JSValidateTypes
         /**
          * @type {Bundle}

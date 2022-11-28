@@ -20,6 +20,8 @@ const {isTrue} = require('../utils/isTrue');
 const {databaseBulkInserterTimer} = require('../utils/prometheus.utils');
 const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {RequestSpecificCache} = require('../utils/requestSpecificCache');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -255,11 +257,13 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * Inserts item into history collection
      * @param {string} requestId
+     * @param {string} method
+     * @param {string} base_version
      * @param {string} resourceType
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync({requestId, resourceType, doc}) {
+    async insertOneHistoryAsync({requestId, method, base_version, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
@@ -267,7 +271,19 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceType,
                     operation: {
                         insertOne: {
-                            document: doc.toJSONInternal()
+                            document: new BundleEntry(
+                                {
+                                    id: doc.id,
+                                    resource: doc,
+                                    request: new BundleRequest(
+                                        {
+                                            id: requestId,
+                                            method,
+                                            url: `/${base_version}/${resourceType}/${doc.id}`
+                                        }
+                                    )
+                                }
+                            ).toJSONInternal()
                         }
                     }
                 }
@@ -607,7 +623,7 @@ class DatabaseBulkInserter extends EventEmitter {
                      * @type {string}
                      */
                     const collectionName = useHistoryCollection ?
-                        await resourceLocator.getHistoryCollectionNameAsync(resource) :
+                        await resourceLocator.getHistoryCollectionNameAsync(resource.resource ? resource.resource : resource) :
                         await resourceLocator.getCollectionNameAsync(resource);
                     if (!(operationsByCollectionNames.has(collectionName))) {
                         operationsByCollectionNames.set(`${collectionName}`, []);

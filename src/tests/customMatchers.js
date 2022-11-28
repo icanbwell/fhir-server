@@ -60,6 +60,16 @@ function cleanMeta(resource) {
 }
 
 /**
+ * cleans request Id
+ * @param {Object} request
+ */
+function cleanRequestId(request) {
+    if (request && request.id) {
+        delete request.id;
+    }
+}
+
+/**
  * compares two bundles
  * @param {Object} body
  * @param {Object} expected
@@ -79,6 +89,7 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     cleanMeta(body);
     if (body.entry) {
         body.entry.forEach((element) => {
+            cleanRequestId(element['request']);
             cleanMeta(element['resource']);
             if (fnCleanResource) {
                 fnCleanResource(element['resource']);
@@ -114,6 +125,7 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     }
     if (expected.entry) {
         expected.entry.forEach((element) => {
+            cleanRequestId(element['request']);
             cleanMeta(element['resource']);
             delete element['resource']['$schema'];
             if (fnCleanResource) {

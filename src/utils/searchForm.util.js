@@ -94,7 +94,8 @@ function identifierField(params) {
 }
 
 /**
- * @param params
+ * @param {Object} params
+ * @param {string} tagName
  * @return {FieldInfo}
  */
 // eslint-disable-next-line no-unused-vars

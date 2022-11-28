@@ -123,14 +123,15 @@ const verify = (jwt_payload, done) => {
             }
         }
 
-        return done(null, {id: client_id, isUser}, {scope, context});
+        return done(null, {id: client_id, isUser, name: username}, {scope, context});
     }
 
     return done(null, false);
 };
 
-/* we use this to override the JwtStrategy and redirect to login
-    instead of just failing and returning a 401
+/**
+ * @classdesc we use this to override the JwtStrategy and redirect to login
+ *     instead of just failing and returning a 401
  */
 class MyJwtStrategy extends JwtStrategy {
     constructor(options, verifyFn) {

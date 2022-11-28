@@ -74,6 +74,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -116,6 +117,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -123,6 +125,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             id: '2',
@@ -170,6 +173,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -177,6 +181,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -227,6 +232,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -234,6 +240,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -284,6 +291,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -340,6 +348,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -406,6 +415,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -419,6 +429,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '100',
                         fullUrl: 'https://host/4_0_0/Organization/100',
                         resource: {
                             id: '100',
@@ -466,6 +477,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -532,6 +544,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -539,6 +552,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -552,6 +566,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '100',
                         fullUrl: 'https://host/4_0_0/Organization/100',
                         resource: {
                             id: '100',
@@ -624,6 +639,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -631,6 +647,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             id: '2',
@@ -638,6 +655,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -651,6 +669,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '100',
                         fullUrl: 'https://host/4_0_0/Organization/100',
                         resource: {
                             id: '100',
@@ -658,6 +677,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '20',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/20',
                         resource: {
                             id: '20',
@@ -671,6 +691,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '200',
                         fullUrl: 'https://host/4_0_0/Organization/200',
                         resource: {
                             id: '200',
@@ -743,6 +764,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -766,6 +788,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             contained: [
@@ -870,6 +893,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             extension: [
@@ -911,6 +935,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         fullUrl:
                             'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         resource: {
@@ -1033,6 +1058,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -1040,6 +1066,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             extension: [
@@ -1059,6 +1086,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             extension: [
@@ -1100,6 +1128,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '100',
                         fullUrl: 'https://host/4_0_0/Organization/100',
                         resource: {
                             id: '100',
@@ -1107,6 +1136,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         fullUrl:
                             'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         resource: {
@@ -1115,6 +1145,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '20',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/20',
                         resource: {
                             id: '20',
@@ -1128,6 +1159,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '200',
                         fullUrl: 'https://host/4_0_0/Organization/200',
                         resource: {
                             id: '200',
@@ -1248,6 +1280,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -1303,6 +1336,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             contained: [
@@ -1464,6 +1498,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -1519,6 +1554,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             contained: [
@@ -1750,6 +1786,7 @@ describe('graphHelper Tests', () => {
                 'type': 'collection',
                 'entry': [
                     {
+                        'id': '1',
                         'fullUrl': 'https://host/4_0_0/Practitioner/1',
                         'resource': {
                             'resourceType': 'Practitioner',

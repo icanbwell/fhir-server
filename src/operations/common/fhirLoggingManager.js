@@ -198,7 +198,7 @@ class FhirLoggingManager {
                     },
                     altId: (!requestInfo.user || typeof requestInfo.user === 'string') ?
                         requestInfo.user :
-                        requestInfo.user.id,
+                        requestInfo.user.name || requestInfo.user.id,
                     network: {
                         address: requestInfo.remoteIpAddress
                     },

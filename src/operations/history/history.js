@@ -10,6 +10,8 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
 const {isTrue} = require('../../utils/isTrue');
+const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const {ResourceManager} = require('../common/resourceManager');
 
 class HistoryOperation {
     /**
@@ -22,6 +24,7 @@ class HistoryOperation {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
+     * @param {ResourceManager} resourceManager
      */
     constructor(
         {
@@ -32,7 +35,8 @@ class HistoryOperation {
             bundleManager,
             resourceLocatorFactory,
             configManager,
-            searchManager
+            searchManager,
+            resourceManager
         }
     ) {
         /**
@@ -78,6 +82,12 @@ class HistoryOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {ResourceManager}
+         */
+        this.resourceManager = resourceManager;
+        assertTypeEquals(resourceManager, ResourceManager);
     }
 
     /**
@@ -147,7 +157,7 @@ class HistoryOperation {
             args,
             resourceType,
             useAccessIndex,
-            personIdFromJwtToken,
+            personIdFromJwtToken
         });
 
         // noinspection JSValidateTypes
@@ -230,6 +240,17 @@ class HistoryOperation {
         const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
             {resourceType, base_version});
 
+        // If doc is not BundleEntry then wrap it in a bundle entry
+        const entries = resources.map(
+            resource => resource.resource ? resource : new BundleEntry(
+                {
+                    resource: resource,
+                    fullUrl: this.resourceManager.getFullUrlForResource(
+                        {protocol, host, base_version, resource})
+                }
+            )
+        );
+
         // https://hl7.org/fhir/http.html#history
         // The return content is a Bundle with type set to history containing the specified version history,
         // sorted with oldest versions last, and including deleted resources.
@@ -240,20 +261,19 @@ class HistoryOperation {
         //    reason a resource might be missing is that the resource was changed by some other channel
         //    rather than via the RESTful interface.
         //    If the entry.request.method is a PUT or a POST, the entry SHALL contain a resource.
-        // return resources;
-        return this.bundleManager.createBundle(
+        return this.bundleManager.createBundleFromEntries(
             {
                 type: 'history',
                 requestId: requestInfo.requestId,
                 originalUrl: url,
                 host,
                 protocol,
-                resources,
+                entries,
                 base_version,
-                total_count: resources.length,
+                total_count: entries.length,
                 args,
                 originalQuery: {},
-                collectionName: resources.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(resources[0])) : null,
+                collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
                 originalOptions: {},
                 stopTime,
                 startTime,

@@ -77,7 +77,7 @@ class PatchOperation {
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
         const currentOperationName = 'patch';
-        const {requestId} = requestInfo;
+        const {requestId, method} = requestInfo;
         /**
          * @type {number}
          */
@@ -146,7 +146,11 @@ class PatchOperation {
             doc = omitPropertyFromResource(doc, '_id');
 
             await this.databaseBulkInserter.replaceOneAsync({requestId, resourceType, id, doc});
-            await this.databaseBulkInserter.insertOneHistoryAsync({requestId, resourceType, doc: doc.clone()});
+            await this.databaseBulkInserter.insertOneHistoryAsync({
+                requestId, resourceType, doc: doc.clone(),
+                base_version,
+                method
+            });
             /**
              * @type {MergeResultEntry[]}
              */

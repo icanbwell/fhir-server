@@ -63,10 +63,14 @@ class DatabaseHistoryManager {
             );
             for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
                 /**
-                 * @type { Promise<Resource|null>}
+                 * @type {Resource|BundleEntry|null}
                  */
-                const resource = await collection.findOne(query, options);
+                let resource = await collection.findOne(query, options);
+
                 if (resource !== null) {
+                    if (resource.resource) { // is a bundle entry
+                        resource = resource.resource;
+                    }
                     const ResourceCreator = getResource(this._base_version, this._resourceType);
                     return new ResourceCreator(resource);
                 }

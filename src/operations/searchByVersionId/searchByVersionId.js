@@ -140,10 +140,24 @@ class SearchByVersionIdOperation {
                 args: Object.assign(args, {id: id.toString()}), // add id filter to query
                 resourceType,
                 useAccessIndex,
-                personIdFromJwtToken,
+                personIdFromJwtToken
             });
 
-            query['meta.versionId'] = `${version_id}`;
+            const queryForVersionId = {
+                '$or': [
+                    {
+                        'meta.versionId': version_id
+                    },
+                    {
+                        'resource.meta.versionId': version_id
+                    },
+                ]
+            };
+            if (query.$and) {
+                query.$and.push(queryForVersionId);
+            } else {
+                query.$and = [queryForVersionId];
+            }
             /**
              * @type {Resource|null}
              */

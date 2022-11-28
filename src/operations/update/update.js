@@ -120,7 +120,14 @@ class UpdateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope, path, body, /** @type {string|null} */ requestId} = requestInfo;
+        const {
+            user,
+            scope,
+            path,
+            body, /** @type {string|null} */
+            requestId, /** @type {string} */
+            method
+        } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -268,7 +275,11 @@ class UpdateOperation {
 
             if (doc) {
                 // Insert/update our resource record
-                await this.databaseBulkInserter.insertOneHistoryAsync({requestId, resourceType, doc: doc.clone()});
+                await this.databaseBulkInserter.insertOneHistoryAsync({
+                    requestId, resourceType, doc: doc.clone(),
+                    method,
+                    base_version
+                });
                 /**
                  * @type {MergeResultEntry[]}
                  */

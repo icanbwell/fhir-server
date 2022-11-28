@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <%- include('./adminHead'); %>
-</head>
-<body class="container-fluid p-0">
-<main>
-    <h1>Admin Tools</h1>
+    <head>
+        <%- include('./adminHead'); %>
+    </head>
+    <body class="container-fluid p-0">
+        <main>
+            <h1>Admin Tools</h1>
 
-    <ul>
-        <li><a href="/admin/searchLog">Search Log</a></li>
-        <hr>
-        <li><a href="/admin/personPatientLink">Person Linkage</a></li>
-        <hr>
-        <li><a href="/admin/indexes">Show Indexes</a></li>
-        <li><a href="/admin/indexProblems">Show Index Problems</a></li>
-        <li><a href="/admin/synchronizeIndexes">Synchronize Indexes</a></li>
-        <li><a href="/admin/indexes?audit=1">Show Audit Indexes</a></li>
-        <li><a href="/admin/indexProblems?audit=1">Show Audit Index Problems</a></li>
-        <li><a href="/admin/synchronizeIndexes?audit=1">Synchronize Audit Indexes</a></li>
+            <ul>
+                <li><a href="/admin/searchLog">Search Log</a></li>
+                <hr>
+                <li><a href="/admin/personPatientLink">Person Linkage</a></li>
+                <hr>
+                <li><a href="/admin/patientData">Show/Delete Patient Data</a></li>
+                <hr>
+                <li><a href="/admin/indexes">Show Indexes</a></li>
+                <li><a href="/admin/indexProblems">Show Index Problems</a></li>
+                <li><a href="/admin/synchronizeIndexes">Synchronize Indexes</a></li>
+                <li><a href="/admin/indexes?audit=1">Show Audit Indexes</a></li>
+                <li><a href="/admin/indexProblems?audit=1">Show Audit Index Problems</a></li>
+                <li><a href="/admin/synchronizeIndexes?audit=1">Synchronize Audit Indexes</a></li>
 
-    </ul>
-</main>
+            </ul>
+        </main>
 
-</body>
+    </body>
 </html>
 

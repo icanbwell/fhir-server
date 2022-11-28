@@ -70,7 +70,7 @@ const graphql = async (fnCreateContainer) => {
             {
                 user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
                     (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
-                    ((!req.user || typeof req.user === 'string') ? req.user : req.user.id),
+                    ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id),
                 patientIdsFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.patientIdsFromJwtToken,
                 scope: req.authInfo && req.authInfo.scope,
                 remoteIpAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
