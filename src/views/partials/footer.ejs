@@ -16,7 +16,7 @@ const hasNext = typeof (searchUtils) !== 'undefined' ? searchUtils.hasNext(local
         </ul>
         <div class="px-3 pt-2"><%= searchUtils.totalMessage(locals, total); %></div>
     <% } %>
-    <div class="flex-grow-1 small text-end pt-2">User: <%= (typeof user === 'string') ? user : user.name || user.id %>| RequestId: <%= requestId %> | Scopes: <%= scope %> </div>
+    <div class="flex-grow-1 small text-end pt-2">User: <%= (typeof user === 'string') ? user : user.name || user.id %> | RequestId: <%= requestId %> | Scopes: <%= scope %></div>
     <div class="flex-grow-1 small text-end pt-2">
         &copy; Copyright <%= currentYear; %> b.well Connected Health
     </div>

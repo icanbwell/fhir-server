@@ -60,20 +60,23 @@
             <hr>
             <div>
                 <h4>Person Data Graph (in json)</h4>
-                <a href="/4_0_0/Person/<%= res.id; %>/$everything?contained=true&_format=json">/4_0_0/Person/<%= res.id; %>/$everything?contained=true&_format=jso</a>
+                <a href="/4_0_0/Person/<%= res.id; %>/$everything?contained=true&_format=json">/4_0_0/Person/<%= res.id; %>
+                    /$everything?contained=true&_format=jso</a>
             </div>
-            <hr>
-            <div>
-                <h3>Admin Functions (Admin Access Required)</h3>
+            <% if (admin) { %>
+                <hr>
                 <div>
-                    <h4>Connected Person-Patient Graph</h4>
-                    <a href="/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %>">/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %></a>
+                    <h3>Admin Functions</h3>
+                    <div>
+                        <h4>Connected Person-Patient Graph</h4>
+                        <a href="/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %>">/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %></a>
+                    </div>
+                    <div>
+                        <h4>Delete all data</h4>
+                        <a href="/admin/deletePersonDataGraph?id=<%= res.id; %>">/admin/deletePersonDataGraph?id=<%= res.id; %></a>
+                    </div>
                 </div>
-                <div>
-                    <h4>Delete all data</h4>
-                    <a href="/admin/deletePersonDataGraph?id=<%= res.id; %>">/admin/deletePersonDataGraph?id=<%= res.id; %></a>
-                </div>
-            </div>
+            <% } %>
 
             <%- include('../partials/json', {res: res, index: index}); %>
         </div>
