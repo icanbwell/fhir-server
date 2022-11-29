@@ -3010,10 +3010,10 @@
   "resolved" "https://registry.npmjs.org/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz"
   "version" "1.0.5"
 
-"aws-sdk@^2.1261.0":
-  "integrity" "sha512-Lumifi52Vj6ss1tlZ9Z+BvJ+Yk2MTwPQyrDCZh79xggFgXYoDU/g4rZUr47/1AXBZje3mVkLeRM15hvUwKlTaA=="
-  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1261.0.tgz"
-  "version" "2.1261.0"
+"aws-sdk@^2.1262.0":
+  "integrity" "sha512-luYVrKPZ363LYU689XS79xW3fDw1SEQH46B9scWlQ1W/36d0wrJRd+FmnnNiSV2XR1VDfDicMbEbI/rqCD8pkw=="
+  "resolved" "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.1263.0.tgz"
+  "version" "2.1263.0"
   dependencies:
     "buffer" "4.9.2"
     "events" "1.1.1"
@@ -8113,10 +8113,10 @@
     "@napi-rs/snappy-win32-ia32-msvc" "7.2.2"
     "@napi-rs/snappy-win32-x64-msvc" "7.2.2"
 
-"snyk@^1.1061.0":
-  "integrity" "sha512-kPy4Wi/Nt3zIzm+D3H1OX0lWrHm7L7jWSp7HJeZQ9udqPk5KaLLwszWxZXvw3p6RGvafR+O3Hlb7z+RY4DMi4w=="
-  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.1061.0.tgz"
-  "version" "1.1061.0"
+"snyk@^1.1063.0":
+  "integrity" "sha512-f9mNO5rUc5nVVZ1sN+do2i5/RGHKlOQoNk5HiEO9WkPEn2pFllJv2XAw5Bn7sFj1eLXNFVUOUlo6SVqGnX7lXw=="
+  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.1064.0.tgz"
+  "version" "1.1064.0"
 
 "socks-proxy-agent@^5.0.0", "socks-proxy-agent@5":
   "integrity" "sha512-vZdmnjb9a2Tz6WEQVIurybSwElwPxMZaIc7PzqbJTrezcKNznv6giT7J7tZDZ1BojVaa1jvO/UiUdhDVB0ACoQ=="
