@@ -9,6 +9,7 @@ const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
+const {RethrownError} = require('../utils/rethrownError');
 
 /**
  * shows indexes
@@ -89,7 +90,6 @@ async function handleAdmin(
     req,
     res
 ) {
-    console.info('Running admin');
     const mongoDatabaseManager = new MongoDatabaseManager();
     /**
      * @type {import('mongodb').MongoClient}
@@ -330,6 +330,10 @@ async function handleAdmin(
                 message: `Missing scopes for admin/*.read in ${scope}`
             });
         }
+    } catch (e) {
+        throw new RethrownError({
+            message: 'Error in handleAdmin(): ', error: e
+        });
     } finally {
         await mongoDatabaseManager.disconnectClientAsync(client);
     }
