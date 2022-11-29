@@ -11,7 +11,6 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
-const {MongoError} = require('../../utils/mongoErrors');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 
 class GraphOperation {
@@ -84,10 +83,6 @@ class GraphOperation {
             path,
             /** @type {Object | Object[] | null} */
             body,
-            /**
-             * @type {string}
-             */
-            requestId,
             /**
              * @type {string}
              */
@@ -230,7 +225,7 @@ class GraphOperation {
                     action: currentOperationName,
                     error: err
                 });
-            throw new MongoError(requestId, err.message, err, resourceType, {}, (Date.now() - startTime), {});
+            throw err;
         }
     }
 }

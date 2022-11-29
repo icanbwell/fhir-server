@@ -19,8 +19,7 @@ class MongoError extends AggregateError {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],
-            (requestId ? `[${requestId}]` : '') +
-            message + ': ' +
+            message + ': ' + (error.message || '') + ': ' +
             mongoQueryAndOptionsStringify(collection, query, options) + ' , ' +
             ` [elapsedTime=${elapsedTimeInSecs} secs]`
         );
@@ -35,9 +34,10 @@ class MongoError extends AggregateError {
         if (!error) {
             throw new Error('MongoError requires a message and error');
         }
-        // noinspection JSUnusedGlobalSymbols
         this.original_error = error;
-        // noinspection JSUnusedGlobalSymbols
+        this.statusCode = error.statusCode;
+        this.message = message || error.message;
+
         this.stack_before_rethrow = this.stack;
         const message_lines = (message.match(/\n/g) || []).length + 1;
         this.stack = this.stack.split('\n').slice(0, message_lines + 1).join('\n') + '\n' +
@@ -60,8 +60,7 @@ class MongoMergeError extends AggregateError {
         const elapsedTimeInSecs = (elapsedTime) / 1000;
         super(
             [error],
-            (requestId ? `[${requestId}]` : '') +
-            message + ': ' +
+            message + ': ' + (error.message || '') + ': ' +
             JSON.stringify(query) + ' , ' + JSON.stringify(options) +
             ` [elapsedTime=${elapsedTimeInSecs} secs]`
         );
@@ -76,9 +75,9 @@ class MongoMergeError extends AggregateError {
         if (!error) {
             throw new Error('MongoMergeError requires a message and error');
         }
-        // noinspection JSUnusedGlobalSymbols
         this.original_error = error;
-        // noinspection JSUnusedGlobalSymbols
+        this.message = message || error.message;
+        this.statusCode = error.statusCode;
         this.stack_before_rethrow = this.stack;
         const message_lines = (message.match(/\n/g) || []).length + 1;
         this.stack = this.stack.split('\n').slice(0, message_lines + 1).join('\n') + '\n' +
