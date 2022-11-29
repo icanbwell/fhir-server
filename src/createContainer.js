@@ -86,7 +86,11 @@ const createContainer = function () {
 
     container.register('configManager', () => new ConfigManager());
 
-    container.register('scopesManager', () => new ScopesManager());
+    container.register('scopesManager', (c) => new ScopesManager(
+        {
+            configManager: c.configManager
+        }
+    ));
 
     container.register('requestSpecificCache', () => new RequestSpecificCache());
 
@@ -117,7 +121,8 @@ const createContainer = function () {
     }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
-        fhirLoggingManager: c.fhirLoggingManager
+        fhirLoggingManager: c.fhirLoggingManager,
+        configManager: c.configManager
     }));
     container.register('resourceValidator', () => new ResourceValidator());
     container.register('fhirLoggingManager', (c) => new FhirLoggingManager({
