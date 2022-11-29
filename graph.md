@@ -193,6 +193,18 @@ Filtering can also be done:
 
 This means return extensions where url property is equal to “plan”.
 
+For reverse link params, you can use standard query parameters:
+```json
+{
+  "target": [
+    {
+      "type": "Person",
+      "params": "patient={ref}&_security:not=https://www.icanbwell.com/owner|bwell"
+    }
+  ]
+},
+```
+
 ### Contained query parameter
 
 By default, the FHIR returns all the related resources in the top level bundle.  
