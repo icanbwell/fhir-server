@@ -400,7 +400,6 @@ class MyFHIRServer {
 
             // Get an operation outcome for this instance
             const error = new OperationOutcome({
-                statusCode: 404,
                 issue: [
                     {
                         severity: 'error',
@@ -415,7 +414,7 @@ class MyFHIRServer {
                 res.setHeader('X-Request-ID', String(req.id));
             }
             // logger.error(error);
-            res.status(error.statusCode).json(error);
+            res.status(404).json(error);
         });
 
         // return self for chaining

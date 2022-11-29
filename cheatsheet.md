@@ -126,7 +126,11 @@ Helix FHIR Server supports all the standard FHIR search parameters: https://www.
 
 FHIR Specification: https://www.hl7.org/fhir/search.html.
 
-### 1.6 Getting total count
+### 1.6 Negating a search filter
+You can append a search filter with `:not` per the FHIR specification:
+Example: `/4_0_0/Patient?_security:not=https://www.icanbwell.com/owner%7Cbwell`
+
+### 1.7 Getting total count
 
 By default, the FHIR server just returns the page of data was requested. However, you can request to get the total count of records that meet your query by passing the `_total=accurate` or `_total=estimate` query parameter e.g.,
 https://fhir.icanbwell.com/4_0_0/Practitioner?source=http://somehealth.org/insurance&_count=10&_total=accurate
