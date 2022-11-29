@@ -1,0 +1,83 @@
+{
+  "resourceType": "GraphDefinition",
+  "start": "Patient",
+  "link": [
+    {
+      "description": null,
+      "path": null,
+      "target": [
+        {
+          "type": "Encounter",
+          "params": "patient={ref}",
+          "link": null
+        }
+      ]
+    },
+    {
+      "description": null,
+      "path": null,
+      "target": [
+        {
+          "type": "SupportedResourceType",
+          "params": "patient={ref}",
+          "link": null
+        }
+      ]
+    },
+    {
+      "description": null,
+      "path": null,
+      "target": [
+        {
+          "type": "Observation",
+          "params": "patient={ref}",
+          "link": null
+        }
+      ]
+    },
+    {
+      "description": null,
+      "path": null,
+      "target": [
+        {
+          "type": "MedicationDispense",
+          "params": "patient={ref}",
+          "link": null
+        }
+      ]
+    },
+    {
+      "description": null,
+      "path": null,
+      "target": [
+        {
+          "type": "ChargeItem",
+          "params": "patient={ref}",
+          "link": null
+        }
+      ]
+    },
+    {
+      "description": null,
+      "path": null,
+      "target": [
+        {
+          "type": "Coverage",
+          "params": "patient={ref}",
+          "link": null
+        }
+      ]
+    },
+    {
+      "description": null,
+      "path": null,
+      "target": [
+        {
+          "type": "Condition",
+          "params": "patient={ref}",
+          "link": null
+        }
+      ]
+    }
+  ]
+}
