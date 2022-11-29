@@ -178,9 +178,11 @@ class ScopesManager {
      * @return {boolean}
      */
     hasPatientScope({scope}) {
-        assertIsValid(scope);
-        if (scope.includes('patient/')) {
-            return true;
+        if (env.AUTH_ENABLED === '1') {
+            assertIsValid(scope);
+            if (scope.includes('patient/')) {
+                return true;
+            }
         }
         return false;
     }
