@@ -23,6 +23,7 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const {ConfigManager} = require('../../utils/configManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -38,6 +39,7 @@ class MergeManager {
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -48,7 +50,8 @@ class MergeManager {
             scopesManager,
             resourceMerger,
             resourceValidator,
-            preSaveManager
+            preSaveManager,
+            configManager
         }
     ) {
         /**
@@ -94,6 +97,12 @@ class MergeManager {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -627,7 +636,7 @@ class MergeManager {
                 };
             }
 
-            if (isTrue(env.AUTH_ENABLED)) {
+            if (isTrue(this.configManager.authEnabled)) {
                 let {success} = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
                 if (!success) {
                     const operationOutcome = new OperationOutcome({

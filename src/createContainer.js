@@ -249,7 +249,8 @@ const createContainer = function () {
                 scopesManager: c.scopesManager,
                 resourceMerger: c.resourceMerger,
                 resourceValidator: c.resourceValidator,
-                preSaveManager: c.preSaveManager
+                preSaveManager: c.preSaveManager,
+                configManager: c.configManager
             }
         )
     );
