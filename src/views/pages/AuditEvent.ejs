@@ -107,6 +107,12 @@
                     <tbody>
                     <!-- prettier-ignore -->
                     <% res.entity.forEach(function(entity){ %>
+                        <%if (entity.what && entity.what.reference) {%>
+                            <tr>
+                                <td>Reference</td>
+                                <td><%= entity.what.reference; %></td>
+                            </tr>
+                        <%}%>
                         <% if (entity.detail) { %>
                             <% entity.detail.forEach(function(detail){ %>
                                 <tr>
