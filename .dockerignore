@@ -1,4 +1,6 @@
 .DS_Store
+.git
+.gitignore
 .github
 .idea
 .mypy_cache
@@ -9,3 +11,7 @@ package-lock.json
 node_modules
 grafana
 prometheus
+npm-debug.log
+Dockerfile
+src/admin/scripts/.env*
+.npmrc
