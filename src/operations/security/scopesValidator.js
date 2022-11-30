@@ -1,18 +1,19 @@
-const env = require('var');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {authorizationFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('./scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ScopesValidator {
     /**
      * constructor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
+     * @param {ConfigManager} configManager
      */
-    constructor({scopesManager, fhirLoggingManager}) {
+    constructor({scopesManager, fhirLoggingManager, configManager}) {
         /**
          * @type {ScopesManager}
          */
@@ -23,6 +24,11 @@ class ScopesValidator {
          */
         this.fhirLoggingManager = fhirLoggingManager;
         assertTypeEquals(fhirLoggingManager, FhirLoggingManager);
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -46,7 +52,7 @@ class ScopesValidator {
     ) {
         const {user, scope} = requestInfo;
 
-        if (env.AUTH_ENABLED === '1') {
+        if (this.configManager.authEnabled) {
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
             if (scope) {
                 /**

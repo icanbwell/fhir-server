@@ -1,10 +1,19 @@
-const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ScopesManager {
-    constructor() {
+    /**
+     * constructor
+     * @param {ConfigManager} configManager
+     */
+    constructor({
+                    configManager
+                }) {
+
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -27,7 +36,7 @@ class ScopesManager {
      * @return {string[]} security tags allowed by scopes
      */
     getAccessCodesFromScopes(action, user, scope) {
-        if (env.AUTH_ENABLED === '1') {
+        if (this.configManager.authEnabled) {
             assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
             /**
@@ -69,7 +78,7 @@ class ScopesManager {
      * @return {boolean}
      */
     doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource) {
-        if (env.AUTH_ENABLED !== '1') {
+        if (!this.configManager.authEnabled) {
             return true;
         }
 
@@ -113,7 +122,7 @@ class ScopesManager {
      * @return {boolean}
      */
     isAccessToResourceAllowedBySecurityTags({resource, user, scope}) {
-        if (env.AUTH_ENABLED !== '1') {
+        if (!this.configManager.authEnabled) {
             return true;
         }
         // add any access codes from scopes
@@ -178,7 +187,7 @@ class ScopesManager {
      * @return {boolean}
      */
     hasPatientScope({scope}) {
-        if (env.AUTH_ENABLED === '1') {
+        if (this.configManager.authEnabled) {
             assertIsValid(scope);
             if (scope.includes('patient/')) {
                 return true;

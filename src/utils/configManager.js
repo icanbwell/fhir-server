@@ -65,6 +65,13 @@ class ConfigManager {
                 .map((col) => col.trim())
         ) || null;
     }
+
+    /**
+     * whether authorization is required
+     */
+    get authEnabled() {
+        return isTrue(env.AUTH_ENABLED);
+    }
 }
 
 module.exports = {
