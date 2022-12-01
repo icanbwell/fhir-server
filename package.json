@@ -31,7 +31,7 @@
     "test:everything": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/everything",
     "test:graphql": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/graphql",
     "test:merge": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/practitioner/practitioner.merge.test.js",
-    "test:search": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/searchParameters src/tests/*/search_by*",
+    "test:search": "NODE_ENV=test jest --forceExit --detectOpenHandles -i src/tests/searchParameters/search_by* src/tests/patient/search_by*",
     "snyk-protect": "snyk protect",
     "prepare": "",
     "prettier-check": "prettier --check \"**/*.{js,mjs,cjs,jsx,json,ts,tsx,md,mdx,css,html,yml,yaml,scss,less,graphql,graphqls,gql}\"",
