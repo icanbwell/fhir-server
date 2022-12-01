@@ -458,6 +458,26 @@ class ExplanationOfBenefitDetail extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.revenue) {this.revenue.updateReferences(fnUpdateReference);}
+            if (this.category) {this.category.updateReferences(fnUpdateReference);}
+            if (this.productOrService) {this.productOrService.updateReferences(fnUpdateReference);}
+            if (this.modifier) {this.modifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.programCode) {this.programCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
+            if (this.unitPrice) {this.unitPrice.updateReferences(fnUpdateReference);}
+            if (this.net) {this.net.updateReferences(fnUpdateReference);}
+            if (this.udi) {this.udi.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.adjudication) {this.adjudication.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subDetail) {this.subDetail.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

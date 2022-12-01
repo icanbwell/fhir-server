@@ -812,6 +812,27 @@ class CoverageEligibilityResponse extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.patient) {this.patient.updateReferences(fnUpdateReference);}
+            if (this.servicedPeriod) {this.servicedPeriod.updateReferences(fnUpdateReference);}
+            if (this.requestor) {this.requestor.updateReferences(fnUpdateReference);}
+            if (this.request) {this.request.updateReferences(fnUpdateReference);}
+            if (this.insurer) {this.insurer.updateReferences(fnUpdateReference);}
+            if (this.insurance) {this.insurance.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.form) {this.form.updateReferences(fnUpdateReference);}
+            if (this.error) {this.error.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

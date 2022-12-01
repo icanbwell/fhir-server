@@ -1024,6 +1024,27 @@ class ChargeItemDefinition extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.useContext) {this.useContext.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.effectivePeriod) {this.effectivePeriod.updateReferences(fnUpdateReference);}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.instance) {this.instance.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.applicability) {this.applicability.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.propertyGroup) {this.propertyGroup.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

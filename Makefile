@@ -158,8 +158,9 @@ graphql:
 .PHONY:classes
 classes:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	python3 src/fhir/generator/generate_classes.py && \
-	python3 src/fhir/generator/generate_classes_index.py && \
+	docker build -t python_docker -f python.Dockerfile . && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python_docker python3 src/fhir/generator/generate_classes.py && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python_docker python3 src/fhir/generator/generate_classes_index.py && \
 	eslint --fix "src/fhir/classes/**/*.js"
 
 .PHONY:searchParameters

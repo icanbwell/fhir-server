@@ -1822,6 +1822,48 @@ class ActivityDefinition extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subjectCodeableConcept) {this.subjectCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.subjectReference) {this.subjectReference.updateReferences(fnUpdateReference);}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.useContext) {this.useContext.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.effectivePeriod) {this.effectivePeriod.updateReferences(fnUpdateReference);}
+            if (this.topic) {this.topic.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.author) {this.author.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.editor) {this.editor.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reviewer) {this.reviewer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.endorser) {this.endorser.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.relatedArtifact) {this.relatedArtifact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.timingTiming) {this.timingTiming.updateReferences(fnUpdateReference);}
+            if (this.timingAge) {this.timingAge.updateReferences(fnUpdateReference);}
+            if (this.timingPeriod) {this.timingPeriod.updateReferences(fnUpdateReference);}
+            if (this.timingRange) {this.timingRange.updateReferences(fnUpdateReference);}
+            if (this.timingDuration) {this.timingDuration.updateReferences(fnUpdateReference);}
+            if (this.location) {this.location.updateReferences(fnUpdateReference);}
+            if (this.participant) {this.participant.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.productReference) {this.productReference.updateReferences(fnUpdateReference);}
+            if (this.productCodeableConcept) {this.productCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
+            if (this.dosage) {this.dosage.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.bodySite) {this.bodySite.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.specimenRequirement) {this.specimenRequirement.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.observationRequirement) {this.observationRequirement.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.observationResultRequirement) {this.observationResultRequirement.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.dynamicValue) {this.dynamicValue.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

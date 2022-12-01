@@ -275,6 +275,19 @@ class SubstanceAmount extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.amountQuantity) {this.amountQuantity.updateReferences(fnUpdateReference);}
+            if (this.amountRange) {this.amountRange.updateReferences(fnUpdateReference);}
+            if (this.amountType) {this.amountType.updateReferences(fnUpdateReference);}
+            if (this.referenceRange) {this.referenceRange.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

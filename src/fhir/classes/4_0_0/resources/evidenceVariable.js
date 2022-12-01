@@ -1129,6 +1129,31 @@ class EvidenceVariable extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.useContext) {this.useContext.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.effectivePeriod) {this.effectivePeriod.updateReferences(fnUpdateReference);}
+            if (this.topic) {this.topic.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.author) {this.author.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.editor) {this.editor.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reviewer) {this.reviewer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.endorser) {this.endorser.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.relatedArtifact) {this.relatedArtifact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.characteristic) {this.characteristic.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

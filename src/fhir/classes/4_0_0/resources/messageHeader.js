@@ -717,6 +717,28 @@ class MessageHeader extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.eventCoding) {this.eventCoding.updateReferences(fnUpdateReference);}
+            if (this.destination) {this.destination.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.sender) {this.sender.updateReferences(fnUpdateReference);}
+            if (this.enterer) {this.enterer.updateReferences(fnUpdateReference);}
+            if (this.author) {this.author.updateReferences(fnUpdateReference);}
+            if (this.source) {this.source.updateReferences(fnUpdateReference);}
+            if (this.responsible) {this.responsible.updateReferences(fnUpdateReference);}
+            if (this.reason) {this.reason.updateReferences(fnUpdateReference);}
+            if (this.response) {this.response.updateReferences(fnUpdateReference);}
+            if (this.focus) {this.focus.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

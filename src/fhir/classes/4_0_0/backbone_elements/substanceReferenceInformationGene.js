@@ -195,6 +195,18 @@ class SubstanceReferenceInformationGene extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.geneSequenceOrigin) {this.geneSequenceOrigin.updateReferences(fnUpdateReference);}
+            if (this.gene) {this.gene.updateReferences(fnUpdateReference);}
+            if (this.source) {this.source.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

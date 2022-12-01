@@ -658,6 +658,29 @@ class ContractAction extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.subject) {this.subject.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.intent) {this.intent.updateReferences(fnUpdateReference);}
+            if (this.status) {this.status.updateReferences(fnUpdateReference);}
+            if (this.context) {this.context.updateReferences(fnUpdateReference);}
+            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences(fnUpdateReference);}
+            if (this.occurrenceTiming) {this.occurrenceTiming.updateReferences(fnUpdateReference);}
+            if (this.requester) {this.requester.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.performerType) {this.performerType.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.performerRole) {this.performerRole.updateReferences(fnUpdateReference);}
+            if (this.performer) {this.performer.updateReferences(fnUpdateReference);}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

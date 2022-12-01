@@ -864,6 +864,32 @@ class SupplyRequest extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.category) {this.category.updateReferences(fnUpdateReference);}
+            if (this.itemCodeableConcept) {this.itemCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.itemReference) {this.itemReference.updateReferences(fnUpdateReference);}
+            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
+            if (this.parameter) {this.parameter.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences(fnUpdateReference);}
+            if (this.occurrenceTiming) {this.occurrenceTiming.updateReferences(fnUpdateReference);}
+            if (this.requester) {this.requester.updateReferences(fnUpdateReference);}
+            if (this.supplier) {this.supplier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.deliverFrom) {this.deliverFrom.updateReferences(fnUpdateReference);}
+            if (this.deliverTo) {this.deliverTo.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

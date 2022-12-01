@@ -820,6 +820,30 @@ class MolecularSequence extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.patient) {this.patient.updateReferences(fnUpdateReference);}
+            if (this.specimen) {this.specimen.updateReferences(fnUpdateReference);}
+            if (this.device) {this.device.updateReferences(fnUpdateReference);}
+            if (this.performer) {this.performer.updateReferences(fnUpdateReference);}
+            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
+            if (this.referenceSeq) {this.referenceSeq.updateReferences(fnUpdateReference);}
+            if (this.variant) {this.variant.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.quality) {this.quality.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.repository) {this.repository.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.pointer) {this.pointer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.structureVariant) {this.structureVariant.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

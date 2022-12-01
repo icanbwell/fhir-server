@@ -203,6 +203,17 @@ class CompositionRelatesTo extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.targetIdentifier) {this.targetIdentifier.updateReferences(fnUpdateReference);}
+            if (this.targetReference) {this.targetReference.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

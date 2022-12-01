@@ -705,6 +705,27 @@ class PaymentNotice extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.request) {this.request.updateReferences(fnUpdateReference);}
+            if (this.response) {this.response.updateReferences(fnUpdateReference);}
+            if (this.provider) {this.provider.updateReferences(fnUpdateReference);}
+            if (this.payment) {this.payment.updateReferences(fnUpdateReference);}
+            if (this.payee) {this.payee.updateReferences(fnUpdateReference);}
+            if (this.recipient) {this.recipient.updateReferences(fnUpdateReference);}
+            if (this.amount) {this.amount.updateReferences(fnUpdateReference);}
+            if (this.paymentStatus) {this.paymentStatus.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

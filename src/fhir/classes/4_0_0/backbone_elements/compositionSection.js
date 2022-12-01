@@ -379,6 +379,23 @@ class CompositionSection extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.author) {this.author.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.focus) {this.focus.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.orderedBy) {this.orderedBy.updateReferences(fnUpdateReference);}
+            if (this.entry) {this.entry.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.emptyReason) {this.emptyReason.updateReferences(fnUpdateReference);}
+            if (this.section) {this.section.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

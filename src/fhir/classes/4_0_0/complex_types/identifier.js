@@ -232,6 +232,17 @@ class Identifier extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.period) {this.period.updateReferences(fnUpdateReference);}
+            if (this.assigner) {this.assigner.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

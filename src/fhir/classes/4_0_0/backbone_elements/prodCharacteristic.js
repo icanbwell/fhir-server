@@ -401,6 +401,23 @@ class ProdCharacteristic extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.height) {this.height.updateReferences(fnUpdateReference);}
+            if (this.width) {this.width.updateReferences(fnUpdateReference);}
+            if (this.depth) {this.depth.updateReferences(fnUpdateReference);}
+            if (this.weight) {this.weight.updateReferences(fnUpdateReference);}
+            if (this.nominalVolume) {this.nominalVolume.updateReferences(fnUpdateReference);}
+            if (this.externalDiameter) {this.externalDiameter.updateReferences(fnUpdateReference);}
+            if (this.image) {this.image.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.scoring) {this.scoring.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

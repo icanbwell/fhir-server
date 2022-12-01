@@ -313,6 +313,20 @@ class ExplanationOfBenefitBenefitBalance extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.category) {this.category.updateReferences(fnUpdateReference);}
+            if (this.network) {this.network.updateReferences(fnUpdateReference);}
+            if (this.unit) {this.unit.updateReferences(fnUpdateReference);}
+            if (this.term) {this.term.updateReferences(fnUpdateReference);}
+            if (this.financial) {this.financial.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

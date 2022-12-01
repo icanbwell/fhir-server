@@ -1524,6 +1524,37 @@ class Measure extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subjectCodeableConcept) {this.subjectCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.subjectReference) {this.subjectReference.updateReferences(fnUpdateReference);}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.useContext) {this.useContext.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.effectivePeriod) {this.effectivePeriod.updateReferences(fnUpdateReference);}
+            if (this.topic) {this.topic.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.author) {this.author.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.editor) {this.editor.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reviewer) {this.reviewer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.endorser) {this.endorser.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.relatedArtifact) {this.relatedArtifact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.scoring) {this.scoring.updateReferences(fnUpdateReference);}
+            if (this.compositeScoring) {this.compositeScoring.updateReferences(fnUpdateReference);}
+            if (this.type) {this.type.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.improvementNotation) {this.improvementNotation.updateReferences(fnUpdateReference);}
+            if (this.group) {this.group.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.supplementalData) {this.supplementalData.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

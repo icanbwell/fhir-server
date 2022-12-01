@@ -1155,6 +1155,39 @@ class Immunization extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.statusReason) {this.statusReason.updateReferences(fnUpdateReference);}
+            if (this.vaccineCode) {this.vaccineCode.updateReferences(fnUpdateReference);}
+            if (this.patient) {this.patient.updateReferences(fnUpdateReference);}
+            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
+            if (this.reportOrigin) {this.reportOrigin.updateReferences(fnUpdateReference);}
+            if (this.location) {this.location.updateReferences(fnUpdateReference);}
+            if (this.manufacturer) {this.manufacturer.updateReferences(fnUpdateReference);}
+            if (this.site) {this.site.updateReferences(fnUpdateReference);}
+            if (this.route) {this.route.updateReferences(fnUpdateReference);}
+            if (this.doseQuantity) {this.doseQuantity.updateReferences(fnUpdateReference);}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subpotentReason) {this.subpotentReason.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.education) {this.education.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.programEligibility) {this.programEligibility.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.fundingSource) {this.fundingSource.updateReferences(fnUpdateReference);}
+            if (this.reaction) {this.reaction.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.protocolApplied) {this.protocolApplied.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

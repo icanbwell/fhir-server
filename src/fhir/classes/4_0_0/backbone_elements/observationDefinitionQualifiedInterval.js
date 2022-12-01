@@ -313,6 +313,20 @@ class ObservationDefinitionQualifiedInterval extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.range) {this.range.updateReferences(fnUpdateReference);}
+            if (this.context) {this.context.updateReferences(fnUpdateReference);}
+            if (this.appliesTo) {this.appliesTo.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.age) {this.age.updateReferences(fnUpdateReference);}
+            if (this.gestationalAge) {this.gestationalAge.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

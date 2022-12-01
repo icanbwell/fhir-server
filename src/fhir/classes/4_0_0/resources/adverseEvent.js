@@ -928,6 +928,34 @@ class AdverseEvent extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.updateReferences(fnUpdateReference);}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.event) {this.event.updateReferences(fnUpdateReference);}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
+            if (this.resultingCondition) {this.resultingCondition.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.location) {this.location.updateReferences(fnUpdateReference);}
+            if (this.seriousness) {this.seriousness.updateReferences(fnUpdateReference);}
+            if (this.severity) {this.severity.updateReferences(fnUpdateReference);}
+            if (this.outcome) {this.outcome.updateReferences(fnUpdateReference);}
+            if (this.recorder) {this.recorder.updateReferences(fnUpdateReference);}
+            if (this.contributor) {this.contributor.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.suspectEntity) {this.suspectEntity.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subjectMedicalHistory) {this.subjectMedicalHistory.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.referenceDocument) {this.referenceDocument.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.study) {this.study.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

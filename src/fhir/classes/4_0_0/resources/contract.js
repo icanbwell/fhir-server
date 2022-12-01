@@ -1346,6 +1346,44 @@ class Contract extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.legalState) {this.legalState.updateReferences(fnUpdateReference);}
+            if (this.instantiatesCanonical) {this.instantiatesCanonical.updateReferences(fnUpdateReference);}
+            if (this.contentDerivative) {this.contentDerivative.updateReferences(fnUpdateReference);}
+            if (this.applies) {this.applies.updateReferences(fnUpdateReference);}
+            if (this.expirationType) {this.expirationType.updateReferences(fnUpdateReference);}
+            if (this.subject) {this.subject.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.authority) {this.authority.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.domain) {this.domain.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.site) {this.site.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.author) {this.author.updateReferences(fnUpdateReference);}
+            if (this.scope) {this.scope.updateReferences(fnUpdateReference);}
+            if (this.topicCodeableConcept) {this.topicCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.topicReference) {this.topicReference.updateReferences(fnUpdateReference);}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.subType) {this.subType.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.contentDefinition) {this.contentDefinition.updateReferences(fnUpdateReference);}
+            if (this.term) {this.term.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.supportingInfo) {this.supportingInfo.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.relevantHistory) {this.relevantHistory.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.signer) {this.signer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.friendly) {this.friendly.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.legal) {this.legal.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.rule) {this.rule.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.legallyBindingAttachment) {this.legallyBindingAttachment.updateReferences(fnUpdateReference);}
+            if (this.legallyBindingReference) {this.legallyBindingReference.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

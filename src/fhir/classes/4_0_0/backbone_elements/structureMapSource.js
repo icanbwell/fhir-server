@@ -1484,6 +1484,46 @@ class StructureMapSource extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.defaultValueAddress) {this.defaultValueAddress.updateReferences(fnUpdateReference);}
+            if (this.defaultValueAge) {this.defaultValueAge.updateReferences(fnUpdateReference);}
+            if (this.defaultValueAnnotation) {this.defaultValueAnnotation.updateReferences(fnUpdateReference);}
+            if (this.defaultValueAttachment) {this.defaultValueAttachment.updateReferences(fnUpdateReference);}
+            if (this.defaultValueCodeableConcept) {this.defaultValueCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.defaultValueCoding) {this.defaultValueCoding.updateReferences(fnUpdateReference);}
+            if (this.defaultValueContactPoint) {this.defaultValueContactPoint.updateReferences(fnUpdateReference);}
+            if (this.defaultValueCount) {this.defaultValueCount.updateReferences(fnUpdateReference);}
+            if (this.defaultValueDistance) {this.defaultValueDistance.updateReferences(fnUpdateReference);}
+            if (this.defaultValueDuration) {this.defaultValueDuration.updateReferences(fnUpdateReference);}
+            if (this.defaultValueHumanName) {this.defaultValueHumanName.updateReferences(fnUpdateReference);}
+            if (this.defaultValueIdentifier) {this.defaultValueIdentifier.updateReferences(fnUpdateReference);}
+            if (this.defaultValueMoney) {this.defaultValueMoney.updateReferences(fnUpdateReference);}
+            if (this.defaultValuePeriod) {this.defaultValuePeriod.updateReferences(fnUpdateReference);}
+            if (this.defaultValueQuantity) {this.defaultValueQuantity.updateReferences(fnUpdateReference);}
+            if (this.defaultValueRange) {this.defaultValueRange.updateReferences(fnUpdateReference);}
+            if (this.defaultValueRatio) {this.defaultValueRatio.updateReferences(fnUpdateReference);}
+            if (this.defaultValueReference) {this.defaultValueReference.updateReferences(fnUpdateReference);}
+            if (this.defaultValueSampledData) {this.defaultValueSampledData.updateReferences(fnUpdateReference);}
+            if (this.defaultValueSignature) {this.defaultValueSignature.updateReferences(fnUpdateReference);}
+            if (this.defaultValueTiming) {this.defaultValueTiming.updateReferences(fnUpdateReference);}
+            if (this.defaultValueContactDetail) {this.defaultValueContactDetail.updateReferences(fnUpdateReference);}
+            if (this.defaultValueContributor) {this.defaultValueContributor.updateReferences(fnUpdateReference);}
+            if (this.defaultValueDataRequirement) {this.defaultValueDataRequirement.updateReferences(fnUpdateReference);}
+            if (this.defaultValueExpression) {this.defaultValueExpression.updateReferences(fnUpdateReference);}
+            if (this.defaultValueParameterDefinition) {this.defaultValueParameterDefinition.updateReferences(fnUpdateReference);}
+            if (this.defaultValueRelatedArtifact) {this.defaultValueRelatedArtifact.updateReferences(fnUpdateReference);}
+            if (this.defaultValueTriggerDefinition) {this.defaultValueTriggerDefinition.updateReferences(fnUpdateReference);}
+            if (this.defaultValueUsageContext) {this.defaultValueUsageContext.updateReferences(fnUpdateReference);}
+            if (this.defaultValueDosage) {this.defaultValueDosage.updateReferences(fnUpdateReference);}
+            if (this.defaultValueMeta) {this.defaultValueMeta.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

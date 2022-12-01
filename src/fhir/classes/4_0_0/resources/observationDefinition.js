@@ -739,6 +739,28 @@ class ObservationDefinition extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.method) {this.method.updateReferences(fnUpdateReference);}
+            if (this.quantitativeDetails) {this.quantitativeDetails.updateReferences(fnUpdateReference);}
+            if (this.qualifiedInterval) {this.qualifiedInterval.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.validCodedValueSet) {this.validCodedValueSet.updateReferences(fnUpdateReference);}
+            if (this.normalCodedValueSet) {this.normalCodedValueSet.updateReferences(fnUpdateReference);}
+            if (this.abnormalCodedValueSet) {this.abnormalCodedValueSet.updateReferences(fnUpdateReference);}
+            if (this.criticalCodedValueSet) {this.criticalCodedValueSet.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

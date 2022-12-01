@@ -762,6 +762,29 @@ class InsurancePlan extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.period) {this.period.updateReferences(fnUpdateReference);}
+            if (this.ownedBy) {this.ownedBy.updateReferences(fnUpdateReference);}
+            if (this.administeredBy) {this.administeredBy.updateReferences(fnUpdateReference);}
+            if (this.coverageArea) {this.coverageArea.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.endpoint) {this.endpoint.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.network) {this.network.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.coverage) {this.coverage.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.plan) {this.plan.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

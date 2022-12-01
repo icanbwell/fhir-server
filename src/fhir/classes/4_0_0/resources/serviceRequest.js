@@ -1408,6 +1408,46 @@ class ServiceRequest extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.replaces) {this.replaces.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.requisition) {this.requisition.updateReferences(fnUpdateReference);}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.orderDetail) {this.orderDetail.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.quantityQuantity) {this.quantityQuantity.updateReferences(fnUpdateReference);}
+            if (this.quantityRatio) {this.quantityRatio.updateReferences(fnUpdateReference);}
+            if (this.quantityRange) {this.quantityRange.updateReferences(fnUpdateReference);}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
+            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences(fnUpdateReference);}
+            if (this.occurrenceTiming) {this.occurrenceTiming.updateReferences(fnUpdateReference);}
+            if (this.asNeededCodeableConcept) {this.asNeededCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.requester) {this.requester.updateReferences(fnUpdateReference);}
+            if (this.performerType) {this.performerType.updateReferences(fnUpdateReference);}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.locationCode) {this.locationCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.locationReference) {this.locationReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.insurance) {this.insurance.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.supportingInfo) {this.supportingInfo.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.specimen) {this.specimen.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.bodySite) {this.bodySite.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.relevantHistory) {this.relevantHistory.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

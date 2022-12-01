@@ -296,6 +296,22 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.firstDose) {this.firstDose.updateReferences(fnUpdateReference);}
+            if (this.maxSingleDose) {this.maxSingleDose.updateReferences(fnUpdateReference);}
+            if (this.maxDosePerDay) {this.maxDosePerDay.updateReferences(fnUpdateReference);}
+            if (this.maxDosePerTreatmentPeriod) {this.maxDosePerTreatmentPeriod.updateReferences(fnUpdateReference);}
+            if (this.maxTreatmentPeriod) {this.maxTreatmentPeriod.updateReferences(fnUpdateReference);}
+            if (this.targetSpecies) {this.targetSpecies.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

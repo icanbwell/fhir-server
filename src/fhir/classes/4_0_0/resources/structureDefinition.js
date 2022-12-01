@@ -1130,6 +1130,27 @@ class StructureDefinition extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.useContext) {this.useContext.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.keyword) {this.keyword.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.mapping) {this.mapping.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.context) {this.context.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.snapshot) {this.snapshot.updateReferences(fnUpdateReference);}
+            if (this.differential) {this.differential.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

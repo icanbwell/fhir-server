@@ -335,6 +335,24 @@ class EncounterHospitalization extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.preAdmissionIdentifier) {this.preAdmissionIdentifier.updateReferences(fnUpdateReference);}
+            if (this.origin) {this.origin.updateReferences(fnUpdateReference);}
+            if (this.admitSource) {this.admitSource.updateReferences(fnUpdateReference);}
+            if (this.reAdmission) {this.reAdmission.updateReferences(fnUpdateReference);}
+            if (this.dietPreference) {this.dietPreference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.specialCourtesy) {this.specialCourtesy.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.specialArrangement) {this.specialArrangement.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.destination) {this.destination.updateReferences(fnUpdateReference);}
+            if (this.dischargeDisposition) {this.dischargeDisposition.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

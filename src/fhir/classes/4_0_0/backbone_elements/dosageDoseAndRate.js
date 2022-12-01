@@ -266,6 +266,21 @@ class DosageDoseAndRate extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.doseRange) {this.doseRange.updateReferences(fnUpdateReference);}
+            if (this.doseQuantity) {this.doseQuantity.updateReferences(fnUpdateReference);}
+            if (this.rateRatio) {this.rateRatio.updateReferences(fnUpdateReference);}
+            if (this.rateRange) {this.rateRange.updateReferences(fnUpdateReference);}
+            if (this.rateQuantity) {this.rateQuantity.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

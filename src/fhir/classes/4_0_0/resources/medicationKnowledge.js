@@ -981,6 +981,37 @@ class MedicationKnowledge extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.manufacturer) {this.manufacturer.updateReferences(fnUpdateReference);}
+            if (this.doseForm) {this.doseForm.updateReferences(fnUpdateReference);}
+            if (this.amount) {this.amount.updateReferences(fnUpdateReference);}
+            if (this.relatedMedicationKnowledge) {this.relatedMedicationKnowledge.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.associatedMedication) {this.associatedMedication.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.productType) {this.productType.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.monograph) {this.monograph.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.ingredient) {this.ingredient.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.intendedRoute) {this.intendedRoute.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.cost) {this.cost.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.monitoringProgram) {this.monitoringProgram.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.administrationGuidelines) {this.administrationGuidelines.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.medicineClassification) {this.medicineClassification.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.packaging) {this.packaging.updateReferences(fnUpdateReference);}
+            if (this.drugCharacteristic) {this.drugCharacteristic.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.contraindication) {this.contraindication.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.regulatory) {this.regulatory.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.kinetics) {this.kinetics.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

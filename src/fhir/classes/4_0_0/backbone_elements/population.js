@@ -244,6 +244,20 @@ class Population extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.ageRange) {this.ageRange.updateReferences(fnUpdateReference);}
+            if (this.ageCodeableConcept) {this.ageCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.gender) {this.gender.updateReferences(fnUpdateReference);}
+            if (this.race) {this.race.updateReferences(fnUpdateReference);}
+            if (this.physiologicalCondition) {this.physiologicalCondition.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

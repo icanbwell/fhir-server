@@ -265,6 +265,20 @@ class ClaimResponsePayment extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.adjustment) {this.adjustment.updateReferences(fnUpdateReference);}
+            if (this.adjustmentReason) {this.adjustmentReason.updateReferences(fnUpdateReference);}
+            if (this.amount) {this.amount.updateReferences(fnUpdateReference);}
+            if (this.identifier) {this.identifier.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

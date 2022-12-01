@@ -737,6 +737,26 @@ class DetectedIssue extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.patient) {this.patient.updateReferences(fnUpdateReference);}
+            if (this.identifiedPeriod) {this.identifiedPeriod.updateReferences(fnUpdateReference);}
+            if (this.author) {this.author.updateReferences(fnUpdateReference);}
+            if (this.implicated) {this.implicated.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.evidence) {this.evidence.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.mitigation) {this.mitigation.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

@@ -419,6 +419,20 @@ class QuestionnaireResponseAnswer extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.valueAttachment) {this.valueAttachment.updateReferences(fnUpdateReference);}
+            if (this.valueCoding) {this.valueCoding.updateReferences(fnUpdateReference);}
+            if (this.valueQuantity) {this.valueQuantity.updateReferences(fnUpdateReference);}
+            if (this.valueReference) {this.valueReference.updateReferences(fnUpdateReference);}
+            if (this.item) {this.item.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

@@ -310,6 +310,22 @@ class MedicinalProductSpecialDesignation extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.intendedUse) {this.intendedUse.updateReferences(fnUpdateReference);}
+            if (this.indicationCodeableConcept) {this.indicationCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.indicationReference) {this.indicationReference.updateReferences(fnUpdateReference);}
+            if (this.status) {this.status.updateReferences(fnUpdateReference);}
+            if (this.species) {this.species.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

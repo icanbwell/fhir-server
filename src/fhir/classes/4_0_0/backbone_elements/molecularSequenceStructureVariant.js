@@ -240,6 +240,18 @@ class MolecularSequenceStructureVariant extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.variantType) {this.variantType.updateReferences(fnUpdateReference);}
+            if (this.outer) {this.outer.updateReferences(fnUpdateReference);}
+            if (this.inner) {this.inner.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

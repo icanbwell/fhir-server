@@ -737,6 +737,29 @@ class Specimen extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.accessionIdentifier) {this.accessionIdentifier.updateReferences(fnUpdateReference);}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.parent) {this.parent.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.request) {this.request.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.collection) {this.collection.updateReferences(fnUpdateReference);}
+            if (this.processing) {this.processing.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.container) {this.container.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.condition) {this.condition.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

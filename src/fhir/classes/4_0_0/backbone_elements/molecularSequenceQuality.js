@@ -480,6 +480,19 @@ class MolecularSequenceQuality extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.standardSequence) {this.standardSequence.updateReferences(fnUpdateReference);}
+            if (this.score) {this.score.updateReferences(fnUpdateReference);}
+            if (this.method) {this.method.updateReferences(fnUpdateReference);}
+            if (this.roc) {this.roc.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

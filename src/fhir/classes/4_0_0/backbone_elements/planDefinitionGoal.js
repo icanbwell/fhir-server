@@ -296,6 +296,22 @@ class PlanDefinitionGoal extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.category) {this.category.updateReferences(fnUpdateReference);}
+            if (this.description) {this.description.updateReferences(fnUpdateReference);}
+            if (this.priority) {this.priority.updateReferences(fnUpdateReference);}
+            if (this.start) {this.start.updateReferences(fnUpdateReference);}
+            if (this.addresses) {this.addresses.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.documentation) {this.documentation.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.target) {this.target.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

@@ -270,6 +270,18 @@ class CodeSystemConcept extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.designation) {this.designation.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.property) {this.property.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.concept) {this.concept.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

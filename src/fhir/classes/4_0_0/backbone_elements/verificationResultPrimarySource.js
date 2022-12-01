@@ -291,6 +291,21 @@ class VerificationResultPrimarySource extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.who) {this.who.updateReferences(fnUpdateReference);}
+            if (this.type) {this.type.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.communicationMethod) {this.communicationMethod.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.validationStatus) {this.validationStatus.updateReferences(fnUpdateReference);}
+            if (this.canPushUpdates) {this.canPushUpdates.updateReferences(fnUpdateReference);}
+            if (this.pushTypeAvailable) {this.pushTypeAvailable.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

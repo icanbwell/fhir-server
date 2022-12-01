@@ -803,6 +803,29 @@ class Composition extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.updateReferences(fnUpdateReference);}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
+            if (this.author) {this.author.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.attester) {this.attester.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.custodian) {this.custodian.updateReferences(fnUpdateReference);}
+            if (this.relatesTo) {this.relatesTo.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.event) {this.event.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.section) {this.section.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

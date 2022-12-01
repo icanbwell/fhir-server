@@ -844,6 +844,31 @@ class Goal extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.achievementStatus) {this.achievementStatus.updateReferences(fnUpdateReference);}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.priority) {this.priority.updateReferences(fnUpdateReference);}
+            if (this.description) {this.description.updateReferences(fnUpdateReference);}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.startCodeableConcept) {this.startCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.target) {this.target.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.expressedBy) {this.expressedBy.updateReferences(fnUpdateReference);}
+            if (this.addresses) {this.addresses.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.outcomeCode) {this.outcomeCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.outcomeReference) {this.outcomeReference.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

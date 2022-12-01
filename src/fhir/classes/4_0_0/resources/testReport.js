@@ -706,6 +706,24 @@ class TestReport extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.updateReferences(fnUpdateReference);}
+            if (this.testScript) {this.testScript.updateReferences(fnUpdateReference);}
+            if (this.participant) {this.participant.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.setup) {this.setup.updateReferences(fnUpdateReference);}
+            if (this.test) {this.test.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.teardown) {this.teardown.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

@@ -790,6 +790,30 @@ class DeviceUseStatement extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.derivedFrom) {this.derivedFrom.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.timingTiming) {this.timingTiming.updateReferences(fnUpdateReference);}
+            if (this.timingPeriod) {this.timingPeriod.updateReferences(fnUpdateReference);}
+            if (this.source) {this.source.updateReferences(fnUpdateReference);}
+            if (this.device) {this.device.updateReferences(fnUpdateReference);}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.bodySite) {this.bodySite.updateReferences(fnUpdateReference);}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

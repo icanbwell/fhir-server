@@ -224,6 +224,19 @@ class MeasureReportStratum extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.value) {this.value.updateReferences(fnUpdateReference);}
+            if (this.component) {this.component.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.population) {this.population.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.measureScore) {this.measureScore.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

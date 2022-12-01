@@ -231,6 +231,19 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.kingdom) {this.kingdom.updateReferences(fnUpdateReference);}
+            if (this.phylum) {this.phylum.updateReferences(fnUpdateReference);}
+            if (this.class) {this.class.updateReferences(fnUpdateReference);}
+            if (this.order) {this.order.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

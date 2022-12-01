@@ -450,6 +450,23 @@ class ImmunizationRecommendationRecommendation extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.vaccineCode) {this.vaccineCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.targetDisease) {this.targetDisease.updateReferences(fnUpdateReference);}
+            if (this.contraindicatedVaccineCode) {this.contraindicatedVaccineCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.forecastStatus) {this.forecastStatus.updateReferences(fnUpdateReference);}
+            if (this.forecastReason) {this.forecastReason.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.dateCriterion) {this.dateCriterion.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.supportingImmunization) {this.supportingImmunization.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.supportingPatientInformation) {this.supportingPatientInformation.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

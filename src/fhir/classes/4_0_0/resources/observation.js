@@ -1379,6 +1379,46 @@ class Observation extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.partOf) {this.partOf.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.focus) {this.focus.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
+            if (this.effectivePeriod) {this.effectivePeriod.updateReferences(fnUpdateReference);}
+            if (this.effectiveTiming) {this.effectiveTiming.updateReferences(fnUpdateReference);}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.valueQuantity) {this.valueQuantity.updateReferences(fnUpdateReference);}
+            if (this.valueCodeableConcept) {this.valueCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.valueRange) {this.valueRange.updateReferences(fnUpdateReference);}
+            if (this.valueRatio) {this.valueRatio.updateReferences(fnUpdateReference);}
+            if (this.valueSampledData) {this.valueSampledData.updateReferences(fnUpdateReference);}
+            if (this.valuePeriod) {this.valuePeriod.updateReferences(fnUpdateReference);}
+            if (this.dataAbsentReason) {this.dataAbsentReason.updateReferences(fnUpdateReference);}
+            if (this.interpretation) {this.interpretation.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.bodySite) {this.bodySite.updateReferences(fnUpdateReference);}
+            if (this.method) {this.method.updateReferences(fnUpdateReference);}
+            if (this.specimen) {this.specimen.updateReferences(fnUpdateReference);}
+            if (this.device) {this.device.updateReferences(fnUpdateReference);}
+            if (this.referenceRange) {this.referenceRange.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.hasMember) {this.hasMember.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.derivedFrom) {this.derivedFrom.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.component) {this.component.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

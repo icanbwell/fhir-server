@@ -355,6 +355,21 @@ class GoalTarget extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.measure) {this.measure.updateReferences(fnUpdateReference);}
+            if (this.detailQuantity) {this.detailQuantity.updateReferences(fnUpdateReference);}
+            if (this.detailRange) {this.detailRange.updateReferences(fnUpdateReference);}
+            if (this.detailCodeableConcept) {this.detailCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.detailRatio) {this.detailRatio.updateReferences(fnUpdateReference);}
+            if (this.dueDuration) {this.dueDuration.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

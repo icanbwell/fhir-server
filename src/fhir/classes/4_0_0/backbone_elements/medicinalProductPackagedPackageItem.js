@@ -402,6 +402,27 @@ class MedicinalProductPackagedPackageItem extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
+            if (this.material) {this.material.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.alternateMaterial) {this.alternateMaterial.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.device) {this.device.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.manufacturedItem) {this.manufacturedItem.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.packageItem) {this.packageItem.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.physicalCharacteristics) {this.physicalCharacteristics.updateReferences(fnUpdateReference);}
+            if (this.otherCharacteristics) {this.otherCharacteristics.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.shelfLifeStorage) {this.shelfLifeStorage.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.manufacturer) {this.manufacturer.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

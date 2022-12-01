@@ -386,6 +386,25 @@ class ConsentProvision extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.period) {this.period.updateReferences(fnUpdateReference);}
+            if (this.actor) {this.actor.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.action) {this.action.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.securityLabel) {this.securityLabel.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.purpose) {this.purpose.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.class) {this.class.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.dataPeriod) {this.dataPeriod.updateReferences(fnUpdateReference);}
+            if (this.data) {this.data.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.provision) {this.provision.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

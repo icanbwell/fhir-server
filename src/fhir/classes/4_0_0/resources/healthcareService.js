@@ -1032,6 +1032,36 @@ class HealthcareService extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.providedBy) {this.providedBy.updateReferences(fnUpdateReference);}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.specialty) {this.specialty.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.location) {this.location.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.photo) {this.photo.updateReferences(fnUpdateReference);}
+            if (this.telecom) {this.telecom.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.coverageArea) {this.coverageArea.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.serviceProvisionCode) {this.serviceProvisionCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.eligibility) {this.eligibility.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.program) {this.program.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.characteristic) {this.characteristic.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.communication) {this.communication.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.referralMethod) {this.referralMethod.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.availableTime) {this.availableTime.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.notAvailable) {this.notAvailable.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.endpoint) {this.endpoint.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

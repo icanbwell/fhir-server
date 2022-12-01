@@ -312,6 +312,21 @@ class SubstanceSpecificationStructure extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.stereochemistry) {this.stereochemistry.updateReferences(fnUpdateReference);}
+            if (this.opticalActivity) {this.opticalActivity.updateReferences(fnUpdateReference);}
+            if (this.isotope) {this.isotope.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.molecularWeight) {this.molecularWeight.updateReferences(fnUpdateReference);}
+            if (this.source) {this.source.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.representation) {this.representation.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

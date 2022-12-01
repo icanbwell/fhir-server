@@ -197,6 +197,18 @@ class MedicinalProductContraindicationOtherTherapy extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.therapyRelationshipType) {this.therapyRelationshipType.updateReferences(fnUpdateReference);}
+            if (this.medicationCodeableConcept) {this.medicationCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.medicationReference) {this.medicationReference.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

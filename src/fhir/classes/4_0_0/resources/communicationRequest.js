@@ -1004,6 +1004,36 @@ class CommunicationRequest extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.replaces) {this.replaces.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.groupIdentifier) {this.groupIdentifier.updateReferences(fnUpdateReference);}
+            if (this.statusReason) {this.statusReason.updateReferences(fnUpdateReference);}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.medium) {this.medium.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.about) {this.about.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
+            if (this.payload) {this.payload.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences(fnUpdateReference);}
+            if (this.requester) {this.requester.updateReferences(fnUpdateReference);}
+            if (this.recipient) {this.recipient.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.sender) {this.sender.updateReferences(fnUpdateReference);}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

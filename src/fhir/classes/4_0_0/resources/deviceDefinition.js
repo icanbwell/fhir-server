@@ -1000,6 +1000,36 @@ class DeviceDefinition extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.udiDeviceIdentifier) {this.udiDeviceIdentifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.manufacturerReference) {this.manufacturerReference.updateReferences(fnUpdateReference);}
+            if (this.deviceName) {this.deviceName.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.specialization) {this.specialization.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.safety) {this.safety.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.shelfLifeStorage) {this.shelfLifeStorage.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.physicalCharacteristics) {this.physicalCharacteristics.updateReferences(fnUpdateReference);}
+            if (this.languageCode) {this.languageCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.capability) {this.capability.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.property) {this.property.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.owner) {this.owner.updateReferences(fnUpdateReference);}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
+            if (this.parentDevice) {this.parentDevice.updateReferences(fnUpdateReference);}
+            if (this.material) {this.material.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

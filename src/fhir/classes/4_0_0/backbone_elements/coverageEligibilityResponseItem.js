@@ -452,6 +452,24 @@ class CoverageEligibilityResponseItem extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.category) {this.category.updateReferences(fnUpdateReference);}
+            if (this.productOrService) {this.productOrService.updateReferences(fnUpdateReference);}
+            if (this.modifier) {this.modifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.provider) {this.provider.updateReferences(fnUpdateReference);}
+            if (this.network) {this.network.updateReferences(fnUpdateReference);}
+            if (this.unit) {this.unit.updateReferences(fnUpdateReference);}
+            if (this.term) {this.term.updateReferences(fnUpdateReference);}
+            if (this.benefit) {this.benefit.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.authorizationSupporting) {this.authorizationSupporting.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

@@ -290,6 +290,21 @@ class SpecimenContainer extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.capacity) {this.capacity.updateReferences(fnUpdateReference);}
+            if (this.specimenQuantity) {this.specimenQuantity.updateReferences(fnUpdateReference);}
+            if (this.additiveCodeableConcept) {this.additiveCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.additiveReference) {this.additiveReference.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

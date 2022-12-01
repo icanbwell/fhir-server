@@ -414,6 +414,22 @@ class ImagingStudySeries extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modality) {this.modality.updateReferences(fnUpdateReference);}
+            if (this.endpoint) {this.endpoint.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.bodySite) {this.bodySite.updateReferences(fnUpdateReference);}
+            if (this.laterality) {this.laterality.updateReferences(fnUpdateReference);}
+            if (this.specimen) {this.specimen.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.instance) {this.instance.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

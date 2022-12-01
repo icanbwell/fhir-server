@@ -732,6 +732,27 @@ class CatalogEntry extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.referencedItem) {this.referencedItem.updateReferences(fnUpdateReference);}
+            if (this.additionalIdentifier) {this.additionalIdentifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.classification) {this.classification.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.validityPeriod) {this.validityPeriod.updateReferences(fnUpdateReference);}
+            if (this.additionalCharacteristic) {this.additionalCharacteristic.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.additionalClassification) {this.additionalClassification.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.relatedEntry) {this.relatedEntry.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

@@ -758,6 +758,27 @@ class VerificationResult extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.target) {this.target.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.need) {this.need.updateReferences(fnUpdateReference);}
+            if (this.validationType) {this.validationType.updateReferences(fnUpdateReference);}
+            if (this.validationProcess) {this.validationProcess.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.frequency) {this.frequency.updateReferences(fnUpdateReference);}
+            if (this.failureAction) {this.failureAction.updateReferences(fnUpdateReference);}
+            if (this.primarySource) {this.primarySource.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.attestation) {this.attestation.updateReferences(fnUpdateReference);}
+            if (this.validator) {this.validator.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

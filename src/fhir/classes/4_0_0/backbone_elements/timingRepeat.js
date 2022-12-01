@@ -525,6 +525,18 @@ class TimingRepeat extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.boundsDuration) {this.boundsDuration.updateReferences(fnUpdateReference);}
+            if (this.boundsRange) {this.boundsRange.updateReferences(fnUpdateReference);}
+            if (this.boundsPeriod) {this.boundsPeriod.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

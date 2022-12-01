@@ -711,6 +711,29 @@ class OrganizationAffiliation extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.period) {this.period.updateReferences(fnUpdateReference);}
+            if (this.organization) {this.organization.updateReferences(fnUpdateReference);}
+            if (this.participatingOrganization) {this.participatingOrganization.updateReferences(fnUpdateReference);}
+            if (this.network) {this.network.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.specialty) {this.specialty.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.location) {this.location.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.healthcareService) {this.healthcareService.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.telecom) {this.telecom.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.endpoint) {this.endpoint.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

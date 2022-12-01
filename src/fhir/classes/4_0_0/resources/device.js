@@ -1078,6 +1078,34 @@ class Device extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.definition) {this.definition.updateReferences(fnUpdateReference);}
+            if (this.udiCarrier) {this.udiCarrier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.statusReason) {this.statusReason.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.deviceName) {this.deviceName.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.specialization) {this.specialization.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.version) {this.version.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.property) {this.property.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.patient) {this.patient.updateReferences(fnUpdateReference);}
+            if (this.owner) {this.owner.updateReferences(fnUpdateReference);}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.location) {this.location.updateReferences(fnUpdateReference);}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.safety) {this.safety.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.parent) {this.parent.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

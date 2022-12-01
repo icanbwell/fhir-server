@@ -303,6 +303,21 @@ class MedicationAdministrationDosage extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.site) {this.site.updateReferences(fnUpdateReference);}
+            if (this.route) {this.route.updateReferences(fnUpdateReference);}
+            if (this.method) {this.method.updateReferences(fnUpdateReference);}
+            if (this.dose) {this.dose.updateReferences(fnUpdateReference);}
+            if (this.rateRatio) {this.rateRatio.updateReferences(fnUpdateReference);}
+            if (this.rateQuantity) {this.rateQuantity.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

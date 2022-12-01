@@ -477,6 +477,23 @@ class ContractValuedItem extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.entityCodeableConcept) {this.entityCodeableConcept.updateReferences(fnUpdateReference);}
+            if (this.entityReference) {this.entityReference.updateReferences(fnUpdateReference);}
+            if (this.identifier) {this.identifier.updateReferences(fnUpdateReference);}
+            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
+            if (this.unitPrice) {this.unitPrice.updateReferences(fnUpdateReference);}
+            if (this.net) {this.net.updateReferences(fnUpdateReference);}
+            if (this.responsible) {this.responsible.updateReferences(fnUpdateReference);}
+            if (this.recipient) {this.recipient.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

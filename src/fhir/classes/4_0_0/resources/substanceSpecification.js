@@ -889,6 +889,35 @@ class SubstanceSpecification extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.updateReferences(fnUpdateReference);}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.status) {this.status.updateReferences(fnUpdateReference);}
+            if (this.domain) {this.domain.updateReferences(fnUpdateReference);}
+            if (this.source) {this.source.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.moiety) {this.moiety.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.property) {this.property.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.referenceInformation) {this.referenceInformation.updateReferences(fnUpdateReference);}
+            if (this.structure) {this.structure.updateReferences(fnUpdateReference);}
+            if (this.code) {this.code.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.name) {this.name.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.molecularWeight) {this.molecularWeight.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.relationship) {this.relationship.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.nucleicAcid) {this.nucleicAcid.updateReferences(fnUpdateReference);}
+            if (this.polymer) {this.polymer.updateReferences(fnUpdateReference);}
+            if (this.protein) {this.protein.updateReferences(fnUpdateReference);}
+            if (this.sourceMaterial) {this.sourceMaterial.updateReferences(fnUpdateReference);}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

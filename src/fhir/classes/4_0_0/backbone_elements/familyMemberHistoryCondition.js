@@ -313,6 +313,21 @@ class FamilyMemberHistoryCondition extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.outcome) {this.outcome.updateReferences(fnUpdateReference);}
+            if (this.onsetAge) {this.onsetAge.updateReferences(fnUpdateReference);}
+            if (this.onsetRange) {this.onsetRange.updateReferences(fnUpdateReference);}
+            if (this.onsetPeriod) {this.onsetPeriod.updateReferences(fnUpdateReference);}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

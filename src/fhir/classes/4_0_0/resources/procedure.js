@@ -1245,6 +1245,45 @@ class Procedure extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.partOf) {this.partOf.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.statusReason) {this.statusReason.updateReferences(fnUpdateReference);}
+            if (this.category) {this.category.updateReferences(fnUpdateReference);}
+            if (this.code) {this.code.updateReferences(fnUpdateReference);}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
+            if (this.performedPeriod) {this.performedPeriod.updateReferences(fnUpdateReference);}
+            if (this.performedAge) {this.performedAge.updateReferences(fnUpdateReference);}
+            if (this.performedRange) {this.performedRange.updateReferences(fnUpdateReference);}
+            if (this.recorder) {this.recorder.updateReferences(fnUpdateReference);}
+            if (this.asserter) {this.asserter.updateReferences(fnUpdateReference);}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.location) {this.location.updateReferences(fnUpdateReference);}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.bodySite) {this.bodySite.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.outcome) {this.outcome.updateReferences(fnUpdateReference);}
+            if (this.report) {this.report.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.complication) {this.complication.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.complicationDetail) {this.complicationDetail.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.followUp) {this.followUp.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.focalDevice) {this.focalDevice.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.usedReference) {this.usedReference.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.usedCode) {this.usedCode.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

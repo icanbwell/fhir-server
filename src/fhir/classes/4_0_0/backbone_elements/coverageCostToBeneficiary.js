@@ -220,6 +220,19 @@ class CoverageCostToBeneficiary extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.type) {this.type.updateReferences(fnUpdateReference);}
+            if (this.valueQuantity) {this.valueQuantity.updateReferences(fnUpdateReference);}
+            if (this.valueMoney) {this.valueMoney.updateReferences(fnUpdateReference);}
+            if (this.exception) {this.exception.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {

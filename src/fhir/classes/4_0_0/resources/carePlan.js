@@ -1006,6 +1006,34 @@ class CarePlan extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @return {void}
+     */
+    updateReferences(fnUpdateReference) {
+            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
+            if (this.text) {this.text.updateReferences(fnUpdateReference);}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.replaces) {this.replaces.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.partOf) {this.partOf.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
+            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
+            if (this.period) {this.period.updateReferences(fnUpdateReference);}
+            if (this.author) {this.author.updateReferences(fnUpdateReference);}
+            if (this.contributor) {this.contributor.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.careTeam) {this.careTeam.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.addresses) {this.addresses.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.supportingInfo) {this.supportingInfo.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.goal) {this.goal.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.activity) {this.activity.forEach(v => v.updateReferences(fnUpdateReference));}
+            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+    }
+
+    /**
+     * Returns JSON representation of entity
      * @return {Object}
      */
     toJSONInternal() {
