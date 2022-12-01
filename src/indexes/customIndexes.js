@@ -188,6 +188,26 @@ module.exports = {
                     name: 'helix_auditEvent_recorded_access_medstar'
                 }
             },
+            {
+                keys: {
+                    'entity.what.reference': 1,
+                    'id': 1,
+                    'recorded': 1
+                },
+                options: {
+                    name: 'helix_auditEvent_recorded_entity'
+                }
+            },
+            {
+                keys: {
+                    'agent.who.reference': 1,
+                    'id': 1,
+                    'recorded': 1
+                },
+                options: {
+                    name: 'helix_auditEvent_recorded_who'
+                }
+            },
         ],
         'Observation_4_0_0': [
             {
