@@ -1,0 +1,17 @@
+{
+  "resourceType": "GraphDefinition",
+  "id": "o",
+  "name": "patient_references",
+  "status": "active",
+  "start": "Patient",
+  "link": [
+    {
+      "target": [
+        {
+          "type": "Observation",
+          "params": "patient={ref}"
+        }
+      ]
+    }
+  ]
+}

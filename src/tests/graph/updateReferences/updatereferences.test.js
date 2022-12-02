@@ -11,6 +11,10 @@ const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals')
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 const personResource = require('../../searchParameters/search_by_proxy_patient/search_by_proxy_patient/fixtures/Person/person.json');
 const observation2Resource = require('../../searchParameters/search_by_proxy_patient/search_by_proxy_patient/fixtures/Observation/observation2.json');
+// graph
+const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
+const expectedGraphWithoutProxyPatient = require('./fixtures/expected/expected_graph_without_proxy_patient.json');
+const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 describe('UpdateReferences Tests', () => {
     beforeEach(async () => {
@@ -126,6 +130,45 @@ describe('UpdateReferences Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientResources);
+        });
+        test('updateReferences works via $graph without proxy patient', async () => {
+            const request = await createTestRequest();
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/$graph?id=00100000000')
+                .set(getHeaders())
+                .send(graphDefinitionResource);
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphWithoutProxyPatient);
         });
     });
 });
