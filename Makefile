@@ -126,7 +126,8 @@ fix-lint:
 
 .PHONY:generate
 generate:
-	python3 src/services/generate_services.py
+	docker build -t python_docker -f python.Dockerfile . && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python_docker python3 src/services/generate_services.py
 
 .PHONY:shell
 shell: ## Brings up the bash shell in dev docker
@@ -146,13 +147,15 @@ run-pre-commit: setup-pre-commit
 
 .PHONY:graphqlv1
 graphqlv1:
-	python3 src/graphql/v1/generator/generate_classes.py && \
+	docker build -t python_docker -f python.Dockerfile . && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python_docker python3 src/graphql/v1/generator/generate_classes.py && \
 	graphql-schema-linter src/graphql/v1/**/*.graphql
 
 .PHONY:graphql
 graphql:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	python3 src/fhir/generator/generate_graphql_classes.py && \
+	docker build -t python_docker -f python.Dockerfile . && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python_docker python3 src/fhir/generator/generate_graphql_classes.py && \
 	graphql-schema-linter src/graphql/v2/**/*.graphql
 
 .PHONY:classes
@@ -165,7 +168,8 @@ classes:
 
 .PHONY:searchParameters
 searchParameters:
-	python3 src/searchParameters/generate_search_parameters.py
+	docker build -t python_docker -f python.Dockerfile . && \
+	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python_docker python3 src/searchParameters/generate_search_parameters.py
 
 .PHONY:audit_fix
 audit_fix:
