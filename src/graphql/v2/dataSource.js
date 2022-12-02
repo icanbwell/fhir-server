@@ -302,8 +302,7 @@ class FhirDataSource extends DataSource {
                 {
                     base_version: '4_0_0',
                     _bundle: '1',
-                    ...args,
-                    _debug: '1',
+                    ...args
                 },
                 resourceType
             )
@@ -326,8 +325,7 @@ class FhirDataSource extends DataSource {
             {
                 base_version: '4_0_0',
                 _bundle: '1',
-                ...args,
-                _debug: '1',
+                ...args
             },
             resourceType
         );
