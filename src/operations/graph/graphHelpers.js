@@ -22,6 +22,7 @@ const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const {EnrichmentManager} = require('../../enrich/enrich');
 
 
 /**
@@ -48,6 +49,7 @@ class GraphHelper {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {SearchManager} searchManager
+     * @param {EnrichmentManager} enrichmentManager
      */
     constructor({
                     databaseQueryFactory,
@@ -58,7 +60,8 @@ class GraphHelper {
                     bundleManager,
                     resourceLocatorFactory,
                     r4SearchQueryCreator,
-                    searchManager
+                    searchManager,
+                    enrichmentManager
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -110,6 +113,12 @@ class GraphHelper {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
     }
 
     /**
@@ -1092,6 +1101,7 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {Object} args
+     * @param {Object} originalArgs
      * @return {Promise<Bundle>}
      */
     async processGraphAsync({
@@ -1102,7 +1112,8 @@ class GraphHelper {
                                 graphDefinitionJson,
                                 contained,
                                 hash_references,
-                                args
+                                args,
+                                originalArgs
                             }) {
         try {
             /**
@@ -1170,6 +1181,11 @@ class GraphHelper {
              * @type {Resource[]}
              */
             const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
+
+            await this.enrichmentManager.enrichAsync({
+                    resources: resources, args, originalArgs
+                }
+            );
             /**
              * @type {Bundle}
              */
@@ -1217,6 +1233,7 @@ class GraphHelper {
      * @param {string | string[]} id (accepts a single id or a list of ids)
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {Object} args
+     * @param {Object} originalArgs
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync(
@@ -1226,7 +1243,8 @@ class GraphHelper {
             resourceType,
             id,
             graphDefinitionJson,
-            args
+            args,
+            originalArgs
         }
     ) {
         try {
@@ -1245,7 +1263,8 @@ class GraphHelper {
                 contained: false,
                 hash_references: false,
                 graphDefinitionJson,
-                args
+                args,
+                originalArgs
             });
             // now iterate and delete by resuourceType and Id
             /**
@@ -1280,7 +1299,7 @@ class GraphHelper {
                 /**
                  * @type {{deletedCount: (number|null), error: (Error|null)}}
                  */
-                // eslint-disable-next-line no-unused-vars
+                    // eslint-disable-next-line no-unused-vars
                 const result = await databaseQueryManager.deleteManyAsync({
                         requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}

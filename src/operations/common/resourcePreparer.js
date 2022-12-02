@@ -120,7 +120,7 @@ class ResourcePreparer {
              * @type {Resource[]}
              */
             const enrichedResources = await this.enrichmentManager.enrichAsync({
-                    resources: [element], resourceType, args, originalArgs
+                    resources: [element], args, originalArgs
                 }
             );
             resources = resources.concat(enrichedResources);

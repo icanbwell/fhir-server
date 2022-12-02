@@ -12,6 +12,7 @@ const {getFirstElementOrNull} = require('../../utils/list.util');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const deepcopy = require('deepcopy');
 
 class GraphOperation {
     /**
@@ -104,6 +105,8 @@ class GraphOperation {
              */
             let {base_version, id} = args;
 
+            const originalArgs = deepcopy(args);
+
             if (!id) {
                 throw new BadRequestError(new Error('No id parameter was passed'));
             }
@@ -190,7 +193,8 @@ class GraphOperation {
                         resourceType,
                         id,
                         graphDefinitionJson: graphDefinitionRaw,
-                        args
+                        args,
+                        originalArgs
                     }
                 ) : await this.graphHelper.processGraphAsync(
                     {
@@ -201,7 +205,8 @@ class GraphOperation {
                         graphDefinitionJson: graphDefinitionRaw,
                         contained,
                         hash_references,
-                        args
+                        args,
+                        originalArgs
                     }
                 );
 

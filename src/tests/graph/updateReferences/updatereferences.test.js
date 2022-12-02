@@ -14,6 +14,7 @@ const observation2Resource = require('../../searchParameters/search_by_proxy_pat
 // graph
 const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 const expectedGraphWithoutProxyPatient = require('./fixtures/expected/expected_graph_without_proxy_patient.json');
+const expectedGraphWithProxyPatient = require('./fixtures/expected/expected_graph_with_proxy_patient.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 describe('UpdateReferences Tests', () => {
@@ -169,6 +170,45 @@ describe('UpdateReferences Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphWithoutProxyPatient);
+        });
+        test('updateReferences works via $graph with proxy patient', async () => {
+            const request = await createTestRequest();
+
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Patient/$graph?id=person.m65633')
+                .set(getHeaders())
+                .send(graphDefinitionResource);
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphWithProxyPatient);
         });
     });
 });

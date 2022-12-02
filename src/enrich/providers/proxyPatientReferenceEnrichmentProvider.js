@@ -2,25 +2,14 @@ const {EnrichmentProvider} = require('./enrichmentProvider');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
-     * Whether this Enrichment can enrich the specified resourceType
-     * @param {string} resourceType
-     * @return {boolean}
-     */
-    // eslint-disable-next-line no-unused-vars
-    canEnrich({resourceType}) {
-        return true;
-    }
-
-    /**
      * enrich the specified resources
      * @param {Resource[]} resources
-     * @param {string} resourceType
      * @param {Object} args
      * @param originalArgs
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, resourceType, args, originalArgs}) {
+    async enrichAsync({resources, args, originalArgs}) {
         // check if any args have a proxy patient
         /**
          * @type {string|null}

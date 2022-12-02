@@ -144,7 +144,7 @@ class ExpandOperation {
 
             // run any enrichment
             resource = (await this.enrichmentManager.enrichAsync({
-                        resources: [resource], resourceType, args,
+                        resources: [resource], args,
                         originalArgs
                     }
                 )

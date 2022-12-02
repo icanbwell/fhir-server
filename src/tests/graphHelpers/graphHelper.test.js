@@ -67,7 +67,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -110,7 +111,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -166,7 +168,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -225,7 +228,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -284,7 +288,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -341,7 +346,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -408,7 +414,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleForwardDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -470,7 +477,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: true,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -537,7 +545,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -632,7 +641,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -757,7 +767,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -886,7 +897,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1051,7 +1063,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1273,7 +1286,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1477,7 +1491,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {_debug: 1}
+                args: {_debug: 1},
+                originalArgs: {_debug: 1}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1729,7 +1744,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {_explain: 1}
+                args: {_explain: 1},
+                originalArgs: {_explain: 1}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];

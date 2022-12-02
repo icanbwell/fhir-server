@@ -187,7 +187,7 @@ class SearchByVersionIdOperation {
                 }
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], resourceType, args, originalArgs
+                            resources: [resource], args, originalArgs
                         }
                     )
                 )[0];
