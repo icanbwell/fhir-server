@@ -910,19 +910,25 @@ class GraphHelper {
      * @param {string[]} idList
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {Object} args
+     * @param {Object} originalArgs
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
-    async processMultipleIdsAsync({
-                                      base_version,
-                                      requestInfo,
-                                      resourceType,
-                                      graphDefinition,
-                                      contained,
-                                      hash_references,
-                                      idList,
-                                      explain,
-                                      debug
-                                  }) {
+    async processMultipleIdsAsync(
+        {
+            base_version,
+            requestInfo,
+            resourceType,
+            graphDefinition,
+            contained,
+            hash_references,
+            idList,
+            explain,
+            debug,
+            args,
+            originalArgs
+        }
+    ) {
         try {
             /**
              * @type {BundleEntry[]}
@@ -938,7 +944,7 @@ class GraphHelper {
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
                 patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                args: Object.assign({'base_version': base_version}, {'id': idList}), // add id filter to query
+                args: Object.assign(args, {'id': idList, 'resource': null}), // add id filter to query
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
@@ -1036,8 +1042,14 @@ class GraphHelper {
                     }
                 }
             }
+
+            await this.enrichmentManager.enrichAsync({
+                    resources: topLevelBundleEntries.map(e => e.resource), args, originalArgs
+                }
+            );
+
             // add contained objects under the parent resource
-            for (const topLevelBundleEntry of topLevelBundleEntries) {
+            for (const /** @type {BundleEntry} */ topLevelBundleEntry of topLevelBundleEntries) {
                 // add related resources as container
                 /**
                  * @type {ResourceEntityAndContained}
@@ -1071,6 +1083,10 @@ class GraphHelper {
                 const relatedEntities = related_entries
                     .flatMap(r => this.getRecursiveContainedEntities(r))
                     .filter(r => r.resource !== undefined && r.resource !== null);
+                await this.enrichmentManager.enrichAsync({
+                        resources: relatedEntities.map(e => e.resource), args, originalArgs
+                    }
+                );
                 if (contained) {
                     if (relatedEntities.length > 0) {
                         topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
@@ -1136,17 +1152,21 @@ class GraphHelper {
             /**
              * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
              */
-            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync({
-                base_version,
-                requestInfo,
-                resourceType,
-                graphDefinition,
-                contained,
-                hash_references,
-                idList: id,
-                explain: args && args['_explain'] ? true : false,
-                debug: args && args['_debug'] ? true : false,
-            });
+            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
+                {
+                    base_version,
+                    requestInfo,
+                    resourceType,
+                    graphDefinition,
+                    contained,
+                    hash_references,
+                    idList: id,
+                    explain: args && args['_explain'] ? true : false,
+                    debug: args && args['_debug'] ? true : false,
+                    args,
+                    originalArgs
+                }
+            );
 
             // remove duplicate resources
             /**

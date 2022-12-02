@@ -300,7 +300,8 @@ const createContainer = function () {
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
-                searchManager: c.searchManager
+                searchManager: c.searchManager,
+                enrichmentManager: c.enrichmentManager
             }
         )
     );

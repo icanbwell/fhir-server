@@ -18,7 +18,9 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         let proxyPatientPersonIdKey = null;
         if (originalArgs) {
             for (const [key, value] of Object.entries(originalArgs)) {
-                if (value && value.startsWith('Patient/person.')) {
+                if (value && typeof value === 'string' &&
+                    (value.startsWith('Patient/person.') || value.startsWith('person.'))
+                ) {
                     proxyPatientPersonId = value;
                     proxyPatientPersonIdKey = key;
                 }
@@ -28,12 +30,14 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
             /**
              * @type {string[]}
              */
-            const proxyPatientIds = args[`${proxyPatientPersonIdKey}`].split(',');
+            const proxyPatientIds = args[`${proxyPatientPersonIdKey}`].split(',').map(
+                a => a.startsWith('Patient/') ? a : `Patient/${a}`);
             for (const resource of resources) {
                 resource.updateReferences({
                     fnUpdateReference: (reference) => {
                         if (reference.reference && proxyPatientIds.includes(reference.reference)) {
-                            reference.reference = proxyPatientPersonId;
+                            reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
+                                proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
                         }
                         return reference;
                     }
