@@ -4,7 +4,7 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_Observation.json');
 const expectedObservationWithoutProxyPatientResources = require('./fixtures/expected/expected_Observation_without_proxy_patient.json');
-// const expectedObservationWithProxyPatientResources = require('./fixtures/expected/expected_Observation_with_proxy_patient.json');
+const expectedObservationWithProxyPatientResources = require('./fixtures/expected/expected_Observation_with_proxy_patient.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
@@ -36,6 +36,7 @@ describe('UpdateReferences Tests', () => {
 
             /**
              * @param {Reference} reference
+             * @return {Reference}
              */
             function fnUpdateReference(reference) {
                 console.log(reference.toJSON());
@@ -45,6 +46,7 @@ describe('UpdateReferences Tests', () => {
                 if (reference.reference && reference.reference.startsWith('Task/')) {
                     reference.reference = 'Task/ProxyTask';
                 }
+                return reference;
             }
 
             observation.updateReferences({
@@ -114,7 +116,7 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get('/4_0_0/Observation/?patient=Patient/00100000000')
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/00100000000')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
@@ -123,7 +125,7 @@ describe('UpdateReferences Tests', () => {
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
+            expect(resp).toHaveResponse(expectedObservationWithProxyPatientResources);
         });
     });
 });
