@@ -107,11 +107,10 @@ class R4SearchQueryCreator {
          * these are combined to create the query
          * @type {Object[]}
          */
-        let total_and_segments = [];
+        let totalAndSegments = [];
 
         for (const argName in args) {
             const [queryParameter, ...modifiers] = argName.split(':');
-            const modifier = modifiers.join(':');
 
             let propertyObj = searchParameterQueries[resourceType][queryParameter];
             if (!propertyObj) {
@@ -132,129 +131,50 @@ class R4SearchQueryCreator {
             /**
              * @type {string | string[]}
              */
-            let queryParameterValue = modifier ? args[`${queryParameter}:${modifier}`] : args[`${queryParameter}`];
-            let negation = modifier === 'not';
-
+            let queryParameterValue = args[argName];
             queryParameterValue = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
             );
-            // if just a query parameter is passed then check it
-            if (queryParameterValue) {
-                /**
-                 * list of columns used in the query
-                 * this is used to pick index hints
-                 * @type {Set}
-                 */
-                let columns = new Set();
-                /**
-                 * and segments
-                 * these are combined to create the query
-                 * @type {Object[]}
-                 */
-                let and_segments = [];
 
-                if (modifier === 'missing') {
-                    filterByMissing({
-                        args, queryParameter, propertyObj, columns: totalColumns
-                    }).forEach(q => total_and_segments.push(negation ? {$nor: [q]} : q));
-                } else if (modifier === 'text') {
-                    filterByPartialText({
-                        args, queryParameter, propertyObj, columns: totalColumns,
-                    }).forEach(q => total_and_segments.push(q));
-                } else if (modifier === 'not:text' || modifier === 'text:not') {
-                    filterByPartialText({
-                        args, queryParameter, propertyObj, columns: totalColumns,
-                    }).forEach(q => total_and_segments.push({$nor: [q]}));
-                } else {
-                    // handle id differently since it is a token, but we want to do exact match
-                    if (queryParameter === '_id') {
-                        filterById({
-                            queryParameterValue, propertyObj, columns
-                        }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
-                    } else {
-                        switch (propertyObj.type) {
-                            case fhirFilterTypes.string:
-                                filterByString({
-                                    queryParameterValue, propertyObj, columns
-                                }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
-                                break;
-                            case fhirFilterTypes.uri:
-                                filterByUri({
-                                    propertyObj, queryParameterValue, columns
-                                }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
-                                break;
-                            case fhirFilterTypes.dateTime:
-                            case fhirFilterTypes.date:
-                            case fhirFilterTypes.period:
-                            case fhirFilterTypes.instant:
-                                filterByDateTime(
-                                    {
-                                        queryParameterValue,
-                                        propertyObj,
-                                        resourceType,
-                                        columns
-                                    }
-                                ).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
-                                break;
-                            case fhirFilterTypes.token:
-                                if (propertyObj.field === 'meta.security') {
-                                    filterBySecurityTag({
-                                        queryParameterValue, propertyObj, columns,
-                                        fnUseAccessIndex: (accessCode) =>
-                                            this.configManager.useAccessIndex &&
-                                            this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
-                                                resourceType,
-                                                accessCodes: [accessCode]
-                                            })
-                                    }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
-                                } else {
-                                    filterByToken({
-                                        queryParameterValue, propertyObj, columns
-                                    }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
-                                }
-                                break;
-                            case fhirFilterTypes.reference:
-                                if (isUrl(queryParameterValue)) {
-                                    filterByCanonical({
-                                        propertyObj, queryParameterValue, columns
-                                    }).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
-                                } else {
-                                    filterByReference(
-                                        {
-                                            propertyObj,
-                                            queryParameterValue,
-                                            columns,
-                                        }
-                                    ).forEach(q => and_segments.push(negation ? {$nor: [q]} : q));
-                                }
-                                break;
-                            default:
-                                throw new Error('Unknown type=' + propertyObj.type);
-                        }
-                    }
+            let {columns, andSegments} = this.getColumnsAndSegmentsForParameterType({
+                resourceType, queryParameter, queryParameterValue, propertyObj
+            });
 
-                    if (modifier === 'contains') {
-                        filterByContains({
-                            propertyObj, queryParameterValue, columns
-                        }).forEach(q => total_and_segments.push(negation ? {$nor: [q]} : q));
-                    } else if (modifier === 'above') {
-                        filterByAbove({
-                            propertyObj, queryParameterValue, columns
-                        }).forEach(q => total_and_segments.push(negation ? {$nor: [q]} : q));
-                    } else if (modifier === 'below') {
-                        filterByBelow({
-                            propertyObj, queryParameterValue, columns
-                        }).forEach(q => total_and_segments.push(negation ? {$nor: [q]} : q));
-                    } else {
-                        total_and_segments.push(...and_segments);
-                    }
+            // replace andSegments according to modifiers
+            if (modifiers.includes('missing')) {
+                andSegments = filterByMissing({
+                    args, queryParameter, propertyObj, columns
+                });
+            } else if (modifiers.includes('contains')) {
+                andSegments = filterByContains({
+                    propertyObj, queryParameterValue, columns
+                });
+            } else if (modifiers.includes('above')) {
+                andSegments = filterByAbove({
+                    propertyObj, queryParameterValue, columns
+                });
+            } else if (modifiers.includes('below')) {
+                andSegments = filterByBelow({
+                    propertyObj, queryParameterValue, columns
+                });
+            } else if (modifiers.includes('text')) {
+                columns = new Set(); // text overrides datatype column logic
+                andSegments = filterByPartialText({
+                    args, queryParameter, propertyObj, columns,
+                });
+            }
 
-                    for (const column of columns) {
-                        totalColumns.add(column);
-                    }
-                }
+            // apply negation according to not modifier and add to final collection
+            if (modifiers.includes('not')) {
+                andSegments.forEach(q => totalAndSegments.push({$nor: [q]}));
+            } else {
+                andSegments.forEach(q => totalAndSegments.push(q));
+            }
+
+            for (const column of columns) {
+                totalColumns.add(column);
             }
         }
 
@@ -264,15 +184,110 @@ class R4SearchQueryCreator {
          */
         let query = {};
 
-        if (total_and_segments.length !== 0) {
+        if (totalAndSegments.length !== 0) {
             // noinspection JSUndefinedPropertyAssignment
-            query.$and = total_and_segments;
+            query.$and = totalAndSegments;
         }
 
         return {
             query: query,
             columns: totalColumns,
         };
+    }
+
+    /**
+     * Builds a set of columns and list of segments to apply for a particular query parameter
+     * @param {string} resourceType
+     * @param {string} queryParameter
+     * @param {string} queryParameterValue
+     * @param {Object} propertyObj
+     * @returns {{columns: Set, andSegments: Object[]}} columns and andSegments for query parameter
+     */
+    getColumnsAndSegmentsForParameterType({resourceType, queryParameter, queryParameterValue, propertyObj}) {
+        /**
+         * list of columns used in the query for this parameter
+         * this is used to pick index hints
+         * @type {Set}
+         */
+        let columns = new Set();
+
+        /**
+         * and segments
+         * these are combined to create the query
+         * @type {Object[]}
+         */
+        let andSegments = [];
+
+
+        // get the set of columns required for the query
+        if (queryParameter === '_id') {
+            // handle id differently since it is a token, but we want to do exact match
+            andSegments = filterById({
+                queryParameterValue, propertyObj, columns
+            });
+        } else {
+            switch (propertyObj.type) {
+                case fhirFilterTypes.string:
+                    andSegments = filterByString({
+                        queryParameterValue, propertyObj, columns
+                    });
+                    break;
+                case fhirFilterTypes.uri:
+                    andSegments = filterByUri({
+                        propertyObj, queryParameterValue, columns
+                    });
+                    break;
+                case fhirFilterTypes.dateTime:
+                case fhirFilterTypes.date:
+                case fhirFilterTypes.period:
+                case fhirFilterTypes.instant:
+                    andSegments = filterByDateTime(
+                        {
+                            queryParameterValue,
+                            propertyObj,
+                            resourceType,
+                            columns
+                        }
+                    );
+                    break;
+                case fhirFilterTypes.token:
+                    if (propertyObj.field === 'meta.security') {
+                        andSegments = filterBySecurityTag({
+                            queryParameterValue, propertyObj, columns,
+                            fnUseAccessIndex: (accessCode) =>
+                                this.configManager.useAccessIndex &&
+                                this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
+                                    resourceType,
+                                    accessCodes: [accessCode]
+                                })
+                        });
+                    } else {
+                        andSegments = filterByToken({
+                            queryParameterValue, propertyObj, columns
+                        });
+                    }
+                    break;
+                case fhirFilterTypes.reference:
+                    if (isUrl(queryParameterValue)) {
+                        andSegments = filterByCanonical({
+                            propertyObj, queryParameterValue, columns
+                        });
+                    } else {
+                        andSegments = filterByReference(
+                            {
+                                propertyObj,
+                                queryParameterValue,
+                                columns,
+                            }
+                        );
+                    }
+                    break;
+                default:
+                    throw new Error('Unknown type=' + propertyObj.type);
+            }
+        }
+
+        return {columns, andSegments};
     }
 }
 
