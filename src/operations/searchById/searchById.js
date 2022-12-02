@@ -14,6 +14,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
+const deepcopy = require('deepcopy');
 
 class SearchByIdOperation {
     /**
@@ -134,8 +135,10 @@ class SearchByIdOperation {
         try {
 
             // Common search params
-            let {id} = args;
-            let {base_version} = args;
+            const {id} = args;
+            const {base_version} = args;
+
+            const originalArgs = deepcopy(args);
 
             /**
              * @type {Promise<Resource> | *}
@@ -188,7 +191,7 @@ class SearchByIdOperation {
 
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], resourceType, args
+                            resources: [resource], resourceType, args, originalArgs
                         }
                     )
                 )[0];

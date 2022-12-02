@@ -77,11 +77,13 @@ class ResourcePreparer {
      * @param {Resource} element
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
+     * @param {Object} originalArgs
      * @returns {Promise<Resource[]>}
      */
     async prepareResourceAsync({
                                    user, scope, args,
-                                   element, resourceType, useAccessIndex
+                                   element, resourceType, useAccessIndex,
+                                    originalArgs
                                }) {
         let resources = [];
         if (args['_elements']) {
@@ -118,7 +120,7 @@ class ResourcePreparer {
              * @type {Resource[]}
              */
             const enrichedResources = await this.enrichmentManager.enrichAsync({
-                    resources: [element], resourceType, args
+                    resources: [element], resourceType, args, originalArgs
                 }
             );
             resources = resources.concat(enrichedResources);

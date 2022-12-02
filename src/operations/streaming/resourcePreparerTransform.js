@@ -12,6 +12,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
      * @param {ResourcePreparer} resourcePreparer
+     * @param {Object} originalArgs
      */
     constructor(
         {
@@ -21,7 +22,8 @@ class ResourcePreparerTransform extends Transform {
             resourceType,
             useAccessIndex,
             signal,
-            resourcePreparer
+            resourcePreparer,
+            originalArgs
         }
     ) {
         super({objectMode: true});
@@ -53,6 +55,10 @@ class ResourcePreparerTransform extends Transform {
          * @type {ResourcePreparer}
          */
         this.resourcePreparer = resourcePreparer;
+        /**
+         * @type {Object}
+         */
+        this.originalArgs = originalArgs;
     }
 
     /**
@@ -94,7 +100,8 @@ class ResourcePreparerTransform extends Transform {
         return this.resourcePreparer.prepareResourceAsync(
             {
                 user: this.user, scope: this.scope, args: this.args, element: chunk1,
-                resourceType: this.resourceName, useAccessIndex: this.useAccessIndex
+                resourceType: this.resourceName, useAccessIndex: this.useAccessIndex,
+                originalArgs: this.originalArgs
             })
             .then(
                 resources => {

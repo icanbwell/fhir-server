@@ -10,6 +10,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
+const deepcopy = require('deepcopy');
 
 class SearchByVersionIdOperation {
     /**
@@ -102,6 +103,7 @@ class SearchByVersionIdOperation {
             // requestId
         } = requestInfo;
 
+        const originalArgs = deepcopy(args);
         try {
 
             let {base_version, id, version_id} = args;
@@ -185,7 +187,7 @@ class SearchByVersionIdOperation {
                 }
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], resourceType, args
+                            resources: [resource], resourceType, args, originalArgs
                         }
                     )
                 )[0];

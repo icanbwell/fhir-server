@@ -16,17 +16,18 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @param {Resource[]} resources
      * @param {string} resourceType
      * @param {Object} args
+     * @param originalArgs
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, resourceType, args}) {
+    async enrichAsync({resources, resourceType, args, originalArgs}) {
         // check if any args have a proxy patient
         /**
          * @type {string|null}
          */
         let proxyPatientId = null;
-        if (args) {
-            for (const [, value] of Object.entries(args)) {
+        if (originalArgs) {
+            for (const [, value] of Object.entries(originalArgs)) {
                 if (value && value.startsWith('Patient/person.')) {
                     proxyPatientId = value;
                 }

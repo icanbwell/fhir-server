@@ -6,6 +6,7 @@ const {ValueSetManager} = require('../../utils/valueSet.util');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const deepcopy = require('deepcopy');
 
 class ExpandOperation {
     /**
@@ -90,8 +91,10 @@ class ExpandOperation {
         });
 
         // Common search params
-        let {id} = args;
-        let {base_version} = args;
+        const {id} = args;
+        const {base_version} = args;
+
+        const originalArgs = deepcopy(args);
 
         // Search Result param
 
@@ -141,7 +144,8 @@ class ExpandOperation {
 
             // run any enrichment
             resource = (await this.enrichmentManager.enrichAsync({
-                        resources: [resource], resourceType, args
+                        resources: [resource], resourceType, args,
+                        originalArgs
                     }
                 )
             )[0];
