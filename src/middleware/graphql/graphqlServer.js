@@ -89,7 +89,7 @@ const graphql = async (fnCreateContainer) => {
             req,
             res,
             fhirRequestInfo,
-            dataApi: new FhirDataSource(container, fhirRequestInfo),
+            dataApi: new FhirDataSource({container, requestInfo: fhirRequestInfo}),
             container: container
         };
 
