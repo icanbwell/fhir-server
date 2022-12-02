@@ -75,6 +75,7 @@ const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
 const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
+const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
 
 /**
  * Creates a container and sets up all the services
@@ -98,7 +99,11 @@ const createContainer = function () {
 
 
     container.register('enrichmentManager', () => new EnrichmentManager({
-        enrichmentProviders: [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()]
+        enrichmentProviders: [
+            new ExplanationOfBenefitsEnrichmentProvider(),
+            new IdEnrichmentProvider(),
+            new ProxyPatientReferenceEnrichmentProvider()
+        ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {

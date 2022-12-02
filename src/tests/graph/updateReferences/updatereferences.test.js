@@ -3,12 +3,14 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_Observation.json');
+const expectedObservationWithoutProxyPatientResources = require('./fixtures/expected/expected_Observation_without_proxy_patient.json');
+// const expectedObservationWithProxyPatientResources = require('./fixtures/expected/expected_Observation_with_proxy_patient.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 
-describe('Observation Tests', () => {
+describe('UpdateReferences Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -18,7 +20,7 @@ describe('Observation Tests', () => {
     });
 
     describe('Observation updateReferences Tests', () => {
-        test('updateReferences works', async () => {
+        test('updateReferences function works', async () => {
             const request = await createTestRequest();
             let resp = await request
                 .get('/4_0_0/Observation')
@@ -48,6 +50,27 @@ describe('Observation Tests', () => {
             });
 
             expect(observation.toJSON()).toStrictEqual(expectedObservationResources);
+        });
+        test('updateReferences works via GET', async () => {
+            const request = await createTestRequest();
+            let resp = await request
+                .get('/4_0_0/Observation')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Observation/2354-InAgeCohort/$merge')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Observation/2354-InAgeCohort')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
         });
     });
 });
