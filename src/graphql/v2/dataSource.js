@@ -193,8 +193,7 @@ class FhirDataSource extends DataSource {
                                 _bundle: '1',
                                 _debug: '1',
                             },
-                            resourceType,
-                            false
+                            resourceType
                         )
                     );
                 }

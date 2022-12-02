@@ -1,5 +1,5 @@
 query my_patient {
-    patient {
+    patient(_total: accurate) {
         entry {
             resource {
                 id
