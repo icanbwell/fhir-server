@@ -218,15 +218,16 @@ class SubstanceReferenceInformationClassification extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.domain) {this.domain.updateReferences(fnUpdateReference);}
-            if (this.classification) {this.classification.updateReferences(fnUpdateReference);}
-            if (this.subtype) {this.subtype.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.source) {this.source.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.domain) {this.domain.updateReferences({fnUpdateReference});}
+            if (this.classification) {this.classification.updateReferences({fnUpdateReference});}
+            if (this.subtype) {this.subtype.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.source) {this.source.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

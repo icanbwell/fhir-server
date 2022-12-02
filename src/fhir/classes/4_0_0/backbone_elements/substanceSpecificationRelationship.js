@@ -381,20 +381,21 @@ class SubstanceSpecificationRelationship extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.substanceReference) {this.substanceReference.updateReferences(fnUpdateReference);}
-            if (this.substanceCodeableConcept) {this.substanceCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.relationship) {this.relationship.updateReferences(fnUpdateReference);}
-            if (this.amountQuantity) {this.amountQuantity.updateReferences(fnUpdateReference);}
-            if (this.amountRange) {this.amountRange.updateReferences(fnUpdateReference);}
-            if (this.amountRatio) {this.amountRatio.updateReferences(fnUpdateReference);}
-            if (this.amountRatioLowLimit) {this.amountRatioLowLimit.updateReferences(fnUpdateReference);}
-            if (this.amountType) {this.amountType.updateReferences(fnUpdateReference);}
-            if (this.source) {this.source.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.substanceReference) {this.substanceReference.updateReferences({fnUpdateReference});}
+            if (this.substanceCodeableConcept) {this.substanceCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.relationship) {this.relationship.updateReferences({fnUpdateReference});}
+            if (this.amountQuantity) {this.amountQuantity.updateReferences({fnUpdateReference});}
+            if (this.amountRange) {this.amountRange.updateReferences({fnUpdateReference});}
+            if (this.amountRatio) {this.amountRatio.updateReferences({fnUpdateReference});}
+            if (this.amountRatioLowLimit) {this.amountRatioLowLimit.updateReferences({fnUpdateReference});}
+            if (this.amountType) {this.amountType.updateReferences({fnUpdateReference});}
+            if (this.source) {this.source.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

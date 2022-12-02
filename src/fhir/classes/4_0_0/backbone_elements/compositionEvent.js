@@ -209,14 +209,15 @@ class CompositionEvent extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.code) {this.code.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.period) {this.period.updateReferences(fnUpdateReference);}
-            if (this.detail) {this.detail.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
+            if (this.detail) {this.detail.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

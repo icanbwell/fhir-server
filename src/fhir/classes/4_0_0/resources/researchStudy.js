@@ -1039,35 +1039,36 @@ class ResearchStudy extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.protocol) {this.protocol.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.partOf) {this.partOf.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.primaryPurposeType) {this.primaryPurposeType.updateReferences(fnUpdateReference);}
-            if (this.phase) {this.phase.updateReferences(fnUpdateReference);}
-            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.focus) {this.focus.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.condition) {this.condition.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.relatedArtifact) {this.relatedArtifact.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.keyword) {this.keyword.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.location) {this.location.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.enrollment) {this.enrollment.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.period) {this.period.updateReferences(fnUpdateReference);}
-            if (this.sponsor) {this.sponsor.updateReferences(fnUpdateReference);}
-            if (this.principalInvestigator) {this.principalInvestigator.updateReferences(fnUpdateReference);}
-            if (this.site) {this.site.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.reasonStopped) {this.reasonStopped.updateReferences(fnUpdateReference);}
-            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.arm) {this.arm.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.objective) {this.objective.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.protocol) {this.protocol.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.partOf) {this.partOf.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.primaryPurposeType) {this.primaryPurposeType.updateReferences({fnUpdateReference});}
+            if (this.phase) {this.phase.updateReferences({fnUpdateReference});}
+            if (this.category) {this.category.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.focus) {this.focus.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.condition) {this.condition.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.relatedArtifact) {this.relatedArtifact.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.keyword) {this.keyword.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.location) {this.location.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.enrollment) {this.enrollment.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
+            if (this.sponsor) {this.sponsor.updateReferences({fnUpdateReference});}
+            if (this.principalInvestigator) {this.principalInvestigator.updateReferences({fnUpdateReference});}
+            if (this.site) {this.site.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonStopped) {this.reasonStopped.updateReferences({fnUpdateReference});}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.arm) {this.arm.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.objective) {this.objective.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -768,26 +768,27 @@ class Consent extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.scope) {this.scope.updateReferences(fnUpdateReference);}
-            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.patient) {this.patient.updateReferences(fnUpdateReference);}
-            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.organization) {this.organization.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.sourceAttachment) {this.sourceAttachment.updateReferences(fnUpdateReference);}
-            if (this.sourceReference) {this.sourceReference.updateReferences(fnUpdateReference);}
-            if (this.policy) {this.policy.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.policyRule) {this.policyRule.updateReferences(fnUpdateReference);}
-            if (this.verification) {this.verification.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.provision) {this.provision.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.scope) {this.scope.updateReferences({fnUpdateReference});}
+            if (this.category) {this.category.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.patient) {this.patient.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.organization) {this.organization.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.sourceAttachment) {this.sourceAttachment.updateReferences({fnUpdateReference});}
+            if (this.sourceReference) {this.sourceReference.updateReferences({fnUpdateReference});}
+            if (this.policy) {this.policy.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.policyRule) {this.policyRule.updateReferences({fnUpdateReference});}
+            if (this.verification) {this.verification.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.provision) {this.provision.updateReferences({fnUpdateReference});}
     }
 
     /**

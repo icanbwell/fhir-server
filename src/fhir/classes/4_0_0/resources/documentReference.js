@@ -827,26 +827,27 @@ class DocumentReference extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.masterIdentifier) {this.masterIdentifier.updateReferences(fnUpdateReference);}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.type) {this.type.updateReferences(fnUpdateReference);}
-            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.author) {this.author.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.authenticator) {this.authenticator.updateReferences(fnUpdateReference);}
-            if (this.custodian) {this.custodian.updateReferences(fnUpdateReference);}
-            if (this.relatesTo) {this.relatesTo.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.securityLabel) {this.securityLabel.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.content) {this.content.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.context) {this.context.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.masterIdentifier) {this.masterIdentifier.updateReferences({fnUpdateReference});}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.category) {this.category.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.author) {this.author.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.authenticator) {this.authenticator.updateReferences({fnUpdateReference});}
+            if (this.custodian) {this.custodian.updateReferences({fnUpdateReference});}
+            if (this.relatesTo) {this.relatesTo.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.securityLabel) {this.securityLabel.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.content) {this.content.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.context) {this.context.updateReferences({fnUpdateReference});}
     }
 
     /**

@@ -684,20 +684,21 @@ class Slot extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.serviceCategory) {this.serviceCategory.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.serviceType) {this.serviceType.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.specialty) {this.specialty.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.appointmentType) {this.appointmentType.updateReferences(fnUpdateReference);}
-            if (this.schedule) {this.schedule.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.serviceCategory) {this.serviceCategory.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.serviceType) {this.serviceType.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.specialty) {this.specialty.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.appointmentType) {this.appointmentType.updateReferences({fnUpdateReference});}
+            if (this.schedule) {this.schedule.updateReferences({fnUpdateReference});}
     }
 
     /**

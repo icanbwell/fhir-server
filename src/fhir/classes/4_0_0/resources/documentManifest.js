@@ -716,22 +716,23 @@ class DocumentManifest extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.masterIdentifier) {this.masterIdentifier.updateReferences(fnUpdateReference);}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.type) {this.type.updateReferences(fnUpdateReference);}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.author) {this.author.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.recipient) {this.recipient.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.content) {this.content.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.related) {this.related.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.masterIdentifier) {this.masterIdentifier.updateReferences({fnUpdateReference});}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.author) {this.author.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.recipient) {this.recipient.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.content) {this.content.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.related) {this.related.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

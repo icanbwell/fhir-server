@@ -313,15 +313,16 @@ class DataRequirement extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.subjectCodeableConcept) {this.subjectCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.subjectReference) {this.subjectReference.updateReferences(fnUpdateReference);}
-            if (this.codeFilter) {this.codeFilter.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.dateFilter) {this.dateFilter.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.sort) {this.sort.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subjectCodeableConcept) {this.subjectCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.subjectReference) {this.subjectReference.updateReferences({fnUpdateReference});}
+            if (this.codeFilter) {this.codeFilter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.dateFilter) {this.dateFilter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.sort) {this.sort.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -693,22 +693,23 @@ class Provenance extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.target) {this.target.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.occurredPeriod) {this.occurredPeriod.updateReferences(fnUpdateReference);}
-            if (this.location) {this.location.updateReferences(fnUpdateReference);}
-            if (this.reason) {this.reason.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.activity) {this.activity.updateReferences(fnUpdateReference);}
-            if (this.agent) {this.agent.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.entity) {this.entity.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.signature) {this.signature.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.target) {this.target.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.occurredPeriod) {this.occurredPeriod.updateReferences({fnUpdateReference});}
+            if (this.location) {this.location.updateReferences({fnUpdateReference});}
+            if (this.reason) {this.reason.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.activity) {this.activity.updateReferences({fnUpdateReference});}
+            if (this.agent) {this.agent.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.entity) {this.entity.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.signature) {this.signature.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -278,14 +278,15 @@ class TriggerDefinition extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.timingTiming) {this.timingTiming.updateReferences(fnUpdateReference);}
-            if (this.timingReference) {this.timingReference.updateReferences(fnUpdateReference);}
-            if (this.data) {this.data.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.condition) {this.condition.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.timingTiming) {this.timingTiming.updateReferences({fnUpdateReference});}
+            if (this.timingReference) {this.timingReference.updateReferences({fnUpdateReference});}
+            if (this.data) {this.data.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.condition) {this.condition.updateReferences({fnUpdateReference});}
     }
 
     /**

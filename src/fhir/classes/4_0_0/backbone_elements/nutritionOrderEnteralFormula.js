@@ -345,17 +345,18 @@ class NutritionOrderEnteralFormula extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.baseFormulaType) {this.baseFormulaType.updateReferences(fnUpdateReference);}
-            if (this.additiveType) {this.additiveType.updateReferences(fnUpdateReference);}
-            if (this.caloricDensity) {this.caloricDensity.updateReferences(fnUpdateReference);}
-            if (this.routeofAdministration) {this.routeofAdministration.updateReferences(fnUpdateReference);}
-            if (this.administration) {this.administration.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.maxVolumeToDeliver) {this.maxVolumeToDeliver.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.baseFormulaType) {this.baseFormulaType.updateReferences({fnUpdateReference});}
+            if (this.additiveType) {this.additiveType.updateReferences({fnUpdateReference});}
+            if (this.caloricDensity) {this.caloricDensity.updateReferences({fnUpdateReference});}
+            if (this.routeofAdministration) {this.routeofAdministration.updateReferences({fnUpdateReference});}
+            if (this.administration) {this.administration.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.maxVolumeToDeliver) {this.maxVolumeToDeliver.updateReferences({fnUpdateReference});}
     }
 
     /**

@@ -177,13 +177,14 @@ class MedicationAdministrationPerformer extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.function) {this.function.updateReferences(fnUpdateReference);}
-            if (this.actor) {this.actor.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.function) {this.function.updateReferences({fnUpdateReference});}
+            if (this.actor) {this.actor.updateReferences({fnUpdateReference});}
     }
 
     /**

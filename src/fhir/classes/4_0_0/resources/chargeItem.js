@@ -1149,36 +1149,37 @@ class ChargeItem extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.partOf) {this.partOf.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.code) {this.code.updateReferences(fnUpdateReference);}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.context) {this.context.updateReferences(fnUpdateReference);}
-            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences(fnUpdateReference);}
-            if (this.occurrenceTiming) {this.occurrenceTiming.updateReferences(fnUpdateReference);}
-            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.performingOrganization) {this.performingOrganization.updateReferences(fnUpdateReference);}
-            if (this.requestingOrganization) {this.requestingOrganization.updateReferences(fnUpdateReference);}
-            if (this.costCenter) {this.costCenter.updateReferences(fnUpdateReference);}
-            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
-            if (this.bodysite) {this.bodysite.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.priceOverride) {this.priceOverride.updateReferences(fnUpdateReference);}
-            if (this.enterer) {this.enterer.updateReferences(fnUpdateReference);}
-            if (this.reason) {this.reason.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.service) {this.service.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.productReference) {this.productReference.updateReferences(fnUpdateReference);}
-            if (this.productCodeableConcept) {this.productCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.account) {this.account.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.supportingInformation) {this.supportingInformation.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.partOf) {this.partOf.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.context) {this.context.updateReferences({fnUpdateReference});}
+            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences({fnUpdateReference});}
+            if (this.occurrenceTiming) {this.occurrenceTiming.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.performingOrganization) {this.performingOrganization.updateReferences({fnUpdateReference});}
+            if (this.requestingOrganization) {this.requestingOrganization.updateReferences({fnUpdateReference});}
+            if (this.costCenter) {this.costCenter.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.bodysite) {this.bodysite.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.priceOverride) {this.priceOverride.updateReferences({fnUpdateReference});}
+            if (this.enterer) {this.enterer.updateReferences({fnUpdateReference});}
+            if (this.reason) {this.reason.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.service) {this.service.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.productReference) {this.productReference.updateReferences({fnUpdateReference});}
+            if (this.productCodeableConcept) {this.productCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.account) {this.account.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.supportingInformation) {this.supportingInformation.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

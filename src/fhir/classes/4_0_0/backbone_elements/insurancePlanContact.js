@@ -219,15 +219,16 @@ class InsurancePlanContact extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.purpose) {this.purpose.updateReferences(fnUpdateReference);}
-            if (this.name) {this.name.updateReferences(fnUpdateReference);}
-            if (this.telecom) {this.telecom.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.address) {this.address.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.purpose) {this.purpose.updateReferences({fnUpdateReference});}
+            if (this.name) {this.name.updateReferences({fnUpdateReference});}
+            if (this.telecom) {this.telecom.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.address) {this.address.updateReferences({fnUpdateReference});}
     }
 
     /**

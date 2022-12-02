@@ -223,15 +223,16 @@ class CareTeamParticipant extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.role) {this.role.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.member) {this.member.updateReferences(fnUpdateReference);}
-            if (this.onBehalfOf) {this.onBehalfOf.updateReferences(fnUpdateReference);}
-            if (this.period) {this.period.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.role) {this.role.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.member) {this.member.updateReferences({fnUpdateReference});}
+            if (this.onBehalfOf) {this.onBehalfOf.updateReferences({fnUpdateReference});}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
     }
 
     /**

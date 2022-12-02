@@ -469,21 +469,22 @@ class EvidenceVariableCharacteristic extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.definitionReference) {this.definitionReference.updateReferences(fnUpdateReference);}
-            if (this.definitionCodeableConcept) {this.definitionCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.definitionExpression) {this.definitionExpression.updateReferences(fnUpdateReference);}
-            if (this.definitionDataRequirement) {this.definitionDataRequirement.updateReferences(fnUpdateReference);}
-            if (this.definitionTriggerDefinition) {this.definitionTriggerDefinition.updateReferences(fnUpdateReference);}
-            if (this.usageContext) {this.usageContext.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.participantEffectivePeriod) {this.participantEffectivePeriod.updateReferences(fnUpdateReference);}
-            if (this.participantEffectiveDuration) {this.participantEffectiveDuration.updateReferences(fnUpdateReference);}
-            if (this.participantEffectiveTiming) {this.participantEffectiveTiming.updateReferences(fnUpdateReference);}
-            if (this.timeFromStart) {this.timeFromStart.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.definitionReference) {this.definitionReference.updateReferences({fnUpdateReference});}
+            if (this.definitionCodeableConcept) {this.definitionCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.definitionExpression) {this.definitionExpression.updateReferences({fnUpdateReference});}
+            if (this.definitionDataRequirement) {this.definitionDataRequirement.updateReferences({fnUpdateReference});}
+            if (this.definitionTriggerDefinition) {this.definitionTriggerDefinition.updateReferences({fnUpdateReference});}
+            if (this.usageContext) {this.usageContext.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.participantEffectivePeriod) {this.participantEffectivePeriod.updateReferences({fnUpdateReference});}
+            if (this.participantEffectiveDuration) {this.participantEffectiveDuration.updateReferences({fnUpdateReference});}
+            if (this.participantEffectiveTiming) {this.participantEffectiveTiming.updateReferences({fnUpdateReference});}
+            if (this.timeFromStart) {this.timeFromStart.updateReferences({fnUpdateReference});}
     }
 
     /**

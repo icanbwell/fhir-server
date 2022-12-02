@@ -221,14 +221,15 @@ class MeasureGroup extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.code) {this.code.updateReferences(fnUpdateReference);}
-            if (this.population) {this.population.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.stratifier) {this.stratifier.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.population) {this.population.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.stratifier) {this.stratifier.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

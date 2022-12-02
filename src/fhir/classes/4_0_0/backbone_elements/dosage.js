@@ -450,21 +450,22 @@ class Dosage extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.additionalInstruction) {this.additionalInstruction.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.timing) {this.timing.updateReferences(fnUpdateReference);}
-            if (this.asNeededCodeableConcept) {this.asNeededCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.site) {this.site.updateReferences(fnUpdateReference);}
-            if (this.route) {this.route.updateReferences(fnUpdateReference);}
-            if (this.method) {this.method.updateReferences(fnUpdateReference);}
-            if (this.doseAndRate) {this.doseAndRate.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.maxDosePerPeriod) {this.maxDosePerPeriod.updateReferences(fnUpdateReference);}
-            if (this.maxDosePerAdministration) {this.maxDosePerAdministration.updateReferences(fnUpdateReference);}
-            if (this.maxDosePerLifetime) {this.maxDosePerLifetime.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.additionalInstruction) {this.additionalInstruction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.timing) {this.timing.updateReferences({fnUpdateReference});}
+            if (this.asNeededCodeableConcept) {this.asNeededCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.site) {this.site.updateReferences({fnUpdateReference});}
+            if (this.route) {this.route.updateReferences({fnUpdateReference});}
+            if (this.method) {this.method.updateReferences({fnUpdateReference});}
+            if (this.doseAndRate) {this.doseAndRate.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.maxDosePerPeriod) {this.maxDosePerPeriod.updateReferences({fnUpdateReference});}
+            if (this.maxDosePerAdministration) {this.maxDosePerAdministration.updateReferences({fnUpdateReference});}
+            if (this.maxDosePerLifetime) {this.maxDosePerLifetime.updateReferences({fnUpdateReference});}
     }
 
     /**

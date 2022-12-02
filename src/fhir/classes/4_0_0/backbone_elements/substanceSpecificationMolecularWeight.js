@@ -199,14 +199,15 @@ class SubstanceSpecificationMolecularWeight extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.method) {this.method.updateReferences(fnUpdateReference);}
-            if (this.type) {this.type.updateReferences(fnUpdateReference);}
-            if (this.amount) {this.amount.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.method) {this.method.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.amount) {this.amount.updateReferences({fnUpdateReference});}
     }
 
     /**

@@ -685,28 +685,29 @@ class ClaimItem extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.revenue) {this.revenue.updateReferences(fnUpdateReference);}
-            if (this.category) {this.category.updateReferences(fnUpdateReference);}
-            if (this.productOrService) {this.productOrService.updateReferences(fnUpdateReference);}
-            if (this.modifier) {this.modifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.programCode) {this.programCode.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.servicedPeriod) {this.servicedPeriod.updateReferences(fnUpdateReference);}
-            if (this.locationCodeableConcept) {this.locationCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.locationAddress) {this.locationAddress.updateReferences(fnUpdateReference);}
-            if (this.locationReference) {this.locationReference.updateReferences(fnUpdateReference);}
-            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
-            if (this.unitPrice) {this.unitPrice.updateReferences(fnUpdateReference);}
-            if (this.net) {this.net.updateReferences(fnUpdateReference);}
-            if (this.udi) {this.udi.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.bodySite) {this.bodySite.updateReferences(fnUpdateReference);}
-            if (this.subSite) {this.subSite.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.encounter) {this.encounter.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.detail) {this.detail.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.revenue) {this.revenue.updateReferences({fnUpdateReference});}
+            if (this.category) {this.category.updateReferences({fnUpdateReference});}
+            if (this.productOrService) {this.productOrService.updateReferences({fnUpdateReference});}
+            if (this.modifier) {this.modifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.programCode) {this.programCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.servicedPeriod) {this.servicedPeriod.updateReferences({fnUpdateReference});}
+            if (this.locationCodeableConcept) {this.locationCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.locationAddress) {this.locationAddress.updateReferences({fnUpdateReference});}
+            if (this.locationReference) {this.locationReference.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.unitPrice) {this.unitPrice.updateReferences({fnUpdateReference});}
+            if (this.net) {this.net.updateReferences({fnUpdateReference});}
+            if (this.udi) {this.udi.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.bodySite) {this.bodySite.updateReferences({fnUpdateReference});}
+            if (this.subSite) {this.subSite.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.encounter) {this.encounter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.detail) {this.detail.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

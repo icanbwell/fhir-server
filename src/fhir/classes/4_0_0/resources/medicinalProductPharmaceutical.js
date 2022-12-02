@@ -577,21 +577,22 @@ class MedicinalProductPharmaceutical extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.administrableDoseForm) {this.administrableDoseForm.updateReferences(fnUpdateReference);}
-            if (this.unitOfPresentation) {this.unitOfPresentation.updateReferences(fnUpdateReference);}
-            if (this.ingredient) {this.ingredient.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.device) {this.device.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.characteristics) {this.characteristics.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.routeOfAdministration) {this.routeOfAdministration.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.administrableDoseForm) {this.administrableDoseForm.updateReferences({fnUpdateReference});}
+            if (this.unitOfPresentation) {this.unitOfPresentation.updateReferences({fnUpdateReference});}
+            if (this.ingredient) {this.ingredient.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.device) {this.device.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.characteristics) {this.characteristics.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.routeOfAdministration) {this.routeOfAdministration.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

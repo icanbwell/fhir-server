@@ -343,14 +343,15 @@ class MolecularSequenceReferenceSeq extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.chromosome) {this.chromosome.updateReferences(fnUpdateReference);}
-            if (this.referenceSeqId) {this.referenceSeqId.updateReferences(fnUpdateReference);}
-            if (this.referenceSeqPointer) {this.referenceSeqPointer.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.chromosome) {this.chromosome.updateReferences({fnUpdateReference});}
+            if (this.referenceSeqId) {this.referenceSeqId.updateReferences({fnUpdateReference});}
+            if (this.referenceSeqPointer) {this.referenceSeqPointer.updateReferences({fnUpdateReference});}
     }
 
     /**

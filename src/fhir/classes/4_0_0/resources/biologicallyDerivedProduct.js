@@ -687,22 +687,23 @@ class BiologicallyDerivedProduct extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.productCode) {this.productCode.updateReferences(fnUpdateReference);}
-            if (this.request) {this.request.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.parent) {this.parent.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.collection) {this.collection.updateReferences(fnUpdateReference);}
-            if (this.processing) {this.processing.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.manipulation) {this.manipulation.updateReferences(fnUpdateReference);}
-            if (this.storage) {this.storage.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.productCode) {this.productCode.updateReferences({fnUpdateReference});}
+            if (this.request) {this.request.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.parent) {this.parent.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.collection) {this.collection.updateReferences({fnUpdateReference});}
+            if (this.processing) {this.processing.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.manipulation) {this.manipulation.updateReferences({fnUpdateReference});}
+            if (this.storage) {this.storage.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

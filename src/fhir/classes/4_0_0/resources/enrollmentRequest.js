@@ -575,19 +575,20 @@ class EnrollmentRequest extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.insurer) {this.insurer.updateReferences(fnUpdateReference);}
-            if (this.provider) {this.provider.updateReferences(fnUpdateReference);}
-            if (this.candidate) {this.candidate.updateReferences(fnUpdateReference);}
-            if (this.coverage) {this.coverage.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.insurer) {this.insurer.updateReferences({fnUpdateReference});}
+            if (this.provider) {this.provider.updateReferences({fnUpdateReference});}
+            if (this.candidate) {this.candidate.updateReferences({fnUpdateReference});}
+            if (this.coverage) {this.coverage.updateReferences({fnUpdateReference});}
     }
 
     /**

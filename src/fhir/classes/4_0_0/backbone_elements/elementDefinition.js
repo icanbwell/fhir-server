@@ -4624,114 +4624,115 @@ class ElementDefinition extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.code) {this.code.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.slicing) {this.slicing.updateReferences(fnUpdateReference);}
-            if (this.base) {this.base.updateReferences(fnUpdateReference);}
-            if (this.type) {this.type.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.defaultValueAddress) {this.defaultValueAddress.updateReferences(fnUpdateReference);}
-            if (this.defaultValueAge) {this.defaultValueAge.updateReferences(fnUpdateReference);}
-            if (this.defaultValueAnnotation) {this.defaultValueAnnotation.updateReferences(fnUpdateReference);}
-            if (this.defaultValueAttachment) {this.defaultValueAttachment.updateReferences(fnUpdateReference);}
-            if (this.defaultValueCodeableConcept) {this.defaultValueCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.defaultValueCoding) {this.defaultValueCoding.updateReferences(fnUpdateReference);}
-            if (this.defaultValueContactPoint) {this.defaultValueContactPoint.updateReferences(fnUpdateReference);}
-            if (this.defaultValueCount) {this.defaultValueCount.updateReferences(fnUpdateReference);}
-            if (this.defaultValueDistance) {this.defaultValueDistance.updateReferences(fnUpdateReference);}
-            if (this.defaultValueDuration) {this.defaultValueDuration.updateReferences(fnUpdateReference);}
-            if (this.defaultValueHumanName) {this.defaultValueHumanName.updateReferences(fnUpdateReference);}
-            if (this.defaultValueIdentifier) {this.defaultValueIdentifier.updateReferences(fnUpdateReference);}
-            if (this.defaultValueMoney) {this.defaultValueMoney.updateReferences(fnUpdateReference);}
-            if (this.defaultValuePeriod) {this.defaultValuePeriod.updateReferences(fnUpdateReference);}
-            if (this.defaultValueQuantity) {this.defaultValueQuantity.updateReferences(fnUpdateReference);}
-            if (this.defaultValueRange) {this.defaultValueRange.updateReferences(fnUpdateReference);}
-            if (this.defaultValueRatio) {this.defaultValueRatio.updateReferences(fnUpdateReference);}
-            if (this.defaultValueReference) {this.defaultValueReference.updateReferences(fnUpdateReference);}
-            if (this.defaultValueSampledData) {this.defaultValueSampledData.updateReferences(fnUpdateReference);}
-            if (this.defaultValueSignature) {this.defaultValueSignature.updateReferences(fnUpdateReference);}
-            if (this.defaultValueTiming) {this.defaultValueTiming.updateReferences(fnUpdateReference);}
-            if (this.defaultValueContactDetail) {this.defaultValueContactDetail.updateReferences(fnUpdateReference);}
-            if (this.defaultValueContributor) {this.defaultValueContributor.updateReferences(fnUpdateReference);}
-            if (this.defaultValueDataRequirement) {this.defaultValueDataRequirement.updateReferences(fnUpdateReference);}
-            if (this.defaultValueExpression) {this.defaultValueExpression.updateReferences(fnUpdateReference);}
-            if (this.defaultValueParameterDefinition) {this.defaultValueParameterDefinition.updateReferences(fnUpdateReference);}
-            if (this.defaultValueRelatedArtifact) {this.defaultValueRelatedArtifact.updateReferences(fnUpdateReference);}
-            if (this.defaultValueTriggerDefinition) {this.defaultValueTriggerDefinition.updateReferences(fnUpdateReference);}
-            if (this.defaultValueUsageContext) {this.defaultValueUsageContext.updateReferences(fnUpdateReference);}
-            if (this.defaultValueDosage) {this.defaultValueDosage.updateReferences(fnUpdateReference);}
-            if (this.defaultValueMeta) {this.defaultValueMeta.updateReferences(fnUpdateReference);}
-            if (this.fixedAddress) {this.fixedAddress.updateReferences(fnUpdateReference);}
-            if (this.fixedAge) {this.fixedAge.updateReferences(fnUpdateReference);}
-            if (this.fixedAnnotation) {this.fixedAnnotation.updateReferences(fnUpdateReference);}
-            if (this.fixedAttachment) {this.fixedAttachment.updateReferences(fnUpdateReference);}
-            if (this.fixedCodeableConcept) {this.fixedCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.fixedCoding) {this.fixedCoding.updateReferences(fnUpdateReference);}
-            if (this.fixedContactPoint) {this.fixedContactPoint.updateReferences(fnUpdateReference);}
-            if (this.fixedCount) {this.fixedCount.updateReferences(fnUpdateReference);}
-            if (this.fixedDistance) {this.fixedDistance.updateReferences(fnUpdateReference);}
-            if (this.fixedDuration) {this.fixedDuration.updateReferences(fnUpdateReference);}
-            if (this.fixedHumanName) {this.fixedHumanName.updateReferences(fnUpdateReference);}
-            if (this.fixedIdentifier) {this.fixedIdentifier.updateReferences(fnUpdateReference);}
-            if (this.fixedMoney) {this.fixedMoney.updateReferences(fnUpdateReference);}
-            if (this.fixedPeriod) {this.fixedPeriod.updateReferences(fnUpdateReference);}
-            if (this.fixedQuantity) {this.fixedQuantity.updateReferences(fnUpdateReference);}
-            if (this.fixedRange) {this.fixedRange.updateReferences(fnUpdateReference);}
-            if (this.fixedRatio) {this.fixedRatio.updateReferences(fnUpdateReference);}
-            if (this.fixedReference) {this.fixedReference.updateReferences(fnUpdateReference);}
-            if (this.fixedSampledData) {this.fixedSampledData.updateReferences(fnUpdateReference);}
-            if (this.fixedSignature) {this.fixedSignature.updateReferences(fnUpdateReference);}
-            if (this.fixedTiming) {this.fixedTiming.updateReferences(fnUpdateReference);}
-            if (this.fixedContactDetail) {this.fixedContactDetail.updateReferences(fnUpdateReference);}
-            if (this.fixedContributor) {this.fixedContributor.updateReferences(fnUpdateReference);}
-            if (this.fixedDataRequirement) {this.fixedDataRequirement.updateReferences(fnUpdateReference);}
-            if (this.fixedExpression) {this.fixedExpression.updateReferences(fnUpdateReference);}
-            if (this.fixedParameterDefinition) {this.fixedParameterDefinition.updateReferences(fnUpdateReference);}
-            if (this.fixedRelatedArtifact) {this.fixedRelatedArtifact.updateReferences(fnUpdateReference);}
-            if (this.fixedTriggerDefinition) {this.fixedTriggerDefinition.updateReferences(fnUpdateReference);}
-            if (this.fixedUsageContext) {this.fixedUsageContext.updateReferences(fnUpdateReference);}
-            if (this.fixedDosage) {this.fixedDosage.updateReferences(fnUpdateReference);}
-            if (this.fixedMeta) {this.fixedMeta.updateReferences(fnUpdateReference);}
-            if (this.patternAddress) {this.patternAddress.updateReferences(fnUpdateReference);}
-            if (this.patternAge) {this.patternAge.updateReferences(fnUpdateReference);}
-            if (this.patternAnnotation) {this.patternAnnotation.updateReferences(fnUpdateReference);}
-            if (this.patternAttachment) {this.patternAttachment.updateReferences(fnUpdateReference);}
-            if (this.patternCodeableConcept) {this.patternCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.patternCoding) {this.patternCoding.updateReferences(fnUpdateReference);}
-            if (this.patternContactPoint) {this.patternContactPoint.updateReferences(fnUpdateReference);}
-            if (this.patternCount) {this.patternCount.updateReferences(fnUpdateReference);}
-            if (this.patternDistance) {this.patternDistance.updateReferences(fnUpdateReference);}
-            if (this.patternDuration) {this.patternDuration.updateReferences(fnUpdateReference);}
-            if (this.patternHumanName) {this.patternHumanName.updateReferences(fnUpdateReference);}
-            if (this.patternIdentifier) {this.patternIdentifier.updateReferences(fnUpdateReference);}
-            if (this.patternMoney) {this.patternMoney.updateReferences(fnUpdateReference);}
-            if (this.patternPeriod) {this.patternPeriod.updateReferences(fnUpdateReference);}
-            if (this.patternQuantity) {this.patternQuantity.updateReferences(fnUpdateReference);}
-            if (this.patternRange) {this.patternRange.updateReferences(fnUpdateReference);}
-            if (this.patternRatio) {this.patternRatio.updateReferences(fnUpdateReference);}
-            if (this.patternReference) {this.patternReference.updateReferences(fnUpdateReference);}
-            if (this.patternSampledData) {this.patternSampledData.updateReferences(fnUpdateReference);}
-            if (this.patternSignature) {this.patternSignature.updateReferences(fnUpdateReference);}
-            if (this.patternTiming) {this.patternTiming.updateReferences(fnUpdateReference);}
-            if (this.patternContactDetail) {this.patternContactDetail.updateReferences(fnUpdateReference);}
-            if (this.patternContributor) {this.patternContributor.updateReferences(fnUpdateReference);}
-            if (this.patternDataRequirement) {this.patternDataRequirement.updateReferences(fnUpdateReference);}
-            if (this.patternExpression) {this.patternExpression.updateReferences(fnUpdateReference);}
-            if (this.patternParameterDefinition) {this.patternParameterDefinition.updateReferences(fnUpdateReference);}
-            if (this.patternRelatedArtifact) {this.patternRelatedArtifact.updateReferences(fnUpdateReference);}
-            if (this.patternTriggerDefinition) {this.patternTriggerDefinition.updateReferences(fnUpdateReference);}
-            if (this.patternUsageContext) {this.patternUsageContext.updateReferences(fnUpdateReference);}
-            if (this.patternDosage) {this.patternDosage.updateReferences(fnUpdateReference);}
-            if (this.patternMeta) {this.patternMeta.updateReferences(fnUpdateReference);}
-            if (this.example) {this.example.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.minValueQuantity) {this.minValueQuantity.updateReferences(fnUpdateReference);}
-            if (this.maxValueQuantity) {this.maxValueQuantity.updateReferences(fnUpdateReference);}
-            if (this.constraint) {this.constraint.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.binding) {this.binding.updateReferences(fnUpdateReference);}
-            if (this.mapping) {this.mapping.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.slicing) {this.slicing.updateReferences({fnUpdateReference});}
+            if (this.base) {this.base.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.defaultValueAddress) {this.defaultValueAddress.updateReferences({fnUpdateReference});}
+            if (this.defaultValueAge) {this.defaultValueAge.updateReferences({fnUpdateReference});}
+            if (this.defaultValueAnnotation) {this.defaultValueAnnotation.updateReferences({fnUpdateReference});}
+            if (this.defaultValueAttachment) {this.defaultValueAttachment.updateReferences({fnUpdateReference});}
+            if (this.defaultValueCodeableConcept) {this.defaultValueCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.defaultValueCoding) {this.defaultValueCoding.updateReferences({fnUpdateReference});}
+            if (this.defaultValueContactPoint) {this.defaultValueContactPoint.updateReferences({fnUpdateReference});}
+            if (this.defaultValueCount) {this.defaultValueCount.updateReferences({fnUpdateReference});}
+            if (this.defaultValueDistance) {this.defaultValueDistance.updateReferences({fnUpdateReference});}
+            if (this.defaultValueDuration) {this.defaultValueDuration.updateReferences({fnUpdateReference});}
+            if (this.defaultValueHumanName) {this.defaultValueHumanName.updateReferences({fnUpdateReference});}
+            if (this.defaultValueIdentifier) {this.defaultValueIdentifier.updateReferences({fnUpdateReference});}
+            if (this.defaultValueMoney) {this.defaultValueMoney.updateReferences({fnUpdateReference});}
+            if (this.defaultValuePeriod) {this.defaultValuePeriod.updateReferences({fnUpdateReference});}
+            if (this.defaultValueQuantity) {this.defaultValueQuantity.updateReferences({fnUpdateReference});}
+            if (this.defaultValueRange) {this.defaultValueRange.updateReferences({fnUpdateReference});}
+            if (this.defaultValueRatio) {this.defaultValueRatio.updateReferences({fnUpdateReference});}
+            if (this.defaultValueReference) {this.defaultValueReference.updateReferences({fnUpdateReference});}
+            if (this.defaultValueSampledData) {this.defaultValueSampledData.updateReferences({fnUpdateReference});}
+            if (this.defaultValueSignature) {this.defaultValueSignature.updateReferences({fnUpdateReference});}
+            if (this.defaultValueTiming) {this.defaultValueTiming.updateReferences({fnUpdateReference});}
+            if (this.defaultValueContactDetail) {this.defaultValueContactDetail.updateReferences({fnUpdateReference});}
+            if (this.defaultValueContributor) {this.defaultValueContributor.updateReferences({fnUpdateReference});}
+            if (this.defaultValueDataRequirement) {this.defaultValueDataRequirement.updateReferences({fnUpdateReference});}
+            if (this.defaultValueExpression) {this.defaultValueExpression.updateReferences({fnUpdateReference});}
+            if (this.defaultValueParameterDefinition) {this.defaultValueParameterDefinition.updateReferences({fnUpdateReference});}
+            if (this.defaultValueRelatedArtifact) {this.defaultValueRelatedArtifact.updateReferences({fnUpdateReference});}
+            if (this.defaultValueTriggerDefinition) {this.defaultValueTriggerDefinition.updateReferences({fnUpdateReference});}
+            if (this.defaultValueUsageContext) {this.defaultValueUsageContext.updateReferences({fnUpdateReference});}
+            if (this.defaultValueDosage) {this.defaultValueDosage.updateReferences({fnUpdateReference});}
+            if (this.defaultValueMeta) {this.defaultValueMeta.updateReferences({fnUpdateReference});}
+            if (this.fixedAddress) {this.fixedAddress.updateReferences({fnUpdateReference});}
+            if (this.fixedAge) {this.fixedAge.updateReferences({fnUpdateReference});}
+            if (this.fixedAnnotation) {this.fixedAnnotation.updateReferences({fnUpdateReference});}
+            if (this.fixedAttachment) {this.fixedAttachment.updateReferences({fnUpdateReference});}
+            if (this.fixedCodeableConcept) {this.fixedCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.fixedCoding) {this.fixedCoding.updateReferences({fnUpdateReference});}
+            if (this.fixedContactPoint) {this.fixedContactPoint.updateReferences({fnUpdateReference});}
+            if (this.fixedCount) {this.fixedCount.updateReferences({fnUpdateReference});}
+            if (this.fixedDistance) {this.fixedDistance.updateReferences({fnUpdateReference});}
+            if (this.fixedDuration) {this.fixedDuration.updateReferences({fnUpdateReference});}
+            if (this.fixedHumanName) {this.fixedHumanName.updateReferences({fnUpdateReference});}
+            if (this.fixedIdentifier) {this.fixedIdentifier.updateReferences({fnUpdateReference});}
+            if (this.fixedMoney) {this.fixedMoney.updateReferences({fnUpdateReference});}
+            if (this.fixedPeriod) {this.fixedPeriod.updateReferences({fnUpdateReference});}
+            if (this.fixedQuantity) {this.fixedQuantity.updateReferences({fnUpdateReference});}
+            if (this.fixedRange) {this.fixedRange.updateReferences({fnUpdateReference});}
+            if (this.fixedRatio) {this.fixedRatio.updateReferences({fnUpdateReference});}
+            if (this.fixedReference) {this.fixedReference.updateReferences({fnUpdateReference});}
+            if (this.fixedSampledData) {this.fixedSampledData.updateReferences({fnUpdateReference});}
+            if (this.fixedSignature) {this.fixedSignature.updateReferences({fnUpdateReference});}
+            if (this.fixedTiming) {this.fixedTiming.updateReferences({fnUpdateReference});}
+            if (this.fixedContactDetail) {this.fixedContactDetail.updateReferences({fnUpdateReference});}
+            if (this.fixedContributor) {this.fixedContributor.updateReferences({fnUpdateReference});}
+            if (this.fixedDataRequirement) {this.fixedDataRequirement.updateReferences({fnUpdateReference});}
+            if (this.fixedExpression) {this.fixedExpression.updateReferences({fnUpdateReference});}
+            if (this.fixedParameterDefinition) {this.fixedParameterDefinition.updateReferences({fnUpdateReference});}
+            if (this.fixedRelatedArtifact) {this.fixedRelatedArtifact.updateReferences({fnUpdateReference});}
+            if (this.fixedTriggerDefinition) {this.fixedTriggerDefinition.updateReferences({fnUpdateReference});}
+            if (this.fixedUsageContext) {this.fixedUsageContext.updateReferences({fnUpdateReference});}
+            if (this.fixedDosage) {this.fixedDosage.updateReferences({fnUpdateReference});}
+            if (this.fixedMeta) {this.fixedMeta.updateReferences({fnUpdateReference});}
+            if (this.patternAddress) {this.patternAddress.updateReferences({fnUpdateReference});}
+            if (this.patternAge) {this.patternAge.updateReferences({fnUpdateReference});}
+            if (this.patternAnnotation) {this.patternAnnotation.updateReferences({fnUpdateReference});}
+            if (this.patternAttachment) {this.patternAttachment.updateReferences({fnUpdateReference});}
+            if (this.patternCodeableConcept) {this.patternCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.patternCoding) {this.patternCoding.updateReferences({fnUpdateReference});}
+            if (this.patternContactPoint) {this.patternContactPoint.updateReferences({fnUpdateReference});}
+            if (this.patternCount) {this.patternCount.updateReferences({fnUpdateReference});}
+            if (this.patternDistance) {this.patternDistance.updateReferences({fnUpdateReference});}
+            if (this.patternDuration) {this.patternDuration.updateReferences({fnUpdateReference});}
+            if (this.patternHumanName) {this.patternHumanName.updateReferences({fnUpdateReference});}
+            if (this.patternIdentifier) {this.patternIdentifier.updateReferences({fnUpdateReference});}
+            if (this.patternMoney) {this.patternMoney.updateReferences({fnUpdateReference});}
+            if (this.patternPeriod) {this.patternPeriod.updateReferences({fnUpdateReference});}
+            if (this.patternQuantity) {this.patternQuantity.updateReferences({fnUpdateReference});}
+            if (this.patternRange) {this.patternRange.updateReferences({fnUpdateReference});}
+            if (this.patternRatio) {this.patternRatio.updateReferences({fnUpdateReference});}
+            if (this.patternReference) {this.patternReference.updateReferences({fnUpdateReference});}
+            if (this.patternSampledData) {this.patternSampledData.updateReferences({fnUpdateReference});}
+            if (this.patternSignature) {this.patternSignature.updateReferences({fnUpdateReference});}
+            if (this.patternTiming) {this.patternTiming.updateReferences({fnUpdateReference});}
+            if (this.patternContactDetail) {this.patternContactDetail.updateReferences({fnUpdateReference});}
+            if (this.patternContributor) {this.patternContributor.updateReferences({fnUpdateReference});}
+            if (this.patternDataRequirement) {this.patternDataRequirement.updateReferences({fnUpdateReference});}
+            if (this.patternExpression) {this.patternExpression.updateReferences({fnUpdateReference});}
+            if (this.patternParameterDefinition) {this.patternParameterDefinition.updateReferences({fnUpdateReference});}
+            if (this.patternRelatedArtifact) {this.patternRelatedArtifact.updateReferences({fnUpdateReference});}
+            if (this.patternTriggerDefinition) {this.patternTriggerDefinition.updateReferences({fnUpdateReference});}
+            if (this.patternUsageContext) {this.patternUsageContext.updateReferences({fnUpdateReference});}
+            if (this.patternDosage) {this.patternDosage.updateReferences({fnUpdateReference});}
+            if (this.patternMeta) {this.patternMeta.updateReferences({fnUpdateReference});}
+            if (this.example) {this.example.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.minValueQuantity) {this.minValueQuantity.updateReferences({fnUpdateReference});}
+            if (this.maxValueQuantity) {this.maxValueQuantity.updateReferences({fnUpdateReference});}
+            if (this.constraint) {this.constraint.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.binding) {this.binding.updateReferences({fnUpdateReference});}
+            if (this.mapping) {this.mapping.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

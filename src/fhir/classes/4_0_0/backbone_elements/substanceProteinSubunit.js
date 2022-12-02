@@ -330,14 +330,15 @@ class SubstanceProteinSubunit extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.sequenceAttachment) {this.sequenceAttachment.updateReferences(fnUpdateReference);}
-            if (this.nTerminalModificationId) {this.nTerminalModificationId.updateReferences(fnUpdateReference);}
-            if (this.cTerminalModificationId) {this.cTerminalModificationId.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.sequenceAttachment) {this.sequenceAttachment.updateReferences({fnUpdateReference});}
+            if (this.nTerminalModificationId) {this.nTerminalModificationId.updateReferences({fnUpdateReference});}
+            if (this.cTerminalModificationId) {this.cTerminalModificationId.updateReferences({fnUpdateReference});}
     }
 
     /**

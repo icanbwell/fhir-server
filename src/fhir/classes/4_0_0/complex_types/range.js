@@ -139,12 +139,13 @@ class Range extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.low) {this.low.updateReferences(fnUpdateReference);}
-            if (this.high) {this.high.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.low) {this.low.updateReferences({fnUpdateReference});}
+            if (this.high) {this.high.updateReferences({fnUpdateReference});}
     }
 
     /**

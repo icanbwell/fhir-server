@@ -864,29 +864,30 @@ class RiskAssessment extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.basedOn) {this.basedOn.updateReferences(fnUpdateReference);}
-            if (this.parent) {this.parent.updateReferences(fnUpdateReference);}
-            if (this.method) {this.method.updateReferences(fnUpdateReference);}
-            if (this.code) {this.code.updateReferences(fnUpdateReference);}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
-            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences(fnUpdateReference);}
-            if (this.condition) {this.condition.updateReferences(fnUpdateReference);}
-            if (this.performer) {this.performer.updateReferences(fnUpdateReference);}
-            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.basis) {this.basis.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.prediction) {this.prediction.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.basedOn) {this.basedOn.updateReferences({fnUpdateReference});}
+            if (this.parent) {this.parent.updateReferences({fnUpdateReference});}
+            if (this.method) {this.method.updateReferences({fnUpdateReference});}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.encounter) {this.encounter.updateReferences({fnUpdateReference});}
+            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences({fnUpdateReference});}
+            if (this.condition) {this.condition.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.updateReferences({fnUpdateReference});}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.basis) {this.basis.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.prediction) {this.prediction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

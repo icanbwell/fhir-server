@@ -220,14 +220,15 @@ class BiologicallyDerivedProductCollection extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.collector) {this.collector.updateReferences(fnUpdateReference);}
-            if (this.source) {this.source.updateReferences(fnUpdateReference);}
-            if (this.collectedPeriod) {this.collectedPeriod.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.collector) {this.collector.updateReferences({fnUpdateReference});}
+            if (this.source) {this.source.updateReferences({fnUpdateReference});}
+            if (this.collectedPeriod) {this.collectedPeriod.updateReferences({fnUpdateReference});}
     }
 
     /**

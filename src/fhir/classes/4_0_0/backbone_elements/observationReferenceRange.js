@@ -279,16 +279,17 @@ class ObservationReferenceRange extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.low) {this.low.updateReferences(fnUpdateReference);}
-            if (this.high) {this.high.updateReferences(fnUpdateReference);}
-            if (this.type) {this.type.updateReferences(fnUpdateReference);}
-            if (this.appliesTo) {this.appliesTo.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.age) {this.age.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.low) {this.low.updateReferences({fnUpdateReference});}
+            if (this.high) {this.high.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.appliesTo) {this.appliesTo.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.age) {this.age.updateReferences({fnUpdateReference});}
     }
 
     /**

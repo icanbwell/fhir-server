@@ -904,29 +904,30 @@ class DiagnosticReport extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.code) {this.code.updateReferences(fnUpdateReference);}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
-            if (this.effectivePeriod) {this.effectivePeriod.updateReferences(fnUpdateReference);}
-            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.resultsInterpreter) {this.resultsInterpreter.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.specimen) {this.specimen.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.result) {this.result.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.imagingStudy) {this.imagingStudy.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.media) {this.media.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.conclusionCode) {this.conclusionCode.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.presentedForm) {this.presentedForm.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.category) {this.category.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.encounter) {this.encounter.updateReferences({fnUpdateReference});}
+            if (this.effectivePeriod) {this.effectivePeriod.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.resultsInterpreter) {this.resultsInterpreter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.specimen) {this.specimen.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.result) {this.result.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.imagingStudy) {this.imagingStudy.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.media) {this.media.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.conclusionCode) {this.conclusionCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.presentedForm) {this.presentedForm.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -290,17 +290,18 @@ class PatientContact extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.relationship) {this.relationship.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.name) {this.name.updateReferences(fnUpdateReference);}
-            if (this.telecom) {this.telecom.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.address) {this.address.updateReferences(fnUpdateReference);}
-            if (this.organization) {this.organization.updateReferences(fnUpdateReference);}
-            if (this.period) {this.period.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.relationship) {this.relationship.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.name) {this.name.updateReferences({fnUpdateReference});}
+            if (this.telecom) {this.telecom.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.address) {this.address.updateReferences({fnUpdateReference});}
+            if (this.organization) {this.organization.updateReferences({fnUpdateReference});}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
     }
 
     /**

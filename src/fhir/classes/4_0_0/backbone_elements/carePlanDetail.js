@@ -601,24 +601,25 @@ class CarePlanDetail extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.code) {this.code.updateReferences(fnUpdateReference);}
-            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.goal) {this.goal.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.statusReason) {this.statusReason.updateReferences(fnUpdateReference);}
-            if (this.scheduledTiming) {this.scheduledTiming.updateReferences(fnUpdateReference);}
-            if (this.scheduledPeriod) {this.scheduledPeriod.updateReferences(fnUpdateReference);}
-            if (this.location) {this.location.updateReferences(fnUpdateReference);}
-            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.productCodeableConcept) {this.productCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.productReference) {this.productReference.updateReferences(fnUpdateReference);}
-            if (this.dailyAmount) {this.dailyAmount.updateReferences(fnUpdateReference);}
-            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.goal) {this.goal.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.statusReason) {this.statusReason.updateReferences({fnUpdateReference});}
+            if (this.scheduledTiming) {this.scheduledTiming.updateReferences({fnUpdateReference});}
+            if (this.scheduledPeriod) {this.scheduledPeriod.updateReferences({fnUpdateReference});}
+            if (this.location) {this.location.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.productCodeableConcept) {this.productCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.productReference) {this.productReference.updateReferences({fnUpdateReference});}
+            if (this.dailyAmount) {this.dailyAmount.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
     }
 
     /**

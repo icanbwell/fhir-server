@@ -1105,22 +1105,23 @@ class CapabilityStatement extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.useContext) {this.useContext.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.software) {this.software.updateReferences(fnUpdateReference);}
-            if (this.implementation) {this.implementation.updateReferences(fnUpdateReference);}
-            if (this.rest) {this.rest.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.messaging) {this.messaging.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.document) {this.document.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.useContext) {this.useContext.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.software) {this.software.updateReferences({fnUpdateReference});}
+            if (this.implementation) {this.implementation.updateReferences({fnUpdateReference});}
+            if (this.rest) {this.rest.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.messaging) {this.messaging.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.document) {this.document.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -277,16 +277,17 @@ class BundleEntry extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.link) {this.link.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.resource) {this.resource.updateReferences(fnUpdateReference);}
-            if (this.search) {this.search.updateReferences(fnUpdateReference);}
-            if (this.request) {this.request.updateReferences(fnUpdateReference);}
-            if (this.response) {this.response.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.link) {this.link.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.resource) {this.resource.updateReferences({fnUpdateReference});}
+            if (this.search) {this.search.updateReferences({fnUpdateReference});}
+            if (this.request) {this.request.updateReferences({fnUpdateReference});}
+            if (this.response) {this.response.updateReferences({fnUpdateReference});}
     }
 
     /**

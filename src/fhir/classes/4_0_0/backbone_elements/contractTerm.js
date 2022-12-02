@@ -428,22 +428,23 @@ class ContractTerm extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.updateReferences(fnUpdateReference);}
-            if (this.applies) {this.applies.updateReferences(fnUpdateReference);}
-            if (this.topicCodeableConcept) {this.topicCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.topicReference) {this.topicReference.updateReferences(fnUpdateReference);}
-            if (this.type) {this.type.updateReferences(fnUpdateReference);}
-            if (this.subType) {this.subType.updateReferences(fnUpdateReference);}
-            if (this.securityLabel) {this.securityLabel.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.offer) {this.offer.updateReferences(fnUpdateReference);}
-            if (this.asset) {this.asset.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.action) {this.action.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.group) {this.group.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.applies) {this.applies.updateReferences({fnUpdateReference});}
+            if (this.topicCodeableConcept) {this.topicCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.topicReference) {this.topicReference.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.subType) {this.subType.updateReferences({fnUpdateReference});}
+            if (this.securityLabel) {this.securityLabel.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.offer) {this.offer.updateReferences({fnUpdateReference});}
+            if (this.asset) {this.asset.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.action) {this.action.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.group) {this.group.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

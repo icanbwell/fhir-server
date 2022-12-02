@@ -707,23 +707,24 @@ class RelatedPerson extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.patient) {this.patient.updateReferences(fnUpdateReference);}
-            if (this.relationship) {this.relationship.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.name) {this.name.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.telecom) {this.telecom.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.address) {this.address.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.photo) {this.photo.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.period) {this.period.updateReferences(fnUpdateReference);}
-            if (this.communication) {this.communication.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.patient) {this.patient.updateReferences({fnUpdateReference});}
+            if (this.relationship) {this.relationship.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.name) {this.name.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.telecom) {this.telecom.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.address) {this.address.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.photo) {this.photo.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
+            if (this.communication) {this.communication.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

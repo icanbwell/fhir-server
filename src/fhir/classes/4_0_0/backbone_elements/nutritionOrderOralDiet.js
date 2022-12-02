@@ -271,16 +271,17 @@ class NutritionOrderOralDiet extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.type) {this.type.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.schedule) {this.schedule.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.nutrient) {this.nutrient.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.texture) {this.texture.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.fluidConsistencyType) {this.fluidConsistencyType.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.schedule) {this.schedule.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.nutrient) {this.nutrient.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.texture) {this.texture.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.fluidConsistencyType) {this.fluidConsistencyType.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

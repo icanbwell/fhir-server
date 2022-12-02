@@ -923,33 +923,34 @@ class MedicinalProduct extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.type) {this.type.updateReferences(fnUpdateReference);}
-            if (this.domain) {this.domain.updateReferences(fnUpdateReference);}
-            if (this.combinedPharmaceuticalDoseForm) {this.combinedPharmaceuticalDoseForm.updateReferences(fnUpdateReference);}
-            if (this.legalStatusOfSupply) {this.legalStatusOfSupply.updateReferences(fnUpdateReference);}
-            if (this.additionalMonitoringIndicator) {this.additionalMonitoringIndicator.updateReferences(fnUpdateReference);}
-            if (this.paediatricUseIndicator) {this.paediatricUseIndicator.updateReferences(fnUpdateReference);}
-            if (this.productClassification) {this.productClassification.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.marketingStatus) {this.marketingStatus.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.pharmaceuticalProduct) {this.pharmaceuticalProduct.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.packagedMedicinalProduct) {this.packagedMedicinalProduct.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.attachedDocument) {this.attachedDocument.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.masterFile) {this.masterFile.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.clinicalTrial) {this.clinicalTrial.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.name) {this.name.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.crossReference) {this.crossReference.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.manufacturingBusinessOperation) {this.manufacturingBusinessOperation.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.specialDesignation) {this.specialDesignation.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.domain) {this.domain.updateReferences({fnUpdateReference});}
+            if (this.combinedPharmaceuticalDoseForm) {this.combinedPharmaceuticalDoseForm.updateReferences({fnUpdateReference});}
+            if (this.legalStatusOfSupply) {this.legalStatusOfSupply.updateReferences({fnUpdateReference});}
+            if (this.additionalMonitoringIndicator) {this.additionalMonitoringIndicator.updateReferences({fnUpdateReference});}
+            if (this.paediatricUseIndicator) {this.paediatricUseIndicator.updateReferences({fnUpdateReference});}
+            if (this.productClassification) {this.productClassification.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.marketingStatus) {this.marketingStatus.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.pharmaceuticalProduct) {this.pharmaceuticalProduct.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.packagedMedicinalProduct) {this.packagedMedicinalProduct.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.attachedDocument) {this.attachedDocument.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.masterFile) {this.masterFile.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.clinicalTrial) {this.clinicalTrial.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.name) {this.name.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.crossReference) {this.crossReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.manufacturingBusinessOperation) {this.manufacturingBusinessOperation.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.specialDesignation) {this.specialDesignation.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

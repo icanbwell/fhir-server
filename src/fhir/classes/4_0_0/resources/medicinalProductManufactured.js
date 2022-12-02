@@ -579,21 +579,22 @@ class MedicinalProductManufactured extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.manufacturedDoseForm) {this.manufacturedDoseForm.updateReferences(fnUpdateReference);}
-            if (this.unitOfPresentation) {this.unitOfPresentation.updateReferences(fnUpdateReference);}
-            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
-            if (this.manufacturer) {this.manufacturer.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.ingredient) {this.ingredient.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.physicalCharacteristics) {this.physicalCharacteristics.updateReferences(fnUpdateReference);}
-            if (this.otherCharacteristics) {this.otherCharacteristics.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.manufacturedDoseForm) {this.manufacturedDoseForm.updateReferences({fnUpdateReference});}
+            if (this.unitOfPresentation) {this.unitOfPresentation.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.manufacturer) {this.manufacturer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.ingredient) {this.ingredient.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.physicalCharacteristics) {this.physicalCharacteristics.updateReferences({fnUpdateReference});}
+            if (this.otherCharacteristics) {this.otherCharacteristics.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

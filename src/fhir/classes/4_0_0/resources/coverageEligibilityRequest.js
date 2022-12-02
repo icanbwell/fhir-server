@@ -793,25 +793,26 @@ class CoverageEligibilityRequest extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.priority) {this.priority.updateReferences(fnUpdateReference);}
-            if (this.patient) {this.patient.updateReferences(fnUpdateReference);}
-            if (this.servicedPeriod) {this.servicedPeriod.updateReferences(fnUpdateReference);}
-            if (this.enterer) {this.enterer.updateReferences(fnUpdateReference);}
-            if (this.provider) {this.provider.updateReferences(fnUpdateReference);}
-            if (this.insurer) {this.insurer.updateReferences(fnUpdateReference);}
-            if (this.facility) {this.facility.updateReferences(fnUpdateReference);}
-            if (this.supportingInfo) {this.supportingInfo.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.insurance) {this.insurance.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.item) {this.item.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.priority) {this.priority.updateReferences({fnUpdateReference});}
+            if (this.patient) {this.patient.updateReferences({fnUpdateReference});}
+            if (this.servicedPeriod) {this.servicedPeriod.updateReferences({fnUpdateReference});}
+            if (this.enterer) {this.enterer.updateReferences({fnUpdateReference});}
+            if (this.provider) {this.provider.updateReferences({fnUpdateReference});}
+            if (this.insurer) {this.insurer.updateReferences({fnUpdateReference});}
+            if (this.facility) {this.facility.updateReferences({fnUpdateReference});}
+            if (this.supportingInfo) {this.supportingInfo.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.insurance) {this.insurance.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.item) {this.item.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

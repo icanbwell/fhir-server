@@ -299,17 +299,18 @@ class MedicationRequestDispenseRequest extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.initialFill) {this.initialFill.updateReferences(fnUpdateReference);}
-            if (this.dispenseInterval) {this.dispenseInterval.updateReferences(fnUpdateReference);}
-            if (this.validityPeriod) {this.validityPeriod.updateReferences(fnUpdateReference);}
-            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
-            if (this.expectedSupplyDuration) {this.expectedSupplyDuration.updateReferences(fnUpdateReference);}
-            if (this.performer) {this.performer.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.initialFill) {this.initialFill.updateReferences({fnUpdateReference});}
+            if (this.dispenseInterval) {this.dispenseInterval.updateReferences({fnUpdateReference});}
+            if (this.validityPeriod) {this.validityPeriod.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.expectedSupplyDuration) {this.expectedSupplyDuration.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.updateReferences({fnUpdateReference});}
     }
 
     /**

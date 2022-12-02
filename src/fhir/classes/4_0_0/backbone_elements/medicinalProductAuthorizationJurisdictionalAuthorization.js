@@ -241,16 +241,17 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.country) {this.country.updateReferences(fnUpdateReference);}
-            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.legalStatusOfSupply) {this.legalStatusOfSupply.updateReferences(fnUpdateReference);}
-            if (this.validityPeriod) {this.validityPeriod.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.country) {this.country.updateReferences({fnUpdateReference});}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.legalStatusOfSupply) {this.legalStatusOfSupply.updateReferences({fnUpdateReference});}
+            if (this.validityPeriod) {this.validityPeriod.updateReferences({fnUpdateReference});}
     }
 
     /**

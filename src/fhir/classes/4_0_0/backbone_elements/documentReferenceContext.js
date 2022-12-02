@@ -298,18 +298,19 @@ class DocumentReferenceContext extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.encounter) {this.encounter.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.event) {this.event.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.period) {this.period.updateReferences(fnUpdateReference);}
-            if (this.facilityType) {this.facilityType.updateReferences(fnUpdateReference);}
-            if (this.practiceSetting) {this.practiceSetting.updateReferences(fnUpdateReference);}
-            if (this.sourcePatientInfo) {this.sourcePatientInfo.updateReferences(fnUpdateReference);}
-            if (this.related) {this.related.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.encounter) {this.encounter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.event) {this.event.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
+            if (this.facilityType) {this.facilityType.updateReferences({fnUpdateReference});}
+            if (this.practiceSetting) {this.practiceSetting.updateReferences({fnUpdateReference});}
+            if (this.sourcePatientInfo) {this.sourcePatientInfo.updateReferences({fnUpdateReference});}
+            if (this.related) {this.related.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

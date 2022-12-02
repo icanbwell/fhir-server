@@ -765,24 +765,25 @@ class SubstanceSourceMaterial extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.sourceMaterialClass) {this.sourceMaterialClass.updateReferences(fnUpdateReference);}
-            if (this.sourceMaterialType) {this.sourceMaterialType.updateReferences(fnUpdateReference);}
-            if (this.sourceMaterialState) {this.sourceMaterialState.updateReferences(fnUpdateReference);}
-            if (this.organismId) {this.organismId.updateReferences(fnUpdateReference);}
-            if (this.parentSubstanceId) {this.parentSubstanceId.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.countryOfOrigin) {this.countryOfOrigin.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.developmentStage) {this.developmentStage.updateReferences(fnUpdateReference);}
-            if (this.fractionDescription) {this.fractionDescription.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.organism) {this.organism.updateReferences(fnUpdateReference);}
-            if (this.partDescription) {this.partDescription.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.sourceMaterialClass) {this.sourceMaterialClass.updateReferences({fnUpdateReference});}
+            if (this.sourceMaterialType) {this.sourceMaterialType.updateReferences({fnUpdateReference});}
+            if (this.sourceMaterialState) {this.sourceMaterialState.updateReferences({fnUpdateReference});}
+            if (this.organismId) {this.organismId.updateReferences({fnUpdateReference});}
+            if (this.parentSubstanceId) {this.parentSubstanceId.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.countryOfOrigin) {this.countryOfOrigin.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.developmentStage) {this.developmentStage.updateReferences({fnUpdateReference});}
+            if (this.fractionDescription) {this.fractionDescription.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.organism) {this.organism.updateReferences({fnUpdateReference});}
+            if (this.partDescription) {this.partDescription.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

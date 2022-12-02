@@ -359,18 +359,19 @@ class ContractOffer extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.party) {this.party.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.topic) {this.topic.updateReferences(fnUpdateReference);}
-            if (this.type) {this.type.updateReferences(fnUpdateReference);}
-            if (this.decision) {this.decision.updateReferences(fnUpdateReference);}
-            if (this.decisionMode) {this.decisionMode.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.answer) {this.answer.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.party) {this.party.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.topic) {this.topic.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.decision) {this.decision.updateReferences({fnUpdateReference});}
+            if (this.decisionMode) {this.decisionMode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.answer) {this.answer.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

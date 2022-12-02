@@ -1048,34 +1048,35 @@ class Condition extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.clinicalStatus) {this.clinicalStatus.updateReferences(fnUpdateReference);}
-            if (this.verificationStatus) {this.verificationStatus.updateReferences(fnUpdateReference);}
-            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.severity) {this.severity.updateReferences(fnUpdateReference);}
-            if (this.code) {this.code.updateReferences(fnUpdateReference);}
-            if (this.bodySite) {this.bodySite.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
-            if (this.onsetAge) {this.onsetAge.updateReferences(fnUpdateReference);}
-            if (this.onsetPeriod) {this.onsetPeriod.updateReferences(fnUpdateReference);}
-            if (this.onsetRange) {this.onsetRange.updateReferences(fnUpdateReference);}
-            if (this.abatementAge) {this.abatementAge.updateReferences(fnUpdateReference);}
-            if (this.abatementPeriod) {this.abatementPeriod.updateReferences(fnUpdateReference);}
-            if (this.abatementRange) {this.abatementRange.updateReferences(fnUpdateReference);}
-            if (this.recorder) {this.recorder.updateReferences(fnUpdateReference);}
-            if (this.asserter) {this.asserter.updateReferences(fnUpdateReference);}
-            if (this.stage) {this.stage.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.evidence) {this.evidence.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.clinicalStatus) {this.clinicalStatus.updateReferences({fnUpdateReference});}
+            if (this.verificationStatus) {this.verificationStatus.updateReferences({fnUpdateReference});}
+            if (this.category) {this.category.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.severity) {this.severity.updateReferences({fnUpdateReference});}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.bodySite) {this.bodySite.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.encounter) {this.encounter.updateReferences({fnUpdateReference});}
+            if (this.onsetAge) {this.onsetAge.updateReferences({fnUpdateReference});}
+            if (this.onsetPeriod) {this.onsetPeriod.updateReferences({fnUpdateReference});}
+            if (this.onsetRange) {this.onsetRange.updateReferences({fnUpdateReference});}
+            if (this.abatementAge) {this.abatementAge.updateReferences({fnUpdateReference});}
+            if (this.abatementPeriod) {this.abatementPeriod.updateReferences({fnUpdateReference});}
+            if (this.abatementRange) {this.abatementRange.updateReferences({fnUpdateReference});}
+            if (this.recorder) {this.recorder.updateReferences({fnUpdateReference});}
+            if (this.asserter) {this.asserter.updateReferences({fnUpdateReference});}
+            if (this.stage) {this.stage.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.evidence) {this.evidence.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

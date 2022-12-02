@@ -515,16 +515,17 @@ class QuestionnaireItem extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.code) {this.code.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.enableWhen) {this.enableWhen.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.answerOption) {this.answerOption.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.initial) {this.initial.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.item) {this.item.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.enableWhen) {this.enableWhen.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.answerOption) {this.answerOption.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.initial) {this.initial.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.item) {this.item.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

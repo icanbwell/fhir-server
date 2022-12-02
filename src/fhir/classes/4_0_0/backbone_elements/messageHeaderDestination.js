@@ -222,13 +222,14 @@ class MessageHeaderDestination extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.target) {this.target.updateReferences(fnUpdateReference);}
-            if (this.receiver) {this.receiver.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.target) {this.target.updateReferences({fnUpdateReference});}
+            if (this.receiver) {this.receiver.updateReferences({fnUpdateReference});}
     }
 
     /**

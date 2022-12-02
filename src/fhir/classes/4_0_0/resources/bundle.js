@@ -443,14 +443,15 @@ class Bundle extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.identifier) {this.identifier.updateReferences(fnUpdateReference);}
-            if (this.link) {this.link.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.entry) {this.entry.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.signature) {this.signature.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.link) {this.link.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.entry) {this.entry.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.signature) {this.signature.updateReferences({fnUpdateReference});}
     }
 
     /**

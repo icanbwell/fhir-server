@@ -470,21 +470,22 @@ class ObservationComponent extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.code) {this.code.updateReferences(fnUpdateReference);}
-            if (this.valueQuantity) {this.valueQuantity.updateReferences(fnUpdateReference);}
-            if (this.valueCodeableConcept) {this.valueCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.valueRange) {this.valueRange.updateReferences(fnUpdateReference);}
-            if (this.valueRatio) {this.valueRatio.updateReferences(fnUpdateReference);}
-            if (this.valueSampledData) {this.valueSampledData.updateReferences(fnUpdateReference);}
-            if (this.valuePeriod) {this.valuePeriod.updateReferences(fnUpdateReference);}
-            if (this.dataAbsentReason) {this.dataAbsentReason.updateReferences(fnUpdateReference);}
-            if (this.interpretation) {this.interpretation.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.referenceRange) {this.referenceRange.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.valueQuantity) {this.valueQuantity.updateReferences({fnUpdateReference});}
+            if (this.valueCodeableConcept) {this.valueCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.valueRange) {this.valueRange.updateReferences({fnUpdateReference});}
+            if (this.valueRatio) {this.valueRatio.updateReferences({fnUpdateReference});}
+            if (this.valueSampledData) {this.valueSampledData.updateReferences({fnUpdateReference});}
+            if (this.valuePeriod) {this.valuePeriod.updateReferences({fnUpdateReference});}
+            if (this.dataAbsentReason) {this.dataAbsentReason.updateReferences({fnUpdateReference});}
+            if (this.interpretation) {this.interpretation.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.referenceRange) {this.referenceRange.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

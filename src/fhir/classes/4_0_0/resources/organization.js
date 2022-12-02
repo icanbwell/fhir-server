@@ -657,21 +657,22 @@ class Organization extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.type) {this.type.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.telecom) {this.telecom.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.address) {this.address.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.partOf) {this.partOf.updateReferences(fnUpdateReference);}
-            if (this.contact) {this.contact.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.endpoint) {this.endpoint.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.telecom) {this.telecom.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.address) {this.address.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.partOf) {this.partOf.updateReferences({fnUpdateReference});}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.endpoint) {this.endpoint.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

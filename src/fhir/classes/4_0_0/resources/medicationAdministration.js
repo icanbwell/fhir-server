@@ -956,32 +956,33 @@ class MedicationAdministration extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.partOf) {this.partOf.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.statusReason) {this.statusReason.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.category) {this.category.updateReferences(fnUpdateReference);}
-            if (this.medicationCodeableConcept) {this.medicationCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.medicationReference) {this.medicationReference.updateReferences(fnUpdateReference);}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.context) {this.context.updateReferences(fnUpdateReference);}
-            if (this.supportingInformation) {this.supportingInformation.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.effectivePeriod) {this.effectivePeriod.updateReferences(fnUpdateReference);}
-            if (this.performer) {this.performer.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.request) {this.request.updateReferences(fnUpdateReference);}
-            if (this.device) {this.device.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.dosage) {this.dosage.updateReferences(fnUpdateReference);}
-            if (this.eventHistory) {this.eventHistory.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.partOf) {this.partOf.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.statusReason) {this.statusReason.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.category) {this.category.updateReferences({fnUpdateReference});}
+            if (this.medicationCodeableConcept) {this.medicationCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.medicationReference) {this.medicationReference.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.context) {this.context.updateReferences({fnUpdateReference});}
+            if (this.supportingInformation) {this.supportingInformation.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.effectivePeriod) {this.effectivePeriod.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.request) {this.request.updateReferences({fnUpdateReference});}
+            if (this.device) {this.device.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.dosage) {this.dosage.updateReferences({fnUpdateReference});}
+            if (this.eventHistory) {this.eventHistory.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

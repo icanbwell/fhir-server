@@ -157,9 +157,10 @@ class Distance extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
+    updateReferences({fnUpdateReference}) {
     }
 
     /**

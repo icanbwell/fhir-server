@@ -196,14 +196,15 @@ class MedicationKnowledgeKinetics extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.areaUnderCurve) {this.areaUnderCurve.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.lethalDose50) {this.lethalDose50.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.halfLifePeriod) {this.halfLifePeriod.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.areaUnderCurve) {this.areaUnderCurve.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.lethalDose50) {this.lethalDose50.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.halfLifePeriod) {this.halfLifePeriod.updateReferences({fnUpdateReference});}
     }
 
     /**

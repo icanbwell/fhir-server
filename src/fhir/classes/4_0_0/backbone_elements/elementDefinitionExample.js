@@ -1282,42 +1282,43 @@ class ElementDefinitionExample extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.valueAddress) {this.valueAddress.updateReferences(fnUpdateReference);}
-            if (this.valueAge) {this.valueAge.updateReferences(fnUpdateReference);}
-            if (this.valueAnnotation) {this.valueAnnotation.updateReferences(fnUpdateReference);}
-            if (this.valueAttachment) {this.valueAttachment.updateReferences(fnUpdateReference);}
-            if (this.valueCodeableConcept) {this.valueCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.valueCoding) {this.valueCoding.updateReferences(fnUpdateReference);}
-            if (this.valueContactPoint) {this.valueContactPoint.updateReferences(fnUpdateReference);}
-            if (this.valueCount) {this.valueCount.updateReferences(fnUpdateReference);}
-            if (this.valueDistance) {this.valueDistance.updateReferences(fnUpdateReference);}
-            if (this.valueDuration) {this.valueDuration.updateReferences(fnUpdateReference);}
-            if (this.valueHumanName) {this.valueHumanName.updateReferences(fnUpdateReference);}
-            if (this.valueIdentifier) {this.valueIdentifier.updateReferences(fnUpdateReference);}
-            if (this.valueMoney) {this.valueMoney.updateReferences(fnUpdateReference);}
-            if (this.valuePeriod) {this.valuePeriod.updateReferences(fnUpdateReference);}
-            if (this.valueQuantity) {this.valueQuantity.updateReferences(fnUpdateReference);}
-            if (this.valueRange) {this.valueRange.updateReferences(fnUpdateReference);}
-            if (this.valueRatio) {this.valueRatio.updateReferences(fnUpdateReference);}
-            if (this.valueReference) {this.valueReference.updateReferences(fnUpdateReference);}
-            if (this.valueSampledData) {this.valueSampledData.updateReferences(fnUpdateReference);}
-            if (this.valueSignature) {this.valueSignature.updateReferences(fnUpdateReference);}
-            if (this.valueTiming) {this.valueTiming.updateReferences(fnUpdateReference);}
-            if (this.valueContactDetail) {this.valueContactDetail.updateReferences(fnUpdateReference);}
-            if (this.valueContributor) {this.valueContributor.updateReferences(fnUpdateReference);}
-            if (this.valueDataRequirement) {this.valueDataRequirement.updateReferences(fnUpdateReference);}
-            if (this.valueExpression) {this.valueExpression.updateReferences(fnUpdateReference);}
-            if (this.valueParameterDefinition) {this.valueParameterDefinition.updateReferences(fnUpdateReference);}
-            if (this.valueRelatedArtifact) {this.valueRelatedArtifact.updateReferences(fnUpdateReference);}
-            if (this.valueTriggerDefinition) {this.valueTriggerDefinition.updateReferences(fnUpdateReference);}
-            if (this.valueUsageContext) {this.valueUsageContext.updateReferences(fnUpdateReference);}
-            if (this.valueDosage) {this.valueDosage.updateReferences(fnUpdateReference);}
-            if (this.valueMeta) {this.valueMeta.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.valueAddress) {this.valueAddress.updateReferences({fnUpdateReference});}
+            if (this.valueAge) {this.valueAge.updateReferences({fnUpdateReference});}
+            if (this.valueAnnotation) {this.valueAnnotation.updateReferences({fnUpdateReference});}
+            if (this.valueAttachment) {this.valueAttachment.updateReferences({fnUpdateReference});}
+            if (this.valueCodeableConcept) {this.valueCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.valueCoding) {this.valueCoding.updateReferences({fnUpdateReference});}
+            if (this.valueContactPoint) {this.valueContactPoint.updateReferences({fnUpdateReference});}
+            if (this.valueCount) {this.valueCount.updateReferences({fnUpdateReference});}
+            if (this.valueDistance) {this.valueDistance.updateReferences({fnUpdateReference});}
+            if (this.valueDuration) {this.valueDuration.updateReferences({fnUpdateReference});}
+            if (this.valueHumanName) {this.valueHumanName.updateReferences({fnUpdateReference});}
+            if (this.valueIdentifier) {this.valueIdentifier.updateReferences({fnUpdateReference});}
+            if (this.valueMoney) {this.valueMoney.updateReferences({fnUpdateReference});}
+            if (this.valuePeriod) {this.valuePeriod.updateReferences({fnUpdateReference});}
+            if (this.valueQuantity) {this.valueQuantity.updateReferences({fnUpdateReference});}
+            if (this.valueRange) {this.valueRange.updateReferences({fnUpdateReference});}
+            if (this.valueRatio) {this.valueRatio.updateReferences({fnUpdateReference});}
+            if (this.valueReference) {this.valueReference.updateReferences({fnUpdateReference});}
+            if (this.valueSampledData) {this.valueSampledData.updateReferences({fnUpdateReference});}
+            if (this.valueSignature) {this.valueSignature.updateReferences({fnUpdateReference});}
+            if (this.valueTiming) {this.valueTiming.updateReferences({fnUpdateReference});}
+            if (this.valueContactDetail) {this.valueContactDetail.updateReferences({fnUpdateReference});}
+            if (this.valueContributor) {this.valueContributor.updateReferences({fnUpdateReference});}
+            if (this.valueDataRequirement) {this.valueDataRequirement.updateReferences({fnUpdateReference});}
+            if (this.valueExpression) {this.valueExpression.updateReferences({fnUpdateReference});}
+            if (this.valueParameterDefinition) {this.valueParameterDefinition.updateReferences({fnUpdateReference});}
+            if (this.valueRelatedArtifact) {this.valueRelatedArtifact.updateReferences({fnUpdateReference});}
+            if (this.valueTriggerDefinition) {this.valueTriggerDefinition.updateReferences({fnUpdateReference});}
+            if (this.valueUsageContext) {this.valueUsageContext.updateReferences({fnUpdateReference});}
+            if (this.valueDosage) {this.valueDosage.updateReferences({fnUpdateReference});}
+            if (this.valueMeta) {this.valueMeta.updateReferences({fnUpdateReference});}
     }
 
     /**

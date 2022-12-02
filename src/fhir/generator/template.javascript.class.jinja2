@@ -324,18 +324,23 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
+    updateReferences({fnUpdateReference}) {
+{% if fhir_entity.cleaned_name == "Reference"  %}
+        fnUpdateReference(this);
+{% else %}
 {% for property in fhir_entity.properties %}
     {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
         {% if property.is_list %}
-            if (this.{{ property.name }}) {this.{{ property.name -}}.forEach(v =>  v.updateReferences(fnUpdateReference));}
+            if (this.{{ property.name }}) {this.{{ property.name -}}.forEach(v =>  v.updateReferences({fnUpdateReference}));}
         {%  else %}
-            if (this.{{ property.name }}) {this.{{ property.name -}}.updateReferences(fnUpdateReference);}
+            if (this.{{ property.name }}) {this.{{ property.name -}}.updateReferences({fnUpdateReference});}
         {% endif %}
     {% endif %}
 {% endfor %}
+{% endif %}
     }
 
     /**

@@ -813,26 +813,27 @@ class MedicinalProductAuthorization extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.country) {this.country.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.status) {this.status.updateReferences(fnUpdateReference);}
-            if (this.validityPeriod) {this.validityPeriod.updateReferences(fnUpdateReference);}
-            if (this.dataExclusivityPeriod) {this.dataExclusivityPeriod.updateReferences(fnUpdateReference);}
-            if (this.legalBasis) {this.legalBasis.updateReferences(fnUpdateReference);}
-            if (this.jurisdictionalAuthorization) {this.jurisdictionalAuthorization.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.holder) {this.holder.updateReferences(fnUpdateReference);}
-            if (this.regulator) {this.regulator.updateReferences(fnUpdateReference);}
-            if (this.procedure) {this.procedure.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.country) {this.country.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.status) {this.status.updateReferences({fnUpdateReference});}
+            if (this.validityPeriod) {this.validityPeriod.updateReferences({fnUpdateReference});}
+            if (this.dataExclusivityPeriod) {this.dataExclusivityPeriod.updateReferences({fnUpdateReference});}
+            if (this.legalBasis) {this.legalBasis.updateReferences({fnUpdateReference});}
+            if (this.jurisdictionalAuthorization) {this.jurisdictionalAuthorization.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.holder) {this.holder.updateReferences({fnUpdateReference});}
+            if (this.regulator) {this.regulator.updateReferences({fnUpdateReference});}
+            if (this.procedure) {this.procedure.updateReferences({fnUpdateReference});}
     }
 
     /**

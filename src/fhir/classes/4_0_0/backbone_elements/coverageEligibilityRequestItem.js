@@ -363,20 +363,21 @@ class CoverageEligibilityRequestItem extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.category) {this.category.updateReferences(fnUpdateReference);}
-            if (this.productOrService) {this.productOrService.updateReferences(fnUpdateReference);}
-            if (this.modifier) {this.modifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.provider) {this.provider.updateReferences(fnUpdateReference);}
-            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
-            if (this.unitPrice) {this.unitPrice.updateReferences(fnUpdateReference);}
-            if (this.facility) {this.facility.updateReferences(fnUpdateReference);}
-            if (this.diagnosis) {this.diagnosis.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.detail) {this.detail.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.category) {this.category.updateReferences({fnUpdateReference});}
+            if (this.productOrService) {this.productOrService.updateReferences({fnUpdateReference});}
+            if (this.modifier) {this.modifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.provider) {this.provider.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.unitPrice) {this.unitPrice.updateReferences({fnUpdateReference});}
+            if (this.facility) {this.facility.updateReferences({fnUpdateReference});}
+            if (this.diagnosis) {this.diagnosis.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.detail) {this.detail.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

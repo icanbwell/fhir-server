@@ -290,17 +290,18 @@ class MedicinalProductIngredientStrength extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.presentation) {this.presentation.updateReferences(fnUpdateReference);}
-            if (this.presentationLowLimit) {this.presentationLowLimit.updateReferences(fnUpdateReference);}
-            if (this.concentration) {this.concentration.updateReferences(fnUpdateReference);}
-            if (this.concentrationLowLimit) {this.concentrationLowLimit.updateReferences(fnUpdateReference);}
-            if (this.country) {this.country.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.referenceStrength) {this.referenceStrength.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.presentation) {this.presentation.updateReferences({fnUpdateReference});}
+            if (this.presentationLowLimit) {this.presentationLowLimit.updateReferences({fnUpdateReference});}
+            if (this.concentration) {this.concentration.updateReferences({fnUpdateReference});}
+            if (this.concentrationLowLimit) {this.concentrationLowLimit.updateReferences({fnUpdateReference});}
+            if (this.country) {this.country.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.referenceStrength) {this.referenceStrength.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -1311,40 +1311,41 @@ class MedicationRequest extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.identifier) {this.identifier.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.statusReason) {this.statusReason.updateReferences(fnUpdateReference);}
-            if (this.category) {this.category.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.reportedReference) {this.reportedReference.updateReferences(fnUpdateReference);}
-            if (this.medicationCodeableConcept) {this.medicationCodeableConcept.updateReferences(fnUpdateReference);}
-            if (this.medicationReference) {this.medicationReference.updateReferences(fnUpdateReference);}
-            if (this.subject) {this.subject.updateReferences(fnUpdateReference);}
-            if (this.encounter) {this.encounter.updateReferences(fnUpdateReference);}
-            if (this.supportingInformation) {this.supportingInformation.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.requester) {this.requester.updateReferences(fnUpdateReference);}
-            if (this.performer) {this.performer.updateReferences(fnUpdateReference);}
-            if (this.performerType) {this.performerType.updateReferences(fnUpdateReference);}
-            if (this.recorder) {this.recorder.updateReferences(fnUpdateReference);}
-            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.groupIdentifier) {this.groupIdentifier.updateReferences(fnUpdateReference);}
-            if (this.courseOfTherapyType) {this.courseOfTherapyType.updateReferences(fnUpdateReference);}
-            if (this.insurance) {this.insurance.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.note) {this.note.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.dosageInstruction) {this.dosageInstruction.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.dispenseRequest) {this.dispenseRequest.updateReferences(fnUpdateReference);}
-            if (this.substitution) {this.substitution.updateReferences(fnUpdateReference);}
-            if (this.priorPrescription) {this.priorPrescription.updateReferences(fnUpdateReference);}
-            if (this.detectedIssue) {this.detectedIssue.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.eventHistory) {this.eventHistory.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.statusReason) {this.statusReason.updateReferences({fnUpdateReference});}
+            if (this.category) {this.category.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reportedReference) {this.reportedReference.updateReferences({fnUpdateReference});}
+            if (this.medicationCodeableConcept) {this.medicationCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.medicationReference) {this.medicationReference.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.encounter) {this.encounter.updateReferences({fnUpdateReference});}
+            if (this.supportingInformation) {this.supportingInformation.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.requester) {this.requester.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.updateReferences({fnUpdateReference});}
+            if (this.performerType) {this.performerType.updateReferences({fnUpdateReference});}
+            if (this.recorder) {this.recorder.updateReferences({fnUpdateReference});}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.groupIdentifier) {this.groupIdentifier.updateReferences({fnUpdateReference});}
+            if (this.courseOfTherapyType) {this.courseOfTherapyType.updateReferences({fnUpdateReference});}
+            if (this.insurance) {this.insurance.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.dosageInstruction) {this.dosageInstruction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.dispenseRequest) {this.dispenseRequest.updateReferences({fnUpdateReference});}
+            if (this.substitution) {this.substitution.updateReferences({fnUpdateReference});}
+            if (this.priorPrescription) {this.priorPrescription.updateReferences({fnUpdateReference});}
+            if (this.detectedIssue) {this.detectedIssue.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.eventHistory) {this.eventHistory.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

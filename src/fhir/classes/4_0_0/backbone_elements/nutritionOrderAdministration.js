@@ -221,15 +221,16 @@ class NutritionOrderAdministration extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.schedule) {this.schedule.updateReferences(fnUpdateReference);}
-            if (this.quantity) {this.quantity.updateReferences(fnUpdateReference);}
-            if (this.rateQuantity) {this.rateQuantity.updateReferences(fnUpdateReference);}
-            if (this.rateRatio) {this.rateRatio.updateReferences(fnUpdateReference);}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.schedule) {this.schedule.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.rateQuantity) {this.rateQuantity.updateReferences({fnUpdateReference});}
+            if (this.rateRatio) {this.rateRatio.updateReferences({fnUpdateReference});}
     }
 
     /**

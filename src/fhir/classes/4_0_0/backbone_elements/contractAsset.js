@@ -473,22 +473,23 @@ class ContractAsset extends Element {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.scope) {this.scope.updateReferences(fnUpdateReference);}
-            if (this.type) {this.type.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.typeReference) {this.typeReference.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.subtype) {this.subtype.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.relationship) {this.relationship.updateReferences(fnUpdateReference);}
-            if (this.context) {this.context.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.periodType) {this.periodType.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.period) {this.period.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.usePeriod) {this.usePeriod.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.answer) {this.answer.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.valuedItem) {this.valuedItem.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.scope) {this.scope.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.typeReference) {this.typeReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subtype) {this.subtype.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.relationship) {this.relationship.updateReferences({fnUpdateReference});}
+            if (this.context) {this.context.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.periodType) {this.periodType.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.period) {this.period.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.usePeriod) {this.usePeriod.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.answer) {this.answer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.valuedItem) {this.valuedItem.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

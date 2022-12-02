@@ -629,23 +629,24 @@ class MedicinalProductIndication extends Resource {
 
     /**
      * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
      * @return {void}
      */
-    updateReferences(fnUpdateReference) {
-            if (this.meta) {this.meta.updateReferences(fnUpdateReference);}
-            if (this.text) {this.text.updateReferences(fnUpdateReference);}
-            if (this.contained) {this.contained.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.extension) {this.extension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.subject) {this.subject.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.diseaseSymptomProcedure) {this.diseaseSymptomProcedure.updateReferences(fnUpdateReference);}
-            if (this.diseaseStatus) {this.diseaseStatus.updateReferences(fnUpdateReference);}
-            if (this.comorbidity) {this.comorbidity.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.intendedEffect) {this.intendedEffect.updateReferences(fnUpdateReference);}
-            if (this.duration) {this.duration.updateReferences(fnUpdateReference);}
-            if (this.otherTherapy) {this.otherTherapy.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.undesirableEffect) {this.undesirableEffect.forEach(v => v.updateReferences(fnUpdateReference));}
-            if (this.population) {this.population.forEach(v => v.updateReferences(fnUpdateReference));}
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subject) {this.subject.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.diseaseSymptomProcedure) {this.diseaseSymptomProcedure.updateReferences({fnUpdateReference});}
+            if (this.diseaseStatus) {this.diseaseStatus.updateReferences({fnUpdateReference});}
+            if (this.comorbidity) {this.comorbidity.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.intendedEffect) {this.intendedEffect.updateReferences({fnUpdateReference});}
+            if (this.duration) {this.duration.updateReferences({fnUpdateReference});}
+            if (this.otherTherapy) {this.otherTherapy.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.undesirableEffect) {this.undesirableEffect.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.population) {this.population.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**
