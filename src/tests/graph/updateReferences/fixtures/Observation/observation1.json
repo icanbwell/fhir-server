@@ -8,11 +8,11 @@
     "security": [
       {
         "system": "https://www.icanbwell.com/owner",
-        "code": "A"
+        "code": "healthsystem1"
       },
       {
         "system": "https://www.icanbwell.com/access",
-        "code": "A"
+        "code": "healthsystem1"
       },
       {
         "system": "https://www.icanbwell.com/vendor",
@@ -42,8 +42,14 @@
     ]
   },
   "subject": {
-    "reference": "Patient/2354"
+    "reference": "Patient/00100000000"
   },
+  "effectivePeriod": {
+    "start": "2021-01-01T00:00:00.000Z",
+    "end": "2021-12-31T00:00:00.000Z"
+  },
+  "issued": "2021-01-01T12:00:00Z",
+  "valueBoolean": false,
   "performer": [
     {
       "reference": "Practitioner/5555"
@@ -56,11 +62,5 @@
     {
       "reference": "Task/9999"
     }
-  ],
-  "effectivePeriod": {
-    "start": "2021-01-01T00:00:00.000Z",
-    "end": "2021-12-31T00:00:00.000Z"
-  },
-  "issued": "2021-01-01T12:00:00Z",
-  "valueBoolean": false
+  ]
 }
