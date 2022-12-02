@@ -245,6 +245,7 @@ class FhirDataSource extends DataSource {
             id,
         } = ResourceWithId.getResourceTypeAndIdFromReference(reference.reference);
         try {
+            this.createDataLoader(args);
             // noinspection JSValidateTypes
             return await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
         } catch (e) {
@@ -318,20 +319,7 @@ class FhirDataSource extends DataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle(parent, args, context, info, resourceType) {
-        if (!this.dataLoader) {
-            this.dataLoader = new DataLoader(
-                async (keys) => await this.getResourcesInBatch(
-                    {
-                        keys,
-                        requestInfo: this.requestInfo,
-                        args: { // these args should appy to every nested property
-                            '_debug': args._debug,
-                            '_explain': args._explain
-                        }
-                    }
-                )
-            );
-        }
+        this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
         const bundle = await this.searchBundleOperation.searchBundle(
@@ -347,6 +335,23 @@ class FhirDataSource extends DataSource {
             this.metaList.push(bundle.meta);
         }
         return bundle;
+    }
+
+    createDataLoader(args) {
+        if (!this.dataLoader) {
+            this.dataLoader = new DataLoader(
+                async (keys) => await this.getResourcesInBatch(
+                    {
+                        keys,
+                        requestInfo: this.requestInfo,
+                        args: { // these args should appy to every nested property
+                            '_debug': args._debug,
+                            '_explain': args._explain
+                        }
+                    }
+                )
+            );
+        }
     }
 
     /**
