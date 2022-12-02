@@ -25,20 +25,26 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         /**
          * @type {string|null}
          */
-        let proxyPatientId = null;
+        let proxyPatientPersonId = null;
+        let proxyPatientPersonIdKey = null;
         if (originalArgs) {
-            for (const [, value] of Object.entries(originalArgs)) {
+            for (const [key, value] of Object.entries(originalArgs)) {
                 if (value && value.startsWith('Patient/person.')) {
-                    proxyPatientId = value;
+                    proxyPatientPersonId = value;
+                    proxyPatientPersonIdKey = key;
                 }
             }
         }
-        if (proxyPatientId !== null) {
+        if (proxyPatientPersonId && proxyPatientPersonIdKey) {
+            /**
+             * @type {string[]}
+             */
+            const proxyPatientIds = args[`${proxyPatientPersonIdKey}`].split(',');
             for (const resource of resources) {
                 resource.updateReferences({
                     fnUpdateReference: (reference) => {
-                        if (reference.reference && reference.reference.startsWith('Patient/')) {
-                            reference.reference = proxyPatientId;
+                        if (reference.reference && proxyPatientIds.includes(reference.reference)) {
+                            reference.reference = proxyPatientPersonId;
                         }
                         return reference;
                     }
