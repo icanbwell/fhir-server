@@ -139,6 +139,8 @@ const createContainer = function () {
                     sasl: isTrue(env.KAFKA_SASL) ? {
                         mechanism: env.KAFKA_SASL_MECHANISM || 'aws',
                         authorizationIdentity: env.KAFKA_SASL_IDENTITY ? env.KAFKA_SASL_IDENTITY : null, // UserId or RoleId
+                        username: env.KAFKA_SASL_USERNAME,
+                        password: env.KAFKA_SASL_PASSWORD
                     } : null,
                 }
             ) :
