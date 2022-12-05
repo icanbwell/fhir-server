@@ -66,7 +66,6 @@ class HttpResponseWriter extends Writable {
             return;
         }
         try {
-
             if (chunk !== null && chunk !== undefined) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
                     if (isNdJsonContentType([this.contentType])) {
@@ -83,7 +82,9 @@ class HttpResponseWriter extends Writable {
                         logger.verbose(`HttpResponseWriter: _write ${chunk}`);
                     }
                 }
-                this.response.write(chunk, encoding, callback);
+                if (this.response.writable) {
+                    this.response.write(chunk, encoding, callback);
+                }
                 callback();
             } else {
                 callback();
@@ -101,7 +102,9 @@ class HttpResponseWriter extends Writable {
         if (isTrue(env.LOG_STREAM_STEPS)) {
             logger.verbose('HttpResponseWriter: _flush');
         }
-        this.response.end();
+        if (this.response.writable) {
+            this.response.end();
+        }
         callback();
     }
 }
