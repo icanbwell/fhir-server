@@ -1,10 +1,10 @@
-const { DataSource } = require('apollo-datasource');
-const { logWarn } = require('../../operations/common/logging');
+const {DataSource} = require('apollo-datasource');
+const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const { groupByLambda } = require('../../utils/list.util');
-const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
-const { SimpleContainer } = require('../../utils/simpleContainer');
+const {groupByLambda} = require('../../utils/list.util');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {SimpleContainer} = require('../../utils/simpleContainer');
 
 /**
  * This class stores the tuple of resourceType and id to uniquely identify a resource
@@ -33,7 +33,7 @@ class ResourceWithId {
         if (references.length !== 2) {
             return null;
         }
-        return { resourceType: references[0], id: references[1] };
+        return {resourceType: references[0], id: references[1]};
     }
 
     /**
@@ -65,7 +65,7 @@ class FhirDataSource extends DataSource {
      * @param {SimpleContainer} container
      * @param {FhirRequestInfo} requestInfo
      */
-    constructor(container, requestInfo) {
+    constructor({container, requestInfo}) {
         super();
         assertTypeEquals(container, SimpleContainer);
         assertIsValid(requestInfo !== undefined);
@@ -85,9 +85,7 @@ class FhirDataSource extends DataSource {
         /**
          * @type {DataLoader<unknown, {resourceType: string, id: string}, Resource>}
          */
-        this.dataLoader = new DataLoader(
-            async (keys) => await this.getResourcesInBatch(keys, requestInfo)
-        );
+        this.dataLoader = null;
         /**
          * @type {Meta[]}
          */
@@ -151,9 +149,10 @@ class FhirDataSource extends DataSource {
      * https://github.com/graphql/dataloader#batching
      * @param {string[]} keys
      * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
      * @return {Promise<(Resource|null)[]>}>}
      */
-    async getResourcesInBatch(keys, requestInfo) {
+    async getResourcesInBatch({keys, requestInfo, args}) {
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -191,10 +190,9 @@ class FhirDataSource extends DataSource {
                                 base_version: '4_0_0',
                                 id: idsOfReference,
                                 _bundle: '1',
-                                _debug: '1',
+                                ...args,
                             },
-                            resourceType,
-                            false
+                            resourceType
                         )
                     );
                 }
@@ -247,6 +245,7 @@ class FhirDataSource extends DataSource {
             id,
         } = ResourceWithId.getResourceTypeAndIdFromReference(reference.reference);
         try {
+            this.createDataLoader(args);
             // noinspection JSValidateTypes
             return await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
         } catch (e) {
@@ -303,8 +302,7 @@ class FhirDataSource extends DataSource {
                 {
                     base_version: '4_0_0',
                     _bundle: '1',
-                    ...args,
-                    _debug: '1',
+                    ...args
                 },
                 resourceType
             )
@@ -321,14 +319,15 @@ class FhirDataSource extends DataSource {
      * @return {Promise<Bundle>}
      */
     async getResourcesBundle(parent, args, context, info, resourceType) {
+        this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
+
         const bundle = await this.searchBundleOperation.searchBundle(
             context.fhirRequestInfo,
             {
                 base_version: '4_0_0',
                 _bundle: '1',
-                ...args,
-                _debug: '1',
+                ...args
             },
             resourceType
         );
@@ -336,6 +335,23 @@ class FhirDataSource extends DataSource {
             this.metaList.push(bundle.meta);
         }
         return bundle;
+    }
+
+    createDataLoader(args) {
+        if (!this.dataLoader) {
+            this.dataLoader = new DataLoader(
+                async (keys) => await this.getResourcesInBatch(
+                    {
+                        keys,
+                        requestInfo: this.requestInfo,
+                        args: { // these args should appy to every nested property
+                            '_debug': args._debug,
+                            '_explain': args._explain
+                        }
+                    }
+                )
+            );
+        }
     }
 
     /**

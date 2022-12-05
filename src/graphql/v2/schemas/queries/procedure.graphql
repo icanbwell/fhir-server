@@ -149,5 +149,13 @@ extend type Query {
         page number to retrieve
         """
         _getpagesoffset: Int
+        """
+        include debugging information with the result
+        """
+        _debug: Boolean
+        """
+        explain query but not run it
+        """
+        _explain: Boolean
     ): ProcedureBundle
 }

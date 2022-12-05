@@ -1,5 +1,5 @@
 query my_patient {
-    patient(_debug: true) {
+    patient(_explain: true) {
         entry {
             resource {
                 id

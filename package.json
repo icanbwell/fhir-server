@@ -114,6 +114,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dataloader": "^2.1.0",
+    "dd-trace": "^3.8.0",
     "deepcopy": "^2.1.0",
     "deepmerge": "^4.2.2",
     "ejs": "^3.1.8",
@@ -190,12 +191,9 @@
     "@types/supertest": "^2.0.12",
     "@types/superagent": "^4.1.16",
     "@types/ejs": "^3.1.1",
-    "@types/graphql": "^14.5.0",
     "@types/async": "^3.2.16",
     "@types/passport": "^1.0.11",
-    "@types/passport-jwt": "^3.0.7",
-    "@types/mongodb": "^4.0.7",
-    "@types/kafkajs": "^1.9.0"
+    "@types/passport-jwt": "^3.0.7"
   },
   "private": false,
   "snyk": false

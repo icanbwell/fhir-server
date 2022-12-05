@@ -13,39 +13,7 @@
         }
       ],
       "id": "WPS-5458231534",
-      "meta": {
-        "tag": [
-          {
-            "display": "[db.Patient_4_0_0.find({'$and':[{'id':'WPS-5458231534'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {}).sort({'id':1}).limit(10000),db.Practitioner_4_0_0.find({'$and':[{'id':'f005'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {}).sort({'id':1}).limit(10000),db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['f005']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'medstar'}}}]}, {}).sort({'id':1}).limit(10000)]",
-            "system": "https://www.icanbwell.com/query"
-          },
-          {
-            "code": "",
-            "system": "https://www.icanbwell.com/queryCollection"
-          },
-          {
-            "display": "[{'limit':10000,'sort':{'id':1}},{'limit':10000,'sort':{'id':1}},{'limit':10000,'sort':{'id':1}}]",
-            "system": "https://www.icanbwell.com/queryOptions"
-          },
-          {
-            "display": "[['id'],['id'],['id']]",
-            "system": "https://www.icanbwell.com/queryFields"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryTime"
-          },
-          {
-            "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
-            "system": "https://www.icanbwell.com/queryOptimization"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryExplain"
-          },
-          {
-            "system": "https://www.icanbwell.com/queryExplainSimple"
-          }
-        ]
-      }
+      "meta": null
     }
   }
 }
