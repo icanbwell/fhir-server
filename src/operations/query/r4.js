@@ -138,43 +138,46 @@ class R4SearchQueryCreator {
                 queryParameter
             );
 
-            let {columns, andSegments} = this.getColumnsAndSegmentsForParameterType({
-                resourceType, queryParameter, queryParameterValue, propertyObj
-            });
+            if (queryParameterValue) {
 
-            // replace andSegments according to modifiers
-            if (modifiers.includes('missing')) {
-                andSegments = filterByMissing({
-                    args, queryParameter, propertyObj, columns
+                let {columns, andSegments} = this.getColumnsAndSegmentsForParameterType({
+                    resourceType, queryParameter, queryParameterValue, propertyObj
                 });
-            } else if (modifiers.includes('contains')) {
-                andSegments = filterByContains({
-                    propertyObj, queryParameterValue, columns
-                });
-            } else if (modifiers.includes('above')) {
-                andSegments = filterByAbove({
-                    propertyObj, queryParameterValue, columns
-                });
-            } else if (modifiers.includes('below')) {
-                andSegments = filterByBelow({
-                    propertyObj, queryParameterValue, columns
-                });
-            } else if (modifiers.includes('text')) {
-                columns = new Set(); // text overrides datatype column logic
-                andSegments = filterByPartialText({
-                    args, queryParameter, propertyObj, columns,
-                });
-            }
 
-            // apply negation according to not modifier and add to final collection
-            if (modifiers.includes('not')) {
-                andSegments.forEach(q => totalAndSegments.push({$nor: [q]}));
-            } else {
-                andSegments.forEach(q => totalAndSegments.push(q));
-            }
+                // replace andSegments according to modifiers
+                if (modifiers.includes('missing')) {
+                    andSegments = filterByMissing({
+                        args, queryParameter, propertyObj, columns
+                    });
+                } else if (modifiers.includes('contains')) {
+                    andSegments = filterByContains({
+                        propertyObj, queryParameterValue, columns
+                    });
+                } else if (modifiers.includes('above')) {
+                    andSegments = filterByAbove({
+                        propertyObj, queryParameterValue, columns
+                    });
+                } else if (modifiers.includes('below')) {
+                    andSegments = filterByBelow({
+                        propertyObj, queryParameterValue, columns
+                    });
+                } else if (modifiers.includes('text')) {
+                    columns = new Set(); // text overrides datatype column logic
+                    andSegments = filterByPartialText({
+                        args, queryParameter, propertyObj, columns,
+                    });
+                }
 
-            for (const column of columns) {
-                totalColumns.add(column);
+                // apply negation according to not modifier and add to final collection
+                if (modifiers.includes('not')) {
+                    andSegments.forEach(q => totalAndSegments.push({$nor: [q]}));
+                } else {
+                    andSegments.forEach(q => totalAndSegments.push(q));
+                }
+
+                for (const column of columns) {
+                    totalColumns.add(column);
+                }
             }
         }
 
