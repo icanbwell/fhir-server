@@ -80,7 +80,7 @@ class DataRequirement extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -137,7 +137,7 @@ class DataRequirement extends Element {
                     this.__data.subjectCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.subjectCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -156,7 +156,7 @@ class DataRequirement extends Element {
                     this.__data.subjectReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.subjectReference = new Reference(valueProvided);
             }
         });
@@ -204,7 +204,7 @@ class DataRequirement extends Element {
                     this.__data.codeFilter = undefined;
                     return;
                 }
-                let DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter.js');
+                let DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter');
                 this.__data.codeFilter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementCodeFilter(v)) : [new DataRequirementCodeFilter(valueProvided)];
             }
         });
@@ -225,7 +225,7 @@ class DataRequirement extends Element {
                     this.__data.dateFilter = undefined;
                     return;
                 }
-                let DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter.js');
+                let DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter');
                 this.__data.dateFilter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementDateFilter(v)) : [new DataRequirementDateFilter(valueProvided)];
             }
         });
@@ -263,7 +263,7 @@ class DataRequirement extends Element {
                     this.__data.sort = undefined;
                     return;
                 }
-                let DataRequirementSort = require('../complex_types/dataRequirementSort.js');
+                let DataRequirementSort = require('../complex_types/dataRequirementSort');
                 this.__data.sort = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementSort(v)) : [new DataRequirementSort(valueProvided)];
             }
         });

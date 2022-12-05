@@ -81,7 +81,7 @@ class AuditEventEntity extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -112,7 +112,7 @@ class AuditEventEntity extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -132,7 +132,7 @@ class AuditEventEntity extends Element {
                     this.__data.what = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.what = new Reference(valueProvided);
             }
         });
@@ -151,7 +151,7 @@ class AuditEventEntity extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.type = new Coding(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class AuditEventEntity extends Element {
                     this.__data.role = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.role = new Coding(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class AuditEventEntity extends Element {
                     this.__data.lifecycle = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.lifecycle = new Coding(valueProvided);
             }
         });
@@ -208,7 +208,7 @@ class AuditEventEntity extends Element {
                     this.__data.securityLabel = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -281,7 +281,7 @@ class AuditEventEntity extends Element {
                     this.__data.detail = undefined;
                     return;
                 }
-                let AuditEventDetail = require('../backbone_elements/auditEventDetail.js');
+                let AuditEventDetail = require('../backbone_elements/auditEventDetail');
                 this.__data.detail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new AuditEventDetail(v)) : [new AuditEventDetail(valueProvided)];
             }
         });

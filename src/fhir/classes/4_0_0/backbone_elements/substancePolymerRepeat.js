@@ -69,7 +69,7 @@ class SubstancePolymerRepeat extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class SubstancePolymerRepeat extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -155,7 +155,7 @@ class SubstancePolymerRepeat extends Element {
                     this.__data.repeatUnitAmountType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.repeatUnitAmountType = new CodeableConcept(valueProvided);
             }
         });
@@ -174,7 +174,7 @@ class SubstancePolymerRepeat extends Element {
                     this.__data.repeatUnit = undefined;
                     return;
                 }
-                let SubstancePolymerRepeatUnit = require('../backbone_elements/substancePolymerRepeatUnit.js');
+                let SubstancePolymerRepeatUnit = require('../backbone_elements/substancePolymerRepeatUnit');
                 this.__data.repeatUnit = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerRepeatUnit(v)) : [new SubstancePolymerRepeatUnit(valueProvided)];
             }
         });

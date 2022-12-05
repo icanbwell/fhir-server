@@ -73,7 +73,7 @@ class Population extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -104,7 +104,7 @@ class Population extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class Population extends Element {
                     this.__data.ageRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.ageRange = new Range(valueProvided);
             }
         });
@@ -142,7 +142,7 @@ class Population extends Element {
                     this.__data.ageCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.ageCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -161,7 +161,7 @@ class Population extends Element {
                     this.__data.gender = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.gender = new CodeableConcept(valueProvided);
             }
         });
@@ -180,7 +180,7 @@ class Population extends Element {
                     this.__data.race = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.race = new CodeableConcept(valueProvided);
             }
         });
@@ -200,7 +200,7 @@ class Population extends Element {
                     this.__data.physiologicalCondition = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.physiologicalCondition = new CodeableConcept(valueProvided);
             }
         });

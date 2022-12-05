@@ -87,7 +87,7 @@ class ClaimDetail extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -118,7 +118,7 @@ class ClaimDetail extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -155,7 +155,7 @@ class ClaimDetail extends Element {
                     this.__data.revenue = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.revenue = new CodeableConcept(valueProvided);
             }
         });
@@ -175,7 +175,7 @@ class ClaimDetail extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.category = new CodeableConcept(valueProvided);
             }
         });
@@ -196,7 +196,7 @@ class ClaimDetail extends Element {
                     this.__data.productOrService = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.productOrService = new CodeableConcept(valueProvided);
             }
         });
@@ -216,7 +216,7 @@ class ClaimDetail extends Element {
                     this.__data.modifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -235,7 +235,7 @@ class ClaimDetail extends Element {
                     this.__data.programCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.programCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -254,7 +254,7 @@ class ClaimDetail extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -274,7 +274,7 @@ class ClaimDetail extends Element {
                     this.__data.unitPrice = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.unitPrice = new Money(valueProvided);
             }
         });
@@ -315,7 +315,7 @@ class ClaimDetail extends Element {
                     this.__data.net = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.net = new Money(valueProvided);
             }
         });
@@ -334,7 +334,7 @@ class ClaimDetail extends Element {
                     this.__data.udi = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.udi = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -354,7 +354,7 @@ class ClaimDetail extends Element {
                     this.__data.subDetail = undefined;
                     return;
                 }
-                let ClaimSubDetail = require('../backbone_elements/claimSubDetail.js');
+                let ClaimSubDetail = require('../backbone_elements/claimSubDetail');
                 this.__data.subDetail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimSubDetail(v)) : [new ClaimSubDetail(valueProvided)];
             }
         });

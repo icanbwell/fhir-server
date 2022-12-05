@@ -76,7 +76,7 @@ class SampledData extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -96,7 +96,7 @@ class SampledData extends Element {
                     this.__data.origin = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.origin = new Quantity(valueProvided);
             }
         });

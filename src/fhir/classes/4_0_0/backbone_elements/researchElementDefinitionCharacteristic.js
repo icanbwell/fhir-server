@@ -104,7 +104,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -135,7 +135,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -154,7 +154,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.definitionCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.definitionCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -191,7 +191,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.definitionExpression = undefined;
                     return;
                 }
-                let Expression = require('../complex_types/expression.js');
+                let Expression = require('../complex_types/expression');
                 this.__data.definitionExpression = new Expression(valueProvided);
             }
         });
@@ -210,7 +210,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.definitionDataRequirement = undefined;
                     return;
                 }
-                let DataRequirement = require('../complex_types/dataRequirement.js');
+                let DataRequirement = require('../complex_types/dataRequirement');
                 this.__data.definitionDataRequirement = new DataRequirement(valueProvided);
             }
         });
@@ -230,7 +230,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.usageContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                let UsageContext = require('../complex_types/usageContext');
                 this.__data.usageContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -267,7 +267,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.unitOfMeasure = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.unitOfMeasure = new CodeableConcept(valueProvided);
             }
         });
@@ -322,7 +322,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.studyEffectivePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.studyEffectivePeriod = new Period(valueProvided);
             }
         });
@@ -341,7 +341,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.studyEffectiveDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.studyEffectiveDuration = new Quantity(valueProvided);
             }
         });
@@ -360,7 +360,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.studyEffectiveTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
                 this.__data.studyEffectiveTiming = new Timing(valueProvided);
             }
         });
@@ -379,7 +379,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.studyEffectiveTimeFromStart = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.studyEffectiveTimeFromStart = new Quantity(valueProvided);
             }
         });
@@ -452,7 +452,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.participantEffectivePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.participantEffectivePeriod = new Period(valueProvided);
             }
         });
@@ -471,7 +471,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.participantEffectiveDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.participantEffectiveDuration = new Quantity(valueProvided);
             }
         });
@@ -490,7 +490,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.participantEffectiveTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
                 this.__data.participantEffectiveTiming = new Timing(valueProvided);
             }
         });
@@ -509,7 +509,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.participantEffectiveTimeFromStart = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.participantEffectiveTimeFromStart = new Quantity(valueProvided);
             }
         });

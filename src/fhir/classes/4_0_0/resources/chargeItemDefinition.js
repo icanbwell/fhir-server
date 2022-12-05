@@ -128,7 +128,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -191,7 +191,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -212,7 +212,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -244,7 +244,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -275,7 +275,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -320,7 +320,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -521,7 +521,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                let ContactDetail = require('../complex_types/contactDetail');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
@@ -563,7 +563,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.useContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                let UsageContext = require('../complex_types/usageContext');
                 this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -583,7 +583,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -661,7 +661,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.effectivePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.effectivePeriod = new Period(valueProvided);
             }
         });
@@ -681,7 +681,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -701,7 +701,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.instance = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.instance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -720,7 +720,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.applicability = undefined;
                     return;
                 }
-                let ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
+                let ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability');
                 this.__data.applicability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemDefinitionApplicability(v)) : [new ChargeItemDefinitionApplicability(valueProvided)];
             }
         });
@@ -741,7 +741,7 @@ class ChargeItemDefinition extends Resource {
                     this.__data.propertyGroup = undefined;
                     return;
                 }
-                let ChargeItemDefinitionPropertyGroup = require('../backbone_elements/chargeItemDefinitionPropertyGroup.js');
+                let ChargeItemDefinitionPropertyGroup = require('../backbone_elements/chargeItemDefinitionPropertyGroup');
                 this.__data.propertyGroup = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemDefinitionPropertyGroup(v)) : [new ChargeItemDefinitionPropertyGroup(valueProvided)];
             }
         });

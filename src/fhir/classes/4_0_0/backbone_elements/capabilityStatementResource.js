@@ -98,7 +98,7 @@ class CapabilityStatementResource extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -129,7 +129,7 @@ class CapabilityStatementResource extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -229,7 +229,7 @@ class CapabilityStatementResource extends Element {
                     this.__data.interaction = undefined;
                     return;
                 }
-                let CapabilityStatementInteraction = require('../backbone_elements/capabilityStatementInteraction.js');
+                let CapabilityStatementInteraction = require('../backbone_elements/capabilityStatementInteraction');
                 this.__data.interaction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementInteraction(v)) : [new CapabilityStatementInteraction(valueProvided)];
             }
         });
@@ -439,7 +439,7 @@ class CapabilityStatementResource extends Element {
                     this.__data.searchParam = undefined;
                     return;
                 }
-                let CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
+                let CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam');
                 this.__data.searchParam = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementSearchParam(v)) : [new CapabilityStatementSearchParam(valueProvided)];
             }
         });
@@ -460,7 +460,7 @@ class CapabilityStatementResource extends Element {
                     this.__data.operation = undefined;
                     return;
                 }
-                let CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');
+                let CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation');
                 this.__data.operation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementOperation(v)) : [new CapabilityStatementOperation(valueProvided)];
             }
         });

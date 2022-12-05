@@ -104,7 +104,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -135,7 +135,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -210,7 +210,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.provider = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.provider = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -231,7 +231,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.productOrService = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.productOrService = new CodeableConcept(valueProvided);
             }
         });
@@ -251,7 +251,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.modifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -270,7 +270,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.programCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.programCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -307,7 +307,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.servicedPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.servicedPeriod = new Period(valueProvided);
             }
         });
@@ -326,7 +326,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.locationCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.locationCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -345,7 +345,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.locationAddress = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                let Address = require('../complex_types/address');
                 this.__data.locationAddress = new Address(valueProvided);
             }
         });
@@ -364,7 +364,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.locationReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.locationReference = new Reference(valueProvided);
             }
         });
@@ -383,7 +383,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -403,7 +403,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.unitPrice = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.unitPrice = new Money(valueProvided);
             }
         });
@@ -444,7 +444,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.net = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.net = new Money(valueProvided);
             }
         });
@@ -463,7 +463,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.bodySite = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.bodySite = new CodeableConcept(valueProvided);
             }
         });
@@ -482,7 +482,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.subSite = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.subSite = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -520,7 +520,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.adjudication = undefined;
                     return;
                 }
-                let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
+                let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication');
                 this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
             }
         });
@@ -539,7 +539,7 @@ class ClaimResponseAddItem extends Element {
                     this.__data.detail = undefined;
                     return;
                 }
-                let ClaimResponseDetail1 = require('../backbone_elements/claimResponseDetail1.js');
+                let ClaimResponseDetail1 = require('../backbone_elements/claimResponseDetail1');
                 this.__data.detail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseDetail1(v)) : [new ClaimResponseDetail1(valueProvided)];
             }
         });

@@ -111,7 +111,7 @@ class MolecularSequence extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -174,7 +174,7 @@ class MolecularSequence extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -195,7 +195,7 @@ class MolecularSequence extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -227,7 +227,7 @@ class MolecularSequence extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -258,7 +258,7 @@ class MolecularSequence extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -278,7 +278,7 @@ class MolecularSequence extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -335,7 +335,7 @@ class MolecularSequence extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -354,7 +354,7 @@ class MolecularSequence extends Resource {
                     this.__data.specimen = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.specimen = new Reference(valueProvided);
             }
         });
@@ -373,7 +373,7 @@ class MolecularSequence extends Resource {
                     this.__data.device = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.device = new Reference(valueProvided);
             }
         });
@@ -392,7 +392,7 @@ class MolecularSequence extends Resource {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.performer = new Reference(valueProvided);
             }
         });
@@ -411,7 +411,7 @@ class MolecularSequence extends Resource {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -431,7 +431,7 @@ class MolecularSequence extends Resource {
                     this.__data.referenceSeq = undefined;
                     return;
                 }
-                let MolecularSequenceReferenceSeq = require('../backbone_elements/molecularSequenceReferenceSeq.js');
+                let MolecularSequenceReferenceSeq = require('../backbone_elements/molecularSequenceReferenceSeq');
                 this.__data.referenceSeq = new MolecularSequenceReferenceSeq(valueProvided);
             }
         });
@@ -454,7 +454,7 @@ class MolecularSequence extends Resource {
                     this.__data.variant = undefined;
                     return;
                 }
-                let MolecularSequenceVariant = require('../backbone_elements/molecularSequenceVariant.js');
+                let MolecularSequenceVariant = require('../backbone_elements/molecularSequenceVariant');
                 this.__data.variant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MolecularSequenceVariant(v)) : [new MolecularSequenceVariant(valueProvided)];
             }
         });
@@ -495,7 +495,7 @@ class MolecularSequence extends Resource {
                     this.__data.quality = undefined;
                     return;
                 }
-                let MolecularSequenceQuality = require('../backbone_elements/molecularSequenceQuality.js');
+                let MolecularSequenceQuality = require('../backbone_elements/molecularSequenceQuality');
                 this.__data.quality = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MolecularSequenceQuality(v)) : [new MolecularSequenceQuality(valueProvided)];
             }
         });
@@ -534,7 +534,7 @@ class MolecularSequence extends Resource {
                     this.__data.repository = undefined;
                     return;
                 }
-                let MolecularSequenceRepository = require('../backbone_elements/molecularSequenceRepository.js');
+                let MolecularSequenceRepository = require('../backbone_elements/molecularSequenceRepository');
                 this.__data.repository = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MolecularSequenceRepository(v)) : [new MolecularSequenceRepository(valueProvided)];
             }
         });
@@ -553,7 +553,7 @@ class MolecularSequence extends Resource {
                     this.__data.pointer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.pointer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -572,7 +572,7 @@ class MolecularSequence extends Resource {
                     this.__data.structureVariant = undefined;
                     return;
                 }
-                let MolecularSequenceStructureVariant = require('../backbone_elements/molecularSequenceStructureVariant.js');
+                let MolecularSequenceStructureVariant = require('../backbone_elements/molecularSequenceStructureVariant');
                 this.__data.structureVariant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MolecularSequenceStructureVariant(v)) : [new MolecularSequenceStructureVariant(valueProvided)];
             }
         });

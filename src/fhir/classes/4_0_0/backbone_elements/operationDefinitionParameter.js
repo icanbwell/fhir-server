@@ -84,7 +84,7 @@ class OperationDefinitionParameter extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class OperationDefinitionParameter extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -289,7 +289,7 @@ class OperationDefinitionParameter extends Element {
                     this.__data.binding = undefined;
                     return;
                 }
-                let OperationDefinitionBinding = require('../backbone_elements/operationDefinitionBinding.js');
+                let OperationDefinitionBinding = require('../backbone_elements/operationDefinitionBinding');
                 this.__data.binding = new OperationDefinitionBinding(valueProvided);
             }
         });
@@ -309,7 +309,7 @@ class OperationDefinitionParameter extends Element {
                     this.__data.referencedFrom = undefined;
                     return;
                 }
-                let OperationDefinitionReferencedFrom = require('../backbone_elements/operationDefinitionReferencedFrom.js');
+                let OperationDefinitionReferencedFrom = require('../backbone_elements/operationDefinitionReferencedFrom');
                 this.__data.referencedFrom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new OperationDefinitionReferencedFrom(v)) : [new OperationDefinitionReferencedFrom(valueProvided)];
             }
         });

@@ -82,7 +82,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -113,7 +113,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -132,7 +132,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -151,7 +151,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.predecessor = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.predecessor = new Identifier(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.request = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.request = new Reference(valueProvided);
             }
         });
@@ -208,7 +208,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.submitter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.submitter = new Reference(valueProvided);
             }
         });
@@ -227,7 +227,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.response = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.response = new Reference(valueProvided);
             }
         });
@@ -265,7 +265,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.responsible = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.responsible = new Reference(valueProvided);
             }
         });
@@ -284,7 +284,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.payee = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.payee = new Reference(valueProvided);
             }
         });
@@ -303,7 +303,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.amount = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.amount = new Money(valueProvided);
             }
         });

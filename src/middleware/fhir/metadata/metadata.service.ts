@@ -1,8 +1,8 @@
-const generateInteractions = require('./metadata.interactions.js');
+const generateInteractions = require('./metadata.interactions');
 
-const conformanceTemplate = require('./capability.template.js');
+const conformanceTemplate = require('./capability.template');
 
-const errors = require('../utils/error.utils.js');
+const errors = require('../utils/error.utils');
 
 // const {
 //     container

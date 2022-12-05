@@ -85,7 +85,7 @@ class AuditEventAgent extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -116,7 +116,7 @@ class AuditEventAgent extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -136,7 +136,7 @@ class AuditEventAgent extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -157,7 +157,7 @@ class AuditEventAgent extends Element {
                     this.__data.role = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.role = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -176,7 +176,7 @@ class AuditEventAgent extends Element {
                     this.__data.who = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.who = new Reference(valueProvided);
             }
         });
@@ -252,7 +252,7 @@ class AuditEventAgent extends Element {
                     this.__data.location = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.location = new Reference(valueProvided);
             }
         });
@@ -293,7 +293,7 @@ class AuditEventAgent extends Element {
                     this.__data.media = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.media = new Coding(valueProvided);
             }
         });
@@ -313,7 +313,7 @@ class AuditEventAgent extends Element {
                     this.__data.network = undefined;
                     return;
                 }
-                let AuditEventNetwork = require('../backbone_elements/auditEventNetwork.js');
+                let AuditEventNetwork = require('../backbone_elements/auditEventNetwork');
                 this.__data.network = new AuditEventNetwork(valueProvided);
             }
         });
@@ -333,7 +333,7 @@ class AuditEventAgent extends Element {
                     this.__data.purposeOfUse = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.purposeOfUse = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });

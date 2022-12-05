@@ -75,7 +75,7 @@ class Parameters extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -133,7 +133,7 @@ class Parameters extends Resource {
                     this.__data.parameter = undefined;
                     return;
                 }
-                let ParametersParameter = require('../backbone_elements/parametersParameter.js');
+                let ParametersParameter = require('../backbone_elements/parametersParameter');
                 this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ParametersParameter(v)) : [new ParametersParameter(valueProvided)];
             }
         });

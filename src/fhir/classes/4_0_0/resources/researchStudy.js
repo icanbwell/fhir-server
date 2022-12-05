@@ -132,7 +132,7 @@ class ResearchStudy extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -195,7 +195,7 @@ class ResearchStudy extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -216,7 +216,7 @@ class ResearchStudy extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -248,7 +248,7 @@ class ResearchStudy extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -279,7 +279,7 @@ class ResearchStudy extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -298,7 +298,7 @@ class ResearchStudy extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -336,7 +336,7 @@ class ResearchStudy extends Resource {
                     this.__data.protocol = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.protocol = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -355,7 +355,7 @@ class ResearchStudy extends Resource {
                     this.__data.partOf = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -393,7 +393,7 @@ class ResearchStudy extends Resource {
                     this.__data.primaryPurposeType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.primaryPurposeType = new CodeableConcept(valueProvided);
             }
         });
@@ -413,7 +413,7 @@ class ResearchStudy extends Resource {
                     this.__data.phase = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.phase = new CodeableConcept(valueProvided);
             }
         });
@@ -434,7 +434,7 @@ class ResearchStudy extends Resource {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -454,7 +454,7 @@ class ResearchStudy extends Resource {
                     this.__data.focus = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.focus = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -475,7 +475,7 @@ class ResearchStudy extends Resource {
                     this.__data.condition = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -495,7 +495,7 @@ class ResearchStudy extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                let ContactDetail = require('../complex_types/contactDetail');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
@@ -514,7 +514,7 @@ class ResearchStudy extends Resource {
                     this.__data.relatedArtifact = undefined;
                     return;
                 }
-                let RelatedArtifact = require('../complex_types/relatedArtifact.js');
+                let RelatedArtifact = require('../complex_types/relatedArtifact');
                 this.__data.relatedArtifact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
             }
         });
@@ -533,7 +533,7 @@ class ResearchStudy extends Resource {
                     this.__data.keyword = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.keyword = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -552,7 +552,7 @@ class ResearchStudy extends Resource {
                     this.__data.location = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.location = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -591,7 +591,7 @@ class ResearchStudy extends Resource {
                     this.__data.enrollment = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.enrollment = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -611,7 +611,7 @@ class ResearchStudy extends Resource {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -631,7 +631,7 @@ class ResearchStudy extends Resource {
                     this.__data.sponsor = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.sponsor = new Reference(valueProvided);
             }
         });
@@ -653,7 +653,7 @@ class ResearchStudy extends Resource {
                     this.__data.principalInvestigator = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.principalInvestigator = new Reference(valueProvided);
             }
         });
@@ -672,7 +672,7 @@ class ResearchStudy extends Resource {
                     this.__data.site = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.site = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -691,7 +691,7 @@ class ResearchStudy extends Resource {
                     this.__data.reasonStopped = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.reasonStopped = new CodeableConcept(valueProvided);
             }
         });
@@ -710,7 +710,7 @@ class ResearchStudy extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                let Annotation = require('../complex_types/annotation');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -731,7 +731,7 @@ class ResearchStudy extends Resource {
                     this.__data.arm = undefined;
                     return;
                 }
-                let ResearchStudyArm = require('../backbone_elements/researchStudyArm.js');
+                let ResearchStudyArm = require('../backbone_elements/researchStudyArm');
                 this.__data.arm = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ResearchStudyArm(v)) : [new ResearchStudyArm(valueProvided)];
             }
         });
@@ -751,7 +751,7 @@ class ResearchStudy extends Resource {
                     this.__data.objective = undefined;
                     return;
                 }
-                let ResearchStudyObjective = require('../backbone_elements/researchStudyObjective.js');
+                let ResearchStudyObjective = require('../backbone_elements/researchStudyObjective');
                 this.__data.objective = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ResearchStudyObjective(v)) : [new ResearchStudyObjective(valueProvided)];
             }
         });

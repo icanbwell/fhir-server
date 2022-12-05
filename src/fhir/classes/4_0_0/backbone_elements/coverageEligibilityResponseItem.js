@@ -90,7 +90,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -141,7 +141,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.category = new CodeableConcept(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.productOrService = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.productOrService = new CodeableConcept(valueProvided);
             }
         });
@@ -180,7 +180,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.modifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -199,7 +199,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.provider = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.provider = new Reference(valueProvided);
             }
         });
@@ -274,7 +274,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.network = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.network = new CodeableConcept(valueProvided);
             }
         });
@@ -293,7 +293,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.unit = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.unit = new CodeableConcept(valueProvided);
             }
         });
@@ -313,7 +313,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.term = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.term = new CodeableConcept(valueProvided);
             }
         });
@@ -332,7 +332,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.benefit = undefined;
                     return;
                 }
-                let CoverageEligibilityResponseBenefit = require('../backbone_elements/coverageEligibilityResponseBenefit.js');
+                let CoverageEligibilityResponseBenefit = require('../backbone_elements/coverageEligibilityResponseBenefit');
                 this.__data.benefit = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityResponseBenefit(v)) : [new CoverageEligibilityResponseBenefit(valueProvided)];
             }
         });
@@ -371,7 +371,7 @@ class CoverageEligibilityResponseItem extends Element {
                     this.__data.authorizationSupporting = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.authorizationSupporting = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });

@@ -69,7 +69,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     this.__data.dosage = undefined;
                     return;
                 }
-                let MedicationKnowledgeDosage = require('../backbone_elements/medicationKnowledgeDosage.js');
+                let MedicationKnowledgeDosage = require('../backbone_elements/medicationKnowledgeDosage');
                 this.__data.dosage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeDosage(v)) : [new MedicationKnowledgeDosage(valueProvided)];
             }
         });
@@ -138,7 +138,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     this.__data.indicationCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.indicationCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -157,7 +157,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     this.__data.indicationReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.indicationReference = new Reference(valueProvided);
             }
         });
@@ -177,7 +177,7 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
                     this.__data.patientCharacteristics = undefined;
                     return;
                 }
-                let MedicationKnowledgePatientCharacteristics = require('../backbone_elements/medicationKnowledgePatientCharacteristics.js');
+                let MedicationKnowledgePatientCharacteristics = require('../backbone_elements/medicationKnowledgePatientCharacteristics');
                 this.__data.patientCharacteristics = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgePatientCharacteristics(v)) : [new MedicationKnowledgePatientCharacteristics(valueProvided)];
             }
         });

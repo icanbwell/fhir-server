@@ -72,7 +72,7 @@ class ValueSetCompose extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -103,7 +103,7 @@ class ValueSetCompose extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -165,7 +165,7 @@ class ValueSetCompose extends Element {
                     this.__data.include = undefined;
                     return;
                 }
-                let ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
+                let ValueSetInclude = require('../backbone_elements/valueSetInclude');
                 this.__data.include = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetInclude(v)) : [new ValueSetInclude(valueProvided)];
             }
         });
@@ -185,7 +185,7 @@ class ValueSetCompose extends Element {
                     this.__data.exclude = undefined;
                     return;
                 }
-                let ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
+                let ValueSetInclude = require('../backbone_elements/valueSetInclude');
                 this.__data.exclude = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetInclude(v)) : [new ValueSetInclude(valueProvided)];
             }
         });

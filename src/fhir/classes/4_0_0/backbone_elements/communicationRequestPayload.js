@@ -69,7 +69,7 @@ class CommunicationRequestPayload extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class CommunicationRequestPayload extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -137,7 +137,7 @@ class CommunicationRequestPayload extends Element {
                     this.__data.contentAttachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                let Attachment = require('../complex_types/attachment');
                 this.__data.contentAttachment = new Attachment(valueProvided);
             }
         });
@@ -156,7 +156,7 @@ class CommunicationRequestPayload extends Element {
                     this.__data.contentReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.contentReference = new Reference(valueProvided);
             }
         });

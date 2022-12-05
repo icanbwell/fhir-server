@@ -69,7 +69,7 @@ class DocumentReferenceContent extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class DocumentReferenceContent extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -120,7 +120,7 @@ class DocumentReferenceContent extends Element {
                     this.__data.attachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                let Attachment = require('../complex_types/attachment');
                 this.__data.attachment = new Attachment(valueProvided);
             }
         });
@@ -140,7 +140,7 @@ class DocumentReferenceContent extends Element {
                     this.__data.format = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.format = new Coding(valueProvided);
             }
         });

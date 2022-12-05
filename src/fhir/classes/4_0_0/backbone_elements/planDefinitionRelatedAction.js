@@ -72,7 +72,7 @@ class PlanDefinitionRelatedAction extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -103,7 +103,7 @@ class PlanDefinitionRelatedAction extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -158,7 +158,7 @@ class PlanDefinitionRelatedAction extends Element {
                     this.__data.offsetDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.offsetDuration = new Quantity(valueProvided);
             }
         });
@@ -177,7 +177,7 @@ class PlanDefinitionRelatedAction extends Element {
                     this.__data.offsetRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.offsetRange = new Range(valueProvided);
             }
         });

@@ -78,7 +78,7 @@ class FamilyMemberHistoryCondition extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class FamilyMemberHistoryCondition extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -130,7 +130,7 @@ class FamilyMemberHistoryCondition extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -150,7 +150,7 @@ class FamilyMemberHistoryCondition extends Element {
                     this.__data.outcome = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.outcome = new CodeableConcept(valueProvided);
             }
         });
@@ -188,7 +188,7 @@ class FamilyMemberHistoryCondition extends Element {
                     this.__data.onsetAge = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.onsetAge = new Quantity(valueProvided);
             }
         });
@@ -207,7 +207,7 @@ class FamilyMemberHistoryCondition extends Element {
                     this.__data.onsetRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.onsetRange = new Range(valueProvided);
             }
         });
@@ -226,7 +226,7 @@ class FamilyMemberHistoryCondition extends Element {
                     this.__data.onsetPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.onsetPeriod = new Period(valueProvided);
             }
         });
@@ -263,7 +263,7 @@ class FamilyMemberHistoryCondition extends Element {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                let Annotation = require('../complex_types/annotation');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });

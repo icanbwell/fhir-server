@@ -79,7 +79,7 @@ class Binary extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -164,7 +164,7 @@ class Binary extends Resource {
                     this.__data.securityContext = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.securityContext = new Reference(valueProvided);
             }
         });

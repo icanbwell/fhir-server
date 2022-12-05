@@ -76,7 +76,7 @@ class ValueSetExpansion extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -107,7 +107,7 @@ class ValueSetExpansion extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -209,7 +209,7 @@ class ValueSetExpansion extends Element {
                     this.__data.parameter = undefined;
                     return;
                 }
-                let ValueSetParameter = require('../backbone_elements/valueSetParameter.js');
+                let ValueSetParameter = require('../backbone_elements/valueSetParameter');
                 this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetParameter(v)) : [new ValueSetParameter(valueProvided)];
             }
         });
@@ -228,7 +228,7 @@ class ValueSetExpansion extends Element {
                     this.__data.contains = undefined;
                     return;
                 }
-                let ValueSetContains = require('../backbone_elements/valueSetContains.js');
+                let ValueSetContains = require('../backbone_elements/valueSetContains');
                 this.__data.contains = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetContains(v)) : [new ValueSetContains(valueProvided)];
             }
         });

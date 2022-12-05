@@ -123,7 +123,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -186,7 +186,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -207,7 +207,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -239,7 +239,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -270,7 +270,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -292,7 +292,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -332,7 +332,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.manufacturer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.manufacturer = new Reference(valueProvided);
             }
         });
@@ -351,7 +351,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.doseForm = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.doseForm = new CodeableConcept(valueProvided);
             }
         });
@@ -373,7 +373,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.amount = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.amount = new Quantity(valueProvided);
             }
         });
@@ -412,7 +412,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.relatedMedicationKnowledge = undefined;
                     return;
                 }
-                let MedicationKnowledgeRelatedMedicationKnowledge = require('../backbone_elements/medicationKnowledgeRelatedMedicationKnowledge.js');
+                let MedicationKnowledgeRelatedMedicationKnowledge = require('../backbone_elements/medicationKnowledgeRelatedMedicationKnowledge');
                 this.__data.relatedMedicationKnowledge = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeRelatedMedicationKnowledge(v)) : [new MedicationKnowledgeRelatedMedicationKnowledge(valueProvided)];
             }
         });
@@ -434,7 +434,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.associatedMedication = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.associatedMedication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -454,7 +454,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.productType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.productType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -473,7 +473,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.monograph = undefined;
                     return;
                 }
-                let MedicationKnowledgeMonograph = require('../backbone_elements/medicationKnowledgeMonograph.js');
+                let MedicationKnowledgeMonograph = require('../backbone_elements/medicationKnowledgeMonograph');
                 this.__data.monograph = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMonograph(v)) : [new MedicationKnowledgeMonograph(valueProvided)];
             }
         });
@@ -492,7 +492,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.ingredient = undefined;
                     return;
                 }
-                let MedicationKnowledgeIngredient = require('../backbone_elements/medicationKnowledgeIngredient.js');
+                let MedicationKnowledgeIngredient = require('../backbone_elements/medicationKnowledgeIngredient');
                 this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeIngredient(v)) : [new MedicationKnowledgeIngredient(valueProvided)];
             }
         });
@@ -529,7 +529,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.intendedRoute = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.intendedRoute = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -548,7 +548,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.cost = undefined;
                     return;
                 }
-                let MedicationKnowledgeCost = require('../backbone_elements/medicationKnowledgeCost.js');
+                let MedicationKnowledgeCost = require('../backbone_elements/medicationKnowledgeCost');
                 this.__data.cost = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeCost(v)) : [new MedicationKnowledgeCost(valueProvided)];
             }
         });
@@ -567,7 +567,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.monitoringProgram = undefined;
                     return;
                 }
-                let MedicationKnowledgeMonitoringProgram = require('../backbone_elements/medicationKnowledgeMonitoringProgram.js');
+                let MedicationKnowledgeMonitoringProgram = require('../backbone_elements/medicationKnowledgeMonitoringProgram');
                 this.__data.monitoringProgram = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMonitoringProgram(v)) : [new MedicationKnowledgeMonitoringProgram(valueProvided)];
             }
         });
@@ -586,7 +586,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.administrationGuidelines = undefined;
                     return;
                 }
-                let MedicationKnowledgeAdministrationGuidelines = require('../backbone_elements/medicationKnowledgeAdministrationGuidelines.js');
+                let MedicationKnowledgeAdministrationGuidelines = require('../backbone_elements/medicationKnowledgeAdministrationGuidelines');
                 this.__data.administrationGuidelines = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeAdministrationGuidelines(v)) : [new MedicationKnowledgeAdministrationGuidelines(valueProvided)];
             }
         });
@@ -605,7 +605,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.medicineClassification = undefined;
                     return;
                 }
-                let MedicationKnowledgeMedicineClassification = require('../backbone_elements/medicationKnowledgeMedicineClassification.js');
+                let MedicationKnowledgeMedicineClassification = require('../backbone_elements/medicationKnowledgeMedicineClassification');
                 this.__data.medicineClassification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMedicineClassification(v)) : [new MedicationKnowledgeMedicineClassification(valueProvided)];
             }
         });
@@ -624,7 +624,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.packaging = undefined;
                     return;
                 }
-                let MedicationKnowledgePackaging = require('../backbone_elements/medicationKnowledgePackaging.js');
+                let MedicationKnowledgePackaging = require('../backbone_elements/medicationKnowledgePackaging');
                 this.__data.packaging = new MedicationKnowledgePackaging(valueProvided);
             }
         });
@@ -644,7 +644,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.drugCharacteristic = undefined;
                     return;
                 }
-                let MedicationKnowledgeDrugCharacteristic = require('../backbone_elements/medicationKnowledgeDrugCharacteristic.js');
+                let MedicationKnowledgeDrugCharacteristic = require('../backbone_elements/medicationKnowledgeDrugCharacteristic');
                 this.__data.drugCharacteristic = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeDrugCharacteristic(v)) : [new MedicationKnowledgeDrugCharacteristic(valueProvided)];
             }
         });
@@ -664,7 +664,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.contraindication = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.contraindication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -683,7 +683,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.regulatory = undefined;
                     return;
                 }
-                let MedicationKnowledgeRegulatory = require('../backbone_elements/medicationKnowledgeRegulatory.js');
+                let MedicationKnowledgeRegulatory = require('../backbone_elements/medicationKnowledgeRegulatory');
                 this.__data.regulatory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeRegulatory(v)) : [new MedicationKnowledgeRegulatory(valueProvided)];
             }
         });
@@ -703,7 +703,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.kinetics = undefined;
                     return;
                 }
-                let MedicationKnowledgeKinetics = require('../backbone_elements/medicationKnowledgeKinetics.js');
+                let MedicationKnowledgeKinetics = require('../backbone_elements/medicationKnowledgeKinetics');
                 this.__data.kinetics = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeKinetics(v)) : [new MedicationKnowledgeKinetics(valueProvided)];
             }
         });

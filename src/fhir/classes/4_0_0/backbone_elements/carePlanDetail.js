@@ -103,7 +103,7 @@ class CarePlanDetail extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -134,7 +134,7 @@ class CarePlanDetail extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -215,7 +215,7 @@ class CarePlanDetail extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -235,7 +235,7 @@ class CarePlanDetail extends Element {
                     this.__data.reasonCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -256,7 +256,7 @@ class CarePlanDetail extends Element {
                     this.__data.reasonReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -276,7 +276,7 @@ class CarePlanDetail extends Element {
                     this.__data.goal = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.goal = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -314,7 +314,7 @@ class CarePlanDetail extends Element {
                     this.__data.statusReason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.statusReason = new CodeableConcept(valueProvided);
             }
         });
@@ -353,7 +353,7 @@ class CarePlanDetail extends Element {
                     this.__data.scheduledTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
                 this.__data.scheduledTiming = new Timing(valueProvided);
             }
         });
@@ -372,7 +372,7 @@ class CarePlanDetail extends Element {
                     this.__data.scheduledPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.scheduledPeriod = new Period(valueProvided);
             }
         });
@@ -410,7 +410,7 @@ class CarePlanDetail extends Element {
                     this.__data.location = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.location = new Reference(valueProvided);
             }
         });
@@ -429,7 +429,7 @@ class CarePlanDetail extends Element {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -448,7 +448,7 @@ class CarePlanDetail extends Element {
                     this.__data.productCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.productCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -467,7 +467,7 @@ class CarePlanDetail extends Element {
                     this.__data.productReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.productReference = new Reference(valueProvided);
             }
         });
@@ -486,7 +486,7 @@ class CarePlanDetail extends Element {
                     this.__data.dailyAmount = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.dailyAmount = new Quantity(valueProvided);
             }
         });
@@ -506,7 +506,7 @@ class CarePlanDetail extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });

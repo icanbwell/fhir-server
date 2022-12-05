@@ -77,7 +77,7 @@ class SpecimenDefinitionTypeTested extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -108,7 +108,7 @@ class SpecimenDefinitionTypeTested extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -145,7 +145,7 @@ class SpecimenDefinitionTypeTested extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -182,7 +182,7 @@ class SpecimenDefinitionTypeTested extends Element {
                     this.__data.container = undefined;
                     return;
                 }
-                let SpecimenDefinitionContainer = require('../backbone_elements/specimenDefinitionContainer.js');
+                let SpecimenDefinitionContainer = require('../backbone_elements/specimenDefinitionContainer');
                 this.__data.container = new SpecimenDefinitionContainer(valueProvided);
             }
         });
@@ -221,7 +221,7 @@ class SpecimenDefinitionTypeTested extends Element {
                     this.__data.retentionTime = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.retentionTime = new Quantity(valueProvided);
             }
         });
@@ -240,7 +240,7 @@ class SpecimenDefinitionTypeTested extends Element {
                     this.__data.rejectionCriterion = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.rejectionCriterion = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -260,7 +260,7 @@ class SpecimenDefinitionTypeTested extends Element {
                     this.__data.handling = undefined;
                     return;
                 }
-                let SpecimenDefinitionHandling = require('../backbone_elements/specimenDefinitionHandling.js');
+                let SpecimenDefinitionHandling = require('../backbone_elements/specimenDefinitionHandling');
                 this.__data.handling = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SpecimenDefinitionHandling(v)) : [new SpecimenDefinitionHandling(valueProvided)];
             }
         });

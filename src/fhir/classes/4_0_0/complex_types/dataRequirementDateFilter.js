@@ -72,7 +72,7 @@ class DataRequirementDateFilter extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -154,7 +154,7 @@ class DataRequirementDateFilter extends Element {
                     this.__data.valuePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.valuePeriod = new Period(valueProvided);
             }
         });
@@ -173,7 +173,7 @@ class DataRequirementDateFilter extends Element {
                     this.__data.valueDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.valueDuration = new Quantity(valueProvided);
             }
         });

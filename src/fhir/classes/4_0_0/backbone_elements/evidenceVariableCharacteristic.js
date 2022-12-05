@@ -92,7 +92,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -161,7 +161,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.definitionReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.definitionReference = new Reference(valueProvided);
             }
         });
@@ -198,7 +198,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.definitionCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.definitionCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -217,7 +217,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.definitionExpression = undefined;
                     return;
                 }
-                let Expression = require('../complex_types/expression.js');
+                let Expression = require('../complex_types/expression');
                 this.__data.definitionExpression = new Expression(valueProvided);
             }
         });
@@ -236,7 +236,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.definitionDataRequirement = undefined;
                     return;
                 }
-                let DataRequirement = require('../complex_types/dataRequirement.js');
+                let DataRequirement = require('../complex_types/dataRequirement');
                 this.__data.definitionDataRequirement = new DataRequirement(valueProvided);
             }
         });
@@ -255,7 +255,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.definitionTriggerDefinition = undefined;
                     return;
                 }
-                let TriggerDefinition = require('../complex_types/triggerDefinition.js');
+                let TriggerDefinition = require('../complex_types/triggerDefinition');
                 this.__data.definitionTriggerDefinition = new TriggerDefinition(valueProvided);
             }
         });
@@ -275,7 +275,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.usageContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                let UsageContext = require('../complex_types/usageContext');
                 this.__data.usageContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -330,7 +330,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.participantEffectivePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.participantEffectivePeriod = new Period(valueProvided);
             }
         });
@@ -349,7 +349,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.participantEffectiveDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.participantEffectiveDuration = new Quantity(valueProvided);
             }
         });
@@ -368,7 +368,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.participantEffectiveTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
                 this.__data.participantEffectiveTiming = new Timing(valueProvided);
             }
         });
@@ -387,7 +387,7 @@ class EvidenceVariableCharacteristic extends Element {
                     this.__data.timeFromStart = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.timeFromStart = new Quantity(valueProvided);
             }
         });

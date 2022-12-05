@@ -260,7 +260,7 @@ class Extension {
                     return;
                 }
 
-                let Address = require('../complex_types/address.js');
+                let Address = require('../complex_types/address');
 
                 this.__data.valueAddress = new Address(value);
             },
@@ -273,7 +273,7 @@ class Extension {
                     return;
                 }
 
-                let Age = require('../complex_types/age.js');
+                let Age = require('../complex_types/age');
 
                 this.__data.valueAge = new Age(value);
             },
@@ -286,7 +286,7 @@ class Extension {
                     return;
                 }
 
-                let Annotation = require('../complex_types/annotation.js');
+                let Annotation = require('../complex_types/annotation');
 
                 this.__data.valueAnnotation = new Annotation(value);
             },
@@ -299,7 +299,7 @@ class Extension {
                     return;
                 }
 
-                let Attachment = require('../complex_types/attachment.js');
+                let Attachment = require('../complex_types/attachment');
 
                 this.__data.valueAttachment = new Attachment(value);
             },
@@ -312,7 +312,7 @@ class Extension {
                     return;
                 }
 
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
 
                 this.__data.valueCodeableConcept = new CodeableConcept(value);
             },
@@ -338,7 +338,7 @@ class Extension {
                     return;
                 }
 
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                let ContactPoint = require('../complex_types/contactPoint');
 
                 this.__data.valueContactPoint = new ContactPoint(value);
             },
@@ -351,7 +351,7 @@ class Extension {
                     return;
                 }
 
-                let Count = require('../complex_types/count.js');
+                let Count = require('../complex_types/count');
 
                 this.__data.valueCount = new Count(value);
             },
@@ -364,7 +364,7 @@ class Extension {
                     return;
                 }
 
-                let Distance = require('../complex_types/distance.js');
+                let Distance = require('../complex_types/distance');
 
                 this.__data.valueDistance = new Distance(value);
             },
@@ -377,7 +377,7 @@ class Extension {
                     return;
                 }
 
-                let Duration = require('../complex_types/duration.js');
+                let Duration = require('../complex_types/duration');
 
                 this.__data.valueDuration = new Duration(value);
             },
@@ -390,7 +390,7 @@ class Extension {
                     return;
                 }
 
-                let HumanName = require('../complex_types/humanName.js');
+                let HumanName = require('../complex_types/humanName');
 
                 this.__data.valueHumanName = new HumanName(value);
             },
@@ -403,7 +403,7 @@ class Extension {
                     return;
                 }
 
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
 
                 this.__data.valueIdentifier = new Identifier(value);
             },
@@ -416,7 +416,7 @@ class Extension {
                     return;
                 }
 
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
 
                 this.__data.valueMoney = new Money(value);
             },
@@ -429,7 +429,7 @@ class Extension {
                     return;
                 }
 
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
 
                 this.__data.valuePeriod = new Period(value);
             },
@@ -442,7 +442,7 @@ class Extension {
                     return;
                 }
 
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
 
                 this.__data.valueQuantity = new Quantity(value);
             },
@@ -455,7 +455,7 @@ class Extension {
                     return;
                 }
 
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
 
                 this.__data.valueRange = new Range(value);
             },
@@ -468,7 +468,7 @@ class Extension {
                     return;
                 }
 
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
 
                 this.__data.valueRatio = new Ratio(value);
             },
@@ -481,7 +481,7 @@ class Extension {
                     return;
                 }
 
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
 
                 this.__data.valueReference = new Reference(value);
             },
@@ -494,7 +494,7 @@ class Extension {
                     return;
                 }
 
-                let SampledData = require('../complex_types/sampledData.js');
+                let SampledData = require('../complex_types/sampledData');
 
                 this.__data.valueSampledData = new SampledData(value);
             },
@@ -507,7 +507,7 @@ class Extension {
                     return;
                 }
 
-                let Signature = require('../complex_types/signature.js');
+                let Signature = require('../complex_types/signature');
 
                 this.__data.valueSignature = new Signature(value);
             },
@@ -520,7 +520,7 @@ class Extension {
                     return;
                 }
 
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
 
                 this.__data.valueTiming = new Timing(value);
             },
@@ -533,7 +533,7 @@ class Extension {
                     return;
                 }
 
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                let ContactDetail = require('../complex_types/contactDetail');
 
                 this.__data.valueContactDetail = new ContactDetail(value);
             },
@@ -546,7 +546,7 @@ class Extension {
                     return;
                 }
 
-                let Contributor = require('../complex_types/contributor.js');
+                let Contributor = require('../complex_types/contributor');
 
                 this.__data.valueContributor = new Contributor(value);
             },
@@ -559,7 +559,7 @@ class Extension {
                     return;
                 }
 
-                let DataRequirement = require('../complex_types/dataRequirement.js');
+                let DataRequirement = require('../complex_types/dataRequirement');
 
                 this.__data.valueDataRequirement = new DataRequirement(value);
             },
@@ -572,7 +572,7 @@ class Extension {
                     return;
                 }
 
-                let Expression = require('../complex_types/expression.js');
+                let Expression = require('../complex_types/expression');
 
                 this.__data.valueExpression = new Expression(value);
             },
@@ -598,7 +598,7 @@ class Extension {
                     return;
                 }
 
-                let RelatedArtifact = require('../complex_types/relatedArtifact.js');
+                let RelatedArtifact = require('../complex_types/relatedArtifact');
 
                 this.__data.valueRelatedArtifact = new RelatedArtifact(value);
             },
@@ -611,7 +611,7 @@ class Extension {
                     return;
                 }
 
-                let TriggerDefinition = require('../complex_types/triggerDefinition.js');
+                let TriggerDefinition = require('../complex_types/triggerDefinition');
 
                 this.__data.valueTriggerDefinition = new TriggerDefinition(value);
             },
@@ -624,7 +624,7 @@ class Extension {
                     return;
                 }
 
-                let UsageContext = require('../complex_types/usageContext.js');
+                let UsageContext = require('../complex_types/usageContext');
 
                 this.__data.valueUsageContext = new UsageContext(value);
             },
@@ -637,7 +637,7 @@ class Extension {
                     return;
                 }
 
-                let Dosage = require('../backbone_elements/dosage.js');
+                let Dosage = require('../backbone_elements/dosage');
 
                 this.__data.valueDosage = new Dosage(value);
             },
@@ -650,7 +650,7 @@ class Extension {
                     return;
                 }
 
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
 
                 this.__data.valueMeta = new Meta(value);
             },

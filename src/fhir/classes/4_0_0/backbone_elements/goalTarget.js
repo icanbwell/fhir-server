@@ -83,7 +83,7 @@ class GoalTarget extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -114,7 +114,7 @@ class GoalTarget extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -134,7 +134,7 @@ class GoalTarget extends Element {
                     this.__data.measure = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.measure = new CodeableConcept(valueProvided);
             }
         });
@@ -153,7 +153,7 @@ class GoalTarget extends Element {
                     this.__data.detailQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.detailQuantity = new Quantity(valueProvided);
             }
         });
@@ -172,7 +172,7 @@ class GoalTarget extends Element {
                     this.__data.detailRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.detailRange = new Range(valueProvided);
             }
         });
@@ -191,7 +191,7 @@ class GoalTarget extends Element {
                     this.__data.detailCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.detailCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -264,7 +264,7 @@ class GoalTarget extends Element {
                     this.__data.detailRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.detailRatio = new Ratio(valueProvided);
             }
         });
@@ -301,7 +301,7 @@ class GoalTarget extends Element {
                     this.__data.dueDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.dueDuration = new Quantity(valueProvided);
             }
         });

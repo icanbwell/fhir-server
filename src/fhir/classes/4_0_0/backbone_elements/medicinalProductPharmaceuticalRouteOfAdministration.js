@@ -75,7 +75,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -125,7 +125,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -146,7 +146,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.firstDose = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.firstDose = new Quantity(valueProvided);
             }
         });
@@ -167,7 +167,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.maxSingleDose = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.maxSingleDose = new Quantity(valueProvided);
             }
         });
@@ -188,7 +188,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.maxDosePerDay = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.maxDosePerDay = new Quantity(valueProvided);
             }
         });
@@ -208,7 +208,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.maxDosePerTreatmentPeriod = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.maxDosePerTreatmentPeriod = new Ratio(valueProvided);
             }
         });
@@ -229,7 +229,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.maxTreatmentPeriod = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.maxTreatmentPeriod = new Quantity(valueProvided);
             }
         });
@@ -248,7 +248,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.targetSpecies = undefined;
                     return;
                 }
-                let MedicinalProductPharmaceuticalTargetSpecies = require('../backbone_elements/medicinalProductPharmaceuticalTargetSpecies.js');
+                let MedicinalProductPharmaceuticalTargetSpecies = require('../backbone_elements/medicinalProductPharmaceuticalTargetSpecies');
                 this.__data.targetSpecies = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPharmaceuticalTargetSpecies(v)) : [new MedicinalProductPharmaceuticalTargetSpecies(valueProvided)];
             }
         });

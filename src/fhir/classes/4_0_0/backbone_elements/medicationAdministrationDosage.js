@@ -79,7 +79,7 @@ class MedicationAdministrationDosage extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -110,7 +110,7 @@ class MedicationAdministrationDosage extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -153,7 +153,7 @@ class MedicationAdministrationDosage extends Element {
                     this.__data.site = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.site = new CodeableConcept(valueProvided);
             }
         });
@@ -174,7 +174,7 @@ class MedicationAdministrationDosage extends Element {
                     this.__data.route = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.route = new CodeableConcept(valueProvided);
             }
         });
@@ -196,7 +196,7 @@ class MedicationAdministrationDosage extends Element {
                     this.__data.method = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.method = new CodeableConcept(valueProvided);
             }
         });
@@ -217,7 +217,7 @@ class MedicationAdministrationDosage extends Element {
                     this.__data.dose = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.dose = new Quantity(valueProvided);
             }
         });
@@ -236,7 +236,7 @@ class MedicationAdministrationDosage extends Element {
                     this.__data.rateRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.rateRatio = new Ratio(valueProvided);
             }
         });
@@ -255,7 +255,7 @@ class MedicationAdministrationDosage extends Element {
                     this.__data.rateQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.rateQuantity = new Quantity(valueProvided);
             }
         });

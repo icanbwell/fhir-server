@@ -78,7 +78,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -128,7 +128,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.who = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.who = new Reference(valueProvided);
             }
         });
@@ -147,7 +147,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.onBehalfOf = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.onBehalfOf = new Reference(valueProvided);
             }
         });
@@ -167,7 +167,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.communicationMethod = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.communicationMethod = new CodeableConcept(valueProvided);
             }
         });
@@ -242,7 +242,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.proxySignature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                let Signature = require('../complex_types/signature');
                 this.__data.proxySignature = new Signature(valueProvided);
             }
         });
@@ -262,7 +262,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.sourceSignature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                let Signature = require('../complex_types/signature');
                 this.__data.sourceSignature = new Signature(valueProvided);
             }
         });

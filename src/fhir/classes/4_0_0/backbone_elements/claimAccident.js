@@ -71,7 +71,7 @@ class ClaimAccident extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class ClaimAccident extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -142,7 +142,7 @@ class ClaimAccident extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -161,7 +161,7 @@ class ClaimAccident extends Element {
                     this.__data.locationAddress = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                let Address = require('../complex_types/address');
                 this.__data.locationAddress = new Address(valueProvided);
             }
         });
@@ -180,7 +180,7 @@ class ClaimAccident extends Element {
                     this.__data.locationReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.locationReference = new Reference(valueProvided);
             }
         });

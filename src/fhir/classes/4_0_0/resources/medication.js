@@ -97,7 +97,7 @@ class Medication extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class Medication extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -181,7 +181,7 @@ class Medication extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -213,7 +213,7 @@ class Medication extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -244,7 +244,7 @@ class Medication extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -263,7 +263,7 @@ class Medication extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -286,7 +286,7 @@ class Medication extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -324,7 +324,7 @@ class Medication extends Resource {
                     this.__data.manufacturer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.manufacturer = new Reference(valueProvided);
             }
         });
@@ -343,7 +343,7 @@ class Medication extends Resource {
                     this.__data.form = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.form = new CodeableConcept(valueProvided);
             }
         });
@@ -365,7 +365,7 @@ class Medication extends Resource {
                     this.__data.amount = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.amount = new Ratio(valueProvided);
             }
         });
@@ -384,7 +384,7 @@ class Medication extends Resource {
                     this.__data.ingredient = undefined;
                     return;
                 }
-                let MedicationIngredient = require('../backbone_elements/medicationIngredient.js');
+                let MedicationIngredient = require('../backbone_elements/medicationIngredient');
                 this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationIngredient(v)) : [new MedicationIngredient(valueProvided)];
             }
         });
@@ -403,7 +403,7 @@ class Medication extends Resource {
                     this.__data.batch = undefined;
                     return;
                 }
-                let MedicationBatch = require('../backbone_elements/medicationBatch.js');
+                let MedicationBatch = require('../backbone_elements/medicationBatch');
                 this.__data.batch = new MedicationBatch(valueProvided);
             }
         });

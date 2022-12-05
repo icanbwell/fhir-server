@@ -116,7 +116,7 @@ class RiskAssessment extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -179,7 +179,7 @@ class RiskAssessment extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -200,7 +200,7 @@ class RiskAssessment extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -232,7 +232,7 @@ class RiskAssessment extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -263,7 +263,7 @@ class RiskAssessment extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -282,7 +282,7 @@ class RiskAssessment extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -301,7 +301,7 @@ class RiskAssessment extends Resource {
                     this.__data.basedOn = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.basedOn = new Reference(valueProvided);
             }
         });
@@ -321,7 +321,7 @@ class RiskAssessment extends Resource {
                     this.__data.parent = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.parent = new Reference(valueProvided);
             }
         });
@@ -358,7 +358,7 @@ class RiskAssessment extends Resource {
                     this.__data.method = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.method = new CodeableConcept(valueProvided);
             }
         });
@@ -377,7 +377,7 @@ class RiskAssessment extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -396,7 +396,7 @@ class RiskAssessment extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -415,7 +415,7 @@ class RiskAssessment extends Resource {
                     this.__data.encounter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.encounter = new Reference(valueProvided);
             }
         });
@@ -452,7 +452,7 @@ class RiskAssessment extends Resource {
                     this.__data.occurrencePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.occurrencePeriod = new Period(valueProvided);
             }
         });
@@ -472,7 +472,7 @@ class RiskAssessment extends Resource {
                     this.__data.condition = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.condition = new Reference(valueProvided);
             }
         });
@@ -491,7 +491,7 @@ class RiskAssessment extends Resource {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.performer = new Reference(valueProvided);
             }
         });
@@ -510,7 +510,7 @@ class RiskAssessment extends Resource {
                     this.__data.reasonCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -529,7 +529,7 @@ class RiskAssessment extends Resource {
                     this.__data.reasonReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -549,7 +549,7 @@ class RiskAssessment extends Resource {
                     this.__data.basis = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.basis = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -568,7 +568,7 @@ class RiskAssessment extends Resource {
                     this.__data.prediction = undefined;
                     return;
                 }
-                let RiskAssessmentPrediction = require('../backbone_elements/riskAssessmentPrediction.js');
+                let RiskAssessmentPrediction = require('../backbone_elements/riskAssessmentPrediction');
                 this.__data.prediction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RiskAssessmentPrediction(v)) : [new RiskAssessmentPrediction(valueProvided)];
             }
         });
@@ -606,7 +606,7 @@ class RiskAssessment extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                let Annotation = require('../complex_types/annotation');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });

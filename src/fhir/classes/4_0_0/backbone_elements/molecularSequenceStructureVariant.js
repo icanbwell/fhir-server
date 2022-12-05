@@ -71,7 +71,7 @@ class MolecularSequenceStructureVariant extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class MolecularSequenceStructureVariant extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class MolecularSequenceStructureVariant extends Element {
                     this.__data.variantType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.variantType = new CodeableConcept(valueProvided);
             }
         });
@@ -177,7 +177,7 @@ class MolecularSequenceStructureVariant extends Element {
                     this.__data.outer = undefined;
                     return;
                 }
-                let MolecularSequenceOuter = require('../backbone_elements/molecularSequenceOuter.js');
+                let MolecularSequenceOuter = require('../backbone_elements/molecularSequenceOuter');
                 this.__data.outer = new MolecularSequenceOuter(valueProvided);
             }
         });
@@ -196,7 +196,7 @@ class MolecularSequenceStructureVariant extends Element {
                     this.__data.inner = undefined;
                     return;
                 }
-                let MolecularSequenceInner = require('../backbone_elements/molecularSequenceInner.js');
+                let MolecularSequenceInner = require('../backbone_elements/molecularSequenceInner');
                 this.__data.inner = new MolecularSequenceInner(valueProvided);
             }
         });

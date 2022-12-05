@@ -103,7 +103,7 @@ class AuditEvent extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -166,7 +166,7 @@ class AuditEvent extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -187,7 +187,7 @@ class AuditEvent extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -219,7 +219,7 @@ class AuditEvent extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -250,7 +250,7 @@ class AuditEvent extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -271,7 +271,7 @@ class AuditEvent extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.type = new Coding(valueProvided);
             }
         });
@@ -290,7 +290,7 @@ class AuditEvent extends Resource {
                     this.__data.subtype = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.subtype = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -328,7 +328,7 @@ class AuditEvent extends Resource {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -401,7 +401,7 @@ class AuditEvent extends Resource {
                     this.__data.purposeOfEvent = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.purposeOfEvent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -420,7 +420,7 @@ class AuditEvent extends Resource {
                     this.__data.agent = undefined;
                     return;
                 }
-                let AuditEventAgent = require('../backbone_elements/auditEventAgent.js');
+                let AuditEventAgent = require('../backbone_elements/auditEventAgent');
                 this.__data.agent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new AuditEventAgent(v)) : [new AuditEventAgent(valueProvided)];
             }
         });
@@ -439,7 +439,7 @@ class AuditEvent extends Resource {
                     this.__data.source = undefined;
                     return;
                 }
-                let AuditEventSource = require('../backbone_elements/auditEventSource.js');
+                let AuditEventSource = require('../backbone_elements/auditEventSource');
                 this.__data.source = new AuditEventSource(valueProvided);
             }
         });
@@ -458,7 +458,7 @@ class AuditEvent extends Resource {
                     this.__data.entity = undefined;
                     return;
                 }
-                let AuditEventEntity = require('../backbone_elements/auditEventEntity.js');
+                let AuditEventEntity = require('../backbone_elements/auditEventEntity');
                 this.__data.entity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new AuditEventEntity(v)) : [new AuditEventEntity(valueProvided)];
             }
         });

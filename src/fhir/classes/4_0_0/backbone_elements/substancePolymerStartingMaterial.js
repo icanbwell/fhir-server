@@ -69,7 +69,7 @@ class SubstancePolymerStartingMaterial extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class SubstancePolymerStartingMaterial extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class SubstancePolymerStartingMaterial extends Element {
                     this.__data.material = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.material = new CodeableConcept(valueProvided);
             }
         });
@@ -138,7 +138,7 @@ class SubstancePolymerStartingMaterial extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -175,7 +175,7 @@ class SubstancePolymerStartingMaterial extends Element {
                     this.__data.amount = undefined;
                     return;
                 }
-                let SubstanceAmount = require('../backbone_elements/substanceAmount.js');
+                let SubstanceAmount = require('../backbone_elements/substanceAmount');
                 this.__data.amount = new SubstanceAmount(valueProvided);
             }
         });

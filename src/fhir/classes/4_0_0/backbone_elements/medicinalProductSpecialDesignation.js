@@ -78,7 +78,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -128,7 +128,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -147,7 +147,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -166,7 +166,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.intendedUse = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.intendedUse = new CodeableConcept(valueProvided);
             }
         });
@@ -185,7 +185,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.indicationCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.indicationCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -204,7 +204,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.indicationReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.indicationReference = new Reference(valueProvided);
             }
         });
@@ -223,7 +223,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.status = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.status = new CodeableConcept(valueProvided);
             }
         });
@@ -260,7 +260,7 @@ class MedicinalProductSpecialDesignation extends Element {
                     this.__data.species = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.species = new CodeableConcept(valueProvided);
             }
         });

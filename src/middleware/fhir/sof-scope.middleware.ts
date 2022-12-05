@@ -1,6 +1,6 @@
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 
-const noOpMiddleware = require('./noop.middleware.js');
+const noOpMiddleware = require('./noop.middleware');
 
 const {
     INTERACTIONS

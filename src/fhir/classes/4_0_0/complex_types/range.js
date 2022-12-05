@@ -65,7 +65,7 @@ class Range extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -84,7 +84,7 @@ class Range extends Element {
                     this.__data.low = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.low = new Quantity(valueProvided);
             }
         });
@@ -103,7 +103,7 @@ class Range extends Element {
                     this.__data.high = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.high = new Quantity(valueProvided);
             }
         });

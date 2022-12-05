@@ -75,7 +75,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -125,7 +125,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -144,7 +144,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.doseRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.doseRange = new Range(valueProvided);
             }
         });
@@ -163,7 +163,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.doseQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.doseQuantity = new Quantity(valueProvided);
             }
         });
@@ -182,7 +182,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.rateRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.rateRatio = new Ratio(valueProvided);
             }
         });
@@ -201,7 +201,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.rateRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.rateRange = new Range(valueProvided);
             }
         });
@@ -220,7 +220,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.rateQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.rateQuantity = new Quantity(valueProvided);
             }
         });

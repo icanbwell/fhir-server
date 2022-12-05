@@ -79,7 +79,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -110,7 +110,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -129,7 +129,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.initialFill = undefined;
                     return;
                 }
-                let MedicationRequestInitialFill = require('../backbone_elements/medicationRequestInitialFill.js');
+                let MedicationRequestInitialFill = require('../backbone_elements/medicationRequestInitialFill');
                 this.__data.initialFill = new MedicationRequestInitialFill(valueProvided);
             }
         });
@@ -149,7 +149,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.dispenseInterval = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.dispenseInterval = new Quantity(valueProvided);
             }
         });
@@ -169,7 +169,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.validityPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.validityPeriod = new Period(valueProvided);
             }
         });
@@ -212,7 +212,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -232,7 +232,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.expectedSupplyDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.expectedSupplyDuration = new Quantity(valueProvided);
             }
         });
@@ -251,7 +251,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.performer = new Reference(valueProvided);
             }
         });

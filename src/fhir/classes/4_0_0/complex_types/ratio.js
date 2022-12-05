@@ -66,7 +66,7 @@ class Ratio extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -85,7 +85,7 @@ class Ratio extends Element {
                     this.__data.numerator = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.numerator = new Quantity(valueProvided);
             }
         });
@@ -104,7 +104,7 @@ class Ratio extends Element {
                     this.__data.denominator = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.denominator = new Quantity(valueProvided);
             }
         });

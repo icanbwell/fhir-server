@@ -78,7 +78,7 @@ class SubstanceSpecificationStructure extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class SubstanceSpecificationStructure extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -128,7 +128,7 @@ class SubstanceSpecificationStructure extends Element {
                     this.__data.stereochemistry = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.stereochemistry = new CodeableConcept(valueProvided);
             }
         });
@@ -147,7 +147,7 @@ class SubstanceSpecificationStructure extends Element {
                     this.__data.opticalActivity = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.opticalActivity = new CodeableConcept(valueProvided);
             }
         });
@@ -204,7 +204,7 @@ class SubstanceSpecificationStructure extends Element {
                     this.__data.isotope = undefined;
                     return;
                 }
-                let SubstanceSpecificationIsotope = require('../backbone_elements/substanceSpecificationIsotope.js');
+                let SubstanceSpecificationIsotope = require('../backbone_elements/substanceSpecificationIsotope');
                 this.__data.isotope = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationIsotope(v)) : [new SubstanceSpecificationIsotope(valueProvided)];
             }
         });
@@ -224,7 +224,7 @@ class SubstanceSpecificationStructure extends Element {
                     this.__data.molecularWeight = undefined;
                     return;
                 }
-                let SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
+                let SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight');
                 this.__data.molecularWeight = new SubstanceSpecificationMolecularWeight(valueProvided);
             }
         });
@@ -243,7 +243,7 @@ class SubstanceSpecificationStructure extends Element {
                     this.__data.source = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -262,7 +262,7 @@ class SubstanceSpecificationStructure extends Element {
                     this.__data.representation = undefined;
                     return;
                 }
-                let SubstanceSpecificationRepresentation = require('../backbone_elements/substanceSpecificationRepresentation.js');
+                let SubstanceSpecificationRepresentation = require('../backbone_elements/substanceSpecificationRepresentation');
                 this.__data.representation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationRepresentation(v)) : [new SubstanceSpecificationRepresentation(valueProvided)];
             }
         });

@@ -90,7 +90,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -140,7 +140,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.family = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.family = new CodeableConcept(valueProvided);
             }
         });
@@ -161,7 +161,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.genus = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.genus = new CodeableConcept(valueProvided);
             }
         });
@@ -182,7 +182,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.species = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.species = new CodeableConcept(valueProvided);
             }
         });
@@ -201,7 +201,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.intraspecificType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.intraspecificType = new CodeableConcept(valueProvided);
             }
         });
@@ -240,7 +240,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.author = undefined;
                     return;
                 }
-                let SubstanceSourceMaterialAuthor = require('../backbone_elements/substanceSourceMaterialAuthor.js');
+                let SubstanceSourceMaterialAuthor = require('../backbone_elements/substanceSourceMaterialAuthor');
                 this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSourceMaterialAuthor(v)) : [new SubstanceSourceMaterialAuthor(valueProvided)];
             }
         });
@@ -259,7 +259,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.hybrid = undefined;
                     return;
                 }
-                let SubstanceSourceMaterialHybrid = require('../backbone_elements/substanceSourceMaterialHybrid.js');
+                let SubstanceSourceMaterialHybrid = require('../backbone_elements/substanceSourceMaterialHybrid');
                 this.__data.hybrid = new SubstanceSourceMaterialHybrid(valueProvided);
             }
         });
@@ -278,7 +278,7 @@ class SubstanceSourceMaterialOrganism extends Element {
                     this.__data.organismGeneral = undefined;
                     return;
                 }
-                let SubstanceSourceMaterialOrganismGeneral = require('../backbone_elements/substanceSourceMaterialOrganismGeneral.js');
+                let SubstanceSourceMaterialOrganismGeneral = require('../backbone_elements/substanceSourceMaterialOrganismGeneral');
                 this.__data.organismGeneral = new SubstanceSourceMaterialOrganismGeneral(valueProvided);
             }
         });

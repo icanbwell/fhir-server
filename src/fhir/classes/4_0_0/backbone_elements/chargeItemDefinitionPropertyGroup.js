@@ -68,7 +68,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -99,7 +99,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -118,7 +118,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     this.__data.applicability = undefined;
                     return;
                 }
-                let ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
+                let ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability');
                 this.__data.applicability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemDefinitionApplicability(v)) : [new ChargeItemDefinitionApplicability(valueProvided)];
             }
         });
@@ -142,7 +142,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     this.__data.priceComponent = undefined;
                     return;
                 }
-                let ChargeItemDefinitionPriceComponent = require('../backbone_elements/chargeItemDefinitionPriceComponent.js');
+                let ChargeItemDefinitionPriceComponent = require('../backbone_elements/chargeItemDefinitionPriceComponent');
                 this.__data.priceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemDefinitionPriceComponent(v)) : [new ChargeItemDefinitionPriceComponent(valueProvided)];
             }
         });

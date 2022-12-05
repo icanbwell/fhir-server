@@ -103,7 +103,7 @@ let fhirServerConfig = {
         // strategy: {
         //     name: 'bearer',
         //     useSession: false,
-        //     service: './src/strategies/bearer.strategy.js'
+        //     service: './src/strategies/bearer.strategy'
         // },
     },
     server: {
@@ -143,7 +143,7 @@ let fhirServerConfig = {
     //
     // Example:
     // Account: {
-    //		service: './src/services/account/account.service.js',
+    //		service: './src/services/account/account.service',
     //		versions: [ VERSIONS['4_0_0'], VERSIONS['3_0_1'], VERSIONS['1_0_2'] ]
     // },
     //
@@ -160,7 +160,7 @@ if (env.AUTH_ENABLED === '1') {
         strategy: {
             name: 'jwt',
             useSession: false,
-            service: './src/strategies/jwt.bearer.strategy.js',
+            service: './src/strategies/jwt.bearer.strategy',
         },
     };
 }

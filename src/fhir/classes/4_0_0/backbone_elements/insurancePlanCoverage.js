@@ -67,7 +67,7 @@ class InsurancePlanCoverage extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -98,7 +98,7 @@ class InsurancePlanCoverage extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -118,7 +118,7 @@ class InsurancePlanCoverage extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -137,7 +137,7 @@ class InsurancePlanCoverage extends Element {
                     this.__data.network = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.network = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -156,7 +156,7 @@ class InsurancePlanCoverage extends Element {
                     this.__data.benefit = undefined;
                     return;
                 }
-                let InsurancePlanBenefit = require('../backbone_elements/insurancePlanBenefit.js');
+                let InsurancePlanBenefit = require('../backbone_elements/insurancePlanBenefit');
                 this.__data.benefit = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InsurancePlanBenefit(v)) : [new InsurancePlanBenefit(valueProvided)];
             }
         });

@@ -70,7 +70,7 @@ class ValueSetConcept extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class ValueSetConcept extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -160,7 +160,7 @@ class ValueSetConcept extends Element {
                     this.__data.designation = undefined;
                     return;
                 }
-                let ValueSetDesignation = require('../backbone_elements/valueSetDesignation.js');
+                let ValueSetDesignation = require('../backbone_elements/valueSetDesignation');
                 this.__data.designation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetDesignation(v)) : [new ValueSetDesignation(valueProvided)];
             }
         });

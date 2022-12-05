@@ -73,7 +73,7 @@ class BundleEntry extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -104,7 +104,7 @@ class BundleEntry extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class BundleEntry extends Element {
                     this.__data.link = undefined;
                     return;
                 }
-                let BundleLink = require('../backbone_elements/bundleLink.js');
+                let BundleLink = require('../backbone_elements/bundleLink');
                 this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleLink(v)) : [new BundleLink(valueProvided)];
             }
         });
@@ -168,7 +168,7 @@ class BundleEntry extends Element {
                     this.__data.resource = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
                 this.__data.resource = new ResourceCreator(valueProvided);
@@ -189,7 +189,7 @@ class BundleEntry extends Element {
                     this.__data.search = undefined;
                     return;
                 }
-                let BundleSearch = require('../backbone_elements/bundleSearch.js');
+                let BundleSearch = require('../backbone_elements/bundleSearch');
                 this.__data.search = new BundleSearch(valueProvided);
             }
         });
@@ -210,7 +210,7 @@ class BundleEntry extends Element {
                     this.__data.request = undefined;
                     return;
                 }
-                let BundleRequest = require('../backbone_elements/bundleRequest.js');
+                let BundleRequest = require('../backbone_elements/bundleRequest');
                 this.__data.request = new BundleRequest(valueProvided);
             }
         });
@@ -231,7 +231,7 @@ class BundleEntry extends Element {
                     this.__data.response = undefined;
                     return;
                 }
-                let BundleResponse = require('../backbone_elements/bundleResponse.js');
+                let BundleResponse = require('../backbone_elements/bundleResponse');
                 this.__data.response = new BundleResponse(valueProvided);
             }
         });

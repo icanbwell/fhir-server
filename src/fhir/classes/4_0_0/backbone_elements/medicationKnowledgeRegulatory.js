@@ -69,7 +69,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.regulatoryAuthority = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.regulatoryAuthority = new Reference(valueProvided);
             }
         });
@@ -139,7 +139,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.substitution = undefined;
                     return;
                 }
-                let MedicationKnowledgeSubstitution = require('../backbone_elements/medicationKnowledgeSubstitution.js');
+                let MedicationKnowledgeSubstitution = require('../backbone_elements/medicationKnowledgeSubstitution');
                 this.__data.substitution = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeSubstitution(v)) : [new MedicationKnowledgeSubstitution(valueProvided)];
             }
         });
@@ -158,7 +158,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.schedule = undefined;
                     return;
                 }
-                let MedicationKnowledgeSchedule = require('../backbone_elements/medicationKnowledgeSchedule.js');
+                let MedicationKnowledgeSchedule = require('../backbone_elements/medicationKnowledgeSchedule');
                 this.__data.schedule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeSchedule(v)) : [new MedicationKnowledgeSchedule(valueProvided)];
             }
         });
@@ -178,7 +178,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.maxDispense = undefined;
                     return;
                 }
-                let MedicationKnowledgeMaxDispense = require('../backbone_elements/medicationKnowledgeMaxDispense.js');
+                let MedicationKnowledgeMaxDispense = require('../backbone_elements/medicationKnowledgeMaxDispense');
                 this.__data.maxDispense = new MedicationKnowledgeMaxDispense(valueProvided);
             }
         });

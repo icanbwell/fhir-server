@@ -103,7 +103,7 @@ class TestReport extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -166,7 +166,7 @@ class TestReport extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -187,7 +187,7 @@ class TestReport extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -219,7 +219,7 @@ class TestReport extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -250,7 +250,7 @@ class TestReport extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -270,7 +270,7 @@ class TestReport extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -326,7 +326,7 @@ class TestReport extends Resource {
                     this.__data.testScript = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.testScript = new Reference(valueProvided);
             }
         });
@@ -419,7 +419,7 @@ class TestReport extends Resource {
                     this.__data.participant = undefined;
                     return;
                 }
-                let TestReportParticipant = require('../backbone_elements/testReportParticipant.js');
+                let TestReportParticipant = require('../backbone_elements/testReportParticipant');
                 this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestReportParticipant(v)) : [new TestReportParticipant(valueProvided)];
             }
         });
@@ -439,7 +439,7 @@ class TestReport extends Resource {
                     this.__data.setup = undefined;
                     return;
                 }
-                let TestReportSetup = require('../backbone_elements/testReportSetup.js');
+                let TestReportSetup = require('../backbone_elements/testReportSetup');
                 this.__data.setup = new TestReportSetup(valueProvided);
             }
         });
@@ -458,7 +458,7 @@ class TestReport extends Resource {
                     this.__data.test = undefined;
                     return;
                 }
-                let TestReportTest = require('../backbone_elements/testReportTest.js');
+                let TestReportTest = require('../backbone_elements/testReportTest');
                 this.__data.test = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestReportTest(v)) : [new TestReportTest(valueProvided)];
             }
         });
@@ -478,7 +478,7 @@ class TestReport extends Resource {
                     this.__data.teardown = undefined;
                     return;
                 }
-                let TestReportTeardown = require('../backbone_elements/testReportTeardown.js');
+                let TestReportTeardown = require('../backbone_elements/testReportTeardown');
                 this.__data.teardown = new TestReportTeardown(valueProvided);
             }
         });

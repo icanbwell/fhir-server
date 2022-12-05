@@ -65,7 +65,7 @@ class InsurancePlanSpecificCost extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -96,7 +96,7 @@ class InsurancePlanSpecificCost extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -116,7 +116,7 @@ class InsurancePlanSpecificCost extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.category = new CodeableConcept(valueProvided);
             }
         });
@@ -135,7 +135,7 @@ class InsurancePlanSpecificCost extends Element {
                     this.__data.benefit = undefined;
                     return;
                 }
-                let InsurancePlanBenefit1 = require('../backbone_elements/insurancePlanBenefit1.js');
+                let InsurancePlanBenefit1 = require('../backbone_elements/insurancePlanBenefit1');
                 this.__data.benefit = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InsurancePlanBenefit1(v)) : [new InsurancePlanBenefit1(valueProvided)];
             }
         });

@@ -72,7 +72,7 @@ class OrganizationContact extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -103,7 +103,7 @@ class OrganizationContact extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -122,7 +122,7 @@ class OrganizationContact extends Element {
                     this.__data.purpose = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.purpose = new CodeableConcept(valueProvided);
             }
         });
@@ -141,7 +141,7 @@ class OrganizationContact extends Element {
                     this.__data.name = undefined;
                     return;
                 }
-                let HumanName = require('../complex_types/humanName.js');
+                let HumanName = require('../complex_types/humanName');
                 this.__data.name = new HumanName(valueProvided);
             }
         });
@@ -161,7 +161,7 @@ class OrganizationContact extends Element {
                     this.__data.telecom = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                let ContactPoint = require('../complex_types/contactPoint');
                 this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
@@ -180,7 +180,7 @@ class OrganizationContact extends Element {
                     this.__data.address = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                let Address = require('../complex_types/address');
                 this.__data.address = new Address(valueProvided);
             }
         });

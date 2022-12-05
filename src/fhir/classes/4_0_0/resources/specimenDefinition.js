@@ -91,7 +91,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -154,7 +154,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -175,7 +175,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -207,7 +207,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -238,7 +238,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -257,7 +257,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -276,7 +276,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.typeCollected = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.typeCollected = new CodeableConcept(valueProvided);
             }
         });
@@ -295,7 +295,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.patientPreparation = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.patientPreparation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -332,7 +332,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.collection = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.collection = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -351,7 +351,7 @@ class SpecimenDefinition extends Resource {
                     this.__data.typeTested = undefined;
                     return;
                 }
-                let SpecimenDefinitionTypeTested = require('../backbone_elements/specimenDefinitionTypeTested.js');
+                let SpecimenDefinitionTypeTested = require('../backbone_elements/specimenDefinitionTypeTested');
                 this.__data.typeTested = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SpecimenDefinitionTypeTested(v)) : [new SpecimenDefinitionTypeTested(valueProvided)];
             }
         });

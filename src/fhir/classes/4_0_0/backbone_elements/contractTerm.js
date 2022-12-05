@@ -88,7 +88,7 @@ class ContractTerm extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class ContractTerm extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -138,7 +138,7 @@ class ContractTerm extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -175,7 +175,7 @@ class ContractTerm extends Element {
                     this.__data.applies = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.applies = new Period(valueProvided);
             }
         });
@@ -194,7 +194,7 @@ class ContractTerm extends Element {
                     this.__data.topicCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.topicCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -213,7 +213,7 @@ class ContractTerm extends Element {
                     this.__data.topicReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.topicReference = new Reference(valueProvided);
             }
         });
@@ -235,7 +235,7 @@ class ContractTerm extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -254,7 +254,7 @@ class ContractTerm extends Element {
                     this.__data.subType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.subType = new CodeableConcept(valueProvided);
             }
         });
@@ -292,7 +292,7 @@ class ContractTerm extends Element {
                     this.__data.securityLabel = undefined;
                     return;
                 }
-                let ContractSecurityLabel = require('../backbone_elements/contractSecurityLabel.js');
+                let ContractSecurityLabel = require('../backbone_elements/contractSecurityLabel');
                 this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractSecurityLabel(v)) : [new ContractSecurityLabel(valueProvided)];
             }
         });
@@ -311,7 +311,7 @@ class ContractTerm extends Element {
                     this.__data.offer = undefined;
                     return;
                 }
-                let ContractOffer = require('../backbone_elements/contractOffer.js');
+                let ContractOffer = require('../backbone_elements/contractOffer');
                 this.__data.offer = new ContractOffer(valueProvided);
             }
         });
@@ -330,7 +330,7 @@ class ContractTerm extends Element {
                     this.__data.asset = undefined;
                     return;
                 }
-                let ContractAsset = require('../backbone_elements/contractAsset.js');
+                let ContractAsset = require('../backbone_elements/contractAsset');
                 this.__data.asset = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractAsset(v)) : [new ContractAsset(valueProvided)];
             }
         });
@@ -350,7 +350,7 @@ class ContractTerm extends Element {
                     this.__data.action = undefined;
                     return;
                 }
-                let ContractAction = require('../backbone_elements/contractAction.js');
+                let ContractAction = require('../backbone_elements/contractAction');
                 this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractAction(v)) : [new ContractAction(valueProvided)];
             }
         });

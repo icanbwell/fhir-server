@@ -65,7 +65,7 @@ class MedicinalProductIngredientSubstance extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -96,7 +96,7 @@ class MedicinalProductIngredientSubstance extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class MedicinalProductIngredientSubstance extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -135,7 +135,7 @@ class MedicinalProductIngredientSubstance extends Element {
                     this.__data.strength = undefined;
                     return;
                 }
-                let MedicinalProductIngredientStrength = require('../backbone_elements/medicinalProductIngredientStrength.js');
+                let MedicinalProductIngredientStrength = require('../backbone_elements/medicinalProductIngredientStrength');
                 this.__data.strength = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductIngredientStrength(v)) : [new MedicinalProductIngredientStrength(valueProvided)];
             }
         });

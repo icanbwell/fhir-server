@@ -105,7 +105,7 @@ class SupplyDelivery extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -168,7 +168,7 @@ class SupplyDelivery extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class SupplyDelivery extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -221,7 +221,7 @@ class SupplyDelivery extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -252,7 +252,7 @@ class SupplyDelivery extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -272,7 +272,7 @@ class SupplyDelivery extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -291,7 +291,7 @@ class SupplyDelivery extends Resource {
                     this.__data.basedOn = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -310,7 +310,7 @@ class SupplyDelivery extends Resource {
                     this.__data.partOf = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -347,7 +347,7 @@ class SupplyDelivery extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -367,7 +367,7 @@ class SupplyDelivery extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -386,7 +386,7 @@ class SupplyDelivery extends Resource {
                     this.__data.suppliedItem = undefined;
                     return;
                 }
-                let SupplyDeliverySuppliedItem = require('../backbone_elements/supplyDeliverySuppliedItem.js');
+                let SupplyDeliverySuppliedItem = require('../backbone_elements/supplyDeliverySuppliedItem');
                 this.__data.suppliedItem = new SupplyDeliverySuppliedItem(valueProvided);
             }
         });
@@ -423,7 +423,7 @@ class SupplyDelivery extends Resource {
                     this.__data.occurrencePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.occurrencePeriod = new Period(valueProvided);
             }
         });
@@ -442,7 +442,7 @@ class SupplyDelivery extends Resource {
                     this.__data.occurrenceTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
                 this.__data.occurrenceTiming = new Timing(valueProvided);
             }
         });
@@ -461,7 +461,7 @@ class SupplyDelivery extends Resource {
                     this.__data.supplier = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.supplier = new Reference(valueProvided);
             }
         });
@@ -481,7 +481,7 @@ class SupplyDelivery extends Resource {
                     this.__data.destination = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.destination = new Reference(valueProvided);
             }
         });
@@ -500,7 +500,7 @@ class SupplyDelivery extends Resource {
                     this.__data.receiver = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.receiver = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });

@@ -39,7 +39,7 @@ class ResourceContainer {
                     return;
                 }
 
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
 
                 this.__data.meta = new Meta(value);
             },

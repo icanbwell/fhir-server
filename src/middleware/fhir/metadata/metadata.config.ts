@@ -1,8 +1,8 @@
-const controller = require('./metadata.controller.js');
+const controller = require('./metadata.controller');
 
 const {
     routeArgs: routeArgs
-} = require('../route.config.js');
+} = require('../route.config');
 
 let route = {
     path: '/:base_version/metadata',

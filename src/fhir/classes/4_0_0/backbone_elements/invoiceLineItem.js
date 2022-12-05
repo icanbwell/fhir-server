@@ -70,7 +70,7 @@ class InvoiceLineItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class InvoiceLineItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -138,7 +138,7 @@ class InvoiceLineItem extends Element {
                     this.__data.chargeItemReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.chargeItemReference = new Reference(valueProvided);
             }
         });
@@ -157,7 +157,7 @@ class InvoiceLineItem extends Element {
                     this.__data.chargeItemCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.chargeItemCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -181,7 +181,7 @@ class InvoiceLineItem extends Element {
                     this.__data.priceComponent = undefined;
                     return;
                 }
-                let InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
+                let InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent');
                 this.__data.priceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(valueProvided)];
             }
         });

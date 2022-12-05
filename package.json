@@ -16,7 +16,7 @@
     "test_shards": "NODE_ENV=test npm run lint && npm run test:jest_shard1 && npm run test:jest_shard2 && npm run test:jest_shard3 && npm run test:jest_shard4 && npm run test:jest_shard5",
     "lint": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jshint",
     "test:failed": "NODE_ENV=test npm run test:lint && npm run test:jest --onlyFailures",
-    "test:lint": "NODE_OPTIONS=--max_old_space_size=8096 eslint \"src/**/*.js\"",
+    "test:lint": "NODE_OPTIONS=--max_old_space_size=8096 eslint \"src/**/*.ts\"",
     "test:ejslint": "ejslint \"src/**/*.ejs\"",
     "test:jshint": "jshint \"src/\"",
     "test:jest_shard1": "NODE_OPTIONS=--max_old_space_size=8192 node --max_old_space_size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=1/5 .",
@@ -152,6 +152,7 @@
     "xss": "^1.0.14"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.18.6",
     "@jest/globals": "^29.3.1",
     "@shelf/jest-mongodb": "^4.1.3",
     "@types/async": "^3.2.16",

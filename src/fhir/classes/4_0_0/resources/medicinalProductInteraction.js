@@ -94,7 +94,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -157,7 +157,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -178,7 +178,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -210,7 +210,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -241,7 +241,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -260,7 +260,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -297,7 +297,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.interactant = undefined;
                     return;
                 }
-                let MedicinalProductInteractionInteractant = require('../backbone_elements/medicinalProductInteractionInteractant.js');
+                let MedicinalProductInteractionInteractant = require('../backbone_elements/medicinalProductInteractionInteractant');
                 this.__data.interactant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductInteractionInteractant(v)) : [new MedicinalProductInteractionInteractant(valueProvided)];
             }
         });
@@ -317,7 +317,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -337,7 +337,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.effect = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.effect = new CodeableConcept(valueProvided);
             }
         });
@@ -356,7 +356,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.incidence = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.incidence = new CodeableConcept(valueProvided);
             }
         });
@@ -375,7 +375,7 @@ class MedicinalProductInteraction extends Resource {
                     this.__data.management = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.management = new CodeableConcept(valueProvided);
             }
         });

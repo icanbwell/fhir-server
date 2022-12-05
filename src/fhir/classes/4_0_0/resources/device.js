@@ -133,7 +133,7 @@ class Device extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -196,7 +196,7 @@ class Device extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -217,7 +217,7 @@ class Device extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -249,7 +249,7 @@ class Device extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -280,7 +280,7 @@ class Device extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -300,7 +300,7 @@ class Device extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -319,7 +319,7 @@ class Device extends Resource {
                     this.__data.definition = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.definition = new Reference(valueProvided);
             }
         });
@@ -341,7 +341,7 @@ class Device extends Resource {
                     this.__data.udiCarrier = undefined;
                     return;
                 }
-                let DeviceUdiCarrier = require('../backbone_elements/deviceUdiCarrier.js');
+                let DeviceUdiCarrier = require('../backbone_elements/deviceUdiCarrier');
                 this.__data.udiCarrier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceUdiCarrier(v)) : [new DeviceUdiCarrier(valueProvided)];
             }
         });
@@ -378,7 +378,7 @@ class Device extends Resource {
                     this.__data.statusReason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.statusReason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -511,7 +511,7 @@ class Device extends Resource {
                     this.__data.deviceName = undefined;
                     return;
                 }
-                let DeviceDeviceName = require('../backbone_elements/deviceDeviceName.js');
+                let DeviceDeviceName = require('../backbone_elements/deviceDeviceName');
                 this.__data.deviceName = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDeviceName(v)) : [new DeviceDeviceName(valueProvided)];
             }
         });
@@ -566,7 +566,7 @@ class Device extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -586,7 +586,7 @@ class Device extends Resource {
                     this.__data.specialization = undefined;
                     return;
                 }
-                let DeviceSpecialization = require('../backbone_elements/deviceSpecialization.js');
+                let DeviceSpecialization = require('../backbone_elements/deviceSpecialization');
                 this.__data.specialization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceSpecialization(v)) : [new DeviceSpecialization(valueProvided)];
             }
         });
@@ -605,7 +605,7 @@ class Device extends Resource {
                     this.__data.version = undefined;
                     return;
                 }
-                let DeviceVersion = require('../backbone_elements/deviceVersion.js');
+                let DeviceVersion = require('../backbone_elements/deviceVersion');
                 this.__data.version = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceVersion(v)) : [new DeviceVersion(valueProvided)];
             }
         });
@@ -625,7 +625,7 @@ class Device extends Resource {
                     this.__data.property = undefined;
                     return;
                 }
-                let DeviceProperty = require('../backbone_elements/deviceProperty.js');
+                let DeviceProperty = require('../backbone_elements/deviceProperty');
                 this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceProperty(v)) : [new DeviceProperty(valueProvided)];
             }
         });
@@ -644,7 +644,7 @@ class Device extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -664,7 +664,7 @@ class Device extends Resource {
                     this.__data.owner = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.owner = new Reference(valueProvided);
             }
         });
@@ -684,7 +684,7 @@ class Device extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                let ContactPoint = require('../complex_types/contactPoint');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
@@ -703,7 +703,7 @@ class Device extends Resource {
                     this.__data.location = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.location = new Reference(valueProvided);
             }
         });
@@ -741,7 +741,7 @@ class Device extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                let Annotation = require('../complex_types/annotation');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -761,7 +761,7 @@ class Device extends Resource {
                     this.__data.safety = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.safety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -780,7 +780,7 @@ class Device extends Resource {
                     this.__data.parent = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.parent = new Reference(valueProvided);
             }
         });

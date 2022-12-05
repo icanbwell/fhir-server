@@ -90,7 +90,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -140,7 +140,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.vaccineCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.vaccineCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -159,7 +159,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.targetDisease = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.targetDisease = new CodeableConcept(valueProvided);
             }
         });
@@ -178,7 +178,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.contraindicatedVaccineCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.contraindicatedVaccineCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -198,7 +198,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.forecastStatus = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.forecastStatus = new CodeableConcept(valueProvided);
             }
         });
@@ -217,7 +217,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.forecastReason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.forecastReason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -237,7 +237,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.dateCriterion = undefined;
                     return;
                 }
-                let ImmunizationRecommendationDateCriterion = require('../backbone_elements/immunizationRecommendationDateCriterion.js');
+                let ImmunizationRecommendationDateCriterion = require('../backbone_elements/immunizationRecommendationDateCriterion');
                 this.__data.dateCriterion = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationRecommendationDateCriterion(v)) : [new ImmunizationRecommendationDateCriterion(valueProvided)];
             }
         });
@@ -367,7 +367,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.supportingImmunization = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.supportingImmunization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -388,7 +388,7 @@ class ImmunizationRecommendationRecommendation extends Element {
                     this.__data.supportingPatientInformation = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.supportingPatientInformation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });

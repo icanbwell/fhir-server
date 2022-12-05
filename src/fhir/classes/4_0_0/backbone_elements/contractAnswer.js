@@ -86,7 +86,7 @@ class ContractAnswer extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -117,7 +117,7 @@ class ContractAnswer extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -280,7 +280,7 @@ class ContractAnswer extends Element {
                     this.__data.valueAttachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                let Attachment = require('../complex_types/attachment');
                 this.__data.valueAttachment = new Attachment(valueProvided);
             }
         });
@@ -299,7 +299,7 @@ class ContractAnswer extends Element {
                     this.__data.valueCoding = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.valueCoding = new Coding(valueProvided);
             }
         });
@@ -318,7 +318,7 @@ class ContractAnswer extends Element {
                     this.__data.valueQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.valueQuantity = new Quantity(valueProvided);
             }
         });
@@ -337,7 +337,7 @@ class ContractAnswer extends Element {
                     this.__data.valueReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.valueReference = new Reference(valueProvided);
             }
         });

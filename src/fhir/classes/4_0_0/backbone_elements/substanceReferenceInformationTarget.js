@@ -81,7 +81,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -112,7 +112,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -131,7 +131,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.target = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.target = new Identifier(valueProvided);
             }
         });
@@ -150,7 +150,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -169,7 +169,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.interaction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.interaction = new CodeableConcept(valueProvided);
             }
         });
@@ -188,7 +188,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.organism = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.organism = new CodeableConcept(valueProvided);
             }
         });
@@ -207,7 +207,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.organismType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.organismType = new CodeableConcept(valueProvided);
             }
         });
@@ -226,7 +226,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.amountQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.amountQuantity = new Quantity(valueProvided);
             }
         });
@@ -245,7 +245,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.amountRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.amountRange = new Range(valueProvided);
             }
         });
@@ -282,7 +282,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.amountType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.amountType = new CodeableConcept(valueProvided);
             }
         });
@@ -301,7 +301,7 @@ class SubstanceReferenceInformationTarget extends Element {
                     this.__data.source = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });

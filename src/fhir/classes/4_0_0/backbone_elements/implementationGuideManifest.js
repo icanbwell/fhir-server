@@ -74,7 +74,7 @@ class ImplementationGuideManifest extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class ImplementationGuideManifest extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -146,7 +146,7 @@ class ImplementationGuideManifest extends Element {
                     this.__data.resource = undefined;
                     return;
                 }
-                let ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
+                let ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1');
                 this.__data.resource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideResource1(v)) : [new ImplementationGuideResource1(valueProvided)];
             }
         });
@@ -165,7 +165,7 @@ class ImplementationGuideManifest extends Element {
                     this.__data.page = undefined;
                     return;
                 }
-                let ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
+                let ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1');
                 this.__data.page = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuidePage1(v)) : [new ImplementationGuidePage1(valueProvided)];
             }
         });

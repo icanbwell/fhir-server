@@ -95,7 +95,7 @@ class QuestionnaireItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -126,7 +126,7 @@ class QuestionnaireItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -197,7 +197,7 @@ class QuestionnaireItem extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -276,7 +276,7 @@ class QuestionnaireItem extends Element {
                     this.__data.enableWhen = undefined;
                     return;
                 }
-                let QuestionnaireEnableWhen = require('../backbone_elements/questionnaireEnableWhen.js');
+                let QuestionnaireEnableWhen = require('../backbone_elements/questionnaireEnableWhen');
                 this.__data.enableWhen = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireEnableWhen(v)) : [new QuestionnaireEnableWhen(valueProvided)];
             }
         });
@@ -411,7 +411,7 @@ class QuestionnaireItem extends Element {
                     this.__data.answerOption = undefined;
                     return;
                 }
-                let QuestionnaireAnswerOption = require('../backbone_elements/questionnaireAnswerOption.js');
+                let QuestionnaireAnswerOption = require('../backbone_elements/questionnaireAnswerOption');
                 this.__data.answerOption = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireAnswerOption(v)) : [new QuestionnaireAnswerOption(valueProvided)];
             }
         });
@@ -431,7 +431,7 @@ class QuestionnaireItem extends Element {
                     this.__data.initial = undefined;
                     return;
                 }
-                let QuestionnaireInitial = require('../backbone_elements/questionnaireInitial.js');
+                let QuestionnaireInitial = require('../backbone_elements/questionnaireInitial');
                 this.__data.initial = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireInitial(v)) : [new QuestionnaireInitial(valueProvided)];
             }
         });

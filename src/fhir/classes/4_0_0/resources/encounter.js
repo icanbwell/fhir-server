@@ -126,7 +126,7 @@ class Encounter extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class Encounter extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -210,7 +210,7 @@ class Encounter extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -242,7 +242,7 @@ class Encounter extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -273,7 +273,7 @@ class Encounter extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -292,7 +292,7 @@ class Encounter extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -331,7 +331,7 @@ class Encounter extends Resource {
                     this.__data.statusHistory = undefined;
                     return;
                 }
-                let EncounterStatusHistory = require('../backbone_elements/encounterStatusHistory.js');
+                let EncounterStatusHistory = require('../backbone_elements/encounterStatusHistory');
                 this.__data.statusHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterStatusHistory(v)) : [new EncounterStatusHistory(valueProvided)];
             }
         });
@@ -352,7 +352,7 @@ class Encounter extends Resource {
                     this.__data.class = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.class = new Coding(valueProvided);
             }
         });
@@ -377,7 +377,7 @@ class Encounter extends Resource {
                     this.__data.classHistory = undefined;
                     return;
                 }
-                let EncounterClassHistory = require('../backbone_elements/encounterClassHistory.js');
+                let EncounterClassHistory = require('../backbone_elements/encounterClassHistory');
                 this.__data.classHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterClassHistory(v)) : [new EncounterClassHistory(valueProvided)];
             }
         });
@@ -397,7 +397,7 @@ class Encounter extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -416,7 +416,7 @@ class Encounter extends Resource {
                     this.__data.serviceType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.serviceType = new CodeableConcept(valueProvided);
             }
         });
@@ -435,7 +435,7 @@ class Encounter extends Resource {
                     this.__data.priority = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.priority = new CodeableConcept(valueProvided);
             }
         });
@@ -454,7 +454,7 @@ class Encounter extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -479,7 +479,7 @@ class Encounter extends Resource {
                     this.__data.episodeOfCare = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.episodeOfCare = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -499,7 +499,7 @@ class Encounter extends Resource {
                     this.__data.basedOn = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -518,7 +518,7 @@ class Encounter extends Resource {
                     this.__data.participant = undefined;
                     return;
                 }
-                let EncounterParticipant = require('../backbone_elements/encounterParticipant.js');
+                let EncounterParticipant = require('../backbone_elements/encounterParticipant');
                 this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterParticipant(v)) : [new EncounterParticipant(valueProvided)];
             }
         });
@@ -537,7 +537,7 @@ class Encounter extends Resource {
                     this.__data.appointment = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.appointment = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -556,7 +556,7 @@ class Encounter extends Resource {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -576,7 +576,7 @@ class Encounter extends Resource {
                     this.__data.length = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.length = new Quantity(valueProvided);
             }
         });
@@ -596,7 +596,7 @@ class Encounter extends Resource {
                     this.__data.reasonCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -616,7 +616,7 @@ class Encounter extends Resource {
                     this.__data.reasonReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -635,7 +635,7 @@ class Encounter extends Resource {
                     this.__data.diagnosis = undefined;
                     return;
                 }
-                let EncounterDiagnosis = require('../backbone_elements/encounterDiagnosis.js');
+                let EncounterDiagnosis = require('../backbone_elements/encounterDiagnosis');
                 this.__data.diagnosis = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterDiagnosis(v)) : [new EncounterDiagnosis(valueProvided)];
             }
         });
@@ -654,7 +654,7 @@ class Encounter extends Resource {
                     this.__data.account = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.account = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -673,7 +673,7 @@ class Encounter extends Resource {
                     this.__data.hospitalization = undefined;
                     return;
                 }
-                let EncounterHospitalization = require('../backbone_elements/encounterHospitalization.js');
+                let EncounterHospitalization = require('../backbone_elements/encounterHospitalization');
                 this.__data.hospitalization = new EncounterHospitalization(valueProvided);
             }
         });
@@ -692,7 +692,7 @@ class Encounter extends Resource {
                     this.__data.location = undefined;
                     return;
                 }
-                let EncounterLocation = require('../backbone_elements/encounterLocation.js');
+                let EncounterLocation = require('../backbone_elements/encounterLocation');
                 this.__data.location = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterLocation(v)) : [new EncounterLocation(valueProvided)];
             }
         });
@@ -716,7 +716,7 @@ class Encounter extends Resource {
                     this.__data.serviceProvider = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.serviceProvider = new Reference(valueProvided);
             }
         });
@@ -736,7 +736,7 @@ class Encounter extends Resource {
                     this.__data.partOf = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.partOf = new Reference(valueProvided);
             }
         });

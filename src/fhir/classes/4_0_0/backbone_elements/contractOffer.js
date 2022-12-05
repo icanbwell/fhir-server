@@ -82,7 +82,7 @@ class ContractOffer extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -113,7 +113,7 @@ class ContractOffer extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -132,7 +132,7 @@ class ContractOffer extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -151,7 +151,7 @@ class ContractOffer extends Element {
                     this.__data.party = undefined;
                     return;
                 }
-                let ContractParty = require('../backbone_elements/contractParty.js');
+                let ContractParty = require('../backbone_elements/contractParty');
                 this.__data.party = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractParty(v)) : [new ContractParty(valueProvided)];
             }
         });
@@ -172,7 +172,7 @@ class ContractOffer extends Element {
                     this.__data.topic = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.topic = new Reference(valueProvided);
             }
         });
@@ -192,7 +192,7 @@ class ContractOffer extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -212,7 +212,7 @@ class ContractOffer extends Element {
                     this.__data.decision = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.decision = new CodeableConcept(valueProvided);
             }
         });
@@ -231,7 +231,7 @@ class ContractOffer extends Element {
                     this.__data.decisionMode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.decisionMode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -250,7 +250,7 @@ class ContractOffer extends Element {
                     this.__data.answer = undefined;
                     return;
                 }
-                let ContractAnswer = require('../backbone_elements/contractAnswer.js');
+                let ContractAnswer = require('../backbone_elements/contractAnswer');
                 this.__data.answer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractAnswer(v)) : [new ContractAnswer(valueProvided)];
             }
         });

@@ -129,7 +129,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -192,7 +192,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -213,7 +213,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -245,7 +245,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -276,7 +276,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -460,7 +460,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                let ContactDetail = require('../complex_types/contactDetail');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
@@ -504,7 +504,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.useContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                let UsageContext = require('../complex_types/usageContext');
                 this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -524,7 +524,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -604,7 +604,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.software = undefined;
                     return;
                 }
-                let TerminologyCapabilitiesSoftware = require('../backbone_elements/terminologyCapabilitiesSoftware.js');
+                let TerminologyCapabilitiesSoftware = require('../backbone_elements/terminologyCapabilitiesSoftware');
                 this.__data.software = new TerminologyCapabilitiesSoftware(valueProvided);
             }
         });
@@ -625,7 +625,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.implementation = undefined;
                     return;
                 }
-                let TerminologyCapabilitiesImplementation = require('../backbone_elements/terminologyCapabilitiesImplementation.js');
+                let TerminologyCapabilitiesImplementation = require('../backbone_elements/terminologyCapabilitiesImplementation');
                 this.__data.implementation = new TerminologyCapabilitiesImplementation(valueProvided);
             }
         });
@@ -664,7 +664,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.codeSystem = undefined;
                     return;
                 }
-                let TerminologyCapabilitiesCodeSystem = require('../backbone_elements/terminologyCapabilitiesCodeSystem.js');
+                let TerminologyCapabilitiesCodeSystem = require('../backbone_elements/terminologyCapabilitiesCodeSystem');
                 this.__data.codeSystem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TerminologyCapabilitiesCodeSystem(v)) : [new TerminologyCapabilitiesCodeSystem(valueProvided)];
             }
         });
@@ -684,7 +684,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.expansion = undefined;
                     return;
                 }
-                let TerminologyCapabilitiesExpansion = require('../backbone_elements/terminologyCapabilitiesExpansion.js');
+                let TerminologyCapabilitiesExpansion = require('../backbone_elements/terminologyCapabilitiesExpansion');
                 this.__data.expansion = new TerminologyCapabilitiesExpansion(valueProvided);
             }
         });
@@ -723,7 +723,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.validateCode = undefined;
                     return;
                 }
-                let TerminologyCapabilitiesValidateCode = require('../backbone_elements/terminologyCapabilitiesValidateCode.js');
+                let TerminologyCapabilitiesValidateCode = require('../backbone_elements/terminologyCapabilitiesValidateCode');
                 this.__data.validateCode = new TerminologyCapabilitiesValidateCode(valueProvided);
             }
         });
@@ -743,7 +743,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.translation = undefined;
                     return;
                 }
-                let TerminologyCapabilitiesTranslation = require('../backbone_elements/terminologyCapabilitiesTranslation.js');
+                let TerminologyCapabilitiesTranslation = require('../backbone_elements/terminologyCapabilitiesTranslation');
                 this.__data.translation = new TerminologyCapabilitiesTranslation(valueProvided);
             }
         });
@@ -762,7 +762,7 @@ class TerminologyCapabilities extends Resource {
                     this.__data.closure = undefined;
                     return;
                 }
-                let TerminologyCapabilitiesClosure = require('../backbone_elements/terminologyCapabilitiesClosure.js');
+                let TerminologyCapabilitiesClosure = require('../backbone_elements/terminologyCapabilitiesClosure');
                 this.__data.closure = new TerminologyCapabilitiesClosure(valueProvided);
             }
         });

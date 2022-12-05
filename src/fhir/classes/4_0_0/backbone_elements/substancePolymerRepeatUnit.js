@@ -71,7 +71,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     this.__data.orientationOfPolymerisation = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.orientationOfPolymerisation = new CodeableConcept(valueProvided);
             }
         });
@@ -158,7 +158,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     this.__data.amount = undefined;
                     return;
                 }
-                let SubstanceAmount = require('../backbone_elements/substanceAmount.js');
+                let SubstanceAmount = require('../backbone_elements/substanceAmount');
                 this.__data.amount = new SubstanceAmount(valueProvided);
             }
         });
@@ -177,7 +177,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     this.__data.degreeOfPolymerisation = undefined;
                     return;
                 }
-                let SubstancePolymerDegreeOfPolymerisation = require('../backbone_elements/substancePolymerDegreeOfPolymerisation.js');
+                let SubstancePolymerDegreeOfPolymerisation = require('../backbone_elements/substancePolymerDegreeOfPolymerisation');
                 this.__data.degreeOfPolymerisation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerDegreeOfPolymerisation(v)) : [new SubstancePolymerDegreeOfPolymerisation(valueProvided)];
             }
         });
@@ -196,7 +196,7 @@ class SubstancePolymerRepeatUnit extends Element {
                     this.__data.structuralRepresentation = undefined;
                     return;
                 }
-                let SubstancePolymerStructuralRepresentation = require('../backbone_elements/substancePolymerStructuralRepresentation.js');
+                let SubstancePolymerStructuralRepresentation = require('../backbone_elements/substancePolymerStructuralRepresentation');
                 this.__data.structuralRepresentation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerStructuralRepresentation(v)) : [new SubstancePolymerStructuralRepresentation(valueProvided)];
             }
         });

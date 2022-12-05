@@ -92,7 +92,7 @@ class ContractValuedItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class ContractValuedItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -142,7 +142,7 @@ class ContractValuedItem extends Element {
                     this.__data.entityCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.entityCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -161,7 +161,7 @@ class ContractValuedItem extends Element {
                     this.__data.entityReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.entityReference = new Reference(valueProvided);
             }
         });
@@ -180,7 +180,7 @@ class ContractValuedItem extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -219,7 +219,7 @@ class ContractValuedItem extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -238,7 +238,7 @@ class ContractValuedItem extends Element {
                     this.__data.unitPrice = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.unitPrice = new Money(valueProvided);
             }
         });
@@ -301,7 +301,7 @@ class ContractValuedItem extends Element {
                     this.__data.net = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.net = new Money(valueProvided);
             }
         });
@@ -356,7 +356,7 @@ class ContractValuedItem extends Element {
                     this.__data.responsible = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.responsible = new Reference(valueProvided);
             }
         });
@@ -375,7 +375,7 @@ class ContractValuedItem extends Element {
                     this.__data.recipient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.recipient = new Reference(valueProvided);
             }
         });

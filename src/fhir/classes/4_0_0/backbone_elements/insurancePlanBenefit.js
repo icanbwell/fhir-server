@@ -67,7 +67,7 @@ class InsurancePlanBenefit extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -98,7 +98,7 @@ class InsurancePlanBenefit extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -117,7 +117,7 @@ class InsurancePlanBenefit extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -154,7 +154,7 @@ class InsurancePlanBenefit extends Element {
                     this.__data.limit = undefined;
                     return;
                 }
-                let InsurancePlanLimit = require('../backbone_elements/insurancePlanLimit.js');
+                let InsurancePlanLimit = require('../backbone_elements/insurancePlanLimit');
                 this.__data.limit = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InsurancePlanLimit(v)) : [new InsurancePlanLimit(valueProvided)];
             }
         });

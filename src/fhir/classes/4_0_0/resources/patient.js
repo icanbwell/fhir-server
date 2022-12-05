@@ -116,7 +116,7 @@ class Patient extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -179,7 +179,7 @@ class Patient extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -200,7 +200,7 @@ class Patient extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -232,7 +232,7 @@ class Patient extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -263,7 +263,7 @@ class Patient extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -282,7 +282,7 @@ class Patient extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -327,7 +327,7 @@ class Patient extends Resource {
                     this.__data.name = undefined;
                     return;
                 }
-                let HumanName = require('../complex_types/humanName.js');
+                let HumanName = require('../complex_types/humanName');
                 this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new HumanName(v)) : [new HumanName(valueProvided)];
             }
         });
@@ -347,7 +347,7 @@ class Patient extends Resource {
                     this.__data.telecom = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                let ContactPoint = require('../complex_types/contactPoint');
                 this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
@@ -439,7 +439,7 @@ class Patient extends Resource {
                     this.__data.address = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                let Address = require('../complex_types/address');
                 this.__data.address = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Address(v)) : [new Address(valueProvided)];
             }
         });
@@ -458,7 +458,7 @@ class Patient extends Resource {
                     this.__data.maritalStatus = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.maritalStatus = new CodeableConcept(valueProvided);
             }
         });
@@ -513,7 +513,7 @@ class Patient extends Resource {
                     this.__data.photo = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                let Attachment = require('../complex_types/attachment');
                 this.__data.photo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Attachment(v)) : [new Attachment(valueProvided)];
             }
         });
@@ -532,7 +532,7 @@ class Patient extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let PatientContact = require('../backbone_elements/patientContact.js');
+                let PatientContact = require('../backbone_elements/patientContact');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientContact(v)) : [new PatientContact(valueProvided)];
             }
         });
@@ -552,7 +552,7 @@ class Patient extends Resource {
                     this.__data.communication = undefined;
                     return;
                 }
-                let PatientCommunication = require('../backbone_elements/patientCommunication.js');
+                let PatientCommunication = require('../backbone_elements/patientCommunication');
                 this.__data.communication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientCommunication(v)) : [new PatientCommunication(valueProvided)];
             }
         });
@@ -571,7 +571,7 @@ class Patient extends Resource {
                     this.__data.generalPractitioner = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.generalPractitioner = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -590,7 +590,7 @@ class Patient extends Resource {
                     this.__data.managingOrganization = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.managingOrganization = new Reference(valueProvided);
             }
         });
@@ -609,7 +609,7 @@ class Patient extends Resource {
                     this.__data.link = undefined;
                     return;
                 }
-                let PatientLink = require('../backbone_elements/patientLink.js');
+                let PatientLink = require('../backbone_elements/patientLink');
                 this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientLink(v)) : [new PatientLink(valueProvided)];
             }
         });

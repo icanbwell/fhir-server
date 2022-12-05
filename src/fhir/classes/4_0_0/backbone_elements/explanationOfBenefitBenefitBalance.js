@@ -79,7 +79,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -110,7 +110,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -130,7 +130,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.category = new CodeableConcept(valueProvided);
             }
         });
@@ -205,7 +205,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.network = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.network = new CodeableConcept(valueProvided);
             }
         });
@@ -224,7 +224,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.unit = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.unit = new CodeableConcept(valueProvided);
             }
         });
@@ -244,7 +244,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.term = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.term = new CodeableConcept(valueProvided);
             }
         });
@@ -263,7 +263,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.financial = undefined;
                     return;
                 }
-                let ExplanationOfBenefitFinancial = require('../backbone_elements/explanationOfBenefitFinancial.js');
+                let ExplanationOfBenefitFinancial = require('../backbone_elements/explanationOfBenefitFinancial');
                 this.__data.financial = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitFinancial(v)) : [new ExplanationOfBenefitFinancial(valueProvided)];
             }
         });

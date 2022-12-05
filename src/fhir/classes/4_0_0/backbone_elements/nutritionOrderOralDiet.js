@@ -74,7 +74,7 @@ class NutritionOrderOralDiet extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class NutritionOrderOralDiet extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -125,7 +125,7 @@ class NutritionOrderOralDiet extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -146,7 +146,7 @@ class NutritionOrderOralDiet extends Element {
                     this.__data.schedule = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
                 this.__data.schedule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Timing(v)) : [new Timing(valueProvided)];
             }
         });
@@ -166,7 +166,7 @@ class NutritionOrderOralDiet extends Element {
                     this.__data.nutrient = undefined;
                     return;
                 }
-                let NutritionOrderNutrient = require('../backbone_elements/nutritionOrderNutrient.js');
+                let NutritionOrderNutrient = require('../backbone_elements/nutritionOrderNutrient');
                 this.__data.nutrient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new NutritionOrderNutrient(v)) : [new NutritionOrderNutrient(valueProvided)];
             }
         });
@@ -186,7 +186,7 @@ class NutritionOrderOralDiet extends Element {
                     this.__data.texture = undefined;
                     return;
                 }
-                let NutritionOrderTexture = require('../backbone_elements/nutritionOrderTexture.js');
+                let NutritionOrderTexture = require('../backbone_elements/nutritionOrderTexture');
                 this.__data.texture = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new NutritionOrderTexture(v)) : [new NutritionOrderTexture(valueProvided)];
             }
         });
@@ -206,7 +206,7 @@ class NutritionOrderOralDiet extends Element {
                     this.__data.fluidConsistencyType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.fluidConsistencyType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });

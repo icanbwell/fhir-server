@@ -2,7 +2,7 @@ const {
     VERSIONS
 } = require('../../../constants');
 
-const service = require('./metadata.service.js');
+const service = require('./metadata.service');
 /**
  * @name exports
  * @summary Metadata controller

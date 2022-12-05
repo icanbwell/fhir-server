@@ -163,7 +163,7 @@ class TaskOutput extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -194,7 +194,7 @@ class TaskOutput extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -213,7 +213,7 @@ class TaskOutput extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -574,7 +574,7 @@ class TaskOutput extends Element {
                     this.__data.valueAddress = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                let Address = require('../complex_types/address');
                 this.__data.valueAddress = new Address(valueProvided);
             }
         });
@@ -593,7 +593,7 @@ class TaskOutput extends Element {
                     this.__data.valueAge = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.valueAge = new Quantity(valueProvided);
             }
         });
@@ -612,7 +612,7 @@ class TaskOutput extends Element {
                     this.__data.valueAnnotation = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                let Annotation = require('../complex_types/annotation');
                 this.__data.valueAnnotation = new Annotation(valueProvided);
             }
         });
@@ -631,7 +631,7 @@ class TaskOutput extends Element {
                     this.__data.valueAttachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                let Attachment = require('../complex_types/attachment');
                 this.__data.valueAttachment = new Attachment(valueProvided);
             }
         });
@@ -650,7 +650,7 @@ class TaskOutput extends Element {
                     this.__data.valueCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.valueCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -669,7 +669,7 @@ class TaskOutput extends Element {
                     this.__data.valueCoding = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.valueCoding = new Coding(valueProvided);
             }
         });
@@ -688,7 +688,7 @@ class TaskOutput extends Element {
                     this.__data.valueContactPoint = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                let ContactPoint = require('../complex_types/contactPoint');
                 this.__data.valueContactPoint = new ContactPoint(valueProvided);
             }
         });
@@ -707,7 +707,7 @@ class TaskOutput extends Element {
                     this.__data.valueCount = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.valueCount = new Quantity(valueProvided);
             }
         });
@@ -726,7 +726,7 @@ class TaskOutput extends Element {
                     this.__data.valueDistance = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.valueDistance = new Quantity(valueProvided);
             }
         });
@@ -745,7 +745,7 @@ class TaskOutput extends Element {
                     this.__data.valueDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.valueDuration = new Quantity(valueProvided);
             }
         });
@@ -764,7 +764,7 @@ class TaskOutput extends Element {
                     this.__data.valueHumanName = undefined;
                     return;
                 }
-                let HumanName = require('../complex_types/humanName.js');
+                let HumanName = require('../complex_types/humanName');
                 this.__data.valueHumanName = new HumanName(valueProvided);
             }
         });
@@ -783,7 +783,7 @@ class TaskOutput extends Element {
                     this.__data.valueIdentifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.valueIdentifier = new Identifier(valueProvided);
             }
         });
@@ -802,7 +802,7 @@ class TaskOutput extends Element {
                     this.__data.valueMoney = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.valueMoney = new Money(valueProvided);
             }
         });
@@ -821,7 +821,7 @@ class TaskOutput extends Element {
                     this.__data.valuePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.valuePeriod = new Period(valueProvided);
             }
         });
@@ -840,7 +840,7 @@ class TaskOutput extends Element {
                     this.__data.valueQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.valueQuantity = new Quantity(valueProvided);
             }
         });
@@ -859,7 +859,7 @@ class TaskOutput extends Element {
                     this.__data.valueRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.valueRange = new Range(valueProvided);
             }
         });
@@ -878,7 +878,7 @@ class TaskOutput extends Element {
                     this.__data.valueRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.valueRatio = new Ratio(valueProvided);
             }
         });
@@ -897,7 +897,7 @@ class TaskOutput extends Element {
                     this.__data.valueReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.valueReference = new Reference(valueProvided);
             }
         });
@@ -916,7 +916,7 @@ class TaskOutput extends Element {
                     this.__data.valueSampledData = undefined;
                     return;
                 }
-                let SampledData = require('../complex_types/sampledData.js');
+                let SampledData = require('../complex_types/sampledData');
                 this.__data.valueSampledData = new SampledData(valueProvided);
             }
         });
@@ -935,7 +935,7 @@ class TaskOutput extends Element {
                     this.__data.valueSignature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                let Signature = require('../complex_types/signature');
                 this.__data.valueSignature = new Signature(valueProvided);
             }
         });
@@ -954,7 +954,7 @@ class TaskOutput extends Element {
                     this.__data.valueTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
                 this.__data.valueTiming = new Timing(valueProvided);
             }
         });
@@ -973,7 +973,7 @@ class TaskOutput extends Element {
                     this.__data.valueContactDetail = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                let ContactDetail = require('../complex_types/contactDetail');
                 this.__data.valueContactDetail = new ContactDetail(valueProvided);
             }
         });
@@ -992,7 +992,7 @@ class TaskOutput extends Element {
                     this.__data.valueContributor = undefined;
                     return;
                 }
-                let Contributor = require('../complex_types/contributor.js');
+                let Contributor = require('../complex_types/contributor');
                 this.__data.valueContributor = new Contributor(valueProvided);
             }
         });
@@ -1011,7 +1011,7 @@ class TaskOutput extends Element {
                     this.__data.valueDataRequirement = undefined;
                     return;
                 }
-                let DataRequirement = require('../complex_types/dataRequirement.js');
+                let DataRequirement = require('../complex_types/dataRequirement');
                 this.__data.valueDataRequirement = new DataRequirement(valueProvided);
             }
         });
@@ -1030,7 +1030,7 @@ class TaskOutput extends Element {
                     this.__data.valueExpression = undefined;
                     return;
                 }
-                let Expression = require('../complex_types/expression.js');
+                let Expression = require('../complex_types/expression');
                 this.__data.valueExpression = new Expression(valueProvided);
             }
         });
@@ -1049,7 +1049,7 @@ class TaskOutput extends Element {
                     this.__data.valueParameterDefinition = undefined;
                     return;
                 }
-                let ParameterDefinition = require('../complex_types/parameterDefinition.js');
+                let ParameterDefinition = require('../complex_types/parameterDefinition');
                 this.__data.valueParameterDefinition = new ParameterDefinition(valueProvided);
             }
         });
@@ -1068,7 +1068,7 @@ class TaskOutput extends Element {
                     this.__data.valueRelatedArtifact = undefined;
                     return;
                 }
-                let RelatedArtifact = require('../complex_types/relatedArtifact.js');
+                let RelatedArtifact = require('../complex_types/relatedArtifact');
                 this.__data.valueRelatedArtifact = new RelatedArtifact(valueProvided);
             }
         });
@@ -1087,7 +1087,7 @@ class TaskOutput extends Element {
                     this.__data.valueTriggerDefinition = undefined;
                     return;
                 }
-                let TriggerDefinition = require('../complex_types/triggerDefinition.js');
+                let TriggerDefinition = require('../complex_types/triggerDefinition');
                 this.__data.valueTriggerDefinition = new TriggerDefinition(valueProvided);
             }
         });
@@ -1106,7 +1106,7 @@ class TaskOutput extends Element {
                     this.__data.valueUsageContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                let UsageContext = require('../complex_types/usageContext');
                 this.__data.valueUsageContext = new UsageContext(valueProvided);
             }
         });
@@ -1125,7 +1125,7 @@ class TaskOutput extends Element {
                     this.__data.valueDosage = undefined;
                     return;
                 }
-                let Dosage = require('../backbone_elements/dosage.js');
+                let Dosage = require('../backbone_elements/dosage');
                 this.__data.valueDosage = new Dosage(valueProvided);
             }
         });
@@ -1144,7 +1144,7 @@ class TaskOutput extends Element {
                     this.__data.valueMeta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.valueMeta = new Meta(valueProvided);
             }
         });

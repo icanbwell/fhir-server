@@ -101,7 +101,7 @@ class TimingRepeat extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -132,7 +132,7 @@ class TimingRepeat extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -151,7 +151,7 @@ class TimingRepeat extends Element {
                     this.__data.boundsDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.boundsDuration = new Quantity(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class TimingRepeat extends Element {
                     this.__data.boundsRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.boundsRange = new Range(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class TimingRepeat extends Element {
                     this.__data.boundsPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.boundsPeriod = new Period(valueProvided);
             }
         });

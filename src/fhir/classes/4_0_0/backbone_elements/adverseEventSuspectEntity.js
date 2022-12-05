@@ -68,7 +68,7 @@ class AdverseEventSuspectEntity extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -99,7 +99,7 @@ class AdverseEventSuspectEntity extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -120,7 +120,7 @@ class AdverseEventSuspectEntity extends Element {
                     this.__data.instance = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.instance = new Reference(valueProvided);
             }
         });
@@ -139,7 +139,7 @@ class AdverseEventSuspectEntity extends Element {
                     this.__data.causality = undefined;
                     return;
                 }
-                let AdverseEventCausality = require('../backbone_elements/adverseEventCausality.js');
+                let AdverseEventCausality = require('../backbone_elements/adverseEventCausality');
                 this.__data.causality = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new AdverseEventCausality(v)) : [new AdverseEventCausality(valueProvided)];
             }
         });

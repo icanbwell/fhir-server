@@ -70,7 +70,7 @@ class ClaimResponseItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class ClaimResponseItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -159,7 +159,7 @@ class ClaimResponseItem extends Element {
                     this.__data.adjudication = undefined;
                     return;
                 }
-                let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
+                let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication');
                 this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
             }
         });
@@ -179,7 +179,7 @@ class ClaimResponseItem extends Element {
                     this.__data.detail = undefined;
                     return;
                 }
-                let ClaimResponseDetail = require('../backbone_elements/claimResponseDetail.js');
+                let ClaimResponseDetail = require('../backbone_elements/claimResponseDetail');
                 this.__data.detail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseDetail(v)) : [new ClaimResponseDetail(valueProvided)];
             }
         });

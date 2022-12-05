@@ -66,7 +66,7 @@ class TestScriptMetadata extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -97,7 +97,7 @@ class TestScriptMetadata extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -116,7 +116,7 @@ class TestScriptMetadata extends Element {
                     this.__data.link = undefined;
                     return;
                 }
-                let TestScriptLink = require('../backbone_elements/testScriptLink.js');
+                let TestScriptLink = require('../backbone_elements/testScriptLink');
                 this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptLink(v)) : [new TestScriptLink(valueProvided)];
             }
         });
@@ -136,7 +136,7 @@ class TestScriptMetadata extends Element {
                     this.__data.capability = undefined;
                     return;
                 }
-                let TestScriptCapability = require('../backbone_elements/testScriptCapability.js');
+                let TestScriptCapability = require('../backbone_elements/testScriptCapability');
                 this.__data.capability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptCapability(v)) : [new TestScriptCapability(valueProvided)];
             }
         });

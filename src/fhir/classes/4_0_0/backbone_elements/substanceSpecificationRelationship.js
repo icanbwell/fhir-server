@@ -84,7 +84,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -134,7 +134,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.substanceReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.substanceReference = new Reference(valueProvided);
             }
         });
@@ -153,7 +153,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.substanceCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.substanceCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -172,7 +172,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.relationship = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.relationship = new CodeableConcept(valueProvided);
             }
         });
@@ -211,7 +211,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.amountQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.amountQuantity = new Quantity(valueProvided);
             }
         });
@@ -230,7 +230,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.amountRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.amountRange = new Range(valueProvided);
             }
         });
@@ -249,7 +249,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.amountRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.amountRatio = new Ratio(valueProvided);
             }
         });
@@ -286,7 +286,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.amountRatioLowLimit = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.amountRatioLowLimit = new Ratio(valueProvided);
             }
         });
@@ -306,7 +306,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.amountType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.amountType = new CodeableConcept(valueProvided);
             }
         });
@@ -325,7 +325,7 @@ class SubstanceSpecificationRelationship extends Element {
                     this.__data.source = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });

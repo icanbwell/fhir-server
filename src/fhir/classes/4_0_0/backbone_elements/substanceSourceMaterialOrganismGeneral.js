@@ -82,7 +82,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -113,7 +113,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -132,7 +132,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     this.__data.kingdom = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.kingdom = new CodeableConcept(valueProvided);
             }
         });
@@ -151,7 +151,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     this.__data.phylum = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.phylum = new CodeableConcept(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     this.__data.class = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.class = new CodeableConcept(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class SubstanceSourceMaterialOrganismGeneral extends Element {
                     this.__data.order = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.order = new CodeableConcept(valueProvided);
             }
         });

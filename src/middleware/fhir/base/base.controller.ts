@@ -1,4 +1,4 @@
-const service = require('./base.service.js');
+const service = require('./base.service');
 /**
  * @name exports
  * @summary Base controller

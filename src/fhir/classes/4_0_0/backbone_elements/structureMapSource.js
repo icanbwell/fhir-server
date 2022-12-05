@@ -182,7 +182,7 @@ class StructureMapSource extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -213,7 +213,7 @@ class StructureMapSource extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -650,7 +650,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueAddress = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                let Address = require('../complex_types/address');
                 this.__data.defaultValueAddress = new Address(valueProvided);
             }
         });
@@ -669,7 +669,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueAge = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.defaultValueAge = new Quantity(valueProvided);
             }
         });
@@ -688,7 +688,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueAnnotation = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                let Annotation = require('../complex_types/annotation');
                 this.__data.defaultValueAnnotation = new Annotation(valueProvided);
             }
         });
@@ -707,7 +707,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueAttachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                let Attachment = require('../complex_types/attachment');
                 this.__data.defaultValueAttachment = new Attachment(valueProvided);
             }
         });
@@ -726,7 +726,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.defaultValueCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -745,7 +745,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueCoding = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                let Coding = require('../complex_types/coding');
                 this.__data.defaultValueCoding = new Coding(valueProvided);
             }
         });
@@ -764,7 +764,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueContactPoint = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                let ContactPoint = require('../complex_types/contactPoint');
                 this.__data.defaultValueContactPoint = new ContactPoint(valueProvided);
             }
         });
@@ -783,7 +783,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueCount = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.defaultValueCount = new Quantity(valueProvided);
             }
         });
@@ -802,7 +802,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueDistance = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.defaultValueDistance = new Quantity(valueProvided);
             }
         });
@@ -821,7 +821,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.defaultValueDuration = new Quantity(valueProvided);
             }
         });
@@ -840,7 +840,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueHumanName = undefined;
                     return;
                 }
-                let HumanName = require('../complex_types/humanName.js');
+                let HumanName = require('../complex_types/humanName');
                 this.__data.defaultValueHumanName = new HumanName(valueProvided);
             }
         });
@@ -859,7 +859,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueIdentifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                let Identifier = require('../complex_types/identifier');
                 this.__data.defaultValueIdentifier = new Identifier(valueProvided);
             }
         });
@@ -878,7 +878,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueMoney = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                let Money = require('../complex_types/money');
                 this.__data.defaultValueMoney = new Money(valueProvided);
             }
         });
@@ -897,7 +897,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValuePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                let Period = require('../complex_types/period');
                 this.__data.defaultValuePeriod = new Period(valueProvided);
             }
         });
@@ -916,7 +916,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.defaultValueQuantity = new Quantity(valueProvided);
             }
         });
@@ -935,7 +935,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                let Range = require('../complex_types/range');
                 this.__data.defaultValueRange = new Range(valueProvided);
             }
         });
@@ -954,7 +954,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                let Ratio = require('../complex_types/ratio');
                 this.__data.defaultValueRatio = new Ratio(valueProvided);
             }
         });
@@ -973,7 +973,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.defaultValueReference = new Reference(valueProvided);
             }
         });
@@ -992,7 +992,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueSampledData = undefined;
                     return;
                 }
-                let SampledData = require('../complex_types/sampledData.js');
+                let SampledData = require('../complex_types/sampledData');
                 this.__data.defaultValueSampledData = new SampledData(valueProvided);
             }
         });
@@ -1011,7 +1011,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueSignature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                let Signature = require('../complex_types/signature');
                 this.__data.defaultValueSignature = new Signature(valueProvided);
             }
         });
@@ -1030,7 +1030,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                let Timing = require('../backbone_elements/timing');
                 this.__data.defaultValueTiming = new Timing(valueProvided);
             }
         });
@@ -1049,7 +1049,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueContactDetail = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                let ContactDetail = require('../complex_types/contactDetail');
                 this.__data.defaultValueContactDetail = new ContactDetail(valueProvided);
             }
         });
@@ -1068,7 +1068,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueContributor = undefined;
                     return;
                 }
-                let Contributor = require('../complex_types/contributor.js');
+                let Contributor = require('../complex_types/contributor');
                 this.__data.defaultValueContributor = new Contributor(valueProvided);
             }
         });
@@ -1087,7 +1087,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueDataRequirement = undefined;
                     return;
                 }
-                let DataRequirement = require('../complex_types/dataRequirement.js');
+                let DataRequirement = require('../complex_types/dataRequirement');
                 this.__data.defaultValueDataRequirement = new DataRequirement(valueProvided);
             }
         });
@@ -1106,7 +1106,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueExpression = undefined;
                     return;
                 }
-                let Expression = require('../complex_types/expression.js');
+                let Expression = require('../complex_types/expression');
                 this.__data.defaultValueExpression = new Expression(valueProvided);
             }
         });
@@ -1125,7 +1125,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueParameterDefinition = undefined;
                     return;
                 }
-                let ParameterDefinition = require('../complex_types/parameterDefinition.js');
+                let ParameterDefinition = require('../complex_types/parameterDefinition');
                 this.__data.defaultValueParameterDefinition = new ParameterDefinition(valueProvided);
             }
         });
@@ -1144,7 +1144,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueRelatedArtifact = undefined;
                     return;
                 }
-                let RelatedArtifact = require('../complex_types/relatedArtifact.js');
+                let RelatedArtifact = require('../complex_types/relatedArtifact');
                 this.__data.defaultValueRelatedArtifact = new RelatedArtifact(valueProvided);
             }
         });
@@ -1163,7 +1163,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueTriggerDefinition = undefined;
                     return;
                 }
-                let TriggerDefinition = require('../complex_types/triggerDefinition.js');
+                let TriggerDefinition = require('../complex_types/triggerDefinition');
                 this.__data.defaultValueTriggerDefinition = new TriggerDefinition(valueProvided);
             }
         });
@@ -1182,7 +1182,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueUsageContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                let UsageContext = require('../complex_types/usageContext');
                 this.__data.defaultValueUsageContext = new UsageContext(valueProvided);
             }
         });
@@ -1201,7 +1201,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueDosage = undefined;
                     return;
                 }
-                let Dosage = require('../backbone_elements/dosage.js');
+                let Dosage = require('../backbone_elements/dosage');
                 this.__data.defaultValueDosage = new Dosage(valueProvided);
             }
         });
@@ -1220,7 +1220,7 @@ class StructureMapSource extends Element {
                     this.__data.defaultValueMeta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.defaultValueMeta = new Meta(valueProvided);
             }
         });

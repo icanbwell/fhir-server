@@ -1,4 +1,4 @@
-const noOpMiddleware = require('./noop.middleware.js');
+const noOpMiddleware = require('./noop.middleware');
 
 const passport = require('passport');
 /**

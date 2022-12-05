@@ -97,7 +97,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                let Meta = require('../complex_types/meta');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                let Narrative = require('../complex_types/narrative');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -181,7 +181,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                let ResourceContainer = require('../simple_types/resourceContainer');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -213,7 +213,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -244,7 +244,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                let Extension = require('../extensions/extension');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -263,7 +263,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -282,7 +282,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.diseaseSymptomProcedure = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.diseaseSymptomProcedure = new CodeableConcept(valueProvided);
             }
         });
@@ -301,7 +301,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.diseaseStatus = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.diseaseStatus = new CodeableConcept(valueProvided);
             }
         });
@@ -320,7 +320,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.comorbidity = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.comorbidity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -339,7 +339,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.intendedEffect = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                let CodeableConcept = require('../complex_types/codeableConcept');
                 this.__data.intendedEffect = new CodeableConcept(valueProvided);
             }
         });
@@ -358,7 +358,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.duration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                let Quantity = require('../complex_types/quantity');
                 this.__data.duration = new Quantity(valueProvided);
             }
         });
@@ -378,7 +378,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.otherTherapy = undefined;
                     return;
                 }
-                let MedicinalProductIndicationOtherTherapy = require('../backbone_elements/medicinalProductIndicationOtherTherapy.js');
+                let MedicinalProductIndicationOtherTherapy = require('../backbone_elements/medicinalProductIndicationOtherTherapy');
                 this.__data.otherTherapy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductIndicationOtherTherapy(v)) : [new MedicinalProductIndicationOtherTherapy(valueProvided)];
             }
         });
@@ -397,7 +397,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.undesirableEffect = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                let Reference = require('../complex_types/reference');
                 this.__data.undesirableEffect = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -416,7 +416,7 @@ class MedicinalProductIndication extends Resource {
                     this.__data.population = undefined;
                     return;
                 }
-                let Population = require('../backbone_elements/population.js');
+                let Population = require('../backbone_elements/population');
                 this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Population(v)) : [new Population(valueProvided)];
             }
         });
