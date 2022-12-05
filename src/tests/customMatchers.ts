@@ -1,3 +1,4 @@
+/* eslint no-invalid-this: "off" */
 const {validateResource} = require('../utils/validator.util');
 const {assertFail} = require('../utils/assertType');
 const {diff} = require('jest-diff');

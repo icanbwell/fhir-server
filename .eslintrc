@@ -6,18 +6,21 @@
     "node": true,
     "es2021": true
   },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2021,
     "project": "./tsconfig.json"
   },
   "plugins": [
     "security",
-    "jest"
+    "jest",
+    "@typescript-eslint"
   ],
   "extends": [
     "eslint:recommended",
     "plugin:security/recommended",
-    "plugin:node/recommended"
+    "plugin:node/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
     "quotes": [
@@ -126,6 +129,12 @@
     "node/no-unpublished-require": "off",
     "no-undef": "error",
     // https://blog.appsignal.com/2020/05/06/avoiding-memory-leaks-in-nodejs-best-practices-for-performance.html
-    "no-invalid-this": "error"
+    "no-invalid-this": "error",
+    '@typescript-eslint/no-var-requires': 0,
+    "node/no-missing-require": 0,
+    "@typescript-eslint/no-empty-function": 0,
+    "@typescript-eslint/no-unused-vars": 0,
+    "prefer-const": 0,
+    "@typescript-eslint/no-this-alias": 0
   }
 }

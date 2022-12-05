@@ -46,7 +46,7 @@ function filterByReference({propertyObj, queryParameterValue, columns}) {
             );
         }
     } else {
-        var field = propertyObj.fields ? `${propertyObj.fields[propertyObj.fields.length - 1]}.reference` // set field to 'library' if propertyObj.fields
+        const field = propertyObj.fields ? `${propertyObj.fields[propertyObj.fields.length - 1]}.reference` // set field to 'library' if propertyObj.fields
             : `${propertyObj.field}.reference`;
         // handle multiple targets
         // if resourceType is specified then search for only those resources

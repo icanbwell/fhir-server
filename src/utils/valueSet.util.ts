@@ -120,7 +120,7 @@ class ValueSetManager {
         /**
          * @type {{system, code, display, version: string}[]}
          */
-        let concepts = await this.getValueSetConceptsAsync(resourceType, base_version, resource1);
+        const concepts = await this.getValueSetConceptsAsync(resourceType, base_version, resource1);
         resource1['expansion'] = {
             contains: concepts,
             'offset': 0,

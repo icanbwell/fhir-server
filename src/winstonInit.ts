@@ -36,7 +36,7 @@ const get = (name = 'default', options = {}) => container.get(name, options);
 
 
 const initialize = (config = {}) => {
-    let transport = new transports.Console({
+    const transport = new transports.Console({
         level: config.level,
         timestamp: true,
         colorize: true
@@ -45,7 +45,7 @@ const initialize = (config = {}) => {
     // logger before calling initialize
 
     if (container.has('default')) {
-        let logger = container.get('default'); // Only add the console logger if none is present, technically
+        const logger = container.get('default'); // Only add the console logger if none is present, technically
 
         if (logger.transports.length === 0) {
             logger.add(transport);

@@ -47,8 +47,8 @@ class RethrownError extends Error {
             });
         }
         Error.captureStackTrace(this, this.constructor);
-        var oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
-        var stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
+        const oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
+        const stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
         Object.defineProperty(this, 'stack', stackDescriptor);
         if (this.issue) {
             this.issue.forEach(i => {i.diagnostics = env.IS_PRODUCTION ? this.message : this.stack;});
@@ -65,12 +65,12 @@ class RethrownError extends Error {
         if (oldStackDescriptor.get) {
             return {
                 get: function () {
-                    var stack = oldStackDescriptor.get.call(this);
+                    const stack = oldStackDescriptor.get.call(this);
                     return this.buildCombinedStacks(stack, this.nested);
                 }
             };
         } else {
-            var stack = oldStackDescriptor.value;
+            const stack = oldStackDescriptor.value;
             return {
                 value: this.buildCombinedStacks(stack, nested)
             };
