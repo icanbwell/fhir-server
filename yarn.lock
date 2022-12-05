@@ -10400,6 +10400,11 @@
     "glob" "^7.1.4"
     "minimatch" "^3.0.4"
 
+"test-node@^0.0.2":
+  "integrity" "sha512-QEirbKIY0loD9/kSs+vxs72Tj4EotGyo2sl5CD4B5wXJpesGYxNVdNoRoayYXLTJQhXOEil0Oyb09q3tT9OhmQ=="
+  "resolved" "https://registry.npmjs.org/test-node/-/test-node-0.0.2.tgz"
+  "version" "0.0.2"
+
 "text-hex@1.0.x":
   "integrity" "sha512-uuVGNWzgJ4yhRaNSiubPY7OjISw4sw4E5Uv0wbjp+OzcbmVU/rsT8ujgcXJhn9ypzsgr5vlzpPqP+MBBKcGvbg=="
   "resolved" "https://registry.npmjs.org/text-hex/-/text-hex-1.0.0.tgz"
