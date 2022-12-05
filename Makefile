@@ -113,6 +113,11 @@ tests_graphql:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	npm run test:graphql
 
+.PHONY:tests_search
+tests_search:
+	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
+	npm run test:search
+
 .PHONY:lint
 lint:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
