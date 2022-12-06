@@ -355,9 +355,10 @@ class FhirOperationsManager {
      * does a FHIR $everything
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
      * @param {string} resourceType
      */
-    async everything(args, {req}, resourceType) {
+    async everything(args, {req, res}, resourceType) {
         /**
          * combined args
          * @type {string[]}
@@ -366,6 +367,7 @@ class FhirOperationsManager {
 
         return this.everythingOperation.everything(
             this.getRequestInfo(req),
+            res,
             combined_args, resourceType);
     }
 
@@ -452,10 +454,11 @@ class FhirOperationsManager {
      * Supports $graph
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
+     * @param {import('express').Response} res
      * @param {string} resourceType
      * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
-    async graph(args, {req}, resourceType) {
+    async graph(args, {req, res}, resourceType) {
         /**
          * combined args
          * @type {string[]}
@@ -463,6 +466,7 @@ class FhirOperationsManager {
         const combined_args = get_all_args(req, args);
         return this.graphOperation.graph(
             this.getRequestInfo(req),
+            res,
             combined_args, resourceType);
     }
 

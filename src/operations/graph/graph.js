@@ -12,6 +12,7 @@ const {getFirstElementOrNull} = require('../../utils/list.util');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const {FhirResponseStreamer} = require('../../utils/fhirResponseStreamer');
 
 class GraphOperation {
     /**
@@ -62,13 +63,15 @@ class GraphOperation {
     /**
      * Supports $graph
      * @param {FhirRequestInfo} requestInfo
+     * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
      * @return {Promise<Bundle>}
      */
-    async graph(requestInfo, args, resourceType) {
+    async graph(requestInfo, res, args, resourceType) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
+        assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
         const currentOperationName = 'graph';
 
@@ -86,7 +89,7 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            method
+            method,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -180,6 +183,10 @@ class GraphOperation {
                 throw notValidatedError;
             }
             /**
+             * @type {FhirResponseStreamer}
+             */
+            const fhirResponseStreamer = new FhirResponseStreamer({response: res});
+            /**
              * @type {Bundle}
              */
             const resultBundle = (method.toLowerCase() === 'delete') ?
@@ -190,7 +197,8 @@ class GraphOperation {
                         resourceType,
                         id,
                         graphDefinitionJson: graphDefinitionRaw,
-                        args
+                        args,
+                        fhirResponseStreamer
                     }
                 ) : await this.graphHelper.processGraphAsync(
                     {
@@ -201,7 +209,8 @@ class GraphOperation {
                         graphDefinitionJson: graphDefinitionRaw,
                         contained,
                         hash_references,
-                        args
+                        args,
+                        fhirResponseStreamer
                     }
                 );
 

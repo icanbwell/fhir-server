@@ -67,7 +67,7 @@ class CustomOperationsController {
 
             try {
                 const result = await this.fhirOperationsManager[`${name}`](args, {
-                    req
+                    req, res
                 }, resourceType);
                 if (name === 'merge') {
                     this.fhirResponseWriter.merge({req, res, result});
@@ -110,7 +110,7 @@ class CustomOperationsController {
 
             try {
                 const result = await this.fhirOperationsManager[`${name}`](args, {
-                    req
+                    req, res
                 }, resourceType);
                 this.fhirResponseWriter.readCustomOperation({req, res, result});
             } catch (e) {
@@ -139,7 +139,7 @@ class CustomOperationsController {
             try {
                 const result = await
                     this.fhirOperationsManager[`${name}`](req.sanitized_args, {
-                        req
+                        req, res
                     }, resourceType);
                 this.fhirResponseWriter.readCustomOperation({req, res, result});
             } catch (e) {
