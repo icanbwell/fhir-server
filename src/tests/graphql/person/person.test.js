@@ -1,6 +1,6 @@
 const expectedGraphQlPersonResponse = require('./fixtures/expected_graphql_person_response.json');
 
-const patientBundleResource = require('./fixtures/patients.json');
+const patientBundleResource = require('./fixtures/patient_bundle.json');
 const personBundleResource = require('./fixtures/person_bundle.json');
 
 const fs = require('fs');
@@ -54,7 +54,7 @@ describe('GraphQL Patient Tests', () => {
                 .get('/4_0_0/Patient/')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(2);
+            expect(resp).toHaveResourceCount(1);
 
             resp = await request
                 .post('/graphqlv2')

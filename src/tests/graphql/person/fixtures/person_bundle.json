@@ -4,106 +4,281 @@
     {
       "resource": {
         "resourceType": "Person",
-        "id": "06949720-ab51-4b1b-979c-2d404334c491",
+        "id": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324",
         "meta": {
-          "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
-          "extension": [
-            {
-              "id": "2011-10-05T14:48:00.000Z",
-              "url": "someurl",
-              "valueCodeableConcept": {
-                "id": "2011-10-05T14:48:00.000Z",
-                "coding": [
-                  {
-                    "system": "foo://example.com:8042/over/there?name=ferret#",
-                    "code": "code-1",
-                    "display": "some-display"
-                  }
-                ],
-                "text": "some-text"
-              }
-            }
-          ],
-          "versionId": "1",
-          "lastUpdated": "2022-09-27T16:52:08.000Z",
+          "versionId": "2",
+          "lastUpdated": "2022-11-23T21:08:09.000Z",
           "source": "https://www.icanbwell.com",
-          "profile": [
-            "some-profile"
-          ],
           "security": [
             {
-              "system": "https://www.icanbwell.com/owner",
+              "system": "https://www.icanbwell.com/access",
               "code": "bwell"
             },
             {
-              "system": "https://www.icanbwell.com/access",
+              "system": "https://www.icanbwell.com/owner",
               "code": "bwell"
             }
           ]
         },
-        "implicitRules": "some-implicit-rule",
-        "language": "english",
         "identifier": [
           {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://www.icanbwell.com/identifier-types",
+                  "code": "user-identifier"
+                }
+              ]
+            },
             "system": "http://www.walgreens.com/profileid",
-            "value": "1000000-a-02"
+            "value": "healthsystemId1"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324"
           }
         ],
         "name": [
           {
-            "use": "nickname",
-            "family": "Azamar",
+            "use": "official",
+            "text": "First Last",
+            "family": "Last",
             "given": [
-              "Daniel"
+              "First"
             ]
           }
         ],
         "telecom": [
           {
-            "id": "2011-10-05T14:48:00.000Z",
             "system": "phone",
-            "value": "+52123456789",
-            "use": "home"
+            "value": "1103110311"
+          },
+          {
+            "system": "email",
+            "value": "first.last@icanbwell.com"
           }
         ],
         "gender": "male",
+        "birthDate": "1968-11-03",
         "address": [
           {
-            "id": "2011-10-05T14:48:00.000Z",
             "line": [
-              "301 W, in a yellow submarine"
+              "address"
             ],
-            "city": "Austin",
-            "state": "Texas",
-            "postalCode": "78701",
-            "country": "Some country",
-            "period": {
-              "id": "2011-10-05T14:48:00.000Z"
-            }
+            "city": "city",
+            "state": "IL",
+            "postalCode": "60062"
           }
         ],
-        "photo": {
-          "id": "2011-10-05T14:48:00.000Z",
-          "contentType": "image/jpeg",
-          "language": "english",
-          "data": "someLongString",
-          "url": "someurl.com",
-          "size": 1024,
-          "hash": "whatANiceHash!",
-          "title": "what a nice picture!"
-        },
-        "managingOrganization": {
-          "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
-          "reference": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab",
-          "type": "foo://example.com:8042/over/there?name=ferret#",
-          "display": "some-text-to-display"
-        },
         "active": true,
         "link": [
           {
-            "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
             "target": {
-              "reference": "Patient/WPS-0559166162"
+              "reference": "Person/ba79da4b-e2ef-42fe-b573-f1247fa0c50b",
+              "type": "Person"
+            },
+            "assurance": "level4"
+          },
+          {
+            "target": {
+              "reference": "Person/ed8b500c-691a-40b5-ad14-643867737bd3",
+              "type": "Person"
+            },
+            "assurance": "level4"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Person",
+        "id": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b",
+        "meta": {
+          "id": "38926006-a93a-4c2a-9bac-0406c113f2d1",
+          "versionId": "1",
+          "lastUpdated": "2022-11-23T14:44:08.000Z",
+          "source": "https://www.icanbwell.com",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "walgreens"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "walgreens"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "id": "programs",
+            "url": "https://icanbwell.com/programs",
+            "valueCodeableConcept": {
+              "id": "programs",
+              "coding": [
+                {
+                  "system": "https://icanbwell.com/programs",
+                  "code": "TMW",
+                  "display": "TMW"
+                }
+              ]
+            }
+          },
+          {
+            "id": "memberSince",
+            "url": "https://icanbwell.com/memberSince",
+            "valueCodeableConcept": {
+              "id": "memberSince",
+              "coding": [
+                {
+                  "system": "https://icanbwell.com/memberSince",
+                  "code": "2019-10-22 10:11:21:198",
+                  "display": "2019-10-22 10:11:21:198"
+                }
+              ]
+            }
+          },
+          {
+            "id": "registrationDate",
+            "url": "https://icanbwell.com/registrationDate",
+            "valueCodeableConcept": {
+              "id": "registrationDate",
+              "coding": [
+                {
+                  "system": "https://icanbwell.com/registrationDate",
+                  "code": "2019-10-22 10:11:21:198",
+                  "display": "2019-10-22 10:11:21:198"
+                }
+              ]
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://www.icanbwell.com/identifier-types",
+                  "code": "user-identifier"
+                }
+              ]
+            },
+            "system": "http://www.walgreens.com/profileid",
+            "value": "healthsystemId1"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b"
+          }
+        ],
+        "name": [
+          {
+            "family": "Last",
+            "given": [
+              "First"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "email",
+            "value": "first.last@icanbwell.com"
+          },
+          {
+            "system": "phone",
+            "value": "1103110311"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1968-11-03",
+        "address": [
+          {
+            "id": "a03a0964-5854-40de-b33c-f74689b6bced",
+            "line": [
+              "address"
+            ],
+            "city": "CITY",
+            "state": "IL",
+            "postalCode": "60062"
+          }
+        ],
+        "active": true,
+        "link": [
+          {
+            "id": "6a919cd5-d84c-4ccc-9340-299cab9878f9",
+            "target": {
+              "reference": "Patient/6bcdef66-b41c-413b-b9e3-40ffe20dd18e"
+            },
+            "assurance": "level4"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Person",
+        "id": "ed8b500c-691a-40b5-ad14-643867737bd3",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2022-11-23T20:09:17.000Z",
+          "source": "https://icanbwell.com",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "walgreens"
+            },
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "walgreens"
+            }
+          ]
+        },
+        "name": [
+          {
+            "use": "official",
+            "text": "First Last",
+            "family": "Last",
+            "given": [
+              "First"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "1103110311"
+          },
+          {
+            "system": "email",
+            "value": "first.last@icanbwell.com"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1968-11-03",
+        "address": [
+          {
+            "line": [
+              "address"
+            ],
+            "city": "CITY",
+            "state": "IL",
+            "postalCode": "60062"
+          }
+        ],
+        "active": true,
+        "link": [
+          {
+            "target": {
+              "reference": "Patient/6bcdef66-b41c-413b-b9e3-40ffe20dd18e",
+              "type": "Patient"
             },
             "assurance": "level4"
           }
