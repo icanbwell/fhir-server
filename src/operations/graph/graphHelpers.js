@@ -1251,6 +1251,9 @@ class GraphHelper {
         }
     ) {
         try {
+            if (fhirResponseStreamer) {
+                await fhirResponseStreamer.startAsync();
+            }
             /**
              * @type {number}
              */
@@ -1267,7 +1270,7 @@ class GraphHelper {
                 hash_references: false,
                 graphDefinitionJson,
                 args,
-                fhirResponseStreamer
+                fhirResponseStreamer: null // don't let graph send the response
             });
             // now iterate and delete by resuourceType and Id
             /**
@@ -1330,6 +1333,10 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
+            if (fhirResponseStreamer) {
+                await fhirResponseStreamer.endAsync({bundle: deleteOperationBundle});
+                deleteOperationBundle.entry = [];
+            }
             return deleteOperationBundle;
         } catch (e) {
             throw new RethrownError({
