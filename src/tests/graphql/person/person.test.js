@@ -80,6 +80,9 @@ describe('GraphQL Patient Tests', () => {
                     query: graphqlQueryText,
                 })
                 .set(getGraphQLHeaders());
+
+            console.log(resp.body);
+
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlPersonResponse, r => {
                 if (r.person) {
@@ -90,6 +93,9 @@ describe('GraphQL Patient Tests', () => {
                 return r;
             });
             expect(resp.headers['x-request-id']).toBeDefined();
+
+            // uncomment this to test out timing of events
+            // await new Promise(resolve => setTimeout(resolve, 30 * 1000));
         });
     });
 });
