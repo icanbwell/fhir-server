@@ -78,10 +78,10 @@ class RequestSpecificCache {
                 }
             }
         );
-        if (!this.mapCache.has(requestId)) {
+        if (this.mapCache.has(requestId)) {
             this.mapCache.delete(requestId);
         }
-        if (!this.listCache.has(requestId)) {
+        if (this.listCache.has(requestId)) {
             this.listCache.delete(requestId);
         }
     }

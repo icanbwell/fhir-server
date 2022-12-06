@@ -256,16 +256,30 @@ async function handleAdmin(
                 case 'deletePatientDataGraph': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const patientId = req.query['id'];
+                    const sync = req.query['sync'];
                     if (patientId) {
                         /**
                          * @type {AdminPersonPatientDataManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
-                        const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
-                            req,
-                            patientId,
-                        });
-                        return res.json(json);
+                        if (sync) {
+                            const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
+                                req,
+                                patientId,
+                            });
+                            return res.json(json);
+                        } else {
+                            res.json(
+                                {
+                                    message: `Started delete of ${patientId}.  This may take a few seconds.  ` +
+                                        'You can keep reloading the Patient on previous page until the ' +
+                                        'Patient record is no longer available.'
+                                });
+                            await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
+                                req,
+                                patientId,
+                            });
+                        }
                     }
                     return res.json({
                         message: `No id: ${patientId} passed`

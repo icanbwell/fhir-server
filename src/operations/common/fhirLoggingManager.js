@@ -36,7 +36,7 @@ class FhirLoggingManager {
     async logOperationSuccessAsync(
         {
             /** @type {FhirRequestInfo} */ requestInfo,
-            args = [],
+            args = {},
             resourceType,
             startTime,
             stopTime = Date.now(),
@@ -76,7 +76,7 @@ class FhirLoggingManager {
     async logOperationFailureAsync(
         {
             /** @type {FhirRequestInfo} */ requestInfo,
-            args = [],
+            args = {},
             resourceType,
             startTime,
             stopTime = Date.now(),
@@ -119,7 +119,7 @@ class FhirLoggingManager {
     async internalLogOperationAsync(
         {
             /** @type {FhirRequestInfo} */ requestInfo,
-            args = [],
+            args = {},
             resourceType,
             startTime,
             stopTime = Date.now(),

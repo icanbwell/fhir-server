@@ -1,0 +1,204 @@
+[
+  {
+    "address": [
+      {
+        "city": "city",
+        "country": null,
+        "district": null,
+        "id": null,
+        "line": [
+          "address"
+        ],
+        "period": null,
+        "postalCode": "60062",
+        "state": "IL"
+      }
+    ],
+    "gender": "male",
+    "id": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324",
+    "identifier": [
+      {
+        "system": "http://www.walgreens.com/profileid",
+        "type": {
+          "coding": [
+            {
+              "code": "user-identifier",
+              "system": "http://www.icanbwell.com/identifier-types"
+            }
+          ]
+        },
+        "value": "healthsystemId1"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceId",
+        "type": null,
+        "value": "a4bbcb7e-aba6-4076-a5f0-c34c83e54324"
+      },
+      {
+        "system": "https://www.icanbwell.com/uuid",
+        "type": null
+      }
+    ],
+    "implicitRules": null,
+    "language": null,
+    "link": [
+      {
+        "assurance": "level4",
+        "extension": null,
+        "id": null,
+        "target": {}
+      },
+      {
+        "assurance": "level4",
+        "extension": null,
+        "id": null,
+        "target": {}
+      }
+    ],
+    "meta": {
+      "extension": null,
+      "id": null,
+      "profile": null,
+      "security": [
+        {
+          "code": "bwell",
+          "id": null,
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "bwell",
+          "id": null,
+          "system": "https://www.icanbwell.com/owner"
+        }
+      ],
+      "source": "https://www.icanbwell.com",
+      "tag": null,
+      "versionId": "1"
+    },
+    "name": [
+      {
+        "family": "Last",
+        "given": [
+          "First"
+        ]
+      }
+    ],
+    "photo": null,
+    "resourceType": "Person",
+    "telecom": [
+      {
+        "id": null,
+        "period": null,
+        "system": "phone",
+        "use": null,
+        "value": "1103110311"
+      },
+      {
+        "id": null,
+        "period": null,
+        "system": "email",
+        "use": null,
+        "value": "first.last@icanbwell.com"
+      }
+    ]
+  },
+  {
+    "address": [
+      {
+        "city": "CITY",
+        "country": null,
+        "district": null,
+        "id": "a03a0964-5854-40de-b33c-f74689b6bced",
+        "line": [
+          "address"
+        ],
+        "period": null,
+        "postalCode": "60062",
+        "state": "IL"
+      }
+    ],
+    "gender": "male",
+    "id": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b",
+    "identifier": [
+      {
+        "system": "http://www.walgreens.com/profileid",
+        "type": {
+          "coding": [
+            {
+              "code": "user-identifier",
+              "system": "http://www.icanbwell.com/identifier-types"
+            }
+          ]
+        },
+        "value": "healthsystemId1"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceId",
+        "type": null,
+        "value": "ba79da4b-e2ef-42fe-b573-f1247fa0c50b"
+      },
+      {
+        "system": "https://www.icanbwell.com/uuid",
+        "type": null
+      }
+    ],
+    "implicitRules": null,
+    "language": null,
+    "link": [
+      {
+        "assurance": "level4",
+        "extension": null,
+        "id": "6a919cd5-d84c-4ccc-9340-299cab9878f9",
+        "target": {
+          "id": "6bcdef66-b41c-413b-b9e3-40ffe20dd18e"
+        }
+      }
+    ],
+    "meta": {
+      "extension": null,
+      "id": "38926006-a93a-4c2a-9bac-0406c113f2d1",
+      "profile": null,
+      "security": [
+        {
+          "code": "walgreens",
+          "id": null,
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "walgreens",
+          "id": null,
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "source": "https://www.icanbwell.com",
+      "tag": null,
+      "versionId": "1"
+    },
+    "name": [
+      {
+        "family": "Last",
+        "given": [
+          "First"
+        ]
+      }
+    ],
+    "photo": null,
+    "resourceType": "Person",
+    "telecom": [
+      {
+        "id": null,
+        "period": null,
+        "system": "email",
+        "use": null,
+        "value": "first.last@icanbwell.com"
+      },
+      {
+        "id": null,
+        "period": null,
+        "system": "phone",
+        "use": null,
+        "value": "1103110311"
+      }
+    ]
+  }
+]
