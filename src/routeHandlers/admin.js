@@ -304,6 +304,7 @@ async function handleAdmin(
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
                         const json = await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
                             req,
+                            res,
                             personId,
                         });
                         return res.json(json);

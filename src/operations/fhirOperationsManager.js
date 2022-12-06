@@ -243,7 +243,7 @@ class FhirOperationsManager {
     async search(args, {req}, resourceType) {
         /**
          * combined args
-         * @type {string[]}
+         * @type {Object}
          */
         let combined_args = get_all_args(req, args);
         if (req.body && Object.keys(req.body).length > 0) {
@@ -266,7 +266,7 @@ class FhirOperationsManager {
     async searchStreaming(args, {req, res}, resourceType) {
         /**
          * combined args
-         * @type {string[]}
+         * @type {Object}
          */
         let combined_args = get_all_args(req, args);
         if (req.body && Object.keys(req.body).length > 0) {
@@ -300,7 +300,7 @@ class FhirOperationsManager {
     async create(args, {req}, resourceType) {
         /**
          * combined args
-         * @type {string[]}
+         * @type {Object}
          */
         const combined_args = get_all_args(req, args);
         /**
@@ -323,7 +323,7 @@ class FhirOperationsManager {
     async update(args, {req}, resourceType) {
         /**
          * combined args
-         * @type {string[]}
+         * @type {Object}
          */
         const combined_args = get_all_args(req, args);
 
@@ -342,7 +342,7 @@ class FhirOperationsManager {
     async merge(args, {req}, resourceType) {
         /**
          * combined args
-         * @type {string[]}
+         * @type {Object}
          */
         const combined_args = get_all_args(req, args);
 
@@ -361,14 +361,18 @@ class FhirOperationsManager {
     async everything(args, {req, res}, resourceType) {
         /**
          * combined args
-         * @type {string[]}
+         * @type {Object}
          */
         const combined_args = get_all_args(req, args);
 
         return this.everythingOperation.everything(
-            this.getRequestInfo(req),
-            res,
-            combined_args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                res,
+                args: combined_args,
+                resourceType,
+                streamResponse: true
+            });
     }
 
     /**
@@ -380,7 +384,7 @@ class FhirOperationsManager {
     async remove(args, {req}, resourceType) {
         /**
          * combined args
-         * @type {string[]}
+         * @type {Object}
          */
         const combined_args = get_all_args(req, args);
 
@@ -454,20 +458,24 @@ class FhirOperationsManager {
      * Supports $graph
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
-     * @param {import('express').Response} res
+     * @param {import('http').ServerResponse} res
      * @param {string} resourceType
      * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
      */
     async graph(args, {req, res}, resourceType) {
         /**
          * combined args
-         * @type {string[]}
+         * @type {Object}
          */
         const combined_args = get_all_args(req, args);
         return this.graphOperation.graph(
-            this.getRequestInfo(req),
-            res,
-            combined_args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                res,
+                args: combined_args,
+                resourceType,
+                streamResponse: true
+            });
     }
 
     /**

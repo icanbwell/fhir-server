@@ -62,10 +62,15 @@ class AdminPersonPatientDataManager {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = 'DELETE';
-            const bundle = await this.everythingOperation.everything(requestInfo, {
-                'base_version': base_version,
-                'id': patientId
-            }, 'Patient');
+            const bundle = await this.everythingOperation.everything({
+                requestInfo,
+                args: {
+                    'base_version': base_version,
+                    'id': patientId
+                },
+                resourceType: 'Patient',
+                streamResponse: false
+            });
             // now also remove any connections to this Patient record
             /**
              * @type {BundleEntry[]}
@@ -133,17 +138,23 @@ class AdminPersonPatientDataManager {
     /**
      * @description deletes the person data graph
      * @param {import('http').IncomingMessage} req
+     * @param {import('http').ServerResponse} res
      * @param {string} personId
      * @return {Promise<Bundle>}
      */
-    async deletePersonDataGraphAsync({req, personId}) {
+    async deletePersonDataGraphAsync({req, res, personId}) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = 'DELETE';
-            const bundle = await this.everythingOperation.everything(requestInfo, {
-                'base_version': base_version,
-                'id': personId
-            }, 'Person');
+            const bundle = await this.everythingOperation.everything({
+                requestInfo,
+                res,
+                args: {
+                    'base_version': base_version,
+                    'id': personId
+                }, resourceType: 'Person',
+                streamResponse: false
+            });
             // now also remove any connections to this Patient record
             /**
              * @type {BundleEntry[]}

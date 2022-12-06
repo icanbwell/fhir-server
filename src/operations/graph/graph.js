@@ -66,13 +66,15 @@ class GraphOperation {
      * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
+     * @param {boolean} streamResponse
      * @return {Promise<Bundle>}
      */
-    async graph(requestInfo, res, args, resourceType) {
+    async graph({requestInfo, res, args, resourceType, streamResponse}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertIsValid(streamResponse !== undefined);
         const currentOperationName = 'graph';
 
         /**
@@ -185,7 +187,7 @@ class GraphOperation {
             /**
              * @type {FhirResponseStreamer}
              */
-            const fhirResponseStreamer = new FhirResponseStreamer({response: res});
+            const fhirResponseStreamer = streamResponse ? new FhirResponseStreamer({response: res}) : null;
             /**
              * @type {Bundle}
              */
