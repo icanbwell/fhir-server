@@ -1,4 +1,4 @@
-class ResponseStreamer {
+class HttpResponseStreamer {
     /**
      * constructor
      * @param {import('express').Response} response
@@ -67,5 +67,5 @@ class ResponseStreamer {
 }
 
 module.exports = {
-    ResponseStreamer
+    HttpResponseStreamer
 };

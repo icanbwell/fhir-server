@@ -10,7 +10,7 @@ const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 const {RethrownError} = require('../utils/rethrownError');
-const {ResponseStreamer} = require('../utils/responseStreamer');
+const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
 
 /**
  * shows indexes
@@ -270,7 +270,7 @@ async function handleAdmin(
                             });
                             return res.json(json);
                         } else {
-                            const responseStreamer = new ResponseStreamer({response: res});
+                            const responseStreamer = new HttpResponseStreamer({response: res});
                             await responseStreamer.startAsync({
                                 title: 'Delete Patient Data Graph',
                                 html: '<h1>Delete Patient Data Graph</h1>'
