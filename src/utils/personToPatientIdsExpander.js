@@ -49,6 +49,8 @@ class PersonToPatientIdsExpander {
             }
         );
         if (patientIds && patientIds.length > 0) {
+            // Also include the proxy patient ID for resources that are associated with the proxy patient directly
+            patientIds.push(`${personProxyPrefix}${personId}`);
             if (includePatientPrefix) {
                 patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
             }
