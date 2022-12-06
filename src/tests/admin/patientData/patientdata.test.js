@@ -146,7 +146,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/deletePatientDataGraph?id=patient1')
+                .get('/admin/deletePatientDataGraph?id=patient1&sync=1')
                 .set(getHeadersWithCustomToken('user/*.* admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientDeletionResources);
