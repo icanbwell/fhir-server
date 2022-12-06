@@ -1,0 +1,107 @@
+[
+  {
+    "address": [
+      {
+        "city": "Austin",
+        "country": "Some country",
+        "district": null,
+        "id": "2011-10-05T14:48:00.000Z",
+        "line": [
+          "301 W, in a yellow submarine"
+        ],
+        "period": {
+          "end": null,
+          "id": "2011-10-05T14:48:00.000Z",
+          "start": null
+        },
+        "postalCode": "78701",
+        "state": "Texas"
+      }
+    ],
+    "gender": "male",
+    "id": "06949720-ab51-4b1b-979c-2d404334c491",
+    "identifier": [
+      {
+        "system": "http://www.walgreens.com/profileid",
+        "type": null,
+        "value": "1000000-a-02"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceId",
+        "type": null,
+        "value": "06949720-ab51-4b1b-979c-2d404334c491"
+      },
+      {
+        "system": "https://www.icanbwell.com/uuid",
+        "type": null
+      }
+    ],
+    "implicitRules": "some-implicit-rule",
+    "language": "english",
+    "link": [
+      {
+        "assurance": "level4",
+        "extension": null,
+        "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
+        "target": {
+          "id": "WPS-0559166162"
+        }
+      }
+    ],
+    "meta": {
+      "extension": [
+        {
+          "id": "2011-10-05T14:48:00.000Z"
+        }
+      ],
+      "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+      "profile": [
+        "some-profile"
+      ],
+      "security": [
+        {
+          "code": "bwell",
+          "id": null,
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "bwell",
+          "id": null,
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "source": "https://www.icanbwell.com",
+      "tag": null,
+      "versionId": "1"
+    },
+    "name": [
+      {
+        "family": "Azamar",
+        "given": [
+          "Daniel"
+        ]
+      }
+    ],
+    "photo": {
+      "contentType": "image/jpeg",
+      "creation": null,
+      "data": "someLongString",
+      "hash": "whatANiceHash!",
+      "id": "2011-10-05T14:48:00.000Z",
+      "language": "english",
+      "size": 1024,
+      "title": "what a nice picture!",
+      "url": "someurl.com"
+    },
+    "resourceType": "Person",
+    "telecom": [
+      {
+        "id": "2011-10-05T14:48:00.000Z",
+        "period": null,
+        "system": "phone",
+        "use": "home",
+        "value": "+52123456789"
+      }
+    ]
+  }
+]

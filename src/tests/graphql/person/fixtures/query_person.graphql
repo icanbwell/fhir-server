@@ -1,0 +1,109 @@
+query {
+    person(
+        identifier: {
+            value: {
+                system: "http://www.walgreens.com/profileid"
+                value: "1000000-a-02"
+            }
+        }
+    ) {
+        entry {
+            resource {
+                resourceType
+                id
+                identifier {
+                    type {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    system
+                    value
+                }
+                meta {
+                    id
+                    source
+                    security {
+                        system
+                        code
+                    }
+                }
+                link {
+                    id
+                    extension {
+                        id
+                        url
+                    }
+                    assurance
+                    target {
+                        ... on Patient {
+                            id
+                        }
+                    }
+                }
+                implicitRules
+                meta {
+                    id
+                    extension {
+                        id
+                    }
+                    versionId
+                    lastUpdated
+                    source
+                    profile
+                    security {
+                        id
+                        system
+                        code
+                    }
+                    tag {
+                        id
+                    }
+                }
+                name {
+                    family
+                    given
+                }
+                address {
+                    id
+                    line
+                    city
+                    district
+                    state
+                    postalCode
+                    country
+                    period {
+                        id
+                        start
+                        end
+                    }
+                }
+                gender
+                photo {
+                    id
+                    contentType
+                    language
+                    data
+                    url
+                    size
+                    hash
+                    title
+                    creation
+                }
+                language
+                telecom {
+                    id
+                    system
+                    value
+                    use
+                    period {
+                        id
+                        start
+                        end
+                    }
+                }
+            }
+        }
+    }
+}
