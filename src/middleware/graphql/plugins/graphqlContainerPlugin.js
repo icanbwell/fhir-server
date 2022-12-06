@@ -24,28 +24,30 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
 
         return {
             async willSendResponse(context) {
-                // AFTER the response has finished THEN run the postRequestProcessor
-                context.context.res.once('finish', async () => {
-                    // uncomment this to test out timing of events
-                    // await new Promise(resolve => {
-                    //     setTimeout(resolve, 10 * 1000);
-                    // });
-                    if (container) {
-                        /**
-                         * @type {PostRequestProcessor}
-                         */
-                        const postRequestProcessor = container.postRequestProcessor;
-                        /**
-                         * @type {RequestSpecificCache}
-                         */
-                        const requestSpecificCache = container.requestSpecificCache;
-                        if (postRequestProcessor) {
-                            await postRequestProcessor.executeAsync({requestId});
-                            await requestSpecificCache.clearAsync({requestId});
+                if (context && context.context && context.context.res && !context.context.res.finished){
+                    // AFTER the response has finished THEN run the postRequestProcessor
+                    context.context.res.once('finish', async () => {
+                        // uncomment this to test out timing of events
+                        // await new Promise(resolve => {
+                        //     setTimeout(resolve, 10 * 1000);
+                        // });
+                        if (container) {
+                            /**
+                             * @type {PostRequestProcessor}
+                             */
+                            const postRequestProcessor = container.postRequestProcessor;
+                            /**
+                             * @type {RequestSpecificCache}
+                             */
+                            const requestSpecificCache = container.requestSpecificCache;
+                            if (postRequestProcessor) {
+                                await postRequestProcessor.executeAsync({requestId});
+                                await requestSpecificCache.clearAsync({requestId});
+                            }
                         }
-                    }
-                    // console.log(`Sleep after response ended: ${requestId}`);
-                });
+                        // console.log(`Sleep after response ended: ${requestId}`);
+                    });
+                }
             }
         };
     }
