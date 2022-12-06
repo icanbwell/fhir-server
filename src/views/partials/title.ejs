@@ -1,0 +1,12 @@
+<title>
+    <% if (locals && locals.resourceDefinition) { %><%= resourceDefinition.name %>
+    <% if(resources != null && resources.length === 1 && resources[0].id){ %><%= resources[0].id %>
+    <% } else { %>
+        Search
+    <% } %>
+    <% } else { %>
+                    Helix FHIR Server
+    <% } %>
+
+</title>
+
