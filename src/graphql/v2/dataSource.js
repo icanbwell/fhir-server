@@ -337,6 +337,10 @@ class FhirDataSource extends DataSource {
         return bundle;
     }
 
+    /**
+     * Creates the data loader if it does not exist (lazy init)
+     * @param {Object} args
+     */
     createDataLoader(args) {
         if (!this.dataLoader) {
             this.dataLoader = new DataLoader(

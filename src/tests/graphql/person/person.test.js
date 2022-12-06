@@ -17,7 +17,7 @@ const {
     commonAfterEach,
     getHeaders,
     getGraphQLHeaders,
-    createTestRequest,
+    createTestRequest, getTestContainer,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {cleanMeta} = require('../../customMatchers');
@@ -56,6 +56,22 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
+            /**
+             * @type {SimpleContainer}
+             */
+            const testContainer = getTestContainer();
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = testContainer.postRequestProcessor;
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            /**
+             * @type {RequestSpecificCache}
+             */
+            const requestSpecificCache = testContainer.requestSpecificCache;
+            await requestSpecificCache.clearAllAsync();
+
             resp = await request
                 .post('/graphqlv2')
                 .send({
@@ -66,7 +82,7 @@ describe('GraphQL Patient Tests', () => {
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlPersonResponse, r => {
-                if (r.person){
+                if (r.person) {
                     r.person.forEach(resource => {
                         cleanMeta(resource);
                     });
