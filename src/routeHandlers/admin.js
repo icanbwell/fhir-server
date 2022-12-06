@@ -10,6 +10,7 @@ const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 const {RethrownError} = require('../utils/rethrownError');
+const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
 
 /**
  * shows indexes
@@ -269,16 +270,23 @@ async function handleAdmin(
                             });
                             return res.json(json);
                         } else {
-                            res.json(
-                                {
-                                    message: `Started delete of ${patientId}.  This may take a few seconds.  ` +
-                                        'You can keep reloading the Patient on previous page until the ' +
-                                        'Patient record is no longer available.'
-                                });
+                            const responseStreamer = new HttpResponseStreamer({response: res});
+                            await responseStreamer.startAsync({
+                                title: 'Delete Patient Data Graph',
+                                html: '<h1>Delete Patient Data Graph</h1>'
+                            });
+                            await responseStreamer.writeAsync({
+                                html: '<div>' +
+                                    `Started delete of ${patientId}.  This may take a few seconds.  ` +
+                                    '</div>'
+                            });
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
                                 patientId,
                             });
+                            await responseStreamer.writeAsync({html: '<div>Finished Deleting</div>'});
+                            await responseStreamer.endAsync();
+                            return;
                         }
                     }
                     return res.json({

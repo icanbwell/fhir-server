@@ -8,7 +8,7 @@ RUN apt-get -y update && apt-get -y install curl autoconf build-essential && apt
 
 # update npm
 RUN npm install -g npm@latest && npm upgrade --global yarn
-RUN #npm install -g npm@latest && npm upgrade --global yarn && yarn set version berry
+# RUN npm install -g npm@latest && npm upgrade --global yarn && yarn set version berry
 
 RUN mkdir /srv/src
 COPY package.json /srv/src/package.json
@@ -31,7 +31,7 @@ ARG NODE_ENV=production
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install curl && apt-get clean
 
 # update npm
-RUN npm install -g npm@latest
+RUN npm install -g npm@latest && npm upgrade --global yarn
 
 # Set the working directory
 RUN mkdir -p /srv/src && chown node:node /srv/src
