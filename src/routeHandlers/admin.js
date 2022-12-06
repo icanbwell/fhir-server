@@ -261,11 +261,17 @@ async function handleAdmin(
                          * @type {AdminPersonPatientDataManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
-                        const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
+
+                        res.json(
+                            {
+                                message: `Started delete of ${patientId}.  This may take a few seconds.  ` +
+                                    'You can keep reloading the Patient on previous page until the ' +
+                                    'Patient record is no longer available.'
+                            });
+                        await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                             req,
                             patientId,
                         });
-                        return res.json(json);
                     }
                     return res.json({
                         message: `No id: ${patientId} passed`
