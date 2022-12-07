@@ -6,6 +6,7 @@ let mongo;
 
 async function startTestMongoServerAsync() {
     mongo = await MongoMemoryServer.create();
+    await mongo.ensureInstance();
     global.__MONGO_URI__ = mongo.getUri();
 }
 
