@@ -37,8 +37,8 @@ const getSearchParameters = (profile, version, customArgsModule) => {
     // args for this particular route instead of the default arguments included
 
     if (customArgsModule) {
-        // eslint-disable-next-line security/detect-non-literal-require
         // noinspection JSCheckFunctionSignatures
+        // eslint-disable-next-line security/detect-non-literal-require
         let paramsAsArray = require(String(customArgsModule)).makeResource(Object.assign({}, {
             base_version: version,
             key: lowercaseProfileName
