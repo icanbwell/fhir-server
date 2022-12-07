@@ -58,12 +58,13 @@ class AdminPersonPatientDataManager {
      * @param {string} patientId
      * @return {Promise<Bundle>}
      */
-    async deletePatientDataGraphAsync({req, patientId}) {
+    async deletePatientDataGraphAsync({req, res, patientId}) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = 'DELETE';
             const bundle = await this.everythingOperation.everything({
                 requestInfo,
+                res,
                 args: {
                     'base_version': base_version,
                     'id': patientId
