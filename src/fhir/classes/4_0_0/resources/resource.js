@@ -180,8 +180,10 @@ class Resource extends ResourceContainer {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'Resource',
             enumerable: true,
@@ -190,6 +192,10 @@ class Resource extends ResourceContainer {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'Resource';
     }

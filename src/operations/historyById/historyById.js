@@ -202,9 +202,13 @@ class HistoryByIdOperation {
                  * @type {Resource|BundleEntry|null}
                  */
                 let resource = await cursor.next();
+                /**
+                 * @type {BundleEntry|null}
+                 */
+                let bundleEntry = null;
                 if (resource) {
                     if (!resource.resource) { // it is not a bundle entry
-                        resource = new BundleEntry(
+                        bundleEntry = new BundleEntry(
                             {
                                 id: resource.id,
                                 resource: resource,
@@ -212,17 +216,19 @@ class HistoryByIdOperation {
                                     {protocol, host, base_version, resource})
                             }
                         );
+                    } else {
+                        bundleEntry = resource;
                     }
                     if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
                             resource: resource, user, scope
                         }
                     )) {
-                        entries.push(resource);
+                        entries.push(bundleEntry);
                     }
                 }
             }
             if (entries.length === 0) {
-                throw new NotFoundError();
+                throw new NotFoundError('Resource not found');
             }
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {

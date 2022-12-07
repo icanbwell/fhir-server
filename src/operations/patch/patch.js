@@ -108,7 +108,7 @@ class PatchOperation {
                 throw new BadRequestError(e);
             }
             if (!data) {
-                throw new NotFoundError();
+                throw new NotFoundError('Resource not found');
             }
             // Validate the patch
             let errors = validate(patchContent, data);

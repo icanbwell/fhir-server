@@ -24,6 +24,7 @@ const graphql = async (fnCreateContainer) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v1/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
     // create the Apollo graphql middleware
+    // noinspection JSCheckFunctionSignatures
     const server = new ApolloServer(
         {
             // schema: schemaWithResolvers,
