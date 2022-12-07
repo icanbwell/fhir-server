@@ -55,6 +55,7 @@ class AdminPersonPatientDataManager {
     /**
      * @description Deletes the patient data graph
      * @param {import('http').IncomingMessage} req
+     * @param {import('http').ServerResponse} res
      * @param {string} patientId
      * @return {Promise<Bundle>}
      */

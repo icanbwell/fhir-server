@@ -53,10 +53,10 @@ class EverythingOperation {
      * @return {Promise<Bundle>}
      */
     async everything({requestInfo, res, args, resourceType, streamResponse}) {
-        assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
-        assertIsValid(res !== undefined);
-        assertIsValid(resourceType !== undefined);
+        assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
+        assertIsValid(args !== undefined, 'args is undefined');
+        assertIsValid(res !== undefined, 'res is undefined');
+        assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         const currentOperationName = 'everything';
         /**
          * @type {number}

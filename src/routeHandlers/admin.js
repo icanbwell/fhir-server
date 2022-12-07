@@ -259,6 +259,7 @@ async function handleAdmin(
                         if (sync) {
                             const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
+                                res,
                                 patientId,
                             });
                             return res.json(json);
@@ -275,6 +276,7 @@ async function handleAdmin(
                             });
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
+                                res,
                                 patientId,
                             });
                             await responseStreamer.writeAsync({html: '<div>Finished Deleting</div>'});
