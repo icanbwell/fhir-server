@@ -4,24 +4,31 @@
 
 const env = require('var');
 const async = require('async');
-const {mongoConfig} = require('../config');
-const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
+const {RethrownError} = require('../utils/rethrownError');
 
-module.exports.handleClean = async (req, res) => {
+/**
+ * Handles clean
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('http').ServerResponse} res
+ * @return {Promise<void>}
+ */
+module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
     // const query_args_array = Object.entries(req.query);
     // return res.status(200).json(req.params);
     if (!env.DISABLE_CLEAN_ENDPOINT) {
         console.info('Running clean');
-        const mongoDatabaseManager = new MongoDatabaseManager();
+        const container = fnCreateContainer();
         /**
-         * @type {import('mongodb').MongoClient}
+         * @type {MongoDatabaseManager}
          */
-        const client = await mongoDatabaseManager.createClientAsync(mongoConfig);
+        const mongoDatabaseManager = container.mongoDatabaseManager;
+
         try {
             /**
              * @type {import('mongodb').Db}
              */
-            const db = await new MongoDatabaseManager().getClientDbAsync();
+            const db = await mongoDatabaseManager.getClientDbAsync();
             let collection_names = [];
             // const collections = await db.listCollections().toArray();
 
@@ -58,8 +65,10 @@ module.exports.handleClean = async (req, res) => {
                 collection_names,
                 async (collection_name) => await db.collection(collection_name).deleteMany({})
             );
-        } finally {
-            await mongoDatabaseManager.disconnectClientAsync(client);
+        } catch (error) {
+            throw new RethrownError({
+                error
+            });
         }
     } else {
         res.status(403).json();

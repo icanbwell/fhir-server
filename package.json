@@ -45,6 +45,7 @@
     "lint"
   ],
   "jest": {
+    "watchman": false,
     "watchPathIgnorePatterns": [
       "globalConfig"
     ],

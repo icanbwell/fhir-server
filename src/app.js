@@ -51,9 +51,10 @@ function createFhirApp(fnCreateContainer, app1) {
 /**
  * Creates the app
  * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {boolean} trackMetrics
  * @return {import('express').Express}
  */
-function createApp(fnCreateContainer) {
+function createApp({fnCreateContainer, trackMetrics}) {
     initialize();
     const swaggerUi = require('swagger-ui-express');
     // eslint-disable-next-line security/detect-non-literal-require
@@ -78,13 +79,15 @@ function createApp(fnCreateContainer) {
     // helmet protects against common OWASP attacks: https://www.securecoding.com/blog/using-helmetjs/
     app.use(helmet());
 
-    // prometheus tracks the metrics
-    app.use(Prometheus.requestCounters);
-    // noinspection JSCheckFunctionSignatures
-    app.use(Prometheus.responseCounters);
-    app.use(Prometheus.httpRequestTimer);
-    Prometheus.injectMetricsRoute(app);
-    Prometheus.startCollection();
+    if (trackMetrics) {
+        // prometheus tracks the metrics
+        app.use(Prometheus.requestCounters);
+        // noinspection JSCheckFunctionSignatures
+        app.use(Prometheus.responseCounters);
+        app.use(Prometheus.httpRequestTimer);
+        Prometheus.injectMetricsRoute(app);
+        Prometheus.startCollection();
+    }
 
     // Set EJS as templating engine
     app.set('views', path.join(__dirname, '/views'));
@@ -152,7 +155,9 @@ function createApp(fnCreateContainer) {
 
     app.get('/clean/:collection?', handleClean);
 
-    app.get('/stats', handleStats);
+    app.get('/stats', (req, res) => handleStats(
+        {fnCreateContainer, req, res}
+    ));
 
     app.get('/.well-known/smart-configuration', handleSmartConfiguration);
 
@@ -261,7 +266,7 @@ function createApp(fnCreateContainer) {
                     /**
                      * @type {import('express').Router}
                      */
-                    // eslint-disable-next-line new-cap
+                        // eslint-disable-next-line new-cap
                     const router1 = express.Router();
                     if (isTrue(env.AUTH_ENABLED)) {
                         router1.use(passport.initialize());
