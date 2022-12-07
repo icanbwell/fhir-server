@@ -12,7 +12,6 @@ const supertest = require('supertest');
 const {createApp} = require('../app');
 const {createServer} = require('../server');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
-const {assertIsValid} = require('../utils/assertType');
 
 // let connection;
 // let db;
@@ -67,14 +66,6 @@ module.exports.createTestServer = async () => {
 };
 
 /**
- * @type {string|null}
- */
-let mongoUri = null;
-
-module.exports.getMongoUrl = () => {
-    return mongoUri;
-};
-/**
  * @param {(SimpleContainer) => SimpleContainer} [fnUpdateContainer]
  * @return {import('supertest').Test}
  */
@@ -86,13 +77,11 @@ module.exports.createTestRequest = async (fnUpdateContainer) => {
      */
     if (!mongo) {
         mongo = await MongoMemoryServer.create();
-        mongoUri = mongo.getUri();
     }
 
     if (!app) {
-        assertIsValid(mongoUri, 'mongoUri is not set');
         app = await module.exports.createTestApp((c) => {
-            c.register('mongoDatabaseManager', () => new TestMongoDatabaseManager({mongoUri}));
+            c.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());
             if (fnUpdateContainer) {
                 fnUpdateContainer(c);
             }
@@ -150,27 +139,22 @@ module.exports.commonAfterEach = async () => {
          */
         const requestSpecificCache = testContainer.requestSpecificCache;
         await requestSpecificCache.clearAllAsync();
-        testContainer = null;
     }
     nock.cleanAll();
     nock.restore();
-    if (mongoUri) {
-        assertIsValid(mongoUri, 'mongoUri is not set');
-        const testMongoDatabaseManager = new TestMongoDatabaseManager({mongoUri});
-        await testMongoDatabaseManager.dropDatabasesAsync();
-    }
+    const testMongoDatabaseManager = new TestMongoDatabaseManager();
+    await testMongoDatabaseManager.dropDatabasesAsync();
 
     if (mongo) {
         await mongo.stop({doCleanup: true});
         mongo = null;
-
     }
     if (server) {
         await server.close();
         server = null;
     }
     tester = null;
-    app = null;
+    // app = null;
     // global.gc();
     // globals.clear();
 };

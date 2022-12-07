@@ -1,32 +1,17 @@
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
-const {assertIsValid} = require('../utils/assertType');
 
 class TestMongoDatabaseManager extends MongoDatabaseManager {
-
-    /**
-     * constructor
-     * @param {string} mongoUri
-     */
-    constructor({mongoUri}) {
-        super();
-        this.mongoUri = mongoUri;
-    }
-
     getClientConfig() {
-        assertIsValid(this.mongoUri);
         return {
-            connection: this.mongoUri,
-            // db_name: 'fhir_' + generateUUID(),
+            connection: process.env.MONGO_URL,
             db_name: 'fhir',
             options: {}
         };
     }
 
     getAuditConfig() {
-        assertIsValid(this.mongoUri);
         return {
-            connection: this.mongoUri,
-            // db_name: 'audit-event_' + generateUUID(),
+            connection: process.env.MONGO_URL,
             db_name: 'audit-event',
             options: {}
         };
