@@ -19,9 +19,12 @@ const {AccessIndexManager} = require('../common/accessIndexManager');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
 
 function isUrl(queryParameterValue) {
-    return queryParameterValue.startsWith('http://') ||
-        queryParameterValue.startsWith('https://') ||
-        queryParameterValue.startsWith('ftp://');
+    return typeof queryParameterValue === 'string' &&
+        (
+            queryParameterValue.startsWith('http://') ||
+            queryParameterValue.startsWith('https://') ||
+            queryParameterValue.startsWith('ftp://')
+        );
 }
 
 class R4SearchQueryCreator {
