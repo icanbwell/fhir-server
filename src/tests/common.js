@@ -163,14 +163,14 @@ module.exports.commonAfterEach = async () => {
     if (mongo) {
         await mongo.stop({doCleanup: true});
         mongo = null;
-        mongoUri = null;
+
     }
     if (server) {
         await server.close();
         server = null;
     }
     tester = null;
-    // app = null;
+    app = null;
     // global.gc();
     // globals.clear();
 };

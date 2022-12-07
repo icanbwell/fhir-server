@@ -16,6 +16,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         assertIsValid(this.mongoUri);
         return {
             connection: this.mongoUri,
+            // db_name: 'fhir_' + generateUUID(),
             db_name: 'fhir',
             options: {}
         };
@@ -25,6 +26,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         assertIsValid(this.mongoUri);
         return {
             connection: this.mongoUri,
+            // db_name: 'audit-event_' + generateUUID(),
             db_name: 'audit-event',
             options: {}
         };
