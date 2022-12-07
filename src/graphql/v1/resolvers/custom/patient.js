@@ -1,9 +1,9 @@
-const { getResources } = require('../../common');
-const { RemoveOperation } = require('../../../../operations/remove/remove');
-const { MergeOperation } = require('../../../../operations/merge/merge');
-const { getRequestInfo } = require('../../requestInfoHelper');
-const { assertTypeEquals } = require('../../../../utils/assertType');
-const { SimpleContainer } = require('../../../../utils/simpleContainer');
+const {getResources} = require('../../common');
+const {RemoveOperation} = require('../../../../operations/remove/remove');
+const {MergeOperation} = require('../../../../operations/merge/merge');
+const {getRequestInfo} = require('../../requestInfoHelper');
+const {assertTypeEquals} = require('../../../../utils/assertType');
+const {SimpleContainer} = require('../../../../utils/simpleContainer');
 
 /**
  method to match general practitioners to an id and remove from the provided list
@@ -95,7 +95,7 @@ module.exports = {
     },
     Mutation: {
         updateGeneralPractitioner:
-            // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
             async (parent, args, context, info) => {
                 /**
                  * @type {SimpleContainer}
@@ -154,7 +154,7 @@ module.exports = {
                         throw new Error(`Practitioner not found ${args.practitionerId}`);
                     }
                     patientToChange.generalPractitioner = [
-                        { reference: `Practitioner/${practitioners[0].id}` },
+                        {reference: `Practitioner/${practitioners[0].id}`},
                     ];
                 }
                 /**
@@ -168,9 +168,11 @@ module.exports = {
                 const mergeOperation = container.mergeOperation;
                 assertTypeEquals(mergeOperation, MergeOperation);
                 const result = await mergeOperation.merge(
-                    requestInfo,
-                    { ...args, base_version: '4_0_0' },
-                    'Patient'
+                    {
+                        requestInfo,
+                        args: {...args, base_version: '4_0_0'},
+                        resourceType: 'Patient'
+                    }
                 );
                 if (result && result[0].operationOutcome) {
                     throw new Error(`Unable to update patient ${args.patientId}`);

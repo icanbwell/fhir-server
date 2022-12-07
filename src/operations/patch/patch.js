@@ -72,7 +72,7 @@ class PatchOperation {
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async patch(requestInfo, args, resourceType) {
+    async patch({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

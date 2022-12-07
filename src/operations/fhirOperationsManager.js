@@ -251,8 +251,10 @@ class FhirOperationsManager {
         }
 
         return this.searchBundleOperation.searchBundle(
-            this.getRequestInfo(req),
-            combined_args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args: combined_args, resourceType
+            });
     }
 
     /**
@@ -273,9 +275,11 @@ class FhirOperationsManager {
             combined_args = Object.assign({}, args, req.body);
         }
         return this.searchStreamingOperation.searchStreaming(
-            this.getRequestInfo(req),
-            res,
-            combined_args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                res,
+                args: combined_args, resourceType
+            });
     }
 
     /**
@@ -286,8 +290,11 @@ class FhirOperationsManager {
      */
     async searchById(args, {req}, resourceType) {
         return this.searchByIdOperation.searchById(
-            this.getRequestInfo(req),
-            args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args, resourceType
+            }
+        );
     }
 
     /**
@@ -309,8 +316,11 @@ class FhirOperationsManager {
         const path = req.path;
 
         return this.createOperation.create(
-            this.getRequestInfo(req),
-            combined_args, path, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args: combined_args, path, resourceType
+            }
+        );
     }
 
     /**
@@ -328,8 +338,11 @@ class FhirOperationsManager {
         const combined_args = get_all_args(req, args);
 
         return this.updateOperation.update(
-            this.getRequestInfo(req),
-            combined_args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args: combined_args, resourceType
+            }
+        );
     }
 
     /**
@@ -347,8 +360,11 @@ class FhirOperationsManager {
         const combined_args = get_all_args(req, args);
 
         return this.mergeOperation.merge(
-            this.getRequestInfo(req),
-            combined_args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args: combined_args, resourceType
+            }
+        );
     }
 
     /**
@@ -389,8 +405,11 @@ class FhirOperationsManager {
         const combined_args = get_all_args(req, args);
 
         return this.removeOperation.remove(
-            this.getRequestInfo(req),
-            combined_args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args: combined_args, resourceType
+            }
+        );
     }
 
     /**
@@ -401,8 +420,11 @@ class FhirOperationsManager {
      */
     async searchByVersionId(args, {req}, resourceType) {
         return this.searchByVersionIdOperation.searchByVersionId(
-            this.getRequestInfo(req),
-            args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args, resourceType
+            }
+        );
     }
 
     /**
@@ -413,8 +435,11 @@ class FhirOperationsManager {
      */
     async history(args, {req}, resourceType) {
         return this.historyOperation.history(
-            this.getRequestInfo(req),
-            args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args, resourceType
+            }
+        );
     }
 
     /**
@@ -425,8 +450,10 @@ class FhirOperationsManager {
      */
     async historyById(args, {req}, resourceType) {
         return this.historyByIdOperation.historyById(
-            this.getRequestInfo(req),
-            args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args, resourceType
+            });
     }
 
     /**
@@ -438,8 +465,10 @@ class FhirOperationsManager {
      */
     async patch(args, {req}, resourceType) {
         return this.patchOperation.patch(
-            this.getRequestInfo(req),
-            args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args, resourceType
+            });
     }
 
     /**
@@ -450,8 +479,10 @@ class FhirOperationsManager {
      */
     async validate(args, {req}, resourceType) {
         return this.validateOperation.validate(
-            this.getRequestInfo(req),
-            args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args, resourceType
+            });
     }
 
     /**
@@ -486,8 +517,11 @@ class FhirOperationsManager {
      */
     async expand(args, {req}, resourceType) {
         return this.expandOperation.expand(
-            this.getRequestInfo(req),
-            args, resourceType);
+            {
+                requestInfo: this.getRequestInfo(req),
+                args, resourceType
+            }
+        );
     }
 }
 

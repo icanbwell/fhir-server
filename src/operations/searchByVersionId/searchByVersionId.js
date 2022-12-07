@@ -78,7 +78,7 @@ class SearchByVersionIdOperation {
      * @param {Object} args
      * @param {string} resourceType
      */
-    async searchByVersionId(requestInfo, args, resourceType) {
+    async searchByVersionId({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
