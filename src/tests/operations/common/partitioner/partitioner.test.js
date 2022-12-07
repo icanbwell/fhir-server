@@ -1,5 +1,5 @@
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {commonBeforeEach, commonAfterEach} = require('../../../common');
+const {commonBeforeEach, commonAfterEach, getMongoUrl} = require('../../../common');
 const {PartitioningManager} = require('../../../../partitioners/partitioningManager');
 const {ConfigManager} = require('../../../../utils/configManager');
 const moment = require('moment-timezone');
@@ -29,7 +29,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
             const partitioner = new PartitioningManager({
                 configManager: new MockConfigManager(),
@@ -60,7 +60,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -109,7 +109,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -153,7 +153,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -177,7 +177,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -227,7 +227,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -249,7 +249,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -274,7 +274,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -311,7 +311,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -368,7 +368,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -424,7 +424,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
@@ -480,7 +480,7 @@ describe('PartitioningManager Tests', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = new TestMongoDatabaseManager({mongoUri: getMongoUrl()});
             await mongoDatabaseManager.dropDatabasesAsync();
 
             const partitioner = new PartitioningManager({
