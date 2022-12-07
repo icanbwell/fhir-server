@@ -43,6 +43,11 @@
     "lint"
   ],
   "jest": {
+    "watchPathIgnorePatterns": [
+      "globalConfig"
+    ],
+    "globalSetup": "<rootDir>/src/tests/jestGlobalSetup.js",
+    "globalTeardown": "<rootDir>/src/tests/jestGlobalTeardown.js",
     "verbose": false,
     "testEnvironment": "node",
     "collectCoverage": false,
@@ -65,7 +70,6 @@
       "<rootDir>/src/graphql/v2/resolvers",
       "<rootDir>/src/graphql/v1/resolvers"
     ],
-    "preset": "@shelf/jest-mongodb",
     "setupFiles": [
       "<rootDir>/jest/setEnvVars.js"
     ],
@@ -73,17 +77,17 @@
       "<rootDir>/src/tests/testSetup.js"
     ],
     "testTimeout": 60000,
-    "workerIdleMemoryLimit": "3MB"
+    "workerIdleMemoryLimit": "8MB"
   },
   "graphql-schema-linter": {
     "rules": [
       "enum-values-sorted-alphabetically"
     ],
     "schemaPaths": [
-      "src/graphql/schemas/**.graphql"
+      "src/graphql/v2/schemas/**.graphql"
     ],
     "customRulePaths": [
-      "src/graphql/resolvers/*.js"
+      "src/graphql/v2/resolvers/*.js"
     ],
     "rulesOptions": {
       "enum-values-sorted-alphabetically": {
@@ -163,7 +167,6 @@
   "devDependencies": {
     "@jest/globals": "^29.3.1",
     "jest-environment-node": "^29.3.1",
-    "@shelf/jest-mongodb": "^4.1.4",
     "depcheck": "^1.4.3",
     "dotenv": "^16.0.3",
     "ejs-lint": "^2.0.0",

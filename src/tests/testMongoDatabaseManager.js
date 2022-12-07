@@ -3,7 +3,7 @@ const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 class TestMongoDatabaseManager extends MongoDatabaseManager {
     getClientConfig() {
         return {
-            connection: process.env.MONGO_URL,
+            connection: global.__MONGO_URI__, // set by https://github.com/shelfio/jest-mongodb
             db_name: 'fhir',
             options: {}
         };
@@ -11,7 +11,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
 
     getAuditConfig() {
         return {
-            connection: process.env.MONGO_URL,
+            connection: global.__MONGO_URI__,
             db_name: 'audit-event',
             options: {}
         };
