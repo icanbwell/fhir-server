@@ -122,7 +122,7 @@ module.exports.commonAfterEach = async () => {
          */
         const requestSpecificCache = testContainer.requestSpecificCache;
         await requestSpecificCache.clearAllAsync();
-        testContainer = null;
+        // testContainer = null;
     }
     nock.cleanAll();
     nock.restore();
@@ -134,7 +134,7 @@ module.exports.commonAfterEach = async () => {
         server = null;
     }
     tester = null;
-    app = null;
+    // app = null;
     // global.gc();
     // globals.clear();
 };
