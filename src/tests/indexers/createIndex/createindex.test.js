@@ -73,7 +73,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         '_id': 1
                     },
@@ -83,7 +82,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         'id': 1
                     },
@@ -93,7 +91,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[2]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         'meta.lastUpdated': 1
                     },
@@ -103,7 +100,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         'meta.source': 1
                     },
@@ -113,7 +109,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[4]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'fhir.Patient_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1
@@ -163,7 +158,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_id': 1
                     },
@@ -173,7 +167,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
@@ -186,7 +179,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[2]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_access.medstar': 1,
                         'id': 1,
@@ -198,7 +190,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_access.medstar': 1,
                         'id': 1,
@@ -210,7 +201,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[4]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
@@ -223,7 +213,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[5]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'id': 1
                     },
@@ -234,7 +223,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[6]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.source': 1
                     },
@@ -244,7 +232,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[7]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1
@@ -440,7 +427,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_id': 1
                     },
@@ -450,7 +436,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
@@ -463,7 +448,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[2]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_access.medstar': 1,
                         'id': 1,
@@ -475,7 +459,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[3]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         '_access.medstar': 1,
                         'id': 1,
@@ -487,7 +470,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[4]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1,
@@ -500,7 +482,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[5]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'id': 1
                     },
@@ -511,7 +492,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[6]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.source': 1
                     },
@@ -521,7 +501,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[7]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0',
                     'key': {
                         'meta.security.system': 1,
                         'meta.security.code': 1
@@ -574,7 +553,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'fhir.Patient_4_0_0_History',
                     'key': {
                         '_id': 1
                     },
@@ -584,7 +562,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'fhir.Patient_4_0_0_History',
                     'key': {
                         'id': 1
                     },
@@ -633,7 +610,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0_History',
                     'key': {
                         '_id': 1
                     },
@@ -643,7 +619,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0_History',
                     'key': {
                         'id': 1
                     },
@@ -774,7 +749,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[0]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0_History',
                     'key': {
                         '_id': 1
                     },
@@ -784,7 +758,6 @@ describe('Create Index Tests', () => {
             expect(sortedIndexes[1]).toStrictEqual(
                 {
                     'v': 2,
-                    'ns': 'audit-event.AuditEvent_4_0_0_History',
                     'key': {
                         'id': 1
                     },

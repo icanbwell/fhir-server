@@ -8,10 +8,9 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest
+    createTestRequest, getTestContainer
 } = require('../../common');
 const { describe, expect, test, beforeEach, afterEach} = require('@jest/globals');
-const {createContainer} = require('../../../createContainer');
 
 describe('bwellPersonFinder Tests', () => {
     beforeEach(async () => {
@@ -23,8 +22,8 @@ describe('bwellPersonFinder Tests', () => {
     });
 
     test('search works with no linked Person', async () => {
-
-        const bwellPersonFinder = createContainer().bwellPersonFinder;
+        await createTestRequest();
+        const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
 
         expect(!result);
@@ -38,7 +37,7 @@ describe('bwellPersonFinder Tests', () => {
             .send(linkedPerson1)
             .set(getHeaders());
 
-        const bwellPersonFinder = createContainer().bwellPersonFinder;
+        const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
 
         expect(!result);
@@ -52,7 +51,7 @@ describe('bwellPersonFinder Tests', () => {
             .send(bwellPerson_directLink)
             .set(getHeaders());
 
-        const bwellPersonFinder = createContainer().bwellPersonFinder;
+        const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
 
         expect(result === '81235');
@@ -76,7 +75,7 @@ describe('bwellPersonFinder Tests', () => {
             .send(linkedPerson1)
             .set(getHeaders());
 
-        const bwellPersonFinder = createContainer().bwellPersonFinder;
+        const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
 
         expect(result === '81235');
@@ -95,7 +94,7 @@ describe('bwellPersonFinder Tests', () => {
             .send(linkedPerson1_cycle)
             .set(getHeaders());
 
-        const bwellPersonFinder = createContainer().bwellPersonFinder;
+        const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
 
         expect(!result);
@@ -119,7 +118,7 @@ describe('bwellPersonFinder Tests', () => {
             .send(linkedPerson1_cycle)
             .set(getHeaders());
 
-        const bwellPersonFinder = createContainer().bwellPersonFinder;
+        const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
 
         expect(result === '81235');

@@ -64,7 +64,6 @@ module.exports.createTestServer = async () => {
 module.exports.createTestRequest = async (fnUpdateContainer) => {
     if (!app) {
         app = await module.exports.createTestApp((c) => {
-            c.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());
             if (fnUpdateContainer) {
                 fnUpdateContainer(c);
             }
