@@ -30,6 +30,6 @@ jobs:
             - name: jest
               run: |
                 export NODE_OPTIONS="--max-old-space-size=10240"
-                NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+                NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
               env:
                   NODE_OPTIONS: "--max-old-space-size=10240"
