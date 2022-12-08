@@ -207,8 +207,10 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         });
 
 {% if fhir_entity.is_resource %}
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: '{{ fhir_entity.cleaned_name }}',
             enumerable: true,
@@ -219,6 +221,10 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     }
 
 {% if fhir_entity.is_resource %}
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return '{{ fhir_entity.cleaned_name }}';
     }

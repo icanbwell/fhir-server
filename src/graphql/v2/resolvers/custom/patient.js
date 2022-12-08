@@ -173,13 +173,15 @@ module.exports = {
                     const removeOperation = container.removeOperation;
                     assertTypeEquals(removeOperation, RemoveOperation);
                     await removeOperation.remove(
-                        requestInfo,
                         {
-                            ...args,
-                            base_version: '4_0_0',
-                            id: args.patientId,
-                        },
-                        'Patient'
+                            requestInfo: requestInfo,
+                            args: {
+                                ...args,
+                                base_version: '4_0_0',
+                                id: args.patientId,
+                            },
+                            resourceType: 'Patient'
+                        }
                     );
                 } else {
                     const practitioners = await context.dataApi.getResources(
@@ -211,9 +213,11 @@ module.exports = {
                 const mergeOperation = container.mergeOperation;
                 assertTypeEquals(mergeOperation, MergeOperation);
                 const result = await mergeOperation.merge(
-                    requestInfo,
-                    {...args, base_version: '4_0_0'},
-                    'Patient'
+                    {
+                        requestInfo,
+                        args: {...args, base_version: '4_0_0'},
+                        resourceType: 'Patient'
+                    }
                 );
                 if (result && result[0].operationOutcome) {
                     throw new Error(`Unable to update patient ${args.patientId}`);

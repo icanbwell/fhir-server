@@ -93,7 +93,7 @@ class CreateOperation {
      * @param {string} resourceType
      * @returns {Resource}
      */
-    async create(requestInfo, args, path, resourceType) {
+    async create({requestInfo, args, path, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

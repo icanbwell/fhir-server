@@ -3,6 +3,7 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 const patient2Resource = require('./fixtures/Patient/patient2.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
+const observation3Resource = require('./fixtures/Observation/observation3.json');
 const personResource = require('./fixtures/Person/person.json');
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 
@@ -11,6 +12,7 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient.j
 const expectedPatientTwoPatientsResources = require('./fixtures/expected/expected_Patient_two_patients.json');
 const expectedObservationNormal = require('./fixtures/expected/expectedObservationNormal.json');
 const expectedObservationProxyPatient = require('./fixtures/expected/expectedObservationProxyPatient.json');
+const expectedObservationProxyPatientWithDirectLink = require('./fixtures/expected/expectedObservationProxyPatientWithDirectLink.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -366,6 +368,46 @@ describe('Patient Tests', () => {
                 .set(getHeaders('user/*.read access/healthsystem2.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(healthsystem2PatientResources.entry[0].resource);
+        });
+        test('search observations by patient for proxy patients includes proxy patient itself', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right Patient back
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationProxyPatientWithDirectLink);
         });
     });
 });

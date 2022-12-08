@@ -94,7 +94,8 @@ const htmlRenderer = ({container, req, res, next}) => {
                     return res.status(200).render(__dirname + '/../views/pages/SearchResult', options);
                 } else {
                     const filePath = __dirname + '/../views/pages/' + sanitize(resourceName);
-                    return res.render(filePath, options);
+                    return res.render(filePath, options,
+                        (err, html) => res.send(html));
                 }
             } else {
                 return res.render(__dirname + '/../views/pages/index', options);

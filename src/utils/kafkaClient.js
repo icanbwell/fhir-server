@@ -2,6 +2,7 @@ const {Kafka} = require('kafkajs');
 const {assertIsValid} = require('./assertType');
 const {logSystemErrorAsync, logSystemEventAsync} = require('../operations/common/logging');
 const env = require('var');
+const {RethrownError} = require('./rethrownError');
 
 /**
  * @typedef KafkaClientMessage
@@ -73,7 +74,15 @@ class KafkaClient {
          */
         const producer = this.client.producer();
 
-        await producer.connect();
+        try {
+            await producer.connect();
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in sendMessageAsync()',
+                error: e,
+                config: this.client.config
+            });
+        }
         try {
             /**
              * @type {import('kafkajs').Message[]}
@@ -171,7 +180,15 @@ class KafkaClient {
      * @return {Promise<void>}
      */
     async receiveMessagesAsync({consumer, topic, fromBeginning = false, onMessageAsync}) {
-        await consumer.connect();
+        try {
+            await consumer.connect();
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in receiveMessageAsync()',
+                error: e,
+                config: this.client.config
+            });
+        }
         try {
             await consumer.subscribe({topics: [topic], fromBeginning: fromBeginning});
             await consumer.run({
@@ -204,6 +221,8 @@ class KafkaClient {
                 error: e
             });
             throw e;
+        } finally {
+            consumer.disconnect();
         }
     }
 

@@ -1,0 +1,58 @@
+{
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "6bcdef66-b41c-413b-b9e3-40ffe20dd18e",
+        "meta": {
+          "id": "38926006-a93a-4c2a-9bac-0406c113f2d1",
+          "versionId": "1",
+          "lastUpdated": "2022-11-23T14:44:08.000Z",
+          "source": "https://www.icanbwell.com",
+          "security": [
+            {
+              "system": "https://www.icanbwell.com/owner",
+              "code": "walgreens"
+            },
+            {
+              "system": "https://www.icanbwell.com/access",
+              "code": "walgreens"
+            }
+          ]
+        },
+        "name": [
+          {
+            "family": "Last",
+            "given": [
+              "First"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "email",
+            "value": "first.last@icanbwell.com"
+          },
+          {
+            "system": "phone",
+            "value": "1103110311"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1968-11-03",
+        "address": [
+          {
+            "id": "a03a0964-5854-40de-b33c-f74689b6bced",
+            "line": [
+              "address"
+            ],
+            "city": "CITY",
+            "state": "IL",
+            "postalCode": "60062"
+          }
+        ]
+      }
+    }
+  ]
+}

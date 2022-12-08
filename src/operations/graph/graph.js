@@ -13,6 +13,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const deepcopy = require('deepcopy');
+const {FhirResponseStreamer} = require('../../utils/fhirResponseStreamer');
 
 class GraphOperation {
     /**
@@ -63,14 +64,18 @@ class GraphOperation {
     /**
      * Supports $graph
      * @param {FhirRequestInfo} requestInfo
+     * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
+     * @param {boolean} streamResponse
      * @return {Promise<Bundle>}
      */
-    async graph(requestInfo, args, resourceType) {
+    async graph({requestInfo, res, args, resourceType, streamResponse}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
+        assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertIsValid(streamResponse !== undefined);
         const currentOperationName = 'graph';
 
         /**
@@ -87,7 +92,7 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            method
+            method,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -183,6 +188,10 @@ class GraphOperation {
                 throw notValidatedError;
             }
             /**
+             * @type {FhirResponseStreamer}
+             */
+            const fhirResponseStreamer = streamResponse ? new FhirResponseStreamer({response: res}) : null;
+            /**
              * @type {Bundle}
              */
             const resultBundle = (method.toLowerCase() === 'delete') ?
@@ -194,7 +203,8 @@ class GraphOperation {
                         id,
                         graphDefinitionJson: graphDefinitionRaw,
                         args,
-                        originalArgs
+                        originalArgs,
+                        fhirResponseStreamer
                     }
                 ) : await this.graphHelper.processGraphAsync(
                     {
@@ -206,7 +216,8 @@ class GraphOperation {
                         contained,
                         hash_references,
                         args,
-                        originalArgs
+                        originalArgs,
+                        fhirResponseStreamer
                     }
                 );
 

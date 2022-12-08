@@ -82,7 +82,7 @@ class RemoveOperation {
      * @param {Object} args
      * @param {string} resourceType
      */
-    async remove(requestInfo, args, resourceType) {
+    async remove({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

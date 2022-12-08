@@ -1,8 +1,8 @@
 /**
  * combines args with args from request
  * @param {import('http').IncomingMessage} req
- * @param {string[]} args
- * @returns {string[]} array of combined arguments
+ * @param {Object} args
+ * @returns {Object} array of combined arguments
  */
 module.exports.get_all_args = (req, args) => {
     // asymmetric hides certain query parameters from us so we need to get them from the context

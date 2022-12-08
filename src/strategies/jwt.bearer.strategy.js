@@ -14,7 +14,7 @@ const superagent = require('superagent');
 /**
  * Retrieve jwks for URL
  * @param {string} jwksUrl
- * @returns {Promise<{keys:{alg:string, kid: string, n: string}[]}>}
+ * @returns {Promise<import('jwks-rsa').JSONWebKey[]>}
  */
 const getExternalJwksByUrlAsync = async (jwksUrl) => {
     /**

@@ -613,8 +613,10 @@ class InsurancePlan extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'InsurancePlan',
             enumerable: true,
@@ -623,6 +625,10 @@ class InsurancePlan extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'InsurancePlan';
     }

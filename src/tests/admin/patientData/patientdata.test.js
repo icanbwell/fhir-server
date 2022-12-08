@@ -33,6 +33,9 @@ describe('Patient Tests', () => {
 
     describe('Patient patientData Tests', () => {
         test('patientData delete fails without admin permissions', async () => {
+            /**
+             * @type {import('supertest').Test}
+             */
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -146,7 +149,7 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/admin/deletePatientDataGraph?id=patient1')
+                .get('/admin/deletePatientDataGraph?id=patient1&sync=1')
                 .set(getHeadersWithCustomToken('user/*.* admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientDeletionResources);

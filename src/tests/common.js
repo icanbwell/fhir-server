@@ -1,5 +1,3 @@
-const {MongoMemoryServer} = require('mongodb-memory-server');
-
 const env = require('var');
 
 // const {getToken} = require('../../token');
@@ -13,12 +11,6 @@ const {createApp} = require('../app');
 const {createServer} = require('../server');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
 
-// let connection;
-// let db;
-/**
- * @type {import('mongodb-memory-server').MongoMemoryServer|undefined|null}
- */
-let mongo;
 /**
  * @type {import('http').Server}
  */
@@ -55,7 +47,7 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      * @type {SimpleContainer}
      */
     testContainer = createTestContainer(fnUpdateContainer);
-    return createApp(() => testContainer);
+    return createApp({fnCreateContainer: () => testContainer, trackMetrics: false});
 };
 
 /**
@@ -70,18 +62,8 @@ module.exports.createTestServer = async () => {
  * @return {import('supertest').Test}
  */
 module.exports.createTestRequest = async (fnUpdateContainer) => {
-    // https://levelup.gitconnected.com/testing-your-node-js-application-with-an-in-memory-mongodb-976c1da1288f
-    /**
-     * 1.1
-     * Start in-memory MongoDB
-     */
-    if (!mongo) {
-        mongo = await MongoMemoryServer.create();
-    }
-
     if (!app) {
         app = await module.exports.createTestApp((c) => {
-            c.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());
             if (fnUpdateContainer) {
                 fnUpdateContainer(c);
             }
@@ -139,16 +121,13 @@ module.exports.commonAfterEach = async () => {
          */
         const requestSpecificCache = testContainer.requestSpecificCache;
         await requestSpecificCache.clearAllAsync();
+        // testContainer = null;
     }
     nock.cleanAll();
     nock.restore();
+
     const testMongoDatabaseManager = new TestMongoDatabaseManager();
     await testMongoDatabaseManager.dropDatabasesAsync();
-
-    if (mongo) {
-        await mongo.stop({doCleanup: true});
-        mongo = null;
-    }
     if (server) {
         await server.close();
         server = null;

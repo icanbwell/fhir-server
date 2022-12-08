@@ -54,8 +54,8 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient', args
             });
-            expect(result.query.$and['0'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
-            expect(result.query.$and['2']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cmedstar');
+            expect(result.query.$and['1'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cmedstar');
         });
         test('r4 works without accessIndex if access code does not have an index', async () => {
             await createTestRequest((container) => {
@@ -78,8 +78,8 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'AuditEvent', args
             });
-            expect(result.query.$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
-            expect(result.query.$and['2']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
+            expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
+            expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
         });
         test('r4 works with accessIndex', async () => {
             await createTestRequest((container) => {
@@ -103,8 +103,8 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'AuditEvent', args
             });
-            expect(result.query.$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
-            expect(result.query.$and['2']).toStrictEqual({'_access.medstar': 1});
+            expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
+            expect(result.query.$and['0']).toStrictEqual({'_access.medstar': 1});
         });
         test('r4 works with Task and subject', async () => {
             await createTestRequest((container) => {
@@ -286,7 +286,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient', args
             });
             expect(result.query.$and['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
-            expect(result.query.$and['1'].id).toStrictEqual({
+            expect(result.query.$and['1'].$or[0].id).toStrictEqual({
                 '$gt': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             });
         });

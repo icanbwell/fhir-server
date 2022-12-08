@@ -46,14 +46,17 @@ class EverythingOperation {
     /**
      * does a FHIR $everything
      * @param {FhirRequestInfo} requestInfo
+     * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
+     * @param {boolean} streamResponse
      * @return {Promise<Bundle>}
      */
-    async everything(requestInfo, args, resourceType) {
-        assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
-        assertIsValid(resourceType !== undefined);
+    async everything({requestInfo, res, args, resourceType, streamResponse}) {
+        assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
+        assertIsValid(args !== undefined, 'args is undefined');
+        assertIsValid(res !== undefined, 'res is undefined');
+        assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         const currentOperationName = 'everything';
         /**
          * @type {number}
@@ -76,7 +79,9 @@ class EverythingOperation {
             // Grab an instance of our DB and collection
             if (resourceType === 'Practitioner') {
                 args.resource = practitionerEverythingGraph;
-                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph({
+                    requestInfo, res, args, resourceType, streamResponse
+                });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args,
@@ -87,7 +92,9 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Organization') {
                 args.resource = organizationEverythingGraph;
-                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph({
+                    requestInfo, res, args, resourceType, streamResponse
+                });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args,
@@ -98,7 +105,9 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Slot') {
                 args.resource = slotEverythingGraph;
-                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph({
+                    requestInfo, res, args, resourceType, streamResponse
+                });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args,
@@ -109,7 +118,9 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Person') {
                 args.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
-                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph({
+                    requestInfo, res, args, resourceType, streamResponse
+                });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args,
@@ -120,7 +131,9 @@ class EverythingOperation {
                 return result;
             } else if (resourceType === 'Patient') {
                 args.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
-                const result = await this.graphOperation.graph(requestInfo, args, resourceType);
+                const result = await this.graphOperation.graph({
+                    requestInfo, res, args, resourceType, streamResponse
+                });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
                     args,

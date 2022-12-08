@@ -69,7 +69,7 @@ class ExpandOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async expand(requestInfo, args, resourceType) {
+    async expand({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

@@ -2,13 +2,13 @@
  * Implements helper functions for graphql
  */
 
-const { SearchByIdOperation } = require('../../operations/searchById/searchById');
+const {SearchByIdOperation} = require('../../operations/searchById/searchById');
 const async = require('async');
-const { logWarn } = require('../../operations/common/logging');
-const { getRequestInfo } = require('./requestInfoHelper');
-const { SearchBundleOperation } = require('../../operations/search/searchBundle');
-const { assertTypeEquals } = require('../../utils/assertType');
-const { SimpleContainer } = require('../../utils/simpleContainer');
+const {logWarn} = require('../../operations/common/logging');
+const {getRequestInfo} = require('./requestInfoHelper');
+const {SearchBundleOperation} = require('../../operations/search/searchBundle');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {SimpleContainer} = require('../../utils/simpleContainer');
 /**
  * This functions takes a FHIR Bundle and returns the resources in it
  * @param {Bundle} bundle
@@ -67,9 +67,11 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
         const searchByIdOperation = container.searchByIdOperation;
         assertTypeEquals(searchByIdOperation, SearchByIdOperation);
         return await searchByIdOperation.searchById(
-            getRequestInfo(context),
-            { base_version: '4_0_0', id: idOfReference },
-            typeOfReference
+            {
+                requestInfo: getRequestInfo(context),
+                args: {base_version: '4_0_0', id: idOfReference},
+                resourceType: typeOfReference
+            }
         );
     } catch (e) {
         if (e.name === 'NotFound') {
@@ -123,13 +125,15 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
             assertTypeEquals(searchBundleOperation, SearchBundleOperation);
             return module.exports.unBundle(
                 await searchBundleOperation.searchBundle(
-                    getRequestInfo(context),
                     {
-                        base_version: '4_0_0',
-                        id: idOfReference,
-                        _bundle: '1',
-                    },
-                    typeOfReference
+                        requestInfo: getRequestInfo(context),
+                        args: {
+                            base_version: '4_0_0',
+                            id: idOfReference,
+                            _bundle: '1',
+                        },
+                        resourceType: typeOfReference
+                    }
                 )
             );
         } catch (e) {
@@ -174,13 +178,15 @@ module.exports.getResources = async (parent, args, context, info, resourceType) 
     assertTypeEquals(searchBundleOperation, SearchBundleOperation);
     return module.exports.unBundle(
         await searchBundleOperation.searchBundle(
-            getRequestInfo(context),
             {
-                base_version: '4_0_0',
-                _bundle: '1',
-                ...args,
-            },
-            resourceType
+                requestInfo: getRequestInfo(context),
+                args: {
+                    base_version: '4_0_0',
+                    _bundle: '1',
+                    ...args,
+                },
+                resourceType
+            }
         )
     );
 };

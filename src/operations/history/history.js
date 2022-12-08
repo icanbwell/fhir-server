@@ -96,7 +96,7 @@ class HistoryOperation {
      * @param {Object} args
      * @param {string} resourceType
      */
-    async history(requestInfo, args, resourceType) {
+    async history({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -210,7 +210,7 @@ class HistoryOperation {
         while (await cursor.hasNext()) {
             const resource = await cursor.next();
             if (!resource) {
-                throw new NotFoundError();
+                throw new NotFoundError('Resource not found');
             }
             if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
                 resource: resource, user, scope
@@ -219,7 +219,7 @@ class HistoryOperation {
             }
         }
         if (resources.length === 0) {
-            throw new NotFoundError();
+            throw new NotFoundError('Resource not found');
         }
         await this.fhirLoggingManager.logOperationSuccessAsync(
             {

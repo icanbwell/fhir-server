@@ -79,7 +79,7 @@ class SearchByVersionIdOperation {
      * @param {Object} args
      * @param {string} resourceType
      */
-    async searchByVersionId(requestInfo, args, resourceType) {
+    async searchByVersionId({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -201,7 +201,7 @@ class SearchByVersionIdOperation {
                     });
                 return resource;
             } else {
-                throw new NotFoundError();
+                throw new NotFoundError('Resource not found');
             }
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

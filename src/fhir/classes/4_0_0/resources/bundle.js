@@ -338,8 +338,10 @@ class Bundle extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'Bundle',
             enumerable: true,
@@ -348,6 +350,10 @@ class Bundle extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'Bundle';
     }

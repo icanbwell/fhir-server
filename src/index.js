@@ -2,7 +2,9 @@
  * Implements the main function
  */
 // This line must come before importing any instrumented module.
-require('dd-trace').init();
+require('dd-trace').init({
+    logInjection: true
+});
 // Now load the rest of the modules
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');

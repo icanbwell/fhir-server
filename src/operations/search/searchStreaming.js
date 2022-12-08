@@ -98,7 +98,7 @@ class SearchStreamingOperation {
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreaming(
-        requestInfo, res, args, resourceType) {
+        {requestInfo, res, args, resourceType}) {
         const currentOperationName = 'searchStreaming';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();

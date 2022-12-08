@@ -594,8 +594,10 @@ class ObservationDefinition extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'ObservationDefinition',
             enumerable: true,
@@ -604,6 +606,10 @@ class ObservationDefinition extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'ObservationDefinition';
     }

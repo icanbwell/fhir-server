@@ -778,8 +778,10 @@ class ClinicalImpression extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'ClinicalImpression',
             enumerable: true,
@@ -788,6 +790,10 @@ class ClinicalImpression extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'ClinicalImpression';
     }

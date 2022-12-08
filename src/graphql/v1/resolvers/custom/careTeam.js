@@ -1,9 +1,9 @@
-const { getResources } = require('../../common');
-const { getHash } = require('../../../../utils/uid.util');
-const { MergeOperation } = require('../../../../operations/merge/merge');
-const { getRequestInfo } = require('../../requestInfoHelper');
-const { assertTypeEquals } = require('../../../../utils/assertType');
-const { SimpleContainer } = require('../../../../utils/simpleContainer');
+const {getResources} = require('../../common');
+const {getHash} = require('../../../../utils/uid.util');
+const {MergeOperation} = require('../../../../operations/merge/merge');
+const {getRequestInfo} = require('../../requestInfoHelper');
+const {assertTypeEquals} = require('../../../../utils/assertType');
+const {SimpleContainer} = require('../../../../utils/simpleContainer');
 
 function mapParticipants(members) {
     const result = [];
@@ -11,8 +11,8 @@ function mapParticipants(members) {
         result.push({
             id: m.id,
             role: m.role,
-            member: { reference: m.member },
-            onBehalfOf: { reference: m.onBehalfOf },
+            member: {reference: m.member},
+            onBehalfOf: {reference: m.onBehalfOf},
             period: m.period,
         });
     });
@@ -42,8 +42,8 @@ function mapCareTeam(team) {
         status: team.code,
         category: team.category,
         name: team.name,
-        subject: { reference: team.subject },
-        encounter: { reference: team.encounter },
+        subject: {reference: team.subject},
+        encounter: {reference: team.encounter},
         period: team.period,
         participant: mapParticipants(team.participant),
         reasonCode: team.reasonCode,
@@ -66,7 +66,7 @@ function mapCareTeam(team) {
 module.exports = {
     Mutation: {
         updatePreferredProviders:
-            // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
             async (parent, args, context, info) => {
                 /**
                  * @type {SimpleContainer}
@@ -104,9 +104,11 @@ module.exports = {
                 const mergeOperation = container.mergeOperation;
                 assertTypeEquals(mergeOperation, MergeOperation);
                 const result = await mergeOperation.merge(
-                    requestInfo,
-                    { ...args, base_version: '4_0_0' },
-                    'CareTeam'
+                    {
+                        requestInfo,
+                        args: {...args, base_version: '4_0_0'},
+                        resourceType: 'CareTeam'
+                    }
                 );
                 if (result && result[0].operationOutcome) {
                     throw new Error(`Unable to update care team data for ${args.patientId}`);
