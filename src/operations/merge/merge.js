@@ -152,7 +152,7 @@ class MergeOperation {
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async merge(requestInfo, args, resourceType) {
+    async merge({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

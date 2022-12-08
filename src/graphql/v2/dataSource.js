@@ -185,14 +185,16 @@ class FhirDataSource extends DataSource {
                         .filter((r) => r !== null);
                     return this.unBundle(
                         await this.searchBundleOperation.searchBundle(
-                            requestInfo,
                             {
-                                base_version: '4_0_0',
-                                id: idsOfReference,
-                                _bundle: '1',
-                                ...args,
-                            },
-                            resourceType
+                                requestInfo,
+                                args: {
+                                    base_version: '4_0_0',
+                                    id: idsOfReference,
+                                    _bundle: '1',
+                                    ...args,
+                                },
+                                resourceType
+                            }
                         )
                     );
                 }
@@ -298,13 +300,15 @@ class FhirDataSource extends DataSource {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
         return this.unBundle(
             await this.searchBundleOperation.searchBundle(
-                context.fhirRequestInfo,
                 {
-                    base_version: '4_0_0',
-                    _bundle: '1',
-                    ...args
-                },
-                resourceType
+                    requestInfo: context.fhirRequestInfo,
+                    args: {
+                        base_version: '4_0_0',
+                        _bundle: '1',
+                        ...args
+                    },
+                    resourceType
+                }
             )
         );
     }
@@ -323,13 +327,15 @@ class FhirDataSource extends DataSource {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
         const bundle = await this.searchBundleOperation.searchBundle(
-            context.fhirRequestInfo,
             {
-                base_version: '4_0_0',
-                _bundle: '1',
-                ...args
-            },
-            resourceType
+                requestInfo: context.fhirRequestInfo,
+                args: {
+                    base_version: '4_0_0',
+                    _bundle: '1',
+                    ...args
+                },
+                resourceType
+            }
         );
         if (bundle.meta) {
             this.metaList.push(bundle.meta);

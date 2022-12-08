@@ -28,3 +28,4 @@ src/admin/scripts/.env
 src/admin/scripts/.env.prod
 src/admin/scripts/.env.staging
 .env.test
+src/fhir/generator/__pycache__

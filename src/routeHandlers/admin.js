@@ -1,14 +1,12 @@
 /**
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
-const {mongoConfig} = require('../config');
 // const env = require('var');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
-const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 const {RethrownError} = require('../utils/rethrownError');
 const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
 
@@ -91,11 +89,6 @@ async function handleAdmin(
     req,
     res
 ) {
-    const mongoDatabaseManager = new MongoDatabaseManager();
-    /**
-     * @type {import('mongodb').MongoClient}
-     */
-    const client = await mongoDatabaseManager.createClientAsync(mongoConfig);
     try {
         const operation = req.params['op'];
         console.log(`op=${operation}`);
@@ -266,6 +259,7 @@ async function handleAdmin(
                         if (sync) {
                             const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
+                                res,
                                 patientId,
                             });
                             return res.json(json);
@@ -282,6 +276,7 @@ async function handleAdmin(
                             });
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
+                                res,
                                 patientId,
                             });
                             await responseStreamer.writeAsync({html: '<div>Finished Deleting</div>'});
@@ -304,6 +299,7 @@ async function handleAdmin(
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
                         const json = await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
                             req,
+                            res,
                             personId,
                         });
                         return res.json(json);
@@ -356,8 +352,6 @@ async function handleAdmin(
         throw new RethrownError({
             message: 'Error in handleAdmin(): ', error: e
         });
-    } finally {
-        await mongoDatabaseManager.disconnectClientAsync(client);
     }
 }
 

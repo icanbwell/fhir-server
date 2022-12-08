@@ -637,7 +637,9 @@ class GraphHelper {
                 await this.scopesValidator.verifyHasValidScopesAsync({
                     requestInfo, args: {}, resourceType, startTime: Date.now(), action: 'graph', accessRequested: 'read'
                 });
-
+                /**
+                 * @type {{reverse_filter?: string, query: import('mongodb').Filter<import('mongodb').DefaultSchema>, property?: string, explanations?: import('mongodb').Document[], resourceType: string}}
+                 */
                 const queryItem = await this.getForwardReferencesAsync({
                     requestInfo,
                     base_version,
@@ -1092,19 +1094,26 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {Object} args
+     * @param {FhirResponseStreamer|undefined} [fhirResponseStreamer]
      * @return {Promise<Bundle>}
      */
-    async processGraphAsync({
-                                requestInfo,
-                                base_version,
-                                resourceType,
-                                id,
-                                graphDefinitionJson,
-                                contained,
-                                hash_references,
-                                args
-                            }) {
+    async processGraphAsync(
+        {
+            requestInfo,
+            base_version,
+            resourceType,
+            id,
+            graphDefinitionJson,
+            contained,
+            hash_references,
+            args,
+            fhirResponseStreamer
+        }
+    ) {
         try {
+            if (fhirResponseStreamer) {
+                await fhirResponseStreamer.startAsync();
+            }
             /**
              * @type {number}
              */
@@ -1170,6 +1179,12 @@ class GraphHelper {
              * @type {Resource[]}
              */
             const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
+
+            if (fhirResponseStreamer) {
+                for (const resource of resources) {
+                    await fhirResponseStreamer.writeAsync({resource});
+                }
+            }
             /**
              * @type {Bundle}
              */
@@ -1193,6 +1208,10 @@ class GraphHelper {
                 user: requestInfo.user,
                 explanations
             });
+            if (fhirResponseStreamer) {
+                bundle.resources = []; // clear up any resources since we already wrote them out
+                await fhirResponseStreamer.endAsync({bundle});
+            }
             return bundle;
             // create a bundle
             // return new Bundle({
@@ -1217,6 +1236,7 @@ class GraphHelper {
      * @param {string | string[]} id (accepts a single id or a list of ids)
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {Object} args
+     * @param {FhirResponseStreamer} fhirResponseStreamer
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync(
@@ -1226,10 +1246,14 @@ class GraphHelper {
             resourceType,
             id,
             graphDefinitionJson,
-            args
+            args,
+            fhirResponseStreamer
         }
     ) {
         try {
+            if (fhirResponseStreamer) {
+                await fhirResponseStreamer.startAsync();
+            }
             /**
              * @type {number}
              */
@@ -1245,7 +1269,8 @@ class GraphHelper {
                 contained: false,
                 hash_references: false,
                 graphDefinitionJson,
-                args
+                args,
+                fhirResponseStreamer: null // don't let graph send the response
             });
             // now iterate and delete by resuourceType and Id
             /**
@@ -1280,7 +1305,7 @@ class GraphHelper {
                 /**
                  * @type {{deletedCount: (number|null), error: (Error|null)}}
                  */
-                // eslint-disable-next-line no-unused-vars
+                    // eslint-disable-next-line no-unused-vars
                 const result = await databaseQueryManager.deleteManyAsync({
                         requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}
@@ -1308,6 +1333,10 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
+            if (fhirResponseStreamer) {
+                await fhirResponseStreamer.endAsync({bundle: deleteOperationBundle});
+                deleteOperationBundle.entry = [];
+            }
             return deleteOperationBundle;
         } catch (e) {
             throw new RethrownError({

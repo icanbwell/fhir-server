@@ -637,8 +637,10 @@ class DeviceUseStatement extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'DeviceUseStatement',
             enumerable: true,
@@ -647,6 +649,10 @@ class DeviceUseStatement extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'DeviceUseStatement';
     }

@@ -19,9 +19,12 @@ const {AccessIndexManager} = require('../common/accessIndexManager');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
 
 function isUrl(queryParameterValue) {
-    return queryParameterValue.startsWith('http://') ||
-        queryParameterValue.startsWith('https://') ||
-        queryParameterValue.startsWith('ftp://');
+    return typeof queryParameterValue === 'string' &&
+        (
+            queryParameterValue.startsWith('http://') ||
+            queryParameterValue.startsWith('https://') ||
+            queryParameterValue.startsWith('ftp://')
+        );
 }
 
 class R4SearchQueryCreator {
@@ -112,9 +115,9 @@ class R4SearchQueryCreator {
         for (const argName in args) {
             const [queryParameter, ...modifiers] = argName.split(':');
 
-            let propertyObj = searchParameterQueries[resourceType][queryParameter];
+            let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
             if (!propertyObj) {
-                propertyObj = searchParameterQueries['Resource'][queryParameter];
+                propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
             }
             if (!propertyObj) {
                 // ignore this unrecognized arg
@@ -131,7 +134,7 @@ class R4SearchQueryCreator {
             /**
              * @type {string | string[]}
              */
-            let queryParameterValue = args[argName];
+            let queryParameterValue = args[`${argName}`];
             queryParameterValue = convertGraphQLParameters(
                 queryParameterValue,
                 args,

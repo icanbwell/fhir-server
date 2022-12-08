@@ -287,6 +287,7 @@ class BundleManager {
                     display: JSON.stringify(explanations),
                 });
                 const explainer = new MongoExplainPlanHelper();
+                // noinspection JSCheckFunctionSignatures
                 const simpleExplanations = explanations ?
                     explanations.map(
                         ( /** @type {{queryPlanner: Object, executionStats: Object, serverInfo: Object}} */ e,

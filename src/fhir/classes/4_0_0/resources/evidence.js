@@ -950,8 +950,10 @@ class Evidence extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'Evidence',
             enumerable: true,
@@ -960,6 +962,10 @@ class Evidence extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'Evidence';
     }

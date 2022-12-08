@@ -110,7 +110,7 @@ class UpdateOperation {
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async update(requestInfo, args, resourceType) {
+    async update({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

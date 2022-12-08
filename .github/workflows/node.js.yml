@@ -16,7 +16,7 @@ jobs:
         name: test (chunk ${{ matrix.chunk }})
         strategy:
           matrix:
-            shard: [1, 2, 3, 4, 5, 6, 7, 8]
+            shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
           fail-fast: false
         steps:
             - uses: actions/checkout@v3
@@ -29,7 +29,7 @@ jobs:
             - run: npm run build --if-present
             - name: jest
               run: |
-                export NODE_OPTIONS="--max_old_space_size=8192"
-                node --max_old_space_size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+                export NODE_OPTIONS="--max-old-space-size=10240"
+                NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
               env:
-                  NODE_OPTIONS: "--max_old_space_size=8192"
+                  NODE_OPTIONS: "--max-old-space-size=10240"

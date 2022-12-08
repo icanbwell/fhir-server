@@ -95,7 +95,7 @@ class SearchBundleOperation {
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
-        requestInfo, args, resourceType
+        {requestInfo, args, resourceType}
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);

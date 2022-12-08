@@ -9,16 +9,20 @@ const xss = require('xss');
 let parseValue = function (type, value) {
     let result;
 
+
     switch (type) {
         case 'number':
+            // noinspection JSUnresolvedFunction
             result = validator.toFloat(value);
             break;
 
         case 'date':
+            // noinspection JSUnresolvedFunction,JSValidateTypes
             result = validator.stripLow(xss(sanitize(value)));
             break;
 
         case 'boolean':
+            // noinspection JSUnresolvedFunction
             result = validator.toBoolean(value);
             break;
 
@@ -30,6 +34,7 @@ let parseValue = function (type, value) {
             // xss helps prevent html from slipping in
             // strip a certain range of unicode characters
             // replace any non word characters
+            // noinspection JSUnresolvedFunction, JSValidateTypes
             result = validator.stripLow(xss(sanitize(value)));
             break;
 

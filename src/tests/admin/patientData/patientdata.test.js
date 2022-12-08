@@ -33,6 +33,9 @@ describe('Patient Tests', () => {
 
     describe('Patient patientData Tests', () => {
         test('patientData delete fails without admin permissions', async () => {
+            /**
+             * @type {import('supertest').Test}
+             */
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server

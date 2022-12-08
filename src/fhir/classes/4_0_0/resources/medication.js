@@ -486,8 +486,10 @@ class Medication extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'Medication',
             enumerable: true,
@@ -496,6 +498,10 @@ class Medication extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'Medication';
     }
