@@ -91,7 +91,7 @@ class Dosage extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -122,7 +122,7 @@ class Dosage extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -181,7 +181,7 @@ class Dosage extends Element {
                     this.__data.additionalInstruction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.additionalInstruction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -218,7 +218,7 @@ class Dosage extends Element {
                     this.__data.timing = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.timing = new Timing(valueProvided);
             }
         });
@@ -255,7 +255,7 @@ class Dosage extends Element {
                     this.__data.asNeededCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.asNeededCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -274,7 +274,7 @@ class Dosage extends Element {
                     this.__data.site = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.site = new CodeableConcept(valueProvided);
             }
         });
@@ -293,7 +293,7 @@ class Dosage extends Element {
                     this.__data.route = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.route = new CodeableConcept(valueProvided);
             }
         });
@@ -312,7 +312,7 @@ class Dosage extends Element {
                     this.__data.method = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.method = new CodeableConcept(valueProvided);
             }
         });
@@ -331,7 +331,7 @@ class Dosage extends Element {
                     this.__data.doseAndRate = undefined;
                     return;
                 }
-                let DosageDoseAndRate = require('../backbone_elements/dosageDoseAndRate.js');
+                const DosageDoseAndRate = require('../backbone_elements/dosageDoseAndRate.js');
                 this.__data.doseAndRate = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DosageDoseAndRate(v)) : [new DosageDoseAndRate(valueProvided)];
             }
         });
@@ -350,7 +350,7 @@ class Dosage extends Element {
                     this.__data.maxDosePerPeriod = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.maxDosePerPeriod = new Ratio(valueProvided);
             }
         });
@@ -369,7 +369,7 @@ class Dosage extends Element {
                     this.__data.maxDosePerAdministration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.maxDosePerAdministration = new Quantity(valueProvided);
             }
         });
@@ -388,7 +388,7 @@ class Dosage extends Element {
                     this.__data.maxDosePerLifetime = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.maxDosePerLifetime = new Quantity(valueProvided);
             }
         });

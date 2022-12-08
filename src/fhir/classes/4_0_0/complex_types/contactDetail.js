@@ -65,7 +65,7 @@ class ContactDetail extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -103,7 +103,7 @@ class ContactDetail extends Element {
                     this.__data.telecom = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                const ContactPoint = require('../complex_types/contactPoint.js');
                 this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });

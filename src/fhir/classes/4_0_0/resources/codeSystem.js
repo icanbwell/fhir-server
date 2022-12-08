@@ -133,7 +133,7 @@ class CodeSystem extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -196,7 +196,7 @@ class CodeSystem extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -217,7 +217,7 @@ class CodeSystem extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -249,7 +249,7 @@ class CodeSystem extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -280,7 +280,7 @@ class CodeSystem extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -325,7 +325,7 @@ class CodeSystem extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -485,7 +485,7 @@ class CodeSystem extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                const ContactDetail = require('../complex_types/contactDetail.js');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
@@ -527,7 +527,7 @@ class CodeSystem extends Resource {
                     this.__data.useContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                const UsageContext = require('../complex_types/usageContext.js');
                 this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -546,7 +546,7 @@ class CodeSystem extends Resource {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -756,7 +756,7 @@ class CodeSystem extends Resource {
                     this.__data.filter = undefined;
                     return;
                 }
-                let CodeSystemFilter = require('../backbone_elements/codeSystemFilter.js');
+                const CodeSystemFilter = require('../backbone_elements/codeSystemFilter.js');
                 this.__data.filter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemFilter(v)) : [new CodeSystemFilter(valueProvided)];
             }
         });
@@ -776,7 +776,7 @@ class CodeSystem extends Resource {
                     this.__data.property = undefined;
                     return;
                 }
-                let CodeSystemProperty = require('../backbone_elements/codeSystemProperty.js');
+                const CodeSystemProperty = require('../backbone_elements/codeSystemProperty.js');
                 this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemProperty(v)) : [new CodeSystemProperty(valueProvided)];
             }
         });
@@ -797,7 +797,7 @@ class CodeSystem extends Resource {
                     this.__data.concept = undefined;
                     return;
                 }
-                let CodeSystemConcept = require('../backbone_elements/codeSystemConcept.js');
+                const CodeSystemConcept = require('../backbone_elements/codeSystemConcept.js');
                 this.__data.concept = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemConcept(v)) : [new CodeSystemConcept(valueProvided)];
             }
         });

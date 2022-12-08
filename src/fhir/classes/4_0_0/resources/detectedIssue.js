@@ -107,7 +107,7 @@ class DetectedIssue extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class DetectedIssue extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -191,7 +191,7 @@ class DetectedIssue extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -223,7 +223,7 @@ class DetectedIssue extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -254,7 +254,7 @@ class DetectedIssue extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -273,7 +273,7 @@ class DetectedIssue extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -310,7 +310,7 @@ class DetectedIssue extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -348,7 +348,7 @@ class DetectedIssue extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -385,7 +385,7 @@ class DetectedIssue extends Resource {
                     this.__data.identifiedPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.identifiedPeriod = new Period(valueProvided);
             }
         });
@@ -405,7 +405,7 @@ class DetectedIssue extends Resource {
                     this.__data.author = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.author = new Reference(valueProvided);
             }
         });
@@ -425,7 +425,7 @@ class DetectedIssue extends Resource {
                     this.__data.implicated = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.implicated = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -445,7 +445,7 @@ class DetectedIssue extends Resource {
                     this.__data.evidence = undefined;
                     return;
                 }
-                let DetectedIssueEvidence = require('../backbone_elements/detectedIssueEvidence.js');
+                const DetectedIssueEvidence = require('../backbone_elements/detectedIssueEvidence.js');
                 this.__data.evidence = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DetectedIssueEvidence(v)) : [new DetectedIssueEvidence(valueProvided)];
             }
         });
@@ -504,7 +504,7 @@ class DetectedIssue extends Resource {
                     this.__data.mitigation = undefined;
                     return;
                 }
-                let DetectedIssueMitigation = require('../backbone_elements/detectedIssueMitigation.js');
+                const DetectedIssueMitigation = require('../backbone_elements/detectedIssueMitigation.js');
                 this.__data.mitigation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DetectedIssueMitigation(v)) : [new DetectedIssueMitigation(valueProvided)];
             }
         });

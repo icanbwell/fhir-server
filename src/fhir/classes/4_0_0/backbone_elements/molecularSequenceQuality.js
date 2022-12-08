@@ -91,7 +91,7 @@ class MolecularSequenceQuality extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -122,7 +122,7 @@ class MolecularSequenceQuality extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -159,7 +159,7 @@ class MolecularSequenceQuality extends Element {
                     this.__data.standardSequence = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.standardSequence = new CodeableConcept(valueProvided);
             }
         });
@@ -218,7 +218,7 @@ class MolecularSequenceQuality extends Element {
                     this.__data.score = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.score = new Quantity(valueProvided);
             }
         });
@@ -237,7 +237,7 @@ class MolecularSequenceQuality extends Element {
                     this.__data.method = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.method = new CodeableConcept(valueProvided);
             }
         });
@@ -416,7 +416,7 @@ class MolecularSequenceQuality extends Element {
                     this.__data.roc = undefined;
                     return;
                 }
-                let MolecularSequenceRoc = require('../backbone_elements/molecularSequenceRoc.js');
+                const MolecularSequenceRoc = require('../backbone_elements/molecularSequenceRoc.js');
                 this.__data.roc = new MolecularSequenceRoc(valueProvided);
             }
         });

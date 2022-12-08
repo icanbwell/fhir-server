@@ -63,7 +63,7 @@ class TestReportAction2 extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -94,7 +94,7 @@ class TestReportAction2 extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -113,7 +113,7 @@ class TestReportAction2 extends Element {
                     this.__data.operation = undefined;
                     return;
                 }
-                let TestReportOperation = require('../backbone_elements/testReportOperation.js');
+                const TestReportOperation = require('../backbone_elements/testReportOperation.js');
                 this.__data.operation = new TestReportOperation(valueProvided);
             }
         });

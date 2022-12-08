@@ -80,7 +80,7 @@ class EncounterHospitalization extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -111,7 +111,7 @@ class EncounterHospitalization extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -130,7 +130,7 @@ class EncounterHospitalization extends Element {
                     this.__data.preAdmissionIdentifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.preAdmissionIdentifier = new Identifier(valueProvided);
             }
         });
@@ -149,7 +149,7 @@ class EncounterHospitalization extends Element {
                     this.__data.origin = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.origin = new Reference(valueProvided);
             }
         });
@@ -168,7 +168,7 @@ class EncounterHospitalization extends Element {
                     this.__data.admitSource = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.admitSource = new CodeableConcept(valueProvided);
             }
         });
@@ -187,7 +187,7 @@ class EncounterHospitalization extends Element {
                     this.__data.reAdmission = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.reAdmission = new CodeableConcept(valueProvided);
             }
         });
@@ -206,7 +206,7 @@ class EncounterHospitalization extends Element {
                     this.__data.dietPreference = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.dietPreference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -225,7 +225,7 @@ class EncounterHospitalization extends Element {
                     this.__data.specialCourtesy = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.specialCourtesy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -245,7 +245,7 @@ class EncounterHospitalization extends Element {
                     this.__data.specialArrangement = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.specialArrangement = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -264,7 +264,7 @@ class EncounterHospitalization extends Element {
                     this.__data.destination = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.destination = new Reference(valueProvided);
             }
         });
@@ -283,7 +283,7 @@ class EncounterHospitalization extends Element {
                     this.__data.dischargeDisposition = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.dischargeDisposition = new CodeableConcept(valueProvided);
             }
         });

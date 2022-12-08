@@ -80,7 +80,7 @@ class SubstanceAmount extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -111,7 +111,7 @@ class SubstanceAmount extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -130,7 +130,7 @@ class SubstanceAmount extends Element {
                     this.__data.amountQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.amountQuantity = new Quantity(valueProvided);
             }
         });
@@ -149,7 +149,7 @@ class SubstanceAmount extends Element {
                     this.__data.amountRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.amountRange = new Range(valueProvided);
             }
         });
@@ -192,7 +192,7 @@ class SubstanceAmount extends Element {
                     this.__data.amountType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.amountType = new CodeableConcept(valueProvided);
             }
         });
@@ -229,7 +229,7 @@ class SubstanceAmount extends Element {
                     this.__data.referenceRange = undefined;
                     return;
                 }
-                let SubstanceAmountReferenceRange = require('../backbone_elements/substanceAmountReferenceRange.js');
+                const SubstanceAmountReferenceRange = require('../backbone_elements/substanceAmountReferenceRange.js');
                 this.__data.referenceRange = new SubstanceAmountReferenceRange(valueProvided);
             }
         });

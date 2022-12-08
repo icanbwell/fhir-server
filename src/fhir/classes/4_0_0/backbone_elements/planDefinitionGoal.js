@@ -78,7 +78,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -128,7 +128,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.category = new CodeableConcept(valueProvided);
             }
         });
@@ -149,7 +149,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.description = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.description = new CodeableConcept(valueProvided);
             }
         });
@@ -169,7 +169,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.priority = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.priority = new CodeableConcept(valueProvided);
             }
         });
@@ -188,7 +188,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.start = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.start = new CodeableConcept(valueProvided);
             }
         });
@@ -208,7 +208,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.addresses = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.addresses = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -229,7 +229,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.documentation = undefined;
                     return;
                 }
-                let RelatedArtifact = require('../complex_types/relatedArtifact.js');
+                const RelatedArtifact = require('../complex_types/relatedArtifact.js');
                 this.__data.documentation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
             }
         });
@@ -248,7 +248,7 @@ class PlanDefinitionGoal extends Element {
                     this.__data.target = undefined;
                     return;
                 }
-                let PlanDefinitionTarget = require('../backbone_elements/planDefinitionTarget.js');
+                const PlanDefinitionTarget = require('../backbone_elements/planDefinitionTarget.js');
                 this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PlanDefinitionTarget(v)) : [new PlanDefinitionTarget(valueProvided)];
             }
         });

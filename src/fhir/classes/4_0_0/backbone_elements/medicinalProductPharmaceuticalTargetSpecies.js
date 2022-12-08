@@ -65,7 +65,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -96,7 +96,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -135,7 +135,7 @@ class MedicinalProductPharmaceuticalTargetSpecies extends Element {
                     this.__data.withdrawalPeriod = undefined;
                     return;
                 }
-                let MedicinalProductPharmaceuticalWithdrawalPeriod = require('../backbone_elements/medicinalProductPharmaceuticalWithdrawalPeriod.js');
+                const MedicinalProductPharmaceuticalWithdrawalPeriod = require('../backbone_elements/medicinalProductPharmaceuticalWithdrawalPeriod.js');
                 this.__data.withdrawalPeriod = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPharmaceuticalWithdrawalPeriod(v)) : [new MedicinalProductPharmaceuticalWithdrawalPeriod(valueProvided)];
             }
         });

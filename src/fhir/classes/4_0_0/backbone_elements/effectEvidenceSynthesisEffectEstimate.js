@@ -75,7 +75,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -143,7 +143,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -162,7 +162,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     this.__data.variantState = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.variantState = new CodeableConcept(valueProvided);
             }
         });
@@ -199,7 +199,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     this.__data.unitOfMeasure = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.unitOfMeasure = new CodeableConcept(valueProvided);
             }
         });
@@ -218,7 +218,7 @@ class EffectEvidenceSynthesisEffectEstimate extends Element {
                     this.__data.precisionEstimate = undefined;
                     return;
                 }
-                let EffectEvidenceSynthesisPrecisionEstimate = require('../backbone_elements/effectEvidenceSynthesisPrecisionEstimate.js');
+                const EffectEvidenceSynthesisPrecisionEstimate = require('../backbone_elements/effectEvidenceSynthesisPrecisionEstimate.js');
                 this.__data.precisionEstimate = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EffectEvidenceSynthesisPrecisionEstimate(v)) : [new EffectEvidenceSynthesisPrecisionEstimate(valueProvided)];
             }
         });

@@ -86,7 +86,7 @@ class ProdCharacteristic extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -117,7 +117,7 @@ class ProdCharacteristic extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -139,7 +139,7 @@ class ProdCharacteristic extends Element {
                     this.__data.height = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.height = new Quantity(valueProvided);
             }
         });
@@ -161,7 +161,7 @@ class ProdCharacteristic extends Element {
                     this.__data.width = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.width = new Quantity(valueProvided);
             }
         });
@@ -183,7 +183,7 @@ class ProdCharacteristic extends Element {
                     this.__data.depth = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.depth = new Quantity(valueProvided);
             }
         });
@@ -205,7 +205,7 @@ class ProdCharacteristic extends Element {
                     this.__data.weight = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.weight = new Quantity(valueProvided);
             }
         });
@@ -227,7 +227,7 @@ class ProdCharacteristic extends Element {
                     this.__data.nominalVolume = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.nominalVolume = new Quantity(valueProvided);
             }
         });
@@ -249,7 +249,7 @@ class ProdCharacteristic extends Element {
                     this.__data.externalDiameter = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.externalDiameter = new Quantity(valueProvided);
             }
         });
@@ -325,7 +325,7 @@ class ProdCharacteristic extends Element {
                     this.__data.image = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.image = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Attachment(v)) : [new Attachment(valueProvided)];
             }
         });
@@ -345,7 +345,7 @@ class ProdCharacteristic extends Element {
                     this.__data.scoring = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.scoring = new CodeableConcept(valueProvided);
             }
         });

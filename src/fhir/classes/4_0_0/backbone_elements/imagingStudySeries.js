@@ -89,7 +89,7 @@ class ImagingStudySeries extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -120,7 +120,7 @@ class ImagingStudySeries extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -175,7 +175,7 @@ class ImagingStudySeries extends Element {
                     this.__data.modality = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.modality = new Coding(valueProvided);
             }
         });
@@ -236,7 +236,7 @@ class ImagingStudySeries extends Element {
                     this.__data.endpoint = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -259,7 +259,7 @@ class ImagingStudySeries extends Element {
                     this.__data.bodySite = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.bodySite = new Coding(valueProvided);
             }
         });
@@ -281,7 +281,7 @@ class ImagingStudySeries extends Element {
                     this.__data.laterality = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.laterality = new Coding(valueProvided);
             }
         });
@@ -300,7 +300,7 @@ class ImagingStudySeries extends Element {
                     this.__data.specimen = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.specimen = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -337,7 +337,7 @@ class ImagingStudySeries extends Element {
                     this.__data.performer = undefined;
                     return;
                 }
-                let ImagingStudyPerformer = require('../backbone_elements/imagingStudyPerformer.js');
+                const ImagingStudyPerformer = require('../backbone_elements/imagingStudyPerformer.js');
                 this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImagingStudyPerformer(v)) : [new ImagingStudyPerformer(valueProvided)];
             }
         });
@@ -356,7 +356,7 @@ class ImagingStudySeries extends Element {
                     this.__data.instance = undefined;
                     return;
                 }
-                let ImagingStudyInstance = require('../backbone_elements/imagingStudyInstance.js');
+                const ImagingStudyInstance = require('../backbone_elements/imagingStudyInstance.js');
                 this.__data.instance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImagingStudyInstance(v)) : [new ImagingStudyInstance(valueProvided)];
             }
         });

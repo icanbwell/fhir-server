@@ -71,7 +71,7 @@ class MeasureReportStratum extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class MeasureReportStratum extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class MeasureReportStratum extends Element {
                     this.__data.value = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.value = new CodeableConcept(valueProvided);
             }
         });
@@ -142,7 +142,7 @@ class MeasureReportStratum extends Element {
                     this.__data.component = undefined;
                     return;
                 }
-                let MeasureReportComponent = require('../backbone_elements/measureReportComponent.js');
+                const MeasureReportComponent = require('../backbone_elements/measureReportComponent.js');
                 this.__data.component = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureReportComponent(v)) : [new MeasureReportComponent(valueProvided)];
             }
         });
@@ -162,7 +162,7 @@ class MeasureReportStratum extends Element {
                     this.__data.population = undefined;
                     return;
                 }
-                let MeasureReportPopulation1 = require('../backbone_elements/measureReportPopulation1.js');
+                const MeasureReportPopulation1 = require('../backbone_elements/measureReportPopulation1.js');
                 this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureReportPopulation1(v)) : [new MeasureReportPopulation1(valueProvided)];
             }
         });
@@ -182,7 +182,7 @@ class MeasureReportStratum extends Element {
                     this.__data.measureScore = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.measureScore = new Quantity(valueProvided);
             }
         });

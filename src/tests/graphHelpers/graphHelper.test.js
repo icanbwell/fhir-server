@@ -67,7 +67,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -111,7 +111,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -168,7 +168,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -228,7 +228,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -288,7 +288,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -346,7 +346,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -414,7 +414,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleForwardDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -477,7 +477,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: true,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -545,7 +545,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -641,7 +641,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -767,7 +767,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -897,7 +897,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -1063,7 +1063,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -1286,7 +1286,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {},
+                args: {'base_version': '4_0_0'},
                 originalArgs: {}
             });
             expect(result).not.toBeNull();
@@ -1491,7 +1491,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {_debug: 1},
+                args: {'base_version': '4_0_0', _debug: 1},
                 originalArgs: {_debug: 1}
             });
             expect(result).not.toBeNull();
@@ -1608,7 +1608,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1','2']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':{'$in':['Practitioner/1','Practitioner/2']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['100','200']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'1\',\'2\']}}]}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':{\'$in\':[\'Practitioner/1\',\'Practitioner/2\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'100\',\'200\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}]}, {})',
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -1744,7 +1744,7 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {_explain: 1},
+                args: {'base_version': '4_0_0', _explain: 1},
                 originalArgs: {_explain: 1}
             });
             expect(result).not.toBeNull();
@@ -1770,7 +1770,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1','2']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1'}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['100']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'1\',\'2\']}}]}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':\'Practitioner/1\'}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'100\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}]}, {})',
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',

@@ -74,7 +74,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -124,7 +124,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     this.__data.operationType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.operationType = new CodeableConcept(valueProvided);
             }
         });
@@ -143,7 +143,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     this.__data.authorisationReferenceNumber = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.authorisationReferenceNumber = new Identifier(valueProvided);
             }
         });
@@ -180,7 +180,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     this.__data.confidentialityIndicator = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.confidentialityIndicator = new CodeableConcept(valueProvided);
             }
         });
@@ -199,7 +199,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     this.__data.manufacturer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.manufacturer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -218,7 +218,7 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
                     this.__data.regulator = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.regulator = new Reference(valueProvided);
             }
         });

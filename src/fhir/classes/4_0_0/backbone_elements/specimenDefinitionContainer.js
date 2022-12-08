@@ -79,7 +79,7 @@ class SpecimenDefinitionContainer extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -110,7 +110,7 @@ class SpecimenDefinitionContainer extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -129,7 +129,7 @@ class SpecimenDefinitionContainer extends Element {
                     this.__data.material = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.material = new CodeableConcept(valueProvided);
             }
         });
@@ -148,7 +148,7 @@ class SpecimenDefinitionContainer extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -167,7 +167,7 @@ class SpecimenDefinitionContainer extends Element {
                     this.__data.cap = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.cap = new CodeableConcept(valueProvided);
             }
         });
@@ -204,7 +204,7 @@ class SpecimenDefinitionContainer extends Element {
                     this.__data.capacity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.capacity = new Quantity(valueProvided);
             }
         });
@@ -223,7 +223,7 @@ class SpecimenDefinitionContainer extends Element {
                     this.__data.minimumVolumeQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.minimumVolumeQuantity = new Quantity(valueProvided);
             }
         });
@@ -261,7 +261,7 @@ class SpecimenDefinitionContainer extends Element {
                     this.__data.additive = undefined;
                     return;
                 }
-                let SpecimenDefinitionAdditive = require('../backbone_elements/specimenDefinitionAdditive.js');
+                const SpecimenDefinitionAdditive = require('../backbone_elements/specimenDefinitionAdditive.js');
                 this.__data.additive = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SpecimenDefinitionAdditive(v)) : [new SpecimenDefinitionAdditive(valueProvided)];
             }
         });

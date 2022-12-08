@@ -70,7 +70,7 @@ class RequestGroupRelatedAction extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class RequestGroupRelatedAction extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -156,7 +156,7 @@ class RequestGroupRelatedAction extends Element {
                     this.__data.offsetDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.offsetDuration = new Quantity(valueProvided);
             }
         });
@@ -175,7 +175,7 @@ class RequestGroupRelatedAction extends Element {
                     this.__data.offsetRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.offsetRange = new Range(valueProvided);
             }
         });

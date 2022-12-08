@@ -71,7 +71,7 @@ class MeasureReportGroup extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class MeasureReportGroup extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class MeasureReportGroup extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -141,7 +141,7 @@ class MeasureReportGroup extends Element {
                     this.__data.population = undefined;
                     return;
                 }
-                let MeasureReportPopulation = require('../backbone_elements/measureReportPopulation.js');
+                const MeasureReportPopulation = require('../backbone_elements/measureReportPopulation.js');
                 this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureReportPopulation(v)) : [new MeasureReportPopulation(valueProvided)];
             }
         });
@@ -162,7 +162,7 @@ class MeasureReportGroup extends Element {
                     this.__data.measureScore = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.measureScore = new Quantity(valueProvided);
             }
         });
@@ -182,7 +182,7 @@ class MeasureReportGroup extends Element {
                     this.__data.stratifier = undefined;
                     return;
                 }
-                let MeasureReportStratifier = require('../backbone_elements/measureReportStratifier.js');
+                const MeasureReportStratifier = require('../backbone_elements/measureReportStratifier.js');
                 this.__data.stratifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MeasureReportStratifier(v)) : [new MeasureReportStratifier(valueProvided)];
             }
         });

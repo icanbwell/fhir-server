@@ -85,7 +85,7 @@ class ConsentProvision extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -116,7 +116,7 @@ class ConsentProvision extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -154,7 +154,7 @@ class ConsentProvision extends Element {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -174,7 +174,7 @@ class ConsentProvision extends Element {
                     this.__data.actor = undefined;
                     return;
                 }
-                let ConsentActor = require('../backbone_elements/consentActor.js');
+                const ConsentActor = require('../backbone_elements/consentActor.js');
                 this.__data.actor = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConsentActor(v)) : [new ConsentActor(valueProvided)];
             }
         });
@@ -193,7 +193,7 @@ class ConsentProvision extends Element {
                     this.__data.action = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -213,7 +213,7 @@ class ConsentProvision extends Element {
                     this.__data.securityLabel = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -233,7 +233,7 @@ class ConsentProvision extends Element {
                     this.__data.purpose = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.purpose = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -254,7 +254,7 @@ class ConsentProvision extends Element {
                     this.__data.class = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.class = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -273,7 +273,7 @@ class ConsentProvision extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -293,7 +293,7 @@ class ConsentProvision extends Element {
                     this.__data.dataPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.dataPeriod = new Period(valueProvided);
             }
         });
@@ -312,7 +312,7 @@ class ConsentProvision extends Element {
                     this.__data.data = undefined;
                     return;
                 }
-                let ConsentData = require('../backbone_elements/consentData.js');
+                const ConsentData = require('../backbone_elements/consentData.js');
                 this.__data.data = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConsentData(v)) : [new ConsentData(valueProvided)];
             }
         });

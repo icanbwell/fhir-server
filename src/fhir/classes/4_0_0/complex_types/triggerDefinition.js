@@ -78,7 +78,7 @@ class TriggerDefinition extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -135,7 +135,7 @@ class TriggerDefinition extends Element {
                     this.__data.timingTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.timingTiming = new Timing(valueProvided);
             }
         });
@@ -154,7 +154,7 @@ class TriggerDefinition extends Element {
                     this.__data.timingReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.timingReference = new Reference(valueProvided);
             }
         });
@@ -210,7 +210,7 @@ class TriggerDefinition extends Element {
                     this.__data.data = undefined;
                     return;
                 }
-                let DataRequirement = require('../complex_types/dataRequirement.js');
+                const DataRequirement = require('../complex_types/dataRequirement.js');
                 this.__data.data = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirement(v)) : [new DataRequirement(valueProvided)];
             }
         });
@@ -230,7 +230,7 @@ class TriggerDefinition extends Element {
                     this.__data.condition = undefined;
                     return;
                 }
-                let Expression = require('../complex_types/expression.js');
+                const Expression = require('../complex_types/expression.js');
                 this.__data.condition = new Expression(valueProvided);
             }
         });

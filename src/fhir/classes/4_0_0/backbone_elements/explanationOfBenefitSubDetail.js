@@ -89,7 +89,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -120,7 +120,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -158,7 +158,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.revenue = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.revenue = new CodeableConcept(valueProvided);
             }
         });
@@ -178,7 +178,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.category = new CodeableConcept(valueProvided);
             }
         });
@@ -199,7 +199,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.productOrService = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.productOrService = new CodeableConcept(valueProvided);
             }
         });
@@ -219,7 +219,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.modifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -238,7 +238,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.programCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.programCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -257,7 +257,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -277,7 +277,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.unitPrice = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.unitPrice = new Money(valueProvided);
             }
         });
@@ -318,7 +318,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.net = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.net = new Money(valueProvided);
             }
         });
@@ -337,7 +337,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.udi = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.udi = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -375,7 +375,7 @@ class ExplanationOfBenefitSubDetail extends Element {
                     this.__data.adjudication = undefined;
                     return;
                 }
-                let ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
+                const ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
                 this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(valueProvided)];
             }
         });

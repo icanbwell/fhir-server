@@ -151,7 +151,7 @@ class MedicationRequest extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -214,7 +214,7 @@ class MedicationRequest extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -235,7 +235,7 @@ class MedicationRequest extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -267,7 +267,7 @@ class MedicationRequest extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -298,7 +298,7 @@ class MedicationRequest extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -321,7 +321,7 @@ class MedicationRequest extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -359,7 +359,7 @@ class MedicationRequest extends Resource {
                     this.__data.statusReason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.statusReason = new CodeableConcept(valueProvided);
             }
         });
@@ -397,7 +397,7 @@ class MedicationRequest extends Resource {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -472,7 +472,7 @@ class MedicationRequest extends Resource {
                     this.__data.reportedReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.reportedReference = new Reference(valueProvided);
             }
         });
@@ -491,7 +491,7 @@ class MedicationRequest extends Resource {
                     this.__data.medicationCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.medicationCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -510,7 +510,7 @@ class MedicationRequest extends Resource {
                     this.__data.medicationReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.medicationReference = new Reference(valueProvided);
             }
         });
@@ -530,7 +530,7 @@ class MedicationRequest extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -550,7 +550,7 @@ class MedicationRequest extends Resource {
                     this.__data.encounter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.encounter = new Reference(valueProvided);
             }
         });
@@ -570,7 +570,7 @@ class MedicationRequest extends Resource {
                     this.__data.supportingInformation = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.supportingInformation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -609,7 +609,7 @@ class MedicationRequest extends Resource {
                     this.__data.requester = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.requester = new Reference(valueProvided);
             }
         });
@@ -629,7 +629,7 @@ class MedicationRequest extends Resource {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.performer = new Reference(valueProvided);
             }
         });
@@ -648,7 +648,7 @@ class MedicationRequest extends Resource {
                     this.__data.performerType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.performerType = new CodeableConcept(valueProvided);
             }
         });
@@ -668,7 +668,7 @@ class MedicationRequest extends Resource {
                     this.__data.recorder = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.recorder = new Reference(valueProvided);
             }
         });
@@ -687,7 +687,7 @@ class MedicationRequest extends Resource {
                     this.__data.reasonCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -706,7 +706,7 @@ class MedicationRequest extends Resource {
                     this.__data.reasonReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -765,7 +765,7 @@ class MedicationRequest extends Resource {
                     this.__data.basedOn = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -786,7 +786,7 @@ class MedicationRequest extends Resource {
                     this.__data.groupIdentifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.groupIdentifier = new Identifier(valueProvided);
             }
         });
@@ -806,7 +806,7 @@ class MedicationRequest extends Resource {
                     this.__data.courseOfTherapyType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.courseOfTherapyType = new CodeableConcept(valueProvided);
             }
         });
@@ -826,7 +826,7 @@ class MedicationRequest extends Resource {
                     this.__data.insurance = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -846,7 +846,7 @@ class MedicationRequest extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -865,7 +865,7 @@ class MedicationRequest extends Resource {
                     this.__data.dosageInstruction = undefined;
                     return;
                 }
-                let Dosage = require('../backbone_elements/dosage.js');
+                const Dosage = require('../backbone_elements/dosage.js');
                 this.__data.dosageInstruction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Dosage(v)) : [new Dosage(valueProvided)];
             }
         });
@@ -888,7 +888,7 @@ class MedicationRequest extends Resource {
                     this.__data.dispenseRequest = undefined;
                     return;
                 }
-                let MedicationRequestDispenseRequest = require('../backbone_elements/medicationRequestDispenseRequest.js');
+                const MedicationRequestDispenseRequest = require('../backbone_elements/medicationRequestDispenseRequest.js');
                 this.__data.dispenseRequest = new MedicationRequestDispenseRequest(valueProvided);
             }
         });
@@ -910,7 +910,7 @@ class MedicationRequest extends Resource {
                     this.__data.substitution = undefined;
                     return;
                 }
-                let MedicationRequestSubstitution = require('../backbone_elements/medicationRequestSubstitution.js');
+                const MedicationRequestSubstitution = require('../backbone_elements/medicationRequestSubstitution.js');
                 this.__data.substitution = new MedicationRequestSubstitution(valueProvided);
             }
         });
@@ -930,7 +930,7 @@ class MedicationRequest extends Resource {
                     this.__data.priorPrescription = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.priorPrescription = new Reference(valueProvided);
             }
         });
@@ -951,7 +951,7 @@ class MedicationRequest extends Resource {
                     this.__data.detectedIssue = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.detectedIssue = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -973,7 +973,7 @@ class MedicationRequest extends Resource {
                     this.__data.eventHistory = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.eventHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });

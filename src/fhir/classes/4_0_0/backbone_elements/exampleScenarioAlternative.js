@@ -67,7 +67,7 @@ class ExampleScenarioAlternative extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -98,7 +98,7 @@ class ExampleScenarioAlternative extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -155,7 +155,7 @@ class ExampleScenarioAlternative extends Element {
                     this.__data.step = undefined;
                     return;
                 }
-                let ExampleScenarioStep = require('../backbone_elements/exampleScenarioStep.js');
+                const ExampleScenarioStep = require('../backbone_elements/exampleScenarioStep.js');
                 this.__data.step = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExampleScenarioStep(v)) : [new ExampleScenarioStep(valueProvided)];
             }
         });

@@ -12,6 +12,7 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient.j
 const expectedPatientTwoPatientsResources = require('./fixtures/expected/expected_Patient_two_patients.json');
 const expectedObservationNormal = require('./fixtures/expected/expectedObservationNormal.json');
 const expectedObservationProxyPatient = require('./fixtures/expected/expectedObservationProxyPatient.json');
+const expectedObservationProxyPatientNested = require('./fixtures/expected/expectedObservationProxyPatientNested.json');
 const expectedObservationProxyPatientWithDirectLink = require('./fixtures/expected/expectedObservationProxyPatientWithDirectLink.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../../common');
@@ -129,7 +130,7 @@ describe('Patient Tests', () => {
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65634')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationProxyPatient);
+            expect(resp).toHaveResponse(expectedObservationProxyPatientNested);
         });
         test('search observations by patient for proxy patients works with nested persons (access restricted to one)', async () => {
             const request = await createTestRequest();
@@ -165,14 +166,14 @@ describe('Patient Tests', () => {
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
-            const healthsystem1ObservationResources = deepcopy(expectedObservationProxyPatient);
+            const healthsystem1ObservationResources = deepcopy(expectedObservationProxyPatientNested);
             healthsystem1ObservationResources.entry = healthsystem1ObservationResources.entry.slice(0, 1);
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem1.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(healthsystem1ObservationResources);
-            const healthsystem2ObservationResources = deepcopy(expectedObservationProxyPatient);
+            const healthsystem2ObservationResources = deepcopy(expectedObservationProxyPatientNested);
             healthsystem2ObservationResources.entry = healthsystem2ObservationResources.entry.slice(1, 2);
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65634')

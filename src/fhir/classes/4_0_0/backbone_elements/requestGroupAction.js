@@ -110,7 +110,7 @@ class RequestGroupAction extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -141,7 +141,7 @@ class RequestGroupAction extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -255,7 +255,7 @@ class RequestGroupAction extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -276,7 +276,7 @@ class RequestGroupAction extends Element {
                     this.__data.documentation = undefined;
                     return;
                 }
-                let RelatedArtifact = require('../complex_types/relatedArtifact.js');
+                const RelatedArtifact = require('../complex_types/relatedArtifact.js');
                 this.__data.documentation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
             }
         });
@@ -296,7 +296,7 @@ class RequestGroupAction extends Element {
                     this.__data.condition = undefined;
                     return;
                 }
-                let RequestGroupCondition = require('../backbone_elements/requestGroupCondition.js');
+                const RequestGroupCondition = require('../backbone_elements/requestGroupCondition.js');
                 this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RequestGroupCondition(v)) : [new RequestGroupCondition(valueProvided)];
             }
         });
@@ -316,7 +316,7 @@ class RequestGroupAction extends Element {
                     this.__data.relatedAction = undefined;
                     return;
                 }
-                let RequestGroupRelatedAction = require('../backbone_elements/requestGroupRelatedAction.js');
+                const RequestGroupRelatedAction = require('../backbone_elements/requestGroupRelatedAction.js');
                 this.__data.relatedAction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RequestGroupRelatedAction(v)) : [new RequestGroupRelatedAction(valueProvided)];
             }
         });
@@ -353,7 +353,7 @@ class RequestGroupAction extends Element {
                     this.__data.timingAge = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.timingAge = new Quantity(valueProvided);
             }
         });
@@ -372,7 +372,7 @@ class RequestGroupAction extends Element {
                     this.__data.timingPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.timingPeriod = new Period(valueProvided);
             }
         });
@@ -391,7 +391,7 @@ class RequestGroupAction extends Element {
                     this.__data.timingDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.timingDuration = new Quantity(valueProvided);
             }
         });
@@ -410,7 +410,7 @@ class RequestGroupAction extends Element {
                     this.__data.timingRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.timingRange = new Range(valueProvided);
             }
         });
@@ -429,7 +429,7 @@ class RequestGroupAction extends Element {
                     this.__data.timingTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.timingTiming = new Timing(valueProvided);
             }
         });
@@ -448,7 +448,7 @@ class RequestGroupAction extends Element {
                     this.__data.participant = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -467,7 +467,7 @@ class RequestGroupAction extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -576,7 +576,7 @@ class RequestGroupAction extends Element {
                     this.__data.resource = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.resource = new Reference(valueProvided);
             }
         });

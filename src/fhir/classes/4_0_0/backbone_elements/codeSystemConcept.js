@@ -75,7 +75,7 @@ class CodeSystemConcept extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class CodeSystemConcept extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -185,7 +185,7 @@ class CodeSystemConcept extends Element {
                     this.__data.designation = undefined;
                     return;
                 }
-                let CodeSystemDesignation = require('../backbone_elements/codeSystemDesignation.js');
+                const CodeSystemDesignation = require('../backbone_elements/codeSystemDesignation.js');
                 this.__data.designation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemDesignation(v)) : [new CodeSystemDesignation(valueProvided)];
             }
         });
@@ -204,7 +204,7 @@ class CodeSystemConcept extends Element {
                     this.__data.property = undefined;
                     return;
                 }
-                let CodeSystemProperty1 = require('../backbone_elements/codeSystemProperty1.js');
+                const CodeSystemProperty1 = require('../backbone_elements/codeSystemProperty1.js');
                 this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemProperty1(v)) : [new CodeSystemProperty1(valueProvided)];
             }
         });

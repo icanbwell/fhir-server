@@ -75,7 +75,7 @@ class ConceptMapTarget extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class ConceptMapTarget extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -203,7 +203,7 @@ class ConceptMapTarget extends Element {
                     this.__data.dependsOn = undefined;
                     return;
                 }
-                let ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
+                const ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
                 this.__data.dependsOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConceptMapDependsOn(v)) : [new ConceptMapDependsOn(valueProvided)];
             }
         });
@@ -226,7 +226,7 @@ class ConceptMapTarget extends Element {
                     this.__data.product = undefined;
                     return;
                 }
-                let ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
+                const ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
                 this.__data.product = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConceptMapDependsOn(v)) : [new ConceptMapDependsOn(valueProvided)];
             }
         });

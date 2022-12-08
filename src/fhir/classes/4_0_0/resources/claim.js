@@ -135,7 +135,7 @@ class Claim extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -198,7 +198,7 @@ class Claim extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -219,7 +219,7 @@ class Claim extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -251,7 +251,7 @@ class Claim extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -282,7 +282,7 @@ class Claim extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -301,7 +301,7 @@ class Claim extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -339,7 +339,7 @@ class Claim extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -359,7 +359,7 @@ class Claim extends Resource {
                     this.__data.subType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.subType = new CodeableConcept(valueProvided);
             }
         });
@@ -402,7 +402,7 @@ class Claim extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -421,7 +421,7 @@ class Claim extends Resource {
                     this.__data.billablePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.billablePeriod = new Period(valueProvided);
             }
         });
@@ -458,7 +458,7 @@ class Claim extends Resource {
                     this.__data.enterer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.enterer = new Reference(valueProvided);
             }
         });
@@ -477,7 +477,7 @@ class Claim extends Resource {
                     this.__data.insurer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.insurer = new Reference(valueProvided);
             }
         });
@@ -497,7 +497,7 @@ class Claim extends Resource {
                     this.__data.provider = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.provider = new Reference(valueProvided);
             }
         });
@@ -517,7 +517,7 @@ class Claim extends Resource {
                     this.__data.priority = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.priority = new CodeableConcept(valueProvided);
             }
         });
@@ -537,7 +537,7 @@ class Claim extends Resource {
                     this.__data.fundsReserve = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.fundsReserve = new CodeableConcept(valueProvided);
             }
         });
@@ -557,7 +557,7 @@ class Claim extends Resource {
                     this.__data.related = undefined;
                     return;
                 }
-                let ClaimRelated = require('../backbone_elements/claimRelated.js');
+                const ClaimRelated = require('../backbone_elements/claimRelated.js');
                 this.__data.related = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimRelated(v)) : [new ClaimRelated(valueProvided)];
             }
         });
@@ -576,7 +576,7 @@ class Claim extends Resource {
                     this.__data.prescription = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.prescription = new Reference(valueProvided);
             }
         });
@@ -596,7 +596,7 @@ class Claim extends Resource {
                     this.__data.originalPrescription = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.originalPrescription = new Reference(valueProvided);
             }
         });
@@ -616,7 +616,7 @@ class Claim extends Resource {
                     this.__data.payee = undefined;
                     return;
                 }
-                let ClaimPayee = require('../backbone_elements/claimPayee.js');
+                const ClaimPayee = require('../backbone_elements/claimPayee.js');
                 this.__data.payee = new ClaimPayee(valueProvided);
             }
         });
@@ -635,7 +635,7 @@ class Claim extends Resource {
                     this.__data.referral = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.referral = new Reference(valueProvided);
             }
         });
@@ -654,7 +654,7 @@ class Claim extends Resource {
                     this.__data.facility = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.facility = new Reference(valueProvided);
             }
         });
@@ -673,7 +673,7 @@ class Claim extends Resource {
                     this.__data.careTeam = undefined;
                     return;
                 }
-                let ClaimCareTeam = require('../backbone_elements/claimCareTeam.js');
+                const ClaimCareTeam = require('../backbone_elements/claimCareTeam.js');
                 this.__data.careTeam = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimCareTeam(v)) : [new ClaimCareTeam(valueProvided)];
             }
         });
@@ -693,7 +693,7 @@ class Claim extends Resource {
                     this.__data.supportingInfo = undefined;
                     return;
                 }
-                let ClaimSupportingInfo = require('../backbone_elements/claimSupportingInfo.js');
+                const ClaimSupportingInfo = require('../backbone_elements/claimSupportingInfo.js');
                 this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimSupportingInfo(v)) : [new ClaimSupportingInfo(valueProvided)];
             }
         });
@@ -712,7 +712,7 @@ class Claim extends Resource {
                     this.__data.diagnosis = undefined;
                     return;
                 }
-                let ClaimDiagnosis = require('../backbone_elements/claimDiagnosis.js');
+                const ClaimDiagnosis = require('../backbone_elements/claimDiagnosis.js');
                 this.__data.diagnosis = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimDiagnosis(v)) : [new ClaimDiagnosis(valueProvided)];
             }
         });
@@ -732,7 +732,7 @@ class Claim extends Resource {
                     this.__data.procedure = undefined;
                     return;
                 }
-                let ClaimProcedure = require('../backbone_elements/claimProcedure.js');
+                const ClaimProcedure = require('../backbone_elements/claimProcedure.js');
                 this.__data.procedure = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimProcedure(v)) : [new ClaimProcedure(valueProvided)];
             }
         });
@@ -752,7 +752,7 @@ class Claim extends Resource {
                     this.__data.insurance = undefined;
                     return;
                 }
-                let ClaimInsurance = require('../backbone_elements/claimInsurance.js');
+                const ClaimInsurance = require('../backbone_elements/claimInsurance.js');
                 this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimInsurance(v)) : [new ClaimInsurance(valueProvided)];
             }
         });
@@ -772,7 +772,7 @@ class Claim extends Resource {
                     this.__data.accident = undefined;
                     return;
                 }
-                let ClaimAccident = require('../backbone_elements/claimAccident.js');
+                const ClaimAccident = require('../backbone_elements/claimAccident.js');
                 this.__data.accident = new ClaimAccident(valueProvided);
             }
         });
@@ -792,7 +792,7 @@ class Claim extends Resource {
                     this.__data.item = undefined;
                     return;
                 }
-                let ClaimItem = require('../backbone_elements/claimItem.js');
+                const ClaimItem = require('../backbone_elements/claimItem.js');
                 this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimItem(v)) : [new ClaimItem(valueProvided)];
             }
         });
@@ -811,7 +811,7 @@ class Claim extends Resource {
                     this.__data.total = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.total = new Money(valueProvided);
             }
         });

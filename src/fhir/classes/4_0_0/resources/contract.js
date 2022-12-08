@@ -150,7 +150,7 @@ class Contract extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -213,7 +213,7 @@ class Contract extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -234,7 +234,7 @@ class Contract extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -266,7 +266,7 @@ class Contract extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -297,7 +297,7 @@ class Contract extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -317,7 +317,7 @@ class Contract extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -396,7 +396,7 @@ class Contract extends Resource {
                     this.__data.legalState = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.legalState = new CodeableConcept(valueProvided);
             }
         });
@@ -416,7 +416,7 @@ class Contract extends Resource {
                     this.__data.instantiatesCanonical = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.instantiatesCanonical = new Reference(valueProvided);
             }
         });
@@ -455,7 +455,7 @@ class Contract extends Resource {
                     this.__data.contentDerivative = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.contentDerivative = new CodeableConcept(valueProvided);
             }
         });
@@ -492,7 +492,7 @@ class Contract extends Resource {
                     this.__data.applies = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.applies = new Period(valueProvided);
             }
         });
@@ -512,7 +512,7 @@ class Contract extends Resource {
                     this.__data.expirationType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.expirationType = new CodeableConcept(valueProvided);
             }
         });
@@ -531,7 +531,7 @@ class Contract extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -553,7 +553,7 @@ class Contract extends Resource {
                     this.__data.authority = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.authority = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -575,7 +575,7 @@ class Contract extends Resource {
                     this.__data.domain = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.domain = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -594,7 +594,7 @@ class Contract extends Resource {
                     this.__data.site = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.site = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -695,7 +695,7 @@ class Contract extends Resource {
                     this.__data.author = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.author = new Reference(valueProvided);
             }
         });
@@ -715,7 +715,7 @@ class Contract extends Resource {
                     this.__data.scope = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.scope = new CodeableConcept(valueProvided);
             }
         });
@@ -734,7 +734,7 @@ class Contract extends Resource {
                     this.__data.topicCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.topicCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -753,7 +753,7 @@ class Contract extends Resource {
                     this.__data.topicReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.topicReference = new Reference(valueProvided);
             }
         });
@@ -776,7 +776,7 @@ class Contract extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -797,7 +797,7 @@ class Contract extends Resource {
                     this.__data.subType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.subType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -818,7 +818,7 @@ class Contract extends Resource {
                     this.__data.contentDefinition = undefined;
                     return;
                 }
-                let ContractContentDefinition = require('../backbone_elements/contractContentDefinition.js');
+                const ContractContentDefinition = require('../backbone_elements/contractContentDefinition.js');
                 this.__data.contentDefinition = new ContractContentDefinition(valueProvided);
             }
         });
@@ -838,7 +838,7 @@ class Contract extends Resource {
                     this.__data.term = undefined;
                     return;
                 }
-                let ContractTerm = require('../backbone_elements/contractTerm.js');
+                const ContractTerm = require('../backbone_elements/contractTerm.js');
                 this.__data.term = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractTerm(v)) : [new ContractTerm(valueProvided)];
             }
         });
@@ -858,7 +858,7 @@ class Contract extends Resource {
                     this.__data.supportingInfo = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -881,7 +881,7 @@ class Contract extends Resource {
                     this.__data.relevantHistory = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.relevantHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -903,7 +903,7 @@ class Contract extends Resource {
                     this.__data.signer = undefined;
                     return;
                 }
-                let ContractSigner = require('../backbone_elements/contractSigner.js');
+                const ContractSigner = require('../backbone_elements/contractSigner.js');
                 this.__data.signer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractSigner(v)) : [new ContractSigner(valueProvided)];
             }
         });
@@ -927,7 +927,7 @@ class Contract extends Resource {
                     this.__data.friendly = undefined;
                     return;
                 }
-                let ContractFriendly = require('../backbone_elements/contractFriendly.js');
+                const ContractFriendly = require('../backbone_elements/contractFriendly.js');
                 this.__data.friendly = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractFriendly(v)) : [new ContractFriendly(valueProvided)];
             }
         });
@@ -946,7 +946,7 @@ class Contract extends Resource {
                     this.__data.legal = undefined;
                     return;
                 }
-                let ContractLegal = require('../backbone_elements/contractLegal.js');
+                const ContractLegal = require('../backbone_elements/contractLegal.js');
                 this.__data.legal = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractLegal(v)) : [new ContractLegal(valueProvided)];
             }
         });
@@ -965,7 +965,7 @@ class Contract extends Resource {
                     this.__data.rule = undefined;
                     return;
                 }
-                let ContractRule = require('../backbone_elements/contractRule.js');
+                const ContractRule = require('../backbone_elements/contractRule.js');
                 this.__data.rule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractRule(v)) : [new ContractRule(valueProvided)];
             }
         });
@@ -984,7 +984,7 @@ class Contract extends Resource {
                     this.__data.legallyBindingAttachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.legallyBindingAttachment = new Attachment(valueProvided);
             }
         });
@@ -1003,7 +1003,7 @@ class Contract extends Resource {
                     this.__data.legallyBindingReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.legallyBindingReference = new Reference(valueProvided);
             }
         });

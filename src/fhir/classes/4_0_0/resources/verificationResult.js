@@ -108,7 +108,7 @@ class VerificationResult extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -171,7 +171,7 @@ class VerificationResult extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -192,7 +192,7 @@ class VerificationResult extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -224,7 +224,7 @@ class VerificationResult extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -255,7 +255,7 @@ class VerificationResult extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -274,7 +274,7 @@ class VerificationResult extends Resource {
                     this.__data.target = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -312,7 +312,7 @@ class VerificationResult extends Resource {
                     this.__data.need = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.need = new CodeableConcept(valueProvided);
             }
         });
@@ -369,7 +369,7 @@ class VerificationResult extends Resource {
                     this.__data.validationType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.validationType = new CodeableConcept(valueProvided);
             }
         });
@@ -389,7 +389,7 @@ class VerificationResult extends Resource {
                     this.__data.validationProcess = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.validationProcess = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -408,7 +408,7 @@ class VerificationResult extends Resource {
                     this.__data.frequency = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.frequency = new Timing(valueProvided);
             }
         });
@@ -463,7 +463,7 @@ class VerificationResult extends Resource {
                     this.__data.failureAction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.failureAction = new CodeableConcept(valueProvided);
             }
         });
@@ -482,7 +482,7 @@ class VerificationResult extends Resource {
                     this.__data.primarySource = undefined;
                     return;
                 }
-                let VerificationResultPrimarySource = require('../backbone_elements/verificationResultPrimarySource.js');
+                const VerificationResultPrimarySource = require('../backbone_elements/verificationResultPrimarySource.js');
                 this.__data.primarySource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new VerificationResultPrimarySource(v)) : [new VerificationResultPrimarySource(valueProvided)];
             }
         });
@@ -501,7 +501,7 @@ class VerificationResult extends Resource {
                     this.__data.attestation = undefined;
                     return;
                 }
-                let VerificationResultAttestation = require('../backbone_elements/verificationResultAttestation.js');
+                const VerificationResultAttestation = require('../backbone_elements/verificationResultAttestation.js');
                 this.__data.attestation = new VerificationResultAttestation(valueProvided);
             }
         });
@@ -520,7 +520,7 @@ class VerificationResult extends Resource {
                     this.__data.validator = undefined;
                     return;
                 }
-                let VerificationResultValidator = require('../backbone_elements/verificationResultValidator.js');
+                const VerificationResultValidator = require('../backbone_elements/verificationResultValidator.js');
                 this.__data.validator = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new VerificationResultValidator(v)) : [new VerificationResultValidator(valueProvided)];
             }
         });

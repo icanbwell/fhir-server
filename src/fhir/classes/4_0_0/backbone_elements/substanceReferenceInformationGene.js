@@ -67,7 +67,7 @@ class SubstanceReferenceInformationGene extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -98,7 +98,7 @@ class SubstanceReferenceInformationGene extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -117,7 +117,7 @@ class SubstanceReferenceInformationGene extends Element {
                     this.__data.geneSequenceOrigin = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.geneSequenceOrigin = new CodeableConcept(valueProvided);
             }
         });
@@ -136,7 +136,7 @@ class SubstanceReferenceInformationGene extends Element {
                     this.__data.gene = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.gene = new CodeableConcept(valueProvided);
             }
         });
@@ -155,7 +155,7 @@ class SubstanceReferenceInformationGene extends Element {
                     this.__data.source = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });

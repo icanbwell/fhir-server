@@ -70,7 +70,7 @@ class CoverageCostToBeneficiary extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class CoverageCostToBeneficiary extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -120,7 +120,7 @@ class CoverageCostToBeneficiary extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -139,7 +139,7 @@ class CoverageCostToBeneficiary extends Element {
                     this.__data.valueQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueQuantity = new Quantity(valueProvided);
             }
         });
@@ -158,7 +158,7 @@ class CoverageCostToBeneficiary extends Element {
                     this.__data.valueMoney = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.valueMoney = new Money(valueProvided);
             }
         });
@@ -178,7 +178,7 @@ class CoverageCostToBeneficiary extends Element {
                     this.__data.exception = undefined;
                     return;
                 }
-                let CoverageException = require('../backbone_elements/coverageException.js');
+                const CoverageException = require('../backbone_elements/coverageException.js');
                 this.__data.exception = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageException(v)) : [new CoverageException(valueProvided)];
             }
         });

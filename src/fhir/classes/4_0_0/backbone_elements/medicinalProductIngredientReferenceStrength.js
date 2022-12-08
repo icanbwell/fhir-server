@@ -71,7 +71,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     this.__data.substance = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.substance = new CodeableConcept(valueProvided);
             }
         });
@@ -140,7 +140,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     this.__data.strength = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.strength = new Ratio(valueProvided);
             }
         });
@@ -159,7 +159,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     this.__data.strengthLowLimit = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.strengthLowLimit = new Ratio(valueProvided);
             }
         });
@@ -196,7 +196,7 @@ class MedicinalProductIngredientReferenceStrength extends Element {
                     this.__data.country = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.country = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });

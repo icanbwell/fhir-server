@@ -77,7 +77,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -108,7 +108,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -145,7 +145,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -182,7 +182,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
                     this.__data.unitOfMeasure = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.unitOfMeasure = new CodeableConcept(valueProvided);
             }
         });
@@ -237,7 +237,7 @@ class RiskEvidenceSynthesisRiskEstimate extends Element {
                     this.__data.precisionEstimate = undefined;
                     return;
                 }
-                let RiskEvidenceSynthesisPrecisionEstimate = require('../backbone_elements/riskEvidenceSynthesisPrecisionEstimate.js');
+                const RiskEvidenceSynthesisPrecisionEstimate = require('../backbone_elements/riskEvidenceSynthesisPrecisionEstimate.js');
                 this.__data.precisionEstimate = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RiskEvidenceSynthesisPrecisionEstimate(v)) : [new RiskEvidenceSynthesisPrecisionEstimate(valueProvided)];
             }
         });

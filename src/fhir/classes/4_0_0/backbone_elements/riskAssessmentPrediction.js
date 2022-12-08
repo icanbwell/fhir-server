@@ -78,7 +78,7 @@ class RiskAssessmentPrediction extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class RiskAssessmentPrediction extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -129,7 +129,7 @@ class RiskAssessmentPrediction extends Element {
                     this.__data.outcome = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.outcome = new CodeableConcept(valueProvided);
             }
         });
@@ -166,7 +166,7 @@ class RiskAssessmentPrediction extends Element {
                     this.__data.probabilityRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.probabilityRange = new Range(valueProvided);
             }
         });
@@ -186,7 +186,7 @@ class RiskAssessmentPrediction extends Element {
                     this.__data.qualitativeRisk = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.qualitativeRisk = new CodeableConcept(valueProvided);
             }
         });
@@ -226,7 +226,7 @@ class RiskAssessmentPrediction extends Element {
                     this.__data.whenPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.whenPeriod = new Period(valueProvided);
             }
         });
@@ -245,7 +245,7 @@ class RiskAssessmentPrediction extends Element {
                     this.__data.whenRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.whenRange = new Range(valueProvided);
             }
         });

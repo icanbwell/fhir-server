@@ -69,7 +69,7 @@ class SpecimenDefinitionHandling extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class SpecimenDefinitionHandling extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class SpecimenDefinitionHandling extends Element {
                     this.__data.temperatureQualifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.temperatureQualifier = new CodeableConcept(valueProvided);
             }
         });
@@ -140,7 +140,7 @@ class SpecimenDefinitionHandling extends Element {
                     this.__data.temperatureRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.temperatureRange = new Range(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class SpecimenDefinitionHandling extends Element {
                     this.__data.maxDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.maxDuration = new Quantity(valueProvided);
             }
         });

@@ -74,7 +74,7 @@ class StructureMapGroup extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class StructureMapGroup extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -199,7 +199,7 @@ class StructureMapGroup extends Element {
                     this.__data.input = undefined;
                     return;
                 }
-                let StructureMapInput = require('../backbone_elements/structureMapInput.js');
+                const StructureMapInput = require('../backbone_elements/structureMapInput.js');
                 this.__data.input = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapInput(v)) : [new StructureMapInput(valueProvided)];
             }
         });
@@ -218,7 +218,7 @@ class StructureMapGroup extends Element {
                     this.__data.rule = undefined;
                     return;
                 }
-                let StructureMapRule = require('../backbone_elements/structureMapRule.js');
+                const StructureMapRule = require('../backbone_elements/structureMapRule.js');
                 this.__data.rule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapRule(v)) : [new StructureMapRule(valueProvided)];
             }
         });

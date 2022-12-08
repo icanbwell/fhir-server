@@ -65,7 +65,7 @@ class SubstancePolymerMonomerSet extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -96,7 +96,7 @@ class SubstancePolymerMonomerSet extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class SubstancePolymerMonomerSet extends Element {
                     this.__data.ratioType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.ratioType = new CodeableConcept(valueProvided);
             }
         });
@@ -134,7 +134,7 @@ class SubstancePolymerMonomerSet extends Element {
                     this.__data.startingMaterial = undefined;
                     return;
                 }
-                let SubstancePolymerStartingMaterial = require('../backbone_elements/substancePolymerStartingMaterial.js');
+                const SubstancePolymerStartingMaterial = require('../backbone_elements/substancePolymerStartingMaterial.js');
                 this.__data.startingMaterial = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerStartingMaterial(v)) : [new SubstancePolymerStartingMaterial(valueProvided)];
             }
         });

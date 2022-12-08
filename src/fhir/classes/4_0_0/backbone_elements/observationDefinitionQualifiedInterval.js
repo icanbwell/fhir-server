@@ -78,7 +78,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -148,7 +148,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     this.__data.range = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.range = new Range(valueProvided);
             }
         });
@@ -168,7 +168,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     this.__data.context = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.context = new CodeableConcept(valueProvided);
             }
         });
@@ -187,7 +187,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     this.__data.appliesTo = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.appliesTo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -225,7 +225,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     this.__data.age = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.age = new Range(valueProvided);
             }
         });
@@ -245,7 +245,7 @@ class ObservationDefinitionQualifiedInterval extends Element {
                     this.__data.gestationalAge = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.gestationalAge = new Range(valueProvided);
             }
         });

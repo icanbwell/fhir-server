@@ -65,7 +65,7 @@ class StructureDefinitionDifferential extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -96,7 +96,7 @@ class StructureDefinitionDifferential extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class StructureDefinitionDifferential extends Element {
                     this.__data.element = undefined;
                     return;
                 }
-                let ElementDefinition = require('../backbone_elements/elementDefinition.js');
+                const ElementDefinition = require('../backbone_elements/elementDefinition.js');
                 this.__data.element = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ElementDefinition(v)) : [new ElementDefinition(valueProvided)];
             }
         });

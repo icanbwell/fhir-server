@@ -68,7 +68,7 @@ class Contributor extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -124,7 +124,7 @@ class Contributor extends Element {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                const ContactDetail = require('../complex_types/contactDetail.js');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });

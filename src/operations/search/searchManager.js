@@ -141,7 +141,7 @@ class SearchManager {
          * @type {string}
          */
         const {base_version} = args;
-        assertIsValid(base_version);
+        assertIsValid(base_version, 'base_version is not set');
         const hasPatientScope = this.scopesManager.hasPatientScope({scope});
         // see if any query rewriters want to rewrite the args
         args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});

@@ -71,7 +71,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -140,7 +140,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     this.__data.country = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.country = new CodeableConcept(valueProvided);
             }
         });
@@ -159,7 +159,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -178,7 +178,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     this.__data.legalStatusOfSupply = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.legalStatusOfSupply = new CodeableConcept(valueProvided);
             }
         });
@@ -197,7 +197,7 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     this.__data.validityPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.validityPeriod = new Period(valueProvided);
             }
         });

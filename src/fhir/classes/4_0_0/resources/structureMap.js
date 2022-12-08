@@ -116,7 +116,7 @@ class StructureMap extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -179,7 +179,7 @@ class StructureMap extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -200,7 +200,7 @@ class StructureMap extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -232,7 +232,7 @@ class StructureMap extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -263,7 +263,7 @@ class StructureMap extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -308,7 +308,7 @@ class StructureMap extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -467,7 +467,7 @@ class StructureMap extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                const ContactDetail = require('../complex_types/contactDetail.js');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
@@ -509,7 +509,7 @@ class StructureMap extends Resource {
                     this.__data.useContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                const UsageContext = require('../complex_types/usageContext.js');
                 this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -529,7 +529,7 @@ class StructureMap extends Resource {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -588,7 +588,7 @@ class StructureMap extends Resource {
                     this.__data.structure = undefined;
                     return;
                 }
-                let StructureMapStructure = require('../backbone_elements/structureMapStructure.js');
+                const StructureMapStructure = require('../backbone_elements/structureMapStructure.js');
                 this.__data.structure = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapStructure(v)) : [new StructureMapStructure(valueProvided)];
             }
         });
@@ -626,7 +626,7 @@ class StructureMap extends Resource {
                     this.__data.group = undefined;
                     return;
                 }
-                let StructureMapGroup = require('../backbone_elements/structureMapGroup.js');
+                const StructureMapGroup = require('../backbone_elements/structureMapGroup.js');
                 this.__data.group = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapGroup(v)) : [new StructureMapGroup(valueProvided)];
             }
         });

@@ -134,7 +134,7 @@ class ClaimResponse extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -197,7 +197,7 @@ class ClaimResponse extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -218,7 +218,7 @@ class ClaimResponse extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -250,7 +250,7 @@ class ClaimResponse extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -281,7 +281,7 @@ class ClaimResponse extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -300,7 +300,7 @@ class ClaimResponse extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -338,7 +338,7 @@ class ClaimResponse extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -358,7 +358,7 @@ class ClaimResponse extends Resource {
                     this.__data.subType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.subType = new CodeableConcept(valueProvided);
             }
         });
@@ -401,7 +401,7 @@ class ClaimResponse extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -438,7 +438,7 @@ class ClaimResponse extends Resource {
                     this.__data.insurer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.insurer = new Reference(valueProvided);
             }
         });
@@ -458,7 +458,7 @@ class ClaimResponse extends Resource {
                     this.__data.requestor = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.requestor = new Reference(valueProvided);
             }
         });
@@ -477,7 +477,7 @@ class ClaimResponse extends Resource {
                     this.__data.request = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.request = new Reference(valueProvided);
             }
         });
@@ -551,7 +551,7 @@ class ClaimResponse extends Resource {
                     this.__data.preAuthPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.preAuthPeriod = new Period(valueProvided);
             }
         });
@@ -570,7 +570,7 @@ class ClaimResponse extends Resource {
                     this.__data.payeeType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.payeeType = new CodeableConcept(valueProvided);
             }
         });
@@ -590,7 +590,7 @@ class ClaimResponse extends Resource {
                     this.__data.item = undefined;
                     return;
                 }
-                let ClaimResponseItem = require('../backbone_elements/claimResponseItem.js');
+                const ClaimResponseItem = require('../backbone_elements/claimResponseItem.js');
                 this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseItem(v)) : [new ClaimResponseItem(valueProvided)];
             }
         });
@@ -609,7 +609,7 @@ class ClaimResponse extends Resource {
                     this.__data.addItem = undefined;
                     return;
                 }
-                let ClaimResponseAddItem = require('../backbone_elements/claimResponseAddItem.js');
+                const ClaimResponseAddItem = require('../backbone_elements/claimResponseAddItem.js');
                 this.__data.addItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAddItem(v)) : [new ClaimResponseAddItem(valueProvided)];
             }
         });
@@ -629,7 +629,7 @@ class ClaimResponse extends Resource {
                     this.__data.adjudication = undefined;
                     return;
                 }
-                let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
+                const ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
                 this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
             }
         });
@@ -648,7 +648,7 @@ class ClaimResponse extends Resource {
                     this.__data.total = undefined;
                     return;
                 }
-                let ClaimResponseTotal = require('../backbone_elements/claimResponseTotal.js');
+                const ClaimResponseTotal = require('../backbone_elements/claimResponseTotal.js');
                 this.__data.total = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseTotal(v)) : [new ClaimResponseTotal(valueProvided)];
             }
         });
@@ -667,7 +667,7 @@ class ClaimResponse extends Resource {
                     this.__data.payment = undefined;
                     return;
                 }
-                let ClaimResponsePayment = require('../backbone_elements/claimResponsePayment.js');
+                const ClaimResponsePayment = require('../backbone_elements/claimResponsePayment.js');
                 this.__data.payment = new ClaimResponsePayment(valueProvided);
             }
         });
@@ -687,7 +687,7 @@ class ClaimResponse extends Resource {
                     this.__data.fundsReserve = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.fundsReserve = new CodeableConcept(valueProvided);
             }
         });
@@ -706,7 +706,7 @@ class ClaimResponse extends Resource {
                     this.__data.formCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.formCode = new CodeableConcept(valueProvided);
             }
         });
@@ -726,7 +726,7 @@ class ClaimResponse extends Resource {
                     this.__data.form = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.form = new Attachment(valueProvided);
             }
         });
@@ -746,7 +746,7 @@ class ClaimResponse extends Resource {
                     this.__data.processNote = undefined;
                     return;
                 }
-                let ClaimResponseProcessNote = require('../backbone_elements/claimResponseProcessNote.js');
+                const ClaimResponseProcessNote = require('../backbone_elements/claimResponseProcessNote.js');
                 this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseProcessNote(v)) : [new ClaimResponseProcessNote(valueProvided)];
             }
         });
@@ -765,7 +765,7 @@ class ClaimResponse extends Resource {
                     this.__data.communicationRequest = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.communicationRequest = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -785,7 +785,7 @@ class ClaimResponse extends Resource {
                     this.__data.insurance = undefined;
                     return;
                 }
-                let ClaimResponseInsurance = require('../backbone_elements/claimResponseInsurance.js');
+                const ClaimResponseInsurance = require('../backbone_elements/claimResponseInsurance.js');
                 this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseInsurance(v)) : [new ClaimResponseInsurance(valueProvided)];
             }
         });
@@ -804,7 +804,7 @@ class ClaimResponse extends Resource {
                     this.__data.error = undefined;
                     return;
                 }
-                let ClaimResponseError = require('../backbone_elements/claimResponseError.js');
+                const ClaimResponseError = require('../backbone_elements/claimResponseError.js');
                 this.__data.error = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseError(v)) : [new ClaimResponseError(valueProvided)];
             }
         });

@@ -65,7 +65,7 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -96,7 +96,7 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
                     this.__data.degree = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.degree = new CodeableConcept(valueProvided);
             }
         });
@@ -134,7 +134,7 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
                     this.__data.amount = undefined;
                     return;
                 }
-                let SubstanceAmount = require('../backbone_elements/substanceAmount.js');
+                const SubstanceAmount = require('../backbone_elements/substanceAmount.js');
                 this.__data.amount = new SubstanceAmount(valueProvided);
             }
         });

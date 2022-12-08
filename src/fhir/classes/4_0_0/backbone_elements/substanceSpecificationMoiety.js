@@ -78,7 +78,7 @@ class SubstanceSpecificationMoiety extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class SubstanceSpecificationMoiety extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -128,7 +128,7 @@ class SubstanceSpecificationMoiety extends Element {
                     this.__data.role = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.role = new CodeableConcept(valueProvided);
             }
         });
@@ -147,7 +147,7 @@ class SubstanceSpecificationMoiety extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -184,7 +184,7 @@ class SubstanceSpecificationMoiety extends Element {
                     this.__data.stereochemistry = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.stereochemistry = new CodeableConcept(valueProvided);
             }
         });
@@ -203,7 +203,7 @@ class SubstanceSpecificationMoiety extends Element {
                     this.__data.opticalActivity = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.opticalActivity = new CodeableConcept(valueProvided);
             }
         });
@@ -240,7 +240,7 @@ class SubstanceSpecificationMoiety extends Element {
                     this.__data.amountQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.amountQuantity = new Quantity(valueProvided);
             }
         });

@@ -115,7 +115,7 @@ class DocumentReference extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -178,7 +178,7 @@ class DocumentReference extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -199,7 +199,7 @@ class DocumentReference extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -231,7 +231,7 @@ class DocumentReference extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -262,7 +262,7 @@ class DocumentReference extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -283,7 +283,7 @@ class DocumentReference extends Resource {
                     this.__data.masterIdentifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.masterIdentifier = new Identifier(valueProvided);
             }
         });
@@ -303,7 +303,7 @@ class DocumentReference extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -360,7 +360,7 @@ class DocumentReference extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -381,7 +381,7 @@ class DocumentReference extends Resource {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -403,7 +403,7 @@ class DocumentReference extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -440,7 +440,7 @@ class DocumentReference extends Resource {
                     this.__data.author = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -459,7 +459,7 @@ class DocumentReference extends Resource {
                     this.__data.authenticator = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.authenticator = new Reference(valueProvided);
             }
         });
@@ -479,7 +479,7 @@ class DocumentReference extends Resource {
                     this.__data.custodian = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.custodian = new Reference(valueProvided);
             }
         });
@@ -499,7 +499,7 @@ class DocumentReference extends Resource {
                     this.__data.relatesTo = undefined;
                     return;
                 }
-                let DocumentReferenceRelatesTo = require('../backbone_elements/documentReferenceRelatesTo.js');
+                const DocumentReferenceRelatesTo = require('../backbone_elements/documentReferenceRelatesTo.js');
                 this.__data.relatesTo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DocumentReferenceRelatesTo(v)) : [new DocumentReferenceRelatesTo(valueProvided)];
             }
         });
@@ -540,7 +540,7 @@ class DocumentReference extends Resource {
                     this.__data.securityLabel = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -560,7 +560,7 @@ class DocumentReference extends Resource {
                     this.__data.content = undefined;
                     return;
                 }
-                let DocumentReferenceContent = require('../backbone_elements/documentReferenceContent.js');
+                const DocumentReferenceContent = require('../backbone_elements/documentReferenceContent.js');
                 this.__data.content = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DocumentReferenceContent(v)) : [new DocumentReferenceContent(valueProvided)];
             }
         });
@@ -579,7 +579,7 @@ class DocumentReference extends Resource {
                     this.__data.context = undefined;
                     return;
                 }
-                let DocumentReferenceContext = require('../backbone_elements/documentReferenceContext.js');
+                const DocumentReferenceContext = require('../backbone_elements/documentReferenceContext.js');
                 this.__data.context = new DocumentReferenceContext(valueProvided);
             }
         });

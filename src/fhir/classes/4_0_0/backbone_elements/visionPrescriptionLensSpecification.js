@@ -90,7 +90,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -141,7 +141,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     this.__data.product = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.product = new CodeableConcept(valueProvided);
             }
         });
@@ -232,7 +232,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     this.__data.prism = undefined;
                     return;
                 }
-                let VisionPrescriptionPrism = require('../backbone_elements/visionPrescriptionPrism.js');
+                const VisionPrescriptionPrism = require('../backbone_elements/visionPrescriptionPrism.js');
                 this.__data.prism = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new VisionPrescriptionPrism(v)) : [new VisionPrescriptionPrism(valueProvided)];
             }
         });
@@ -323,7 +323,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     this.__data.duration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.duration = new Quantity(valueProvided);
             }
         });
@@ -378,7 +378,7 @@ class VisionPrescriptionLensSpecification extends Element {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });

@@ -80,7 +80,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -111,7 +111,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -132,7 +132,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.productOrService = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.productOrService = new CodeableConcept(valueProvided);
             }
         });
@@ -152,7 +152,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.modifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -171,7 +171,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -191,7 +191,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.unitPrice = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.unitPrice = new Money(valueProvided);
             }
         });
@@ -232,7 +232,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.net = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.net = new Money(valueProvided);
             }
         });
@@ -270,7 +270,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.adjudication = undefined;
                     return;
                 }
-                let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
+                const ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
                 this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
             }
         });
@@ -289,7 +289,7 @@ class ClaimResponseDetail1 extends Element {
                     this.__data.subDetail = undefined;
                     return;
                 }
-                let ClaimResponseSubDetail1 = require('../backbone_elements/claimResponseSubDetail1.js');
+                const ClaimResponseSubDetail1 = require('../backbone_elements/claimResponseSubDetail1.js');
                 this.__data.subDetail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseSubDetail1(v)) : [new ClaimResponseSubDetail1(valueProvided)];
             }
         });

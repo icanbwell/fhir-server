@@ -69,7 +69,7 @@ class ExampleScenarioStep extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class ExampleScenarioStep extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class ExampleScenarioStep extends Element {
                     this.__data.process = undefined;
                     return;
                 }
-                let ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
+                const ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
                 this.__data.process = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExampleScenarioProcess(v)) : [new ExampleScenarioProcess(valueProvided)];
             }
         });
@@ -156,7 +156,7 @@ class ExampleScenarioStep extends Element {
                     this.__data.operation = undefined;
                     return;
                 }
-                let ExampleScenarioOperation = require('../backbone_elements/exampleScenarioOperation.js');
+                const ExampleScenarioOperation = require('../backbone_elements/exampleScenarioOperation.js');
                 this.__data.operation = new ExampleScenarioOperation(valueProvided);
             }
         });
@@ -176,7 +176,7 @@ class ExampleScenarioStep extends Element {
                     this.__data.alternative = undefined;
                     return;
                 }
-                let ExampleScenarioAlternative = require('../backbone_elements/exampleScenarioAlternative.js');
+                const ExampleScenarioAlternative = require('../backbone_elements/exampleScenarioAlternative.js');
                 this.__data.alternative = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExampleScenarioAlternative(v)) : [new ExampleScenarioAlternative(valueProvided)];
             }
         });

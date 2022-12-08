@@ -141,7 +141,7 @@ class ChargeItem extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -204,7 +204,7 @@ class ChargeItem extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -225,7 +225,7 @@ class ChargeItem extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -257,7 +257,7 @@ class ChargeItem extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -288,7 +288,7 @@ class ChargeItem extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -307,7 +307,7 @@ class ChargeItem extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -382,7 +382,7 @@ class ChargeItem extends Resource {
                     this.__data.partOf = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -401,7 +401,7 @@ class ChargeItem extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -420,7 +420,7 @@ class ChargeItem extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -439,7 +439,7 @@ class ChargeItem extends Resource {
                     this.__data.context = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.context = new Reference(valueProvided);
             }
         });
@@ -476,7 +476,7 @@ class ChargeItem extends Resource {
                     this.__data.occurrencePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.occurrencePeriod = new Period(valueProvided);
             }
         });
@@ -495,7 +495,7 @@ class ChargeItem extends Resource {
                     this.__data.occurrenceTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.occurrenceTiming = new Timing(valueProvided);
             }
         });
@@ -514,7 +514,7 @@ class ChargeItem extends Resource {
                     this.__data.performer = undefined;
                     return;
                 }
-                let ChargeItemPerformer = require('../backbone_elements/chargeItemPerformer.js');
+                const ChargeItemPerformer = require('../backbone_elements/chargeItemPerformer.js');
                 this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemPerformer(v)) : [new ChargeItemPerformer(valueProvided)];
             }
         });
@@ -533,7 +533,7 @@ class ChargeItem extends Resource {
                     this.__data.performingOrganization = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.performingOrganization = new Reference(valueProvided);
             }
         });
@@ -552,7 +552,7 @@ class ChargeItem extends Resource {
                     this.__data.requestingOrganization = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.requestingOrganization = new Reference(valueProvided);
             }
         });
@@ -571,7 +571,7 @@ class ChargeItem extends Resource {
                     this.__data.costCenter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.costCenter = new Reference(valueProvided);
             }
         });
@@ -590,7 +590,7 @@ class ChargeItem extends Resource {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -609,7 +609,7 @@ class ChargeItem extends Resource {
                     this.__data.bodysite = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.bodysite = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -646,7 +646,7 @@ class ChargeItem extends Resource {
                     this.__data.priceOverride = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.priceOverride = new Money(valueProvided);
             }
         });
@@ -685,7 +685,7 @@ class ChargeItem extends Resource {
                     this.__data.enterer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.enterer = new Reference(valueProvided);
             }
         });
@@ -722,7 +722,7 @@ class ChargeItem extends Resource {
                     this.__data.reason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.reason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -741,7 +741,7 @@ class ChargeItem extends Resource {
                     this.__data.service = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.service = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -760,7 +760,7 @@ class ChargeItem extends Resource {
                     this.__data.productReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.productReference = new Reference(valueProvided);
             }
         });
@@ -779,7 +779,7 @@ class ChargeItem extends Resource {
                     this.__data.productCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.productCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -798,7 +798,7 @@ class ChargeItem extends Resource {
                     this.__data.account = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.account = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -817,7 +817,7 @@ class ChargeItem extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -836,7 +836,7 @@ class ChargeItem extends Resource {
                     this.__data.supportingInformation = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.supportingInformation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });

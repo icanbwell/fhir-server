@@ -120,24 +120,24 @@ class {{ fhir_entity.cleaned_name }} extends Element {
                 }
     {% if property.is_resource %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
-                let {{ property.cleaned_type | replace(".","") }} = require('../resources/{{ lower_case_first_letter(property.type_snake_case) }}.js');
+                const {{ property.cleaned_type | replace(".","") }} = require('../resources/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
     {% elif property.is_code %}
     {% elif property.is_extension %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
-                let {{ property.cleaned_type | replace(".","") }} = require('../extensions/{{ lower_case_first_letter(property.type_snake_case) }}.js');
+                const {{ property.cleaned_type | replace(".","") }} = require('../complex_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
     {% elif property.fhir_type == "BackboneElement" %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
-                let {{ property.cleaned_type | replace(".","") }} = require('../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.js');
+                const {{ property.cleaned_type | replace(".","") }} = require('../backbone_elements/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
     {% elif property.cleaned_type == "ResourceContainer" %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
-                let {{ property.cleaned_type | replace(".","") }} = require('../simple_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
+                const {{ property.cleaned_type | replace(".","") }} = require('../simple_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
     {% elif property.is_complex or property.fhir_type == "Element" %}
             {%  if property.cleaned_type != fhir_entity.cleaned_name %}
-                let {{ property.cleaned_type | replace(".","") }} = require('../complex_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
+                const {{ property.cleaned_type | replace(".","") }} = require('../complex_types/{{ lower_case_first_letter(property.type_snake_case) }}.js');
             {%  endif %}
 {#        {% elif property.type_snake_case in ["string", "boolean", "integer", "positiveInt"] %}#}
 {#                this.__data.{{ property.name }} = value;#}

@@ -154,7 +154,7 @@ class Observation extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -217,7 +217,7 @@ class Observation extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -238,7 +238,7 @@ class Observation extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -270,7 +270,7 @@ class Observation extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -301,7 +301,7 @@ class Observation extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -320,7 +320,7 @@ class Observation extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -341,7 +341,7 @@ class Observation extends Resource {
                     this.__data.basedOn = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -361,7 +361,7 @@ class Observation extends Resource {
                     this.__data.partOf = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -398,7 +398,7 @@ class Observation extends Resource {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -417,7 +417,7 @@ class Observation extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -440,7 +440,7 @@ class Observation extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -467,7 +467,7 @@ class Observation extends Resource {
                     this.__data.focus = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.focus = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -487,7 +487,7 @@ class Observation extends Resource {
                     this.__data.encounter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.encounter = new Reference(valueProvided);
             }
         });
@@ -524,7 +524,7 @@ class Observation extends Resource {
                     this.__data.effectivePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.effectivePeriod = new Period(valueProvided);
             }
         });
@@ -543,7 +543,7 @@ class Observation extends Resource {
                     this.__data.effectiveTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.effectiveTiming = new Timing(valueProvided);
             }
         });
@@ -599,7 +599,7 @@ class Observation extends Resource {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -618,7 +618,7 @@ class Observation extends Resource {
                     this.__data.valueQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueQuantity = new Quantity(valueProvided);
             }
         });
@@ -637,7 +637,7 @@ class Observation extends Resource {
                     this.__data.valueCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.valueCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -710,7 +710,7 @@ class Observation extends Resource {
                     this.__data.valueRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.valueRange = new Range(valueProvided);
             }
         });
@@ -729,7 +729,7 @@ class Observation extends Resource {
                     this.__data.valueRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.valueRatio = new Ratio(valueProvided);
             }
         });
@@ -748,7 +748,7 @@ class Observation extends Resource {
                     this.__data.valueSampledData = undefined;
                     return;
                 }
-                let SampledData = require('../complex_types/sampledData.js');
+                const SampledData = require('../complex_types/sampledData.js');
                 this.__data.valueSampledData = new SampledData(valueProvided);
             }
         });
@@ -803,7 +803,7 @@ class Observation extends Resource {
                     this.__data.valuePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.valuePeriod = new Period(valueProvided);
             }
         });
@@ -823,7 +823,7 @@ class Observation extends Resource {
                     this.__data.dataAbsentReason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.dataAbsentReason = new CodeableConcept(valueProvided);
             }
         });
@@ -843,7 +843,7 @@ class Observation extends Resource {
                     this.__data.interpretation = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.interpretation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -862,7 +862,7 @@ class Observation extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -882,7 +882,7 @@ class Observation extends Resource {
                     this.__data.bodySite = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.bodySite = new CodeableConcept(valueProvided);
             }
         });
@@ -901,7 +901,7 @@ class Observation extends Resource {
                     this.__data.method = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.method = new CodeableConcept(valueProvided);
             }
         });
@@ -920,7 +920,7 @@ class Observation extends Resource {
                     this.__data.specimen = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.specimen = new Reference(valueProvided);
             }
         });
@@ -939,7 +939,7 @@ class Observation extends Resource {
                     this.__data.device = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.device = new Reference(valueProvided);
             }
         });
@@ -961,7 +961,7 @@ class Observation extends Resource {
                     this.__data.referenceRange = undefined;
                     return;
                 }
-                let ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
+                const ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
                 this.__data.referenceRange = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ObservationReferenceRange(v)) : [new ObservationReferenceRange(valueProvided)];
             }
         });
@@ -982,7 +982,7 @@ class Observation extends Resource {
                     this.__data.hasMember = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.hasMember = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -1003,7 +1003,7 @@ class Observation extends Resource {
                     this.__data.derivedFrom = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.derivedFrom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -1026,7 +1026,7 @@ class Observation extends Resource {
                     this.__data.component = undefined;
                     return;
                 }
-                let ObservationComponent = require('../backbone_elements/observationComponent.js');
+                const ObservationComponent = require('../backbone_elements/observationComponent.js');
                 this.__data.component = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ObservationComponent(v)) : [new ObservationComponent(valueProvided)];
             }
         });

@@ -80,7 +80,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -111,7 +111,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -188,7 +188,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     this.__data.sequenceAttachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.sequenceAttachment = new Attachment(valueProvided);
             }
         });
@@ -210,7 +210,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     this.__data.fivePrime = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.fivePrime = new CodeableConcept(valueProvided);
             }
         });
@@ -232,7 +232,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     this.__data.threePrime = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.threePrime = new CodeableConcept(valueProvided);
             }
         });
@@ -251,7 +251,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     this.__data.linkage = undefined;
                     return;
                 }
-                let SubstanceNucleicAcidLinkage = require('../backbone_elements/substanceNucleicAcidLinkage.js');
+                const SubstanceNucleicAcidLinkage = require('../backbone_elements/substanceNucleicAcidLinkage.js');
                 this.__data.linkage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceNucleicAcidLinkage(v)) : [new SubstanceNucleicAcidLinkage(valueProvided)];
             }
         });
@@ -270,7 +270,7 @@ class SubstanceNucleicAcidSubunit extends Element {
                     this.__data.sugar = undefined;
                     return;
                 }
-                let SubstanceNucleicAcidSugar = require('../backbone_elements/substanceNucleicAcidSugar.js');
+                const SubstanceNucleicAcidSugar = require('../backbone_elements/substanceNucleicAcidSugar.js');
                 this.__data.sugar = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceNucleicAcidSugar(v)) : [new SubstanceNucleicAcidSugar(valueProvided)];
             }
         });

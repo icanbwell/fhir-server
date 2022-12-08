@@ -109,7 +109,7 @@ class Provenance extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -172,7 +172,7 @@ class Provenance extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -193,7 +193,7 @@ class Provenance extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -225,7 +225,7 @@ class Provenance extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -256,7 +256,7 @@ class Provenance extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -277,7 +277,7 @@ class Provenance extends Resource {
                     this.__data.target = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -296,7 +296,7 @@ class Provenance extends Resource {
                     this.__data.occurredPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.occurredPeriod = new Period(valueProvided);
             }
         });
@@ -371,7 +371,7 @@ class Provenance extends Resource {
                     this.__data.location = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.location = new Reference(valueProvided);
             }
         });
@@ -390,7 +390,7 @@ class Provenance extends Resource {
                     this.__data.reason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.reason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -411,7 +411,7 @@ class Provenance extends Resource {
                     this.__data.activity = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.activity = new CodeableConcept(valueProvided);
             }
         });
@@ -431,7 +431,7 @@ class Provenance extends Resource {
                     this.__data.agent = undefined;
                     return;
                 }
-                let ProvenanceAgent = require('../backbone_elements/provenanceAgent.js');
+                const ProvenanceAgent = require('../backbone_elements/provenanceAgent.js');
                 this.__data.agent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProvenanceAgent(v)) : [new ProvenanceAgent(valueProvided)];
             }
         });
@@ -450,7 +450,7 @@ class Provenance extends Resource {
                     this.__data.entity = undefined;
                     return;
                 }
-                let ProvenanceEntity = require('../backbone_elements/provenanceEntity.js');
+                const ProvenanceEntity = require('../backbone_elements/provenanceEntity.js');
                 this.__data.entity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProvenanceEntity(v)) : [new ProvenanceEntity(valueProvided)];
             }
         });
@@ -470,7 +470,7 @@ class Provenance extends Resource {
                     this.__data.signature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                const Signature = require('../complex_types/signature.js');
                 this.__data.signature = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Signature(v)) : [new Signature(valueProvided)];
             }
         });

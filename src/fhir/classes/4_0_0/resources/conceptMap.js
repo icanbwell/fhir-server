@@ -121,7 +121,7 @@ class ConceptMap extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -184,7 +184,7 @@ class ConceptMap extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -205,7 +205,7 @@ class ConceptMap extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -237,7 +237,7 @@ class ConceptMap extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -268,7 +268,7 @@ class ConceptMap extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -312,7 +312,7 @@ class ConceptMap extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -471,7 +471,7 @@ class ConceptMap extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                const ContactDetail = require('../complex_types/contactDetail.js');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
@@ -513,7 +513,7 @@ class ConceptMap extends Resource {
                     this.__data.useContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                const UsageContext = require('../complex_types/usageContext.js');
                 this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -532,7 +532,7 @@ class ConceptMap extends Resource {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -662,7 +662,7 @@ class ConceptMap extends Resource {
                     this.__data.group = undefined;
                     return;
                 }
-                let ConceptMapGroup = require('../backbone_elements/conceptMapGroup.js');
+                const ConceptMapGroup = require('../backbone_elements/conceptMapGroup.js');
                 this.__data.group = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConceptMapGroup(v)) : [new ConceptMapGroup(valueProvided)];
             }
         });

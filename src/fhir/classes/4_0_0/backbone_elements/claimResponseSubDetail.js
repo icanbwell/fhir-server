@@ -68,7 +68,7 @@ class ClaimResponseSubDetail extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -99,7 +99,7 @@ class ClaimResponseSubDetail extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -155,7 +155,7 @@ class ClaimResponseSubDetail extends Element {
                     this.__data.adjudication = undefined;
                     return;
                 }
-                let ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
+                const ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
                 this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
             }
         });
