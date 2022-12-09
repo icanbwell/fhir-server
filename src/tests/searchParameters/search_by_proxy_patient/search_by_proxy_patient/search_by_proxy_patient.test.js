@@ -10,6 +10,8 @@ const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 // expected
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
 const expectedPatientTwoPatientsResources = require('./fixtures/expected/expected_Patient_two_patients.json');
+const expectedPatientTwoPatientsPatient1Resources = require('./fixtures/expected/expected_Patient_two_patients_patient1.json');
+const expectedPatientTwoPatientsPatient2Resources = require('./fixtures/expected/expected_Patient_two_patients_patient2.json');
 const expectedObservationNormal = require('./fixtures/expected/expectedObservationNormal.json');
 const expectedObservationProxyPatient = require('./fixtures/expected/expectedObservationProxyPatient.json');
 const expectedObservationProxyPatientNested = require('./fixtures/expected/expectedObservationProxyPatientNested.json');
@@ -345,38 +347,29 @@ describe('Patient Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right Patient back
-            const healthsystem1PatientResources = deepcopy(expectedPatientTwoPatientsResources);
-            healthsystem1PatientResources.entry = healthsystem1PatientResources.entry.filter(
-                e => e.resource.id !== '00100000000'
-            );
             resp = await request
                 .get('/4_0_0/Patient/?_bundle=1&id=person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem1.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(healthsystem1PatientResources);
+            expect(resp).toHaveResponse(expectedPatientTwoPatientsPatient1Resources);
 
             resp = await request
                 .get('/4_0_0/Patient/person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem1.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(healthsystem1PatientResources.entry[0].resource);
+            expect(resp).toHaveResponse(expectedPatientTwoPatientsPatient1Resources.entry[0].resource);
             // Now check healthsystem2 patients
-            const healthsystem2PatientResources = deepcopy(expectedPatientTwoPatientsResources);
-            healthsystem2PatientResources.entry = healthsystem2PatientResources.entry.filter(
-                e => e.resource.id !== '00200000000'
-            );
             resp = await request
                 .get('/4_0_0/Patient/?_bundle=1&id=person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem2.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(healthsystem2PatientResources);
+            expect(resp).toHaveResponse(expectedPatientTwoPatientsPatient2Resources);
 
             resp = await request
                 .get('/4_0_0/Patient/person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem2.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(healthsystem2PatientResources.entry[0].resource);
+            expect(resp).toHaveResponse(expectedPatientTwoPatientsPatient2Resources.entry[0].resource);
         });
         test('search observations by patient for proxy patients includes proxy patient itself', async () => {
             const request = await createTestRequest();
