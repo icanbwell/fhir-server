@@ -96,7 +96,7 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
-          "reference": "Patient/person.m65633"
+          "reference": "Patient/00100000000"
         },
         "valueBoolean": false
       }

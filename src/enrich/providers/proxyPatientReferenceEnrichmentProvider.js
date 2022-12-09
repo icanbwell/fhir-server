@@ -48,7 +48,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
             const patientResources = resources.filter(r => r.resourceType === 'Patient')
                 .sort((a, b) => (a.meta.lastUpdated > b.meta.lastUpdated ? -1 : 1));
             const latestPatientResource = getFirstResourceOrNull(patientResources);
-            if (latestPatientResource) {
+            if (latestPatientResource && !resources.filter(r => r.resourceType === 'Patient').some(r => r.id === proxyPatientPersonId)) {
                 const newPatientResource = latestPatientResource.clone();
                 newPatientResource.id = proxyPatientPersonId;
                 resources.unshift(newPatientResource); // add at beginning
