@@ -59,6 +59,12 @@ class ResourcePreparerTransform extends Transform {
          * @type {Object}
          */
         this.originalArgs = originalArgs;
+
+        /**
+         * what resources have we already processed
+         * @type {{resourceType: string, id: string}[]}
+         */
+        this.resourcesProcessed = [];
     }
 
     /**
@@ -110,11 +116,20 @@ class ResourcePreparerTransform extends Transform {
                     }
                     if (resources.length > 0) {
                         for (const resource of resources) {
-                            if (resource) {
+                            if (resource &&
+                                !this.resourcesProcessed.some(
+                                    a => a.resourceType === resource.resourceType && a.id === resource.id)
+                            ) {
                                 if (isTrue(env.LOG_STREAM_STEPS)) {
                                     console.log(JSON.stringify({message: `ResourcePreparerTransform: push ${resource['id']}`}));
                                 }
                                 this.push(resource);
+                                this.resourcesProcessed.push(
+                                    {
+                                        resourceType: resource.resourceType,
+                                        id: resource.id
+                                    }
+                                );
                             }
                         }
                     }
