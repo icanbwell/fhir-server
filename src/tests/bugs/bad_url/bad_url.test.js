@@ -35,6 +35,17 @@ describe('Bad url Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
         });
+        test('url with missing / fails', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .get('/4_0_0ActivityDefinition')
+                .set(getHtmlHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(404);
+        });
         test('patient graph missing 4_0_0 fails', async () => {
             const request = await createTestRequest();
             // ARRANGE

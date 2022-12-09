@@ -1,4 +1,5 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
+const {getFirstResourceOrNull} = require('../../utils/list.util');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -42,6 +43,15 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                         return reference;
                     }
                 });
+            }
+            // now copy the latest Patient and set the id to proxyPatient
+            const patientResources = resources.filter(r => r.resourceType === 'Patient')
+                .sort((a, b) => (a.meta.lastUpdated > b.meta.lastUpdated ? -1 : 1));
+            const latestPatientResource = getFirstResourceOrNull(patientResources);
+            if (latestPatientResource) {
+                const newPatientResource = latestPatientResource.clone();
+                newPatientResource.id = proxyPatientPersonId;
+                resources.unshift(newPatientResource); // add at beginning
             }
         }
         return resources;
