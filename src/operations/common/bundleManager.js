@@ -7,6 +7,7 @@ const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEn
 const {MongoExplainPlanHelper} = require('../../utils/mongoExplainPlanHelper');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ResourceManager} = require('./resourceManager');
+const {removeDuplicatesWithLambda} = require('../../utils/list.util');
 
 /**
  * This class creates a Bundle resource out of a list of resources
@@ -317,6 +318,20 @@ class BundleManager {
             logDebug({user, args: bundle});
         }
         return bundle;
+    }
+
+    /**
+     * Removes duplicate bundle entries
+     * @param {BundleEntry[]} entries
+     * @return {BundleEntry[]}
+     */
+    removeDuplicateEntries({entries}) {
+        if (entries.length === 0) {
+            return entries;
+        }
+        return removeDuplicatesWithLambda(entries,
+            (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id
+        );
     }
 }
 

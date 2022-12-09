@@ -891,17 +891,6 @@ class GraphHelper {
         return result;
     }
 
-
-    /**
-     * removes duplicate items from array
-     * @param {*[]} array
-     * @param fnCompare
-     * @returns {*[]}
-     */
-    removeDuplicatesWithLambda(array, fnCompare) {
-        return array.filter((value, index, self) => index === self.findIndex((t) => (fnCompare(t, value))));
-    }
-
     /**
      * processing multiple ids
      * @param {string} base_version
@@ -1103,7 +1092,7 @@ class GraphHelper {
                 }
             }
 
-            entries = this.removeDuplicatesWithLambda(entries, (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            entries = this.bundleManager.removeDuplicateEntries({entries});
 
             return {entries, queries, options: optionsForQueries, explanations};
         } catch (e) {
@@ -1186,7 +1175,7 @@ class GraphHelper {
             /**
              * @type {BundleEntry[]}
              */
-            let uniqueEntries = this.removeDuplicatesWithLambda(entries, (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            let uniqueEntries = this.bundleManager.removeDuplicateEntries({entries});
 
             /**
              * @type {string[]}

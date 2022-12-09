@@ -107,7 +107,8 @@ const createContainer = function () {
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
-            enrichmentManager: c.enrichmentManager
+            enrichmentManager: c.enrichmentManager,
+            resourceManager: c.resourceManager
         }
     ));
     container.register('preSaveManager', () => new PreSaveManager({

@@ -2,6 +2,7 @@ const {EnrichmentManager} = require('../../enrich/enrich');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
 const {AccessIndexManager} = require('./accessIndexManager');
+const {ResourceManager} = require('./resourceManager');
 
 class ResourcePreparer {
     /**
@@ -9,10 +10,12 @@ class ResourcePreparer {
      * @param {ScopesManager} scopesManager
      * @param {AccessIndexManager} accessIndexManager
      * @param {EnrichmentManager} enrichmentManager
+     * @param {ResourceManager} resourceManager
      */
     constructor({
                     scopesManager, accessIndexManager,
-                    enrichmentManager
+                    enrichmentManager,
+                    resourceManager
                 }) {
         /**
          * @type {ScopesManager}
@@ -31,6 +34,12 @@ class ResourcePreparer {
          */
         this.enrichmentManager = enrichmentManager;
         assertTypeEquals(enrichmentManager, EnrichmentManager);
+
+        /**
+         * @type {ResourceManager}
+         */
+        this.resourceManager = resourceManager;
+        assertTypeEquals(resourceManager, ResourceManager);
     }
 
     /**
@@ -83,8 +92,11 @@ class ResourcePreparer {
     async prepareResourceAsync({
                                    user, scope, args,
                                    element, resourceType, useAccessIndex,
-                                    originalArgs
+                                   originalArgs
                                }) {
+        /**
+         * @type {Resource[]}
+         */
         let resources = [];
         if (args['_elements']) {
             if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({resourceType})) {
@@ -125,6 +137,7 @@ class ResourcePreparer {
             );
             resources = resources.concat(enrichedResources);
         }
+        resources = this.resourceManager.removeDuplicateResources({resources});
         return resources;
     }
 }

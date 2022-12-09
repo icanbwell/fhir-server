@@ -167,14 +167,18 @@ describe('Patient Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
             const healthsystem1ObservationResources = deepcopy(expectedObservationProxyPatientNested);
-            healthsystem1ObservationResources.entry = healthsystem1ObservationResources.entry.slice(0, 1);
+            healthsystem1ObservationResources.entry = healthsystem1ObservationResources.entry.filter(
+                e => e.resource.id !== '00100000000'
+            );
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem1.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(healthsystem1ObservationResources);
             const healthsystem2ObservationResources = deepcopy(expectedObservationProxyPatientNested);
-            healthsystem2ObservationResources.entry = healthsystem2ObservationResources.entry.slice(1, 2);
+            healthsystem2ObservationResources.entry = healthsystem2ObservationResources.entry.filter(
+                e => e.resource.id !== '00200000000'
+            );
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem2.*'));
@@ -343,7 +347,9 @@ describe('Patient Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
             const healthsystem1PatientResources = deepcopy(expectedPatientTwoPatientsResources);
-            healthsystem1PatientResources.entry = healthsystem1PatientResources.entry.slice(0, 1);
+            healthsystem1PatientResources.entry = healthsystem1PatientResources.entry.filter(
+                e => e.resource.id !== '00100000000'
+            );
             resp = await request
                 .get('/4_0_0/Patient/?_bundle=1&id=person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem1.*'));
@@ -357,7 +363,9 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(healthsystem1PatientResources.entry[0].resource);
             // Now check healthsystem2 patients
             const healthsystem2PatientResources = deepcopy(expectedPatientTwoPatientsResources);
-            healthsystem2PatientResources.entry = healthsystem2PatientResources.entry.slice(1, 2);
+            healthsystem2PatientResources.entry = healthsystem2PatientResources.entry.filter(
+                e => e.resource.id !== '00200000000'
+            );
             resp = await request
                 .get('/4_0_0/Patient/?_bundle=1&id=person.m65634')
                 .set(getHeaders('user/*.read access/healthsystem2.*'));
