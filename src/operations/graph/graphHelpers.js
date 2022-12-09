@@ -23,6 +23,7 @@ const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {EnrichmentManager} = require('../../enrich/enrich');
+const deepcopy = require('deepcopy');
 
 
 /**
@@ -937,6 +938,10 @@ class GraphHelper {
              */
             let entries = [];
 
+            const graphArgs = deepcopy(args);
+            graphArgs.id = idList;
+            graphArgs.resource = null; // clear out the resource since we don't want to use any parameters from it
+
             let {
                 /** @type {import('mongodb').Document}**/
                 query, // /** @type {Set} **/
@@ -946,7 +951,7 @@ class GraphHelper {
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
                 patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                args: Object.assign(args, {'id': idList, 'resource': null}), // add id filter to query
+                args: graphArgs, // add id filter to query
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,

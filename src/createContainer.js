@@ -61,7 +61,6 @@ const {FhirTypesManager} = require('./fhir/fhirTypesManager');
 const {PreSaveManager} = require('./preSaveHandlers/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
 const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
-const {ExplanationOfBenefitsEnrichmentProvider} = require('./enrich/providers/explanationOfBenefitsEnrichmentProvider');
 const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
 const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
@@ -100,7 +99,6 @@ const createContainer = function () {
 
     container.register('enrichmentManager', () => new EnrichmentManager({
         enrichmentProviders: [
-            new ExplanationOfBenefitsEnrichmentProvider(),
             new IdEnrichmentProvider(),
             new ProxyPatientReferenceEnrichmentProvider()
         ]
