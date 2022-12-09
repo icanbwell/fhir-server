@@ -113,6 +113,7 @@ class ChangeEventProducer {
      * @param {boolean} isCreate
      * @param {string} resourceType
      * @param {string} eventName
+     * @param {string} sourceType
      * @return {AuditEvent}
      * @private
      */
@@ -122,11 +123,12 @@ class ChangeEventProducer {
                        timestamp,
                        isCreate,
                        resourceType,
-                       eventName
+                       eventName,
+                       sourceType
                    }
     ) {
         const currentDate = moment.utc().format('YYYY-MM-DD');
-        return new AuditEvent(
+        let auditEvent = new AuditEvent(
             {
                 'id': generateUUID(),
                 'action': isCreate ? 'C' : 'U',
@@ -168,6 +170,10 @@ class ChangeEventProducer {
                     )
                 })
             });
+        if (sourceType) {
+            auditEvent.source.type = new Coding({system: 'https://www.icanbwell.com/sourceType', code: sourceType });
+        }
+        return auditEvent;
     }
 
     /**
@@ -175,9 +181,10 @@ class ChangeEventProducer {
      * @param {string} requestId
      * @param {string} patientId
      * @param {string} timestamp
+     * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onPatientCreateAsync({requestId, patientId, timestamp}) {
+    async onPatientCreateAsync({requestId, patientId, timestamp, sourceType}) {
         const isCreate = true;
 
         const resourceType = 'Patient';
@@ -187,7 +194,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Patient Create'
+            eventName: 'Patient Create',
+            sourceType
         });
         const key = `${patientId}`;
         this.getPatientMessageMap({requestId}).set(key, messageJson);
@@ -198,16 +206,18 @@ class ChangeEventProducer {
      * @param {string} requestId
      * @param {string} patientId
      * @param {string} timestamp
+     * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onPatientChangeAsync({requestId, patientId, timestamp}) {
+    async onPatientChangeAsync({requestId, patientId, timestamp, sourceType}) {
         const isCreate = false;
 
         const resourceType = 'Patient';
         const messageJson = this._createMessage({
             requestId, id: patientId, timestamp, isCreate,
             resourceType: resourceType,
-            eventName: 'Patient Change'
+            eventName: 'Patient Change',
+            sourceType
         });
 
         const key = `${patientId}`;
@@ -335,9 +345,10 @@ class ChangeEventProducer {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
+     * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onObservationCreateAsync({requestId, id, resourceType, timestamp}) {
+    async onObservationCreateAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = true;
 
         const messageJson = this._createMessage({
@@ -346,7 +357,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Observation Create'
+            eventName: 'Observation Create',
+            sourceType
         });
         const key = `${id}`;
         this.getObservationMessageMap({requestId}).set(key, messageJson);
@@ -358,9 +370,10 @@ class ChangeEventProducer {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
+     * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onObservationChangeAsync({requestId, id, resourceType, timestamp}) {
+    async onObservationChangeAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -369,7 +382,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Observation Change'
+            eventName: 'Observation Change',
+            sourceType
         });
 
         const key = `${id}`;
@@ -387,9 +401,10 @@ class ChangeEventProducer {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
+     * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onObservationCompleteAsync({requestId, id, resourceType, timestamp}) {
+    async onObservationCompleteAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -398,7 +413,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Observation Complete'
+            eventName: 'Observation Complete',
+            sourceType
         });
 
         const key = `${id}`;
@@ -416,9 +432,10 @@ class ChangeEventProducer {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
+     * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onObservationCanceledAsync({requestId, id, resourceType, timestamp}) {
+    async onObservationCanceledAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -427,7 +444,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Observation Canceled'
+            eventName: 'Observation Canceled',
+            sourceType
         });
 
         const key = `${id}`;
@@ -453,6 +471,11 @@ class ChangeEventProducer {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
+        let sourceType;
+        if (doc.extension && doc.extension.some(x => x.url === 'https://www.icanbwell.com/sourceType')) {
+            sourceType = doc.extension.find(x => x.url === 'https://www.icanbwell.com/sourceType').valueString;
+        }
+
         /**
          * @type {string|null}
          */
@@ -461,11 +484,11 @@ class ChangeEventProducer {
             if (eventType === 'C' && resourceType === 'Patient') {
                 await this.onPatientCreateAsync(
                     {
-                        requestId, patientId, timestamp: currentDate
+                        requestId, patientId, timestamp: currentDate, sourceType
                     });
             } else {
                 await this.onPatientChangeAsync({
-                        requestId, patientId, timestamp: currentDate
+                        requestId, patientId, timestamp: currentDate, sourceType
                     }
                 );
 
@@ -473,7 +496,7 @@ class ChangeEventProducer {
                 if (personId) {
                     const proxyPatientId = `person.${personId}`;
                     await this.onPatientChangeAsync({
-                            requestId, patientId: proxyPatientId, timestamp: currentDate
+                            requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
                         }
                     );
                 }
@@ -483,12 +506,12 @@ class ChangeEventProducer {
             const proxyPatientId = `person.${doc.id}`;
             if (eventType === 'C') {
                 await this.onPatientCreateAsync({
-                        requestId, patientId: proxyPatientId, timestamp: currentDate
+                        requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
                     }
                 );
             } else {
                 await this.onPatientChangeAsync({
-                        requestId, patientId: proxyPatientId, timestamp: currentDate
+                        requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
                     }
                 );
             }
@@ -515,19 +538,19 @@ class ChangeEventProducer {
         if (resourceType === 'Observation') {
             if (eventType === 'C') {
                 await this.onObservationCreateAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             } else if (doc.status === 'final') {
                 await this.onObservationCompleteAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             } else if (doc.status === 'cancelled') {
                 await this.onObservationCanceledAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             } else {
                 await this.onObservationChangeAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             }
         }
