@@ -7,7 +7,7 @@ const {R4SearchQueryCreator} = require('../query/r4');
 const env = require('var');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
@@ -1039,18 +1039,19 @@ class GraphHelper {
                 }
             }
 
-            await this.enrichmentManager.enrichAsync({
-                    resources: topLevelBundleEntries.map(e => e.resource), args, originalArgs
-                }
-            );
-
             // add contained objects under the parent resource
             for (const /** @type {BundleEntry} */ topLevelBundleEntry of topLevelBundleEntries) {
                 // add related resources as container
                 /**
                  * @type {ResourceEntityAndContained}
                  */
-                const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
+                const matchingEntity = allRelatedEntries.find(
+                    e => e.entityId === topLevelBundleEntry.resource.id &&
+                        e.entityResourceType === topLevelBundleEntry.resource.resourceType
+                );
+                assertIsValid(matchingEntity,
+                    'No matching entity found in graph for ' +
+                    `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource.id}`);
                 /**
                  * @type {[EntityAndContainedBase]}
                  */
@@ -1079,6 +1080,7 @@ class GraphHelper {
                 const relatedEntities = related_entries
                     .flatMap(r => this.getRecursiveContainedEntities(r))
                     .filter(r => r.resource !== undefined && r.resource !== null);
+
                 await this.enrichmentManager.enrichAsync({
                         resources: relatedEntities.map(e => e.resource), args, originalArgs
                     }
@@ -1092,6 +1094,10 @@ class GraphHelper {
                 }
             }
 
+            await this.enrichmentManager.enrichAsync({
+                    resources: entries.map(e => e.resource), args, originalArgs
+                }
+            );
             entries = this.bundleManager.removeDuplicateEntries({entries});
 
             return {entries, queries, options: optionsForQueries, explanations};
