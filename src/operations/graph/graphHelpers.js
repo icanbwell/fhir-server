@@ -1094,8 +1094,8 @@ class GraphHelper {
                 }
             }
 
-            await this.enrichmentManager.enrichAsync({
-                    resources: entries.map(e => e.resource), args, originalArgs
+            entries = await this.enrichmentManager.enrichBundleEntriesAsync({
+                    entries, args, originalArgs
                 }
             );
             entries = this.bundleManager.removeDuplicateEntries({entries});

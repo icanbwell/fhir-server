@@ -126,6 +126,13 @@ const getFirstElementOrNull = (sourceArray) => sourceArray.length === 0 ? null :
 const getFirstResourceOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
 
 /**
+ * Gets the first element in an array if exists else returns null
+ * @param {BundleEntry[]} sourceArray
+ * @return {BundleEntry | null}
+ */
+const getFirstBundleEntryOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
+
+/**
  * @param {(*[])[]} array_of_arrays
  * @returns {Promise<*>}
  */
@@ -154,6 +161,7 @@ module.exports = {
     groupByLambda,
     getFirstElementOrNull,
     getFirstResourceOrNull,
+    getFirstBundleEntryOrNull,
     removeEmptyEntriesAsync,
     removeDuplicatesWithLambda
 };

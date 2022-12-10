@@ -17,6 +17,18 @@ class IdEnrichmentProvider extends EnrichmentProvider {
         }
         return resources;
     }
+
+    /**
+     * Runs any registered enrichment providers
+     * @param {Object} args
+     * @param {BundleEntry[]} entries
+     * @param {Object} originalArgs
+     * @return {Promise<BundleEntry[]>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async enrichBundleEntriesAsync({entries, args, originalArgs}) {
+        return entries;
+    }
 }
 
 module.exports = {

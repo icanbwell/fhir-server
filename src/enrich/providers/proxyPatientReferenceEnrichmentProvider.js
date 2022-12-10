@@ -1,5 +1,5 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
-const {getFirstResourceOrNull} = require('../../utils/list.util');
+const {getFirstResourceOrNull, getFirstBundleEntryOrNull} = require('../../utils/list.util');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -12,21 +12,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     // eslint-disable-next-line no-unused-vars
     async enrichAsync({resources, args, originalArgs}) {
         // check if any args have a proxy patient
-        /**
-         * @type {string|null}
-         */
-        let proxyPatientPersonId = null;
-        let proxyPatientPersonIdKey = null;
-        if (originalArgs) {
-            for (const [key, value] of Object.entries(originalArgs)) {
-                if (value && typeof value === 'string' &&
-                    (value.startsWith('Patient/person.') || value.startsWith('person.'))
-                ) {
-                    proxyPatientPersonId = value;
-                    proxyPatientPersonIdKey = key;
-                }
-            }
-        }
+        let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({originalArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {
             /**
              * @type {string[]}
@@ -56,6 +42,73 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
             }
         }
         return resources;
+    }
+
+    getProxyPatientFromArgs({originalArgs}) {
+        /**
+         * @type {string|null}
+         */
+        let proxyPatientPersonId = null;
+        let proxyPatientPersonIdKey = null;
+        if (originalArgs) {
+            for (const [key, value] of Object.entries(originalArgs)) {
+                if (value && typeof value === 'string' &&
+                    (value.startsWith('Patient/person.') || value.startsWith('person.'))
+                ) {
+                    proxyPatientPersonId = value;
+                    proxyPatientPersonIdKey = key;
+                }
+            }
+        }
+        return {proxyPatientPersonId, proxyPatientPersonIdKey};
+    }
+
+    /**
+     * Runs any registered enrichment providers
+     * @param {Object} args
+     * @param {BundleEntry[]} entries
+     * @param {Object} originalArgs
+     * @return {Promise<BundleEntry[]>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async enrichBundleEntriesAsync({entries, args, originalArgs}) {
+        // check if any args have a proxy patient
+        let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({originalArgs});
+        if (proxyPatientPersonId && proxyPatientPersonIdKey) {
+            /**
+             * @type {string[]}
+             */
+            const proxyPatientIds = args[`${proxyPatientPersonIdKey}`].split(',').map(
+                a => a.startsWith('Patient/') ? a : `Patient/${a}`);
+            for (const entry of entries) {
+                entry.resource.updateReferences({
+                    fnUpdateReference: (reference) => {
+                        if (reference.reference && proxyPatientIds.includes(reference.reference)) {
+                            reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
+                                proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
+                        }
+                        return reference;
+                    }
+                });
+            }
+            // now copy the latest Patient and set the id to proxyPatient
+            const patientEntries = entries.filter(r => r.resource.resourceType === 'Patient')
+                .sort(
+                    (a, b) =>
+                        (a.resource.meta.lastUpdated > b.resource.meta.lastUpdated ? -1 : 1)
+                );
+            const latestPatientEntry = getFirstBundleEntryOrNull(patientEntries);
+            if (latestPatientEntry) {
+                // remove all other Patient resources except the latest
+                entries = entries.filter(
+                    r => r.resource.resourceType !== 'Patient' ||
+                        r.resource.id === latestPatientEntry.resource.id
+                );
+                // and set the id of the latest Patient resource to proxyPatient
+                latestPatientEntry.resource.id = proxyPatientPersonId;
+            }
+        }
+        return entries;
     }
 }
 
