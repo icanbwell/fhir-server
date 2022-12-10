@@ -74,7 +74,7 @@ class StructureMapRule extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class StructureMapRule extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -142,7 +142,7 @@ class StructureMapRule extends Element {
                     this.__data.source = undefined;
                     return;
                 }
-                let StructureMapSource = require('../backbone_elements/structureMapSource.js');
+                const StructureMapSource = require('../backbone_elements/structureMapSource.js');
                 this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapSource(v)) : [new StructureMapSource(valueProvided)];
             }
         });
@@ -161,7 +161,7 @@ class StructureMapRule extends Element {
                     this.__data.target = undefined;
                     return;
                 }
-                let StructureMapTarget = require('../backbone_elements/structureMapTarget.js');
+                const StructureMapTarget = require('../backbone_elements/structureMapTarget.js');
                 this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapTarget(v)) : [new StructureMapTarget(valueProvided)];
             }
         });
@@ -198,7 +198,7 @@ class StructureMapRule extends Element {
                     this.__data.dependent = undefined;
                     return;
                 }
-                let StructureMapDependent = require('../backbone_elements/structureMapDependent.js');
+                const StructureMapDependent = require('../backbone_elements/structureMapDependent.js');
                 this.__data.dependent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new StructureMapDependent(v)) : [new StructureMapDependent(valueProvided)];
             }
         });
@@ -258,6 +258,20 @@ class StructureMapRule extends Element {
             dependent: this.dependent && this.dependent.map(v => v.toJSON()),
             documentation: this.documentation,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.source) {this.source.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.target) {this.target.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.rule) {this.rule.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.dependent) {this.dependent.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

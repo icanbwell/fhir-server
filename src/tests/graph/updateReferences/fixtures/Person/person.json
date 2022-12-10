@@ -1,0 +1,114 @@
+{
+  "resourceType": "Person",
+  "id": "m65633",
+  "meta": {
+    "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+    "extension": [
+      {
+        "id": "2011-10-05T14:48:00.000Z",
+        "url": "someurl",
+        "valueCodeableConcept": {
+          "id": "2011-10-05T14:48:00.000Z",
+          "coding": [
+            {
+              "system": "foo://example.com:8042/over/there?name=ferret#",
+              "code": "code-1",
+              "display": "some-display"
+            }
+          ],
+          "text": "some-text"
+        }
+      }
+    ],
+    "versionId": "1",
+    "lastUpdated": "2022-09-27T16:52:08.000Z",
+    "source": "https://www.icanbwell.com",
+    "profile": [
+      "some-profile"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      }
+    ]
+  },
+  "implicitRules": "some-implicit-rule",
+  "language": "english",
+  "identifier": [
+    {
+      "system": "http://www.walgreens.com/profileid",
+      "value": "1000000-a-02"
+    }
+  ],
+  "name": [
+    {
+      "use": "nickname",
+      "family": "Azamar",
+      "given": [
+        "Daniel"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "id": "2011-10-05T14:48:00.000Z",
+      "system": "phone",
+      "value": "+52123456789",
+      "use": "home"
+    }
+  ],
+  "gender": "male",
+  "address": [
+    {
+      "id": "2011-10-05T14:48:00.000Z",
+      "line": [
+        "301 W, in a yellow submarine"
+      ],
+      "city": "Austin",
+      "state": "Texas",
+      "postalCode": "78701",
+      "country": "Some country",
+      "period": {
+        "id": "2011-10-05T14:48:00.000Z"
+      }
+    }
+  ],
+  "photo": {
+    "id": "2011-10-05T14:48:00.000Z",
+    "contentType": "image/jpeg",
+    "language": "english",
+    "data": "someLongString",
+    "url": "someurl.com",
+    "size": 1024,
+    "hash": "whatANiceHash!",
+    "title": "what a nice picture!"
+  },
+  "managingOrganization": {
+    "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
+    "reference": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab",
+    "type": "foo://example.com:8042/over/there?name=ferret#",
+    "display": "some-text-to-display"
+  },
+  "active": true,
+  "link": [
+    {
+      "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
+      "target": {
+        "reference": "Patient/00100000000"
+      },
+      "assurance": "level4"
+    },
+    {
+      "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
+      "target": {
+        "reference": "Patient/00200000000"
+      },
+      "assurance": "level4"
+    }
+  ]
+}

@@ -66,7 +66,7 @@ class Ratio extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -85,7 +85,7 @@ class Ratio extends Element {
                     this.__data.numerator = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.numerator = new Quantity(valueProvided);
             }
         });
@@ -104,7 +104,7 @@ class Ratio extends Element {
                     this.__data.denominator = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.denominator = new Quantity(valueProvided);
             }
         });
@@ -136,6 +136,17 @@ class Ratio extends Element {
             numerator: this.numerator && this.numerator.toJSON(),
             denominator: this.denominator && this.denominator.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.numerator) {this.numerator.updateReferences({fnUpdateReference});}
+            if (this.denominator) {this.denominator.updateReferences({fnUpdateReference});}
     }
 
     /**

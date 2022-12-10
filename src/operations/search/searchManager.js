@@ -141,7 +141,7 @@ class SearchManager {
          * @type {string}
          */
         const {base_version} = args;
-        assertIsValid(base_version);
+        assertIsValid(base_version, 'base_version is not set');
         const hasPatientScope = this.scopesManager.hasPatientScope({scope});
         // see if any query rewriters want to rewrite the args
         args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});
@@ -721,13 +721,15 @@ class SearchManager {
      * @param {Object?} args
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
+     * @param {Object} originalArgs
      * @returns {Promise<Resource[]>}
      */
     async readResourcesFromCursorAsync(
         {
             cursor, user, scope,
             args, resourceType,
-            useAccessIndex
+            useAccessIndex,
+            originalArgs
         }
     ) {
         /**
@@ -767,7 +769,8 @@ class SearchManager {
                 new ResourcePreparerTransform(
                     {
                         user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
-                        resourcePreparer: this.resourcePreparer
+                        resourcePreparer: this.resourcePreparer,
+                        originalArgs
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -879,6 +882,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {number} batchObjectCount
+     * @param {Object} originalArgs
      * @returns {Promise<string[]>}
      */
     async streamBundleFromCursorAsync(
@@ -890,7 +894,8 @@ class SearchManager {
             res, user, scope,
             args, resourceType,
             useAccessIndex,
-            batchObjectCount
+            batchObjectCount,
+            originalArgs
         }
     ) {
         assertIsValid(requestId);
@@ -930,7 +935,8 @@ class SearchManager {
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
                 user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
+                resourcePreparer: this.resourcePreparer,
+                originalArgs
             }
         );
         const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
@@ -980,6 +986,7 @@ class SearchManager {
      * @param {boolean} useAccessIndex
      * @param {string} contentType
      * @param {number} batchObjectCount
+     * @param {Object} originalArgs
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync(
@@ -993,7 +1000,8 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             contentType = 'application/fhir+json',
-            batchObjectCount = 1
+            batchObjectCount = 1,
+            originalArgs
         }
     ) {
         assertIsValid(requestId);
@@ -1045,7 +1053,8 @@ class SearchManager {
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
                 user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
+                resourcePreparer: this.resourcePreparer,
+                originalArgs
             }
         );
         /**

@@ -65,7 +65,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -96,7 +96,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
                     this.__data.outerPackaging = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.outerPackaging = new Identifier(valueProvided);
             }
         });
@@ -134,7 +134,7 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
                     this.__data.immediatePackaging = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.immediatePackaging = new Identifier(valueProvided);
             }
         });
@@ -168,6 +168,18 @@ class MedicinalProductPackagedBatchIdentifier extends Element {
             outerPackaging: this.outerPackaging && this.outerPackaging.toJSON(),
             immediatePackaging: this.immediatePackaging && this.immediatePackaging.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.outerPackaging) {this.outerPackaging.updateReferences({fnUpdateReference});}
+            if (this.immediatePackaging) {this.immediatePackaging.updateReferences({fnUpdateReference});}
     }
 
     /**

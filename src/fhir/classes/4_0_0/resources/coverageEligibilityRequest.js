@@ -113,7 +113,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -176,7 +176,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -197,7 +197,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -229,7 +229,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -260,7 +260,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -279,7 +279,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -316,7 +316,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.priority = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.priority = new CodeableConcept(valueProvided);
             }
         });
@@ -358,7 +358,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -395,7 +395,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.servicedPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.servicedPeriod = new Period(valueProvided);
             }
         });
@@ -432,7 +432,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.enterer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.enterer = new Reference(valueProvided);
             }
         });
@@ -451,7 +451,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.provider = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.provider = new Reference(valueProvided);
             }
         });
@@ -471,7 +471,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.insurer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.insurer = new Reference(valueProvided);
             }
         });
@@ -490,7 +490,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.facility = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.facility = new Reference(valueProvided);
             }
         });
@@ -510,7 +510,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.supportingInfo = undefined;
                     return;
                 }
-                let CoverageEligibilityRequestSupportingInfo = require('../backbone_elements/coverageEligibilityRequestSupportingInfo.js');
+                const CoverageEligibilityRequestSupportingInfo = require('../backbone_elements/coverageEligibilityRequestSupportingInfo.js');
                 this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityRequestSupportingInfo(v)) : [new CoverageEligibilityRequestSupportingInfo(valueProvided)];
             }
         });
@@ -530,7 +530,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.insurance = undefined;
                     return;
                 }
-                let CoverageEligibilityRequestInsurance = require('../backbone_elements/coverageEligibilityRequestInsurance.js');
+                const CoverageEligibilityRequestInsurance = require('../backbone_elements/coverageEligibilityRequestInsurance.js');
                 this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityRequestInsurance(v)) : [new CoverageEligibilityRequestInsurance(valueProvided)];
             }
         });
@@ -550,7 +550,7 @@ class CoverageEligibilityRequest extends Resource {
                     this.__data.item = undefined;
                     return;
                 }
-                let CoverageEligibilityRequestItem = require('../backbone_elements/coverageEligibilityRequestItem.js');
+                const CoverageEligibilityRequestItem = require('../backbone_elements/coverageEligibilityRequestItem.js');
                 this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityRequestItem(v)) : [new CoverageEligibilityRequestItem(valueProvided)];
             }
         });
@@ -795,6 +795,30 @@ class CoverageEligibilityRequest extends Resource {
             insurance: this.insurance && this.insurance.map(v => v.toJSON()),
             item: this.item && this.item.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.priority) {this.priority.updateReferences({fnUpdateReference});}
+            if (this.patient) {this.patient.updateReferences({fnUpdateReference});}
+            if (this.servicedPeriod) {this.servicedPeriod.updateReferences({fnUpdateReference});}
+            if (this.enterer) {this.enterer.updateReferences({fnUpdateReference});}
+            if (this.provider) {this.provider.updateReferences({fnUpdateReference});}
+            if (this.insurer) {this.insurer.updateReferences({fnUpdateReference});}
+            if (this.facility) {this.facility.updateReferences({fnUpdateReference});}
+            if (this.supportingInfo) {this.supportingInfo.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.insurance) {this.insurance.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.item) {this.item.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

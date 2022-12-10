@@ -68,7 +68,7 @@ class CapabilityStatementEndpoint extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -99,7 +99,7 @@ class CapabilityStatementEndpoint extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class CapabilityStatementEndpoint extends Element {
                     this.__data.protocol = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.protocol = new Coding(valueProvided);
             }
         });
@@ -172,6 +172,17 @@ class CapabilityStatementEndpoint extends Element {
             protocol: this.protocol && this.protocol.toJSON(),
             address: this.address,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.protocol) {this.protocol.updateReferences({fnUpdateReference});}
     }
 
     /**

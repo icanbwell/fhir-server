@@ -71,7 +71,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -140,7 +140,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -159,7 +159,7 @@ class MedicinalProductAuthorizationProcedure extends Element {
                     this.__data.datePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.datePeriod = new Period(valueProvided);
             }
         });
@@ -235,6 +235,20 @@ class MedicinalProductAuthorizationProcedure extends Element {
             dateDateTime: this.dateDateTime,
             application: this.application && this.application.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.datePeriod) {this.datePeriod.updateReferences({fnUpdateReference});}
+            if (this.application) {this.application.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

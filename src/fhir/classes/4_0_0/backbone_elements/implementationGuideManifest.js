@@ -74,7 +74,7 @@ class ImplementationGuideManifest extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class ImplementationGuideManifest extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -146,7 +146,7 @@ class ImplementationGuideManifest extends Element {
                     this.__data.resource = undefined;
                     return;
                 }
-                let ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
+                const ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
                 this.__data.resource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideResource1(v)) : [new ImplementationGuideResource1(valueProvided)];
             }
         });
@@ -165,7 +165,7 @@ class ImplementationGuideManifest extends Element {
                     this.__data.page = undefined;
                     return;
                 }
-                let ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
+                const ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
                 this.__data.page = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuidePage1(v)) : [new ImplementationGuidePage1(valueProvided)];
             }
         });
@@ -243,6 +243,18 @@ class ImplementationGuideManifest extends Element {
             image: this.image,
             other: this.other,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.resource) {this.resource.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.page) {this.page.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -1,0 +1,115 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "code": {
+          "coding": [
+            {
+              "code": "BMI001",
+              "system": "http://www.icanbwell.com/cql/library"
+            },
+            {
+              "code": "1.0.0",
+              "system": "http://www.icanbwell.com/cql/libraryVersion"
+            },
+            {
+              "code": "InAgeCohort",
+              "system": "http://www.icanbwell.com/cql/rule"
+            }
+          ]
+        },
+        "effectivePeriod": {
+          "end": "2021-12-31T00:00:00.000Z",
+          "start": "2021-01-01T00:00:00.000Z"
+        },
+        "id": "2354-InAgeCohort",
+        "issued": "2021-01-01T12:00:00Z",
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "B",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "B",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "source": "/patients",
+          "versionId": "1"
+        },
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/person.m65633"
+        },
+        "valueBoolean": false
+      }
+    },
+    {
+      "resource": {
+        "code": {
+          "coding": [
+            {
+              "code": "BMI001",
+              "system": "http://www.icanbwell.com/cql/library"
+            },
+            {
+              "code": "1.0.0",
+              "system": "http://www.icanbwell.com/cql/libraryVersion"
+            },
+            {
+              "code": "InAgeCohort",
+              "system": "http://www.icanbwell.com/cql/rule"
+            }
+          ]
+        },
+        "effectivePeriod": {
+          "end": "2021-12-31T00:00:00.000Z",
+          "start": "2021-01-01T00:00:00.000Z"
+        },
+        "id": "2354-InGenderCohort",
+        "issued": "2021-01-01T12:00:00Z",
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem2",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem2",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "B",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "B",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "source": "/patients",
+          "versionId": "1"
+        },
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/person.m65633"
+        },
+        "valueBoolean": false
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

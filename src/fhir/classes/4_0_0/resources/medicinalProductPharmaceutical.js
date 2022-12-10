@@ -93,7 +93,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -156,7 +156,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -177,7 +177,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -209,7 +209,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -240,7 +240,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -259,7 +259,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -278,7 +278,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.administrableDoseForm = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.administrableDoseForm = new CodeableConcept(valueProvided);
             }
         });
@@ -297,7 +297,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.unitOfPresentation = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.unitOfPresentation = new CodeableConcept(valueProvided);
             }
         });
@@ -316,7 +316,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.ingredient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -335,7 +335,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.device = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.device = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -354,7 +354,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.characteristics = undefined;
                     return;
                 }
-                let MedicinalProductPharmaceuticalCharacteristics = require('../backbone_elements/medicinalProductPharmaceuticalCharacteristics.js');
+                const MedicinalProductPharmaceuticalCharacteristics = require('../backbone_elements/medicinalProductPharmaceuticalCharacteristics.js');
                 this.__data.characteristics = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPharmaceuticalCharacteristics(v)) : [new MedicinalProductPharmaceuticalCharacteristics(valueProvided)];
             }
         });
@@ -374,7 +374,7 @@ class MedicinalProductPharmaceutical extends Resource {
                     this.__data.routeOfAdministration = undefined;
                     return;
                 }
-                let MedicinalProductPharmaceuticalRouteOfAdministration = require('../backbone_elements/medicinalProductPharmaceuticalRouteOfAdministration.js');
+                const MedicinalProductPharmaceuticalRouteOfAdministration = require('../backbone_elements/medicinalProductPharmaceuticalRouteOfAdministration.js');
                 this.__data.routeOfAdministration = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPharmaceuticalRouteOfAdministration(v)) : [new MedicinalProductPharmaceuticalRouteOfAdministration(valueProvided)];
             }
         });
@@ -579,6 +579,26 @@ class MedicinalProductPharmaceutical extends Resource {
             characteristics: this.characteristics && this.characteristics.map(v => v.toJSON()),
             routeOfAdministration: this.routeOfAdministration && this.routeOfAdministration.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.administrableDoseForm) {this.administrableDoseForm.updateReferences({fnUpdateReference});}
+            if (this.unitOfPresentation) {this.unitOfPresentation.updateReferences({fnUpdateReference});}
+            if (this.ingredient) {this.ingredient.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.device) {this.device.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.characteristics) {this.characteristics.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.routeOfAdministration) {this.routeOfAdministration.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

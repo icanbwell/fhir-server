@@ -66,7 +66,7 @@ class PatientCommunication extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -97,7 +97,7 @@ class PatientCommunication extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class PatientCommunication extends Element {
                     this.__data.language = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.language = new CodeableConcept(valueProvided);
             }
         });
@@ -172,6 +172,17 @@ class PatientCommunication extends Element {
             language: this.language && this.language.toJSON(),
             preferred: this.preferred,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.language) {this.language.updateReferences({fnUpdateReference});}
     }
 
     /**

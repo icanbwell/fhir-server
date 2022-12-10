@@ -72,7 +72,7 @@ class CapabilityStatementMessaging extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -103,7 +103,7 @@ class CapabilityStatementMessaging extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class CapabilityStatementMessaging extends Element {
                     this.__data.endpoint = undefined;
                     return;
                 }
-                let CapabilityStatementEndpoint = require('../backbone_elements/capabilityStatementEndpoint.js');
+                const CapabilityStatementEndpoint = require('../backbone_elements/capabilityStatementEndpoint.js');
                 this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementEndpoint(v)) : [new CapabilityStatementEndpoint(valueProvided)];
             }
         });
@@ -182,7 +182,7 @@ class CapabilityStatementMessaging extends Element {
                     this.__data.supportedMessage = undefined;
                     return;
                 }
-                let CapabilityStatementSupportedMessage = require('../backbone_elements/capabilityStatementSupportedMessage.js');
+                const CapabilityStatementSupportedMessage = require('../backbone_elements/capabilityStatementSupportedMessage.js');
                 this.__data.supportedMessage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementSupportedMessage(v)) : [new CapabilityStatementSupportedMessage(valueProvided)];
             }
         });
@@ -220,6 +220,18 @@ class CapabilityStatementMessaging extends Element {
             documentation: this.documentation,
             supportedMessage: this.supportedMessage && this.supportedMessage.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.endpoint) {this.endpoint.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.supportedMessage) {this.supportedMessage.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

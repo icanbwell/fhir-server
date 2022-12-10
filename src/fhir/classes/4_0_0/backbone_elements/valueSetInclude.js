@@ -74,7 +74,7 @@ class ValueSetInclude extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class ValueSetInclude extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -162,7 +162,7 @@ class ValueSetInclude extends Element {
                     this.__data.concept = undefined;
                     return;
                 }
-                let ValueSetConcept = require('../backbone_elements/valueSetConcept.js');
+                const ValueSetConcept = require('../backbone_elements/valueSetConcept.js');
                 this.__data.concept = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetConcept(v)) : [new ValueSetConcept(valueProvided)];
             }
         });
@@ -183,7 +183,7 @@ class ValueSetInclude extends Element {
                     this.__data.filter = undefined;
                     return;
                 }
-                let ValueSetFilter = require('../backbone_elements/valueSetFilter.js');
+                const ValueSetFilter = require('../backbone_elements/valueSetFilter.js');
                 this.__data.filter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetFilter(v)) : [new ValueSetFilter(valueProvided)];
             }
         });
@@ -244,6 +244,18 @@ class ValueSetInclude extends Element {
             filter: this.filter && this.filter.map(v => v.toJSON()),
             valueSet: this.valueSet,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.concept) {this.concept.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.filter) {this.filter.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

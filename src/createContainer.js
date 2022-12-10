@@ -61,7 +61,6 @@ const {FhirTypesManager} = require('./fhir/fhirTypesManager');
 const {PreSaveManager} = require('./preSaveHandlers/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
 const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
-const {ExplanationOfBenefitsEnrichmentProvider} = require('./enrich/providers/explanationOfBenefitsEnrichmentProvider');
 const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
 const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
@@ -75,6 +74,7 @@ const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
 const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
+const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
 
 /**
  * Creates a container and sets up all the services
@@ -98,13 +98,17 @@ const createContainer = function () {
 
 
     container.register('enrichmentManager', () => new EnrichmentManager({
-        enrichmentProviders: [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()]
+        enrichmentProviders: [
+            new IdEnrichmentProvider(),
+            new ProxyPatientReferenceEnrichmentProvider()
+        ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
-            enrichmentManager: c.enrichmentManager
+            enrichmentManager: c.enrichmentManager,
+            resourceManager: c.resourceManager
         }
     ));
     container.register('preSaveManager', () => new PreSaveManager({
@@ -300,7 +304,8 @@ const createContainer = function () {
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
-                searchManager: c.searchManager
+                searchManager: c.searchManager,
+                enrichmentManager: c.enrichmentManager
             }
         )
     );

@@ -74,7 +74,7 @@ class ObservationReferenceRange extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class ObservationReferenceRange extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -127,7 +127,7 @@ class ObservationReferenceRange extends Element {
                     this.__data.low = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.low = new Quantity(valueProvided);
             }
         });
@@ -149,7 +149,7 @@ class ObservationReferenceRange extends Element {
                     this.__data.high = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.high = new Quantity(valueProvided);
             }
         });
@@ -169,7 +169,7 @@ class ObservationReferenceRange extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -193,7 +193,7 @@ class ObservationReferenceRange extends Element {
                     this.__data.appliesTo = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.appliesTo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -213,7 +213,7 @@ class ObservationReferenceRange extends Element {
                     this.__data.age = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.age = new Range(valueProvided);
             }
         });
@@ -275,6 +275,21 @@ class ObservationReferenceRange extends Element {
             age: this.age && this.age.toJSON(),
             text: this.text,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.low) {this.low.updateReferences({fnUpdateReference});}
+            if (this.high) {this.high.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.appliesTo) {this.appliesTo.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.age) {this.age.updateReferences({fnUpdateReference});}
     }
 
     /**

@@ -69,7 +69,7 @@ class CodeSystemDesignation extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class CodeSystemDesignation extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -137,7 +137,7 @@ class CodeSystemDesignation extends Element {
                     this.__data.use = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.use = new Coding(valueProvided);
             }
         });
@@ -191,6 +191,17 @@ class CodeSystemDesignation extends Element {
             use: this.use && this.use.toJSON(),
             value: this.value,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.use) {this.use.updateReferences({fnUpdateReference});}
     }
 
     /**

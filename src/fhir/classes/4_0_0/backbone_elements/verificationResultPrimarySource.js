@@ -76,7 +76,7 @@ class VerificationResultPrimarySource extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -107,7 +107,7 @@ class VerificationResultPrimarySource extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -126,7 +126,7 @@ class VerificationResultPrimarySource extends Element {
                     this.__data.who = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.who = new Reference(valueProvided);
             }
         });
@@ -147,7 +147,7 @@ class VerificationResultPrimarySource extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -166,7 +166,7 @@ class VerificationResultPrimarySource extends Element {
                     this.__data.communicationMethod = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.communicationMethod = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -186,7 +186,7 @@ class VerificationResultPrimarySource extends Element {
                     this.__data.validationStatus = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.validationStatus = new CodeableConcept(valueProvided);
             }
         });
@@ -223,7 +223,7 @@ class VerificationResultPrimarySource extends Element {
                     this.__data.canPushUpdates = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.canPushUpdates = new CodeableConcept(valueProvided);
             }
         });
@@ -243,7 +243,7 @@ class VerificationResultPrimarySource extends Element {
                     this.__data.pushTypeAvailable = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.pushTypeAvailable = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -287,6 +287,22 @@ class VerificationResultPrimarySource extends Element {
             canPushUpdates: this.canPushUpdates && this.canPushUpdates.toJSON(),
             pushTypeAvailable: this.pushTypeAvailable && this.pushTypeAvailable.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.who) {this.who.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.communicationMethod) {this.communicationMethod.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.validationStatus) {this.validationStatus.updateReferences({fnUpdateReference});}
+            if (this.canPushUpdates) {this.canPushUpdates.updateReferences({fnUpdateReference});}
+            if (this.pushTypeAvailable) {this.pushTypeAvailable.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

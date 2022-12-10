@@ -69,7 +69,7 @@ class InsurancePlanCost extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class InsurancePlanCost extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class InsurancePlanCost extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -139,7 +139,7 @@ class InsurancePlanCost extends Element {
                     this.__data.applicability = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.applicability = new CodeableConcept(valueProvided);
             }
         });
@@ -159,7 +159,7 @@ class InsurancePlanCost extends Element {
                     this.__data.qualifiers = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.qualifiers = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -179,7 +179,7 @@ class InsurancePlanCost extends Element {
                     this.__data.value = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.value = new Quantity(valueProvided);
             }
         });
@@ -217,6 +217,20 @@ class InsurancePlanCost extends Element {
             qualifiers: this.qualifiers && this.qualifiers.map(v => v.toJSON()),
             value: this.value && this.value.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.applicability) {this.applicability.updateReferences({fnUpdateReference});}
+            if (this.qualifiers) {this.qualifiers.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.value) {this.value.updateReferences({fnUpdateReference});}
     }
 
     /**

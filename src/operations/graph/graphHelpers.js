@@ -7,7 +7,7 @@ const {R4SearchQueryCreator} = require('../query/r4');
 const env = require('var');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
@@ -22,6 +22,8 @@ const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const {EnrichmentManager} = require('../../enrich/enrich');
+const deepcopy = require('deepcopy');
 
 
 /**
@@ -48,6 +50,7 @@ class GraphHelper {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {SearchManager} searchManager
+     * @param {EnrichmentManager} enrichmentManager
      */
     constructor({
                     databaseQueryFactory,
@@ -58,7 +61,8 @@ class GraphHelper {
                     bundleManager,
                     resourceLocatorFactory,
                     r4SearchQueryCreator,
-                    searchManager
+                    searchManager,
+                    enrichmentManager
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -110,6 +114,12 @@ class GraphHelper {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
     }
 
     /**
@@ -881,17 +891,6 @@ class GraphHelper {
         return result;
     }
 
-
-    /**
-     * removes duplicate items from array
-     * @param {*[]} array
-     * @param fnCompare
-     * @returns {*[]}
-     */
-    removeDuplicatesWithLambda(array, fnCompare) {
-        return array.filter((value, index, self) => index === self.findIndex((t) => (fnCompare(t, value))));
-    }
-
     /**
      * processing multiple ids
      * @param {string} base_version
@@ -903,24 +902,34 @@ class GraphHelper {
      * @param {string[]} idList
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {Object} args
+     * @param {Object} originalArgs
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
-    async processMultipleIdsAsync({
-                                      base_version,
-                                      requestInfo,
-                                      resourceType,
-                                      graphDefinition,
-                                      contained,
-                                      hash_references,
-                                      idList,
-                                      explain,
-                                      debug
-                                  }) {
+    async processMultipleIdsAsync(
+        {
+            base_version,
+            requestInfo,
+            resourceType,
+            graphDefinition,
+            contained,
+            hash_references,
+            idList,
+            explain,
+            debug,
+            args,
+            originalArgs
+        }
+    ) {
         try {
             /**
              * @type {BundleEntry[]}
              */
             let entries = [];
+
+            const graphArgs = deepcopy(args);
+            graphArgs.id = idList;
+            graphArgs.resource = null; // clear out the resource since we don't want to use any parameters from it
 
             let {
                 /** @type {import('mongodb').Document}**/
@@ -931,7 +940,7 @@ class GraphHelper {
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
                 patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                args: Object.assign({'base_version': base_version}, {'id': idList}), // add id filter to query
+                args: graphArgs, // add id filter to query
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
@@ -1029,13 +1038,20 @@ class GraphHelper {
                     }
                 }
             }
+
             // add contained objects under the parent resource
-            for (const topLevelBundleEntry of topLevelBundleEntries) {
+            for (const /** @type {BundleEntry} */ topLevelBundleEntry of topLevelBundleEntries) {
                 // add related resources as container
                 /**
                  * @type {ResourceEntityAndContained}
                  */
-                const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
+                const matchingEntity = allRelatedEntries.find(
+                    e => e.entityId === topLevelBundleEntry.resource.id &&
+                        e.entityResourceType === topLevelBundleEntry.resource.resourceType
+                );
+                assertIsValid(matchingEntity,
+                    'No matching entity found in graph for ' +
+                    `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource.id}`);
                 /**
                  * @type {[EntityAndContainedBase]}
                  */
@@ -1064,6 +1080,7 @@ class GraphHelper {
                 const relatedEntities = related_entries
                     .flatMap(r => this.getRecursiveContainedEntities(r))
                     .filter(r => r.resource !== undefined && r.resource !== null);
+
                 if (contained) {
                     if (relatedEntities.length > 0) {
                         topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
@@ -1073,7 +1090,11 @@ class GraphHelper {
                 }
             }
 
-            entries = this.removeDuplicatesWithLambda(entries, (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            entries = await this.enrichmentManager.enrichBundleEntriesAsync({
+                    entries, args, originalArgs
+                }
+            );
+            entries = this.bundleManager.removeDuplicateEntries({entries});
 
             return {entries, queries, options: optionsForQueries, explanations};
         } catch (e) {
@@ -1095,6 +1116,7 @@ class GraphHelper {
      * @param {boolean} hash_references
      * @param {Object} args
      * @param {FhirResponseStreamer|undefined} [fhirResponseStreamer]
+     * @param {Object} originalArgs
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
@@ -1107,6 +1129,7 @@ class GraphHelper {
             contained,
             hash_references,
             args,
+            originalArgs,
             fhirResponseStreamer
         }
     ) {
@@ -1134,23 +1157,27 @@ class GraphHelper {
             /**
              * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
              */
-            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync({
-                base_version,
-                requestInfo,
-                resourceType,
-                graphDefinition,
-                contained,
-                hash_references,
-                idList: id,
-                explain: args && args['_explain'] ? true : false,
-                debug: args && args['_debug'] ? true : false,
-            });
+            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
+                {
+                    base_version,
+                    requestInfo,
+                    resourceType,
+                    graphDefinition,
+                    contained,
+                    hash_references,
+                    idList: id,
+                    explain: args && args['_explain'] ? true : false,
+                    debug: args && args['_debug'] ? true : false,
+                    args,
+                    originalArgs
+                }
+            );
 
             // remove duplicate resources
             /**
              * @type {BundleEntry[]}
              */
-            let uniqueEntries = this.removeDuplicatesWithLambda(entries, (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            let uniqueEntries = this.bundleManager.removeDuplicateEntries({entries});
 
             /**
              * @type {string[]}
@@ -1180,11 +1207,18 @@ class GraphHelper {
              */
             const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
 
+            await this.enrichmentManager.enrichAsync({
+                    resources: resources, args, originalArgs
+                }
+            );
+
             if (fhirResponseStreamer) {
                 for (const resource of resources) {
                     await fhirResponseStreamer.writeAsync({resource});
                 }
             }
+
+
             /**
              * @type {Bundle}
              */
@@ -1236,6 +1270,7 @@ class GraphHelper {
      * @param {string | string[]} id (accepts a single id or a list of ids)
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {Object} args
+     * @param {Object} originalArgs
      * @param {FhirResponseStreamer} fhirResponseStreamer
      * @return {Promise<Bundle>}
      */
@@ -1247,6 +1282,7 @@ class GraphHelper {
             id,
             graphDefinitionJson,
             args,
+            originalArgs,
             fhirResponseStreamer
         }
     ) {
@@ -1270,6 +1306,7 @@ class GraphHelper {
                 hash_references: false,
                 graphDefinitionJson,
                 args,
+                originalArgs,
                 fhirResponseStreamer: null // don't let graph send the response
             });
             // now iterate and delete by resuourceType and Id

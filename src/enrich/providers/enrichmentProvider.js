@@ -3,24 +3,26 @@
  */
 class EnrichmentProvider {
     /**
-     * Whether this Enrichment can enrich the specified resourceType
-     * @param {string} resourceType
-     * @return {boolean}
+     * enrich the specified resources
+     * @param {Resource[]} resources
+     * @param {Object} args
+     * @param {Object} originalArgs
+     * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    canEnrich({resourceType}) {
+    async enrichAsync({resources, args, originalArgs}) {
         throw Error('Not Implemented');
     }
 
     /**
-     * enrich the specified resources
-     * @param {Resource[]} resources
-     * @param {string} resourceType
+     * Runs any registered enrichment providers
      * @param {Object} args
-     * @return {Promise<Resource[]>}
+     * @param {BundleEntry[]} entries
+     * @param {Object} originalArgs
+     * @return {Promise<BundleEntry[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, resourceType, args}) {
+    async enrichBundleEntriesAsync({entries, args, originalArgs}) {
         throw Error('Not Implemented');
     }
 }

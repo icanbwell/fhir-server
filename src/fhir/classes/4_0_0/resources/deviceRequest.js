@@ -134,7 +134,7 @@ class DeviceRequest extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -197,7 +197,7 @@ class DeviceRequest extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -218,7 +218,7 @@ class DeviceRequest extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -250,7 +250,7 @@ class DeviceRequest extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -281,7 +281,7 @@ class DeviceRequest extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -300,7 +300,7 @@ class DeviceRequest extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -357,7 +357,7 @@ class DeviceRequest extends Resource {
                     this.__data.basedOn = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -377,7 +377,7 @@ class DeviceRequest extends Resource {
                     this.__data.priorRequest = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.priorRequest = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -396,7 +396,7 @@ class DeviceRequest extends Resource {
                     this.__data.groupIdentifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.groupIdentifier = new Identifier(valueProvided);
             }
         });
@@ -470,7 +470,7 @@ class DeviceRequest extends Resource {
                     this.__data.codeReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.codeReference = new Reference(valueProvided);
             }
         });
@@ -489,7 +489,7 @@ class DeviceRequest extends Resource {
                     this.__data.codeCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.codeCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -509,7 +509,7 @@ class DeviceRequest extends Resource {
                     this.__data.parameter = undefined;
                     return;
                 }
-                let DeviceRequestParameter = require('../backbone_elements/deviceRequestParameter.js');
+                const DeviceRequestParameter = require('../backbone_elements/deviceRequestParameter.js');
                 this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceRequestParameter(v)) : [new DeviceRequestParameter(valueProvided)];
             }
         });
@@ -528,7 +528,7 @@ class DeviceRequest extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -547,7 +547,7 @@ class DeviceRequest extends Resource {
                     this.__data.encounter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.encounter = new Reference(valueProvided);
             }
         });
@@ -584,7 +584,7 @@ class DeviceRequest extends Resource {
                     this.__data.occurrencePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.occurrencePeriod = new Period(valueProvided);
             }
         });
@@ -603,7 +603,7 @@ class DeviceRequest extends Resource {
                     this.__data.occurrenceTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.occurrenceTiming = new Timing(valueProvided);
             }
         });
@@ -641,7 +641,7 @@ class DeviceRequest extends Resource {
                     this.__data.requester = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.requester = new Reference(valueProvided);
             }
         });
@@ -660,7 +660,7 @@ class DeviceRequest extends Resource {
                     this.__data.performerType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.performerType = new CodeableConcept(valueProvided);
             }
         });
@@ -679,7 +679,7 @@ class DeviceRequest extends Resource {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.performer = new Reference(valueProvided);
             }
         });
@@ -698,7 +698,7 @@ class DeviceRequest extends Resource {
                     this.__data.reasonCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -717,7 +717,7 @@ class DeviceRequest extends Resource {
                     this.__data.reasonReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -737,7 +737,7 @@ class DeviceRequest extends Resource {
                     this.__data.insurance = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -758,7 +758,7 @@ class DeviceRequest extends Resource {
                     this.__data.supportingInfo = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -779,7 +779,7 @@ class DeviceRequest extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -798,7 +798,7 @@ class DeviceRequest extends Resource {
                     this.__data.relevantHistory = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.relevantHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -1103,6 +1103,39 @@ class DeviceRequest extends Resource {
             note: this.note && this.note.map(v => v.toJSON()),
             relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.priorRequest) {this.priorRequest.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.groupIdentifier) {this.groupIdentifier.updateReferences({fnUpdateReference});}
+            if (this.codeReference) {this.codeReference.updateReferences({fnUpdateReference});}
+            if (this.codeCodeableConcept) {this.codeCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.parameter) {this.parameter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.encounter) {this.encounter.updateReferences({fnUpdateReference});}
+            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences({fnUpdateReference});}
+            if (this.occurrenceTiming) {this.occurrenceTiming.updateReferences({fnUpdateReference});}
+            if (this.requester) {this.requester.updateReferences({fnUpdateReference});}
+            if (this.performerType) {this.performerType.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.updateReferences({fnUpdateReference});}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.insurance) {this.insurance.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.supportingInfo) {this.supportingInfo.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.relevantHistory) {this.relevantHistory.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -88,7 +88,7 @@ class ContractTerm extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class ContractTerm extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -138,7 +138,7 @@ class ContractTerm extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -175,7 +175,7 @@ class ContractTerm extends Element {
                     this.__data.applies = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.applies = new Period(valueProvided);
             }
         });
@@ -194,7 +194,7 @@ class ContractTerm extends Element {
                     this.__data.topicCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.topicCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -213,7 +213,7 @@ class ContractTerm extends Element {
                     this.__data.topicReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.topicReference = new Reference(valueProvided);
             }
         });
@@ -235,7 +235,7 @@ class ContractTerm extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -254,7 +254,7 @@ class ContractTerm extends Element {
                     this.__data.subType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.subType = new CodeableConcept(valueProvided);
             }
         });
@@ -292,7 +292,7 @@ class ContractTerm extends Element {
                     this.__data.securityLabel = undefined;
                     return;
                 }
-                let ContractSecurityLabel = require('../backbone_elements/contractSecurityLabel.js');
+                const ContractSecurityLabel = require('../backbone_elements/contractSecurityLabel.js');
                 this.__data.securityLabel = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractSecurityLabel(v)) : [new ContractSecurityLabel(valueProvided)];
             }
         });
@@ -311,7 +311,7 @@ class ContractTerm extends Element {
                     this.__data.offer = undefined;
                     return;
                 }
-                let ContractOffer = require('../backbone_elements/contractOffer.js');
+                const ContractOffer = require('../backbone_elements/contractOffer.js');
                 this.__data.offer = new ContractOffer(valueProvided);
             }
         });
@@ -330,7 +330,7 @@ class ContractTerm extends Element {
                     this.__data.asset = undefined;
                     return;
                 }
-                let ContractAsset = require('../backbone_elements/contractAsset.js');
+                const ContractAsset = require('../backbone_elements/contractAsset.js');
                 this.__data.asset = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractAsset(v)) : [new ContractAsset(valueProvided)];
             }
         });
@@ -350,7 +350,7 @@ class ContractTerm extends Element {
                     this.__data.action = undefined;
                     return;
                 }
-                let ContractAction = require('../backbone_elements/contractAction.js');
+                const ContractAction = require('../backbone_elements/contractAction.js');
                 this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractAction(v)) : [new ContractAction(valueProvided)];
             }
         });
@@ -424,6 +424,27 @@ class ContractTerm extends Element {
             action: this.action && this.action.map(v => v.toJSON()),
             group: this.group && this.group.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.applies) {this.applies.updateReferences({fnUpdateReference});}
+            if (this.topicCodeableConcept) {this.topicCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.topicReference) {this.topicReference.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.subType) {this.subType.updateReferences({fnUpdateReference});}
+            if (this.securityLabel) {this.securityLabel.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.offer) {this.offer.updateReferences({fnUpdateReference});}
+            if (this.asset) {this.asset.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.action) {this.action.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.group) {this.group.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

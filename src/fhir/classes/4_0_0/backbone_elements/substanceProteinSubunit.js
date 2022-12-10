@@ -84,7 +84,7 @@ class SubstanceProteinSubunit extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class SubstanceProteinSubunit extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -203,7 +203,7 @@ class SubstanceProteinSubunit extends Element {
                     this.__data.sequenceAttachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.sequenceAttachment = new Attachment(valueProvided);
             }
         });
@@ -223,7 +223,7 @@ class SubstanceProteinSubunit extends Element {
                     this.__data.nTerminalModificationId = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.nTerminalModificationId = new Identifier(valueProvided);
             }
         });
@@ -262,7 +262,7 @@ class SubstanceProteinSubunit extends Element {
                     this.__data.cTerminalModificationId = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.cTerminalModificationId = new Identifier(valueProvided);
             }
         });
@@ -326,6 +326,19 @@ class SubstanceProteinSubunit extends Element {
             cTerminalModificationId: this.cTerminalModificationId && this.cTerminalModificationId.toJSON(),
             cTerminalModification: this.cTerminalModification,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.sequenceAttachment) {this.sequenceAttachment.updateReferences({fnUpdateReference});}
+            if (this.nTerminalModificationId) {this.nTerminalModificationId.updateReferences({fnUpdateReference});}
+            if (this.cTerminalModificationId) {this.cTerminalModificationId.updateReferences({fnUpdateReference});}
     }
 
     /**

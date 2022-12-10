@@ -64,7 +64,7 @@ class TestScriptTeardown extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -95,7 +95,7 @@ class TestScriptTeardown extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -114,7 +114,7 @@ class TestScriptTeardown extends Element {
                     this.__data.action = undefined;
                     return;
                 }
-                let TestScriptAction2 = require('../backbone_elements/testScriptAction2.js');
+                const TestScriptAction2 = require('../backbone_elements/testScriptAction2.js');
                 this.__data.action = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptAction2(v)) : [new TestScriptAction2(valueProvided)];
             }
         });
@@ -146,6 +146,17 @@ class TestScriptTeardown extends Element {
             modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSON()),
             action: this.action && this.action.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.action) {this.action.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -127,7 +127,7 @@ class ClinicalImpression extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -190,7 +190,7 @@ class ClinicalImpression extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -211,7 +211,7 @@ class ClinicalImpression extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -243,7 +243,7 @@ class ClinicalImpression extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -274,7 +274,7 @@ class ClinicalImpression extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -295,7 +295,7 @@ class ClinicalImpression extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -332,7 +332,7 @@ class ClinicalImpression extends Resource {
                     this.__data.statusReason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.statusReason = new CodeableConcept(valueProvided);
             }
         });
@@ -351,7 +351,7 @@ class ClinicalImpression extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -389,7 +389,7 @@ class ClinicalImpression extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -409,7 +409,7 @@ class ClinicalImpression extends Resource {
                     this.__data.encounter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.encounter = new Reference(valueProvided);
             }
         });
@@ -446,7 +446,7 @@ class ClinicalImpression extends Resource {
                     this.__data.effectivePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.effectivePeriod = new Period(valueProvided);
             }
         });
@@ -483,7 +483,7 @@ class ClinicalImpression extends Resource {
                     this.__data.assessor = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.assessor = new Reference(valueProvided);
             }
         });
@@ -505,7 +505,7 @@ class ClinicalImpression extends Resource {
                     this.__data.previous = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.previous = new Reference(valueProvided);
             }
         });
@@ -524,7 +524,7 @@ class ClinicalImpression extends Resource {
                     this.__data.problem = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.problem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -547,7 +547,7 @@ class ClinicalImpression extends Resource {
                     this.__data.investigation = undefined;
                     return;
                 }
-                let ClinicalImpressionInvestigation = require('../backbone_elements/clinicalImpressionInvestigation.js');
+                const ClinicalImpressionInvestigation = require('../backbone_elements/clinicalImpressionInvestigation.js');
                 this.__data.investigation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClinicalImpressionInvestigation(v)) : [new ClinicalImpressionInvestigation(valueProvided)];
             }
         });
@@ -604,7 +604,7 @@ class ClinicalImpression extends Resource {
                     this.__data.finding = undefined;
                     return;
                 }
-                let ClinicalImpressionFinding = require('../backbone_elements/clinicalImpressionFinding.js');
+                const ClinicalImpressionFinding = require('../backbone_elements/clinicalImpressionFinding.js');
                 this.__data.finding = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClinicalImpressionFinding(v)) : [new ClinicalImpressionFinding(valueProvided)];
             }
         });
@@ -623,7 +623,7 @@ class ClinicalImpression extends Resource {
                     this.__data.prognosisCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.prognosisCodeableConcept = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -642,7 +642,7 @@ class ClinicalImpression extends Resource {
                     this.__data.prognosisReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.prognosisReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -661,7 +661,7 @@ class ClinicalImpression extends Resource {
                     this.__data.supportingInfo = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -682,7 +682,7 @@ class ClinicalImpression extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -957,6 +957,34 @@ class ClinicalImpression extends Resource {
             supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.statusReason) {this.statusReason.updateReferences({fnUpdateReference});}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.encounter) {this.encounter.updateReferences({fnUpdateReference});}
+            if (this.effectivePeriod) {this.effectivePeriod.updateReferences({fnUpdateReference});}
+            if (this.assessor) {this.assessor.updateReferences({fnUpdateReference});}
+            if (this.previous) {this.previous.updateReferences({fnUpdateReference});}
+            if (this.problem) {this.problem.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.investigation) {this.investigation.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.finding) {this.finding.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.prognosisCodeableConcept) {this.prognosisCodeableConcept.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.prognosisReference) {this.prognosisReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.supportingInfo) {this.supportingInfo.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

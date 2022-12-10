@@ -85,7 +85,7 @@ class AuditEventAgent extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -116,7 +116,7 @@ class AuditEventAgent extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -136,7 +136,7 @@ class AuditEventAgent extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -157,7 +157,7 @@ class AuditEventAgent extends Element {
                     this.__data.role = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.role = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -176,7 +176,7 @@ class AuditEventAgent extends Element {
                     this.__data.who = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.who = new Reference(valueProvided);
             }
         });
@@ -252,7 +252,7 @@ class AuditEventAgent extends Element {
                     this.__data.location = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.location = new Reference(valueProvided);
             }
         });
@@ -293,7 +293,7 @@ class AuditEventAgent extends Element {
                     this.__data.media = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.media = new Coding(valueProvided);
             }
         });
@@ -313,7 +313,7 @@ class AuditEventAgent extends Element {
                     this.__data.network = undefined;
                     return;
                 }
-                let AuditEventNetwork = require('../backbone_elements/auditEventNetwork.js');
+                const AuditEventNetwork = require('../backbone_elements/auditEventNetwork.js');
                 this.__data.network = new AuditEventNetwork(valueProvided);
             }
         });
@@ -333,7 +333,7 @@ class AuditEventAgent extends Element {
                     this.__data.purposeOfUse = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.purposeOfUse = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -385,6 +385,23 @@ class AuditEventAgent extends Element {
             network: this.network && this.network.toJSON(),
             purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.role) {this.role.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.who) {this.who.updateReferences({fnUpdateReference});}
+            if (this.location) {this.location.updateReferences({fnUpdateReference});}
+            if (this.media) {this.media.updateReferences({fnUpdateReference});}
+            if (this.network) {this.network.updateReferences({fnUpdateReference});}
+            if (this.purposeOfUse) {this.purposeOfUse.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

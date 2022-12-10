@@ -90,7 +90,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -153,7 +153,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -174,7 +174,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -206,7 +206,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -237,7 +237,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -256,7 +256,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -275,7 +275,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -312,7 +312,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.authority = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.authority = new Reference(valueProvided);
             }
         });
@@ -331,7 +331,7 @@ class ImmunizationRecommendation extends Resource {
                     this.__data.recommendation = undefined;
                     return;
                 }
-                let ImmunizationRecommendationRecommendation = require('../backbone_elements/immunizationRecommendationRecommendation.js');
+                const ImmunizationRecommendationRecommendation = require('../backbone_elements/immunizationRecommendationRecommendation.js');
                 this.__data.recommendation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationRecommendationRecommendation(v)) : [new ImmunizationRecommendationRecommendation(valueProvided)];
             }
         });
@@ -526,6 +526,23 @@ class ImmunizationRecommendation extends Resource {
             authority: this.authority && this.authority.toJSON(),
             recommendation: this.recommendation && this.recommendation.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.patient) {this.patient.updateReferences({fnUpdateReference});}
+            if (this.authority) {this.authority.updateReferences({fnUpdateReference});}
+            if (this.recommendation) {this.recommendation.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

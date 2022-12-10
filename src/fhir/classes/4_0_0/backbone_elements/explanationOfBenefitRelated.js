@@ -69,7 +69,7 @@ class ExplanationOfBenefitRelated extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class ExplanationOfBenefitRelated extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class ExplanationOfBenefitRelated extends Element {
                     this.__data.claim = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.claim = new Reference(valueProvided);
             }
         });
@@ -138,7 +138,7 @@ class ExplanationOfBenefitRelated extends Element {
                     this.__data.relationship = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.relationship = new CodeableConcept(valueProvided);
             }
         });
@@ -158,7 +158,7 @@ class ExplanationOfBenefitRelated extends Element {
                     this.__data.reference = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.reference = new Identifier(valueProvided);
             }
         });
@@ -194,6 +194,19 @@ class ExplanationOfBenefitRelated extends Element {
             relationship: this.relationship && this.relationship.toJSON(),
             reference: this.reference && this.reference.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.claim) {this.claim.updateReferences({fnUpdateReference});}
+            if (this.relationship) {this.relationship.updateReferences({fnUpdateReference});}
+            if (this.reference) {this.reference.updateReferences({fnUpdateReference});}
     }
 
     /**

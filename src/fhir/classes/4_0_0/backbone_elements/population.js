@@ -73,7 +73,7 @@ class Population extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -104,7 +104,7 @@ class Population extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class Population extends Element {
                     this.__data.ageRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.ageRange = new Range(valueProvided);
             }
         });
@@ -142,7 +142,7 @@ class Population extends Element {
                     this.__data.ageCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.ageCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -161,7 +161,7 @@ class Population extends Element {
                     this.__data.gender = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.gender = new CodeableConcept(valueProvided);
             }
         });
@@ -180,7 +180,7 @@ class Population extends Element {
                     this.__data.race = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.race = new CodeableConcept(valueProvided);
             }
         });
@@ -200,7 +200,7 @@ class Population extends Element {
                     this.__data.physiologicalCondition = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.physiologicalCondition = new CodeableConcept(valueProvided);
             }
         });
@@ -240,6 +240,21 @@ class Population extends Element {
             race: this.race && this.race.toJSON(),
             physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.ageRange) {this.ageRange.updateReferences({fnUpdateReference});}
+            if (this.ageCodeableConcept) {this.ageCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.gender) {this.gender.updateReferences({fnUpdateReference});}
+            if (this.race) {this.race.updateReferences({fnUpdateReference});}
+            if (this.physiologicalCondition) {this.physiologicalCondition.updateReferences({fnUpdateReference});}
     }
 
     /**

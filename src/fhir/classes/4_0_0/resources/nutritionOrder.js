@@ -114,7 +114,7 @@ class NutritionOrder extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -177,7 +177,7 @@ class NutritionOrder extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -198,7 +198,7 @@ class NutritionOrder extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -230,7 +230,7 @@ class NutritionOrder extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -261,7 +261,7 @@ class NutritionOrder extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -281,7 +281,7 @@ class NutritionOrder extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -396,7 +396,7 @@ class NutritionOrder extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -416,7 +416,7 @@ class NutritionOrder extends Resource {
                     this.__data.encounter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.encounter = new Reference(valueProvided);
             }
         });
@@ -454,7 +454,7 @@ class NutritionOrder extends Resource {
                     this.__data.orderer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.orderer = new Reference(valueProvided);
             }
         });
@@ -474,7 +474,7 @@ class NutritionOrder extends Resource {
                     this.__data.allergyIntolerance = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.allergyIntolerance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -497,7 +497,7 @@ class NutritionOrder extends Resource {
                     this.__data.foodPreferenceModifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.foodPreferenceModifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -525,7 +525,7 @@ class NutritionOrder extends Resource {
                     this.__data.excludeFoodModifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.excludeFoodModifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -544,7 +544,7 @@ class NutritionOrder extends Resource {
                     this.__data.oralDiet = undefined;
                     return;
                 }
-                let NutritionOrderOralDiet = require('../backbone_elements/nutritionOrderOralDiet.js');
+                const NutritionOrderOralDiet = require('../backbone_elements/nutritionOrderOralDiet.js');
                 this.__data.oralDiet = new NutritionOrderOralDiet(valueProvided);
             }
         });
@@ -564,7 +564,7 @@ class NutritionOrder extends Resource {
                     this.__data.supplement = undefined;
                     return;
                 }
-                let NutritionOrderSupplement = require('../backbone_elements/nutritionOrderSupplement.js');
+                const NutritionOrderSupplement = require('../backbone_elements/nutritionOrderSupplement.js');
                 this.__data.supplement = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new NutritionOrderSupplement(v)) : [new NutritionOrderSupplement(valueProvided)];
             }
         });
@@ -584,7 +584,7 @@ class NutritionOrder extends Resource {
                     this.__data.enteralFormula = undefined;
                     return;
                 }
-                let NutritionOrderEnteralFormula = require('../backbone_elements/nutritionOrderEnteralFormula.js');
+                const NutritionOrderEnteralFormula = require('../backbone_elements/nutritionOrderEnteralFormula.js');
                 this.__data.enteralFormula = new NutritionOrderEnteralFormula(valueProvided);
             }
         });
@@ -604,7 +604,7 @@ class NutritionOrder extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -859,6 +859,30 @@ class NutritionOrder extends Resource {
             enteralFormula: this.enteralFormula && this.enteralFormula.toJSON(),
             note: this.note && this.note.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.patient) {this.patient.updateReferences({fnUpdateReference});}
+            if (this.encounter) {this.encounter.updateReferences({fnUpdateReference});}
+            if (this.orderer) {this.orderer.updateReferences({fnUpdateReference});}
+            if (this.allergyIntolerance) {this.allergyIntolerance.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.foodPreferenceModifier) {this.foodPreferenceModifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.excludeFoodModifier) {this.excludeFoodModifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.oralDiet) {this.oralDiet.updateReferences({fnUpdateReference});}
+            if (this.supplement) {this.supplement.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.enteralFormula) {this.enteralFormula.updateReferences({fnUpdateReference});}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

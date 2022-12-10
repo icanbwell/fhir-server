@@ -70,7 +70,7 @@ class ContractSecurityLabel extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class ContractSecurityLabel extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -140,7 +140,7 @@ class ContractSecurityLabel extends Element {
                     this.__data.classification = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.classification = new Coding(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class ContractSecurityLabel extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -180,7 +180,7 @@ class ContractSecurityLabel extends Element {
                     this.__data.control = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.control = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -218,6 +218,19 @@ class ContractSecurityLabel extends Element {
             category: this.category && this.category.map(v => v.toJSON()),
             control: this.control && this.control.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.classification) {this.classification.updateReferences({fnUpdateReference});}
+            if (this.category) {this.category.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.control) {this.control.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

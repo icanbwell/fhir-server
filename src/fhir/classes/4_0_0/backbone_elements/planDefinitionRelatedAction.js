@@ -72,7 +72,7 @@ class PlanDefinitionRelatedAction extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -103,7 +103,7 @@ class PlanDefinitionRelatedAction extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -158,7 +158,7 @@ class PlanDefinitionRelatedAction extends Element {
                     this.__data.offsetDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.offsetDuration = new Quantity(valueProvided);
             }
         });
@@ -177,7 +177,7 @@ class PlanDefinitionRelatedAction extends Element {
                     this.__data.offsetRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.offsetRange = new Range(valueProvided);
             }
         });
@@ -215,6 +215,18 @@ class PlanDefinitionRelatedAction extends Element {
             offsetDuration: this.offsetDuration && this.offsetDuration.toJSON(),
             offsetRange: this.offsetRange && this.offsetRange.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.offsetDuration) {this.offsetDuration.updateReferences({fnUpdateReference});}
+            if (this.offsetRange) {this.offsetRange.updateReferences({fnUpdateReference});}
     }
 
     /**

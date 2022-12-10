@@ -71,7 +71,7 @@ class ExampleScenarioProcess extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -102,7 +102,7 @@ class ExampleScenarioProcess extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -193,7 +193,7 @@ class ExampleScenarioProcess extends Element {
                     this.__data.step = undefined;
                     return;
                 }
-                let ExampleScenarioStep = require('../backbone_elements/exampleScenarioStep.js');
+                const ExampleScenarioStep = require('../backbone_elements/exampleScenarioStep.js');
                 this.__data.step = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExampleScenarioStep(v)) : [new ExampleScenarioStep(valueProvided)];
             }
         });
@@ -233,6 +233,17 @@ class ExampleScenarioProcess extends Element {
             postConditions: this.postConditions,
             step: this.step && this.step.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.step) {this.step.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

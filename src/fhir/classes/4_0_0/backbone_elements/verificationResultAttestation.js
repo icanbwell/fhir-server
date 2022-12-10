@@ -78,7 +78,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -109,7 +109,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -128,7 +128,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.who = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.who = new Reference(valueProvided);
             }
         });
@@ -147,7 +147,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.onBehalfOf = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.onBehalfOf = new Reference(valueProvided);
             }
         });
@@ -167,7 +167,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.communicationMethod = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.communicationMethod = new CodeableConcept(valueProvided);
             }
         });
@@ -242,7 +242,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.proxySignature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                const Signature = require('../complex_types/signature.js');
                 this.__data.proxySignature = new Signature(valueProvided);
             }
         });
@@ -262,7 +262,7 @@ class VerificationResultAttestation extends Element {
                     this.__data.sourceSignature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                const Signature = require('../complex_types/signature.js');
                 this.__data.sourceSignature = new Signature(valueProvided);
             }
         });
@@ -308,6 +308,21 @@ class VerificationResultAttestation extends Element {
             proxySignature: this.proxySignature && this.proxySignature.toJSON(),
             sourceSignature: this.sourceSignature && this.sourceSignature.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.who) {this.who.updateReferences({fnUpdateReference});}
+            if (this.onBehalfOf) {this.onBehalfOf.updateReferences({fnUpdateReference});}
+            if (this.communicationMethod) {this.communicationMethod.updateReferences({fnUpdateReference});}
+            if (this.proxySignature) {this.proxySignature.updateReferences({fnUpdateReference});}
+            if (this.sourceSignature) {this.sourceSignature.updateReferences({fnUpdateReference});}
     }
 
     /**

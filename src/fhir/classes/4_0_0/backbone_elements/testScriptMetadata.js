@@ -66,7 +66,7 @@ class TestScriptMetadata extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -97,7 +97,7 @@ class TestScriptMetadata extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -116,7 +116,7 @@ class TestScriptMetadata extends Element {
                     this.__data.link = undefined;
                     return;
                 }
-                let TestScriptLink = require('../backbone_elements/testScriptLink.js');
+                const TestScriptLink = require('../backbone_elements/testScriptLink.js');
                 this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptLink(v)) : [new TestScriptLink(valueProvided)];
             }
         });
@@ -136,7 +136,7 @@ class TestScriptMetadata extends Element {
                     this.__data.capability = undefined;
                     return;
                 }
-                let TestScriptCapability = require('../backbone_elements/testScriptCapability.js');
+                const TestScriptCapability = require('../backbone_elements/testScriptCapability.js');
                 this.__data.capability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptCapability(v)) : [new TestScriptCapability(valueProvided)];
             }
         });
@@ -170,6 +170,18 @@ class TestScriptMetadata extends Element {
             link: this.link && this.link.map(v => v.toJSON()),
             capability: this.capability && this.capability.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.link) {this.link.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.capability) {this.capability.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

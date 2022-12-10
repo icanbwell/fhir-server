@@ -68,7 +68,7 @@ class MedicinalProductName extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -99,7 +99,7 @@ class MedicinalProductName extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -136,7 +136,7 @@ class MedicinalProductName extends Element {
                     this.__data.namePart = undefined;
                     return;
                 }
-                let MedicinalProductNamePart = require('../backbone_elements/medicinalProductNamePart.js');
+                const MedicinalProductNamePart = require('../backbone_elements/medicinalProductNamePart.js');
                 this.__data.namePart = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductNamePart(v)) : [new MedicinalProductNamePart(valueProvided)];
             }
         });
@@ -155,7 +155,7 @@ class MedicinalProductName extends Element {
                     this.__data.countryLanguage = undefined;
                     return;
                 }
-                let MedicinalProductCountryLanguage = require('../backbone_elements/medicinalProductCountryLanguage.js');
+                const MedicinalProductCountryLanguage = require('../backbone_elements/medicinalProductCountryLanguage.js');
                 this.__data.countryLanguage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductCountryLanguage(v)) : [new MedicinalProductCountryLanguage(valueProvided)];
             }
         });
@@ -191,6 +191,18 @@ class MedicinalProductName extends Element {
             namePart: this.namePart && this.namePart.map(v => v.toJSON()),
             countryLanguage: this.countryLanguage && this.countryLanguage.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.namePart) {this.namePart.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.countryLanguage) {this.countryLanguage.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

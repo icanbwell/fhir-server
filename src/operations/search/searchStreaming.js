@@ -15,6 +15,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
+const deepcopy = require('deepcopy');
 
 
 class SearchStreamingOperation {
@@ -127,6 +128,7 @@ class SearchStreamingOperation {
             requestId
         } = requestInfo;
 
+        const originalArgs = deepcopy(args);
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -314,7 +316,8 @@ class SearchStreamingOperation {
                             resourceType,
                             useAccessIndex,
                             contentType: fhirContentTypes.ndJson,
-                            batchObjectCount
+                            batchObjectCount,
+                            originalArgs
                         });
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
@@ -368,7 +371,8 @@ class SearchStreamingOperation {
                                 args,
                                 resourceType,
                                 useAccessIndex,
-                                batchObjectCount
+                                batchObjectCount,
+                                originalArgs
                             });
                     } else {
                         resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
@@ -378,7 +382,8 @@ class SearchStreamingOperation {
                                 resourceType,
                                 useAccessIndex,
                                 contentType: fhirContentTypes.fhirJson,
-                                batchObjectCount
+                                batchObjectCount,
+                                originalArgs
                             });
                     }
                 }

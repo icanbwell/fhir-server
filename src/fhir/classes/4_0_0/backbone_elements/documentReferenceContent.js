@@ -69,7 +69,7 @@ class DocumentReferenceContent extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class DocumentReferenceContent extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -120,7 +120,7 @@ class DocumentReferenceContent extends Element {
                     this.__data.attachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.attachment = new Attachment(valueProvided);
             }
         });
@@ -140,7 +140,7 @@ class DocumentReferenceContent extends Element {
                     this.__data.format = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.format = new Coding(valueProvided);
             }
         });
@@ -174,6 +174,18 @@ class DocumentReferenceContent extends Element {
             attachment: this.attachment && this.attachment.toJSON(),
             format: this.format && this.format.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.attachment) {this.attachment.updateReferences({fnUpdateReference});}
+            if (this.format) {this.format.updateReferences({fnUpdateReference});}
     }
 
     /**

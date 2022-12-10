@@ -105,7 +105,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -136,7 +136,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -211,7 +211,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.provider = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.provider = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -232,7 +232,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.productOrService = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.productOrService = new CodeableConcept(valueProvided);
             }
         });
@@ -252,7 +252,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.modifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.modifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -271,7 +271,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.programCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.programCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -308,7 +308,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.servicedPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.servicedPeriod = new Period(valueProvided);
             }
         });
@@ -327,7 +327,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.locationCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.locationCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -346,7 +346,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.locationAddress = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                const Address = require('../complex_types/address.js');
                 this.__data.locationAddress = new Address(valueProvided);
             }
         });
@@ -365,7 +365,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.locationReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.locationReference = new Reference(valueProvided);
             }
         });
@@ -384,7 +384,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -404,7 +404,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.unitPrice = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.unitPrice = new Money(valueProvided);
             }
         });
@@ -445,7 +445,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.net = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.net = new Money(valueProvided);
             }
         });
@@ -464,7 +464,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.bodySite = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.bodySite = new CodeableConcept(valueProvided);
             }
         });
@@ -483,7 +483,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.subSite = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.subSite = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -521,7 +521,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.adjudication = undefined;
                     return;
                 }
-                let ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
+                const ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
                 this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(valueProvided)];
             }
         });
@@ -540,7 +540,7 @@ class ExplanationOfBenefitAddItem extends Element {
                     this.__data.detail = undefined;
                     return;
                 }
-                let ExplanationOfBenefitDetail1 = require('../backbone_elements/explanationOfBenefitDetail1.js');
+                const ExplanationOfBenefitDetail1 = require('../backbone_elements/explanationOfBenefitDetail1.js');
                 this.__data.detail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitDetail1(v)) : [new ExplanationOfBenefitDetail1(valueProvided)];
             }
         });
@@ -612,6 +612,31 @@ class ExplanationOfBenefitAddItem extends Element {
             adjudication: this.adjudication && this.adjudication.map(v => v.toJSON()),
             detail: this.detail && this.detail.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.provider) {this.provider.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.productOrService) {this.productOrService.updateReferences({fnUpdateReference});}
+            if (this.modifier) {this.modifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.programCode) {this.programCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.servicedPeriod) {this.servicedPeriod.updateReferences({fnUpdateReference});}
+            if (this.locationCodeableConcept) {this.locationCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.locationAddress) {this.locationAddress.updateReferences({fnUpdateReference});}
+            if (this.locationReference) {this.locationReference.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.unitPrice) {this.unitPrice.updateReferences({fnUpdateReference});}
+            if (this.net) {this.net.updateReferences({fnUpdateReference});}
+            if (this.bodySite) {this.bodySite.updateReferences({fnUpdateReference});}
+            if (this.subSite) {this.subSite.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.adjudication) {this.adjudication.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.detail) {this.detail.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**
