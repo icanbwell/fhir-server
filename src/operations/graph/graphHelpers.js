@@ -1081,10 +1081,6 @@ class GraphHelper {
                     .flatMap(r => this.getRecursiveContainedEntities(r))
                     .filter(r => r.resource !== undefined && r.resource !== null);
 
-                await this.enrichmentManager.enrichAsync({
-                        resources: relatedEntities.map(e => e.resource), args, originalArgs
-                    }
-                );
                 if (contained) {
                     if (relatedEntities.length > 0) {
                         topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
