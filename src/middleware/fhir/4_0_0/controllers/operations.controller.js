@@ -71,6 +71,8 @@ class CustomOperationsController {
                 }, resourceType);
                 if (name === 'merge') {
                     this.fhirResponseWriter.merge({req, res, result});
+                } else if (name === 'graph') {
+                    this.fhirResponseWriter.graph({req, res, result});
                 } else {
                     this.fhirResponseWriter.readCustomOperation({req, res, result});
                 }
