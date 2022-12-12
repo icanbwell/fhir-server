@@ -4,7 +4,7 @@ const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {KafkaClient} = require('./kafkaClient');
 const {ResourceManager} = require('../operations/common/resourceManager');
-const {logSystemEventAsync} = require('../operations/common/logging');
+const {logTraceSystemEventAsync} = require('../operations/common/logging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
@@ -638,7 +638,7 @@ class ChangeEventProducer {
                 observationMessageMap.clear();
 
                 if (numberOfMessagesBefore > 0) {
-                    await logSystemEventAsync(
+                    await logTraceSystemEventAsync(
                         {
                             event: 'changeEventProducer',
                             message: 'Finished',

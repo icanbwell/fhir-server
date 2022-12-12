@@ -1,7 +1,7 @@
 const env = require('var');
 const moment = require('moment-timezone');
 const {
-  container
+    container
 } = require('../../winstonInit');
 
 /**
@@ -18,7 +18,7 @@ const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
  * @param {string} user
  * @param {Object} args
  */
-module.exports.logRequest = ({user, args}) => {
+const logRequest = ({user, args}) => {
     logger.info(JSON.stringify({user, args}));
 };
 
@@ -27,7 +27,7 @@ module.exports.logRequest = ({user, args}) => {
  * @param {string} user
  * @param {Object} args
  */
-module.exports.logDebug = ({user, args}) => {
+const logDebug = ({user, args}) => {
     if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
         logger.debug(JSON.stringify({user, args}));
     }
@@ -38,7 +38,7 @@ module.exports.logDebug = ({user, args}) => {
  * @param {string} user
  * @param {Object} args
  */
-module.exports.logError = ({user, args}) => {
+const logError = ({user, args}) => {
     logger.error(JSON.stringify({user, args}));
 };
 
@@ -47,10 +47,9 @@ module.exports.logError = ({user, args}) => {
  * @param {string} user
  * @param {Object} args
  */
-module.exports.logWarn = ({user, args}) => {
+const logWarn = ({user, args}) => {
     logger.warn(JSON.stringify({user, args}));
 };
-
 
 /**
  * Logs a system event
@@ -58,7 +57,7 @@ module.exports.logWarn = ({user, args}) => {
  * @param {string} message
  * @param {Object} args
  */
-module.exports.logSystemEventAsync = async ({event, message, args}) => {
+const logSystemEventAsync = async ({event, message, args}) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
@@ -101,13 +100,26 @@ module.exports.logSystemEventAsync = async ({event, message, args}) => {
 };
 
 /**
+ * Logs a trace system event
+ * @param {string} event
+ * @param {string} message
+ * @param {Object} args
+ */
+const logTraceSystemEventAsync = async ({event, message, args}) => {
+    if (env.LOGLEVEL === 'TRACE' || env.LOGLEVEL === 'DEBUG') {
+        await logSystemEventAsync({event, message, args});
+    }
+};
+
+
+/**
  * Logs a system event
  * @param {string} event
  * @param {string} message
  * @param {Object} args
  * @param {Error|null} error
  */
-module.exports.logSystemErrorAsync = async ({event, message, args, error}) => {
+const logSystemErrorAsync = async ({event, message, args, error}) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
@@ -155,8 +167,19 @@ module.exports.logSystemErrorAsync = async ({event, message, args, error}) => {
  * @param {Object} args
  * @return {Promise<void>}
  */
-module.exports.logVerboseAsync = async ({source, args: args}) => {
+const logVerboseAsync = async ({source, args: args}) => {
     if (env.LOGLEVEL === 'DEBUG') {
         console.log(JSON.stringify({message: `${source}: ${JSON.stringify(args)}`}));
     }
+};
+
+module.exports = {
+    logRequest,
+    logDebug,
+    logError,
+    logWarn,
+    logTraceSystemEventAsync,
+    logSystemEventAsync,
+    logSystemErrorAsync,
+    logVerboseAsync,
 };
