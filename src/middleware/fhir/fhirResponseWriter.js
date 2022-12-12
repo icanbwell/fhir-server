@@ -57,10 +57,10 @@ class FhirResponseWriter {
      */
     readCustomOperation({req, res, result}) {
         let fhirVersion = req.params.base_version;
-        res.type(this.getContentType(fhirVersion));
 
         // assert(req.id);
         if (req.id && !res.headersSent) {
+            res.type(this.getContentType(fhirVersion));
             res.setHeader('X-Request-ID', String(req.id));
         }
         res.status(200).json(result instanceof Resource ? result.toJSON() : result);
