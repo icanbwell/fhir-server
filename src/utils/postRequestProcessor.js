@@ -4,7 +4,7 @@
  */
 const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
+const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
 const {RequestSpecificCache} = require('./requestSpecificCache');
 
 const Mutex = require('async-mutex').Mutex;
@@ -95,7 +95,7 @@ class PostRequestProcessor {
                 return;
             }
             this.setExecutionRunningForRequest({requestId, value: true});
-            await logSystemEventAsync(
+            await logTraceSystemEventAsync(
                 {
                     event: 'executeAsync',
                     message: `executeAsync: ${requestId}`,
@@ -139,7 +139,7 @@ class PostRequestProcessor {
         });
         // If we processed any tasks then log it
         if (tasksInQueueBefore > 0) {
-            await logSystemEventAsync(
+            await logTraceSystemEventAsync(
                 {
                     event: 'postRequestProcessor',
                     message: 'Finished',
@@ -162,7 +162,7 @@ class PostRequestProcessor {
     async waitTillDoneAsync({requestId, timeoutInSeconds}) {
         assertIsValid(requestId, 'requestId is null');
         const queue = this.getQueue({requestId});
-        await logSystemEventAsync(
+        await logTraceSystemEventAsync(
             {
                 event: 'waitTillDoneAsync',
                 message: `waitTillDoneAsync: ${requestId}`,

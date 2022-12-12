@@ -1,5 +1,5 @@
 const {assertIsValid} = require('./assertType');
-const {logSystemEventAsync} = require('../operations/common/logging');
+const {logTraceSystemEventAsync} = require('../operations/common/logging');
 
 class RequestSpecificCache {
     constructor() {
@@ -69,7 +69,7 @@ class RequestSpecificCache {
      * @param requestId
      */
     async clearAsync({requestId}) {
-        await logSystemEventAsync(
+        await logTraceSystemEventAsync(
             {
                 event: 'clearAsync',
                 message: `clearAsync: ${requestId}`,
