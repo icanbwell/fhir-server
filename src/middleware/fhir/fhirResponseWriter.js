@@ -38,8 +38,10 @@ class FhirResponseWriter {
      */
     read({req, res, result}) {
         assertTypeEquals(result, Resource);
-        let fhirVersion = req.params.base_version;
-        res.type(this.getContentType(fhirVersion));
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
 
         // assert(req.id);
         if (req.id && !res.headersSent) {
@@ -56,11 +58,13 @@ class FhirResponseWriter {
      * @param {Resource|Object} result - json to send to client
      */
     readCustomOperation({req, res, result}) {
-        let fhirVersion = req.params.base_version;
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
 
         // assert(req.id);
         if (req.id && !res.headersSent) {
-            res.type(this.getContentType(fhirVersion));
             res.setHeader('X-Request-ID', String(req.id));
         }
         res.status(200).json(result instanceof Resource ? result.toJSON() : result);
@@ -74,8 +78,10 @@ class FhirResponseWriter {
      * @param {MergeResultEntry[]} result - json to send to client
      */
     merge({req, res, result}) {
-        let fhirVersion = req.params.base_version;
-        res.type(this.getContentType(fhirVersion));
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
 
         // assert(req.id);
         if (req.id && !res.headersSent) {
@@ -99,7 +105,9 @@ class FhirResponseWriter {
             res.set('ETag', `W/"${resource.meta.versionId}"`);
         }
 
-        res.type(this.getContentType(fhirVersion));
+        if (!res.headersSent) {
+            res.type(this.getContentType(fhirVersion));
+        }
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
         }
