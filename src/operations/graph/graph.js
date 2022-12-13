@@ -93,6 +93,10 @@ class GraphOperation {
              * @type {string}
              */
             method,
+            /**
+             * @type {string}
+             */
+            requestId
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -190,7 +194,11 @@ class GraphOperation {
             /**
              * @type {FhirResponseStreamer}
              */
-            const fhirResponseStreamer = streamResponse ? new FhirResponseStreamer({response: res}) : null;
+            const fhirResponseStreamer = streamResponse ? new FhirResponseStreamer(
+                {
+                    requestId,
+                    response: res
+                }) : null;
             /**
              * @type {Bundle}
              */
