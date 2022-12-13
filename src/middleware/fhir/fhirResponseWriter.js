@@ -75,6 +75,25 @@ class FhirResponseWriter {
      * @description Used when you are returning a Bundle of resources
      * @param {import('http').IncomingMessage} req - Express request object
      * @param {import('http').ServerResponse} res - Express response object
+     * @param {Resource|Object} result - json to send to client
+     */
+    graph({req, res}) {
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
+
+        // assert(req.id);
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+    }
+
+    /**
+     * @function read
+     * @description Used when you are returning a Bundle of resources
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('http').ServerResponse} res - Express response object
      * @param {MergeResultEntry[]} result - json to send to client
      */
     merge({req, res, result}) {

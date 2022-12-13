@@ -5,10 +5,12 @@ class FhirResponseStreamer {
     /**
      * constructor
      * @param {import('express').Response} response
+     * @param {string} requestId
      */
     constructor(
         {
-            response
+            response,
+            requestId
         }
     ) {
         /**
@@ -27,6 +29,11 @@ class FhirResponseStreamer {
          * @private
          */
         this._lastid = null;
+
+        /**
+         * @type {string}
+         */
+        this.requestId = requestId;
     }
 
     /**
@@ -37,6 +44,7 @@ class FhirResponseStreamer {
         const contentType = 'application/fhir+json';
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
+        this.response.setHeader('X-Request-ID', String(this.requestId));
 
         const header = '{"entry":[';
 
