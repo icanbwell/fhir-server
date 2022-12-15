@@ -79,6 +79,7 @@ class PatientFilterManager {
             'Practitioner',
             'Organization',
             'Medication',
+            'CodeSystem',
             'Libary',
             'PlanDefinition',
             'GuidanceResponse',
