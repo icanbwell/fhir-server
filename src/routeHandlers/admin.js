@@ -78,6 +78,10 @@ async function synchronizeIndexesAsync(
     return;
 }
 
+async function personMatchAsync() {
+
+}
+
 /**
  * Handles admin routes
  * @param {function (): SimpleContainer} fnCreateContainer
@@ -336,6 +340,13 @@ async function handleAdmin(
                             res
                         }
                     );
+                }
+
+                case 'personMatch': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    // const sourceId = req.query['sourceId'];
+                    // const targetId = req.query['targetId'];
+                    return await personMatchAsync();
                 }
 
                 default: {
