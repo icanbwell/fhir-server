@@ -78,6 +78,8 @@ class PatientFilterManager {
         this.resourcesWithoutPatientData = [
             'Practitioner',
             'Organization',
+            'Medication',
+            'CodeSystem',
             'Libary',
             'PlanDefinition',
             'GuidanceResponse',
