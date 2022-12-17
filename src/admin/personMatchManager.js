@@ -59,8 +59,6 @@ class PersonMatchManager {
             // post to $match service
         }
     }
-
-
 }
 
 module.exports = {
