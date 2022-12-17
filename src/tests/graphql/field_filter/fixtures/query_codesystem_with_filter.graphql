@@ -2,7 +2,10 @@ query {
     codeSystem {
         entry {
             resource {
-                concept {
+                id
+                resourceType
+                status
+                concept(code: "3584-4") {
                     code
                     display
                 }

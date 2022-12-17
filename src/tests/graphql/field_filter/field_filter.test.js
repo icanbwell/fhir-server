@@ -28,7 +28,7 @@ const {
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {cleanMeta} = require('../../customMatchers');
 
-describe('GraphQL Patient Tests', () => {
+describe('GraphQL CodeSystem Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -37,7 +37,7 @@ describe('GraphQL Patient Tests', () => {
         await commonAfterEach();
     });
 
-    describe('GraphQL Codeset', () => {
+    describe('GraphQL CodeSystem', () => {
         test('GraphQL Codeset without filter works properly', async () => {
             const request = await createTestRequest();
             const graphqlQueryText = codeSystemQueryWithoutFilter.replace(/\\n/g, '');

@@ -9,6 +9,7 @@ const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {RethrownError} = require('../utils/rethrownError');
 const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
+const {PersonMatchManager} = require('../admin/personMatchManager');
 
 /**
  * shows indexes
@@ -76,10 +77,6 @@ async function synchronizeIndexesAsync(
         audit: audit
     });
     return;
-}
-
-async function personMatchAsync() {
-
 }
 
 /**
@@ -344,9 +341,12 @@ async function handleAdmin(
 
                 case 'personMatch': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
-                    // const sourceId = req.query['sourceId'];
-                    // const targetId = req.query['targetId'];
-                    return await personMatchAsync();
+                    const sourceId = req.query['sourceId'];
+                    const targetId = req.query['targetId'];
+                    return await new PersonMatchManager().personMatchAsync({
+                        sourceId,
+                        targetId
+                    });
                 }
 
                 default: {

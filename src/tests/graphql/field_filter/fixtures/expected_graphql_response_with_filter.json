@@ -5,6 +5,9 @@
         "code": "3584-4",
         "display": "I am good"
       }
-    ]
+    ],
+    "id": "loinc-consumer",
+    "resourceType": "CodeSystem",
+    "status": "active"
   }
 ]

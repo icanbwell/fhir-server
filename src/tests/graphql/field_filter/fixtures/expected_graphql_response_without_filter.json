@@ -9,6 +9,9 @@
         "code": "4000-4",
         "display": "I am bad"
       }
-    ]
+    ],
+    "id": "loinc-consumer",
+    "resourceType": "CodeSystem",
+    "status": "active"
   }
 ]
