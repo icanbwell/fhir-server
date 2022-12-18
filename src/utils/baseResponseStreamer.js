@@ -56,6 +56,14 @@ class BaseResponseStreamer {
     }
 
     /**
+     * sets the bundle to use
+     * @param {Bundle} bundle
+     */
+    // eslint-disable-next-line no-unused-vars
+    setBundle({bundle}) {
+    }
+
+    /**
      * ends response
      * @return {Promise<void>}
      */

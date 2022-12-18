@@ -1212,7 +1212,10 @@ class GraphHelper {
             if (responseStreamer) {
                 for (const resource of resources) {
                     await responseStreamer.writeBundleEntryAsync({
-                        bundleEntry: new BundleEntry({resource}
+                        bundleEntry: new BundleEntry({
+                                id: resource.id,
+                                resource
+                            }
                         )
                     });
                 }
@@ -1222,7 +1225,7 @@ class GraphHelper {
              * @type {Bundle}
              */
             const bundle = this.bundleManager.createBundle({
-                type: 'collection',
+                type: 'searchset',
                 requestId: requestInfo.requestId,
                 originalUrl: requestInfo.originalUrl,
                 host: requestInfo.host,
@@ -1242,7 +1245,7 @@ class GraphHelper {
                 explanations
             });
             if (responseStreamer) {
-                bundle.resources = []; // clear up any resources since we already wrote them out
+                responseStreamer.setBundle({bundle});
             }
             return bundle;
         } catch (e) {
@@ -1341,6 +1344,7 @@ class GraphHelper {
                 for (const resultResourceId of idList) {
                     const ResourceCreator = getResource(base_version, resultResourceType);
                     const bundleEntry = new BundleEntry({
+                        id: resultResourceId,
                         resource: new ResourceCreator({
                             id: resultResourceId, resourceType: resultResourceType
                         }),

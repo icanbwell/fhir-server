@@ -45,6 +45,12 @@ class FhirResponseStreamer extends BaseResponseStreamer {
          */
         this._bundleType = bundleType;
         assertIsValid(bundleType, 'bundleType is not set');
+
+        /**
+         * @type {Bundle|null}
+         * @private
+         */
+        this._bundle = null;
     }
 
     /**
@@ -88,16 +94,24 @@ class FhirResponseStreamer extends BaseResponseStreamer {
     }
 
     /**
+     * sets the bundle to use
+     * @param {Bundle} bundle
+     */
+    setBundle({bundle}) {
+        this._bundle = bundle;
+    }
+
+    /**
      * ends response
      * @return {Promise<void>}
      */
     async endAsync() {
-        const bundle = new Bundle({
+        const bundle = this._bundle || new Bundle({
             id: this.requestId,
             type: this._bundleType,
-            total: this._count,
             timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z'
         });
+        bundle.total = this._count;
         // noinspection JSUnresolvedFunction
         /**
          * @type {Object}
