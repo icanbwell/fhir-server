@@ -1369,6 +1369,7 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
+            await responseStreamer.setBundle({bundle: deleteOperationBundle});
             return deleteOperationBundle;
         } catch (e) {
             throw new RethrownError({
