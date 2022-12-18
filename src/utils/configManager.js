@@ -176,6 +176,14 @@ class ConfigManager {
     get personMatchingServiceUrl() {
         return env.PERSON_MATCHING_SERVICE_URL;
     }
+
+    /**
+     * whether to create index when we create a collection
+     * @returns {boolean}
+     */
+    get createIndexOnCollectionCreation() {
+        return isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION);
+    }
 }
 
 module.exports = {
