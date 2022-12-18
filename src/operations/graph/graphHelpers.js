@@ -1342,6 +1342,10 @@ class GraphHelper {
                         requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}
                     });
+
+                // for testing with delay
+                // await new Promise(r => setTimeout(r, 10000));
+
                 for (const resultResourceId of idList) {
                     const ResourceCreator = getResource(base_version, resultResourceType);
                     const bundleEntry = new BundleEntry({
