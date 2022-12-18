@@ -23,9 +23,10 @@ describe('Bad Graph Tests', () => {
                 .send(graphResource)
                 .set(getHeaders());
 
+            // expect(resp).toHaveStatusCode(400);
+
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusCode(400);
-            expect(resp.body).toStrictEqual(expectedResponseResource);
+            expect(resp).toHaveResponse(expectedResponseResource);
         });
     });
 });

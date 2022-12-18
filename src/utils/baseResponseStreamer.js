@@ -64,6 +64,15 @@ class BaseResponseStreamer {
     }
 
     /**
+     * sets status code on response
+     * @param {number} statusCode
+     * @returns {Promise<void>}
+     */
+    async setStatusCodeAsync({statusCode}) {
+        this.response.status(statusCode);
+    }
+
+    /**
      * ends response
      * @return {Promise<void>}
      */
