@@ -95,7 +95,7 @@ class PersonMatchManager {
                         )
                     ]
                 }
-            );
+            ).toJSON();
         }
         if (!target) {
             return new OperationOutcome({
@@ -108,7 +108,7 @@ class PersonMatchManager {
                         )
                     ]
                 }
-            );
+            ).toJSON();
         }
         if (source && target) {
             const parameters = {
