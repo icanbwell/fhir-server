@@ -13,7 +13,6 @@ const {
     isValidVersion,
 } = require('../middleware/fhir/utils/schema.utils');
 const {VERSIONS} = require('../middleware/fhir/utils/constants');
-const {ServerError} = require('../middleware/fhir/utils/server.error');
 const {generateUUID} = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
@@ -22,6 +21,7 @@ const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
+const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 
 class MyFHIRServer {
     /**
@@ -337,29 +337,14 @@ class MyFHIRServer {
                         if (err && err.resourceType === OperationOutcome.resourceType) {
                             const status = err.statusCode || 500;
                             res1.status(status).json(err);
-                        } else if (err instanceof ServerError) {
-                            const status = err.statusCode || 500;
-                            res1.status(status).json(new OperationOutcome(err));
                         } else if (err) {
                             const status = err.statusCode || 500;
-                            const error = err.issue && err.issue.length > 0 ?
-                                err.issue[0] :
-                                new OperationOutcome({
-                                    statusCode: status,
-                                    issue: [
-                                        {
-                                            severity: 'error',
-                                            code: 'internal',
-                                            details: {
-                                                text: `Unexpected: ${err.message}`,
-                                            },
-                                            diagnostics: env.IS_PRODUCTION ? err.message : err.stack,
-                                        },
-                                    ],
-                                });
-
+                            /**
+                             * @type {OperationOutcome}
+                             */
+                            const operationOutcome = convertErrorToOperationOutcome({error: err});
                             // logger.error(error);
-                            res1.status(status).json(error);
+                            res1.status(status).json(operationOutcome);
                         } else {
                             next();
                         }

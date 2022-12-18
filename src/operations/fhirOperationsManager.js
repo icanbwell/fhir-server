@@ -19,9 +19,7 @@ const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const env = require('var');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
-const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
-const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -391,19 +389,37 @@ class FhirOperationsManager {
             requestId: req.id
         });
         await responseStreamer.startAsync();
-        /**
-         * @type {Bundle}
-         */
-        const result = await this.everythingOperation.everything(
-            {
-                requestInfo: this.getRequestInfo(req),
-                res,
-                args: combined_args,
-                resourceType,
-                responseStreamer
-            });
-        await responseStreamer.endAsync();
-        return result;
+
+        try {
+            /**
+             * @type {Bundle}
+             */
+            const result = await this.everythingOperation.everything(
+                {
+                    requestInfo: this.getRequestInfo(req),
+                    res,
+                    args: combined_args,
+                    resourceType,
+                    responseStreamer
+                });
+            await responseStreamer.endAsync();
+            return result;
+        } catch (err) {
+            const status = err.statusCode || 500;
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({error: err});
+            await responseStreamer.writeBundleEntryAsync({
+                    bundleEntry: new BundleEntry({
+                            resource: operationOutcome
+                        }
+                    )
+                }
+            );
+            await responseStreamer.setStatusCodeAsync({statusCode: status});
+            await responseStreamer.endAsync();
+        }
     }
 
     /**
@@ -535,25 +551,13 @@ class FhirOperationsManager {
             return result;
         } catch (err) {
             const status = err.statusCode || 500;
-            const error = err.issue && err.issue.length > 0 ?
-                new OperationOutcome({
-                    issue: err.issue
-                }) :
-                new OperationOutcome({
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'internal',
-                            details: new CodeableConcept({
-                                text: `Unexpected: ${err.message}`,
-                            }),
-                            diagnostics: env.IS_PRODUCTION ? err.message : err.stack,
-                        }),
-                    ],
-                });
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({error: err});
             await responseStreamer.writeBundleEntryAsync({
                     bundleEntry: new BundleEntry({
-                            resource: error
+                            resource: operationOutcome
                         }
                     )
                 }
