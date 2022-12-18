@@ -1134,9 +1134,6 @@ class GraphHelper {
         }
     ) {
         try {
-            if (responseStreamer) {
-                await responseStreamer.startAsync();
-            }
             /**
              * @type {number}
              */
@@ -1246,7 +1243,6 @@ class GraphHelper {
             });
             if (responseStreamer) {
                 bundle.resources = []; // clear up any resources since we already wrote them out
-                await responseStreamer.endAsync({bundle});
             }
             return bundle;
             // create a bundle
@@ -1289,9 +1285,6 @@ class GraphHelper {
         }
     ) {
         try {
-            if (responseStreamer) {
-                await responseStreamer.startAsync();
-            }
             /**
              * @type {number}
              */
@@ -1373,7 +1366,6 @@ class GraphHelper {
                 total: deleteOperationBundleEntries.length
             });
             if (responseStreamer) {
-                await responseStreamer.endAsync({bundle: deleteOperationBundle});
                 deleteOperationBundle.entry = [];
             }
             return deleteOperationBundle;

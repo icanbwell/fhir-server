@@ -47,11 +47,9 @@ class BaseResponseStreamer {
 
     /**
      * ends response
-     * @param {Bundle} bundle
      * @return {Promise<void>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async endAsync({bundle}) {
+    async endAsync() {
         throw new Error('Method not implemented.');
     }
 }

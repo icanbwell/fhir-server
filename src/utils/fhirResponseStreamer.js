@@ -1,6 +1,7 @@
 const {removeNull} = require('./nullRemover');
 const {assertIsValid} = require('./assertType');
 const {BaseResponseStreamer} = require('./baseResponseStreamer');
+const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 
 class FhirResponseStreamer extends BaseResponseStreamer {
     /**
@@ -28,6 +29,12 @@ class FhirResponseStreamer extends BaseResponseStreamer {
          * @private
          */
         this._lastid = null;
+
+        /**
+         * @type {number}
+         * @private
+         */
+        this._count = 0;
     }
 
     /**
@@ -42,7 +49,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
 
         const header = '{"entry":[';
 
-        this.response.write(header);
+        await this.response.write(header);
     }
 
     /**
@@ -60,21 +67,26 @@ class FhirResponseStreamer extends BaseResponseStreamer {
             if (this._first) {
                 // write the beginning json
                 this._first = false;
-                this.response.write(bundleEntryJson);
+                await this.response.write(bundleEntryJson);
             } else {
                 // add comma at the beginning to make it legal json
-                this.response.write(',' + bundleEntryJson);
+                await this.response.write(',' + bundleEntryJson);
             }
+            this._count = this._count + 1;
             this._lastid = bundleEntry.resource.id;
         }
     }
 
     /**
      * ends response
-     * @param {Bundle} bundle
      * @return {Promise<void>}
      */
-    async endAsync({bundle}) {
+    async endAsync() {
+        const bundle = new Bundle({
+            id: this.requestId,
+            type: 'batch-response',
+            total: this._count
+        });
         // noinspection JSUnresolvedFunction
         /**
          * @type {Object}
@@ -86,7 +98,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
         const bundleJson = JSON.stringify(cleanObject);
 
         // write ending json
-        this.response.end('],' + bundleJson.substring(1));
+        await this.response.end('],' + bundleJson.substring(1));
     }
 }
 

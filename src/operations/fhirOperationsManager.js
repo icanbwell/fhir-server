@@ -385,7 +385,8 @@ class FhirOperationsManager {
             response: res,
             requestId: req.id
         });
-        return this.everythingOperation.everything(
+        await responseStreamer.startAsync();
+        const result = this.everythingOperation.everything(
             {
                 requestInfo: this.getRequestInfo(req),
                 res,
@@ -393,6 +394,8 @@ class FhirOperationsManager {
                 resourceType,
                 responseStreamer
             });
+        await responseStreamer.endAsync();
+        return result;
     }
 
     /**
@@ -507,7 +510,8 @@ class FhirOperationsManager {
             response: res,
             requestId: req.id
         });
-        return this.graphOperation.graph(
+        await responseStreamer.startAsync();
+        const result = this.graphOperation.graph(
             {
                 requestInfo: this.getRequestInfo(req),
                 res,
@@ -515,6 +519,8 @@ class FhirOperationsManager {
                 resourceType,
                 responseStreamer
             });
+        await responseStreamer.endAsync();
+        return result;
     }
 
     /**

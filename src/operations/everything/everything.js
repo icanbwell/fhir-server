@@ -72,7 +72,7 @@ class EverythingOperation {
         });
 
         try {
-            let {id} = args;
+            const {id} = args;
 
             let query = {};
             query.id = id;

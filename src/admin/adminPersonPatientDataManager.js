@@ -148,13 +148,11 @@ class AdminPersonPatientDataManager {
      * @param {import('http').ServerResponse} res
      * @param {string} personId
      * @param {BaseResponseStreamer} responseStreamer
-     * @return {Promise<Bundle>}
+     * @return {Promise<void>}
      */
     async deletePersonDataGraphAsync({req, res, personId, responseStreamer}) {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
-            await responseStreamer.startAsync();
-
             requestInfo.method = 'DELETE';
             const bundle = await this.everythingOperation.everything({
                 requestInfo,
@@ -166,15 +164,14 @@ class AdminPersonPatientDataManager {
                 resourceType: 'Person',
                 responseStreamer: null
             });
+            bundle.entry.forEach(bundleEntry => responseStreamer.writeAsync({bundleEntry}));
             // now also remove any connections to this Patient record
             await this.removeLinksFromOtherPersonsAsync({
                 requestId: req.id,
                 responseStreamer,
                 bundle
             });
-            // bundleEntries.forEach(e => bundle.entry.push(e));
-            responseStreamer.endAsync({bundle});
-            return bundle;
+            return;
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in deletePersonDataGraphAsync(): ' + `person id:${personId}, `, error: e
@@ -258,7 +255,7 @@ class AdminPersonPatientDataManager {
                         }
                     );
                     if (responseStreamer) {
-                        responseStreamer.writeAsync({
+                        await responseStreamer.writeAsync({
                             bundleEntry
                         });
                     } else {

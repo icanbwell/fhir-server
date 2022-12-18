@@ -292,12 +292,14 @@ async function handleAdmin(
                                     response: res,
                                     requestId: req.id,
                                 });
+                            await responseStreamer.startAsync();
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
                                 res,
                                 patientId,
                                 responseStreamer
                             });
+                            await responseStreamer.startAsync();
                             return;
                         }
                     }
@@ -331,12 +333,15 @@ async function handleAdmin(
                                 response: res,
                                 requestId: req.id,
                             });
+
+                        await responseStreamer.startAsync();
                         await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
                             req,
                             res,
                             personId,
                             responseStreamer
                         });
+                        await responseStreamer.endAsync();
                         return;
                     }
                     return res.json({
