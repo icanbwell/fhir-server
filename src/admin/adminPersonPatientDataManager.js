@@ -164,7 +164,7 @@ class AdminPersonPatientDataManager {
                 resourceType: 'Person',
                 responseStreamer: null
             });
-            bundle.entry.forEach(bundleEntry => responseStreamer.writeAsync({bundleEntry}));
+            bundle.entry.forEach(bundleEntry => responseStreamer.writeBundleEntryAsync({bundleEntry}));
             // now also remove any connections to this Patient record
             await this.removeLinksFromOtherPersonsAsync({
                 requestId: req.id,
@@ -258,7 +258,7 @@ class AdminPersonPatientDataManager {
                         }
                     );
                     if (responseStreamer) {
-                        await responseStreamer.writeAsync({
+                        await responseStreamer.writeBundleEntryAsync({
                             bundleEntry
                         });
                     } else {

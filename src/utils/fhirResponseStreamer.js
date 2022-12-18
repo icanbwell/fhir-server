@@ -66,7 +66,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeAsync({bundleEntry}) {
+    async writeBundleEntryAsync({bundleEntry}) {
         if (bundleEntry !== null && bundleEntry !== undefined) {
             /**
              * @type {string}

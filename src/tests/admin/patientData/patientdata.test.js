@@ -20,7 +20,7 @@ const path = require('path');
 const expectedPatientDeletionResourcesHtml = fs.readFileSync(
     path.resolve(__dirname, './fixtures/expected/expected_Patient_deletion.html'),
     'utf8'
-).replace('\n', '');
+).trim();
 
 const {
     commonBeforeEach,

@@ -40,13 +40,13 @@ class HttpResponseStreamer extends BaseResponseStreamer {
         this.response.setHeader('Transfer-Encoding', 'chunked');
 
         const header =
-            '<!DOCTYPE html>' +
-            '<html lang="en">' +
-            '<head>' +
-            '<meta charset="utf-8">' +
-            `<title>${this.title || ''}</title>` +
-            '</head>' +
-            '<body>';
+            '<!DOCTYPE html>\n' +
+            '<html lang="en">\n' +
+            '<head>\n' +
+            '<meta charset="utf-8">\n' +
+            `<title>${this.title || ''}</title>\n` +
+            '</head>\n' +
+            '<body>\n';
 
         this.response.write(header);
 
@@ -60,13 +60,17 @@ class HttpResponseStreamer extends BaseResponseStreamer {
      * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeAsync({bundleEntry}) {
+    async writeBundleEntryAsync({bundleEntry}) {
         if (this.fnGetHtmlForBundleEntry) {
             const html = this.fnGetHtmlForBundleEntry(bundleEntry);
             if (html) {
                 this.response.write(html);
             }
         }
+    }
+
+    async writeAsync({content}) {
+        this.response.write(content);
     }
 
     /**
@@ -76,7 +80,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
     async endAsync() {
         // since this is the last chunk, close the stream.
         const html =
-            '</body>' +
+            '</body>\n' +
             '</html>';
 
         this.response.end(html);

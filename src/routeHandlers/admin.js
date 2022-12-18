@@ -99,7 +99,7 @@ async function handleAdmin(
      */
     function getHtmlForBundleEntry(bundleEntry) {
         const operation = bundleEntry.request ? `${bundleEntry.request.method} ` : '';
-        return `<div>${operation}${bundleEntry.resource.resourceType}/${bundleEntry.resource.id}</div>`;
+        return `<div>${operation}${bundleEntry.resource.resourceType}/${bundleEntry.resource.id}</div>\n`;
     }
 
     try {
@@ -293,9 +293,9 @@ async function handleAdmin(
                                     response: res,
                                     requestId: req.id,
                                     title: 'Delete Patient Data Graph',
-                                    html: '<h1>Delete Patient Data Graph</h1>' + '<div>' +
+                                    html: '<h1>Delete Patient Data Graph</h1>\n' + '<div>' +
                                         `Started delete of ${patientId}.  This may take a few seconds.  ` +
-                                        '</div>',
+                                        '</div>\n',
                                     fnGetHtmlForBundleEntry: getHtmlForBundleEntry
                                 }) :
                                 new FhirResponseStreamer({
@@ -309,6 +309,9 @@ async function handleAdmin(
                                 res,
                                 patientId,
                                 responseStreamer
+                            });
+                            await responseStreamer.writeAsync({
+                                content: '<div>Finished</div>\n'
                             });
                             await responseStreamer.endAsync();
                             return;
@@ -335,9 +338,9 @@ async function handleAdmin(
                                 response: res,
                                 requestId: req.id,
                                 title: 'Delete Person Data Graph',
-                                html: '<h1>Delete Person Data Graph</h1>' + '<div>' +
+                                html: '<h1>Delete Person Data Graph</h1>\n' + '<div>' +
                                     `Started delete of ${personId}.  This may take a few seconds.  ` +
-                                    '</div>',
+                                    '</div>\n',
                                 fnGetHtmlForBundleEntry: getHtmlForBundleEntry
                             }) :
                             new FhirResponseStreamer({
@@ -352,6 +355,9 @@ async function handleAdmin(
                             res,
                             personId,
                             responseStreamer
+                        });
+                        await responseStreamer.writeAsync({
+                            content: '<div>Finished</div>\n'
                         });
                         await responseStreamer.endAsync();
                         return;

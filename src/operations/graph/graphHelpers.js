@@ -1211,7 +1211,7 @@ class GraphHelper {
 
             if (responseStreamer) {
                 for (const resource of resources) {
-                    await responseStreamer.writeAsync({
+                    await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: new BundleEntry({resource}
                         )
                     });
@@ -1358,7 +1358,7 @@ class GraphHelper {
                     });
                     deleteOperationBundleEntries.push(bundleEntry);
                     if (responseStreamer) {
-                        await responseStreamer.writeAsync({bundleEntry});
+                        await responseStreamer.writeBundleEntryAsync({bundleEntry});
                     }
                 }
 

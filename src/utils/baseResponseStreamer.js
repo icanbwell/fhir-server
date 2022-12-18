@@ -41,8 +41,18 @@ class BaseResponseStreamer {
      * @return {Promise<void>}
      */
     // eslint-disable-next-line no-unused-vars
-    async writeAsync({bundleEntry}) {
+    async writeBundleEntryAsync({bundleEntry}) {
         throw new Error('Method not implemented.');
+    }
+
+    /**
+     * writes some arbitrary content
+     * @param {*} content
+     * @returns {Promise<void>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async writeAsync({content}) {
+        // ok to not specify
     }
 
     /**
