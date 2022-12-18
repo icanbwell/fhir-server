@@ -1,26 +1,40 @@
-class HttpResponseStreamer {
+const {BaseResponseStreamer} = require('./baseResponseStreamer');
+
+class HttpResponseStreamer extends BaseResponseStreamer {
     /**
      * constructor
      * @param {import('express').Response} response
+     * @param {string} requestId
+     * @param {string|undefined} [title]
+     * @param {string|undefined} [html]
+     * @param {function(BundleEntry): string|null} fnGetHtmlForBundleEntry
      */
     constructor(
         {
-            response
+            response,
+            requestId,
+            title,
+            html,
+            fnGetHtmlForBundleEntry
         }
     ) {
+        super({
+            response, requestId
+        });
+        this.title = title;
+        this.html = html;
+
         /**
-         * @type {import('express').Response}
+         * @type {function(BundleEntry): string|null}
          */
-        this.response = response;
+        this.fnGetHtmlForBundleEntry = fnGetHtmlForBundleEntry;
     }
 
     /**
      * Starts response
-     * @param {string|undefined} title
-     * @param {string|undefined} html
      * @return {Promise<void>}
      */
-    async startAsync({title, html}) {
+    async startAsync() {
         const contentType = 'text/html; charset=UTF-8';
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
@@ -30,33 +44,38 @@ class HttpResponseStreamer {
             '<html lang="en">' +
             '<head>' +
             '<meta charset="utf-8">' +
-            `<title>${title}</title>` +
+            `<title>${this.title || ''}</title>` +
             '</head>' +
             '<body>';
 
         this.response.write(header);
 
-        if (html) {
-            this.response.write(html);
+        if (this.html) {
+            this.response.write(this.html);
         }
     }
 
     /**
      * writes to response
-     * @param {string} html
+     * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeAsync({html}) {
-        if (html) {
-            this.response.write(html);
+    async writeAsync({bundleEntry}) {
+        if (this.fnGetHtmlForBundleEntry) {
+            const html = this.fnGetHtmlForBundleEntry(bundleEntry);
+            if (html) {
+                this.response.write(html);
+            }
         }
     }
 
     /**
      * ends response
+     * @param {Bundle} bundle
      * @return {Promise<void>}
      */
-    async endAsync() {
+    // eslint-disable-next-line no-unused-vars
+    async endAsync({bundle}) {
         // since this is the last chunk, close the stream.
         const html =
             '</body>' +

@@ -1115,7 +1115,7 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {Object} args
-     * @param {FhirResponseStreamer|undefined} [fhirResponseStreamer]
+     * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {Object} originalArgs
      * @return {Promise<Bundle>}
      */
@@ -1130,12 +1130,12 @@ class GraphHelper {
             hash_references,
             args,
             originalArgs,
-            fhirResponseStreamer
+            responseStreamer
         }
     ) {
         try {
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.startAsync();
+            if (responseStreamer) {
+                await responseStreamer.startAsync();
             }
             /**
              * @type {number}
@@ -1212,12 +1212,14 @@ class GraphHelper {
                 }
             );
 
-            if (fhirResponseStreamer) {
+            if (responseStreamer) {
                 for (const resource of resources) {
-                    await fhirResponseStreamer.writeAsync({resource});
+                    await responseStreamer.writeAsync({
+                        bundleEntry: new BundleEntry({resource}
+                        )
+                    });
                 }
             }
-
 
             /**
              * @type {Bundle}
@@ -1242,9 +1244,9 @@ class GraphHelper {
                 user: requestInfo.user,
                 explanations
             });
-            if (fhirResponseStreamer) {
+            if (responseStreamer) {
                 bundle.resources = []; // clear up any resources since we already wrote them out
-                await fhirResponseStreamer.endAsync({bundle});
+                await responseStreamer.endAsync({bundle});
             }
             return bundle;
             // create a bundle
@@ -1271,7 +1273,7 @@ class GraphHelper {
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {Object} args
      * @param {Object} originalArgs
-     * @param {FhirResponseStreamer} fhirResponseStreamer
+     * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync(
@@ -1283,12 +1285,12 @@ class GraphHelper {
             graphDefinitionJson,
             args,
             originalArgs,
-            fhirResponseStreamer
+            responseStreamer
         }
     ) {
         try {
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.startAsync();
+            if (responseStreamer) {
+                await responseStreamer.startAsync();
             }
             /**
              * @type {number}
@@ -1307,7 +1309,7 @@ class GraphHelper {
                 graphDefinitionJson,
                 args,
                 originalArgs,
-                fhirResponseStreamer: null // don't let graph send the response
+                responseStreamer: null // don't let graph send the response
             });
             // now iterate and delete by resuourceType and Id
             /**
@@ -1370,8 +1372,8 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.endAsync({bundle: deleteOperationBundle});
+            if (responseStreamer) {
+                await responseStreamer.endAsync({bundle: deleteOperationBundle});
                 deleteOperationBundle.entry = [];
             }
             return deleteOperationBundle;

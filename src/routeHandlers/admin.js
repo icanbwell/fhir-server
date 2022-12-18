@@ -268,26 +268,28 @@ async function handleAdmin(
                                 req,
                                 res,
                                 patientId,
+                                responseStreamer: null
                             });
                             return res.json(json);
                         } else {
-                            const responseStreamer = new HttpResponseStreamer({response: res});
-                            await responseStreamer.startAsync({
+                            /**
+                             * @type {HttpResponseStreamer}
+                             */
+                            const httpResponseStreamer = new HttpResponseStreamer({
+                                response: res,
+                                requestId: req.id,
                                 title: 'Delete Patient Data Graph',
-                                html: '<h1>Delete Patient Data Graph</h1>'
-                            });
-                            await responseStreamer.writeAsync({
-                                html: '<div>' +
+                                html: '<h1>Delete Patient Data Graph</h1>' + '<div>' +
                                     `Started delete of ${patientId}.  This may take a few seconds.  ` +
-                                    '</div>'
+                                    '</div>',
+                                fnGetHtmlForBundleEntry: (bundleEntry) => `<div>${bundleEntry.resource.id}</div>`
                             });
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
                                 res,
                                 patientId,
+                                responseStreamer: httpResponseStreamer
                             });
-                            await responseStreamer.writeAsync({html: '<div>Finished Deleting</div>'});
-                            await responseStreamer.endAsync();
                             return;
                         }
                     }
@@ -304,10 +306,23 @@ async function handleAdmin(
                          * @type {AdminPersonPatientDataManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        /**
+                         * @type {HttpResponseStreamer}
+                         */
+                        const httpResponseStreamer = new HttpResponseStreamer({
+                            response: res,
+                            requestId: req.id,
+                            title: 'Delete Person Data Graph',
+                            html: '<h1>Delete Patient Data Graph</h1>' + '<div>' +
+                                `Started delete of ${personId}.  This may take a few seconds.  ` +
+                                '</div>',
+                            fnGetHtmlForBundleEntry: (bundleEntry) => `<div>${bundleEntry.resource.id}</div>`
+                        });
                         const json = await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
                             req,
                             res,
                             personId,
+                            responseStreamer: httpResponseStreamer
                         });
                         return res.json(json);
                     }

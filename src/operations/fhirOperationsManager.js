@@ -17,6 +17,7 @@ const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const env = require('var');
+const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -380,14 +381,17 @@ class FhirOperationsManager {
          * @type {Object}
          */
         const combined_args = get_all_args(req, args);
-
+        const responseStreamer = new FhirResponseStreamer({
+            response: res,
+            requestId: req.id
+        });
         return this.everythingOperation.everything(
             {
                 requestInfo: this.getRequestInfo(req),
                 res,
                 args: combined_args,
                 resourceType,
-                streamResponse: true
+                responseStreamer
             });
     }
 
@@ -499,13 +503,17 @@ class FhirOperationsManager {
          * @type {Object}
          */
         const combined_args = get_all_args(req, args);
+        const responseStreamer = new FhirResponseStreamer({
+            response: res,
+            requestId: req.id
+        });
         return this.graphOperation.graph(
             {
                 requestInfo: this.getRequestInfo(req),
                 res,
                 args: combined_args,
                 resourceType,
-                streamResponse: true
+                responseStreamer
             });
     }
 

@@ -1,7 +1,8 @@
 const {removeNull} = require('./nullRemover');
 const {assertIsValid} = require('./assertType');
+const {BaseResponseStreamer} = require('./baseResponseStreamer');
 
-class FhirResponseStreamer {
+class FhirResponseStreamer extends BaseResponseStreamer {
     /**
      * constructor
      * @param {import('express').Response} response
@@ -13,11 +14,9 @@ class FhirResponseStreamer {
             requestId
         }
     ) {
-        /**
-         * @type {import('express').Response}
-         */
-        this.response = response;
-        assertIsValid(response);
+        super({
+            response, requestId
+        });
         /**
          * @type {boolean}
          * @private
@@ -29,11 +28,6 @@ class FhirResponseStreamer {
          * @private
          */
         this._lastid = null;
-
-        /**
-         * @type {string}
-         */
-        this.requestId = requestId;
     }
 
     /**
@@ -53,24 +47,25 @@ class FhirResponseStreamer {
 
     /**
      * writes to response
-     * @param {Resource} resource
+     * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeAsync({resource}) {
-        if (resource !== null && resource !== undefined) {
+    async writeAsync({bundleEntry}) {
+        if (bundleEntry !== null && bundleEntry !== undefined) {
             /**
              * @type {string}
              */
-            const resourceJson = JSON.stringify(resource.toJSON());
+            const bundleEntryJson = JSON.stringify(bundleEntry.toJSON());
+            assertIsValid(bundleEntry.resource, `BundleEntry does not have a resource element: ${bundleEntryJson}`);
             if (this._first) {
                 // write the beginning json
                 this._first = false;
-                this.response.write(resourceJson);
+                this.response.write(bundleEntryJson);
             } else {
                 // add comma at the beginning to make it legal json
-                this.response.write(',' + resourceJson);
+                this.response.write(',' + bundleEntryJson);
             }
-            this._lastid = resource['id'];
+            this._lastid = bundleEntry.resource.id;
         }
     }
 
