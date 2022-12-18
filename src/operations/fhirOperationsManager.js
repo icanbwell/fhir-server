@@ -17,6 +17,9 @@ const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const env = require('var');
+const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 
 
 // This is needed for JSON.stringify() can handle regex
@@ -373,6 +376,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {import('express').Response} res
      * @param {string} resourceType
+     * @returns {Bundle}
      */
     async everything(args, {req, res}, resourceType) {
         /**
@@ -380,15 +384,42 @@ class FhirOperationsManager {
          * @type {Object}
          */
         const combined_args = get_all_args(req, args);
+        const responseStreamer = new FhirResponseStreamer({
+            response: res,
+            requestId: req.id
+        });
+        await responseStreamer.startAsync();
 
-        return this.everythingOperation.everything(
-            {
-                requestInfo: this.getRequestInfo(req),
-                res,
-                args: combined_args,
-                resourceType,
-                streamResponse: true
-            });
+        try {
+            /**
+             * @type {Bundle}
+             */
+            const result = await this.everythingOperation.everything(
+                {
+                    requestInfo: this.getRequestInfo(req),
+                    res,
+                    args: combined_args,
+                    resourceType,
+                    responseStreamer
+                });
+            await responseStreamer.endAsync();
+            return result;
+        } catch (err) {
+            const status = err.statusCode || 500;
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({error: err});
+            await responseStreamer.writeBundleEntryAsync({
+                    bundleEntry: new BundleEntry({
+                            resource: operationOutcome
+                        }
+                    )
+                }
+            );
+            await responseStreamer.setStatusCodeAsync({statusCode: status});
+            await responseStreamer.endAsync();
+        }
     }
 
     /**
@@ -491,7 +522,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {import('http').ServerResponse} res
      * @param {string} resourceType
-     * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
+     * @return {Promise<Bundle>}
      */
     async graph(args, {req, res}, resourceType) {
         /**
@@ -499,14 +530,41 @@ class FhirOperationsManager {
          * @type {Object}
          */
         const combined_args = get_all_args(req, args);
-        return this.graphOperation.graph(
-            {
-                requestInfo: this.getRequestInfo(req),
-                res,
-                args: combined_args,
-                resourceType,
-                streamResponse: true
-            });
+        const responseStreamer = new FhirResponseStreamer({
+            response: res,
+            requestId: req.id
+        });
+        await responseStreamer.startAsync();
+        try {
+            /**
+             * @type {Bundle}
+             */
+            const result = await this.graphOperation.graph(
+                {
+                    requestInfo: this.getRequestInfo(req),
+                    res,
+                    args: combined_args,
+                    resourceType,
+                    responseStreamer
+                });
+            await responseStreamer.endAsync();
+            return result;
+        } catch (err) {
+            const status = err.statusCode || 500;
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({error: err});
+            await responseStreamer.writeBundleEntryAsync({
+                    bundleEntry: new BundleEntry({
+                            resource: operationOutcome
+                        }
+                    )
+                }
+            );
+            await responseStreamer.setStatusCodeAsync({statusCode: status});
+            await responseStreamer.endAsync();
+        }
     }
 
     /**

@@ -1,7 +1,12 @@
 {
-  "code": "forbidden",
-  "details": {
-    "text": "user imran with scopes [user/*.read user/*.write access/foo.*] has no access to resource Person with id aba5bcf41cf64435839cf0568c121843"
-  },
-  "severity": "error"
+  "issue": [
+    {
+      "code": "forbidden",
+      "details": {
+        "text": "user imran with scopes [user/*.read user/*.write access/foo.*] has no access to resource Person with id aba5bcf41cf64435839cf0568c121843"
+      },
+      "severity": "error"
+    }
+  ],
+  "resourceType": "OperationOutcome"
 }

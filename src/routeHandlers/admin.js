@@ -9,6 +9,9 @@ const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {RethrownError} = require('../utils/rethrownError');
 const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
+const {assertIsValid} = require('../utils/assertType');
+const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
+const {generateUUID} = require('../utils/uid.util');
 
 /**
  * shows indexes
@@ -89,7 +92,18 @@ async function handleAdmin(
     req,
     res
 ) {
+    /**
+     * converts bundleEntry to html
+     * @param {BundleEntry} bundleEntry
+     * @returns {string}
+     */
+    function getHtmlForBundleEntry(bundleEntry) {
+        const operation = bundleEntry.request ? `${bundleEntry.request.method} ` : '';
+        return `<div>${operation}${bundleEntry.resource.resourceType}/${bundleEntry.resource.id}</div>\n`;
+    }
+
     try {
+        req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
         const operation = req.params['op'];
         console.log(`op=${operation}`);
 
@@ -126,6 +140,12 @@ async function handleAdmin(
                 }
 
                 case 'patientData': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
+                case 'personMatch': {
                     const parameters = {};
                     const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
                     return res.render(filePath, parameters);
@@ -261,25 +281,38 @@ async function handleAdmin(
                                 req,
                                 res,
                                 patientId,
+                                responseStreamer: null
                             });
                             return res.json(json);
                         } else {
-                            const responseStreamer = new HttpResponseStreamer({response: res});
-                            await responseStreamer.startAsync({
-                                title: 'Delete Patient Data Graph',
-                                html: '<h1>Delete Patient Data Graph</h1>'
-                            });
-                            await responseStreamer.writeAsync({
-                                html: '<div>' +
-                                    `Started delete of ${patientId}.  This may take a few seconds.  ` +
-                                    '</div>'
-                            });
+                            /**
+                             * @type {BaseResponseStreamer}
+                             */
+                            const responseStreamer = shouldReturnHtml(req) ?
+                                new HttpResponseStreamer({
+                                    response: res,
+                                    requestId: req.id,
+                                    title: 'Delete Patient Data Graph',
+                                    html: '<h1>Delete Patient Data Graph</h1>\n' + '<div>' +
+                                        `Started delete of ${patientId}.  This may take a few seconds.  ` +
+                                        '</div>\n',
+                                    fnGetHtmlForBundleEntry: getHtmlForBundleEntry
+                                }) :
+                                new FhirResponseStreamer({
+                                    response: res,
+                                    requestId: req.id,
+                                    bundleType: 'batch-response'
+                                });
+                            await responseStreamer.startAsync();
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
                                 res,
                                 patientId,
+                                responseStreamer
                             });
-                            await responseStreamer.writeAsync({html: '<div>Finished Deleting</div>'});
+                            await responseStreamer.writeAsync({
+                                content: '<div>Finished</div>\n'
+                            });
                             await responseStreamer.endAsync();
                             return;
                         }
@@ -297,12 +330,37 @@ async function handleAdmin(
                          * @type {AdminPersonPatientDataManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
-                        const json = await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
+                        /**
+                         * @type {BaseResponseStreamer}
+                         */
+                        const responseStreamer = shouldReturnHtml(req) ?
+                            new HttpResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                                title: 'Delete Person Data Graph',
+                                html: '<h1>Delete Person Data Graph</h1>\n' + '<div>' +
+                                    `Started delete of ${personId}.  This may take a few seconds.  ` +
+                                    '</div>\n',
+                                fnGetHtmlForBundleEntry: getHtmlForBundleEntry
+                            }) :
+                            new FhirResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                                bundleType: 'batch-response'
+                            });
+
+                        await responseStreamer.startAsync();
+                        await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
                             req,
                             res,
                             personId,
+                            responseStreamer
                         });
-                        return res.json(json);
+                        await responseStreamer.writeAsync({
+                            content: '<div>Finished</div>\n'
+                        });
+                        await responseStreamer.endAsync();
+                        return;
                     }
                     return res.json({
                         message: `No id: ${personId} passed`
@@ -336,6 +394,23 @@ async function handleAdmin(
                             res
                         }
                     );
+                }
+
+                case 'runPersonMatch': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const sourceId = req.query['sourceId'];
+                    const sourceType = req.query['sourceType'];
+                    const targetId = req.query['targetId'];
+                    const targetType = req.query['targetType'];
+                    const personMatchManager = container.personMatchManager;
+                    assertIsValid(personMatchManager);
+                    const json = await personMatchManager.personMatchAsync({
+                        sourceType,
+                        sourceId,
+                        targetType,
+                        targetId
+                    });
+                    return res.json(json);
                 }
 
                 default: {

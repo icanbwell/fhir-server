@@ -1,11 +1,9 @@
-// provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
 const person1withlinkResource = require('./fixtures/person/person1_withlink.json');
 const person1nolinkResource = require('./fixtures/person/person1_nolink.json');
 const observation1Resource = require('./fixtures/observation/observation1.json');
 const observation2Resource = require('./fixtures/observation/observation2.json');
 
-// expected
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -13,7 +11,9 @@ const {
     createTestRequest,
     getTestContainer, getRequestId,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {MockKafkaClient} = require('../../mocks/mockKafkaClient');
 
 describe('Patient Change Event Tests', () => {
     beforeEach(async () => {
@@ -25,6 +25,7 @@ describe('Patient Change Event Tests', () => {
     });
 
     describe('Patient Change Event Tests', () => {
+        // noinspection JSValidateTypes
         test('creating a new patient works', async () => {
             const request = await createTestRequest();
             /**
@@ -32,9 +33,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -66,9 +72,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -111,9 +122,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -166,9 +182,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
 
             let resp = await request
                 .post('/4_0_0/Person/81236/$merge')
@@ -220,9 +241,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
 
             let resp = await request
@@ -261,9 +287,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
 
             let resp = await request
                 .post('/4_0_0/Person/81236/$merge')

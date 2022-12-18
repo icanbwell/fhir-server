@@ -85,7 +85,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners works', async () => {
@@ -137,7 +137,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level reverse nesting works', async () => {
@@ -197,7 +197,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level reverse nesting works', async () => {
@@ -257,7 +257,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and contained works', async () => {
@@ -315,7 +315,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained works', async () => {
@@ -373,7 +373,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
@@ -446,7 +446,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
@@ -504,7 +504,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 2 level nesting works', async () => {
@@ -585,7 +585,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting works', async () => {
@@ -711,7 +711,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and contained works', async () => {
@@ -825,7 +825,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and extension works', async () => {
@@ -958,7 +958,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension works', async () => {
@@ -1182,7 +1182,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works', async () => {
@@ -1388,7 +1388,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with debug', async () => {
@@ -1641,7 +1641,7 @@ describe('graphHelper Tests', () => {
 
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with explain', async () => {
@@ -1799,7 +1799,7 @@ describe('graphHelper Tests', () => {
                         }
                     ]
                 },
-                'type': 'collection',
+                'type': 'searchset',
                 'entry': [
                     {
                         'id': '1',

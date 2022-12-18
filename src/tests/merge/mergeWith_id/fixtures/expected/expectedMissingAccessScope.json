@@ -1,7 +1,13 @@
 {
-  "severity": "error",
-  "code": "forbidden",
-  "details": {
-    "text": "user imran with scopes [user/*.read user/*.write] has no access scopes"
-  }
+  "issue": [
+    {
+      "code": "forbidden",
+      "details": {
+        "text": "user imran with scopes [user/*.read user/*.write] has no access scopes"
+      },
+      "diagnostics": "Error: user imran with scopes [user/*.read user/*.write] has no access scopes\n    at new ForbiddenError (/Users/imranqureshi/git/fhir-server/src/utils/httpErrors.js:155:9)\n    at ScopesManager.isAccessToResourceAllowedBySecurityTags (/Users/imranqureshi/git/fhir-server/src/operations/security/scopesManager.js:135:19)\n    at MergeManager.isAccessToResourceAllowedBySecurityTags [as mergeInsertAsync] (/Users/imranqureshi/git/fhir-server/src/operations/merge/mergeManager.js:208:34)\n    at mergeInsertAsync (/Users/imranqureshi/git/fhir-server/src/operations/merge/mergeManager.js:313:32)\n    at /Users/imranqureshi/git/fhir-server/node_modules/async-mutex/lib/Mutex.js:23:66\n    at Semaphore.<anonymous> (/Users/imranqureshi/git/fhir-server/node_modules/async-mutex/lib/Semaphore.js:37:46)\n    at step (/Users/imranqureshi/git/fhir-server/node_modules/tslib/tslib.js:144:27)\n    at Object.next (/Users/imranqureshi/git/fhir-server/node_modules/tslib/tslib.js:125:57)\n    at fulfilled (/Users/imranqureshi/git/fhir-server/node_modules/tslib/tslib.js:115:62)\n    at runMicrotasks (<anonymous>)\n    at processTicksAndRejections (node:internal/process/task_queues:96:5)\r\nCauses: RethrownError: Failed to load data\n    at /Users/imranqureshi/git/fhir-server/src/operations/merge/mergeManager.js:359:23\n    at runMicrotasks (<anonymous>)\n    at processTicksAndRejections (node:internal/process/task_queues:96:5)\r\nCauses: RethrownError: Failed to load data\n    at MergeManager.mergeResourceWithRetryAsync (/Users/imranqureshi/git/fhir-server/src/operations/merge/mergeManager.js:485:19)\n    at runMicrotasks (<anonymous>)\n    at processTicksAndRejections (node:internal/process/task_queues:96:5)\n    at /Users/imranqureshi/git/fhir-server/src/operations/merge/mergeManager.js:428:56\r\nCauses: RethrownError: Failed to load data\n    at MergeManager.mergeResourceListAsync (/Users/imranqureshi/git/fhir-server/src/operations/merge/mergeManager.js:442:19)\n    at runMicrotasks (<anonymous>)\n    at processTicksAndRejections (node:internal/process/task_queues:96:5)\n    at MergeOperation.merge (/Users/imranqureshi/git/fhir-server/src/operations/merge/merge.js:344:13)\n    at /Users/imranqureshi/git/fhir-server/src/middleware/fhir/4_0_0/controllers/operations.controller.js:69:32",
+      "severity": "error"
+    }
+  ],
+  "resourceType": "OperationOutcome"
 }

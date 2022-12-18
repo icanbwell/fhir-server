@@ -1,0 +1,15 @@
+query {
+    codeSystem {
+        entry {
+            resource {
+                id
+                resourceType
+                status
+                concept {
+                    code
+                    display
+                }
+            }
+        }
+    }
+}

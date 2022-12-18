@@ -30,6 +30,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
+const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 
 class SearchManager {
     /**
@@ -1093,12 +1094,19 @@ class SearchManager {
             );
         } catch (e) {
             logError({user, args: {error: e}});
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({
+                error: new RethrownError(
+                    {
+                        message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
+                        error: e
+                    })
+            });
+            fhirWriter.writeOperationOutcome({operationOutcome});
+            // res.write(JSON.stringify(operationOutcome.toJSON()));
             ac.abort();
-            throw new RethrownError(
-                {
-                    message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
-                    error: e
-                });
         } finally {
             res.removeListener('close', onResponseClose);
         }

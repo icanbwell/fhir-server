@@ -6,22 +6,29 @@
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
-const {isTrue} = require('./isTrue');
-const env = require('var');
 const {IndexManager} = require('../indexes/indexManager');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
+const {ConfigManager} = require('./configManager');
 
 class MongoCollectionManager {
     /**
      * Constructor
      * @param {IndexManager} indexManager
+     * @param {ConfigManager} configManager
      */
-    constructor({indexManager}) {
+    constructor({indexManager, configManager}) {
         assertTypeEquals(indexManager, IndexManager);
         /**
          * @type {IndexManager}
          */
         this.indexManager = indexManager;
+        assertTypeEquals(indexManager, IndexManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -38,7 +45,7 @@ class MongoCollectionManager {
             const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
             if (!collectionExists) {
                 await db.createCollection(collectionName);
-                if (isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION)) {
+                if (this.configManager.createIndexOnCollectionCreation) {
                     // and index it
                     await this.indexManager.indexCollectionAsync({collectionName, db});
                 }

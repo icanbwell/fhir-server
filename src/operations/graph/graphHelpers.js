@@ -1115,7 +1115,7 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {Object} args
-     * @param {FhirResponseStreamer|undefined} [fhirResponseStreamer]
+     * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {Object} originalArgs
      * @return {Promise<Bundle>}
      */
@@ -1130,13 +1130,10 @@ class GraphHelper {
             hash_references,
             args,
             originalArgs,
-            fhirResponseStreamer
+            responseStreamer
         }
     ) {
         try {
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.startAsync();
-            }
             /**
              * @type {number}
              */
@@ -1212,18 +1209,23 @@ class GraphHelper {
                 }
             );
 
-            if (fhirResponseStreamer) {
+            if (responseStreamer) {
                 for (const resource of resources) {
-                    await fhirResponseStreamer.writeAsync({resource});
+                    await responseStreamer.writeBundleEntryAsync({
+                        bundleEntry: new BundleEntry({
+                                id: resource.id,
+                                resource
+                            }
+                        )
+                    });
                 }
             }
-
 
             /**
              * @type {Bundle}
              */
             const bundle = this.bundleManager.createBundle({
-                type: 'collection',
+                type: 'searchset',
                 requestId: requestInfo.requestId,
                 originalUrl: requestInfo.originalUrl,
                 host: requestInfo.host,
@@ -1242,19 +1244,10 @@ class GraphHelper {
                 user: requestInfo.user,
                 explanations
             });
-            if (fhirResponseStreamer) {
-                bundle.resources = []; // clear up any resources since we already wrote them out
-                await fhirResponseStreamer.endAsync({bundle});
+            if (responseStreamer) {
+                responseStreamer.setBundle({bundle});
             }
             return bundle;
-            // create a bundle
-            // return new Bundle({
-            //     resourceType: 'Bundle',
-            //     id: '1',
-            //     type: 'collection',
-            //     timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
-            //     entry: uniqueEntries
-            // });
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in processGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, `, error: e
@@ -1271,7 +1264,7 @@ class GraphHelper {
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {Object} args
      * @param {Object} originalArgs
-     * @param {FhirResponseStreamer} fhirResponseStreamer
+     * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync(
@@ -1283,13 +1276,10 @@ class GraphHelper {
             graphDefinitionJson,
             args,
             originalArgs,
-            fhirResponseStreamer
+            responseStreamer
         }
     ) {
         try {
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.startAsync();
-            }
             /**
              * @type {number}
              */
@@ -1307,7 +1297,7 @@ class GraphHelper {
                 graphDefinitionJson,
                 args,
                 originalArgs,
-                fhirResponseStreamer: null // don't let graph send the response
+                responseStreamer: null // don't let graph send the response
             });
             // now iterate and delete by resuourceType and Id
             /**
@@ -1347,9 +1337,14 @@ class GraphHelper {
                         requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}
                     });
+
+                // for testing with delay
+                // await new Promise(r => setTimeout(r, 10000));
+
                 for (const resultResourceId of idList) {
                     const ResourceCreator = getResource(base_version, resultResourceType);
-                    deleteOperationBundleEntries.push(new BundleEntry({
+                    const bundleEntry = new BundleEntry({
+                        id: resultResourceId,
                         resource: new ResourceCreator({
                             id: resultResourceId, resourceType: resultResourceType
                         }),
@@ -1360,7 +1355,11 @@ class GraphHelper {
                                 url: `/${base_version}/${resultResourceType}/${resultResourceId}`
                             }
                         )
-                    }));
+                    });
+                    deleteOperationBundleEntries.push(bundleEntry);
+                    if (responseStreamer) {
+                        await responseStreamer.writeBundleEntryAsync({bundleEntry});
+                    }
                 }
 
             }
@@ -1370,9 +1369,8 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.endAsync({bundle: deleteOperationBundle});
-                deleteOperationBundle.entry = [];
+            if (responseStreamer) {
+                await responseStreamer.setBundle({bundle: deleteOperationBundle});
             }
             return deleteOperationBundle;
         } catch (e) {

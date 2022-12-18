@@ -1,27 +1,7 @@
 {
   "entry": [
     {
-      "id": "topLevelPerson",
-      "request": {
-        "method": "PATCH",
-        "url": "/4_0_0/Person/topLevelPerson"
-      },
-      "resource": {
-        "id": "topLevelPerson",
-        "resourceType": "Person"
-      }
-    },
-    {
-      "request": {
-        "method": "DELETE",
-        "url": "/4_0_0/Patient/patient1"
-      },
-      "resource": {
-        "id": "patient1",
-        "resourceType": "Patient"
-      }
-    },
-    {
+      "id": "observation1",
       "request": {
         "method": "DELETE",
         "url": "/4_0_0/Observation/observation1"
@@ -32,12 +12,35 @@
       }
     },
     {
+      "id": "patient1",
+      "request": {
+        "method": "DELETE",
+        "url": "/4_0_0/Patient/patient1"
+      },
+      "resource": {
+        "id": "patient1",
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "id": "person1",
       "request": {
         "method": "DELETE",
         "url": "/4_0_0/Person/person1"
       },
       "resource": {
         "id": "person1",
+        "resourceType": "Person"
+      }
+    },
+    {
+      "id": "topLevelPerson",
+      "request": {
+        "method": "PATCH",
+        "url": "/4_0_0/Person/topLevelPerson"
+      },
+      "resource": {
+        "id": "topLevelPerson",
         "resourceType": "Person"
       }
     }
