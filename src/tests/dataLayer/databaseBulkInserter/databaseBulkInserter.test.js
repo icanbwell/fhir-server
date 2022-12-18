@@ -12,7 +12,7 @@ const Observation = require('../../../fhir/classes/4_0_0/resources/observation')
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
      * Constructor
-     * @param {KafkaClient} kafkaClient
+     * @param {KafkaClientFactory} kafkaClientFactory
      * @param {ResourceManager} resourceManager
      * @param {string} patientChangeTopic
      * @param {string} taskChangeTopic
@@ -21,7 +21,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {RequestSpecificCache} requestSpecificCache
      */
     constructor({
-                    kafkaClient,
+                    kafkaClientFactory,
                     resourceManager,
                     patientChangeTopic,
                     taskChangeTopic,
@@ -30,7 +30,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
                     requestSpecificCache
                 }) {
         super({
-            kafkaClient,
+            kafkaClientFactory,
             resourceManager,
             patientChangeTopic,
             taskChangeTopic,
@@ -61,7 +61,7 @@ describe('databaseBulkInserter Tests', () => {
                     'changeEventProducer',
                     (c) =>
                         new MockChangeEventProducer({
-                            kafkaClient: c.kafkaClient,
+                            kafkaClientFactory: c.kafkaClientFactory,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
