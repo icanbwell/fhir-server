@@ -169,8 +169,12 @@ class ConfigManager {
         return isTrue(env.ENABLE_EVENTS_KAFKA);
     }
 
+    /**
+     * gets url to person matching service
+     * @return {string|undefined}
+     */
     get personMatchingServiceUrl() {
-        return env.PERSON_MATCHING_SERVICE_URL || 'http://person-matching.dev.bwell.zone/$match';
+        return env.PERSON_MATCHING_SERVICE_URL;
     }
 }
 

@@ -132,6 +132,12 @@ async function handleAdmin(
                     return res.render(filePath, parameters);
                 }
 
+                case 'personMatch': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
                 case 'searchLogResults': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const id = req.query['id'];
@@ -339,16 +345,21 @@ async function handleAdmin(
                     );
                 }
 
-                case 'personMatch': {
+                case 'runPersonMatch': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const sourceId = req.query['sourceId'];
+                    const sourceType = req.query['sourceType'];
                     const targetId = req.query['targetId'];
+                    const targetType = req.query['targetType'];
                     const personMatchManager = container.personMatchManager;
                     assertIsValid(personMatchManager);
-                    return await personMatchManager.personMatchAsync({
+                    const json = await personMatchManager.personMatchAsync({
+                        sourceType,
                         sourceId,
+                        targetType,
                         targetId
                     });
+                    return res.json(json);
                 }
 
                 default: {
