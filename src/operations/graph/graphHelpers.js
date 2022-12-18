@@ -1245,14 +1245,6 @@ class GraphHelper {
                 bundle.resources = []; // clear up any resources since we already wrote them out
             }
             return bundle;
-            // create a bundle
-            // return new Bundle({
-            //     resourceType: 'Bundle',
-            //     id: '1',
-            //     type: 'collection',
-            //     timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
-            //     entry: uniqueEntries
-            // });
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in processGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, `, error: e

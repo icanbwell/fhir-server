@@ -1,3 +1,4 @@
+const moment = require('moment-timezone');
 const {removeNull} = require('./nullRemover');
 const {assertIsValid} = require('./assertType');
 const {BaseResponseStreamer} = require('./baseResponseStreamer');
@@ -94,7 +95,8 @@ class FhirResponseStreamer extends BaseResponseStreamer {
         const bundle = new Bundle({
             id: this.requestId,
             type: this._bundleType,
-            total: this._count
+            total: this._count,
+            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z'
         });
         // noinspection JSUnresolvedFunction
         /**
