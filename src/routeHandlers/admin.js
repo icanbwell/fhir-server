@@ -291,6 +291,7 @@ async function handleAdmin(
                                 new FhirResponseStreamer({
                                     response: res,
                                     requestId: req.id,
+                                    bundleType: 'batch-response'
                                 });
                             await responseStreamer.startAsync();
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
@@ -332,6 +333,7 @@ async function handleAdmin(
                             new FhirResponseStreamer({
                                 response: res,
                                 requestId: req.id,
+                                bundleType: 'batch-response'
                             });
 
                         await responseStreamer.startAsync();

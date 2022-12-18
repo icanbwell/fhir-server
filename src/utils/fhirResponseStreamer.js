@@ -8,11 +8,13 @@ class FhirResponseStreamer extends BaseResponseStreamer {
      * constructor
      * @param {import('express').Response} response
      * @param {string} requestId
+     * @param {string} bundleType
      */
     constructor(
         {
             response,
-            requestId
+            requestId,
+            bundleType = 'searchset'
         }
     ) {
         super({
@@ -35,6 +37,13 @@ class FhirResponseStreamer extends BaseResponseStreamer {
          * @private
          */
         this._count = 0;
+
+        /**
+         * @type {string}
+         * @private
+         */
+        this._bundleType = bundleType;
+        assertIsValid(bundleType, 'bundleType is not set');
     }
 
     /**
@@ -84,7 +93,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
     async endAsync() {
         const bundle = new Bundle({
             id: this.requestId,
-            type: 'batch-response',
+            type: this._bundleType,
             total: this._count
         });
         // noinspection JSUnresolvedFunction

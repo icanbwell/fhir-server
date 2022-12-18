@@ -374,6 +374,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {import('express').Response} res
      * @param {string} resourceType
+     * @returns {Bundle}
      */
     async everything(args, {req, res}, resourceType) {
         /**
@@ -386,7 +387,10 @@ class FhirOperationsManager {
             requestId: req.id
         });
         await responseStreamer.startAsync();
-        const result = this.everythingOperation.everything(
+        /**
+         * @type {Bundle}
+         */
+        const result = await this.everythingOperation.everything(
             {
                 requestInfo: this.getRequestInfo(req),
                 res,
@@ -498,7 +502,7 @@ class FhirOperationsManager {
      * @param {import('http').IncomingMessage} req
      * @param {import('http').ServerResponse} res
      * @param {string} resourceType
-     * @return {Promise<{entry: {resource: Resource, fullUrl: string}[], id: string, resourceType: string}|{entry: *[], id: string, resourceType: string}>}
+     * @return {Promise<Bundle>}
      */
     async graph(args, {req, res}, resourceType) {
         /**
@@ -511,7 +515,10 @@ class FhirOperationsManager {
             requestId: req.id
         });
         await responseStreamer.startAsync();
-        const result = this.graphOperation.graph(
+        /**
+         * @type {Bundle}
+         */
+        const result = await this.graphOperation.graph(
             {
                 requestInfo: this.getRequestInfo(req),
                 res,
