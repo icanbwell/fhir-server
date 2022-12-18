@@ -10,6 +10,8 @@ const {isTrue} = require('../utils/isTrue');
 const {RethrownError} = require('../utils/rethrownError');
 const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
 const {assertIsValid} = require('../utils/assertType');
+const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
+const {generateUUID} = require('../utils/uid.util');
 
 /**
  * shows indexes
@@ -91,6 +93,7 @@ async function handleAdmin(
     res
 ) {
     try {
+        req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
         const operation = req.params['op'];
         console.log(`op=${operation}`);
 
@@ -273,22 +276,27 @@ async function handleAdmin(
                             return res.json(json);
                         } else {
                             /**
-                             * @type {HttpResponseStreamer}
+                             * @type {BaseResponseStreamer}
                              */
-                            const httpResponseStreamer = new HttpResponseStreamer({
-                                response: res,
-                                requestId: req.id,
-                                title: 'Delete Patient Data Graph',
-                                html: '<h1>Delete Patient Data Graph</h1>' + '<div>' +
-                                    `Started delete of ${patientId}.  This may take a few seconds.  ` +
-                                    '</div>',
-                                fnGetHtmlForBundleEntry: (bundleEntry) => `<div>${bundleEntry.resource.id}</div>`
-                            });
+                            const responseStreamer = shouldReturnHtml(req) ?
+                                new HttpResponseStreamer({
+                                    response: res,
+                                    requestId: req.id,
+                                    title: 'Delete Patient Data Graph',
+                                    html: '<h1>Delete Patient Data Graph</h1>' + '<div>' +
+                                        `Started delete of ${patientId}.  This may take a few seconds.  ` +
+                                        '</div>',
+                                    fnGetHtmlForBundleEntry: (bundleEntry) => `<div>${bundleEntry.resource.id}</div>`
+                                }) :
+                                new FhirResponseStreamer({
+                                    response: res,
+                                    requestId: req.id,
+                                });
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
                                 res,
                                 patientId,
-                                responseStreamer: httpResponseStreamer
+                                responseStreamer
                             });
                             return;
                         }
@@ -307,24 +315,29 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
                         /**
-                         * @type {HttpResponseStreamer}
+                         * @type {BaseResponseStreamer}
                          */
-                        const httpResponseStreamer = new HttpResponseStreamer({
-                            response: res,
-                            requestId: req.id,
-                            title: 'Delete Person Data Graph',
-                            html: '<h1>Delete Patient Data Graph</h1>' + '<div>' +
-                                `Started delete of ${personId}.  This may take a few seconds.  ` +
-                                '</div>',
-                            fnGetHtmlForBundleEntry: (bundleEntry) => `<div>${bundleEntry.resource.id}</div>`
-                        });
-                        const json = await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
+                        const responseStreamer = shouldReturnHtml(req) ?
+                            new HttpResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                                title: 'Delete Person Data Graph',
+                                html: '<h1>Delete Person Data Graph</h1>' + '<div>' +
+                                    `Started delete of ${personId}.  This may take a few seconds.  ` +
+                                    '</div>',
+                                fnGetHtmlForBundleEntry: (bundleEntry) => `<div>${bundleEntry.resource.id}</div>`
+                            }) :
+                            new FhirResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                            });
+                        await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
                             req,
                             res,
                             personId,
-                            responseStreamer: httpResponseStreamer
+                            responseStreamer
                         });
-                        return res.json(json);
+                        return;
                     }
                     return res.json({
                         message: `No id: ${personId} passed`
