@@ -244,5 +244,6 @@
     }
   ],
   "resourceType": "Bundle",
-  "type": "collection"
+  "total": 2,
+  "type": "searchset"
 }
