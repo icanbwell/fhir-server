@@ -36,5 +36,5 @@
   ],
   "resourceType": "Bundle",
   "total": 3,
-  "type": "searchset"
+  "type": "batch-response"
 }
