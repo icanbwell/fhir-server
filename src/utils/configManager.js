@@ -168,6 +168,10 @@ class ConfigManager {
     get kafkaEnableEvents() {
         return isTrue(env.ENABLE_EVENTS_KAFKA);
     }
+
+    get personMatchingServiceUrl() {
+        return env.PERSON_MATCHING_SERVICE_URL || 'http://person-matching.dev.bwell.zone/$match';
+    }
 }
 
 module.exports = {

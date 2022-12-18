@@ -75,6 +75,7 @@ const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/pr
 const {AwsSecretsManager} = require('./utils/awsSecretsManager');
 const {KafkaClientFactory} = require('./utils/kafkaClientFactory');
 const {AwsSecretsClientFactory} = require('./utils/awsSecretsClientFactory');
+const {PersonMatchManager} = require('./admin/personMatchManager');
 
 /**
  * Creates a container and sets up all the services
@@ -565,6 +566,13 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory
         }));
+
+    container.register('personMatchManager', (c) => new PersonMatchManager(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            configManager: c.configManager
+        }
+    ));
 
     return container;
 };

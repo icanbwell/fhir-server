@@ -1,14 +1,18 @@
-const {assertTypeEquals} = require('../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const superagent = require('superagent');
+const {ConfigManager} = require('../utils/configManager');
 
 class PersonMatchManager {
     /**
      *
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
-            databaseQueryFactory
+            databaseQueryFactory,
+            configManager
         }
     ) {
         /**
@@ -16,6 +20,9 @@ class PersonMatchManager {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -56,7 +63,26 @@ class PersonMatchManager {
                 'resource': source.toJSON(),
                 'match': target.toJSON()
             };
+
+            const url = this.configManager.personMatchingServiceUrl;
+            assertIsValid(url);
             // post to $match service
+            const header = {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            };
+            console.log(JSON.stringify(parameters));
+            /**
+             * @type {request.Response}
+             */
+            const res = await superagent
+                .post(url)
+                .send(parameters)
+                .set(header
+                );
+            const json = res.body;
+            console.log(JSON.stringify(json));
+            return json;
         }
     }
 }
