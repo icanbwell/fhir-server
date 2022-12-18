@@ -92,6 +92,16 @@ async function handleAdmin(
     req,
     res
 ) {
+    /**
+     * converts bundleEntry to html
+     * @param {BundleEntry} bundleEntry
+     * @returns {string}
+     */
+    function getHtmlForBundleEntry(bundleEntry) {
+        const operation = bundleEntry.request ? `${bundleEntry.request.method} ` : '';
+        return `<div>${operation}${bundleEntry.resource.resourceType}/${bundleEntry.resource.id}</div>`;
+    }
+
     try {
         req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
         const operation = req.params['op'];
@@ -286,7 +296,7 @@ async function handleAdmin(
                                     html: '<h1>Delete Patient Data Graph</h1>' + '<div>' +
                                         `Started delete of ${patientId}.  This may take a few seconds.  ` +
                                         '</div>',
-                                    fnGetHtmlForBundleEntry: (bundleEntry) => `<div>${bundleEntry.resource.id}</div>`
+                                    fnGetHtmlForBundleEntry: getHtmlForBundleEntry
                                 }) :
                                 new FhirResponseStreamer({
                                     response: res,
@@ -300,7 +310,7 @@ async function handleAdmin(
                                 patientId,
                                 responseStreamer
                             });
-                            await responseStreamer.startAsync();
+                            await responseStreamer.endAsync();
                             return;
                         }
                     }
@@ -328,7 +338,7 @@ async function handleAdmin(
                                 html: '<h1>Delete Person Data Graph</h1>' + '<div>' +
                                     `Started delete of ${personId}.  This may take a few seconds.  ` +
                                     '</div>',
-                                fnGetHtmlForBundleEntry: (bundleEntry) => `<div>${bundleEntry.resource.id}</div>`
+                                fnGetHtmlForBundleEntry: getHtmlForBundleEntry
                             }) :
                             new FhirResponseStreamer({
                                 response: res,

@@ -199,6 +199,9 @@ class AdminPersonPatientDataManager {
             responseStreamer
         }
     ) {
+        if (!bundle.entry) {
+            return [];
+        }
         try {
             /**
              * @type {BundleEntry[]}

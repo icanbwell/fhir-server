@@ -77,7 +77,7 @@ class HttpResponseStreamer extends BaseResponseStreamer {
         // since this is the last chunk, close the stream.
         const html =
             '</body>' +
-            '</html';
+            '</html>';
 
         this.response.end(html);
     }

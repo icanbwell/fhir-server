@@ -13,14 +13,24 @@ const expectedPatientResources = require('./fixtures/expected/expected_Patient.j
 const expectedPatientDeletionResources = require('./fixtures/expected/expected_Patient_deletion.json');
 const expectedTopLevelPersonResources = require('./fixtures/expected/expected_TopLevelPerson.json');
 
+const fs = require('fs');
+const path = require('path');
+
+// eslint-disable-next-line security/detect-non-literal-fs-filename
+const expectedPatientDeletionResourcesHtml = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/expected/expected_Patient_deletion.html'),
+    'utf8'
+).replace('\n', '');
+
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getHeadersWithCustomToken
+    getHeadersWithCustomToken, getHtmlHeaders
 } = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
+
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -153,6 +163,66 @@ describe('Patient Tests', () => {
                 .set(getHeadersWithCustomToken('user/*.* admin/*.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientDeletionResources);
+
+            resp = await request
+                .get('/4_0_0/Patient/patient1/$everything')
+                .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            // make sure top level person is NOT deleted
+            resp = await request
+                .get('/4_0_0/Person/topLevelPerson')
+                .set(getHeadersWithCustomToken('user/*.read admin/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedTopLevelPersonResources);
+        });
+        test('patientData delete works with admin permissions in html', async () => {
+            const request = await createTestRequest();
+
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(personResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(topLevelPersonResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // ACT & ASSERT
+            resp = await request
+                .get('/admin/deletePatientDataGraph?id=patient1')
+                .set(getHtmlHeaders('user/*.* admin/*.* access/*.*'));
+            // noinspection JSUnresolvedFunction
+            expect(resp.text).toStrictEqual(expectedPatientDeletionResourcesHtml);
 
             resp = await request
                 .get('/4_0_0/Patient/patient1/$everything')

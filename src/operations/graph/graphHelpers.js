@@ -1344,7 +1344,7 @@ class GraphHelper {
                     });
                 for (const resultResourceId of idList) {
                     const ResourceCreator = getResource(base_version, resultResourceType);
-                    deleteOperationBundleEntries.push(new BundleEntry({
+                    const bundleEntry = new BundleEntry({
                         resource: new ResourceCreator({
                             id: resultResourceId, resourceType: resultResourceType
                         }),
@@ -1355,7 +1355,11 @@ class GraphHelper {
                                 url: `/${base_version}/${resultResourceType}/${resultResourceId}`
                             }
                         )
-                    }));
+                    });
+                    deleteOperationBundleEntries.push(bundleEntry);
+                    if (responseStreamer) {
+                        await responseStreamer.writeAsync({bundleEntry});
+                    }
                 }
 
             }
@@ -1365,9 +1369,6 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
-            if (responseStreamer) {
-                deleteOperationBundle.entry = [];
-            }
             return deleteOperationBundle;
         } catch (e) {
             throw new RethrownError({
