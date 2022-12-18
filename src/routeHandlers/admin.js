@@ -9,7 +9,7 @@ const env = require('var');
 const {isTrue} = require('../utils/isTrue');
 const {RethrownError} = require('../utils/rethrownError');
 const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
-const {PersonMatchManager} = require('../admin/personMatchManager');
+const {assertIsValid} = require('../utils/assertType');
 
 /**
  * shows indexes
@@ -343,7 +343,9 @@ async function handleAdmin(
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const sourceId = req.query['sourceId'];
                     const targetId = req.query['targetId'];
-                    return await new PersonMatchManager().personMatchAsync({
+                    const personMatchManager = container.personMatchManager;
+                    assertIsValid(personMatchManager);
+                    return await personMatchManager.personMatchAsync({
                         sourceId,
                         targetId
                     });

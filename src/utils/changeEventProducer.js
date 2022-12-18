@@ -235,9 +235,10 @@ class ChangeEventProducer {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
+     * @param {string|undefined} sourceType
      * @return {Promise<void>}
      */
-    async onTaskCreateAsync({requestId, id, resourceType, timestamp}) {
+    async onTaskCreateAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = true;
 
         const messageJson = this._createMessage({
@@ -246,7 +247,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Task Create'
+            eventName: 'Task Create',
+            sourceType
         });
         const key = `${id}`;
         this.getTaskMessageMap({requestId}).set(key, messageJson);
@@ -258,9 +260,10 @@ class ChangeEventProducer {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
+     * @param {string|undefined} sourceType
      * @return {Promise<void>}
      */
-    async onTaskChangeAsync({requestId, id, resourceType, timestamp}) {
+    async onTaskChangeAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -269,7 +272,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Task Change'
+            eventName: 'Task Change',
+            sourceType
         });
 
         const key = `${id}`;
@@ -287,9 +291,10 @@ class ChangeEventProducer {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
+     * @param {string|undefined} sourceType
      * @return {Promise<void>}
      */
-    async onTaskCompleteAsync({requestId, id, resourceType, timestamp}) {
+    async onTaskCompleteAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -298,7 +303,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Task Complete'
+            eventName: 'Task Complete',
+            sourceType
         });
 
         const key = `${id}`;
@@ -316,9 +322,10 @@ class ChangeEventProducer {
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
+     * @param {string|undefined} sourceType
      * @return {Promise<void>}
      */
-    async onTaskCanceledAsync({requestId, id, resourceType, timestamp}) {
+    async onTaskCanceledAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -327,7 +334,8 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Task Canceled'
+            eventName: 'Task Canceled',
+            sourceType
         });
 
         const key = `${id}`;
@@ -519,19 +527,19 @@ class ChangeEventProducer {
         if (resourceType === 'Task') {
             if (eventType === 'C') {
                 await this.onTaskCreateAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             } else if (doc.status === 'completed') {
                 await this.onTaskCompleteAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             } else if (doc.status === 'cancelled') {
                 await this.onTaskCanceledAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             } else {
                 await this.onTaskChangeAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate
+                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             }
         }
