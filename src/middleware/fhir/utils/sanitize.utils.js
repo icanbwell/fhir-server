@@ -51,16 +51,30 @@ let parseValue = function (type, value) {
     return result;
 };
 
-let validateType = function (type, value) {
+/**
+ * validates that value is of type type
+ * @param {string} type
+ * @param {*} value
+ * @return {boolean}
+ */
+const validateType = function (type, value) {
     let result;
 
     switch (type) {
         case 'number':
-            result = typeof value === 'number' && !Number.isNaN(value);
+            if (Array.isArray(value)) {
+                result = value.every(v => typeof v === 'number' && !Number.isNaN(v));
+            } else {
+                result = typeof value === 'number' && !Number.isNaN(value);
+            }
             break;
 
         case 'boolean':
-            result = typeof value === 'boolean';
+            if (Array.isArray(value)) {
+                result = value.every(v => typeof v === 'boolean');
+            } else {
+                result = typeof value === 'boolean';
+            }
             break;
 
         case 'string':
@@ -68,11 +82,20 @@ let validateType = function (type, value) {
         case 'uri':
         case 'token':
         case 'date':
-            result = typeof value === 'string';
+            if (Array.isArray(value)) {
+                result = value.every(v => typeof v === 'string');
+            } else {
+                result = typeof value === 'string';
+
+            }
             break;
 
         case 'json_string':
-            result = typeof value === 'object';
+            if (Array.isArray(value)) {
+                result = value.every(v => typeof v === 'object');
+            } else {
+                result = typeof value === 'object';
+            }
             break;
 
         default:
@@ -148,7 +171,12 @@ let sanitizeMiddleware = function (config, required) {
 
             try {
                 if (value) {
-                    cleanArgs[`${field}`] = parseValue(conf.type, value);
+                    if (Array.isArray(value)) {
+                        cleanArgs[`${field}`] = value.map(v => parseValue(conf.type, v));
+                    } else {
+                        cleanArgs[`${field}`] = parseValue(conf.type, value);
+
+                    }
                 }
             } catch (err) {
                 return next(errors.invalidParameter(conf.name + ' is invalid', req.params.base_version));
