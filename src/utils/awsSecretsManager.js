@@ -12,6 +12,9 @@ class AwsSecretsManager {
             secretsManagerClientFactory
         }
     ) {
+        /**
+         * @type {AwsSecretsClientFactory}
+         */
         this.secretsManagerClientFactory = secretsManagerClientFactory;
         assertTypeEquals(secretsManagerClientFactory, AwsSecretsClientFactory);
     }
@@ -26,6 +29,9 @@ class AwsSecretsManager {
          * @type {import('@aws-sdk/client-secrets-manager').SecretsManagerClient}
          */
         const secretsManagerClient = await this.secretsManagerClientFactory.createSecretsClientAsync();
+        /**
+         * @type {import('@aws-sdk/client-secrets-manager').GetSecretValueCommandOutput}
+         */
         const response = await secretsManagerClient.send(command);
         const secretString = response.SecretString;
         const {username, password} = JSON.parse(secretString);

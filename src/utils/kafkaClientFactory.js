@@ -48,7 +48,7 @@ class KafkaClientFactory {
         return {
             clientId: this.configManager.kafkaClientId,
             brokers: this.configManager.kafkaBrokers,
-            ssl: this.configManager.kafkaUseSsl,
+            ssl: this.configManager.kafkaUseSsl || null,
             sasl: sasl,
         };
     }
