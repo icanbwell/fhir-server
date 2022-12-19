@@ -127,17 +127,7 @@
               "target": [
                 {
                   "type": "Person",
-                  "params": "patient={ref}",
-                  "link": [
-                    {
-                      "target": [
-                        {
-                          "type": "Person",
-                          "params": "link={ref}"
-                        }
-                      ]
-                    }
-                  ]
+                  "params": "patient={ref}"
                 }
               ]
             },

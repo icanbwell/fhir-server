@@ -54,6 +54,14 @@
             {
               "target": [
                 {
+                  "type": "Coverage",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
                   "type": "Encounter",
                   "params": "patient={ref}"
                 }
@@ -71,6 +79,14 @@
               "target": [
                 {
                   "type": "Immunization",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "MedicationDispense",
                   "params": "patient={ref}"
                 }
               ]
