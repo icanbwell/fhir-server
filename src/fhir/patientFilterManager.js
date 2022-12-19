@@ -107,6 +107,11 @@ class PatientFilterManager {
         return this.patientFilterMapping[`${resourceType}`];
     }
 
+    /**
+     * Returns whether access is allowed to the specified resource with patient scope
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
     canAccessResourceWithPatientScope({resourceType}) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
             this.resourcesWithoutPatientData.includes(resourceType);
