@@ -22,9 +22,7 @@ const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {RequestSpecificCache} = require('../utils/requestSpecificCache');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
-const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {getResource} = require('../operations/common/getResource');
-const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {DatabaseUpdateFactory} = require('./databaseUpdateFactory');
 
 const Mutex = require('async-mutex').Mutex;
@@ -53,8 +51,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ChangeEventProducer} changeEventProducer
      * @param {PreSaveManager} preSaveManager
      * @param {RequestSpecificCache} requestSpecificCache
-     * @param {ResourceMerger} resourceMerger
-     * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      */
     constructor({
@@ -66,8 +62,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     changeEventProducer,
                     preSaveManager,
                     requestSpecificCache,
-                    resourceMerger,
-                    databaseQueryFactory,
                     databaseUpdateFactory
                 }) {
         super();
@@ -121,19 +115,6 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
-
-        /**
-         * @type {ResourceMerger}
-         */
-        this.resourceMerger = resourceMerger;
-        assertTypeEquals(resourceMerger, ResourceMerger);
-
-        /**
-         * @type {DatabaseQueryFactory}
-         */
-        this.databaseQueryFactory = databaseQueryFactory;
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-
         /**
          * @type {DatabaseUpdateFactory}
          */
@@ -777,23 +758,6 @@ class DatabaseBulkInserter extends EventEmitter {
              * @type {Resource}
              */
             let resourceToMerge = new ResourceCreator(updateResourceJson);
-            /**
-             * @type {DatabaseQueryManager}
-             */
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({
-                resourceType: updateResourceJson.resourceType,
-                base_version: '4_0_0'
-            });
-            /**
-             * @type {Resource}
-             */
-            const currentResource = await databaseQueryManager.findOneAsync({
-                query: {id: resourceToMerge.id}
-            });
-            resourceToMerge = await this.resourceMerger.mergeResourceAsync({
-                currentResource,
-                resourceToMerge
-            });
             /**
              * @type {DatabaseUpdateManager}
              */

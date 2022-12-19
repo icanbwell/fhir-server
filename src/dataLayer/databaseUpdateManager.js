@@ -4,15 +4,26 @@
 const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {RethrownError} = require('../utils/rethrownError');
+const {getResource} = require('../operations/common/getResource');
+const {ResourceMerger} = require('../operations/common/resourceMerger');
+const {PreSaveManager} = require('../preSaveHandlers/preSave');
 
 class DatabaseUpdateManager {
     /**
      * Constructor
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {ResourceMerger} resourceMerger
+     * @param {PreSaveManager} preSaveManager
      * @param {string} resourceType
      * @param {string} base_version
      */
-    constructor({resourceLocatorFactory, resourceType, base_version}) {
+    constructor({
+                    resourceLocatorFactory,
+                    resourceMerger,
+                    preSaveManager,
+                    resourceType,
+                    base_version
+                }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
@@ -32,6 +43,18 @@ class DatabaseUpdateManager {
                 resourceType: this._resourceType,
                 base_version: this._base_version
             });
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
+
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -58,7 +81,30 @@ class DatabaseUpdateManager {
     async replaceOneAsync({doc}) {
         try {
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
-            await collection.replaceOne({id: doc.id}, doc.toJSONInternal());
+            let passed = false;
+            while (!passed) {
+                const previousVersionId = parseInt(doc.meta.versionId) - 1;
+                const filter = previousVersionId > 0 ?
+                    {$and: [{id: doc.id}, {'meta.versionId': `${previousVersionId}`}]} :
+                    {id: doc.id};
+                const updateResult = await collection.replaceOne(filter, doc.toJSONInternal());
+                if (updateResult.matchedCount === 0) {
+                    // if not result matched then the versionId has changed in the database
+                    // Get the latest version from the database and merge again
+                    const resourceJson = await collection.findOne({id: doc.id});
+                    if (resourceJson !== null) {
+                        const ResourceCreator = getResource('4_0_0', resourceJson.resourceType);
+                        const currentResource = new ResourceCreator(resourceJson);
+                        doc = await this.resourceMerger.mergeResourceAsync({
+                            currentResource,
+                            resourceToMerge: doc
+                        });
+                        await this.preSaveManager.preSaveAsync(doc);
+                    }
+                } else {
+                    passed = true;
+                }
+            }
         } catch (e) {
             throw new RethrownError({
                 error: e
