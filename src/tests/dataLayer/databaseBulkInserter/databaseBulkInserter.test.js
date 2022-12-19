@@ -264,12 +264,22 @@ describe('databaseBulkInserter Tests', () => {
 
             // now execute the bulk inserts
             const base_version = '4_0_0';
-            await databaseBulkInserter.executeAsync({
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await databaseBulkInserter.executeAsync({
                 requestId: requestId,
                 currentDate,
                 base_version
             });
-
+            expect(mergeResults).toStrictEqual([
+                {
+                    'id': 'loinc-1',
+                    'created': false,
+                    'updated': true,
+                    'resourceType': 'CodeSystem'
+                }
+            ]);
             /**
              * @type {PostRequestProcessor}
              */
@@ -314,6 +324,7 @@ describe('databaseBulkInserter Tests', () => {
                     ),
                 ]
             });
+            // noinspection JSCheckFunctionSignatures
             const actualCodeSystem = new CodeSystem(codeSystems[0]);
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });
