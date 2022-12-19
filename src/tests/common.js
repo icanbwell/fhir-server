@@ -164,7 +164,7 @@ const getTokenWithCustomClaims = (module.exports.getTokenWithCustomClaims = (sco
     });
 });
 
-const getTokenWithCustomPayload = (module.exports.getTokenWithCustomClaims = (payload) => {
+const getTokenWithCustomPayload = (module.exports.getTokenWithCustomPayload = (payload) => {
     return createToken(privateKey, '123', {
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
