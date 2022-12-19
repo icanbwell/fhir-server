@@ -310,12 +310,16 @@ class DatabaseBulkInserter extends EventEmitter {
             await this.preSaveManager.preSaveAsync(doc);
             // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
             // noinspection JSCheckFunctionSignatures
+            const previousVersionId = parseInt(doc.meta.versionId) - 1;
+            const filter = previousVersionId > 0 ?
+                {$and: [{id: id.toString()}, {'meta.versionId': previousVersionId}]} :
+                {id: id.toString()};
             this.addOperationForResourceType({
                     requestId,
                     resourceType,
                     operation: {
                         replaceOne: {
-                            filter: {id: id.toString()},
+                            filter: filter,
                             upsert: upsert,
                             replacement: doc.toJSONInternal()
                         }

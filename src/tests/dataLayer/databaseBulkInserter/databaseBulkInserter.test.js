@@ -192,7 +192,7 @@ describe('databaseBulkInserter Tests', () => {
             const databaseBulkInserter = container.databaseBulkInserter;
             const requestId = '1234';
 
-            const codeSystem1 = new CodeSystem({
+            const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
@@ -231,14 +231,14 @@ describe('databaseBulkInserter Tests', () => {
              */
             const codeSystemCollection = fhirDb.collection(collectionName);
 
-            await codeSystemCollection.insertOne(codeSystem1.toJSONInternal());
+            await codeSystemCollection.insertOne(codeSystemOriginal.toJSONInternal());
 
             const codeSystem2 = new CodeSystem({
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
-                    versionId: '1'
+                    versionId: '2'
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -261,6 +261,72 @@ describe('databaseBulkInserter Tests', () => {
                 id: codeSystem2.id,
                 doc: codeSystem2,
             });
+
+            // now add in a new one while waiting
+            const codeSystem1 = new CodeSystem({
+                id: 'loinc-1',
+                status: 'active',
+                content: 'complete',
+                meta: new Meta({
+                    versionId: '2'
+                }),
+                concept: [
+                    new CodeSystemConcept(
+                        {
+                            id: '5565-4',
+                            code: '5565-4',
+                            property: [
+                                new CodeSystemProperty1({
+                                    code: 'medline_plus',
+                                    valueString: '2'
+                                })
+                            ]
+                        }
+                    )
+                ]
+            });
+            const updateResult = await codeSystemCollection.findOneAndReplace({id: 'loinc-1'}, codeSystem1.toJSONInternal());
+            expect(updateResult.lastErrorObject).toStrictEqual({
+                'n': 1,
+                'updatedExisting': true
+            });
+            const codeSystemsBeforeBulkUpdate = await fhirDb.collection(collectionName).find().toArray();
+            expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
+            const expectedCodeSystemAfterFirstUpdate = new CodeSystem({
+                id: 'loinc-1',
+                status: 'active',
+                content: 'complete',
+                meta: new Meta({
+                    versionId: '2'
+                }),
+                concept: [
+                    new CodeSystemConcept(
+                        {
+                            id: '3565-4',
+                            code: '3565-4',
+                            property: [
+                                new CodeSystemProperty1({
+                                    code: 'medline_plus',
+                                    valueString: '1'
+                                })
+                            ]
+                        }
+                    ),
+                    new CodeSystemConcept(
+                        {
+                            id: '5565-4',
+                            code: '5565-4',
+                            property: [
+                                new CodeSystemProperty1({
+                                    code: 'medline_plus',
+                                    valueString: '2'
+                                })
+                            ]
+                        }
+                    )
+                ]
+            });
+            expect(new CodeSystem(codeSystemsBeforeBulkUpdate[0]).toJSON()).toStrictEqual(expectedCodeSystemAfterFirstUpdate.toJSON());
 
             // now execute the bulk inserts
             const base_version = '4_0_0';
