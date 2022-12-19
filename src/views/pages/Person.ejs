@@ -49,6 +49,7 @@
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Immunization', property:'patient'}], id:`Patient/person.${res.id}`, name: "Immunization" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ExplanationOfBenefit', property:'patient'}], id:`Patient/person.${res.id}`, name: "ExplanationOfBenefit" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MeasureReport', property:'patient'}], id:`Patient/person.${res.id}`, name: "MeasureReport" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationDispense', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationDispense" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationRequest', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationRequest" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationStatement', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationStatement" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Observation', property:'patient'}], id:`Patient/person.${res.id}`, name: "Observation" }); %>

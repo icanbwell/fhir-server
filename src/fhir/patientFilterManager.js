@@ -1,5 +1,9 @@
 class PatientFilterManager {
     constructor() {
+        /**
+         * defines the field in each resource that links to patient
+         * @type {Object}
+         */
         this.patientFilterMapping = {
             Annotation: 'authorReference.reference',
             Signature: 'who.reference',
@@ -75,17 +79,23 @@ class PatientFilterManager {
             Task: 'for.reference',
             VisionPrescription: 'patient.reference'
         };
+        /**
+         * defines resources that don't have patient data
+         * @type {string[]}
+         */
         this.resourcesWithoutPatientData = [
             'Practitioner',
+            'PractitionerRole',
             'Organization',
             'Medication',
             'CodeSystem',
-            'Libary',
+            'Library',
             'PlanDefinition',
             'GuidanceResponse',
             'Measure',
             'Location',
-            'HealthcareService'
+            'HealthcareService',
+            'InsurancePlan'
         ];
     }
 
