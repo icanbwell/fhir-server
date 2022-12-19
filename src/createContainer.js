@@ -264,7 +264,10 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 changeEventProducer: c.changeEventProducer,
                 preSaveManager: c.preSaveManager,
-                requestSpecificCache: c.requestSpecificCache
+                requestSpecificCache: c.requestSpecificCache,
+                resourceMerger: c.resourceMerger,
+                databaseQueryFactory: c.databaseQueryFactory,
+                databaseUpdateFactory: c.databaseUpdateFactory
             }
         )
     );

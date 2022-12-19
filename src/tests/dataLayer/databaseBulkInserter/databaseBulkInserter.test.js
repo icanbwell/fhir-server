@@ -197,6 +197,7 @@ describe('databaseBulkInserter Tests', () => {
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
+                    lastUpdated: Date(),
                     versionId: '1'
                 }),
                 concept: [
@@ -238,6 +239,7 @@ describe('databaseBulkInserter Tests', () => {
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
+                    lastUpdated: Date(),
                     versionId: '2'
                 }),
                 concept: [
@@ -248,7 +250,7 @@ describe('databaseBulkInserter Tests', () => {
                             property: [
                                 new CodeSystemProperty1({
                                     code: 'medline_plus',
-                                    valueString: '2'
+                                    valueString: '3'
                                 })
                             ]
                         }
@@ -268,9 +270,22 @@ describe('databaseBulkInserter Tests', () => {
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
+                    lastUpdated: Date(),
                     versionId: '2'
                 }),
                 concept: [
+                    new CodeSystemConcept(
+                        {
+                            id: '3565-4',
+                            code: '3565-4',
+                            property: [
+                                new CodeSystemProperty1({
+                                    code: 'medline_plus',
+                                    valueString: '1'
+                                })
+                            ]
+                        }
+                    ),
                     new CodeSystemConcept(
                         {
                             id: '5565-4',
@@ -297,6 +312,7 @@ describe('databaseBulkInserter Tests', () => {
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
+                    lastUpdated: Date(),
                     versionId: '2'
                 }),
                 concept: [
@@ -361,7 +377,7 @@ describe('databaseBulkInserter Tests', () => {
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
-                    versionId: '1'
+                    versionId: '3'
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -378,8 +394,8 @@ describe('databaseBulkInserter Tests', () => {
                     ),
                     new CodeSystemConcept(
                         {
-                            id: '6665-3',
-                            code: '6665-3',
+                            id: '5565-4',
+                            code: '5565-4',
                             property: [
                                 new CodeSystemProperty1({
                                     code: 'medline_plus',
@@ -388,10 +404,23 @@ describe('databaseBulkInserter Tests', () => {
                             ]
                         }
                     ),
+                    new CodeSystemConcept(
+                        {
+                            id: '6665-3',
+                            code: '6665-3',
+                            property: [
+                                new CodeSystemProperty1({
+                                    code: 'medline_plus',
+                                    valueString: '3'
+                                })
+                            ]
+                        }
+                    ),
                 ]
             });
             // noinspection JSCheckFunctionSignatures
             const actualCodeSystem = new CodeSystem(codeSystems[0]);
+            actualCodeSystem.meta.lastUpdated = null;
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });
     });

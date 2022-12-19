@@ -22,6 +22,10 @@ const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {RequestSpecificCache} = require('../utils/requestSpecificCache');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const {ResourceMerger} = require('../operations/common/resourceMerger');
+const {getResource} = require('../operations/common/getResource');
+const {DatabaseQueryFactory} = require('./databaseQueryFactory');
+const {DatabaseUpdateFactory} = require('./databaseUpdateFactory');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -49,6 +53,9 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {ChangeEventProducer} changeEventProducer
      * @param {PreSaveManager} preSaveManager
      * @param {RequestSpecificCache} requestSpecificCache
+     * @param {ResourceMerger} resourceMerger
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {DatabaseUpdateFactory} databaseUpdateFactory
      */
     constructor({
                     resourceManager,
@@ -58,7 +65,10 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceLocatorFactory,
                     changeEventProducer,
                     preSaveManager,
-                    requestSpecificCache
+                    requestSpecificCache,
+                    resourceMerger,
+                    databaseQueryFactory,
+                    databaseUpdateFactory
                 }) {
         super();
 
@@ -111,6 +121,24 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
+
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {DatabaseUpdateFactory}
+         */
+        this.databaseUpdateFactory = databaseUpdateFactory;
+        assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
     }
 
     /**
@@ -679,12 +707,20 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                          */
                         const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                        // const expectedInserts = operationsByCollection.filter(operation => operation.insertOne).length;
+                        const expectedUpdates = operationsByCollection.filter(operation => operation.replaceOne).length;
                         /**
                          * @type {import('mongodb').BulkWriteOpResultObject}
                          */
                         const result = await collection.bulkWrite(operationsByCollection, options);
                         //TODO: this only returns result from the last collection
                         mergeResult = result.result;
+                        // const actualInserts = mergeResult.nInserted;
+                        const actualUpdates = mergeResult.nModified;
+                        // if updates don't match then get latest and merge again
+                        if (actualUpdates < expectedUpdates) {
+                            await this.updateResourcesOneByOne({operationsByCollection});
+                        }
                     } catch (e) {
                         await this.errorReporter.reportErrorAsync({
                             source: 'databaseBulkInserter',
@@ -719,6 +755,55 @@ class DatabaseBulkInserter extends EventEmitter {
             });
         } finally {
             timer({resourceType});
+        }
+    }
+
+    /**
+     * Updates resources one by one
+     * @param {(import('mongodb').AnyBulkWriteOperation<import('mongodb').DefaultSchema>)[]} operationsByCollection
+     * @returns {Promise<void>}
+     */
+    async updateResourcesOneByOne({operationsByCollection}) {
+        // find the resources
+        /**
+         * @type {Object[]}
+         */
+        const updateResourcesJson = operationsByCollection.filter(operation => operation.replaceOne)
+            .map(operation => operation.replaceOne.replacement);
+        //get latest version from database
+        for (const /* @type {Object} */ updateResourceJson of updateResourcesJson) {
+            const ResourceCreator = getResource('4_0_0', updateResourceJson.resourceType);
+            /**
+             * @type {Resource}
+             */
+            let resourceToMerge = new ResourceCreator(updateResourceJson);
+            /**
+             * @type {DatabaseQueryManager}
+             */
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({
+                resourceType: updateResourceJson.resourceType,
+                base_version: '4_0_0'
+            });
+            /**
+             * @type {Resource}
+             */
+            const currentResource = await databaseQueryManager.findOneAsync({
+                query: {id: resourceToMerge.id}
+            });
+            resourceToMerge = await this.resourceMerger.mergeResourceAsync({
+                currentResource,
+                resourceToMerge
+            });
+            /**
+             * @type {DatabaseUpdateManager}
+             */
+            const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager(
+                {
+                    resourceType: updateResourceJson.resourceType,
+                    base_version: '4_0_0'
+                }
+            );
+            await databaseUpdateManager.replaceOneAsync({doc: resourceToMerge});
         }
     }
 }
