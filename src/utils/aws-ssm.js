@@ -19,14 +19,14 @@ module.exports.getElasticSearchParameterAsync = async (environment) => {
      * @type {import('aws-sdk').SSM.GetParameterResult}}
      */
     const usernameParameter = await ssm.getParameter({
-        Name: `/${environment}/helix/elasticsearch/username`,
+        Name: `/${environment}/fhir-server/elasticsearch/username`,
         WithDecryption: true
     }).promise();
     /**
      * @type {import('aws-sdk').SSM.GetParameterResult}}
      */
     const passwordParameter = await ssm.getParameter({
-        Name: `/${environment}/helix/elasticsearch/password`,
+        Name: `/${environment}/fhir-server/elasticsearch/password`,
         WithDecryption: true
     }).promise();
     return {username: usernameParameter.Parameter.Value, password: passwordParameter.Parameter.Value};
