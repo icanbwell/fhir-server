@@ -216,10 +216,17 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
             // check to see if we already have this insert and if so use replace
+            /**
+             * @type {Map<string, string[]>}
+             */
             const insertedIdsByResourceTypeMap = this.getInsertedIdsByResourceTypeMap({requestId});
-            if (insertedIdsByResourceTypeMap.get(resourceType) &&
-                insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
-                let previousVersionId = 1;
+            /**
+             * @type {string[]}
+             */
+            const insertedIdsByResourceType = insertedIdsByResourceTypeMap.get(resourceType);
+            if (insertedIdsByResourceType &&
+                insertedIdsByResourceType.filter(id => id === doc.id).length > 0) {
+                const previousVersionId = 1;
                 await this.replaceOneAsync(
                     {
                         requestId,
@@ -227,6 +234,27 @@ class DatabaseBulkInserter extends EventEmitter {
                         previousVersionId: `${previousVersionId}`
                     }
                 );
+            } else {
+                // else insert it
+                const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
+                await logVerboseAsync({
+                    source: 'DatabaseBulkInserter.insertOneAsync',
+                    args:
+                        {
+                            message: 'start',
+                            bufferLength: operationsByResourceTypeMap.size
+                        }
+                });
+                this.addOperationForResourceType({
+                    requestId,
+                    resourceType,
+                    operation: {
+                        insertOne: {
+                            document: doc.toJSONInternal()
+                        }
+                    }
+                });
+                insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
             }
             if (doc._id) {
                 await this.errorReporter.reportMessageAsync({
@@ -237,27 +265,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 });
             }
-            // else insert it
-            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
-            await logVerboseAsync({
-                source: 'DatabaseBulkInserter.insertOneAsync',
-                args:
-                    {
-                        message: 'start',
-                        bufferLength: operationsByResourceTypeMap.size
-                    }
-            });
-            this.addOperationForResourceType({
-                    requestId,
-                    resourceType,
-                    operation: {
-                        insertOne: {
-                            document: doc.toJSONInternal()
-                        }
-                    }
-                }
-            );
-            insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
         } catch (e) {
             throw new RethrownError({
                 error: e
