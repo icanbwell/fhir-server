@@ -219,10 +219,12 @@ class DatabaseBulkInserter extends EventEmitter {
             const insertedIdsByResourceTypeMap = this.getInsertedIdsByResourceTypeMap({requestId});
             if (insertedIdsByResourceTypeMap.get(resourceType) &&
                 insertedIdsByResourceTypeMap.get(resourceType).filter(a => a.id === doc.id).length > 0) {
-                return await this.replaceOneAsync(
+                let previousVersionId = 1;
+                await this.replaceOneAsync(
                     {
                         requestId,
-                        resourceType, id: doc.id, doc
+                        resourceType, id: doc.id, doc,
+                        previousVersionId: `${previousVersionId}`
                     }
                 );
             }
@@ -309,19 +311,32 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} requestId
      * @param {string} resourceType
      * @param {string} id
+     * @param {string|null} previousVersionId
      * @param {Resource} doc
      * @param {boolean} [upsert]
      * @returns {Promise<void>}
      */
-    async replaceOneAsync({requestId, resourceType, id, doc, upsert = false}) {
+    async replaceOneAsync({requestId, resourceType, id, previousVersionId, doc, upsert = false}) {
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
+
+            // see if there are any other pending updates for this doc
+            const pendingUpdates = this.getPendingUpdates({requestId, resourceType})
+                .filter(a => a.id === doc.id);
+            /**
+             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>|null}
+             */
+            const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
+            if (previousUpdate) {
+                const previousVersionNumber = parseInt(previousUpdate.replaceOne.replacement.meta.versionId);
+                previousVersionId = previousUpdate.replaceOne.replacement.meta.versionId;
+                doc.meta.versionId = `${previousVersionNumber + 1}`; // increment version
+            }
             // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
             // noinspection JSCheckFunctionSignatures
-            const previousVersionId = parseInt(doc.meta.versionId) - 1;
-            const filter = previousVersionId > 0 ?
-                {$and: [{id: id.toString()}, {'meta.versionId': previousVersionId}]} :
+            const filter = previousVersionId && previousVersionId !== '0' ?
+                {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
                 {id: id.toString()};
             this.addOperationForResourceType({
                     requestId,
@@ -688,8 +703,8 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                          */
                         const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
-                        // const expectedInserts = operationsByCollection.filter(operation => operation.insertOne).length;
-                        const expectedUpdates = operationsByCollection.filter(operation => operation.replaceOne).length;
+                        // const expectedInserts = this.getPendingInserts(operationsByCollection).length;
+                        const expectedUpdates = this.getPendingUpdates({requestId, resourceType}).length;
                         /**
                          * @type {import('mongodb').BulkWriteOpResultObject}
                          */
@@ -737,6 +752,34 @@ class DatabaseBulkInserter extends EventEmitter {
         } finally {
             timer({resourceType});
         }
+    }
+
+    /**
+     * Gets list of pending inserts for this resourceType
+     * @param {string} requestId
+     * @param {string} resourceType
+     * @returns {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+     */
+    getPendingInserts({requestId, resourceType}) {
+        /**
+         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]|undefined}
+         */
+        const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
+        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.insertOne) : [];
+    }
+
+    /**
+     * Gets list of pending updates for this resourceType
+     * @param {string} requestId
+     * @param {string} resourceType
+     * @returns {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+     */
+    getPendingUpdates({requestId, resourceType}) {
+        /**
+         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]|undefined}
+         */
+        const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
+        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.replaceOne) : [];
     }
 
     /**

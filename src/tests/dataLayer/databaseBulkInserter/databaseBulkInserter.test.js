@@ -120,6 +120,7 @@ describe('databaseBulkInserter Tests', () => {
                 resourceType: 'Patient',
                 id: patient.id,
                 doc: new Patient(patient),
+                previousVersionId: '1'
             });
 
             // now execute the bulk inserts
@@ -262,6 +263,7 @@ describe('databaseBulkInserter Tests', () => {
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
                 doc: codeSystem2,
+                previousVersionId: '1'
             });
 
             // now add in a new one while waiting

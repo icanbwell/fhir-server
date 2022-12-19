@@ -239,7 +239,12 @@ class UpdateOperation {
                     smartMerge: false
                 });
                 if (doc) { // if there is a change
-                    await this.databaseBulkInserter.replaceOneAsync({requestId, resourceType, id, doc});
+                    await this.databaseBulkInserter.replaceOneAsync(
+                        {
+                            requestId, resourceType, id, doc,
+                            previousVersionId: foundResource.meta.versionId
+                        }
+                    );
                 }
             } else {
                 // not found so insert
