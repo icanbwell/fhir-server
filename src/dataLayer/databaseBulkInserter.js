@@ -167,23 +167,6 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
-     * @param {string} requestId
-     * @return {Map<string, string[]>}
-     */
-    getInsertedIdsByResourceTypeMap({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'InsertedIdsByResourceTypeMap'});
-    }
-
-    /**
-     * @param {string} requestId
-     * @return {Map<string, string[]>}
-     */
-    getUpdatedIdsByResourceTypeMap({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'UpdatedIdsByResourceTypeMap'});
-    }
-
-
-    /**
      * Adds an operation
      * @param {string} requestId
      * @param {string} resourceType
@@ -203,10 +186,6 @@ class DatabaseBulkInserter extends EventEmitter {
         const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
         if (!(operationsByResourceTypeMap.has(resourceType))) {
             operationsByResourceTypeMap.set(`${resourceType}`, []);
-            const insertedIdsByResourceTypeMap = this.getInsertedIdsByResourceTypeMap({requestId});
-            insertedIdsByResourceTypeMap.set(`${resourceType}`, []);
-            const updatedIdsByResourceTypeMap = this.getUpdatedIdsByResourceTypeMap({requestId});
-            updatedIdsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
         operationsByResourceTypeMap.get(resourceType).push({
@@ -256,15 +235,17 @@ class DatabaseBulkInserter extends EventEmitter {
             await this.preSaveManager.preSaveAsync(doc);
             // check to see if we already have this insert and if so use replace
             /**
-             * @type {Map<string, string[]>}
+             * @type {Map<string, BulkInsertUpdateEntry[]>}
              */
-            const insertedIdsByResourceTypeMap = this.getInsertedIdsByResourceTypeMap({requestId});
+            const insertedIdsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
             /**
-             * @type {string[]}
+             * @type {BulkInsertUpdateEntry[]}
              */
             const insertedIdsByResourceType = insertedIdsByResourceTypeMap.get(resourceType);
             if (insertedIdsByResourceType &&
-                insertedIdsByResourceType.filter(id => id === doc.id).length > 0) {
+                insertedIdsByResourceType.filter(
+                    bulkEntry => bulkEntry.id === doc.id &&
+                        bulkEntry.operationType === 'insert').length > 0) {
                 const previousVersionId = 1;
                 await this.replaceOneAsync(
                     {
@@ -295,7 +276,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     },
                     operationType: 'insert'
                 });
-                insertedIdsByResourceTypeMap.get(resourceType).push(doc.id);
             }
             if (doc._id) {
                 await this.errorReporter.reportMessageAsync({
@@ -433,8 +413,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             );
-            const updatedIdsByResourceTypeMap = this.getUpdatedIdsByResourceTypeMap({requestId});
-            updatedIdsByResourceTypeMap.get(resourceType).push(doc.id);
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -529,8 +507,7 @@ class DatabaseBulkInserter extends EventEmitter {
              * @type {MergeResultEntry[]}
              */
             const mergeResultEntries = [];
-            const insertedIdsByResourceTypeMap = this.getInsertedIdsByResourceTypeMap({requestId});
-            for (const [resourceType, ids] of insertedIdsByResourceTypeMap) {
+            for (const [resourceType, operations] of operationsByResourceTypeMap.entries()) {
                 /**
                  * @type {BulkResultEntry|null}
                  */
@@ -538,7 +515,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     resultsByResourceType.filter(r => r.resourceType === resourceType));
                 if (mergeResultForResourceType) {
                     const diagnostics = JSON.stringify(mergeResultForResourceType.error);
-                    for (const id of ids) {
+                    for (const {id, resource, operationType} of operations) {
                         /**
                          * @type {MergeResultEntry}
                          */
@@ -563,18 +540,11 @@ class DatabaseBulkInserter extends EventEmitter {
                             mergeResultEntry
                         );
                         // fire change events
-                        /**
-                         * @type {Resource}
-                         */
-                        const resource = operationsByResourceTypeMap
-                            .get(resourceType)
-                            .filter(x => x.operationType === 'insert' && x.id === id)[0].resource;
-
                         this.postRequestProcessor.add({
                             requestId,
                             fnTask: async () => await this.changeEventProducer.fireEventsAsync({
                                 requestId,
-                                eventType: 'C',
+                                eventType: operationType === 'insert' ? 'C' : 'U',
                                 resourceType: resourceType,
                                 doc: resource
                             })
@@ -582,65 +552,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             }
-            const updatedIdsByResourceTypeMap = this.getUpdatedIdsByResourceTypeMap({requestId});
-            for (const [resourceType, ids] of updatedIdsByResourceTypeMap) {
-                /**
-                 * @type {BulkResultEntry|null}
-                 */
-                const mergeResultForResourceType = getFirstElementOrNull(resultsByResourceType.filter(r => r.resourceType === resourceType));
-                if (mergeResultForResourceType) {
-                    const diagnostics = JSON.stringify(mergeResultForResourceType.error);
-                    for (const id of ids) {
-                        /**
-                         * @type {MergeResultEntry}
-                         */
-                        const mergeResultEntry = {
-                            'id': id,
-                            created: false,
-                            updated: !mergeResultForResourceType.error,
-                            resourceType: resourceType
-                        };
-                        if (mergeResultForResourceType.error) {
-                            mergeResultEntry.issue = new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'exception',
-                                details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
-                                diagnostics: diagnostics,
-                                expression: [
-                                    resourceType + '/' + id
-                                ]
-                            });
-                        }
-                        mergeResultEntries.push(
-                            mergeResultEntry
-                        );
-                        const resources = operationsByResourceTypeMap
-                            .get(resourceType);
-                        if (resources !== undefined) {
-                            /**
-                             * @type {Resource}
-                             */
-                            const resource = resources
-                                .filter(x => x.operationType === 'replace' && x.id === id)[0].resource;
-
-                            this.postRequestProcessor.add({
-                                requestId,
-                                fnTask: async () => await this.changeEventProducer.fireEventsAsync({
-                                    requestId,
-                                    eventType: 'U',
-                                    resourceType: resourceType,
-                                    doc: resource
-                                })
-                            });
-                        }
-                    }
-                }
-            }
-
             operationsByResourceTypeMap.clear();
-            insertedIdsByResourceTypeMap.clear();
-            updatedIdsByResourceTypeMap.clear();
-
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
                 args:
@@ -732,6 +644,7 @@ class DatabaseBulkInserter extends EventEmitter {
                      * @type {Resource}
                      */
                     const resource = operation.resource;
+                    assertIsValid(resource, 'resource is null');
                     /**
                      * @type {string}
                      */
