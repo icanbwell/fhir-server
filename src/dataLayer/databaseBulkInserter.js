@@ -521,8 +521,8 @@ class DatabaseBulkInserter extends EventEmitter {
                          */
                         const mergeResultEntry = {
                             'id': id,
-                            created: !mergeResultForResourceType.error,
-                            updated: false,
+                            created: operationType === 'insert' && !mergeResultForResourceType.error,
+                            updated: operationType === 'replace' && !mergeResultForResourceType.error,
                             resourceType: resourceType
                         };
                         if (mergeResultForResourceType.error) {
