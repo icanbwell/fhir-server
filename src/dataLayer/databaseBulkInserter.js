@@ -172,8 +172,8 @@ class DatabaseBulkInserter extends EventEmitter {
         assertIsValid(requestId, 'requestId is null');
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
         assertIsValid(operation, `operation: ${operation} is null`);
-        assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
-        assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
+        assertIsValid(!(operation.insertOne && this.getResource({operation}) instanceof Resource));
+        assertIsValid(!(operation.replaceOne && this.getResource({operation}) instanceof Resource));
         // If there is no entry for this collection then create one
         const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
         if (!(operationsByResourceTypeMap.has(resourceType))) {
@@ -328,7 +328,24 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
 
+            /**
+             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+             */
+            const pendingInserts = this.getPendingInserts({requestId, resourceType})
+                .filter(a => a.id === doc.id);
+            /**
+             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>|null}
+             */
+            const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
+            if (previousInsert) {
+                previousVersionId = this.getResource({operation: previousInsert}).meta.versionId;
+                doc.meta.versionId = `${parseInt(previousVersionId) + 1}`; // increment version
+            }
+
             // see if there are any other pending updates for this doc
+            /**
+             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+             */
             const pendingUpdates = this.getPendingUpdates({requestId, resourceType})
                 .filter(a => a.id === doc.id);
             /**
@@ -336,9 +353,8 @@ class DatabaseBulkInserter extends EventEmitter {
              */
             const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
             if (previousUpdate) {
-                const previousVersionNumber = parseInt(previousUpdate.replaceOne.replacement.meta.versionId);
-                previousVersionId = previousUpdate.replaceOne.replacement.meta.versionId;
-                doc.meta.versionId = `${previousVersionNumber + 1}`; // increment version
+                previousVersionId = this.getResource({operation: previousUpdate}).meta.versionId;
+                doc.meta.versionId = `${parseInt(previousVersionId) + 1}`; // increment version
             }
             // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
             // noinspection JSCheckFunctionSignatures
@@ -487,9 +503,11 @@ class DatabaseBulkInserter extends EventEmitter {
                         /**
                          * @type {Resource}
                          */
-                        const resource = operationsByResourceTypeMap
-                            .get(resourceType)
-                            .filter(x => x.insertOne && x.insertOne.document.id === id)[0].insertOne.document;
+                        const resource = this.getResource({
+                            operation: operationsByResourceTypeMap
+                                .get(resourceType)
+                                .filter(x => x.insertOne && this.getResource({operation: x}).id === id)[0]
+                        });
 
                         this.postRequestProcessor.add({
                             requestId,
@@ -541,8 +559,10 @@ class DatabaseBulkInserter extends EventEmitter {
                             /**
                              * @type {Resource}
                              */
-                            const resource = resources
-                                .filter(x => x.replaceOne && x.replaceOne.replacement.id === id)[0].replaceOne.replacement;
+                            const resource = this.getResource({
+                                operation: resources
+                                    .filter(x => x.replaceOne && this.getResource({operation: x}).id === id)[0]
+                            });
 
                             this.postRequestProcessor.add({
                                 requestId,
@@ -653,7 +673,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     /**
                      * @type {Resource}
                      */
-                    const resource = operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
+                    const resource = this.getResource({operation});
                     /**
                      * @type {string}
                      */
@@ -790,6 +810,15 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * retrieves resource from operation
+     * @param {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} operation
+     * @returns {Object}
+     */
+    getResource({operation}) {
+        return operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
+    }
+
+    /**
      * Updates resources one by one
      * @param {(import('mongodb').AnyBulkWriteOperation<import('mongodb').DefaultSchema>)[]} operationsByCollection
      * @returns {Promise<void>}
@@ -800,7 +829,7 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {Object[]}
          */
         const updateResourcesJson = operationsByCollection.filter(operation => operation.replaceOne)
-            .map(operation => operation.replaceOne.replacement);
+            .map(operation => this.getResource({operation}));
         //get latest version from database
         for (const /* @type {Object} */ updateResourceJson of updateResourcesJson) {
             const ResourceCreator = getResource('4_0_0', updateResourceJson.resourceType);
