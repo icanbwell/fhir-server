@@ -199,7 +199,9 @@ const createContainer = function () {
         }));
     container.register('databaseUpdateFactory', (c) => new DatabaseUpdateFactory(
         {
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            resourceMerger: c.resourceMerger,
+            preSaveManager: c.preSaveManager
         }));
 
     container.register('resourceManager', () => new ResourceManager());
@@ -264,7 +266,9 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 changeEventProducer: c.changeEventProducer,
                 preSaveManager: c.preSaveManager,
-                requestSpecificCache: c.requestSpecificCache
+                requestSpecificCache: c.requestSpecificCache,
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                resourceMerger: c.resourceMerger
             }
         )
     );

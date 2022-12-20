@@ -169,7 +169,8 @@ class MergeManager {
             await this.performMergeDbUpdateAsync({
                     base_version,
                     requestId,
-                    resourceToMerge: patched_resource_incoming
+                    resourceToMerge: patched_resource_incoming,
+                    previousVersionId: currentResource.meta.versionId
                 }
             );
         }
@@ -493,13 +494,15 @@ class MergeManager {
      * @param {string} requestId
      * @param {string} base_version
      * @param {Resource} resourceToMerge
+     * @param {string} previousVersionId
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync(
         {
             requestId,
             base_version,
-            resourceToMerge
+            resourceToMerge,
+            previousVersionId
         }
     ) {
         try {
@@ -514,7 +517,8 @@ class MergeManager {
                     requestId,
                     resourceType: resourceToMerge.resourceType,
                     id: id.toString(),
-                    doc: resourceToMerge
+                    doc: resourceToMerge,
+                    previousVersionId
                 }
             );
 

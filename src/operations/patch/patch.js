@@ -120,9 +120,13 @@ class PatchOperation {
 
             let ResourceCreator = getResource(base_version, resourceType);
             let resource = new ResourceCreator(resource_incoming);
+            /**
+             * @type {Resource}
+             */
+            let foundResource;
 
             if (data && data.meta) {
-                let foundResource = new ResourceCreator(data);
+                foundResource = new ResourceCreator(data);
                 let meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
@@ -145,7 +149,12 @@ class PatchOperation {
             let res;
             doc = omitPropertyFromResource(doc, '_id');
 
-            await this.databaseBulkInserter.replaceOneAsync({requestId, resourceType, id, doc});
+            await this.databaseBulkInserter.replaceOneAsync(
+                {
+                    requestId, resourceType, id, doc,
+                    previousVersionId: foundResource.meta.versionId
+                }
+            );
             await this.databaseBulkInserter.insertOneHistoryAsync({
                 requestId, resourceType, doc: doc.clone(),
                 base_version,
