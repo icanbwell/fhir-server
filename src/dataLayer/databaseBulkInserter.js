@@ -839,7 +839,13 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Resource}
      */
     getResource({operation}) {
-        const resourceJson = operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
+        /**
+         * @type {Object}
+         */
+        let resourceJson = operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
+        if (!resourceJson.resourceType && resourceJson.resource) {
+            resourceJson = resourceJson.resource;
+        }
         const ResourceCreator = getResource('4_0_0', resourceJson.resourceType);
         return new ResourceCreator(resourceJson);
     }
