@@ -237,13 +237,13 @@ class DatabaseBulkInserter extends EventEmitter {
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
              */
-            const insertedIdsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
+            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
             /**
              * @type {BulkInsertUpdateEntry[]}
              */
-            const insertedIdsByResourceType = insertedIdsByResourceTypeMap.get(resourceType);
-            if (insertedIdsByResourceType &&
-                insertedIdsByResourceType.filter(
+            const operationsByResourceType = operationsByResourceTypeMap.get(resourceType);
+            if (operationsByResourceType &&
+                operationsByResourceType.filter(
                     bulkEntry => bulkEntry.id === doc.id &&
                         bulkEntry.operationType === 'insert').length > 0) {
                 const previousVersionId = 1;
@@ -256,7 +256,6 @@ class DatabaseBulkInserter extends EventEmitter {
                 );
             } else {
                 // else insert it
-                const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
                 await logVerboseAsync({
                     source: 'DatabaseBulkInserter.insertOneAsync',
                     args:
@@ -448,10 +447,11 @@ class DatabaseBulkInserter extends EventEmitter {
              */
             const resultsByResourceType = await async.map(
                 operationsByResourceTypeMap.entries(),
-                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                async mapEntry => await this.performBulkForResourceTypeWithMapEntryAsync(
                     {
                         requestId, currentDate,
-                        mapEntry: x, base_version,
+                        mapEntry: mapEntry,
+                        base_version,
                         useHistoryCollection: false
                     }
                 ));
@@ -536,9 +536,7 @@ class DatabaseBulkInserter extends EventEmitter {
                                 ]
                             });
                         }
-                        mergeResultEntries.push(
-                            mergeResultEntry
-                        );
+                        mergeResultEntries.push(mergeResultEntry);
                         // fire change events
                         this.postRequestProcessor.add({
                             requestId,
@@ -655,7 +653,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         operationsByCollectionNames.set(`${collectionName}`, []);
                     }
                     // remove _id if present so mongo can insert properly
-                    if (!useHistoryCollection && operation.operation.insertOne) {
+                    if (!useHistoryCollection && operation.operationType === 'insert') {
                         delete operation.operation.insertOne.document['_id'];
                     }
                     if (!useHistoryCollection && resource._id) {
@@ -669,7 +667,6 @@ class DatabaseBulkInserter extends EventEmitter {
                             }
                         });
                     }
-
                     operationsByCollectionNames.get(collectionName).push(operation);
                 }
 
@@ -791,7 +788,7 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
         const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
-        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.insertOne) : [];
+        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.operationType === 'insert') : [];
     }
 
     /**
@@ -805,7 +802,7 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
         const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
-        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.replaceOne) : [];
+        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.operationType === 'replace') : [];
     }
 
     /**
@@ -818,7 +815,7 @@ class DatabaseBulkInserter extends EventEmitter {
         /**
          * @type {Resource[]}
          */
-        const updateResources = operationsByCollection.filter(operation => operation.replaceOne)
+        const updateResources = operationsByCollection.filter(operation => operation.operationType === 'replace')
             .map(operation => operation.resource);
 
         for (const /* @type {Object} */ updateResource of updateResources) {
