@@ -83,7 +83,8 @@ class DatabaseQueryManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`, error: e
+                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
             });
         }
     }
@@ -150,7 +151,8 @@ class DatabaseQueryManager {
             return {deletedCount: deletedCount, error: null};
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`, error: e
+                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, requestId, options}
             });
         }
     }
@@ -184,7 +186,8 @@ class DatabaseQueryManager {
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`, error: e
+                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
             });
         }
     }
@@ -214,7 +217,8 @@ class DatabaseQueryManager {
             return count;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`, error: e
+                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`, error: e,
+                args: {options}
             });
         }
     }
@@ -244,7 +248,8 @@ class DatabaseQueryManager {
             return count;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`, error: e
+                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
             });
         }
     }
@@ -282,7 +287,8 @@ class DatabaseQueryManager {
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources)}`,
-                error: e
+                error: e,
+                args: {resources}
             });
         }
     }
