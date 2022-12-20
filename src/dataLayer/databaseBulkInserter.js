@@ -332,7 +332,7 @@ class DatabaseBulkInserter extends EventEmitter {
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
              */
             const pendingInserts = this.getPendingInserts({requestId, resourceType})
-                .filter(a => a.id === doc.id);
+                .filter(a => this.getResource({operation: a}).id === doc.id);
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>|null}
              */
@@ -347,7 +347,7 @@ class DatabaseBulkInserter extends EventEmitter {
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
              */
             const pendingUpdates = this.getPendingUpdates({requestId, resourceType})
-                .filter(a => a.id === doc.id);
+                .filter(a => this.getResource({operation: a}).id === doc.id);
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>|null}
              */
