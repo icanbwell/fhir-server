@@ -21,7 +21,7 @@ describe('PractitionerReturnIdTests', () => {
     });
 
     describe('Practitioner Search By 10,0000 Tests', () => {
-        test(
+        test.skip(
             'search by 2,000 id works',
             async () => {
                 const request = await createTestRequest();

@@ -7,6 +7,7 @@ const {RethrownError} = require('../utils/rethrownError');
 const {getResource} = require('../operations/common/getResource');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {PreSaveManager} = require('../preSaveHandlers/preSave');
+const {logTraceSystemEventAsync} = require('../operations/common/logging');
 
 class DatabaseUpdateManager {
     /**
@@ -112,6 +113,13 @@ class DatabaseUpdateManager {
                         await this.preSaveManager.preSaveAsync(doc);
                     }
                     runsLeft = runsLeft - 1;
+                    logTraceSystemEventAsync({
+                        event: 'replaceOneAsync',
+                        message: 'retry',
+                        args: {
+                            doc
+                        }
+                    });
                 } else {
                     passed = true;
                 }
