@@ -278,7 +278,7 @@ async function handleAdmin(
                         /**
                          * @type {string[]}
                          */
-                        let scopes = this.scopesManager.parseScopes(scope);
+                        let scopes = scopesManager.parseScopes(scope);
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
@@ -357,7 +357,7 @@ async function handleAdmin(
                         /**
                          * @type {string[]}
                          */
-                        let scopes = this.scopesManager.parseScopes(scope);
+                        let scopes = scopesManager.parseScopes(scope);
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
