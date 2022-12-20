@@ -1,4 +1,4 @@
-const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
+const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -117,7 +117,7 @@ class ExpandOperation {
                 action: currentOperationName,
                 error: e
             });
-            throw new BadRequestError(e);
+            throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
         }
 
         if (resource) {

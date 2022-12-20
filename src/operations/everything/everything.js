@@ -5,7 +5,6 @@ const personEverythingGraph = require('../../graphs/person/everything.json');
 const personEverythingForDeletionGraph = require('../../graphs/person/everything_for_deletion.json');
 const patientEverythingGraph = require('../../graphs/patient/everything.json');
 const patientEverythingForDeletionGraph = require('../../graphs/patient/everything_for_deletion.json');
-const {BadRequestError} = require('../../utils/httpErrors');
 const {GraphOperation} = require('../graph/graph');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -156,7 +155,7 @@ class EverythingOperation {
                     action: currentOperationName,
                     error: err
                 });
-            throw new BadRequestError(err);
+            throw err;
         }
     }
 }
