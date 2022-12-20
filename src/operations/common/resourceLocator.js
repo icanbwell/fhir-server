@@ -3,6 +3,7 @@ const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {PartitioningManager} = require('../../partitioners/partitioningManager');
 const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
+const {RethrownError} = require('../../utils/rethrownError');
 
 /**
  * This class returns collections that contain the requested resourceType
@@ -95,16 +96,26 @@ class ResourceLocator {
      * @returns {Promise<string>}
      */
     async getFirstCollectionNameForQueryDebugOnlyAsync({query}) {
-        assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
-        /**
-         * @type {string[]}
-         */
-        const collectionNames = await this.partitioningManager.getPartitionNamesByQueryAsync({
-            resourceType: this._resourceType,
-            base_version: this._base_version,
-            query
-        });
-        return collectionNames.length > 0 ? collectionNames[0] : '';
+        try {
+            assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
+            /**
+             * @type {string[]}
+             */
+            const collectionNames = await this.partitioningManager.getPartitionNamesByQueryAsync({
+                resourceType: this._resourceType,
+                base_version: this._base_version,
+                query
+            });
+            return collectionNames.length > 0 ? collectionNames[0] : '';
+        } catch (e) {
+            throw new RethrownError({
+                message: 'getFirstCollectionNameForQueryDebugOnlyAsync()',
+                error: e,
+                args: {
+                    query
+                }
+            });
+        }
     }
 
     /**

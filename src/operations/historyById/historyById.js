@@ -1,6 +1,4 @@
-// noinspection ExceptionCaughtLocallyJS
-
-const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
+const {NotFoundError} = require('../../utils/httpErrors');
 const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -183,7 +181,7 @@ class HistoryByIdOperation {
                     }
                 ).findAsync({query, options});
             } catch (e) {
-                throw new BadRequestError(e);
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
             /**
              * @type {import('mongodb').Document[]}
