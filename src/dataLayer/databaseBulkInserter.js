@@ -24,6 +24,7 @@ const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {getResource} = require('../operations/common/getResource');
 const {DatabaseUpdateFactory} = require('./databaseUpdateFactory');
+const {ResourceMerger} = require('../operations/common/resourceMerger');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -52,6 +53,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {PreSaveManager} preSaveManager
      * @param {RequestSpecificCache} requestSpecificCache
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
+     * @param {ResourceMerger} resourceMerger
      */
     constructor({
                     resourceManager,
@@ -62,7 +64,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     changeEventProducer,
                     preSaveManager,
                     requestSpecificCache,
-                    databaseUpdateFactory
+                    databaseUpdateFactory,
+                    resourceMerger
                 }) {
         super();
 
@@ -120,6 +123,12 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
     }
 
     /**
@@ -172,8 +181,8 @@ class DatabaseBulkInserter extends EventEmitter {
         assertIsValid(requestId, 'requestId is null');
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
         assertIsValid(operation, `operation: ${operation} is null`);
-        assertIsValid(!(operation.insertOne && this.getResource({operation}) instanceof Resource));
-        assertIsValid(!(operation.replaceOne && this.getResource({operation}) instanceof Resource));
+        assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
+        assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
         // If there is no entry for this collection then create one
         const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
         if (!(operationsByResourceTypeMap.has(resourceType))) {
@@ -328,20 +337,6 @@ class DatabaseBulkInserter extends EventEmitter {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
 
-            /**
-             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
-             */
-            const pendingInserts = this.getPendingInserts({requestId, resourceType})
-                .filter(a => this.getResource({operation: a}).id === doc.id);
-            /**
-             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>|null}
-             */
-            const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
-            if (previousInsert) {
-                previousVersionId = this.getResource({operation: previousInsert}).meta.versionId;
-                doc.meta.versionId = `${parseInt(previousVersionId) + 1}`; // increment version
-            }
-
             // see if there are any other pending updates for this doc
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
@@ -353,9 +348,38 @@ class DatabaseBulkInserter extends EventEmitter {
              */
             const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
             if (previousUpdate) {
-                previousVersionId = this.getResource({operation: previousUpdate}).meta.versionId;
-                doc.meta.versionId = `${parseInt(previousVersionId) + 1}`; // increment version
+                /**
+                 * @type {Resource}
+                 */
+                const previousResource = this.getResource({operation: previousUpdate});
+                previousVersionId = previousResource.meta.versionId;
+                doc = await this.resourceMerger.mergeResourceAsync({
+                    currentResource: previousResource,
+                    resourceToMerge: doc
+                });
+            } else {
+                /**
+                 * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+                 */
+                const pendingInserts = this.getPendingInserts({requestId, resourceType})
+                    .filter(a => this.getResource({operation: a}).id === doc.id);
+                /**
+                 * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>|null}
+                 */
+                const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
+                if (previousInsert) {
+                    /**
+                     * @type {Resource}
+                     */
+                    const previousResource = this.getResource({operation: previousInsert});
+                    previousVersionId = previousResource.meta.versionId;
+                    doc = await this.resourceMerger.mergeResourceAsync({
+                        currentResource: previousResource,
+                        resourceToMerge: doc
+                    });
+                }
             }
+
             // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
             // noinspection JSCheckFunctionSignatures
             const filter = previousVersionId && previousVersionId !== '0' ?
@@ -812,10 +836,12 @@ class DatabaseBulkInserter extends EventEmitter {
     /**
      * retrieves resource from operation
      * @param {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>} operation
-     * @returns {Object}
+     * @returns {Resource}
      */
     getResource({operation}) {
-        return operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
+        const resourceJson = operation.insertOne ? operation.insertOne.document : operation.replaceOne.replacement;
+        const ResourceCreator = getResource('4_0_0', resourceJson.resourceType);
+        return new ResourceCreator(resourceJson);
     }
 
     /**
@@ -826,27 +852,22 @@ class DatabaseBulkInserter extends EventEmitter {
     async updateResourcesOneByOne({operationsByCollection}) {
         // find the resources
         /**
-         * @type {Object[]}
+         * @type {Resource[]}
          */
-        const updateResourcesJson = operationsByCollection.filter(operation => operation.replaceOne)
+        const updateResources = operationsByCollection.filter(operation => operation.replaceOne)
             .map(operation => this.getResource({operation}));
-        //get latest version from database
-        for (const /* @type {Object} */ updateResourceJson of updateResourcesJson) {
-            const ResourceCreator = getResource('4_0_0', updateResourceJson.resourceType);
-            /**
-             * @type {Resource}
-             */
-            let resourceToMerge = new ResourceCreator(updateResourceJson);
+
+        for (const /* @type {Object} */ updateResource of updateResources) {
             /**
              * @type {DatabaseUpdateManager}
              */
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager(
                 {
-                    resourceType: updateResourceJson.resourceType,
+                    resourceType: updateResource.resourceType,
                     base_version: '4_0_0'
                 }
             );
-            await databaseUpdateManager.replaceOneAsync({doc: resourceToMerge});
+            await databaseUpdateManager.replaceOneAsync({doc: updateResource});
         }
     }
 }

@@ -267,7 +267,8 @@ const createContainer = function () {
                 changeEventProducer: c.changeEventProducer,
                 preSaveManager: c.preSaveManager,
                 requestSpecificCache: c.requestSpecificCache,
-                databaseUpdateFactory: c.databaseUpdateFactory
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                resourceMerger: c.resourceMerger
             }
         )
     );
