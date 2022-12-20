@@ -105,7 +105,7 @@ class PatchOperation {
                 );
                 data = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
             } catch (e) {
-                throw new BadRequestError(e);
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
             if (!data) {
                 throw new NotFoundError('Resource not found');

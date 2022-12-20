@@ -1,6 +1,4 @@
-// noinspection ExceptionCaughtLocallyJS
-
-const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
+const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
 const moment = require('moment-timezone');
@@ -174,7 +172,7 @@ class SearchByIdOperation {
                 );
                 resource = await databaseQueryManager.findOneAsync({query});
             } catch (e) {
-                throw new BadRequestError(e);
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
 
             if (resource) {
