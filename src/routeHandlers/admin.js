@@ -12,6 +12,9 @@ const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
 const {assertIsValid} = require('../utils/assertType');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const {generateUUID} = require('../utils/uid.util');
+const scopeChecker = require('@asymmetrik/sof-scope-checker');
+const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 /**
  * shows indexes
@@ -273,6 +276,31 @@ async function handleAdmin(
                     const sync = req.query['sync'];
                     if (patientId) {
                         /**
+                         * @type {string[]}
+                         */
+                        let scopes = this.scopesManager.parseScopes(scope);
+                        const resourceType = 'Patient';
+                        const accessRequested = 'write';
+                        // eslint-disable-next-line no-unused-vars
+                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        if (!success) {
+                            let errorMessage = 'user with scopes [' + scopes +
+                                '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                            const operationOutcome = new OperationOutcome({
+                                issue: [
+                                    new OperationOutcomeIssue(
+                                        {
+                                            severity: 'error',
+                                            code: 'forbidden',
+                                            diagnostics: errorMessage
+                                        }
+                                    )
+                                ]
+                            });
+                            return res.json(operationOutcome.toJSON());
+                        }
+
+                        /**
                          * @type {AdminPersonPatientDataManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
@@ -326,6 +354,30 @@ async function handleAdmin(
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const personId = req.query['id'];
                     if (personId) {
+                        /**
+                         * @type {string[]}
+                         */
+                        let scopes = this.scopesManager.parseScopes(scope);
+                        const resourceType = 'Patient';
+                        const accessRequested = 'write';
+                        // eslint-disable-next-line no-unused-vars
+                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        if (!success) {
+                            let errorMessage = 'user with scopes [' + scopes +
+                                '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                            const operationOutcome = new OperationOutcome({
+                                issue: [
+                                    new OperationOutcomeIssue(
+                                        {
+                                            severity: 'error',
+                                            code: 'forbidden',
+                                            diagnostics: errorMessage
+                                        }
+                                    )
+                                ]
+                            });
+                            return res.json(operationOutcome.toJSON());
+                        }
                         /**
                          * @type {AdminPersonPatientDataManager}
                          */
