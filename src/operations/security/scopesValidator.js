@@ -5,7 +5,6 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('./scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ConfigManager} = require('../../utils/configManager');
-const {RethrownError} = require('../../utils/rethrownError');
 
 class ScopesValidator {
     /**
@@ -51,6 +50,7 @@ class ScopesValidator {
             accessRequested
         }
     ) {
+        // eslint-disable-next-line no-useless-catch
         try {
             const {user, scope} = requestInfo;
 
@@ -96,18 +96,7 @@ class ScopesValidator {
                 }
             }
         } catch (e) {
-            throw new RethrownError({
-                message: 'verifyHasValidScopesAsync()',
-                error: e,
-                args: {
-                    requestInfo,
-                    args,
-                    resourceType,
-                    startTime,
-                    action,
-                    accessRequested
-                }
-            });
+            throw e;
         }
     }
 }
