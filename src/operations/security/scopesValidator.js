@@ -50,48 +50,53 @@ class ScopesValidator {
             accessRequested
         }
     ) {
-        const {user, scope} = requestInfo;
+        // eslint-disable-next-line no-useless-catch
+        try {
+            const {user, scope} = requestInfo;
 
-        if (this.configManager.authEnabled) {
-            // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
-            if (scope) {
-                /**
-                 * @type {string[]}
-                 */
-                let scopes = this.scopesManager.parseScopes(scope);
-                let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+            if (this.configManager.authEnabled) {
+                // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
+                if (scope) {
+                    /**
+                     * @type {string[]}
+                     */
+                    let scopes = this.scopesManager.parseScopes(scope);
+                    let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
 
-                if (success) {
-                    return;
+                    if (success) {
+                        return;
+                    }
+                    let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
+                    authorizationFailedCounter.inc({action: action, resourceType: resourceType});
+                    await this.fhirLoggingManager.logOperationFailureAsync(
+                        {
+                            requestInfo,
+                            args,
+                            resourceType,
+                            startTime: startTime,
+                            action: action,
+                            error: forbiddenError
+                        });
+                    throw forbiddenError;
+                } else {
+                    let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
+                    const forbiddenError1 = new ForbiddenError(errorMessage);
+                    authorizationFailedCounter.inc({action: action, resourceType: resourceType});
+                    await this.fhirLoggingManager.logOperationFailureAsync(
+                        {
+                            requestInfo,
+                            args,
+                            resourceType,
+                            startTime: startTime,
+                            action: action,
+                            error: forbiddenError1
+                        });
+                    throw forbiddenError1;
                 }
-                let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
-                const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
-                authorizationFailedCounter.inc({action: action, resourceType: resourceType});
-                await this.fhirLoggingManager.logOperationFailureAsync(
-                    {
-                        requestInfo,
-                        args,
-                        resourceType,
-                        startTime: startTime,
-                        action: action,
-                        error: forbiddenError
-                    });
-                throw forbiddenError;
-            } else {
-                let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
-                const forbiddenError1 = new ForbiddenError(errorMessage);
-                authorizationFailedCounter.inc({action: action, resourceType: resourceType});
-                await this.fhirLoggingManager.logOperationFailureAsync(
-                    {
-                        requestInfo,
-                        args,
-                        resourceType,
-                        startTime: startTime,
-                        action: action,
-                        error: forbiddenError1
-                    });
-                throw forbiddenError1;
             }
+        } catch (e) {
+            throw e;
         }
     }
 }
