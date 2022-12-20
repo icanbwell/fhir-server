@@ -80,9 +80,19 @@ class DatabaseUpdateManager {
      */
     async replaceOneAsync({doc}) {
         try {
+            /**
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+             */
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+            /**
+             * @type {boolean}
+             */
             let passed = false;
-            while (!passed) {
+            /**
+             * @type {number}
+             */
+            let runsLeft = 5;
+            while (!passed && runsLeft > 0) {
                 const previousVersionId = parseInt(doc.meta.versionId) - 1;
                 const filter = previousVersionId > 0 ?
                     {$and: [{id: doc.id}, {'meta.versionId': `${previousVersionId}`}]} :
@@ -101,13 +111,20 @@ class DatabaseUpdateManager {
                         });
                         await this.preSaveManager.preSaveAsync(doc);
                     }
+                    runsLeft = runsLeft - 1;
                 } else {
                     passed = true;
                 }
             }
+            if (runsLeft <= 0) {
+                throw new Error(`Unable to save resource ${doc.resourceType}/${doc.id} with version ${doc.meta.versionId} after 5 tries`);
+            }
         } catch (e) {
             throw new RethrownError({
-                error: e
+                error: e,
+                args: {
+                    doc
+                }
             });
         }
     }
