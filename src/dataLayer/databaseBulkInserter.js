@@ -366,10 +366,19 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const previousResource = previousUpdate.resource;
                 previousVersionId = previousResource.meta.versionId;
-                doc = await this.resourceMerger.mergeResourceAsync({
+                /**
+                 * returns null if doc is the same
+                 * @type {Resource|null}
+                 */
+                const updatedDoc = await this.resourceMerger.mergeResourceAsync({
                     currentResource: previousResource,
                     resourceToMerge: doc
                 });
+                if (!updatedDoc) {
+                    return; // no change so ignore
+                } else {
+                    doc = updatedDoc;
+                }
             } else {
                 /**
                  * @type {BulkInsertUpdateEntry[]}
@@ -386,10 +395,19 @@ class DatabaseBulkInserter extends EventEmitter {
                      */
                     const previousResource = previousInsert.resource;
                     previousVersionId = previousResource.meta.versionId;
-                    doc = await this.resourceMerger.mergeResourceAsync({
+                    /**
+                     * returns null if doc is the same
+                     * @type {Resource|null}
+                     */
+                    const updatedDoc = await this.resourceMerger.mergeResourceAsync({
                         currentResource: previousResource,
                         resourceToMerge: doc
                     });
+                    if (!updatedDoc) {
+                        return; // no change so ignore
+                    } else {
+                        doc = updatedDoc;
+                    }
                 }
             }
 

@@ -106,10 +106,14 @@ class DatabaseUpdateManager {
                     if (resourceJson !== null) {
                         const ResourceCreator = getResource('4_0_0', resourceJson.resourceType);
                         const currentResource = new ResourceCreator(resourceJson);
-                        doc = await this.resourceMerger.mergeResourceAsync({
+                        /**
+                         * @type {Resource|null}
+                         */
+                        const updatedDoc = await this.resourceMerger.mergeResourceAsync({
                             currentResource,
                             resourceToMerge: doc
                         });
+                        doc = updatedDoc || doc;
                         await this.preSaveManager.preSaveAsync(doc);
                     }
                     runsLeft = runsLeft - 1;

@@ -648,5 +648,143 @@ describe('databaseBulkInserter Tests', () => {
             actualCodeSystem.meta.lastUpdated = null;
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });
+        test('execAsync works with multiple inserts with same resource', async () => {
+            /**
+             * @type {string}
+             */
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+
+            const container = createTestContainer((container1) => {
+                container1.register(
+                    'changeEventProducer',
+                    (c) =>
+                        new MockChangeEventProducer({
+                            kafkaClientFactory: c.kafkaClientFactory,
+                            resourceManager: c.resourceManager,
+                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            observationChangeTopic:
+                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            bwellPersonFinder: c.bwellPersonFinder,
+                            requestSpecificCache: c.requestSpecificCache
+                        })
+                );
+                return container1;
+            });
+
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            const databaseBulkInserter = container.databaseBulkInserter;
+            const requestId = '1234';
+
+            const codeSystemOriginal = new CodeSystem({
+                id: 'loinc-1',
+                status: 'active',
+                content: 'complete',
+                meta: new Meta({
+                    lastUpdated: Date(),
+                    versionId: '1'
+                }),
+                concept: [
+                    new CodeSystemConcept(
+                        {
+                            id: '3565-4',
+                            code: '3565-4',
+                            property: [
+                                new CodeSystemProperty1({
+                                    code: 'medline_plus',
+                                    valueString: '1'
+                                })
+                            ]
+                        }
+                    )
+                ]
+            });
+
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId,
+                resourceType: 'CodeSystem',
+                doc: codeSystemOriginal,
+            });
+
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId,
+                resourceType: 'CodeSystem',
+                doc: codeSystemOriginal,
+            });
+
+            await databaseBulkInserter.replaceOneAsync({
+                requestId: requestId,
+                id: codeSystemOriginal.id,
+                resourceType: 'CodeSystem',
+                doc: codeSystemOriginal,
+                previousVersionId: null
+            });
+
+            // now execute the bulk inserts
+            const base_version = '4_0_0';
+            /**
+             * @type {MergeResultEntry[]}
+             */
+            const mergeResults = await databaseBulkInserter.executeAsync({
+                requestId: requestId,
+                currentDate,
+                base_version
+            });
+            expect(mergeResults).toStrictEqual([
+                {
+                    'created': true,
+                    'id': 'loinc-1',
+                    'resourceType': 'CodeSystem',
+                    'updated': false
+                }
+            ]);
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.executeAsync({requestId});
+            await postRequestProcessor.waitTillDoneAsync({requestId});
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const collectionName = 'CodeSystem_4_0_0';
+
+            const codeSystems = await fhirDb.collection(collectionName).find().toArray();
+            expect(codeSystems.length).toStrictEqual(1);
+            const expectedCodeSystem = new CodeSystem({
+                'concept': [
+                    {
+                        'code': '3565-4',
+                        'id': '3565-4',
+                        'property': [
+                            {
+                                'code': 'medline_plus',
+                                'valueString': '1'
+                            }
+                        ]
+                    }
+                ],
+                'content': 'complete',
+                'id': 'loinc-1',
+                'meta': {
+                    'versionId': '1'
+                },
+                'resourceType': 'CodeSystem',
+                'status': 'active'
+            });
+            // noinspection JSCheckFunctionSignatures
+            const actualCodeSystem = new CodeSystem(codeSystems[0]);
+            actualCodeSystem.meta.lastUpdated = null;
+            expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
+        });
     });
 });
