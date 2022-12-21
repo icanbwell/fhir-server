@@ -374,7 +374,11 @@ class DatabaseBulkInserter extends EventEmitter {
                     currentResource: previousResource,
                     resourceToMerge: doc
                 });
-                doc = updatedDoc || doc;
+                if (!updatedDoc) {
+                    return; // no change so ignore
+                } else {
+                    doc = updatedDoc;
+                }
             } else {
                 /**
                  * @type {BulkInsertUpdateEntry[]}
@@ -399,7 +403,11 @@ class DatabaseBulkInserter extends EventEmitter {
                         currentResource: previousResource,
                         resourceToMerge: doc
                     });
-                    doc = updatedDoc || doc;
+                    if (!updatedDoc) {
+                        return; // no change so ignore
+                    } else {
+                        doc = updatedDoc;
+                    }
                 }
             }
 

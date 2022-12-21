@@ -738,18 +738,6 @@ describe('databaseBulkInserter Tests', () => {
                     'id': 'loinc-1',
                     'resourceType': 'CodeSystem',
                     'updated': false
-                },
-                {
-                    'created': false,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'updated': true
-                },
-                {
-                    'created': false,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'updated': true
                 }
             ]);
             /**
