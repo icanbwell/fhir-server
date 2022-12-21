@@ -8717,10 +8717,10 @@
     "@napi-rs/snappy-win32-ia32-msvc" "7.2.2"
     "@napi-rs/snappy-win32-x64-msvc" "7.2.2"
 
-"snyk@^1.1071.0":
-  "integrity" "sha512-SAJbLaREe/PE2VrOhv4s9KBFMki7oLU/phu0LgB3E3YjgkpJGPExSmeqqSGhKIl2Wj9e2+OLtXPnJye8uyuMIA=="
-  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.1071.0.tgz"
-  "version" "1.1071.0"
+"snyk@^1.1074.0":
+  "integrity" "sha512-zMCPd/W3kcUhEClmFmnwaCogs3MaiSzVwMfm7/EZ0oRQQGmqywzVQrARz3kFX1qGyPEPlbWgEzhawAsreFxYmA=="
+  "resolved" "https://registry.npmjs.org/snyk/-/snyk-1.1074.0.tgz"
+  "version" "1.1074.0"
 
 "socks-proxy-agent@^5.0.0", "socks-proxy-agent@5":
   "integrity" "sha512-vZdmnjb9a2Tz6WEQVIurybSwElwPxMZaIc7PzqbJTrezcKNznv6giT7J7tZDZ1BojVaa1jvO/UiUdhDVB0ACoQ=="
