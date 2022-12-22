@@ -19,7 +19,7 @@ RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd 
 
 #RUN cd /srv/src && rm --force package-lock.json && yarn install --no-optional
 # Download the Amazon DocumentDB Certificate Authority (CA) certificate required to authenticate to your cluster
-RUN #curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem --output /srv/src/rds-combined-ca-bundle.pem
+#RUN curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem --output /srv/src/rds-combined-ca-bundle.pem
 
 
 FROM node:16.19.0-bullseye-slim
