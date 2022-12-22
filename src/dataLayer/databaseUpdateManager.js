@@ -113,8 +113,11 @@ class DatabaseUpdateManager {
                             currentResource,
                             resourceToMerge: doc
                         });
-                        doc = updatedDoc || doc;
-                        await this.preSaveManager.preSaveAsync(doc);
+                        if (!updatedDoc) {
+                            passed = true; // nothing needed since the resource in the database is same as what we're trying to update with
+                        } else {
+                            await this.preSaveManager.preSaveAsync(doc);
+                        }
                     }
                     runsLeft = runsLeft - 1;
                     logTraceSystemEventAsync({

@@ -60,7 +60,7 @@ class DatabaseQueryManager {
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
-     * @return {Promise<Resource|any>}
+     * @return {Promise<Resource|null>}
      */
     async findOneAsync({query, options = null}) {
         try {
