@@ -145,9 +145,7 @@ class DatabaseUpdateManager {
                     });
 
                     if (resourceInDatabase !== null) {
-                        /**
-                         * @type {Resource|null}
-                         */
+                        // merge with our resource
                         updatedDoc = await this.resourceMerger.mergeResourceAsync({
                             currentResource: resourceInDatabase,
                             resourceToMerge: doc
@@ -157,6 +155,8 @@ class DatabaseUpdateManager {
                         } else {
                             doc = updatedDoc;
                         }
+                    } else {
+                        throw new Error(`Unable to read resource ${doc.resourceType}/${doc.id} from database`);
                     }
                     runsLeft = runsLeft - 1;
                     logTraceSystemEventAsync({
