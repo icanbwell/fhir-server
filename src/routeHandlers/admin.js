@@ -7,7 +7,6 @@ const sanitize = require('sanitize-filename');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
-const {RethrownError} = require('../utils/rethrownError');
 const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
 const {assertIsValid} = require('../utils/assertType');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
@@ -476,9 +475,18 @@ async function handleAdmin(
             });
         }
     } catch (e) {
-        throw new RethrownError({
-            message: 'Error in handleAdmin(): ', error: e
+        const operationOutcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue(
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        diagnostics: e.message
+                    }
+                )
+            ]
         });
+        return res.json(operationOutcome.toJSON());
     }
 }
 
