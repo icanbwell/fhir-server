@@ -717,7 +717,7 @@ class DatabaseBulkInserter extends EventEmitter {
                          */
                         const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
                         // const expectedInserts = this.getPendingInserts(operationsByCollection).length;
-                        const expectedUpdates = this.getPendingUpdates({requestId, resourceType}).length;
+                        const expectedUpdates = operationsByCollection.filter(o => o.operationType === 'replace').length;
                         /**
                          * @type {(import('mongodb').AnyBulkWriteOperation)[]}
                          */
@@ -739,8 +739,13 @@ class DatabaseBulkInserter extends EventEmitter {
                         const result = await collection.bulkWrite(bulkOperations, options);
                         //TODO: this only returns result from the last collection
                         mergeResult = result.result;
+                        // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
                         // const actualInserts = mergeResult.nInserted;
-                        const actualUpdates = mergeResult.nModified;
+                        // nMatched: The number of existing documents selected for update or replacement.
+                        // If the update/replacement operation results in no change to an existing document,
+                        // e.g. $set expression updates the value to the current value,
+                        // nMatched can be greater than nModified.
+                        const actualUpdates = mergeResult.nMatched;
                         // if updates don't match then get latest and merge again
                         if (actualUpdates < expectedUpdates) {
                             await logTraceSystemEventAsync(
