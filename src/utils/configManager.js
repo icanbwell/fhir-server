@@ -184,6 +184,18 @@ class ConfigManager {
     get createIndexOnCollectionCreation() {
         return isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION);
     }
+
+    /**
+     * whether we should log all merges
+     * @returns {boolean}
+     */
+    get logAllMerges() {
+        return isTrue(env.LOG_ALL_MERGES);
+    }
+
+    get handleConcurrency() {
+        return !isTrue(env.SKIP_HANDLE_CONCURRENCY);
+    }
 }
 
 module.exports = {

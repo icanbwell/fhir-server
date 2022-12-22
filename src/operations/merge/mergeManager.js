@@ -153,7 +153,7 @@ class MergeManager {
         const patched_resource_incoming = await this.resourceMerger.mergeResourceAsync(
             {currentResource, resourceToMerge});
 
-        if (isTrue(env.LOG_ALL_MERGES)) {
+        if (this.configManager.logAllMerges) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 {
