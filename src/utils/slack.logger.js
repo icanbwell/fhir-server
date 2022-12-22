@@ -161,6 +161,31 @@ class ErrorReporter {
 
     /**
      * logs error and request to Slack
+     * @param {Error} error
+     * @param {import('http').IncomingMessage} req
+     * @param {Object} args
+     * @returns {Promise<void>}
+     */
+    async reportErrorAndRequestAsync(
+        {
+            error, req, args
+        }
+    ) {
+        if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
+            await this.reportErrorAndRequestWithTokenAsync(
+                {
+                    token: env.SLACK_TOKEN,
+                    channel: env.SLACK_CHANNEL,
+                    error,
+                    req,
+                    args
+                }
+            );
+        }
+    }
+
+    /**
+     * logs error and request to Slack
      * @param {string} token
      * @param {string} channel
      * @param {Error} error
@@ -168,7 +193,7 @@ class ErrorReporter {
      * @param {Object} args
      * @returns {Promise<void>}
      */
-    async reportErrorAndRequestAsync(
+    async reportErrorAndRequestWithTokenAsync(
         {
             token, channel, error, req, args
         }

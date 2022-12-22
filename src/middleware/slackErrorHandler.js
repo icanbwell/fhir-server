@@ -31,7 +31,7 @@ const errorReportingMiddleware = async (err, req, res, next) => {
             err.statusCode = err.statusCode || 500;
             // if (skip !== false && skip(err, req, res)) return next(err);
             const errorReporter = new ErrorReporter(getImageVersion());
-            await errorReporter.reportErrorAndRequestAsync(
+            await errorReporter.reportErrorAndRequestWithTokenAsync(
                 {
                     token: options.token,
                     channel: options.channel,
