@@ -46,7 +46,7 @@ COPY --chown=node:node yarn.lock /srv/src/yarn.lock
 COPY --chown=node:node .snyk /srv/src/.snyk
 
 COPY --from=build /srv/src/node_modules /srv/src/node_modules
-COPY --from=build /srv/src/rds-combined-ca-bundle.pem /srv/src/rds-combined-ca-bundle.pem
+#COPY --from=build /srv/src/rds-combined-ca-bundle.pem /srv/src/rds-combined-ca-bundle.pem
 
 # This is needed when we use the custom version of node-fhir-server-core
 # RUN cd /srv/src/node_modules/@asymmetrik/node-fhir-server-core && yarn install
