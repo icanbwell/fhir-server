@@ -269,7 +269,8 @@ const createContainer = function () {
                 preSaveManager: c.preSaveManager,
                 requestSpecificCache: c.requestSpecificCache,
                 databaseUpdateFactory: c.databaseUpdateFactory,
-                resourceMerger: c.resourceMerger
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager
             }
         )
     );
