@@ -128,6 +128,7 @@ class DatabaseUpdateManager {
              * @type {number}
              */
             let runsLeft = 5;
+            const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (!passed && runsLeft > 0) {
                 const previousVersionId = parseInt(doc.meta.versionId) - 1;
                 const filter = previousVersionId > 0 ?
@@ -171,7 +172,9 @@ class DatabaseUpdateManager {
                 }
             }
             if (runsLeft <= 0) {
-                throw new Error(`Unable to save resource ${doc.resourceType}/${doc.id} with version ${doc.meta.versionId} after 5 tries`);
+                throw new Error(
+                    `Unable to save resource ${doc.resourceType}/${doc.id} with version ${doc.meta.versionId} ` +
+                    `(original=${originalDatabaseVersion}) after 5 tries`);
             }
         } catch (e) {
             throw new RethrownError({
