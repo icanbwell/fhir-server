@@ -201,7 +201,8 @@ const createContainer = function () {
         {
             resourceLocatorFactory: c.resourceLocatorFactory,
             resourceMerger: c.resourceMerger,
-            preSaveManager: c.preSaveManager
+            preSaveManager: c.preSaveManager,
+            databaseQueryFactory: c.databaseQueryFactory
         }));
 
     container.register('resourceManager', () => new ResourceManager());

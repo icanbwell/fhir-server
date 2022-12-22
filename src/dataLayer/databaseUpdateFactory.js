@@ -3,6 +3,7 @@ const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFa
 const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {PreSaveManager} = require('../preSaveHandlers/preSave');
+const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 
 class DatabaseUpdateFactory {
     /**
@@ -10,8 +11,16 @@ class DatabaseUpdateFactory {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ResourceMerger} resourceMerger
      * @param {PreSaveManager} preSaveManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor({resourceLocatorFactory, resourceMerger, preSaveManager}) {
+    constructor(
+        {
+            resourceLocatorFactory,
+            resourceMerger,
+            preSaveManager,
+            databaseQueryFactory
+        }
+    ) {
         /**
          * @type {ResourceLocatorFactory}
          */
@@ -29,6 +38,12 @@ class DatabaseUpdateFactory {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
     }
 
     /**
@@ -43,6 +58,7 @@ class DatabaseUpdateFactory {
                 resourceLocatorFactory: this.resourceLocatorFactory,
                 resourceMerger: this.resourceMerger,
                 preSaveManager: this.preSaveManager,
+                databaseQueryFactory: this.databaseQueryFactory,
                 resourceType,
                 base_version
             }

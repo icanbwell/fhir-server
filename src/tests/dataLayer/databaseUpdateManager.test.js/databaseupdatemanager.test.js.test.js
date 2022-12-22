@@ -62,6 +62,7 @@ describe('Person Tests', () => {
                     query: {'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}
                 }
             );
+            resource.meta.lastUpdated = null;
             expect(resource.toJSON()).toStrictEqual(expectedPersonResources);
         });
     });
