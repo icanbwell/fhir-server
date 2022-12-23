@@ -19,7 +19,7 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
  * shows indexes
  * @param {import('http').IncomingMessage} req
  * @param {SimpleContainer} container
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
@@ -52,9 +52,9 @@ async function showIndexesAsync(
 
 /**
  * synchronizes indexes
- * @param {import('http').IncomingMessage} req
+ * @param {import('express').Request} req
  * @param {SimpleContainer} container
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  * @returns {Promise<void>}
  */
 async function synchronizeIndexesAsync(
@@ -87,7 +87,7 @@ async function synchronizeIndexesAsync(
  * Handles admin routes
  * @param {function (): SimpleContainer} fnCreateContainer
  * @param {import('http').IncomingMessage} req
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  */
 async function handleAdmin(
     fnCreateContainer,

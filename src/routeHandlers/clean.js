@@ -10,7 +10,7 @@ const {RethrownError} = require('../utils/rethrownError');
  * Handles clean
  * @param {function (): SimpleContainer} fnCreateContainer
  * @param {import('http').IncomingMessage} req
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  * @return {Promise<void>}
  */
 module.exports.handleClean = async ({fnCreateContainer, req, res}) => {

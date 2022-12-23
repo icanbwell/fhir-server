@@ -11,7 +11,7 @@ const {RethrownError} = require('../utils/rethrownError');
  * Handles stats
  * @param {function (): SimpleContainer} fnCreateContainer
  * @param {import('http').IncomingMessage} req
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  * @return {Promise<void>}
  */
 // eslint-disable-next-line no-unused-vars

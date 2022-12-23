@@ -131,6 +131,7 @@ class DatabasePartitionedCursor {
                     const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;
                     try {
                         if (resourceType === 'BundleEntry') {
+                            // noinspection JSCheckFunctionSignatures
                             return new BundleEntry(result);
                         }
                         const ResourceCreator = getResource(this.base_version, resourceType);

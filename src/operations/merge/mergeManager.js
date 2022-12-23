@@ -689,6 +689,7 @@ class MergeManager {
                 currentDate: currentDate
             });
             if (validationOperationOutcome) {
+                // noinspection JSValidateTypes
                 return {
                     id: id,
                     created: false,

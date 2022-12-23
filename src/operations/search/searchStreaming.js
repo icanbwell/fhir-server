@@ -92,7 +92,7 @@ class SearchStreamingOperation {
     /**
      * does a FHIR Search
      * @param {FhirRequestInfo} requestInfo
-     * @param {import('http').ServerResponse} res
+     * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle

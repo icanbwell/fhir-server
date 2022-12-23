@@ -772,7 +772,7 @@ class DatabaseBulkInserter extends EventEmitter {
                                         }
                                     }
                                 );
-                                await this.updateResourcesOneByOne({operationsByCollection});
+                                await this.updateResourcesOneByOneAsync({operationsByCollection});
                             }
                         }
                     } catch (e) {
@@ -845,7 +845,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {BulkInsertUpdateEntry[]} operationsByCollection
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOne({operationsByCollection}) {
+    async updateResourcesOneByOneAsync({operationsByCollection}) {
         // find the resources
         /**
          * @type {Resource[]}

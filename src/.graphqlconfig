@@ -1,10 +1,9 @@
 {
   "name": "GraphQL Schemas with Shared Types",
-  "projects": {
-    "v2": {
-      "includes": ["v2/**"]
-    }
-  },
+  "schemaPath": "src/graphql/v2/schemas/**.graphql",
+  "includes": [
+    "src/graphql/v2/schemas/**"
+  ],
   "extensions": {
     "endpoints": {
       "Default GraphQL Endpoint": {
