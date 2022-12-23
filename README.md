@@ -48,7 +48,7 @@ For example:
 [Streaming](streaming.md)
 
 ## Optimistic Concurrency Support
-[Concurrency][concurrency.md]
+[Optimistic Concurrency](concurrency.md)
 
 ## Contributing
 
