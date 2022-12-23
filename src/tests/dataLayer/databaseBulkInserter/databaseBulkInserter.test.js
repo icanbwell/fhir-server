@@ -344,7 +344,10 @@ describe('databaseBulkInserter Tests', () => {
                     )
                 ]
             });
-            expect(new CodeSystem(codeSystemsBeforeBulkUpdate[0]).toJSON()).toStrictEqual(expectedCodeSystemAfterFirstUpdate.toJSON());
+            expectedCodeSystemAfterFirstUpdate.meta.lastUpdated = null;
+            let actualCodeSystem = new CodeSystem(codeSystemsBeforeBulkUpdate[0]);
+            actualCodeSystem.meta.lastUpdated = null;
+            expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystemAfterFirstUpdate.toJSON());
 
             // now execute the bulk inserts
             const base_version = '4_0_0';
@@ -421,8 +424,10 @@ describe('databaseBulkInserter Tests', () => {
                 ]
             });
             // noinspection JSCheckFunctionSignatures
-            const actualCodeSystem = new CodeSystem(codeSystems[0]);
+            actualCodeSystem = new CodeSystem(codeSystems[0]);
             actualCodeSystem.meta.lastUpdated = null;
+            expectedCodeSystem.meta.lastUpdated = null;
+
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });
         test('execAsync works with multiple inserts and replace on same id', async () => {
@@ -646,6 +651,7 @@ describe('databaseBulkInserter Tests', () => {
             // noinspection JSCheckFunctionSignatures
             const actualCodeSystem = new CodeSystem(codeSystems[0]);
             actualCodeSystem.meta.lastUpdated = null;
+            expectedCodeSystem.meta.lastUpdated = null;
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });
         test('execAsync works with multiple inserts with same resource', async () => {
@@ -784,6 +790,7 @@ describe('databaseBulkInserter Tests', () => {
             // noinspection JSCheckFunctionSignatures
             const actualCodeSystem = new CodeSystem(codeSystems[0]);
             actualCodeSystem.meta.lastUpdated = null;
+            expectedCodeSystem.meta.lastUpdated = null;
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
         });
     });

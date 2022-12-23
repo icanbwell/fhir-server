@@ -115,7 +115,7 @@ type AdverseEvent {
     """
     This subject or group impacted by the event.
     """
-    subject: AdverseEventSubject!        
+    subject: AdverseEventSubject        
     """
     The Encounter during which AdverseEvent was created or to which the creation
     of this record is tightly associated.

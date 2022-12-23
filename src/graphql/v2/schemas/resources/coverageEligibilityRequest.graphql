@@ -116,7 +116,7 @@ type CoverageEligibilityRequest {
     The party who is the beneficiary of the supplied coverage and for whom
     eligibility is sought.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     None
     """
@@ -141,7 +141,7 @@ type CoverageEligibilityRequest {
     The Insurer who issued the coverage in question and is the recipient of the
     request.
     """
-    insurer: Organization!        
+    insurer: Organization        
     """
     Facility where the services are intended to be provided.
     """

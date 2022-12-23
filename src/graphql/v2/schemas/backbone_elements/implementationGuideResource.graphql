@@ -45,7 +45,7 @@ type ImplementationGuideResource {
     """
     Where this resource is found.
     """
-    reference: Resource!        
+    reference: Resource        
     """
     Indicates the FHIR Version(s) this artifact is intended to apply to. If no
     versions are specified, the resource is assumed to apply to all the versions

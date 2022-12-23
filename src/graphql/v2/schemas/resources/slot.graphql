@@ -111,7 +111,7 @@ type Slot {
     The schedule resource that this slot defines an interval of status
     information.
     """
-    schedule: Schedule!        
+    schedule: Schedule        
     """
     busy | free | busy-unavailable | busy-tentative | entered-in-error.
     """

@@ -126,7 +126,7 @@ type Condition {
     """
     Indicates the patient or group who the condition record is associated with.
     """
-    subject: ConditionSubject!        
+    subject: ConditionSubject        
     """
     The Encounter during which this Condition was created or to which the creation
     of this record is tightly associated.

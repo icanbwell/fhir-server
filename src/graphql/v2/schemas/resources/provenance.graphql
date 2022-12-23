@@ -98,7 +98,7 @@ type Provenance {
     this resource. A provenance can point to more than one target if multiple
     resources were created/updated by the same activity.
     """
-    target: [Resource]!        
+    target: [Resource]        
     """
     None
     """

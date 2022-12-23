@@ -42,7 +42,7 @@ type MedicationKnowledgeRegulatory {
     """
     The authority that is specifying the regulations.
     """
-    regulatoryAuthority: Organization!        
+    regulatoryAuthority: Organization        
     """
     Specifies if changes are allowed when dispensing a medication from a
     regulatory perspective.

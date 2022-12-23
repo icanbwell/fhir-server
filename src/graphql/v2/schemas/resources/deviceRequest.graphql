@@ -148,7 +148,7 @@ type DeviceRequest {
     """
     The patient who will use the device.
     """
-    subject: DeviceRequestSubject!        
+    subject: DeviceRequestSubject        
     """
     An encounter that provides additional context in which this request is made.
     """

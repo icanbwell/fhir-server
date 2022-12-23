@@ -154,7 +154,7 @@ type MedicationStatement {
     """
     The person, animal or group who is/was taking the medication.
     """
-    subject: MedicationStatementSubject!        
+    subject: MedicationStatementSubject        
     """
     The encounter or episode of care that establishes the context for this
     MedicationStatement.

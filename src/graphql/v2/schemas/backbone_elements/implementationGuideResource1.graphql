@@ -44,7 +44,7 @@ type ImplementationGuideResource1 {
     """
     Where this resource is found.
     """
-    reference: Resource!        
+    reference: Resource        
     """
     None
     """

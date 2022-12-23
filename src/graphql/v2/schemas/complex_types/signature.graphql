@@ -51,7 +51,7 @@ type Signature {
     A reference to an application-usable description of the identity that signed
     (e.g. the signature used their private key).
     """
-    who: SignatureWho!        
+    who: SignatureWho        
     """
     A reference to an application-usable description of the identity that is
     represented by the signature.

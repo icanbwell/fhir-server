@@ -181,7 +181,7 @@ type ServiceRequest {
     devices such as dialysis machines, or even locations (typically for
     environmental scans).
     """
-    subject: ServiceRequestSubject!        
+    subject: ServiceRequestSubject        
     """
     An encounter that provides additional information about the healthcare context
     in which this request is made.

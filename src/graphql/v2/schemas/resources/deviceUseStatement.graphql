@@ -107,7 +107,7 @@ type DeviceUseStatement {
     """
     The patient who used the device.
     """
-    subject: DeviceUseStatementSubject!        
+    subject: DeviceUseStatementSubject        
     """
     Allows linking the DeviceUseStatement to the underlying Request, or to other
     information that supports or is used to derive the DeviceUseStatement.
@@ -136,7 +136,7 @@ type DeviceUseStatement {
     """
     The details of the device used.
     """
-    device: Device!        
+    device: Device        
     """
     Reason or justification for the use of the device.
     """

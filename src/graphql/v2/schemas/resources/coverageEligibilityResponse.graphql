@@ -107,7 +107,7 @@ type CoverageEligibilityResponse {
     The party who is the beneficiary of the supplied coverage and for whom
     eligibility is sought.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     None
     """
@@ -127,7 +127,7 @@ type CoverageEligibilityResponse {
     """
     Reference to the original request resource.
     """
-    request: CoverageEligibilityRequest!        
+    request: CoverageEligibilityRequest        
     """
     The outcome of the request processing.
     """
@@ -140,7 +140,7 @@ type CoverageEligibilityResponse {
     The Insurer who issued the coverage in question and is the author of the
     response.
     """
-    insurer: Organization!        
+    insurer: Organization        
     """
     Financial instruments for reimbursement for the health care products and
     services.

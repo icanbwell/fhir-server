@@ -48,5 +48,5 @@ type DocumentReferenceRelatesTo {
     """
     The target document of this relationship.
     """
-    target: DocumentReference!        
+    target: DocumentReference        
 }

@@ -46,7 +46,7 @@ type EncounterDiagnosis {
     typically be a Condition (with other resources referenced in the
     evidence.detail), or a Procedure.
     """
-    condition: EncounterDiagnosisCondition!        
+    condition: EncounterDiagnosisCondition        
     """
     Role that this diagnosis has within the encounter (e.g. admission, billing,
     discharge …).

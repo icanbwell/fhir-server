@@ -51,7 +51,7 @@ type ContractSigner {
     """
     Party which is a signator to this Contract.
     """
-    party: ContractSignerParty!        
+    party: ContractSignerParty        
     """
     Legally binding Contract DSIG signature contents in Base64.
     """

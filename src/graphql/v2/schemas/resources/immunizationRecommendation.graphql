@@ -89,7 +89,7 @@ type ImmunizationRecommendation {
     """
     The patient the recommendation(s) are for.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The date the immunization recommendation(s) were created.
     """

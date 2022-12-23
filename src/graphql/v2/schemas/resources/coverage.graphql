@@ -120,7 +120,7 @@ type Coverage {
     The party who benefits from the insurance coverage; the patient when products
     and/or services are provided.
     """
-    beneficiary: Patient!        
+    beneficiary: Patient        
     """
     A unique identifier for a dependent under the coverage.
     """
@@ -139,7 +139,7 @@ type Coverage {
     The program or plan underwriter or payor including both insurance and non-
     insurance agreements, such as patient-pay agreements.
     """
-    payor: [CoveragePayor]!        
+    payor: [CoveragePayor]        
     """
     A suite of underwriter specific classifiers.
     """

@@ -113,7 +113,7 @@ type EpisodeOfCare {
     """
     The patient who is the focus of this episode of care.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The organization that has assumed the specific responsibilities for the
     specified duration.
