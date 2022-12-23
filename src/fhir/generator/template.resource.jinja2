@@ -57,7 +57,7 @@ type {{fhir_entity.cleaned_name}} {
     """
     {{ property.documentation[0] | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
     """
-    {{ property.name -}} {{ ': ' -}}
+    {{ property.name -}}{% if fhir_entity.fhir_name == "CodeSystem" and property.name == "concept" %}(code: [String]){% endif %}{{ ': ' -}}
         {% if property.is_list -%}
             {{ '[' -}}
         {% endif -%}
