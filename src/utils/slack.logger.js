@@ -4,6 +4,7 @@
 
 const {WebClient} = require('@slack/web-api');
 const env = require('var');
+const {getCircularReplacer} = require('./getCircularReplacer');
 
 /**
  * This class reports errors to external sources
@@ -47,7 +48,7 @@ class ErrorReporter {
                 for (const [key, value] of Object.entries(args)) {
                     fields.push({
                         title: key,
-                        value: (typeof value === 'string') ? value : JSON.stringify(value),
+                        value: (typeof value === 'string') ? value : JSON.stringify(value, getCircularReplacer()),
                         short: true
                     });
                 }
@@ -109,7 +110,7 @@ class ErrorReporter {
                 for (const [key, value] of Object.entries(args)) {
                     fields.push({
                         title: key,
-                        value: (typeof value === 'string') ? value : JSON.stringify(value),
+                        value: (typeof value === 'string') ? value : JSON.stringify(value, getCircularReplacer()),
                         short: true
                     });
                 }
@@ -260,7 +261,7 @@ class ErrorReporter {
             for (const [key, value] of Object.entries(args)) {
                 fields.push({
                     title: key,
-                    value: (typeof value === 'string') ? value : JSON.stringify(value),
+                    value: (typeof value === 'string') ? value : JSON.stringify(value, getCircularReplacer()),
                     short: true
                 });
             }
@@ -291,7 +292,7 @@ class ErrorReporter {
         const text = [
             {
                 title: 'Error:',
-                code: Object.hasOwn(error, 'toString') ? error.toString() : JSON.stringify(error)
+                code: Object.hasOwn(error, 'toString') ? error.toString() : JSON.stringify(error, getCircularReplacer())
             },
             {
                 title: 'Stack trace:', code: error.stack

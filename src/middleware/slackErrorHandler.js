@@ -5,6 +5,7 @@
 const env = require('var');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 /**
  * Middleware for logging errors to Slack
@@ -26,7 +27,7 @@ const errorReportingMiddleware = async (err, req, res, next) => {
             [200, 401, 404];
         // console.log('slackErrorHandler', err);
         if (!statusCodeToIgnore.includes(err.statusCode)) {
-            console.log(JSON.stringify({message: `slackErrorHandler logging: ${JSON.stringify(err)}`}));
+            console.log(JSON.stringify({message: `slackErrorHandler logging: ${JSON.stringify(err)}`}, getCircularReplacer()));
             const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             err.statusCode = err.statusCode || 500;
             // if (skip !== false && skip(err, req, res)) return next(err);

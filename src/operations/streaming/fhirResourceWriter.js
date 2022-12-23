@@ -1,5 +1,6 @@
 const {Transform} = require('stream');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class FhirResourceWriter extends Transform {
     /**
@@ -36,7 +37,7 @@ class FhirResourceWriter extends Transform {
         try {
 
             if (chunk !== null && chunk !== undefined) {
-                const resourceJson = JSON.stringify(chunk);
+                const resourceJson = JSON.stringify(chunk, getCircularReplacer());
                 if (this._first) {
                     // write the beginning json
                     this._first = false;

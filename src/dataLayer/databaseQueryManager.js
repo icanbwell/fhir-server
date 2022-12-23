@@ -7,6 +7,7 @@ const {RethrownError} = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const moment = require('moment-timezone');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -286,7 +287,7 @@ class DatabaseQueryManager {
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources)}`,
+                message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
                 error: e,
                 args: {resources}
             });

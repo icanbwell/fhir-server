@@ -334,7 +334,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: {
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                             },
                             diagnostics: e.toString(),
                             expression: [
@@ -536,7 +536,7 @@ class MergeManager {
                 });
         } catch (e) {
             throw new RethrownError({
-                message: `Error updating: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error updating: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }
@@ -579,7 +579,7 @@ class MergeManager {
             );
         } catch (e) {
             throw new RethrownError({
-                message: `Error inserting: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error inserting: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }
@@ -620,7 +620,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                             }),
                             diagnostics: 'resource is missing resourceType',
                             expression: [
@@ -649,7 +649,7 @@ class MergeManager {
                                 severity: 'error',
                                 code: 'exception',
                                 details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                                 }),
                                 diagnostics: 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceToMerge.resourceType + '.' + 'write' + ']',
                                 expression: [
@@ -709,7 +709,7 @@ class MergeManager {
                                 severity: 'error',
                                 code: 'exception',
                                 details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                                 }),
                                 diagnostics: 'Resource is missing a meta.security tag with system: https://www.icanbwell.com/access',
                                 expression: [
@@ -732,7 +732,7 @@ class MergeManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }

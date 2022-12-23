@@ -23,6 +23,7 @@ const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleReq
 const {DatabaseUpdateFactory} = require('./databaseUpdateFactory');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {ConfigManager} = require('../utils/configManager');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -541,7 +542,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 const mergeResultForResourceType = getFirstElementOrNull(
                     resultsByResourceType.filter(r => r.resourceType === resourceType));
                 if (mergeResultForResourceType) {
-                    const diagnostics = JSON.stringify(mergeResultForResourceType.error);
+                    const diagnostics = JSON.stringify(mergeResultForResourceType.error, getCircularReplacer());
                     for (const {id, resource, operationType} of operations) {
                         /**
                          * @type {MergeResultEntry}

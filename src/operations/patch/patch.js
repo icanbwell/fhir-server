@@ -12,6 +12,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {omitPropertyFromResource} = require('../../utils/omitProperties');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class PatchOperation {
     /**
@@ -169,7 +170,7 @@ class PatchOperation {
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue, getCircularReplacer())));
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync(

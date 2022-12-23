@@ -12,6 +12,7 @@ const {
 } = require('../utils/searchForm.util');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const sanitize = require('sanitize-filename');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 /**
  * middleware to render HTML
@@ -28,7 +29,7 @@ const htmlRenderer = ({container, req, res, next}) => {
         // override the json function, so we can intercept the data being sent the client
         let oldJson = res.json;
         res.json = (data) => {
-            let parsedData = JSON.parse(JSON.stringify(data));
+            let parsedData = JSON.parse(JSON.stringify(data, getCircularReplacer()));
             let total = 0;
             if (parsedData.total) {
                 total = parsedData.total;
