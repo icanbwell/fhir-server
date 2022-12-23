@@ -3,16 +3,5 @@
   "schemaPath": "src/graphql/v2/schemas/**.graphql",
   "includes": [
     "src/graphql/v2/schemas/**"
-  ],
-  "extensions": {
-    "endpoints": {
-      "Default GraphQL Endpoint": {
-        "url": "http://localhost:3000/graphqlv2",
-        "headers": {
-          "user-agent": "JS GraphQL"
-        },
-        "introspect": false
-      }
-    }
-  }
+  ]
 }
