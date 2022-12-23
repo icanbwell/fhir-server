@@ -184,7 +184,7 @@
     "jest-diff": "^29.3.1",
     "jose": "^4.11.1",
     "jshint": "^2.13.6",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mongodb-memory-server": "^8.10.2",
     "mongodb-memory-server-core": "^8.10.2",
     "ndjson-to-json-text": "^1.0.2",
