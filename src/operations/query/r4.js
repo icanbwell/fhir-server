@@ -113,6 +113,9 @@ class R4SearchQueryCreator {
         let totalAndSegments = [];
 
         for (const argName in args) {
+            if (argName === 'base_version') { // ignore if somehow the base version is an arg
+                continue;
+            }
             const [queryParameter, ...modifiers] = argName.split(':');
 
             let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];

@@ -95,7 +95,9 @@ class PatientFilterManager {
             'Measure',
             'Location',
             'HealthcareService',
-            'InsurancePlan'
+            'InsurancePlan',
+            'Binary',
+            'ValueSet'
         ];
     }
 
