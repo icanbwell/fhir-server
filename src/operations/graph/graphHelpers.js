@@ -24,6 +24,7 @@ const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const deepcopy = require('deepcopy');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 
 /**
@@ -937,7 +938,7 @@ class GraphHelper {
                 for (const link_reference of uniqueReferences) {
                     // eslint-disable-next-line security/detect-non-literal-regexp
                     let re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
-                    parent_entity = JSON.parse(JSON.stringify(parent_entity).replace(re, '#'.concat(link_reference)));
+                    parent_entity = JSON.parse(JSON.stringify(parent_entity, getCircularReplacer()).replace(re, '#'.concat(link_reference)));
                 }
             }
             return parent_entity;

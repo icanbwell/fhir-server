@@ -4,10 +4,10 @@
 const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {RethrownError} = require('../utils/rethrownError');
-const {getResource} = require('../operations/common/getResource');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {logTraceSystemEventAsync} = require('../operations/common/logging');
+const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 
 class DatabaseUpdateManager {
     /**
@@ -17,13 +17,15 @@ class DatabaseUpdateManager {
      * @param {PreSaveManager} preSaveManager
      * @param {string} resourceType
      * @param {string} base_version
+     * @param {DatabaseQueryFactory} databaseQueryFactory
      */
     constructor({
                     resourceLocatorFactory,
                     resourceMerger,
                     preSaveManager,
                     resourceType,
-                    base_version
+                    base_version,
+                    databaseQueryFactory
                 }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
@@ -56,6 +58,12 @@ class DatabaseUpdateManager {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
     }
 
     /**
@@ -85,6 +93,33 @@ class DatabaseUpdateManager {
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
              */
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {
+                    resourceType: doc.resourceType,
+                    base_version: '4_0_0'
+                }
+            );
+            /**
+             * @type {Resource|null}
+             */
+            let resourceInDatabase = await databaseQueryManager.findOneAsync({
+                query: {id: doc.id}
+            });
+            if (!resourceInDatabase) {
+                return await this.insertOneAsync({doc});
+            }
+            /**
+             * @type {Resource|null}
+             */
+            let updatedDoc = await this.resourceMerger.mergeResourceAsync({
+                currentResource: resourceInDatabase,
+                resourceToMerge: doc
+            });
+            if (!updatedDoc) {
+                return; // nothing to do
+            }
+            doc = updatedDoc;
             /**
              * @type {boolean}
              */
@@ -93,6 +128,7 @@ class DatabaseUpdateManager {
              * @type {number}
              */
             let runsLeft = 5;
+            const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (!passed && runsLeft > 0) {
                 const previousVersionId = parseInt(doc.meta.versionId) - 1;
                 const filter = previousVersionId > 0 ?
@@ -102,19 +138,26 @@ class DatabaseUpdateManager {
                 if (updateResult.matchedCount === 0) {
                     // if not result matched then the versionId has changed in the database
                     // Get the latest version from the database and merge again
-                    const resourceJson = await collection.findOne({id: doc.id});
-                    if (resourceJson !== null) {
-                        const ResourceCreator = getResource('4_0_0', resourceJson.resourceType);
-                        const currentResource = new ResourceCreator(resourceJson);
-                        /**
-                         * @type {Resource|null}
-                         */
-                        const updatedDoc = await this.resourceMerger.mergeResourceAsync({
-                            currentResource,
+                    /**
+                     * @type {Resource|null}
+                     */
+                    resourceInDatabase = await databaseQueryManager.findOneAsync({
+                        query: {id: doc.id}
+                    });
+
+                    if (resourceInDatabase !== null) {
+                        // merge with our resource
+                        updatedDoc = await this.resourceMerger.mergeResourceAsync({
+                            currentResource: resourceInDatabase,
                             resourceToMerge: doc
                         });
-                        doc = updatedDoc || doc;
-                        await this.preSaveManager.preSaveAsync(doc);
+                        if (!updatedDoc) {
+                            passed = true; // nothing needed since the resource in the database is same as what we're trying to update with
+                        } else {
+                            doc = updatedDoc;
+                        }
+                    } else {
+                        throw new Error(`Unable to read resource ${doc.resourceType}/${doc.id} from database`);
                     }
                     runsLeft = runsLeft - 1;
                     logTraceSystemEventAsync({
@@ -129,7 +172,9 @@ class DatabaseUpdateManager {
                 }
             }
             if (runsLeft <= 0) {
-                throw new Error(`Unable to save resource ${doc.resourceType}/${doc.id} with version ${doc.meta.versionId} after 5 tries`);
+                throw new Error(
+                    `Unable to save resource ${doc.resourceType}/${doc.id} with version ${doc.meta.versionId} ` +
+                    `(original=${originalDatabaseVersion}) after 5 tries`);
             }
         } catch (e) {
             throw new RethrownError({

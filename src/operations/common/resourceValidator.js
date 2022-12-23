@@ -4,6 +4,7 @@ const sendToS3 = require('../../utils/aws-s3');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class ResourceValidator {
 
@@ -33,7 +34,7 @@ class ResourceValidator {
                 };
             }
             validationOperationOutcome['details']['text'] = validationOperationOutcome['details']['text'] +
-                ',' + JSON.stringify(resourceToValidate);
+                ',' + JSON.stringify(resourceToValidate, getCircularReplacer());
 
             if (isTrue(env.LOG_VALIDATION_FAILURES)) {
                 await sendToS3('validation_failures',

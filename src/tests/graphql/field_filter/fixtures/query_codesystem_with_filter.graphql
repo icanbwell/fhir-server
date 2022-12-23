@@ -8,6 +8,10 @@ query {
                 concept(code: "3584-4") {
                     code
                     display
+                    property {
+                        code
+                        valueString
+                    }
                 }
             }
         }

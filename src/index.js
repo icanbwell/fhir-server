@@ -11,12 +11,13 @@ const { createContainer } = require('./createContainer');
 const Sentry = require('@sentry/node');
 const { ErrorReporter } = require('./utils/slack.logger');
 const { getImageVersion } = require('./utils/getImageVersion');
+const {getCircularReplacer} = require('./utils/getCircularReplacer');
 
 const main = async function () {
     try {
         await createServer(() => createContainer());
     } catch (e) {
-        console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e) }));
+        console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e, getCircularReplacer()) }));
         Sentry.captureException(e);
         const errorReporter = new ErrorReporter(getImageVersion());
         await errorReporter.reportErrorAsync({
@@ -28,5 +29,5 @@ const main = async function () {
 };
 
 main().catch((reason) => {
-    console.error(JSON.stringify({ message: `Top level error: ${reason}` }));
+    console.error(JSON.stringify({ message: `Top level error: ${reason}` }, getCircularReplacer()));
 });

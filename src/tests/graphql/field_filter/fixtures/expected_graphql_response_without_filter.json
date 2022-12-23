@@ -3,11 +3,18 @@
     "concept": [
       {
         "code": "3584-4",
-        "display": "I am good"
+        "display": "hemoglobin A1C (HbA1C) test",
+        "property": [
+          {
+            "code": "medline-plus-summary",
+            "valueString": null
+          }
+        ]
       },
       {
         "code": "4000-4",
-        "display": "I am bad"
+        "display": "I am bad",
+        "property": null
       }
     ],
     "id": "loinc-consumer",

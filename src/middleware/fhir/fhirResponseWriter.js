@@ -32,8 +32,8 @@ class FhirResponseWriter {
     /**
      * @function read
      * @description Used when you are returning a Bundle of resources
-     * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Request} req - Express request object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource} result - json to send to client
      */
     read({req, res, result}) {
@@ -53,8 +53,8 @@ class FhirResponseWriter {
     /**
      * @function read
      * @description Used when you are returning a Bundle of resources
-     * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Request} req - Express request object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
     readCustomOperation({req, res, result}) {
@@ -74,7 +74,7 @@ class FhirResponseWriter {
      * @function graph
      * @description Used when you are returning a Bundle of resources
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
     graph({req, res}) {
@@ -93,7 +93,7 @@ class FhirResponseWriter {
      * @function graph
      * @description Used when you are returning a Bundle of resources
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
     everything({req, res}) {
@@ -112,7 +112,7 @@ class FhirResponseWriter {
      * @function read
      * @description Used when you are returning a Bundle of resources
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {MergeResultEntry[]} result - json to send to client
      */
     merge({req, res, result}) {
@@ -132,7 +132,7 @@ class FhirResponseWriter {
      * @function readOne
      * @description Used when you are returning a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource} resource - resource to send to client
      */
     readOne({req, res, resource}) {
@@ -160,7 +160,7 @@ class FhirResponseWriter {
      * @function create
      * @description Used when you are creating a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource} resource - json to send to client
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
@@ -198,7 +198,7 @@ class FhirResponseWriter {
      * @function update
      * @description Used when you are updating a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {{id: string, resource_version: string|undefined, created: boolean, resource: Resource}} result - json to send to client
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
@@ -233,7 +233,7 @@ class FhirResponseWriter {
      * @function remove
      * @description Used when you are deleting a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Object} json - json to send to client
      */
     remove({req, res, json}) {
@@ -250,7 +250,7 @@ class FhirResponseWriter {
      * @function history
      * @description Used when you are querying the history of a resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Object} json - json to send to client
      */
     history({req, res, json}) {

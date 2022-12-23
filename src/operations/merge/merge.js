@@ -20,6 +20,7 @@ const {getResource} = require('../common/getResource');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
 const {ResourceValidator} = require('../common/resourceValidator');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class MergeOperation {
     /**
@@ -391,7 +392,7 @@ class MergeOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    result: JSON.stringify(mergeResults)
+                    result: JSON.stringify(mergeResults, getCircularReplacer())
                 });
 
             /**

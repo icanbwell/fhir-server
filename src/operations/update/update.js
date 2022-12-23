@@ -18,6 +18,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ResourceMerger} = require('../common/resourceMerger');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 /**
  * Update Operation
@@ -294,7 +295,12 @@ class UpdateOperation {
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                    throw new BadRequestError(new Error(mergeResults.length > 0 ? JSON.stringify(mergeResults[0].issue) : 'No merge result'));
+                    throw new BadRequestError(
+                        new Error(mergeResults.length > 0 ?
+                            JSON.stringify(mergeResults[0].issue, getCircularReplacer()) :
+                            'No merge result'
+                        )
+                    );
                 }
 
                 if (resourceType !== 'AuditEvent') {
@@ -321,7 +327,7 @@ class UpdateOperation {
                         resourceType,
                         startTime,
                         action: currentOperationName,
-                        result: JSON.stringify(result)
+                        result: JSON.stringify(result, getCircularReplacer())
                     });
                 this.postRequestProcessor.add({
                     requestId,

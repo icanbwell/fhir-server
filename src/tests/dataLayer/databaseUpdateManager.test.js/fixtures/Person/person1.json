@@ -1,0 +1,43 @@
+{
+  "resourceType": "Person",
+  "id": "9b3326ba-2421-4b9a-9d57-1eba0481cbd4",
+  "meta": {
+    "id": "e98d9140-9f35-4b5d-9944-efa381e8c75e",
+    "versionId": "2",
+    "lastUpdated": "2022-12-21T08:50:28.000Z",
+    "source": "https://www.icanbwell.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      }
+    ]
+  },
+  "link": [
+    {
+      "id": "71a747d1-ebab-4120-aefb-eb9cdce76a6b",
+      "target": {
+        "reference": "Patient/fce7b96e-246c-419a-8169-70ca6d145074"
+      },
+      "assurance": "level4"
+    },
+    {
+      "id": "97e7924b-6de6-4814-a382-804fb453850b",
+      "target": {
+        "reference": "Person/2e2d8eb1-807a-4c05-b462-9e7588f71c7f"
+      },
+      "assurance": "level4"
+    },
+    {
+      "target": {
+        "reference": "Person/2e2d8eb1-807a-4c05-b462-9e7588f71c7f",
+        "type": "Person"
+      },
+      "assurance": "level4"
+    }
+  ]
+}

@@ -7,6 +7,7 @@ const {RethrownError} = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const moment = require('moment-timezone');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -60,7 +61,7 @@ class DatabaseQueryManager {
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
-     * @return {Promise<Resource|any>}
+     * @return {Promise<Resource|null>}
      */
     async findOneAsync({query, options = null}) {
         try {
@@ -286,7 +287,7 @@ class DatabaseQueryManager {
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources)}`,
+                message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
                 error: e,
                 args: {resources}
             });

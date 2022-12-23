@@ -201,7 +201,8 @@ const createContainer = function () {
         {
             resourceLocatorFactory: c.resourceLocatorFactory,
             resourceMerger: c.resourceMerger,
-            preSaveManager: c.preSaveManager
+            preSaveManager: c.preSaveManager,
+            databaseQueryFactory: c.databaseQueryFactory
         }));
 
     container.register('resourceManager', () => new ResourceManager());
@@ -268,7 +269,8 @@ const createContainer = function () {
                 preSaveManager: c.preSaveManager,
                 requestSpecificCache: c.requestSpecificCache,
                 databaseUpdateFactory: c.databaseUpdateFactory,
-                resourceMerger: c.resourceMerger
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager
             }
         )
     );

@@ -32,6 +32,15 @@
   ],
   "implicitRules": "some-implicit-rule",
   "language": "english",
+  "link": [
+    {
+      "assurance": "level4",
+      "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
+      "target": {
+        "reference": "Person/person1"
+      }
+    }
+  ],
   "managingOrganization": {
     "display": "some-text-to-display",
     "id": "3622f51f-5125-4198-8580-c40d4eefacb2",

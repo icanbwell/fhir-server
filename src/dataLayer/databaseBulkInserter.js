@@ -1,6 +1,5 @@
 'use strict';
 const async = require('async');
-const env = require('var');
 const sendToS3 = require('../utils/aws-s3');
 const {getFirstElementOrNull} = require('../utils/list.util');
 const {EventEmitter} = require('events');
@@ -16,7 +15,6 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const {RethrownError} = require('../utils/rethrownError');
-const {isTrue} = require('../utils/isTrue');
 const {databaseBulkInserterTimer} = require('../utils/prometheus.utils');
 const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {RequestSpecificCache} = require('../utils/requestSpecificCache');
@@ -24,6 +22,8 @@ const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {DatabaseUpdateFactory} = require('./databaseUpdateFactory');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
+const {ConfigManager} = require('../utils/configManager');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -67,6 +67,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {RequestSpecificCache} requestSpecificCache
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ResourceMerger} resourceMerger
+     * @param {ConfigManager} configManager
      */
     constructor({
                     resourceManager,
@@ -78,7 +79,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     preSaveManager,
                     requestSpecificCache,
                     databaseUpdateFactory,
-                    resourceMerger
+                    resourceMerger,
+                    configManager
                 }) {
         super();
 
@@ -142,6 +144,12 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.resourceMerger = resourceMerger;
         assertTypeEquals(resourceMerger, ResourceMerger);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -356,6 +364,7 @@ class DatabaseBulkInserter extends EventEmitter {
              */
             const pendingUpdates = this.getPendingUpdates({requestId, resourceType})
                 .filter(a => a.id === doc.id);
+            // noinspection JSValidateTypes
             /**
              * @type {BulkInsertUpdateEntry|null}
              */
@@ -385,6 +394,7 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const pendingInserts = this.getPendingInserts({requestId, resourceType})
                     .filter(a => a.id === doc.id);
+                // noinspection JSValidateTypes
                 /**
                  * @type {BulkInsertUpdateEntry|null}
                  */
@@ -532,7 +542,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 const mergeResultForResourceType = getFirstElementOrNull(
                     resultsByResourceType.filter(r => r.resourceType === resourceType));
                 if (mergeResultForResourceType) {
-                    const diagnostics = JSON.stringify(mergeResultForResourceType.error);
+                    const diagnostics = JSON.stringify(mergeResultForResourceType.error, getCircularReplacer());
                     for (const {id, resource, operationType} of operations) {
                         /**
                          * @type {MergeResultEntry}
@@ -703,7 +713,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         /** @type {BulkInsertUpdateEntry[]} */
                         operationsByCollection] = operationsByCollectionName;
 
-                    if (isTrue(env.LOG_ALL_MERGES)) {
+                    if (this.configManager.logAllMerges) {
                         await sendToS3('bulk_inserter',
                             resourceType,
                             operations,
@@ -717,7 +727,7 @@ class DatabaseBulkInserter extends EventEmitter {
                          */
                         const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
                         // const expectedInserts = this.getPendingInserts(operationsByCollection).length;
-                        const expectedUpdates = this.getPendingUpdates({requestId, resourceType}).length;
+                        const expectedUpdates = operationsByCollection.filter(o => o.operationType === 'replace').length;
                         /**
                          * @type {(import('mongodb').AnyBulkWriteOperation)[]}
                          */
@@ -739,24 +749,31 @@ class DatabaseBulkInserter extends EventEmitter {
                         const result = await collection.bulkWrite(bulkOperations, options);
                         //TODO: this only returns result from the last collection
                         mergeResult = result.result;
-                        // const actualInserts = mergeResult.nInserted;
-                        const actualUpdates = mergeResult.nModified;
-                        // if updates don't match then get latest and merge again
-                        if (actualUpdates < expectedUpdates) {
-                            await logTraceSystemEventAsync(
-                                {
-                                    event: 'bulkWrite',
-                                    message: 'Update count not matched so running updates one by one',
-                                    args: {
-                                        resourceType,
-                                        collectionName,
-                                        operationsByCollection,
-                                        actualUpdates,
-                                        expectedUpdates
+                        if (this.configManager.handleConcurrency) {
+                            // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
+                            // const actualInserts = mergeResult.nInserted;
+                            // nMatched: The number of existing documents selected for update or replacement.
+                            // If the update/replacement operation results in no change to an existing document,
+                            // e.g. $set expression updates the value to the current value,
+                            // nMatched can be greater than nModified.
+                            const actualUpdates = mergeResult.nMatched;
+                            // if updates don't match then get latest and merge again
+                            if (actualUpdates < expectedUpdates) {
+                                await logTraceSystemEventAsync(
+                                    {
+                                        event: 'bulkWrite',
+                                        message: 'Update count not matched so running updates one by one',
+                                        args: {
+                                            resourceType,
+                                            collectionName,
+                                            operationsByCollection,
+                                            actualUpdates,
+                                            expectedUpdates
+                                        }
                                     }
-                                }
-                            );
-                            await this.updateResourcesOneByOne({operationsByCollection});
+                                );
+                                await this.updateResourcesOneByOneAsync({operationsByCollection});
+                            }
                         }
                     } catch (e) {
                         await this.errorReporter.reportErrorAsync({
@@ -828,7 +845,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {BulkInsertUpdateEntry[]} operationsByCollection
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOne({operationsByCollection}) {
+    async updateResourcesOneByOneAsync({operationsByCollection}) {
         // find the resources
         /**
          * @type {Resource[]}

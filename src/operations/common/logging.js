@@ -11,6 +11,7 @@ const logger = container.get('default');
 
 const os = require('os');
 const {generateUUID} = require('../../utils/uid.util');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
 
 /**
@@ -64,7 +65,7 @@ const logSystemEventAsync = async ({event, message, args}) => {
     const detail = Object.entries(args).map(([k, v]) => {
             return {
                 type: k,
-                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v)
+                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
             };
         }
     );
@@ -126,7 +127,7 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
     const detail = Object.entries(args).map(([k, v]) => {
             return {
                 type: k,
-                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v)
+                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
             };
         }
     );
@@ -147,7 +148,7 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
         recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
         outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
         outcomeDesc: error ? 'Error' : 'Success',
-        message: message + (error ? (' : ' + JSON.stringify(error)) : ''),
+        message: message + (error ? (' : ' + JSON.stringify(error, getCircularReplacer())) : ''),
         entity: [
             {
                 name: 'system',
@@ -169,7 +170,7 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
  */
 const logVerboseAsync = async ({source, args: args}) => {
     if (env.LOGLEVEL === 'DEBUG') {
-        console.log(JSON.stringify({message: `${source}: ${JSON.stringify(args)}`}));
+        console.log(JSON.stringify({message: `${source}: ${JSON.stringify(args, getCircularReplacer())}`}));
     }
 };
 

@@ -17,6 +17,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class CreateOperation {
     /**
@@ -243,7 +244,12 @@ class CreateOperation {
             );
 
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                throw new BadRequestError(new Error(mergeResults.length > 0 ? JSON.stringify(mergeResults[0].issue) : 'No merge result'));
+                throw new BadRequestError(
+                    new Error(mergeResults.length > 0 ?
+                        JSON.stringify(mergeResults[0].issue, getCircularReplacer()) :
+                        'No merge result'
+                    )
+                );
             }
 
             // log operation
@@ -254,7 +260,7 @@ class CreateOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    result: JSON.stringify(doc)
+                    result: JSON.stringify(doc, getCircularReplacer())
                 });
 
             this.postRequestProcessor.add({

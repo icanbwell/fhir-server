@@ -1,10 +1,10 @@
-FROM node:16.18.1-bullseye-slim as build
+FROM node:16.19.0-bullseye-slim as build
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
 
 # Update everything on the OS
-RUN apt-get -y update && apt-get -y install curl autoconf build-essential && apt-get clean
+RUN apt-get -y update && apt-get -y install autoconf build-essential && apt-get clean
 
 # update npm
 RUN npm install -g npm@latest && npm upgrade --global yarn
@@ -19,10 +19,10 @@ RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd 
 
 #RUN cd /srv/src && rm --force package-lock.json && yarn install --no-optional
 # Download the Amazon DocumentDB Certificate Authority (CA) certificate required to authenticate to your cluster
-RUN curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem --output /srv/src/rds-combined-ca-bundle.pem
+#RUN curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem --output /srv/src/rds-combined-ca-bundle.pem
 
 
-FROM node:16.18.1-bullseye-slim
+FROM node:16.19.0-bullseye-slim
 # set our node environment, either development or production
 # defaults to production, compose overrides this to development on build and run
 ARG NODE_ENV=production
@@ -46,7 +46,7 @@ COPY --chown=node:node yarn.lock /srv/src/yarn.lock
 COPY --chown=node:node .snyk /srv/src/.snyk
 
 COPY --from=build /srv/src/node_modules /srv/src/node_modules
-COPY --from=build /srv/src/rds-combined-ca-bundle.pem /srv/src/rds-combined-ca-bundle.pem
+#COPY --from=build /srv/src/rds-combined-ca-bundle.pem /srv/src/rds-combined-ca-bundle.pem
 
 # This is needed when we use the custom version of node-fhir-server-core
 # RUN cd /srv/src/node_modules/@asymmetrik/node-fhir-server-core && yarn install
