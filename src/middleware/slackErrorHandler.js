@@ -28,14 +28,11 @@ const errorReportingMiddleware = async (err, req, res, next) => {
         // console.log('slackErrorHandler', err);
         if (!statusCodeToIgnore.includes(err.statusCode)) {
             console.log(JSON.stringify({message: `slackErrorHandler logging: ${JSON.stringify(err)}`}, getCircularReplacer()));
-            const options = {token: env.SLACK_TOKEN, channel: env.SLACK_CHANNEL};
             err.statusCode = err.statusCode || 500;
             // if (skip !== false && skip(err, req, res)) return next(err);
             const errorReporter = new ErrorReporter(getImageVersion());
-            await errorReporter.reportErrorAndRequestWithTokenAsync(
+            await errorReporter.reportErrorAndRequestAsync(
                 {
-                    token: options.token,
-                    channel: options.channel,
                     error: err,
                     req,
                     args: {
