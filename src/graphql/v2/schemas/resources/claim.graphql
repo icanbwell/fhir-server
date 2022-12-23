@@ -129,7 +129,7 @@ type Claim {
     or are being considered and for whom actual or forecast reimbursement is
     sought.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The period for which charges are being submitted.
     """
@@ -150,7 +150,7 @@ type Claim {
     The provider which is responsible for the claim, predetermination or
     preauthorization.
     """
-    provider: ClaimProvider!        
+    provider: ClaimProvider        
     """
     The provider-required urgency of processing the request. Typical values
     include: stat, routine deferred.

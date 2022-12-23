@@ -146,7 +146,7 @@ type Procedure {
     """
     The person, animal or group on which the procedure was performed.
     """
-    subject: ProcedureSubject!        
+    subject: ProcedureSubject        
     """
     The Encounter during which this Procedure was created or performed or to which
     the creation of this record is tightly associated.

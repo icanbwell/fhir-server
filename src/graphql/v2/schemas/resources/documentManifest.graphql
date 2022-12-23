@@ -145,7 +145,7 @@ type DocumentManifest {
     """
     The list of Resources that consist of the parts of this manifest.
     """
-    content: [Resource]!        
+    content: [Resource]        
     """
     Related identifiers or resources associated with the DocumentManifest.
     """

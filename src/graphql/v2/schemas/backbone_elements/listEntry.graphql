@@ -54,5 +54,5 @@ type ListEntry {
     """
     A reference to the actual resource from which data was derived.
     """
-    item: Resource!        
+    item: Resource        
 }

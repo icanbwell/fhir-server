@@ -48,7 +48,7 @@ type ExplanationOfBenefitInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
-    coverage: Coverage!        
+    coverage: Coverage        
     """
     Reference numbers previously provided by the insurer to the provider to be
     quoted on subsequent claims containing services or products related to the

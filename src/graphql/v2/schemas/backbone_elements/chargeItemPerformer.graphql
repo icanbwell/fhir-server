@@ -56,5 +56,5 @@ type ChargeItemPerformer {
     """
     The device, practitioner, etc. who performed or participated in the service.
     """
-    actor: ChargeItemPerformerActor!        
+    actor: ChargeItemPerformerActor        
 }

@@ -92,7 +92,7 @@ type AppointmentResponse {
     """
     Appointment that this response is replying to.
     """
-    appointment: Appointment!        
+    appointment: Appointment        
     """
     Date/Time that the appointment is to take place, or requested new start time.
     """

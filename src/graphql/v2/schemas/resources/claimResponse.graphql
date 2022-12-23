@@ -124,7 +124,7 @@ type ClaimResponse {
     or are being considered and for whom actual for facast reimbursement is
     sought.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The date this resource was created.
     """
@@ -132,7 +132,7 @@ type ClaimResponse {
     """
     The party responsible for authorization, adjudication and reimbursement.
     """
-    insurer: Organization!        
+    insurer: Organization        
     """
     The provider which is responsible for the claim, predetermination or
     preauthorization.

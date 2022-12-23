@@ -44,5 +44,5 @@ type MedicationKnowledgeRelatedMedicationKnowledge {
     """
     Associated documentation about the associated medication knowledge.
     """
-    reference: [MedicationKnowledge]!        
+    reference: [MedicationKnowledge]        
 }

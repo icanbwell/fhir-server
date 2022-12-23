@@ -147,7 +147,7 @@ type CarePlan {
     """
     Identifies the patient or group whose intended care is described by the plan.
     """
-    subject: CarePlanSubject!        
+    subject: CarePlanSubject        
     """
     The Encounter during which this CarePlan was created or to which the creation
     of this record is tightly associated.

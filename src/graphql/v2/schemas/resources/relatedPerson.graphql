@@ -100,7 +100,7 @@ type RelatedPerson {
     """
     The patient this person is related to.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The nature of the relationship between a patient and the related person.
     """

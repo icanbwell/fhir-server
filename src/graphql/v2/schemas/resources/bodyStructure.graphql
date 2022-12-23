@@ -116,7 +116,7 @@ type BodyStructure {
     """
     The person to which the body site belongs.
     """
-    patient: Patient!        
+    patient: Patient        
 }
 
 type BodyStructureBundleEntry {

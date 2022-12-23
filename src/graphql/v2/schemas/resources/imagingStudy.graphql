@@ -114,7 +114,7 @@ type ImagingStudy {
     """
     The subject, typically a patient, of the imaging study.
     """
-    subject: ImagingStudySubject!        
+    subject: ImagingStudySubject        
     """
     The healthcare event (e.g. a patient and healthcare provider interaction)
     during which this ImagingStudy is made.

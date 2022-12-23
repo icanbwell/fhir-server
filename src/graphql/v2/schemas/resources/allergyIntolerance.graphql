@@ -139,7 +139,7 @@ type AllergyIntolerance {
     """
     The patient who has the allergy or intolerance.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The encounter when the allergy or intolerance was asserted.
     """

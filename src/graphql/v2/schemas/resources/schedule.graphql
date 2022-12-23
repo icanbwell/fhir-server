@@ -115,7 +115,7 @@ type Schedule {
     Slots that reference this schedule resource provide the availability details
     to these referenced resource(s).
     """
-    actor: [ScheduleActor]!        
+    actor: [ScheduleActor]        
     """
     The period of time that the slots that reference this Schedule resource cover
     (even if none exist). These  cover the amount of time that an organization's

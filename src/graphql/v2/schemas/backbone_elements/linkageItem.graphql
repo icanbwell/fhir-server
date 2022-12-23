@@ -46,5 +46,5 @@ type LinkageItem {
     """
     The resource instance being linked as part of the group.
     """
-    resource: Resource!        
+    resource: Resource        
 }

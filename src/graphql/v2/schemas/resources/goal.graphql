@@ -124,7 +124,7 @@ type Goal {
     Identifies the patient, group or organization for whom the goal is being
     established.
     """
-    subject: GoalSubject!        
+    subject: GoalSubject        
     """
     None
     """

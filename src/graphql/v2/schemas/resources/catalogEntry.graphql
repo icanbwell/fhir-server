@@ -110,7 +110,7 @@ type CatalogEntry {
     """
     The item in a catalog or definition.
     """
-    referencedItem: CatalogEntryReferencedItem!        
+    referencedItem: CatalogEntryReferencedItem        
     """
     Used in supporting related concepts, e.g. NDC to RxNorm.
     """

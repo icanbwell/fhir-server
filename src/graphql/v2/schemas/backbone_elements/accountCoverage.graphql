@@ -45,7 +45,7 @@ type AccountCoverage {
     sequence of the coverages in the account could be important when processing
     billing.
     """
-    coverage: Coverage!        
+    coverage: Coverage        
     """
     The priority of the coverage in the context of this account.
     """

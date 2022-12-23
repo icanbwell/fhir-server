@@ -49,5 +49,5 @@ type ImmunizationPerformer {
     """
     The practitioner or organization who performed the action.
     """
-    actor: ImmunizationPerformerActor!        
+    actor: ImmunizationPerformerActor        
 }

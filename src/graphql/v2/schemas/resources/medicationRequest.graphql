@@ -158,7 +158,7 @@ type MedicationRequest {
     A link to a resource representing the person or set of individuals to whom the
     medication will be given.
     """
-    subject: MedicationRequestSubject!        
+    subject: MedicationRequestSubject        
     """
     The Encounter during which this [x] was created or to which the creation of
     this record is tightly associated.
