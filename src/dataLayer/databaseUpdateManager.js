@@ -88,6 +88,8 @@ class DatabaseUpdateManager {
      * @return {Promise<void>}
      */
     async replaceOneAsync({doc}) {
+        const originalDoc = doc.clone();
+
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
@@ -164,6 +166,7 @@ class DatabaseUpdateManager {
                         event: 'replaceOneAsync',
                         message: 'retry',
                         args: {
+                            originalDoc,
                             doc
                         }
                     });
@@ -180,6 +183,7 @@ class DatabaseUpdateManager {
             throw new RethrownError({
                 error: e,
                 args: {
+                    originalDoc,
                     doc
                 }
             });
