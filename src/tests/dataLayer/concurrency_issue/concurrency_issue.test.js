@@ -59,7 +59,9 @@ describe('CodeSystem Tests', () => {
                 base_version: '4_0_0'
             });
 
-            for (const codeSystem of codesystem1Resource){
+            const countOfUpdates = codesystem1Resource.length;
+
+            for (const codeSystem of codesystem1Resource) {
                 await databaseUpdateManager.replaceOneAsync({doc: new CodeSystem(codeSystem)});
             }
 
@@ -83,6 +85,8 @@ describe('CodeSystem Tests', () => {
             );
             resource.meta.lastUpdated = null;
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
+
+            expect(resource.toJSON().meta.versionId).toStrictEqual(`${countOfUpdates}`);
         });
     });
 });
