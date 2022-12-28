@@ -81,6 +81,13 @@ update:down
 	yarn install --no-optional && \
 	npm i --package-lock-only
 
+# https://www.npmjs.com/package/npm-check-updates
+.PHONY:upgrade_packages
+upgrade_packages:down
+	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
+	yarn install --no-optional && \
+	ncu -u
+
 .PHONY:tests
 tests:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
