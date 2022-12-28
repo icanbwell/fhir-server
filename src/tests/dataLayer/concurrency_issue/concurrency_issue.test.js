@@ -24,16 +24,26 @@ describe('CodeSystem Tests', () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
-                .post('/4_0_0/CodeSystem/1/$merge?validate=true')
-                .send(codesystem1Resource)
-                .set(getHeaders());
+            let [response1, response2] = await Promise.all(
+                [
+                    request
+                        .post('/4_0_0/CodeSystem/1/$merge?validate=true')
+                        .send(codesystem1Resource)
+                        .set(getHeaders()),
+                    request
+                        .post('/4_0_0/CodeSystem/1/$merge?validate=true')
+                        .send(codesystem1Resource)
+                        .set(getHeaders())
+                ]
+            );
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(response1).toHaveMergeResponse({created: true});
+            // noinspection JSUnresolvedFunction
+            expect(response2).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right CodeSystem back
-            resp = await request
+            let resp = await request
                 .get('/4_0_0/CodeSystem/?_bundle=1&id=medline-loinc-labs')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
