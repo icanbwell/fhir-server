@@ -83,6 +83,9 @@ class DatabaseUpdateManager {
     async insertOneAsync({doc}) {
         try {
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
+            if (isNaN(parseInt(doc.meta.versionId))) {
+                doc.meta.versionId = '1';
+            }
             await collection.insertOne(doc.toJSONInternal());
         } catch (e) {
             throw new RethrownError({
