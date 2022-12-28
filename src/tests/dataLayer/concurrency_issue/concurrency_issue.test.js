@@ -3,6 +3,7 @@ const codesystem1Resource = require('./fixtures/CodeSystem/codesystem.json');
 
 // expected
 const expectedCodeSystemResources = require('./fixtures/expected/expected_codesystem.json');
+const expectedCodeSystemHistoryResources = require('./fixtures/expected/expected_codesystem_history.json');
 const expectedCodeSystemsFromDatabase = require('./fixtures/expected/expected_codesystem_from_database.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
@@ -37,6 +38,14 @@ describe('CodeSystem Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCodeSystemResources);
+
+            // get history
+            resp = await request
+                .get('/4_0_0/CodeSystem/medline-loinc-labs/_history?_bundle=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedCodeSystemHistoryResources);
+
         });
         test('concurrency_issue works with databaseUpdateManager', async () => {
             await createTestRequest();
@@ -61,7 +70,10 @@ describe('CodeSystem Tests', () => {
 
             const countOfUpdates = codesystem1Resource.length;
 
+            let i = 0;
             for (const codeSystem of codesystem1Resource) {
+                // eslint-disable-next-line no-unused-vars
+                i += 1;
                 await databaseUpdateManager.replaceOneAsync({doc: new CodeSystem(codeSystem)});
             }
 
