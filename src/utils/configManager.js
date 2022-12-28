@@ -196,6 +196,14 @@ class ConfigManager {
     get handleConcurrency() {
         return !isTrue(env.SKIP_HANDLE_CONCURRENCY);
     }
+
+    /**
+     * number to times to retry an update
+     * @returns {*|number}
+     */
+    get replaceRetries() {
+        return env.REPLACE_RETRIES || 10;
+    }
 }
 
 module.exports = {

@@ -4,6 +4,7 @@ const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
+const {ConfigManager} = require('../utils/configManager');
 
 class DatabaseUpdateFactory {
     /**
@@ -12,13 +13,15 @@ class DatabaseUpdateFactory {
      * @param {ResourceMerger} resourceMerger
      * @param {PreSaveManager} preSaveManager
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
             resourceLocatorFactory,
             resourceMerger,
             preSaveManager,
-            databaseQueryFactory
+            databaseQueryFactory,
+            configManager
         }
     ) {
         /**
@@ -44,6 +47,12 @@ class DatabaseUpdateFactory {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -59,6 +68,7 @@ class DatabaseUpdateFactory {
                 resourceMerger: this.resourceMerger,
                 preSaveManager: this.preSaveManager,
                 databaseQueryFactory: this.databaseQueryFactory,
+                configManager: this.configManager,
                 resourceType,
                 base_version
             }

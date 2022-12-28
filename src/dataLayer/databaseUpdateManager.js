@@ -8,6 +8,7 @@ const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {logTraceSystemEventAsync} = require('../operations/common/logging');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
+const {ConfigManager} = require('../utils/configManager');
 
 class DatabaseUpdateManager {
     /**
@@ -18,6 +19,7 @@ class DatabaseUpdateManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {ConfigManager} configManager
      */
     constructor({
                     resourceLocatorFactory,
@@ -25,7 +27,8 @@ class DatabaseUpdateManager {
                     preSaveManager,
                     resourceType,
                     base_version,
-                    databaseQueryFactory
+                    databaseQueryFactory,
+                    configManager
                 }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
@@ -64,6 +67,12 @@ class DatabaseUpdateManager {
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -129,7 +138,7 @@ class DatabaseUpdateManager {
             /**
              * @type {number}
              */
-            let runsLeft = 10;
+            let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
             while (!passed && runsLeft > 0) {
                 const previousVersionId = parseInt(doc.meta.versionId) - 1;
