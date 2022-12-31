@@ -190,6 +190,7 @@ class DatabaseBulkInserter extends EventEmitter {
         assertIsValid(operation, `operation: ${operation} is null`);
         assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
         assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
+        assertIsValid(resource.id, `resource id is not set: ${JSON.stringify(resource)}`);
         // If there is no entry for this collection then create one
         const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
         if (!(operationsByResourceTypeMap.has(resourceType))) {
@@ -240,6 +241,9 @@ class DatabaseBulkInserter extends EventEmitter {
     async insertOneAsync({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
+            if (doc.meta && !doc.meta.versionId) {
+                doc.meta.versionId = '1';
+            }
             await this.preSaveManager.preSaveAsync(doc);
             // check to see if we already have this insert and if so use replace
             /**
@@ -387,6 +391,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     return; // no change so ignore
                 } else {
                     doc = updatedDoc;
+                    previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
                 }
             } else {
@@ -418,6 +423,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         return; // no change so ignore
                     } else {
                         doc = updatedDoc;
+                        previousInsert.resource = doc;
                         previousInsert.operation.insertOne.document = doc.toJSONInternal();
                     }
                 } else {
