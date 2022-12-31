@@ -160,7 +160,7 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
             expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
-            expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
+            expect(onPatientChangeAsyncMock).toBeCalledTimes(1);
             expect(onObservationCreateAsync).toBeCalledTimes(1);
             expect(onObservationChangeAsync).toBeCalledTimes(0);
         });
@@ -572,18 +572,6 @@ describe('databaseBulkInserter Tests', () => {
                     'id': 'loinc-1',
                     'resourceType': 'CodeSystem',
                     'updated': false
-                },
-                {
-                    'created': false,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'updated': true
-                },
-                {
-                    'created': false,
-                    'id': 'loinc-1',
-                    'resourceType': 'CodeSystem',
-                    'updated': true
                 }
             ]);
             /**
@@ -611,7 +599,7 @@ describe('databaseBulkInserter Tests', () => {
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
-                    versionId: '3'
+                    versionId: '1'
                 }),
                 concept: [
                     new CodeSystemConcept(
