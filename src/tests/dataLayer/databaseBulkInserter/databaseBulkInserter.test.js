@@ -12,6 +12,7 @@ const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
 const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
 const CodeSystemConcept = require('../../../fhir/classes/4_0_0/backbone_elements/codeSystemConcept');
 const CodeSystemProperty1 = require('../../../fhir/classes/4_0_0/backbone_elements/codeSystemProperty1');
+const BundleEntry = require('../../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -377,7 +378,7 @@ describe('databaseBulkInserter Tests', () => {
             await postRequestProcessor.executeAsync({requestId});
             await postRequestProcessor.waitTillDoneAsync({requestId});
 
-            // check patients
+            // check codeSystems
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
             const expectedCodeSystem = new CodeSystem({
@@ -432,6 +433,73 @@ describe('databaseBulkInserter Tests', () => {
             expectedCodeSystem.meta.lastUpdated = null;
 
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystem.toJSON());
+
+            // now check the history table
+            const actualCodeSystemHistoryEntries = await fhirDb.collection(`${collectionName}_History`).find().toArray();
+            expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
+            const expectedCodeSystemHistoryEntry = new BundleEntry(
+                {
+                    'id': 'loinc-1',
+                    'request': {
+                        'id': '1234',
+                        'method': 'POST',
+                        'url': '/4_0_0/CodeSystem/loinc-1'
+                    },
+                    resource: new CodeSystem({
+                        id: 'loinc-1',
+                        status: 'active',
+                        content: 'complete',
+                        meta: new Meta({
+                            versionId: '3'
+                        }),
+                        concept: [
+                            new CodeSystemConcept(
+                                {
+                                    id: '3565-4',
+                                    code: '3565-4',
+                                    property: [
+                                        new CodeSystemProperty1({
+                                            code: 'medline_plus',
+                                            valueString: '1'
+                                        })
+                                    ]
+                                }
+                            ),
+                            new CodeSystemConcept(
+                                {
+                                    id: '5565-4',
+                                    code: '5565-4',
+                                    property: [
+                                        new CodeSystemProperty1({
+                                            code: 'medline_plus',
+                                            valueString: '2'
+                                        })
+                                    ]
+                                }
+                            ),
+                            new CodeSystemConcept(
+                                {
+                                    id: '6665-3',
+                                    code: '6665-3',
+                                    property: [
+                                        new CodeSystemProperty1({
+                                            code: 'medline_plus',
+                                            valueString: '3'
+                                        })
+                                    ]
+                                }
+                            ),
+                        ]
+                    })
+                }
+            );
+            // noinspection JSCheckFunctionSignatures
+            const actualCodeSystemHistoryEntry = new BundleEntry(actualCodeSystemHistoryEntries[0]);
+            actualCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
+            expectedCodeSystemHistoryEntry.resource.meta.lastUpdated = null;
+
+            expect(actualCodeSystemHistoryEntry).toStrictEqual(expectedCodeSystemHistoryEntry);
+
         });
         test('execAsync works with multiple inserts and replace on same id', async () => {
             /**
