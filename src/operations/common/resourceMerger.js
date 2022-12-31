@@ -110,7 +110,7 @@ class ResourceMerger {
         // now create a patch between the document in db and the incoming document
         //  this returns an array of patches
         /**
-         * @type {Operation[]}
+         * @type {import('fast-json-patch').Operation[]}
          */
         let patchContent = compare(currentResource.toJSON(), mergedObject);
         // ignore any changes to _id since that's an internal field
@@ -120,11 +120,14 @@ class ResourceMerger {
             return {updatedResource: null, patches: null};
         }
         // now apply the patches to the found resource
-        // noinspection JSCheckFunctionSignatures
+        /**
+         * @type {import('fast-json-patch').PatchResult}
+         */
+        const patchResult = applyPatch(currentResource.toJSONInternal(), patchContent);
         /**
          * @type {Object}
          */
-        let patched_incoming_data = applyPatch(currentResource.toJSONInternal(), patchContent).newDocument;
+        let patched_incoming_data = patchResult.newDocument;
         // Create a new resource to store the merged data
         /**
          * @type {Resource}
