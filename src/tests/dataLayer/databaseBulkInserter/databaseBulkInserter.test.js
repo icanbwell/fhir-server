@@ -873,6 +873,21 @@ describe('databaseBulkInserter Tests', () => {
                                 }
                             ),
                         ]
+                    }),
+                    'response': new BundleResponse({
+                        'outcome': new OperationOutcome({
+                            'issue': [
+                                new OperationOutcomeIssue(
+                                    {
+                                        'code': 'informational',
+                                        'diagnostics': '{"op":"add","path":"/concept/2","value":{"id":"6665-3","code":"6665-3","property":[{"code":"medline_plus","valueString":"3"}]}}',
+                                        'severity': 'information'
+                                    }
+                                )
+                            ],
+                            'resourceType': 'OperationOutcome'
+                        }),
+                        'status': '200'
                     })
                 }
             );
