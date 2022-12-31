@@ -42,6 +42,12 @@ describe('CodeSystem Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(response2).toHaveMergeResponse({'id': 'medline-loinc-labs'});
 
+            expect(response1._body['0'].created === false || response2._body['0'].created === false).toBeTrue();
+            expect(response1._body['0'].created === true || response2._body['0'].created === true).toBeTrue();
+            expect(response1._body['0'].updated === false || response2._body['0'].updated === false).toBeTrue();
+            expect(response1._body['0'].updated === true || response2._body['0'].updated === true).toBeTrue();
+
+            // ACT & ASSERT
             // ACT & ASSERT
             // search by token system and code and make sure we get the right CodeSystem back
             let resp = await request

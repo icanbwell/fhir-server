@@ -760,8 +760,10 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                          */
                         const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
-                        // const expectedInserts = this.getPendingInserts(operationsByCollection).length;
-                        const expectedUpdates = operationsByCollection.filter(o => o.operationType === 'replace').length;
+                        const expectedInserts = operationsByCollection.filter(o => o.operationType === 'insert');
+                        // const expectedInsertsCount = expectedInserts.length;
+                        const expectedUpdates = operationsByCollection.filter(o => o.operationType === 'replace');
+                        const expectedUpdatesCount = expectedUpdates.length;
                         /**
                          * @type {(import('mongodb').AnyBulkWriteOperation)[]}
                          */
@@ -785,20 +787,43 @@ class DatabaseBulkInserter extends EventEmitter {
                         mergeResult = result.result;
 
                         // create history table entries
-                        // case 1: No concurrency failures
-                        // create a history entry for each entry
-                        // case 2: Concurrency failures
 
-                        if (this.configManager.handleConcurrency) {
+                        // const actualInsertsCount = mergeResult.nInserted;
+
+                        // 1. create history entry for inserts
+                        for (const expectedInsert of expectedInserts) {
+                            await this.insertOneHistoryAsync({
+                                requestId,
+                                method,
+                                base_version,
+                                resourceType,
+                                doc: expectedInsert.resource.clone()
+                            });
+                        }
+
+                        // 2. Now create history entries for updates
+                        // case 1: No concurrency failures
+                        // case 2: Concurrency failures
+                        if (this.configManager.handleConcurrency && expectedUpdatesCount > 0) {
                             // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
                             // const actualInserts = mergeResult.nInserted;
                             // nMatched: The number of existing documents selected for update or replacement.
                             // If the update/replacement operation results in no change to an existing document,
                             // e.g. $set expression updates the value to the current value,
                             // nMatched can be greater than nModified.
-                            const actualUpdates = mergeResult.nMatched;
-                            // if updates don't match then get latest and merge again
-                            if (actualUpdates < expectedUpdates) {
+                            const actualUpdatesCount = mergeResult.nMatched;
+                            if (actualUpdatesCount === expectedUpdatesCount) { // case 1: no concurrency failures
+                                for (const expectedUpdate of expectedUpdates) {
+                                    await this.insertOneHistoryAsync({
+                                        requestId,
+                                        method,
+                                        base_version,
+                                        resourceType,
+                                        doc: expectedUpdate.resource.clone()
+                                    });
+                                }
+                            } else { // case 2: concurrency check failed (another parallel process updated atleast one resource)
+                                // if updates don't match then get latest and merge again
                                 await logTraceSystemEventAsync(
                                     {
                                         event: 'bulkWrite',
@@ -807,8 +832,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                             resourceType,
                                             collectionName,
                                             operationsByCollection,
-                                            actualUpdates,
-                                            expectedUpdates
+                                            actualUpdatesCount,
+                                            expectedUpdatesCount
                                         }
                                     }
                                 );
@@ -817,30 +842,19 @@ class DatabaseBulkInserter extends EventEmitter {
                                         requestId,
                                         base_version,
                                         method,
-                                        operationsByCollection
+                                        operationsByCollection: expectedUpdates
                                     }
                                 );
-                            } else {
-                                // no concurrency failures
-                                for (const operationByCollection of operationsByCollection) {
-                                    await this.insertOneHistoryAsync({
-                                        requestId,
-                                        method,
-                                        base_version,
-                                        resourceType,
-                                        doc: operationByCollection.resource.clone()
-                                    });
-                                }
                             }
                         } else {
                             // no concurrency failures
-                            for (const operationByCollection of operationsByCollection) {
+                            for (const expectedUpdate of expectedUpdates) {
                                 await this.insertOneHistoryAsync({
                                     requestId,
                                     method,
                                     base_version,
                                     resourceType,
-                                    doc: operationByCollection.resource.clone()
+                                    doc: expectedUpdate.resource.clone()
                                 });
                             }
                         }
