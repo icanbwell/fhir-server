@@ -228,9 +228,19 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} resource
      * @param {OperationType} operationType
      * @param {import('mongodb').AnyBulkWriteOperation} operation
+     * @param {MergePatchEntry[]|null} patches
      * @private
      */
-    addHistoryOperationForResourceType({requestId, resourceType, resource, operationType, operation}) {
+    addHistoryOperationForResourceType(
+        {
+            requestId,
+            resourceType,
+            resource,
+            operationType,
+            operation,
+            patches
+        }
+    ) {
         // If there is no entry for this collection then create one
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
         if (!(historyOperationsByResourceTypeMap.has(resourceType))) {
@@ -242,7 +252,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resourceType,
             resource,
             operation,
-            operationType
+            operationType,
+            patches
         });
     }
 
@@ -375,7 +386,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                 }
                             ).toJSONInternal()
                         }
-                    }
+                    },
+                    patches
                 }
             );
         } catch (e) {
