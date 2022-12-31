@@ -387,6 +387,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     return; // no change so ignore
                 } else {
                     doc = updatedDoc;
+                    previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
                 }
             } else {
                 /**
@@ -417,29 +418,29 @@ class DatabaseBulkInserter extends EventEmitter {
                         return; // no change so ignore
                     } else {
                         doc = updatedDoc;
+                        previousInsert.operation.insertOne.document = doc.toJSONInternal();
                     }
+                } else {
+                    const filter = previousVersionId && previousVersionId !== '0' ?
+                        {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
+                        {id: id.toString()};
+                    // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
+                    this.addOperationForResourceType({
+                            requestId,
+                            resourceType,
+                            resource: doc,
+                            operationType: 'replace',
+                            operation: {
+                                replaceOne: {
+                                    filter: filter,
+                                    upsert: upsert,
+                                    replacement: doc.toJSONInternal()
+                                }
+                            }
+                        }
+                    );
                 }
             }
-
-            // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
-            // noinspection JSCheckFunctionSignatures
-            const filter = previousVersionId && previousVersionId !== '0' ?
-                {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
-                {id: id.toString()};
-            this.addOperationForResourceType({
-                    requestId,
-                    resourceType,
-                    resource: doc,
-                    operationType: 'replace',
-                    operation: {
-                        replaceOne: {
-                            filter: filter,
-                            upsert: upsert,
-                            replacement: doc.toJSONInternal()
-                        }
-                    }
-                }
-            );
         } catch (e) {
             throw new RethrownError({
                 error: e
