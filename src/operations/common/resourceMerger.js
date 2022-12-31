@@ -7,6 +7,15 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 
+
+/**
+ * @typedef MergePatchEntry
+ * @type {object}
+ * @property {string} op
+ * @property {string} path
+ * @property {*|*[]} value
+ */
+
 /**
  * @description This class merges two resources
  */
@@ -29,7 +38,7 @@ class ResourceMerger {
      * @param {Resource} resourceToMerge
      * @param {boolean|undefined} [smartMerge]
      * @param {boolean|undefined} [incrementVersion]
-     * @returns {Resource|null}
+     * @returns {{updatedResource:Resource|null, patches: MergePatchEntry[]|null }} resource and patches
      */
     async mergeResourceAsync({currentResource, resourceToMerge, smartMerge = true, incrementVersion = true}) {
         // create metadata structure if not present
@@ -88,7 +97,7 @@ class ResourceMerger {
 
         // for speed, first check if the incoming resource is exactly the same
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
-            return null;
+            return {updatedResource: null, patches: null};
         }
 
         /**
@@ -108,7 +117,7 @@ class ResourceMerger {
         patchContent = patchContent.filter(item => item.path !== '/_id');
         // see if there are any changes
         if (patchContent.length === 0) {
-            return null;
+            return {updatedResource: null, patches: null};
         }
         // now apply the patches to the found resource
         // noinspection JSCheckFunctionSignatures
@@ -144,7 +153,18 @@ class ResourceMerger {
             patched_resource_incoming.meta.security = meta.security;
         }
 
-        return patched_resource_incoming;
+        return {
+            updatedResource: patched_resource_incoming,
+            patches: patchContent.map(
+                p => {
+                    return {
+                        op: p.op,
+                        path: p.path,
+                        value: p.value
+                    };
+                }
+            )
+        };
     }
 }
 

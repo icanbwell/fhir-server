@@ -99,7 +99,7 @@ class DatabaseUpdateManager {
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
      * @param {Resource} doc
-     * @return {Promise<Resource|null>}
+     * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
     async replaceOneAsync({doc}) {
         const originalDoc = doc.clone();
@@ -123,19 +123,19 @@ class DatabaseUpdateManager {
                 query: {id: doc.id}
             });
             if (!resourceInDatabase) {
-                return await this.insertOneAsync({doc});
+                return {savedResource: await this.insertOneAsync({doc}), patches: null};
             }
             /**
              * @type {Resource|null}
              */
-            let updatedDoc = await this.resourceMerger.mergeResourceAsync({
+            let {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
                 currentResource: resourceInDatabase,
                 resourceToMerge: doc
             });
-            if (!updatedDoc) {
+            if (!updatedResource) {
                 return null; // nothing to do
             }
-            doc = updatedDoc;
+            doc = updatedResource;
             /**
              * @type {number}
              */
@@ -159,14 +159,14 @@ class DatabaseUpdateManager {
 
                     if (resourceInDatabase !== null) {
                         // merge with our resource
-                        updatedDoc = await this.resourceMerger.mergeResourceAsync({
+                        updatedResource = await this.resourceMerger.mergeResourceAsync({
                             currentResource: resourceInDatabase,
                             resourceToMerge: doc
-                        });
-                        if (!updatedDoc) {
+                        }).updatedResource;
+                        if (!updatedResource) {
                             return null;
                         } else {
-                            doc = updatedDoc;
+                            doc = updatedResource;
                         }
                     } else {
                         throw new Error(`Unable to read resource ${doc.resourceType}/${doc.id} from database`);
@@ -181,7 +181,7 @@ class DatabaseUpdateManager {
                         }
                     });
                 } else {
-                    return doc;
+                    return {savedResource: doc, patches};
                 }
             }
             if (runsLeft <= 0) {

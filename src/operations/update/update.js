@@ -234,16 +234,18 @@ class UpdateOperation {
                         foundResource.resourceType + ' with id ' + id);
                 }
 
-                doc = await this.resourceMerger.mergeResourceAsync({
+                const {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false
                 });
+                doc = updatedResource;
                 if (doc) { // if there is a change
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, id, doc,
-                            previousVersionId: foundResource.meta.versionId
+                            previousVersionId: foundResource.meta.versionId,
+                            patches
                         }
                     );
                 }

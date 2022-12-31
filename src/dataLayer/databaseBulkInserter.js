@@ -25,6 +25,8 @@ const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {ConfigManager} = require('../utils/configManager');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
+const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
+const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -49,6 +51,7 @@ const mutex = new Mutex();
  * @property {string} id
  * @property {Resource} resource
  * @property {import('mongodb').AnyBulkWriteOperation} operation
+ * @property {MergePatchEntry[]|undefined|null} patches
  */
 
 
@@ -182,9 +185,19 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} resource
      * @param {OperationType} operationType
      * @param {import('mongodb').AnyBulkWriteOperation} operation
+     * @param {MergePatchEntry[]|null} patches
      * @private
      */
-    addOperationForResourceType({requestId, resourceType, resource, operationType, operation}) {
+    addOperationForResourceType(
+        {
+            requestId,
+            resourceType,
+            resource,
+            operationType,
+            operation,
+            patches
+        }
+    ) {
         assertIsValid(requestId, 'requestId is null');
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
         assertIsValid(resource, `resource: ${resource} is null`);
@@ -203,7 +216,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resourceType,
             resource,
             operation,
-            operationType
+            operationType,
+            patches
         });
     }
 
@@ -267,7 +281,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     {
                         requestId,
                         resourceType, id: doc.id, doc,
-                        previousVersionId: `${previousVersionId}`
+                        previousVersionId: `${previousVersionId}`,
+                        patches: null
                     }
                 );
             } else {
@@ -289,7 +304,8 @@ class DatabaseBulkInserter extends EventEmitter {
                             document: doc.toJSONInternal()
                         }
                     },
-                    operationType: 'insert'
+                    operationType: 'insert',
+                    patches: null
                 });
             }
             if (doc._id) {
@@ -315,9 +331,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} base_version
      * @param {string} resourceType
      * @param {Resource} doc
+     * @param {MergePatchEntry[]|null} patches
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync({requestId, method, base_version, resourceType, doc}) {
+    async insertOneHistoryAsync({requestId, method, base_version, resourceType, doc, patches}) {
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
@@ -337,7 +354,24 @@ class DatabaseBulkInserter extends EventEmitter {
                                             method,
                                             url: `/${base_version}/${resourceType}/${doc.id}`
                                         }
-                                    )
+                                    ),
+                                    response: patches ?
+                                        new BundleResponse(
+                                            {
+                                                status: '200',
+                                                outcome: new OperationOutcome({
+                                                        issue: patches.map(p => new OperationOutcomeIssue(
+                                                                {
+                                                                    severity: 'information',
+                                                                    code: 'informational',
+                                                                    diagnostics: JSON.stringify(p, getCircularReplacer())
+                                                                }
+                                                            )
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        ) : null
                                 }
                             ).toJSONInternal()
                         }
@@ -359,9 +393,20 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string|null} previousVersionId
      * @param {Resource} doc
      * @param {boolean} [upsert]
+     * @param {MergePatchEntry[]|null} patches
      * @returns {Promise<void>}
      */
-    async replaceOneAsync({requestId, resourceType, id, previousVersionId, doc, upsert = false}) {
+    async replaceOneAsync(
+        {
+            requestId,
+            resourceType,
+            id,
+            previousVersionId,
+            doc,
+            upsert = false,
+            patches
+        }
+    ) {
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
@@ -387,17 +432,18 @@ class DatabaseBulkInserter extends EventEmitter {
                  * returns null if doc is the same
                  * @type {Resource|null}
                  */
-                const updatedDoc = await this.resourceMerger.mergeResourceAsync({
+                const {updatedResource, patches: mergePatches} = await this.resourceMerger.mergeResourceAsync({
                     currentResource: previousResource,
                     resourceToMerge: doc,
                     incrementVersion: false
                 });
-                if (!updatedDoc) {
+                if (!updatedResource) {
                     return; // no change so ignore
                 } else {
-                    doc = updatedDoc;
+                    doc = updatedResource;
                     previousUpdate.resource = doc;
                     previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
+                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
                 }
             } else {
                 /**
@@ -420,15 +466,15 @@ class DatabaseBulkInserter extends EventEmitter {
                      * returns null if doc is the same
                      * @type {Resource|null}
                      */
-                    const updatedDoc = await this.resourceMerger.mergeResourceAsync({
+                    const {updatedResource} = await this.resourceMerger.mergeResourceAsync({
                         currentResource: previousResource,
                         resourceToMerge: doc,
                         incrementVersion: false
                     });
-                    if (!updatedDoc) {
+                    if (!updatedResource) {
                         return; // no change so ignore
                     } else {
-                        doc = updatedDoc;
+                        doc = updatedResource;
                         previousInsert.resource = doc;
                         previousInsert.operation.insertOne.document = doc.toJSONInternal();
                     }
@@ -448,7 +494,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                     upsert: upsert,
                                     replacement: doc.toJSONInternal()
                                 }
-                            }
+                            },
+                            patches
                         }
                     );
                 }
@@ -797,7 +844,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                 method,
                                 base_version,
                                 resourceType,
-                                doc: expectedInsert.resource.clone()
+                                doc: expectedInsert.resource.clone(),
+                                patches: expectedInsert.patches
                             });
                         }
 
@@ -819,7 +867,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                         method,
                                         base_version,
                                         resourceType,
-                                        doc: expectedUpdate.resource.clone()
+                                        doc: expectedUpdate.resource.clone(),
+                                        patches: expectedUpdate.patches
                                     });
                                 }
                             } else { // case 2: concurrency check failed (another parallel process updated atleast one resource)
@@ -854,7 +903,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                     method,
                                     base_version,
                                     resourceType,
-                                    doc: expectedUpdate.resource.clone()
+                                    doc: expectedUpdate.resource.clone(),
+                                    patches: expectedUpdate.patches
                                 });
                             }
                         }
@@ -952,14 +1002,15 @@ class DatabaseBulkInserter extends EventEmitter {
             /**
              * @type {Resource|null}
              */
-            const savedResource = await databaseUpdateManager.replaceOneAsync({doc: updateResource});
+            const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync({doc: updateResource});
             if (savedResource) {
                 await this.insertOneHistoryAsync({
                     requestId,
                     method,
                     base_version,
                     resourceType: savedResource.resourceType,
-                    doc: savedResource.clone()
+                    doc: savedResource.clone(),
+                    patches
                 });
             }
         }

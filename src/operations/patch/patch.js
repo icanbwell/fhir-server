@@ -153,7 +153,8 @@ class PatchOperation {
             await this.databaseBulkInserter.replaceOneAsync(
                 {
                     requestId, resourceType, id, doc,
-                    previousVersionId: foundResource.meta.versionId
+                    previousVersionId: foundResource.meta.versionId,
+                    patches: null // TODO: convert passed in patches to MergePatchEntry
                 }
             );
             /**

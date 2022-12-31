@@ -148,7 +148,7 @@ class MergeManager {
         /**
          * @type {Resource|null}
          */
-        const patched_resource_incoming = await this.resourceMerger.mergeResourceAsync(
+        const {updatedResource: patched_resource_incoming, patches} = await this.resourceMerger.mergeResourceAsync(
             {currentResource, resourceToMerge});
 
         if (this.configManager.logAllMerges) {
@@ -167,7 +167,8 @@ class MergeManager {
             await this.performMergeDbUpdateAsync({
                     requestId,
                     resourceToMerge: patched_resource_incoming,
-                    previousVersionId: currentResource.meta.versionId
+                    previousVersionId: currentResource.meta.versionId,
+                    patches
                 }
             );
         }
@@ -489,13 +490,15 @@ class MergeManager {
      * @param {string} requestId
      * @param {Resource} resourceToMerge
      * @param {string} previousVersionId
+     * @param {MergePatchEntry[]} patches
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync(
         {
             requestId,
             resourceToMerge,
-            previousVersionId
+            previousVersionId,
+            patches
         }
     ) {
         try {
@@ -511,7 +514,8 @@ class MergeManager {
                     resourceType: resourceToMerge.resourceType,
                     id: id.toString(),
                     doc: resourceToMerge,
-                    previousVersionId
+                    previousVersionId,
+                    patches
                 }
             );
         } catch (e) {
