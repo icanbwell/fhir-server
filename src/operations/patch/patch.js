@@ -154,7 +154,15 @@ class PatchOperation {
                 {
                     requestId, resourceType, id, doc,
                     previousVersionId: foundResource.meta.versionId,
-                    patches: null // TODO: convert passed in patches to MergePatchEntry
+                    patches: patchContent.map(
+                        p => {
+                            return {
+                                op: p.op,
+                                path: p.path,
+                                value: p.value
+                            };
+                        }
+                    )
                 }
             );
             /**
