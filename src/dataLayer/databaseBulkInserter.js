@@ -385,7 +385,8 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const updatedDoc = await this.resourceMerger.mergeResourceAsync({
                     currentResource: previousResource,
-                    resourceToMerge: doc
+                    resourceToMerge: doc,
+                    incrementVersion: false
                 });
                 if (!updatedDoc) {
                     return; // no change so ignore
@@ -417,7 +418,8 @@ class DatabaseBulkInserter extends EventEmitter {
                      */
                     const updatedDoc = await this.resourceMerger.mergeResourceAsync({
                         currentResource: previousResource,
-                        resourceToMerge: doc
+                        resourceToMerge: doc,
+                        incrementVersion: false
                     });
                     if (!updatedDoc) {
                         return; // no change so ignore

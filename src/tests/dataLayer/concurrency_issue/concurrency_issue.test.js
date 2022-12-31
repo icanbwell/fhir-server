@@ -187,9 +187,10 @@ describe('CodeSystem Tests', () => {
                 }
             );
             resource.meta.lastUpdated = null;
-            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
+            expect(resource.toJSON().meta.versionId).toStrictEqual('1');
+            expect(resource.toJSON().concept.length).toStrictEqual(countOfUpdates);
 
-            expect(resource.toJSON().meta.versionId).toStrictEqual(`${countOfUpdates}`);
+            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
         });
     });
 });

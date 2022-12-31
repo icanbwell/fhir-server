@@ -28,9 +28,10 @@ class ResourceMerger {
      * @param {Resource} currentResource
      * @param {Resource} resourceToMerge
      * @param {boolean|undefined} [smartMerge]
+     * @param {boolean|undefined} [incrementVersion]
      * @returns {Resource|null}
      */
-    async mergeResourceAsync({currentResource, resourceToMerge, smartMerge = true}) {
+    async mergeResourceAsync({currentResource, resourceToMerge, smartMerge = true, incrementVersion = true}) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -125,7 +126,9 @@ class ResourceMerger {
          * @type {Meta}
          */
         let meta = currentResource.meta;
-        meta.versionId = `${parseInt(currentResource.meta.versionId) + 1}`;
+        meta.versionId = incrementVersion ?
+            `${parseInt(currentResource.meta.versionId) + 1}` :
+            currentResource.meta.versionId;
         meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         // set the source from the incoming resource
         meta.source = original_source;
