@@ -38,9 +38,9 @@ describe('CodeSystem Tests', () => {
                 ]
             );
             // noinspection JSUnresolvedFunction
-            expect(response1).toHaveMergeResponse({created: true});
+            expect(response1).toHaveMergeResponse({'id': 'medline-loinc-labs'});
             // noinspection JSUnresolvedFunction
-            expect(response2).toHaveMergeResponse({created: true});
+            expect(response2).toHaveMergeResponse({'id': 'medline-loinc-labs'});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right CodeSystem back
@@ -107,6 +107,7 @@ describe('CodeSystem Tests', () => {
                 }
             );
             resource.meta.lastUpdated = null;
+            expectedCodeSystemsFromDatabase.meta.versionId = '29'; // in case of databaseUpdateManager we expect the versionId to increment
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
 
             expect(resource.toJSON().meta.versionId).toStrictEqual(`${countOfUpdates}`);
