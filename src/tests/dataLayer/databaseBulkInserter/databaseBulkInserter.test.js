@@ -128,7 +128,8 @@ describe('databaseBulkInserter Tests', () => {
             await databaseBulkInserter.executeAsync({
                 requestId: requestId,
                 currentDate,
-                base_version
+                base_version,
+                method: 'POST'
             });
 
             /**
@@ -345,6 +346,7 @@ describe('databaseBulkInserter Tests', () => {
                 ]
             });
             expectedCodeSystemAfterFirstUpdate.meta.lastUpdated = null;
+            // noinspection JSCheckFunctionSignatures
             let actualCodeSystem = new CodeSystem(codeSystemsBeforeBulkUpdate[0]);
             actualCodeSystem.meta.lastUpdated = null;
             expect(actualCodeSystem.toJSON()).toStrictEqual(expectedCodeSystemAfterFirstUpdate.toJSON());
@@ -357,7 +359,8 @@ describe('databaseBulkInserter Tests', () => {
             const mergeResults = await databaseBulkInserter.executeAsync({
                 requestId: requestId,
                 currentDate,
-                base_version
+                base_version,
+                method: 'POST'
             });
             expect(mergeResults).toStrictEqual([
                 {
@@ -560,7 +563,8 @@ describe('databaseBulkInserter Tests', () => {
             const mergeResults = await databaseBulkInserter.executeAsync({
                 requestId: requestId,
                 currentDate,
-                base_version
+                base_version,
+                method: 'POST'
             });
             expect(mergeResults).toStrictEqual([
                 {
@@ -736,7 +740,8 @@ describe('databaseBulkInserter Tests', () => {
             const mergeResults = await databaseBulkInserter.executeAsync({
                 requestId: requestId,
                 currentDate,
-                base_version
+                base_version,
+                method: 'POST'
             });
             expect(mergeResults).toStrictEqual([
                 {
@@ -768,22 +773,22 @@ describe('databaseBulkInserter Tests', () => {
             expect(codeSystems.length).toStrictEqual(1);
             const expectedCodeSystem = new CodeSystem({
                 'concept': [
-                    {
+                    new CodeSystemConcept({
                         'code': '3565-4',
                         'id': '3565-4',
                         'property': [
-                            {
+                            new CodeSystemProperty1({
                                 'code': 'medline_plus',
                                 'valueString': '1'
-                            }
+                            })
                         ]
-                    }
+                    })
                 ],
                 'content': 'complete',
                 'id': 'loinc-1',
-                'meta': {
+                'meta': new Meta({
                     'versionId': '1'
-                },
+                }),
                 'resourceType': 'CodeSystem',
                 'status': 'active'
             });

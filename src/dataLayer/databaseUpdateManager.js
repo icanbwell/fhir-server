@@ -78,15 +78,16 @@ class DatabaseUpdateManager {
     /**
      * Inserts a resource into the database
      * @param {Resource} doc
-     * @return {Promise<void>}
+     * @return {Promise<Resource>}
      */
     async insertOneAsync({doc}) {
         try {
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
-            if (isNaN(parseInt(doc.meta.versionId))) {
+            if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
             await collection.insertOne(doc.toJSONInternal());
+            return doc;
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -96,8 +97,9 @@ class DatabaseUpdateManager {
 
     /**
      * Inserts a resource into the database
+     * Return value of null means no replacement was necessary since the data in the db is the same
      * @param {Resource} doc
-     * @return {Promise<void>}
+     * @return {Promise<Resource|null>}
      */
     async replaceOneAsync({doc}) {
         const originalDoc = doc.clone();
@@ -131,19 +133,15 @@ class DatabaseUpdateManager {
                 resourceToMerge: doc
             });
             if (!updatedDoc) {
-                return; // nothing to do
+                return null; // nothing to do
             }
             doc = updatedDoc;
-            /**
-             * @type {boolean}
-             */
-            let passed = false;
             /**
              * @type {number}
              */
             let runsLeft = this.configManager.replaceRetries || 10;
             const originalDatabaseVersion = parseInt(doc.meta.versionId);
-            while (!passed && runsLeft > 0) {
+            while (runsLeft > 0) {
                 const previousVersionId = parseInt(doc.meta.versionId) - 1;
                 const filter = previousVersionId > 0 ?
                     {$and: [{id: doc.id}, {'meta.versionId': `${previousVersionId}`}]} :
@@ -166,7 +164,7 @@ class DatabaseUpdateManager {
                             resourceToMerge: doc
                         });
                         if (!updatedDoc) {
-                            passed = true; // nothing needed since the resource in the database is same as what we're trying to update with
+                            return null;
                         } else {
                             doc = updatedDoc;
                         }
@@ -183,7 +181,7 @@ class DatabaseUpdateManager {
                         }
                     });
                 } else {
-                    passed = true;
+                    return doc;
                 }
             }
             if (runsLeft <= 0) {

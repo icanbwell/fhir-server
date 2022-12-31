@@ -24,6 +24,7 @@ const {DatabaseUpdateFactory} = require('./databaseUpdateFactory');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {ConfigManager} = require('../utils/configManager');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -241,7 +242,10 @@ class DatabaseBulkInserter extends EventEmitter {
     async insertOneAsync({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
-            if (doc.meta && !doc.meta.versionId) {
+            if (!doc.meta) {
+                doc.meta = new Meta({});
+            }
+            if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
             await this.preSaveManager.preSaveAsync(doc);
@@ -461,9 +465,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} base_version
      * @param {string} requestId
      * @param {string} currentDate
+     * @param {string} method
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync({requestId, currentDate, base_version}) {
+    async executeAsync({requestId, currentDate, base_version, method}) {
         assertIsValid(requestId, 'requestId is null');
         try {
             /**
@@ -489,29 +494,10 @@ class DatabaseBulkInserter extends EventEmitter {
                         requestId, currentDate,
                         mapEntry: mapEntry,
                         base_version,
-                        useHistoryCollection: false
+                        useHistoryCollection: false,
+                        method
                     }
                 ));
-
-            const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
-            if (historyOperationsByResourceTypeMap.size > 0) {
-                this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async () => {
-                            await async.map(
-                                historyOperationsByResourceTypeMap.entries(),
-                                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                                    {
-                                        requestId, currentDate,
-                                        mapEntry: x, base_version,
-                                        useHistoryCollection: true
-                                    }
-                                ));
-                            historyOperationsByResourceTypeMap.clear();
-                        }
-                    }
-                );
-            }
 
             // If there are any errors, send them to Slack notification
             if (resultsByResourceType.some(r => r.error)) {
@@ -588,6 +574,9 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             }
             operationsByResourceTypeMap.clear();
+
+            await this.executeHistoryInPostRequestAsync({requestId, currentDate, base_version, method});
+
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
                 args:
@@ -605,12 +594,44 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * Executes all the history operations in bulk in a Post Request operation
+     * @param {string} base_version
+     * @param {string} requestId
+     * @param {string} currentDate
+     * @param {string} method
+     * @returns {Promise<void>}
+     */
+    async executeHistoryInPostRequestAsync({requestId, currentDate, base_version, method}) {
+        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
+        if (historyOperationsByResourceTypeMap.size > 0) {
+            this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await async.map(
+                            historyOperationsByResourceTypeMap.entries(),
+                            async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                                {
+                                    requestId, currentDate,
+                                    mapEntry: x, base_version,
+                                    useHistoryCollection: true,
+                                    method
+                                }
+                            ));
+                        historyOperationsByResourceTypeMap.clear();
+                    }
+                }
+            );
+        }
+    }
+
+    /**
      * Performs bulk operations
      * @param {string} requestId
      * @param {string} currentDate
      * @param {[string, BulkInsertUpdateEntry[]]} mapEntry
      * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
+     * @param {string} method
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeWithMapEntryAsync(
@@ -618,7 +639,8 @@ class DatabaseBulkInserter extends EventEmitter {
             requestId,
             currentDate,
             mapEntry, base_version,
-            useHistoryCollection
+            useHistoryCollection,
+            method
         }
     ) {
         try {
@@ -630,7 +652,8 @@ class DatabaseBulkInserter extends EventEmitter {
             return await this.performBulkForResourceTypeAsync(
                 {
                     requestId, currentDate,
-                    resourceType, base_version, useHistoryCollection, operations
+                    resourceType, base_version, useHistoryCollection, operations,
+                    method
                 });
         } catch (e) {
             throw new RethrownError({
@@ -647,6 +670,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
      * @param {BulkInsertUpdateEntry[]} operations
+     * @param {string} method
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeAsync(
@@ -656,7 +680,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resourceType,
             base_version,
             useHistoryCollection,
-            operations
+            operations,
+            method
         }) {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkInserterTimer.startTimer();
@@ -758,6 +783,12 @@ class DatabaseBulkInserter extends EventEmitter {
                         const result = await collection.bulkWrite(bulkOperations, options);
                         //TODO: this only returns result from the last collection
                         mergeResult = result.result;
+
+                        // create history table entries
+                        // case 1: No concurrency failures
+                        // create a history entry for each entry
+                        // case 2: Concurrency failures
+
                         if (this.configManager.handleConcurrency) {
                             // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
                             // const actualInserts = mergeResult.nInserted;
@@ -781,7 +812,36 @@ class DatabaseBulkInserter extends EventEmitter {
                                         }
                                     }
                                 );
-                                await this.updateResourcesOneByOneAsync({operationsByCollection});
+                                await this.updateResourcesOneByOneAsync(
+                                    {
+                                        requestId,
+                                        base_version,
+                                        method,
+                                        operationsByCollection
+                                    }
+                                );
+                            } else {
+                                // no concurrency failures
+                                for (const operationByCollection of operationsByCollection) {
+                                    await this.insertOneHistoryAsync({
+                                        requestId,
+                                        method,
+                                        base_version,
+                                        resourceType,
+                                        doc: operationByCollection.resource.clone()
+                                    });
+                                }
+                            }
+                        } else {
+                            // no concurrency failures
+                            for (const operationByCollection of operationsByCollection) {
+                                await this.insertOneHistoryAsync({
+                                    requestId,
+                                    method,
+                                    base_version,
+                                    resourceType,
+                                    doc: operationByCollection.resource.clone()
+                                });
                             }
                         }
                     } catch (e) {
@@ -851,10 +911,13 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Updates resources one by one
+     * @param {string} requestId
+     * @param {string} base_version
+     * @param {string} method
      * @param {BulkInsertUpdateEntry[]} operationsByCollection
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOneAsync({operationsByCollection}) {
+    async updateResourcesOneByOneAsync({requestId, base_version, method, operationsByCollection}) {
         // find the resources
         /**
          * @type {Resource[]}
@@ -872,7 +935,19 @@ class DatabaseBulkInserter extends EventEmitter {
                     base_version: '4_0_0'
                 }
             );
-            await databaseUpdateManager.replaceOneAsync({doc: updateResource});
+            /**
+             * @type {Resource|null}
+             */
+            const savedResource = await databaseUpdateManager.replaceOneAsync({doc: updateResource});
+            if (savedResource) {
+                await this.insertOneHistoryAsync({
+                    requestId,
+                    method,
+                    base_version,
+                    resourceType: savedResource.resourceType,
+                    doc: savedResource.clone()
+                });
+            }
         }
     }
 }

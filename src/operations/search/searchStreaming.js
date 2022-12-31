@@ -125,7 +125,8 @@ class SearchStreamingOperation {
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            requestId
+            requestId,
+            /** @type {string} */ method
         } = requestInfo;
 
         const originalArgs = deepcopy(args);
@@ -400,7 +401,7 @@ class SearchStreamingOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
             } else { // no records found
                 if (useNdJson) {

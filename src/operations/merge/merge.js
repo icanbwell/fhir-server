@@ -182,7 +182,9 @@ class MergeOperation {
             /** @type {string|null} */
             path,
             /** @type {Object | Object[] | null} */
-            body
+            body,
+            /** @type {string} */
+            method
         } = requestInfo;
 
 
@@ -362,7 +364,8 @@ class MergeOperation {
             let mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate,
-                    base_version
+                    base_version,
+                    method
                 });
 
             // flush any event handlers
@@ -382,7 +385,8 @@ class MergeOperation {
                 this.addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
             await this.mergeManager.logAuditEntriesForMergeResults(
                 {
-                    requestInfo, requestId, base_version, args, mergeResults
+                    requestInfo, requestId, base_version, args, mergeResults,
+                    method
                 });
 
             await this.fhirLoggingManager.logOperationSuccessAsync(

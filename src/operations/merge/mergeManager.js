@@ -113,7 +113,6 @@ class MergeManager {
      * @param {string} scope
      * @param {string} currentDate
      * @param {string} requestId
-     * @param {string} base_version
      * @returns {Promise<void>}
      */
     async mergeExistingAsync(
@@ -124,7 +123,6 @@ class MergeManager {
             scope,
             currentDate,
             requestId,
-            base_version
         }) {
         /**
          * @type {string}
@@ -167,7 +165,6 @@ class MergeManager {
         }
         if (patched_resource_incoming) {
             await this.performMergeDbUpdateAsync({
-                    base_version,
                     requestId,
                     resourceToMerge: patched_resource_incoming,
                     previousVersionId: currentResource.meta.versionId
@@ -230,7 +227,6 @@ class MergeManager {
         }
 
         await this.performMergeDbInsertAsync({
-            base_version,
             requestId,
             resourceToMerge
         });
@@ -305,8 +301,7 @@ class MergeManager {
                 if (currentResource && currentResource.meta) {
                     await this.mergeExistingAsync(
                         {
-                            resourceToMerge, currentResource, user, scope, currentDate, requestId,
-                            base_version
+                            resourceToMerge, currentResource, user, scope, currentDate, requestId
                         }
                     );
                     this.databaseBulkLoader.updateResourceInExistingList({requestId, resource: resourceToMerge});
@@ -492,7 +487,6 @@ class MergeManager {
     /**
      * performs the db update
      * @param {string} requestId
-     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @param {string} previousVersionId
      * @returns {Promise<void>}
@@ -500,7 +494,6 @@ class MergeManager {
     async performMergeDbUpdateAsync(
         {
             requestId,
-            base_version,
             resourceToMerge,
             previousVersionId
         }
@@ -521,19 +514,6 @@ class MergeManager {
                     previousVersionId
                 }
             );
-
-            /**
-             * @type {Resource}
-             */
-            const historyResource = resourceToMerge.clone();
-
-            await this.databaseBulkInserter.insertOneHistoryAsync(
-                {
-                    requestId,
-                    resourceType: resourceToMerge.resourceType, doc: historyResource,
-                    method: 'POST',
-                    base_version
-                });
         } catch (e) {
             throw new RethrownError({
                 message: `Error updating: ${JSON.stringify(resourceToMerge.toJSON())}`,
@@ -545,14 +525,12 @@ class MergeManager {
     /**
      * performs the db insert
      * @param {string} requestId
-     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync(
         {
             requestId,
-            base_version,
             resourceToMerge
         }) {
         try {
@@ -564,17 +542,6 @@ class MergeManager {
                     requestId,
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge
-                }
-            );
-
-            const historyResource = resourceToMerge.clone();
-
-            await this.databaseBulkInserter.insertOneHistoryAsync({
-                    requestId,
-                    resourceType: resourceToMerge.resourceType,
-                    doc: historyResource,
-                    method: 'POST',
-                    base_version
                 }
             );
         } catch (e) {
@@ -797,6 +764,7 @@ class MergeManager {
      * @param {string} base_version
      * @param {Object} args
      * @param {MergeResultEntry[]} mergeResults
+     * @param {string} method
      * @returns {Promise<void>}
      */
     async logAuditEntriesForMergeResults(
@@ -804,7 +772,8 @@ class MergeManager {
             requestInfo,
             requestId,
             base_version, args,
-            mergeResults
+            mergeResults,
+            method
         }
     ) {
         try {
@@ -849,7 +818,7 @@ class MergeManager {
             }
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            await this.auditLogger.flushAsync({requestId, currentDate});
+            await this.auditLogger.flushAsync({requestId, currentDate, method});
         } catch (e) {
             throw new RethrownError({
                 error: e

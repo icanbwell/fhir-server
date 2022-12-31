@@ -159,7 +159,8 @@ describe('CodeSystem Tests', () => {
             await databaseBulkInserter.executeAsync({
                 requestId,
                 currentDate,
-                base_version: '4_0_0'
+                base_version: '4_0_0',
+                method: 'POST'
             });
 
             /**

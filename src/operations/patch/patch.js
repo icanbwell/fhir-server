@@ -156,17 +156,13 @@ class PatchOperation {
                     previousVersionId: foundResource.meta.versionId
                 }
             );
-            await this.databaseBulkInserter.insertOneHistoryAsync({
-                requestId, resourceType, doc: doc.clone(),
-                base_version,
-                method
-            });
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version
+                    requestId, currentDate, base_version: base_version,
+                    method
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {

@@ -128,7 +128,8 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            requestId
+            requestId,
+            /** @type {string} */ method
         } = requestInfo;
 
         const originalArgs = deepcopy(args);
@@ -300,7 +301,7 @@ class SearchBundleOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
             }
 

@@ -280,18 +280,13 @@ class UpdateOperation {
             }
 
             if (doc) {
-                // Insert/update our resource record
-                await this.databaseBulkInserter.insertOneHistoryAsync({
-                    requestId, resourceType, doc: doc.clone(),
-                    method,
-                    base_version
-                });
                 /**
                  * @type {MergeResultEntry[]}
                  */
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
-                        requestId, currentDate, base_version: base_version
+                        requestId, currentDate, base_version: base_version,
+                        method
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
@@ -311,7 +306,7 @@ class UpdateOperation {
                             operation: currentOperationName, args, ids: [resource_incoming['id']]
                         }
                     );
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
 
                 const result = {
