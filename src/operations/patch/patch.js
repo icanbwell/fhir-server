@@ -96,7 +96,8 @@ class PatchOperation {
         try {
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            let {base_version, id, patchContent} = args;
+            // patchContent is passed in JSON Patch format https://jsonpatch.com/
+            let {base_version, id, /** @type {MergePatchEntry[]} */ patchContent} = args;
             // Get current record
             // Query our collection for this observation
             let data;
