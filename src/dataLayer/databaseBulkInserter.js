@@ -432,7 +432,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         previousInsert.resource = doc;
                         previousInsert.operation.insertOne.document = doc.toJSONInternal();
                     }
-                } else {
+                } else { // no previuous insert or update found
                     const filter = previousVersionId && previousVersionId !== '0' ?
                         {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
                         {id: id.toString()};

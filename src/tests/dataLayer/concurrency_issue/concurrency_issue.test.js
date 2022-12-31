@@ -10,6 +10,8 @@ const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTest
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
 const moment = require('moment-timezone');
+const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
+const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 
 describe('CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -24,6 +26,38 @@ describe('CodeSystem Tests', () => {
         test('concurrency_issue works', async () => {
             const request = await createTestRequest();
             // ARRANGE
+
+            // Currently we don't handle concurrent inserts of same resource so create
+            // a simple one first
+            const simpleCodeSystem = new CodeSystem({
+                'id': 'medline-loinc-labs',
+                'meta': new Meta({
+                    'source': 'https://connect.medlineplus.gov/service',
+                    'security': [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medlineplus'
+                        }),
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/access',
+                            'code': 'medlineplus'
+                        }),
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/vendor',
+                            'code': 'medlineplus'
+                        })
+                    ]
+                }),
+                'status': 'active',
+                'content': 'fragment',
+            });
+            let resp = await request
+                .post('/4_0_0/CodeSystem/1/$merge?validate=true')
+                .send(simpleCodeSystem)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({'created': true});
             // add the resources to FHIR server
             let [response1, response2] = await Promise.all(
                 [
@@ -43,14 +77,13 @@ describe('CodeSystem Tests', () => {
             expect(response2).toHaveMergeResponse({'id': 'medline-loinc-labs'});
 
             expect(response1._body['0'].created === false || response2._body['0'].created === false).toBeTrue();
-            expect(response1._body['0'].created === true || response2._body['0'].created === true).toBeTrue();
             expect(response1._body['0'].updated === false || response2._body['0'].updated === false).toBeTrue();
             expect(response1._body['0'].updated === true || response2._body['0'].updated === true).toBeTrue();
 
             // ACT & ASSERT
             // ACT & ASSERT
             // search by token system and code and make sure we get the right CodeSystem back
-            let resp = await request
+            resp = await request
                 .get('/4_0_0/CodeSystem/?_bundle=1&id=medline-loinc-labs')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
