@@ -255,7 +255,7 @@ describe('CodeSystem Tests', () => {
             for (const codeSystem of codesystem1Resource) {
                 // eslint-disable-next-line no-unused-vars
                 i += 1;
-                await databaseBulkInserter.replaceOneAsync(
+                await databaseBulkInserter.mergeOneAsync(
                     {
                         requestId,
                         resourceType: 'CodeSystem',

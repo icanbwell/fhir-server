@@ -40,7 +40,7 @@ const mutex = new Mutex();
  */
 
 /**
- * @typedef {('insert'|'replace')} OperationType
+ * @typedef {('insert'|'replace'|'merge')} OperationType
  **/
 
 /**
@@ -289,7 +289,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     bulkEntry => bulkEntry.id === doc.id &&
                         bulkEntry.operationType === 'insert').length > 0) {
                 const previousVersionId = 1;
-                await this.replaceOneAsync(
+                await this.mergeOneAsync(
                     {
                         requestId,
                         resourceType, id: doc.id, doc,
@@ -503,6 +503,130 @@ class DatabaseBulkInserter extends EventEmitter {
                             resourceType,
                             resource: doc,
                             operationType: 'replace',
+                            operation: {
+                                replaceOne: {
+                                    filter: filter,
+                                    upsert: upsert,
+                                    replacement: doc.toJSONInternal()
+                                }
+                            },
+                            patches
+                        }
+                    );
+                }
+            }
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
+    }
+
+    /**
+     * Replaces a document in Mongo with this one
+     * @param {string} requestId
+     * @param {string} resourceType
+     * @param {string} id
+     * @param {string|null} previousVersionId
+     * @param {Resource} doc
+     * @param {boolean} [upsert]
+     * @param {MergePatchEntry[]|null} patches
+     * @returns {Promise<void>}
+     */
+    async mergeOneAsync(
+        {
+            requestId,
+            resourceType,
+            id,
+            previousVersionId,
+            doc,
+            upsert = false,
+            patches
+        }
+    ) {
+        try {
+            assertTypeEquals(doc, Resource);
+            await this.preSaveManager.preSaveAsync(doc);
+
+            // see if there are any other pending updates for this doc
+            /**
+             * @type {BulkInsertUpdateEntry[]}
+             */
+            const pendingUpdates = this.getPendingUpdates({requestId, resourceType})
+                .filter(a => a.id === doc.id);
+            // noinspection JSValidateTypes
+            /**
+             * @type {BulkInsertUpdateEntry|null}
+             */
+            const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
+            if (previousUpdate) {
+                /**
+                 * @type {Resource}
+                 */
+                const previousResource = previousUpdate.resource;
+                previousVersionId = previousResource.meta.versionId;
+                /**
+                 * returns null if doc is the same
+                 * @type {Resource|null}
+                 */
+                const {updatedResource, patches: mergePatches} = await this.resourceMerger.mergeResourceAsync({
+                    currentResource: previousResource,
+                    resourceToMerge: doc,
+                    incrementVersion: false
+                });
+                if (!updatedResource) {
+                    return; // no change so ignore
+                } else {
+                    doc = updatedResource;
+                    previousUpdate.resource = doc;
+                    previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
+                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
+                }
+            } else {
+                /**
+                 * @type {BulkInsertUpdateEntry[]}
+                 */
+                const pendingInserts = this.getPendingInserts({requestId, resourceType})
+                    .filter(a => a.id === doc.id);
+                // noinspection JSValidateTypes
+                /**
+                 * @type {BulkInsertUpdateEntry|null}
+                 */
+                const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
+                if (previousInsert) {
+                    /**
+                     * @type {Resource}
+                     */
+                    const previousResource = previousInsert.resource;
+                    previousVersionId = previousResource.meta.versionId;
+                    /**
+                     * returns null if doc is the same
+                     * @type {Resource|null}
+                     */
+                    const {updatedResource} = await this.resourceMerger.mergeResourceAsync({
+                        currentResource: previousResource,
+                        resourceToMerge: doc,
+                        incrementVersion: false
+                    });
+                    if (!updatedResource) {
+                        return; // no change so ignore
+                    } else {
+                        doc = updatedResource;
+                        previousInsert.resource = doc;
+                        previousInsert.operation.insertOne.document = doc.toJSONInternal();
+                    }
+                } else { // no previuous insert or update found
+                    const filter = previousVersionId && previousVersionId !== '0' ?
+                        {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
+                        {id: id.toString()};
+                    assertIsValid(!previousVersionId || previousVersionId < parseInt(doc.meta.versionId),
+                        `previousVersionId ${previousVersionId} is not less than doc versionId ${doc.meta.versionId}`);
+                    // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
+                    this.addOperationForResourceType({
+                            requestId,
+                            resourceType,
+                            resource: doc,
+                            operationType: 'merge',
                             operation: {
                                 replaceOne: {
                                     filter: filter,
@@ -764,7 +888,8 @@ class DatabaseBulkInserter extends EventEmitter {
                         /**
                          * @type {BulkInsertUpdateEntry[]}
                          */
-                        const expectedUpdates = operationsByCollection.filter(o => o.operationType === 'replace');
+                        const expectedUpdates = operationsByCollection.filter(
+                            o => o.operationType === 'merge' || o.operationType === 'replace');
                         /**
                          * @type {number}
                          */
@@ -989,7 +1114,8 @@ class DatabaseBulkInserter extends EventEmitter {
         const mergeResultEntry = {
             'id': bulkInsertUpdateEntry.id,
             created: bulkInsertUpdateEntry.operationType === 'insert' && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
-            updated: bulkInsertUpdateEntry.operationType === 'replace' && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
+            updated: (bulkInsertUpdateEntry.operationType === 'merge' || bulkInsertUpdateEntry.operationType === 'replace') &&
+                !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
             resourceType: resourceType,
         };
         if (bulkWriteResult.error) {
@@ -1061,7 +1187,9 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
         const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
-        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.operationType === 'replace') : [];
+        return operationsByResourceType ?
+            operationsByResourceType.filter(operation => operation.operationType === 'merge' || operation.operationType === 'replace') :
+            [];
     }
 
     /**

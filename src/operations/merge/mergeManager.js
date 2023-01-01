@@ -508,7 +508,7 @@ class MergeManager {
             await this.preSaveManager.preSaveAsync(resourceToMerge);
 
             // Insert/update our resource record
-            await this.databaseBulkInserter.replaceOneAsync(
+            await this.databaseBulkInserter.mergeOneAsync(
                 {
                     requestId,
                     resourceType: resourceToMerge.resourceType,

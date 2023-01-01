@@ -120,7 +120,7 @@ describe('databaseBulkInserter Tests', () => {
             });
 
             patient.birthDate = '2020-01-01';
-            await databaseBulkInserter.replaceOneAsync({
+            await databaseBulkInserter.mergeOneAsync({
                 requestId: requestId,
                 resourceType: 'Patient',
                 id: patient.id,
@@ -374,7 +374,7 @@ describe('databaseBulkInserter Tests', () => {
                     ),
                 ]
             });
-            await databaseBulkInserter.replaceOneAsync({
+            await databaseBulkInserter.mergeOneAsync({
                 requestId: requestId,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
@@ -642,7 +642,7 @@ describe('databaseBulkInserter Tests', () => {
                     ),
                 ]
             });
-            await databaseBulkInserter.replaceOneAsync({
+            await databaseBulkInserter.mergeOneAsync({
                 requestId: requestId,
                 resourceType: 'CodeSystem',
                 id: codeSystem2.id,
@@ -1013,7 +1013,7 @@ describe('databaseBulkInserter Tests', () => {
                 doc: codeSystem1,
             });
 
-            await databaseBulkInserter.replaceOneAsync({
+            await databaseBulkInserter.mergeOneAsync({
                 requestId: requestId,
                 id: codeSystem2.id,
                 resourceType: 'CodeSystem',
@@ -1179,7 +1179,7 @@ describe('databaseBulkInserter Tests', () => {
                 doc: codeSystemOriginal,
             });
 
-            await databaseBulkInserter.replaceOneAsync({
+            await databaseBulkInserter.mergeOneAsync({
                 requestId: requestId,
                 id: codeSystemOriginal.id,
                 resourceType: 'CodeSystem',
