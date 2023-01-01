@@ -308,6 +308,8 @@ describe('CodeSystem Tests', () => {
             expect(resource.toJSON().meta.versionId).toStrictEqual('1');
             expect(resource.toJSON().concept.length).toStrictEqual(countOfUpdates);
 
+            expectedCodeSystemsFromDatabase.meta.versionId = '1';
+
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
             console.log('finish test: concurrency_issue works with databaseBulkInserter');
         });
