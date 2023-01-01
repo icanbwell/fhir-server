@@ -254,10 +254,7 @@ describe('CodeSystem Tests', () => {
                 doc: new CodeSystem(firstCodeSystem)
             });
 
-            let i = 0;
             for (const codeSystem of codesystem1ResourceCopy) {
-                // eslint-disable-next-line no-unused-vars
-                i += 1;
                 await databaseBulkInserter.mergeOneAsync(
                     {
                         requestId,
@@ -368,7 +365,6 @@ describe('CodeSystem Tests', () => {
 
             let i = 0;
             for (const codeSystem of codesystem1ResourceCopy) {
-                // eslint-disable-next-line no-unused-vars
                 i += 1;
                 if (i === 10) {
                     const doc = new CodeSystem(firstCodeSystem);
