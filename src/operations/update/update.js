@@ -244,6 +244,7 @@ class UpdateOperation {
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, doc,
+                            id,
                             patches
                         }
                     );
