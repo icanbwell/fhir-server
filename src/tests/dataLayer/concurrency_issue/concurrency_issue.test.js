@@ -242,11 +242,12 @@ describe('CodeSystem Tests', () => {
             const databaseBulkInserter = container.databaseBulkInserter;
             expect(databaseBulkInserter).toBeDefined();
 
-            const countOfUpdates = codesystem1Resource.length;
+            const codesystem1ResourceCopy = deepcopy(codesystem1Resource);
+            const countOfUpdates = codesystem1ResourceCopy.length;
 
             const requestId = '1234';
 
-            const firstCodeSystem = codesystem1Resource.splice(0, 1)[0];
+            const firstCodeSystem = codesystem1ResourceCopy.splice(0, 1)[0];
             await databaseBulkInserter.insertOneAsync({
                 requestId,
                 resourceType: 'CodeSystem',
@@ -254,7 +255,7 @@ describe('CodeSystem Tests', () => {
             });
 
             let i = 0;
-            for (const codeSystem of codesystem1Resource) {
+            for (const codeSystem of codesystem1ResourceCopy) {
                 // eslint-disable-next-line no-unused-vars
                 i += 1;
                 await databaseBulkInserter.mergeOneAsync(
@@ -352,11 +353,13 @@ describe('CodeSystem Tests', () => {
             const databaseBulkInserter = container.databaseBulkInserter;
             expect(databaseBulkInserter).toBeDefined();
 
-            const countOfUpdates = codesystem1Resource.length;
+            const codesystem1ResourceCopy = deepcopy(codesystem1Resource);
 
-            const requestId = '1234';
+            const countOfUpdates = codesystem1ResourceCopy.length;
 
-            const firstCodeSystem = codesystem1Resource.splice(0, 1)[0];
+            const requestId = '9999';
+
+            const firstCodeSystem = codesystem1ResourceCopy.splice(0, 1)[0];
             await databaseBulkInserter.insertOneAsync({
                 requestId,
                 resourceType: 'CodeSystem',
@@ -364,7 +367,7 @@ describe('CodeSystem Tests', () => {
             });
 
             let i = 0;
-            for (const codeSystem of codesystem1Resource) {
+            for (const codeSystem of codesystem1ResourceCopy) {
                 // eslint-disable-next-line no-unused-vars
                 i += 1;
                 if (i === 10) {
