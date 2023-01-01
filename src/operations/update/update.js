@@ -243,8 +243,7 @@ class UpdateOperation {
                 if (doc) { // if there is a change
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
-                            requestId, resourceType, id, doc,
-                            previousVersionId: foundResource.meta.versionId,
+                            requestId, resourceType, doc,
                             patches
                         }
                     );

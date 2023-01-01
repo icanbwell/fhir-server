@@ -402,8 +402,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * Replaces a document in Mongo with this one
      * @param {string} requestId
      * @param {string} resourceType
-     * @param {string} id
-     * @param {string|null} previousVersionId
      * @param {Resource} doc
      * @param {boolean} [upsert]
      * @param {MergePatchEntry[]|null} patches
@@ -413,8 +411,6 @@ class DatabaseBulkInserter extends EventEmitter {
         {
             requestId,
             resourceType,
-            id,
-            previousVersionId,
             doc,
             upsert = false,
             patches
@@ -436,28 +432,11 @@ class DatabaseBulkInserter extends EventEmitter {
              */
             const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
             if (previousUpdate) {
-                /**
-                 * @type {Resource}
-                 */
-                const previousResource = previousUpdate.resource;
-                previousVersionId = previousResource.meta.versionId;
-                /**
-                 * returns null if doc is the same
-                 * @type {Resource|null}
-                 */
-                const {updatedResource, patches: mergePatches} = await this.resourceMerger.mergeResourceAsync({
-                    currentResource: previousResource,
-                    resourceToMerge: doc,
-                    incrementVersion: false
-                });
-                if (!updatedResource) {
-                    return; // no change so ignore
-                } else {
-                    doc = updatedResource;
-                    previousUpdate.resource = doc;
-                    previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
-                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
-                }
+                // don't merge but replace
+                previousUpdate.resource = doc;
+                previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
+                // replace without a filter so we replace regardless of version in db
+                previousUpdate.operation.replaceOne.filter = null;
             } else {
                 /**
                  * @type {BulkInsertUpdateEntry[]}
@@ -470,33 +449,9 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
                 if (previousInsert) {
-                    /**
-                     * @type {Resource}
-                     */
-                    const previousResource = previousInsert.resource;
-                    previousVersionId = previousResource.meta.versionId;
-                    /**
-                     * returns null if doc is the same
-                     * @type {Resource|null}
-                     */
-                    const {updatedResource} = await this.resourceMerger.mergeResourceAsync({
-                        currentResource: previousResource,
-                        resourceToMerge: doc,
-                        incrementVersion: false
-                    });
-                    if (!updatedResource) {
-                        return; // no change so ignore
-                    } else {
-                        doc = updatedResource;
-                        previousInsert.resource = doc;
-                        previousInsert.operation.insertOne.document = doc.toJSONInternal();
-                    }
+                    previousInsert.resource = doc;
+                    previousInsert.operation.insertOne.document = doc.toJSONInternal();
                 } else { // no previuous insert or update found
-                    const filter = previousVersionId && previousVersionId !== '0' ?
-                        {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
-                        {id: id.toString()};
-                    assertIsValid(!previousVersionId || previousVersionId < parseInt(doc.meta.versionId),
-                        `previousVersionId ${previousVersionId} is not less than doc versionId ${doc.meta.versionId}`);
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
                     this.addOperationForResourceType({
                             requestId,
@@ -505,7 +460,7 @@ class DatabaseBulkInserter extends EventEmitter {
                             operationType: 'replace',
                             operation: {
                                 replaceOne: {
-                                    filter: filter,
+                                    // filter: filter,  // replace without a filter so we replace regardless of version in db
                                     upsert: upsert,
                                     replacement: doc.toJSONInternal()
                                 }
