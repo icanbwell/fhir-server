@@ -817,7 +817,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                     base_version,
                                     resourceType,
                                     bulkInsertUpdateEntry: expectedInsert,
-                                    bulkWriteResult
+                                    bulkWriteResult,
+                                    useHistoryCollection
                                 })
                             );
                         }
@@ -842,7 +843,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                             base_version,
                                             resourceType,
                                             bulkInsertUpdateEntry: expectedUpdate,
-                                            bulkWriteResult
+                                            bulkWriteResult,
+                                            useHistoryCollection
                                         })
                                     );
                                 }
@@ -875,7 +877,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                             base_version,
                                             resourceType,
                                             bulkInsertUpdateEntry: expectedUpdate,
-                                            bulkWriteResult
+                                            bulkWriteResult,
+                                            useHistoryCollection
                                         })
                                     );
                                 }
@@ -890,7 +893,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                         base_version,
                                         resourceType,
                                         bulkInsertUpdateEntry: expectedUpdate,
-                                        bulkWriteResult
+                                        bulkWriteResult,
+                                        useHistoryCollection
                                     })
                                 );
                             }
@@ -939,10 +943,35 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} resourceType
      * @param {BulkInsertUpdateEntry} bulkInsertUpdateEntry
      * @param {import('mongodb').BulkWriteResult} bulkWriteResult
+     * @param {boolean} useHistoryCollection
      * @returns {Promise<MergeResultEntry>}
      */
-    async postSaveAsync({requestId, method, base_version, resourceType, bulkInsertUpdateEntry, bulkWriteResult}) {
-        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent') {
+    async postSaveAsync(
+        {
+            requestId,
+            method,
+            base_version,
+            resourceType,
+            bulkInsertUpdateEntry,
+            bulkWriteResult,
+            useHistoryCollection
+        }
+    ) {
+        await logTraceSystemEventAsync(
+            {
+                event: 'postSaveAsync' + `_${resourceType}`,
+                message: 'Post Save',
+                args: {
+                    resourceType,
+                    requestId,
+                    bulkInsertUpdateEntry,
+                    bulkWriteResult,
+                    skipped: bulkInsertUpdateEntry.skipped,
+                    useHistoryCollection
+                }
+            }
+        );
+        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
             await this.insertOneHistoryAsync(
                 {
                     requestId,
@@ -992,7 +1021,7 @@ class DatabaseBulkInserter extends EventEmitter {
         }
 
         // fire change events
-        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent') {
+        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
             this.postRequestProcessor.add({
                 requestId,
                 fnTask: async () => await this.changeEventProducer.fireEventsAsync({

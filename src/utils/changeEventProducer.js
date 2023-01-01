@@ -488,6 +488,19 @@ class ChangeEventProducer {
          * @type {string|null}
          */
         const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, doc);
+        await logTraceSystemEventAsync(
+            {
+                event: 'fireEventsAsync' + `_${resourceType}`,
+                message: 'Fire Events',
+                args: {
+                    resourceType,
+                    requestId,
+                    eventType,
+                    doc,
+                    patientId
+                }
+            }
+        );
         if (patientId) {
             if (eventType === 'C' && resourceType === 'Patient') {
                 await this.onPatientCreateAsync(
