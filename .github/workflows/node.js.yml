@@ -25,7 +25,7 @@ jobs:
       - run: npm run build --if-present
       - name: lint
         run: |
-          make lint
+          npm run lint
   build:
     runs-on: ubuntu-latest
     name: test (chunk ${{ matrix.chunk }})
