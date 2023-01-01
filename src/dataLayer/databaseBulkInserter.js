@@ -32,6 +32,7 @@ const mutex = new Mutex();
 
 /**
  * @typedef BulkResultEntry
+ * @description Result of a bulk operation
  * @type {object}
  * @property {string} resourceType
  * @property {import('mongodb').BulkWriteOpResultObject|null} mergeResult
@@ -40,11 +41,17 @@ const mutex = new Mutex();
  */
 
 /**
+ * @desc Type of operation
+ * @desc insert = blind insert without checking if id already exists
+ * @desc insertUniqueId = insert if id does not exist else merge
+ * @desc replace = replace entity with this one and do not merge
+ * @desc merge = merge contents of this doc with what the database has
  * @typedef {('insert'|'insertUniqueId'|'replace'|'merge')} OperationType
  **/
 
 /**
  * @typedef BulkInsertUpdateEntry
+ * @description Represent a single Insert or Update operation
  * @type {object}
  * @property {OperationType} operationType
  * @property {boolean} isCreateOperation
@@ -59,7 +66,7 @@ const mutex = new Mutex();
 
 
 /**
- * This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
+ * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
  */
 class DatabaseBulkInserter extends EventEmitter {
     /**
@@ -365,7 +372,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     requestId,
                     resourceType,
                     resource: doc,
-                    operationType: 'insert',
+                    operationType: 'insert', // history operations are blind merges without checking id
                     operation: {
                         insertOne: {
                             document: new BundleEntry(
@@ -851,7 +858,6 @@ class DatabaseBulkInserter extends EventEmitter {
                         /**
                          * @type {BulkInsertUpdateEntry[]}
                          */
-                            // const expectedInserts = operationsByCollection.filter(o => o.operationType === 'insert');
                         const expectedInsertsByUniqueId = operationsByCollection.filter(o => o.operationType === 'insertUniqueId');
                         // const expectedInsertsCount = expectedInserts.length;
                         const expectedInsertsByUniqueIdCount = expectedInsertsByUniqueId.length;
@@ -898,16 +904,30 @@ class DatabaseBulkInserter extends EventEmitter {
                             }
                         );
 
-                        const actualInsertsCount = bulkWriteResult.nUpserted;
+                        const actualInsertsByUniqueIdCount = bulkWriteResult.nUpserted;
 
                         // 1. check if we got same number of inserts as we expected
                         //      If we did not, it means someone else inserted this resource.  Then we have to use update instead of insert
                         if (this.configManager.handleConcurrency &&
                             expectedInsertsByUniqueIdCount > 0 &&
-                            expectedInsertsByUniqueIdCount !== actualInsertsCount
+                            expectedInsertsByUniqueIdCount !== actualInsertsByUniqueIdCount
                         ) {
                             // const upsertedIds = bulkWriteResult.upsertedIds;
-                            // go through all the inserts and get their _id from the database
+                            await logTraceSystemEventAsync(
+                                {
+                                    event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                                    message: 'Insert count not matched so running updates one by one',
+                                    args: {
+                                        resourceType,
+                                        collectionName,
+                                        expectedInsertsByUniqueId,
+                                        actualInsertsByUniqueIdCount,
+                                        expectedInsertsByUniqueIdCount,
+                                        bulkWriteResult
+                                    }
+                                }
+                            );
+                            // do inserts/updates one by one
                             await this.updateResourcesOneByOneAsync(
                                 {
                                     bulkInsertUpdateEntries: expectedInsertsByUniqueId
@@ -923,11 +943,12 @@ class DatabaseBulkInserter extends EventEmitter {
                         // If the update/replacement operation results in no change to an existing document,
                         // e.g. $set expression updates the value to the current value,
                         // nMatched can be greater than nModified.
+                        // insertsByUniqueId are also matches so subtract that count to get count of matches for updates
                         const actualUpdatesCount = bulkWriteResult.nMatched - bulkWriteResult.nUpserted;
                         if (this.configManager.handleConcurrency && expectedUpdatesCount > 0 &&
                             actualUpdatesCount !== expectedUpdatesCount) {
                             // concurrency check failed (another parallel process updated atleast one resource)
-                            // if updates don't match then get latest and merge again
+                            // process one by one
                             await logTraceSystemEventAsync(
                                 {
                                     event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
