@@ -192,6 +192,20 @@ class MongoCollectionManager {
             return {name: x.name, count: x.count};
         });
     }
+
+    /**
+     * remove all documents in the collection but leave the collection
+     * @param {import('mongodb').Db} db
+     * @param {string} collectionName
+     * @return {Promise<import('mongodb').DeleteResult>}
+     */
+    async clearCollectionAsync({db, collectionName}) {
+        /**
+         * @type {Collection<Document>}
+         */
+        const collection = await this.getOrCreateCollectionAsync({db, collectionName});
+        return await collection.deleteMany({});
+    }
 }
 
 module.exports = {

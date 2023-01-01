@@ -26,6 +26,31 @@ describe('CodeSystem Tests', () => {
         test('concurrency_issue works', async () => {
             const request = await createTestRequest();
             // ARRANGE
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            expect(container).toBeDefined();
+            /**
+             * @type {MongoCollectionManager}
+             */
+            const mongoCollectionManager = container.mongoCollectionManager;
+            expect(mongoCollectionManager).toBeDefined();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const collectionName = 'CodeSystem_4_0_0';
+            await mongoCollectionManager.clearCollectionAsync({
+                db: fhirDb,
+                collectionName
+            });
+            expect(await fhirDb.collection(collectionName).countDocuments()).toStrictEqual(0);
 
             // Currently we don't handle concurrent inserts of same resource so create
             // a simple one first
@@ -103,6 +128,26 @@ describe('CodeSystem Tests', () => {
              * @type {SimpleContainer}
              */
             const container = getTestContainer();
+            expect(container).toBeDefined();
+            /**
+             * @type {MongoCollectionManager}
+             */
+            const mongoCollectionManager = container.mongoCollectionManager;
+            expect(mongoCollectionManager).toBeDefined();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const collectionName = 'CodeSystem_4_0_0';
+            await mongoCollectionManager.clearCollectionAsync({
+                db: fhirDb,
+                collectionName
+            });
 
             /**
              * @type {DatabaseUpdateFactory}
@@ -157,6 +202,27 @@ describe('CodeSystem Tests', () => {
              * @type {SimpleContainer}
              */
             const container = getTestContainer();
+            expect(container).toBeDefined();
+            /**
+             * @type {MongoCollectionManager}
+             */
+            const mongoCollectionManager = container.mongoCollectionManager;
+            expect(mongoCollectionManager).toBeDefined();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const collectionName = 'CodeSystem_4_0_0';
+            await mongoCollectionManager.clearCollectionAsync({
+                db: fhirDb,
+                collectionName
+            });
+            expect(await fhirDb.collection(collectionName).countDocuments()).toStrictEqual(0);
 
             /**
              * @type {DatabaseBulkInserter}
@@ -186,7 +252,8 @@ describe('CodeSystem Tests', () => {
                         id: 'medline-loinc-labs',
                         previousVersionId: '1',
                         doc: new CodeSystem(codeSystem),
-                        upsert: false
+                        upsert: false,
+                        patches: null
                     }
                 );
             }
