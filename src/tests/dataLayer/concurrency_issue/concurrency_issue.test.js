@@ -12,6 +12,7 @@ const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
 const moment = require('moment-timezone');
 const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
+const deepcopy = require('deepcopy');
 
 describe('CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -199,8 +200,9 @@ describe('CodeSystem Tests', () => {
                 }
             );
             resource.meta.lastUpdated = null;
-            expectedCodeSystemsFromDatabase.meta.versionId = '29'; // in case of databaseUpdateManager we expect the versionId to increment
-            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
+            const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
+            expectedCodeSystemsFromDatabaseCopy.meta.versionId = '29'; // in case of databaseUpdateManager we expect the versionId to increment
+            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
 
             expect(resource.toJSON().meta.versionId).toStrictEqual(`${countOfUpdates}`);
             console.log('finish test: concurrency_issue works with databaseUpdateManager');
@@ -308,9 +310,10 @@ describe('CodeSystem Tests', () => {
             expect(resource.toJSON().meta.versionId).toStrictEqual('1');
             expect(resource.toJSON().concept.length).toStrictEqual(countOfUpdates);
 
-            expectedCodeSystemsFromDatabase.meta.versionId = '1';
+            const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
+            expectedCodeSystemsFromDatabaseCopy.meta.versionId = '1';
 
-            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
+            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
             console.log('finish test: concurrency_issue works with databaseBulkInserter');
         });
         test('concurrency_issue works with databaseBulkInserter with insert in the middle', async () => {
@@ -422,9 +425,11 @@ describe('CodeSystem Tests', () => {
             expect(resource.toJSON().meta.versionId).toStrictEqual('3');
             expect(resource.toJSON().concept.length).toStrictEqual(countOfUpdates);
 
-            expectedCodeSystemsFromDatabase.meta.versionId = '3';
+            const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
 
-            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
+            expectedCodeSystemsFromDatabaseCopy.meta.versionId = '3';
+
+            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
             console.log('finish test: concurrency_issue works with databaseBulkInserter with update in the middle');
         });
     });
