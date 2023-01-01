@@ -105,6 +105,8 @@ describe('CodeSystem Tests', () => {
             expect(codeSystemsInDatabase).toBeArrayOfSize(1);
             expect(codeSystemsInDatabase[0].concept).toBeArrayOfSize(29);
 
+            // return;
+
             expect(response1._body['0'].created === false || response2._body['0'].created === false).toBeTrue();
             expect(response1._body['0'].updated === false || response2._body['0'].updated === false).toBeTrue();
             expect(response1._body['0'].updated === true || response2._body['0'].updated === true).toBeTrue();

@@ -56,39 +56,19 @@ class ResourceMerger {
 
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
-        if (currentResource.identifier &&
-            Array.isArray(currentResource.identifier) &&
-            currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId) &&
-            (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId))
-        ) {
+        if (currentResource.identifier && Array.isArray(currentResource.identifier) && currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId) && (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId))) {
             if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [
-                    getFirstElementOrNull(
-                        currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
-                ];
+                resourceToMerge.identifier = [getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))];
             } else {
-                resourceToMerge.identifier.push(
-                    getFirstElementOrNull(
-                        currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
-                );
+                resourceToMerge.identifier.push(getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId)));
             }
         }
 
-        if (currentResource.identifier &&
-            Array.isArray(currentResource.identifier) &&
-            currentResource.identifier.some(s => s.system === IdentifierSystem.uuid) &&
-            (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))
-        ) {
+        if (currentResource.identifier && Array.isArray(currentResource.identifier) && currentResource.identifier.some(s => s.system === IdentifierSystem.uuid) && (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))) {
             if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [
-                    getFirstElementOrNull(
-                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid))
-                ];
+                resourceToMerge.identifier = [getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid))];
             } else {
-                resourceToMerge.identifier.push(
-                    getFirstElementOrNull(
-                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid))
-                );
+                resourceToMerge.identifier.push(getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)));
             }
         }
 
@@ -103,9 +83,7 @@ class ResourceMerger {
         /**
          * @type {Object}
          */
-        let mergedObject = smartMerge ?
-            mergeObject(currentResource.toJSON(), resourceToMerge.toJSON()) :
-            resourceToMerge.toJSON();
+        let mergedObject = smartMerge ? mergeObject(currentResource.toJSON(), resourceToMerge.toJSON()) : resourceToMerge.toJSON();
 
         // now create a patch between the document in db and the incoming document
         //  this returns an array of patches
@@ -134,13 +112,12 @@ class ResourceMerger {
          */
         let patched_resource_incoming = currentResource.create(patched_incoming_data);
         // update the metadata to increment versionId
+        currentResource = currentResource.clone(); // to avoid accidentally changing the original resource
         /**
          * @type {Meta}
          */
         let meta = currentResource.meta;
-        meta.versionId = incrementVersion ?
-            `${parseInt(currentResource.meta.versionId) + 1}` :
-            currentResource.meta.versionId;
+        meta.versionId = incrementVersion ? `${parseInt(currentResource.meta.versionId) + 1}` : currentResource.meta.versionId;
         meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         // set the source from the incoming resource
         meta.source = original_source;
@@ -157,16 +134,11 @@ class ResourceMerger {
         }
 
         return {
-            updatedResource: patched_resource_incoming,
-            patches: patchContent.map(
-                p => {
-                    return {
-                        op: p.op,
-                        path: p.path,
-                        value: p.value
-                    };
-                }
-            )
+            updatedResource: patched_resource_incoming, patches: patchContent.map(p => {
+                return {
+                    op: p.op, path: p.path, value: p.value
+                };
+            })
         };
     }
 }

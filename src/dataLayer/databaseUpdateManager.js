@@ -122,6 +122,18 @@ class DatabaseUpdateManager {
             let resourceInDatabase = await databaseQueryManager.findOneAsync({
                 query: {id: doc.id}
             });
+            await logTraceSystemEventAsync(
+                {
+                    event: 'replaceOneAsync' + `_${doc.resourceType}`,
+                    message: 'Found existing resource',
+                    args: {
+                        id: doc.id,
+                        resourceType: doc.resourceType,
+                        doc,
+                        resourceInDatabase
+                    }
+                }
+            );
             if (!resourceInDatabase) {
                 return {savedResource: await this.insertOneAsync({doc}), patches: null};
             }
@@ -133,7 +145,7 @@ class DatabaseUpdateManager {
                 resourceToMerge: doc
             });
             if (!updatedResource) {
-                return null; // nothing to do
+                return {savedResource: null, patches: null}; // nothing to do
             }
             doc = updatedResource;
             /**
@@ -164,7 +176,7 @@ class DatabaseUpdateManager {
                             resourceToMerge: doc
                         }).updatedResource;
                         if (!updatedResource) {
-                            return null;
+                            return {savedResource: null, patches: null};
                         } else {
                             doc = updatedResource;
                         }
@@ -180,7 +192,7 @@ class DatabaseUpdateManager {
                             doc
                         }
                     });
-                } else {
+                } else { // save was successful
                     return {savedResource: doc, patches};
                 }
             }

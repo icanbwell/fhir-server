@@ -372,7 +372,7 @@
             }
           ],
           "source": "https://connect.medlineplus.gov/service",
-          "versionId": "1"
+          "versionId": "2"
         },
         "name": "MedlineLoincLabs",
         "property": [
