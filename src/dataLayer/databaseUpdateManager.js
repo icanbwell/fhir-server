@@ -9,6 +9,7 @@ const {PreSaveManager} = require('../preSaveHandlers/preSave');
 const {logTraceSystemEventAsync} = require('../operations/common/logging');
 const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {ConfigManager} = require('../utils/configManager');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 class DatabaseUpdateManager {
     /**
@@ -103,6 +104,10 @@ class DatabaseUpdateManager {
      */
     async replaceOneAsync({doc}) {
         const originalDoc = doc.clone();
+        /**
+         * @type {Resource[]}
+         */
+        const docVersionsTested = [];
 
         try {
             /**
@@ -158,6 +163,7 @@ class DatabaseUpdateManager {
                 const filter = previousVersionId > 0 ?
                     {$and: [{id: doc.id}, {'meta.versionId': `${previousVersionId}`}]} :
                     {id: doc.id};
+                docVersionsTested.push(doc);
                 const updateResult = await collection.replaceOne(filter, doc.toJSONInternal());
                 await logTraceSystemEventAsync(
                     {
@@ -212,16 +218,22 @@ class DatabaseUpdateManager {
                 }
             }
             if (runsLeft <= 0) {
+                const documentsTestedAsText = JSON.stringify(
+                    docVersionsTested.map(d => d.toJSONInternal()),
+                    getCircularReplacer()
+                );
                 throw new Error(
                     `Unable to save resource ${doc.resourceType}/${doc.id} with version ${doc.meta.versionId} ` +
-                    `(original=${originalDatabaseVersion}) after 10 tries`);
+                    `(original=${originalDatabaseVersion}) after 10 tries. ` +
+                    `(versions tested: ${documentsTestedAsText})`);
             }
         } catch (e) {
             throw new RethrownError({
                 error: e,
                 args: {
                     originalDoc,
-                    doc
+                    doc,
+                    docVersionsTested
                 }
             });
         }
