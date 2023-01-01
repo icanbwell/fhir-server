@@ -72,6 +72,19 @@
           }
         ],
         "resourceType": "Patient"
+      },
+      "response": {
+        "outcome": {
+          "issue": [
+            {
+              "code": "informational",
+              "diagnostics": "{\"op\":\"replace\",\"path\":\"/birthDate\",\"value\":\"2015-01-01\"}",
+              "severity": "information"
+            }
+          ],
+          "resourceType": "OperationOutcome"
+        },
+        "status": "200"
       }
     }
   ],
