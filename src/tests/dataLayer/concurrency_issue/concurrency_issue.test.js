@@ -24,6 +24,7 @@ describe('CodeSystem Tests', () => {
 
     describe('CodeSystem concurrency_issue Tests', () => {
         test('concurrency_issue works', async () => {
+            console.log('start test: concurrency_issue works');
             const request = await createTestRequest();
             // ARRANGE
             /**
@@ -126,9 +127,10 @@ describe('CodeSystem Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCodeSystemHistoryResources);
-
+            console.log('finish test: concurrency_issue works');
         });
         test('concurrency_issue works with databaseUpdateManager', async () => {
+            console.log('start test: concurrency_issue works with databaseUpdateManager');
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -201,8 +203,10 @@ describe('CodeSystem Tests', () => {
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
 
             expect(resource.toJSON().meta.versionId).toStrictEqual(`${countOfUpdates}`);
+            console.log('finish test: concurrency_issue works with databaseUpdateManager');
         });
         test('concurrency_issue works with databaseBulkInserter', async () => {
+            console.log('start test: concurrency_issue works with databaseBulkInserter');
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -305,6 +309,7 @@ describe('CodeSystem Tests', () => {
             expect(resource.toJSON().concept.length).toStrictEqual(countOfUpdates);
 
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
+            console.log('finish test: concurrency_issue works with databaseBulkInserter');
         });
     });
 });

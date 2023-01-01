@@ -159,6 +159,21 @@ class DatabaseUpdateManager {
                     {$and: [{id: doc.id}, {'meta.versionId': `${previousVersionId}`}]} :
                     {id: doc.id};
                 const updateResult = await collection.replaceOne(filter, doc.toJSONInternal());
+                await logTraceSystemEventAsync(
+                    {
+                        event: 'replaceOneAsync: Merging' + `_${doc.resourceType}`,
+                        message: 'Merging existing resource',
+                        args: {
+                            id: doc.id,
+                            resourceType: doc.resourceType,
+                            doc,
+                            resourceInDatabase,
+                            patches,
+                            updatedResource,
+                            updateResult
+                        }
+                    }
+                );
                 if (updateResult.matchedCount === 0) {
                     // if not result matched then the versionId has changed in the database
                     // Get the latest version from the database and merge again
@@ -171,10 +186,10 @@ class DatabaseUpdateManager {
 
                     if (resourceInDatabase !== null) {
                         // merge with our resource
-                        updatedResource = await this.resourceMerger.mergeResourceAsync({
+                        ({updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
                             currentResource: resourceInDatabase,
                             resourceToMerge: doc
-                        }).updatedResource;
+                        }));
                         if (!updatedResource) {
                             return {savedResource: null, patches: null};
                         } else {

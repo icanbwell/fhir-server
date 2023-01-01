@@ -1041,8 +1041,18 @@ class DatabaseBulkInserter extends EventEmitter {
      * @returns {Promise<void>}
      */
     async updateResourcesOneByOneAsync({expectedUpdates}) {
-
+        let i = 0;
         for (const /* @type {BulkInsertUpdateEntry} */ expectedUpdate of expectedUpdates) {
+            i = i + 1;
+            await logTraceSystemEventAsync(
+                {
+                    event: 'updateResourcesOneByOneAsync',
+                    message: 'Updating resources one by one',
+                    args: {
+                        expectedUpdates
+                    }
+                }
+            );
             /**
              * @type {DatabaseUpdateManager}
              */
