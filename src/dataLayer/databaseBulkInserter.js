@@ -1,7 +1,6 @@
 'use strict';
 const async = require('async');
 const sendToS3 = require('../utils/aws-s3');
-const {getFirstElementOrNull} = require('../utils/list.util');
 const {EventEmitter} = require('events');
 const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
@@ -36,6 +35,7 @@ const mutex = new Mutex();
  * @type {object}
  * @property {string} resourceType
  * @property {import('mongodb').BulkWriteOpResultObject|null} mergeResult
+ * @property {MergeResultEntry[]|null} mergeResultEntries
  * @property {Error|null} error
  */
 
@@ -558,83 +558,9 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 ));
 
-            // If there are any errors, send them to Slack notification
-            if (resultsByResourceType.some(r => r.error)) {
-                /**
-                 * @type {BulkResultEntry[]}
-                 */
-                const erroredMerges = resultsByResourceType.filter(r => r.error);
-                for (const erroredMerge of erroredMerges) {
-                    /**
-                     * @type {BulkInsertUpdateEntry[]}
-                     */
-                    const operationsForResourceType = operationsByResourceTypeMap.get(erroredMerge.resourceType);
-                    await this.errorReporter.reportErrorAsync(
-                        {
-                            source: 'databaseBulkInserter',
-                            message: `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
-                                ` ${JSON.stringify(operationsForResourceType)}`,
-                            error: erroredMerge.error,
-                            args: {
-                                requestId: requestId,
-                                resourceType: erroredMerge.resourceType,
-                                operations: operationsForResourceType
-                            }
-                        }
-                    );
-                }
-            }
-            /**
-             * results
-             * @type {MergeResultEntry[]}
-             */
-            const mergeResultEntries = [];
-            for (const [resourceType, operations] of operationsByResourceTypeMap.entries()) {
-                /**
-                 * @type {BulkResultEntry|null}
-                 */
-                const mergeResultForResourceType = getFirstElementOrNull(
-                    resultsByResourceType.filter(r => r.resourceType === resourceType));
-                if (mergeResultForResourceType) {
-                    const diagnostics = JSON.stringify(mergeResultForResourceType.error, getCircularReplacer());
-                    for (const {id, resource, operationType} of operations) {
-                        /**
-                         * @type {MergeResultEntry}
-                         */
-                        const mergeResultEntry = {
-                            'id': id,
-                            created: operationType === 'insert' && !mergeResultForResourceType.error,
-                            updated: operationType === 'replace' && !mergeResultForResourceType.error,
-                            resourceType: resourceType
-                        };
-                        if (mergeResultForResourceType.error) {
-                            mergeResultEntry.issue = new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'exception',
-                                details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
-                                diagnostics: diagnostics,
-                                expression: [
-                                    resourceType + '/' + id
-                                ]
-                            });
-                        }
-                        mergeResultEntries.push(mergeResultEntry);
-                        // fire change events
-                        this.postRequestProcessor.add({
-                            requestId,
-                            fnTask: async () => await this.changeEventProducer.fireEventsAsync({
-                                requestId,
-                                eventType: operationType === 'insert' ? 'C' : 'U',
-                                resourceType: resourceType,
-                                doc: resource
-                            })
-                        });
-                    }
-                }
-            }
-            operationsByResourceTypeMap.clear();
-
             await this.executeHistoryInPostRequestAsync({requestId, currentDate, base_version, method});
+
+            operationsByResourceTypeMap.clear();
 
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
@@ -644,7 +570,9 @@ class DatabaseBulkInserter extends EventEmitter {
                         bufferLength: operationsByResourceTypeMap.size
                     }
             });
-            return mergeResultEntries;
+            return resultsByResourceType.flatMap(
+                r => r.mergeResultEntries
+            );
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -797,9 +725,15 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const options = {ordered: true};
                 /**
-                 * @type {import('mongodb').BulkWriteOpResultObject|null}
+                 * @type {import('mongodb').BulkWriteResult|undefined}
                  */
-                let mergeResult;
+                let bulkWriteResult;
+
+                /**
+                 *
+                 * @type {MergeResultEntry[]}
+                 */
+                const mergeResultEntries = [];
                 for (const operationsByCollectionName of operationsByCollectionNames) {
                     const [
                         /** @type {string} */collectionName,
@@ -819,9 +753,18 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                          */
                         const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
+                        /**
+                         * @type {BulkInsertUpdateEntry[]}
+                         */
                         const expectedInserts = operationsByCollection.filter(o => o.operationType === 'insert');
                         // const expectedInsertsCount = expectedInserts.length;
+                        /**
+                         * @type {BulkInsertUpdateEntry[]}
+                         */
                         const expectedUpdates = operationsByCollection.filter(o => o.operationType === 'replace');
+                        /**
+                         * @type {number}
+                         */
                         const expectedUpdatesCount = expectedUpdates.length;
                         /**
                          * @type {(import('mongodb').AnyBulkWriteOperation)[]}
@@ -839,26 +782,27 @@ class DatabaseBulkInserter extends EventEmitter {
                             }
                         );
                         /**
-                         * @type {import('mongodb').BulkWriteOpResultObject}
+                         * @type {import('mongodb').BulkWriteResult}
                          */
                         const result = await collection.bulkWrite(bulkOperations, options);
-                        //TODO: this only returns result from the last collection
-                        mergeResult = result.result;
+                        bulkWriteResult = result;
 
                         // create history table entries
 
-                        // const actualInsertsCount = mergeResult.nInserted;
+                        // const actualInsertsCount = bulkWriteResult.nInserted;
 
                         // 1. create history entry for inserts
                         for (const expectedInsert of expectedInserts) {
-                            await this.insertOneHistoryAsync({
-                                requestId,
-                                method,
-                                base_version,
-                                resourceType,
-                                doc: expectedInsert.resource.clone(),
-                                patches: expectedInsert.patches
-                            });
+                            mergeResultEntries.push(
+                                await this.postSaveAsync({
+                                    requestId,
+                                    method,
+                                    base_version,
+                                    resourceType,
+                                    bulkInsertUpdateEntry: expectedInsert,
+                                    bulkWriteResult
+                                })
+                            );
                         }
 
                         // 2. Now create history entries for updates
@@ -866,22 +810,24 @@ class DatabaseBulkInserter extends EventEmitter {
                         // case 2: Concurrency failures
                         if (this.configManager.handleConcurrency && expectedUpdatesCount > 0) {
                             // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
-                            // const actualInserts = mergeResult.nInserted;
+                            // const actualInserts = bulkWriteResult.nInserted;
                             // nMatched: The number of existing documents selected for update or replacement.
                             // If the update/replacement operation results in no change to an existing document,
                             // e.g. $set expression updates the value to the current value,
                             // nMatched can be greater than nModified.
-                            const actualUpdatesCount = mergeResult.nMatched;
+                            const actualUpdatesCount = bulkWriteResult.nMatched;
                             if (actualUpdatesCount === expectedUpdatesCount) { // case 1: no concurrency failures
                                 for (const expectedUpdate of expectedUpdates) {
-                                    await this.insertOneHistoryAsync({
-                                        requestId,
-                                        method,
-                                        base_version,
-                                        resourceType,
-                                        doc: expectedUpdate.resource.clone(),
-                                        patches: expectedUpdate.patches
-                                    });
+                                    mergeResultEntries.push(
+                                        await this.postSaveAsync({
+                                            requestId,
+                                            method,
+                                            base_version,
+                                            resourceType,
+                                            bulkInsertUpdateEntry: expectedUpdate,
+                                            bulkWriteResult
+                                        })
+                                    );
                                 }
                             } else { // case 2: concurrency check failed (another parallel process updated atleast one resource)
                                 // if updates don't match then get latest and merge again
@@ -906,18 +852,32 @@ class DatabaseBulkInserter extends EventEmitter {
                                         operationsByCollection: expectedUpdates
                                     }
                                 );
+                                for (const expectedUpdate of expectedUpdates) {
+                                    mergeResultEntries.push(
+                                        await this.postSaveAsync({
+                                            requestId,
+                                            method,
+                                            base_version,
+                                            resourceType,
+                                            bulkInsertUpdateEntry: expectedUpdate,
+                                            bulkWriteResult
+                                        })
+                                    );
+                                }
                             }
                         } else {
                             // no concurrency failures
                             for (const expectedUpdate of expectedUpdates) {
-                                await this.insertOneHistoryAsync({
-                                    requestId,
-                                    method,
-                                    base_version,
-                                    resourceType,
-                                    doc: expectedUpdate.resource.clone(),
-                                    patches: expectedUpdate.patches
-                                });
+                                mergeResultEntries.push(
+                                    await this.postSaveAsync({
+                                        requestId,
+                                        method,
+                                        base_version,
+                                        resourceType,
+                                        bulkInsertUpdateEntry: expectedUpdate,
+                                        bulkWriteResult
+                                    })
+                                );
                             }
                         }
                     } catch (e) {
@@ -943,10 +903,10 @@ class DatabaseBulkInserter extends EventEmitter {
                                 collection: collectionName
                             }
                         });
-                        return {resourceType: resourceType, mergeResult: null, error: e};
+                        return {resourceType: resourceType, mergeResult: null, error: e, mergeResultEntries};
                     }
                 }
-                return {resourceType: resourceType, mergeResult: mergeResult, error: null};
+                return {resourceType: resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries};
             });
         } catch (e) {
             throw new RethrownError({
@@ -955,6 +915,75 @@ class DatabaseBulkInserter extends EventEmitter {
         } finally {
             timer({resourceType});
         }
+    }
+
+    /**
+     * @param {string} requestId
+     * @param {string} method
+     * @param {string} base_version
+     * @param {string} resourceType
+     * @param {BulkInsertUpdateEntry} bulkInsertUpdateEntry
+     * @param {import('mongodb').BulkWriteResult} bulkWriteResult
+     * @returns {Promise<MergeResultEntry>}
+     */
+    async postSaveAsync({requestId, method, base_version, resourceType, bulkInsertUpdateEntry, bulkWriteResult}) {
+        await this.insertOneHistoryAsync({
+            requestId,
+            method,
+            base_version,
+            resourceType,
+            doc: bulkInsertUpdateEntry.resource.clone(),
+            patches: bulkInsertUpdateEntry.patches
+        });
+        /**
+         * @type {MergeResultEntry}
+         */
+        const mergeResultEntry = {
+            'id': bulkInsertUpdateEntry.id,
+            created: bulkInsertUpdateEntry.operationType === 'insert' && !bulkWriteResult.error,
+            updated: bulkInsertUpdateEntry.operationType === 'replace' && !bulkWriteResult.error,
+            resourceType: resourceType,
+        };
+        if (bulkWriteResult.error) {
+            const diagnostics = JSON.stringify(bulkWriteResult.error, getCircularReplacer());
+            mergeResultEntry.issue = new OperationOutcomeIssue({
+                severity: 'error',
+                code: 'exception',
+                details: new CodeableConcept({text: bulkWriteResult.error.message}),
+                diagnostics: diagnostics,
+                expression: [
+                    resourceType + '/' + bulkInsertUpdateEntry.id
+                ]
+            });
+        }
+        if (bulkWriteResult.error) {
+            await this.errorReporter.reportErrorAsync(
+                {
+                    source: 'databaseBulkInserter',
+                    message: `databaseBulkInserter: Error resource ${resourceType} with operation:` +
+                        ` ${JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())}`,
+                    error: bulkWriteResult.error,
+                    args: {
+                        requestId: requestId,
+                        resourceType: resourceType,
+                        operation: bulkInsertUpdateEntry
+                    }
+                }
+            );
+        }
+
+        // fire change events
+        this.postRequestProcessor.add({
+            requestId,
+            fnTask: async () => await this.changeEventProducer.fireEventsAsync({
+                requestId,
+                eventType: bulkInsertUpdateEntry.operationType === 'insert' ? 'C' : 'U',
+                resourceType: resourceType,
+                doc: bulkInsertUpdateEntry.resource
+            })
+        });
+
+        return mergeResultEntry;
     }
 
     /**
