@@ -154,6 +154,7 @@ class PatchOperation {
             await this.databaseBulkInserter.replaceOneAsync(
                 {
                     requestId, resourceType, doc,
+                    id,
                     patches: patchContent.map(
                         p => {
                             return {

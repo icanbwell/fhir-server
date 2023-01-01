@@ -313,5 +313,119 @@ describe('CodeSystem Tests', () => {
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
             console.log('finish test: concurrency_issue works with databaseBulkInserter');
         });
+        test('concurrency_issue works with databaseBulkInserter with insert in the middle', async () => {
+            console.log('start test: concurrency_issue works with databaseBulkInserter with insert in the middle');
+            await createTestRequest();
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            expect(container).toBeDefined();
+            /**
+             * @type {MongoCollectionManager}
+             */
+            const mongoCollectionManager = container.mongoCollectionManager;
+            expect(mongoCollectionManager).toBeDefined();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const collectionName = 'CodeSystem_4_0_0';
+            await mongoCollectionManager.clearCollectionAsync({
+                db: fhirDb,
+                collectionName
+            });
+            const codeSystemCollection = fhirDb.collection(collectionName);
+            expect(await codeSystemCollection.countDocuments()).toStrictEqual(0);
+
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            const databaseBulkInserter = container.databaseBulkInserter;
+            expect(databaseBulkInserter).toBeDefined();
+
+            const countOfUpdates = codesystem1Resource.length;
+
+            const requestId = '1234';
+
+            const firstCodeSystem = codesystem1Resource.splice(0, 1)[0];
+            await databaseBulkInserter.insertOneAsync({
+                requestId,
+                resourceType: 'CodeSystem',
+                doc: new CodeSystem(firstCodeSystem)
+            });
+
+            let i = 0;
+            for (const codeSystem of codesystem1Resource) {
+                // eslint-disable-next-line no-unused-vars
+                i += 1;
+                if (i === 10) {
+                    const doc = new CodeSystem(firstCodeSystem);
+                    doc.meta.versionId = '2';
+                    await codeSystemCollection.insertOne(doc.toJSONInternal());
+                }
+                await databaseBulkInserter.mergeOneAsync(
+                    {
+                        requestId,
+                        resourceType: 'CodeSystem',
+                        id: 'medline-loinc-labs',
+                        previousVersionId: '1',
+                        doc: new CodeSystem(codeSystem),
+                        upsert: false,
+                        patches: null
+                    }
+                );
+            }
+
+            /**
+             * @type {string}
+             */
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+            await databaseBulkInserter.executeAsync({
+                requestId,
+                currentDate,
+                base_version: '4_0_0',
+                method: 'POST'
+            });
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.executeAsync({requestId});
+            await postRequestProcessor.waitTillDoneAsync({requestId});
+
+            /**
+             * @type {DatabaseQueryFactory}
+             */
+            const databaseQueryFactory = container.databaseQueryFactory;
+            expect(databaseQueryFactory).toBeDefined();
+
+            const databaseQueryManager = databaseQueryFactory.createQuery({
+                resourceType: 'CodeSystem',
+                base_version: '4_0_0'
+            });
+            /**
+             * @type {Resource|null}
+             */
+            const resource = await databaseQueryManager.findOneAsync(
+                {
+                    query: {'id': 'medline-loinc-labs'}
+                }
+            );
+            resource.meta.lastUpdated = null;
+            expect(resource.toJSON().meta.versionId).toStrictEqual('3');
+            expect(resource.toJSON().concept.length).toStrictEqual(countOfUpdates);
+
+            expectedCodeSystemsFromDatabase.meta.versionId = '3';
+
+            expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabase);
+            console.log('finish test: concurrency_issue works with databaseBulkInserter with update in the middle');
+        });
     });
 });

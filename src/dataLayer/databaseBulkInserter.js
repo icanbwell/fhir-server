@@ -204,6 +204,7 @@ class DatabaseBulkInserter extends EventEmitter {
         assertIsValid(resource, `resource: ${resource} is null`);
         assertIsValid(operation, `operation: ${operation} is null`);
         assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
+        assertIsValid(!(operation.updateOne && operation.updateOne.replacement instanceof Resource));
         assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
         assertIsValid(resource.id, `resource id is not set: ${JSON.stringify(resource)}`);
         // If there is no entry for this collection then create one
@@ -312,8 +313,13 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceType,
                     resource: doc,
                     operation: {
-                        insertOne: {
-                            document: doc.toJSONInternal()
+                        // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
+                        updateOne: {
+                            filter: {'id': doc.id.toString()},
+                            update: {
+                                $setOnInsert: doc.toJSONInternal()
+                            },
+                            upsert: true
                         }
                     },
                     operationType: 'insert',
@@ -402,6 +408,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * Replaces a document in Mongo with this one
      * @param {string} requestId
      * @param {string} resourceType
+     * @param {string} id
      * @param {Resource} doc
      * @param {boolean} [upsert]
      * @param {MergePatchEntry[]|null} patches
@@ -411,6 +418,7 @@ class DatabaseBulkInserter extends EventEmitter {
         {
             requestId,
             resourceType,
+            id,
             doc,
             upsert = false,
             patches
@@ -450,8 +458,9 @@ class DatabaseBulkInserter extends EventEmitter {
                 const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
                 if (previousInsert) {
                     previousInsert.resource = doc;
-                    previousInsert.operation.insertOne.document = doc.toJSONInternal();
+                    previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                 } else { // no previuous insert or update found
+                    const filter = {id: id.toString()};
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
                     this.addOperationForResourceType({
                             requestId,
@@ -460,7 +469,7 @@ class DatabaseBulkInserter extends EventEmitter {
                             operationType: 'replace',
                             operation: {
                                 replaceOne: {
-                                    // filter: filter,  // replace without a filter so we replace regardless of version in db
+                                    filter: filter,
                                     upsert: upsert,
                                     replacement: doc.toJSONInternal()
                                 }
@@ -568,7 +577,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     } else {
                         doc = updatedResource;
                         previousInsert.resource = doc;
-                        previousInsert.operation.insertOne.document = doc.toJSONInternal();
+                        previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                     }
                 } else { // no previuous insert or update found
                     const filter = previousVersionId && previousVersionId !== '0' ?
@@ -783,10 +792,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     if (!(operationsByCollectionNames.has(collectionName))) {
                         operationsByCollectionNames.set(`${collectionName}`, []);
                     }
-                    // remove _id if present so mongo can insert properly
-                    if (!useHistoryCollection && operation.operationType === 'insert') {
-                        delete operation.operation.insertOne.document['_id'];
-                    }
+
                     if (!useHistoryCollection && resource._id) {
                         await this.errorReporter.reportMessageAsync({
                             source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
@@ -839,7 +845,7 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {BulkInsertUpdateEntry[]}
                          */
                         const expectedInserts = operationsByCollection.filter(o => o.operationType === 'insert');
-                        // const expectedInsertsCount = expectedInserts.length;
+                        const expectedInsertsCount = expectedInserts.length;
                         /**
                          * @type {BulkInsertUpdateEntry[]}
                          */
@@ -884,100 +890,65 @@ class DatabaseBulkInserter extends EventEmitter {
                             }
                         );
 
-                        // create history table entries
+                        const actualInsertsCount = bulkWriteResult.nUpserted + bulkWriteResult.nInserted;
 
-                        // const actualInsertsCount = bulkWriteResult.nInserted;
-
-                        // 1. create history entry for inserts
-                        for (const expectedInsert of expectedInserts) {
+                        // 1. check if we got same number of inserts as we expected
+                        //      If we did not, it means someone else inserted this resource.  Then we have to use update instead of insert
+                        if (this.configManager.handleConcurrency && expectedInsertsCount > 0 && expectedInsertsCount !== actualInsertsCount) {
+                            // const upsertedIds = bulkWriteResult.upsertedIds;
+                            // go through all the inserts and get their _id from the database
+                            await this.updateResourcesOneByOneAsync(
+                                {
+                                    bulkInsertUpdateEntries: expectedInserts
+                                }
+                            );
+                        }
+                        // 2. Now check if we got the same number of updates as we expected.
+                        //      If we did not, it means someone else updated the version of the resources we were updating
+                        // NOTE: Mongo does NOT return ids of updated resources so we have to go through each
+                        //       document to see if it is same in db as we have it
+                        // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
+                        // nMatched: The number of existing documents selected for update or replacement.
+                        // If the update/replacement operation results in no change to an existing document,
+                        // e.g. $set expression updates the value to the current value,
+                        // nMatched can be greater than nModified.
+                        const actualUpdatesCount = bulkWriteResult.nMatched - bulkWriteResult.nUpserted;
+                        if (this.configManager.handleConcurrency && expectedUpdatesCount > 0 &&
+                            actualUpdatesCount !== expectedUpdatesCount) {
+                            // concurrency check failed (another parallel process updated atleast one resource)
+                            // if updates don't match then get latest and merge again
+                            await logTraceSystemEventAsync(
+                                {
+                                    event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                                    message: 'Update count not matched so running updates one by one',
+                                    args: {
+                                        resourceType,
+                                        collectionName,
+                                        expectedUpdates,
+                                        actualUpdatesCount,
+                                        expectedUpdatesCount,
+                                        bulkWriteResult
+                                    }
+                                }
+                            );
+                            await this.updateResourcesOneByOneAsync(
+                                {
+                                    bulkInsertUpdateEntries: expectedUpdates
+                                }
+                            );
+                        }
+                        for (const operationByCollection of operationsByCollection) {
                             mergeResultEntries.push(
                                 await this.postSaveAsync({
                                     requestId,
                                     method,
                                     base_version,
                                     resourceType,
-                                    bulkInsertUpdateEntry: expectedInsert,
+                                    bulkInsertUpdateEntry: operationByCollection,
                                     bulkWriteResult,
                                     useHistoryCollection
                                 })
                             );
-                        }
-
-                        // 2. Now create history entries for updates
-                        // case 1: No concurrency failures
-                        // case 2: Concurrency failures
-                        if (this.configManager.handleConcurrency && expectedUpdatesCount > 0) {
-                            // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
-                            // const actualInserts = bulkWriteResult.nInserted;
-                            // nMatched: The number of existing documents selected for update or replacement.
-                            // If the update/replacement operation results in no change to an existing document,
-                            // e.g. $set expression updates the value to the current value,
-                            // nMatched can be greater than nModified.
-                            const actualUpdatesCount = bulkWriteResult.nMatched;
-                            if (actualUpdatesCount === expectedUpdatesCount) { // case 1: no concurrency failures
-                                for (const expectedUpdate of expectedUpdates) {
-                                    mergeResultEntries.push(
-                                        await this.postSaveAsync({
-                                            requestId,
-                                            method,
-                                            base_version,
-                                            resourceType,
-                                            bulkInsertUpdateEntry: expectedUpdate,
-                                            bulkWriteResult,
-                                            useHistoryCollection
-                                        })
-                                    );
-                                }
-                            } else { // case 2: concurrency check failed (another parallel process updated atleast one resource)
-                                // if updates don't match then get latest and merge again
-                                await logTraceSystemEventAsync(
-                                    {
-                                        event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
-                                        message: 'Update count not matched so running updates one by one',
-                                        args: {
-                                            resourceType,
-                                            collectionName,
-                                            expectedUpdates,
-                                            actualUpdatesCount,
-                                            expectedUpdatesCount,
-                                            bulkWriteResult
-                                        }
-                                    }
-                                );
-                                await this.updateResourcesOneByOneAsync(
-                                    {
-                                        expectedUpdates
-                                    }
-                                );
-                                for (const expectedUpdate of expectedUpdates) {
-                                    mergeResultEntries.push(
-                                        await this.postSaveAsync({
-                                            requestId,
-                                            method,
-                                            base_version,
-                                            resourceType,
-                                            bulkInsertUpdateEntry: expectedUpdate,
-                                            bulkWriteResult,
-                                            useHistoryCollection
-                                        })
-                                    );
-                                }
-                            }
-                        } else {
-                            // no concurrency failures
-                            for (const expectedUpdate of expectedUpdates) {
-                                mergeResultEntries.push(
-                                    await this.postSaveAsync({
-                                        requestId,
-                                        method,
-                                        base_version,
-                                        resourceType,
-                                        bulkInsertUpdateEntry: expectedUpdate,
-                                        bulkWriteResult,
-                                        useHistoryCollection
-                                    })
-                                );
-                            }
                         }
                     } catch (e) {
                         await this.errorReporter.reportErrorAsync({
@@ -1149,19 +1120,19 @@ class DatabaseBulkInserter extends EventEmitter {
 
     /**
      * Updates resources one by one
-     * @param {BulkInsertUpdateEntry[]} expectedUpdates
+     * @param {BulkInsertUpdateEntry[]} bulkInsertUpdateEntries
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOneAsync({expectedUpdates}) {
+    async updateResourcesOneByOneAsync({bulkInsertUpdateEntries}) {
         let i = 0;
-        for (const /* @type {BulkInsertUpdateEntry} */ expectedUpdate of expectedUpdates) {
+        for (const /* @type {BulkInsertUpdateEntry} */ bulkInsertUpdateEntry of bulkInsertUpdateEntries) {
             i = i + 1;
             await logTraceSystemEventAsync(
                 {
                     event: 'updateResourcesOneByOneAsync',
                     message: 'Updating resources one by one',
                     args: {
-                        expectedUpdates
+                        expectedUpdates: bulkInsertUpdateEntries
                     }
                 }
             );
@@ -1170,7 +1141,7 @@ class DatabaseBulkInserter extends EventEmitter {
              */
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager(
                 {
-                    resourceType: expectedUpdate.resourceType,
+                    resourceType: bulkInsertUpdateEntry.resourceType,
                     base_version: '4_0_0'
                 }
             );
@@ -1179,14 +1150,14 @@ class DatabaseBulkInserter extends EventEmitter {
              */
             const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync(
                 {
-                    doc: expectedUpdate.resource
+                    doc: bulkInsertUpdateEntry.resource
                 }
             );
             if (savedResource) {
-                expectedUpdate.resource = savedResource;
-                expectedUpdate.patches = patches;
+                bulkInsertUpdateEntry.resource = savedResource;
+                bulkInsertUpdateEntry.patches = patches;
             } else { // resource was same as what was in the database
-                expectedUpdate.skipped = true;
+                bulkInsertUpdateEntry.skipped = true;
             }
         }
     }

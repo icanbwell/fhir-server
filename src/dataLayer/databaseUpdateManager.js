@@ -214,6 +214,22 @@ class DatabaseUpdateManager {
                         }
                     });
                 } else { // save was successful
+                    await logTraceSystemEventAsync(
+                        {
+                            event: 'replaceOneAsync: Merged' + `_${doc.resourceType}`,
+                            message: 'Successful merged existing resource',
+                            args: {
+                                id: doc.id,
+                                resourceType: doc.resourceType,
+                                doc,
+                                resourceInDatabase,
+                                patches,
+                                updatedResource,
+                                updateResult,
+                                runsLeft
+                            }
+                        }
+                    );
                     return {savedResource: doc, patches};
                 }
             }
