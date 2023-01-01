@@ -17,7 +17,7 @@ const hasNext = typeof (searchUtils) !== 'undefined' ? searchUtils.hasNext(local
         <div class="px-3 pt-2"><%= searchUtils.totalMessage(locals, total); %></div>
     <% } %>
     <% if (user) {%>
-        <div class="flex-grow-1 small text-end pt-2">User: <%= (!user || typeof user === 'string') ? user : user.name || user.id %> | RequestId: <%= requestId %> | Scopes: <%= scope %></div>
+        <div class="flex-grow-1 small text-end pt-2">User: <%= (!user || typeof user === 'string') ? user : user.name || user.id %> | RequestId: <%= requestId %> | Scopes: <%= oauth_scope %></div>
     <%}%>
         <div class="flex-grow-1 small text-end pt-2">
         &copy; Copyright <%= currentYear; %> b.well Connected Health

@@ -30,7 +30,7 @@
                 </thead>
                 <tbody>
                 <!-- prettier-ignore -->
-                <% resources.forEach(function(res, index){ %>
+                <% resources.forEach(function(fullResource, index){ const res = fullResource.resource || fullResource; %>
                 <tr class="row-click" data-identifier="<%= res.id %>">
                     <% formData.forEach(function(field){ %>
                         <td>

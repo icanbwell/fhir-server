@@ -6,7 +6,7 @@ const {
     commonAfterEach,
     getHeaders,
     getHtmlHeaders,
-    createTestRequest,
+    createTestRequest, getTestContainer, getRequestId,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
@@ -22,29 +22,37 @@ describe('History UI Tests', () => {
     describe('Patient History Search By Id Tests', () => {
         test('history by single id works', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
-
-            expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/Patient').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
-                .post('/4_0_0/Patient/1679033641/$merge?validate=true')
+                .post('/4_0_0/Patient/00100000000/$merge?validate=true')
                 .send(patient1Resource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
 
-            console.log('------- response patient1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
-            resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
+            // now merge the modified patient.  There should be an additional history record created
+            patient1Resource.birthDate = '2015-01-01';
+            resp = await request
+                .post('/4_0_0/Patient/00100000000/$merge?validate=true')
+                .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({updated: true});
 
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.executeAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
@@ -59,7 +67,14 @@ describe('History UI Tests', () => {
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
-            expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
+            const text = resp.text.replace('\\"', '"').replace('\n', '');
+            console.log('------- response html ------------');
+            console.log(text);
+            console.log('------- end response html ------------');
+            expect(text).toMatch(new RegExp('^<!DOCTYPE html>?'));
+            expect(text).toMatch(new RegExp('<b>Version:</b> 2'));
+            expect(text).toMatch(new RegExp('family=PATIENT1'));
+            expect(text).toMatch(new RegExp('\\"diagnostics\\": \\"{\\"op\\\\\\":\\\\\\"replace\\\\\\",\\\\\\"path\\\\\\":\\\\\\"/birthDate\\\\\\",\\\\\\"value\\\\\\":\\\\\\"2015-01-01\\\\\\"}\\"'));
         });
     });
 });
