@@ -904,6 +904,11 @@ class DatabaseBulkInserter extends EventEmitter {
                             }
                         );
 
+
+                        // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
+                        /**
+                         * @type {number}
+                         */
                         const actualInsertsByUniqueIdCount = bulkWriteResult.nUpserted;
 
                         // 1. check if we got same number of inserts as we expected
@@ -944,6 +949,9 @@ class DatabaseBulkInserter extends EventEmitter {
                         // e.g. $set expression updates the value to the current value,
                         // nMatched can be greater than nModified.
                         // insertsByUniqueId are also matches so subtract that count to get count of matches for updates
+                        /**
+                         * @type {number}
+                         */
                         const actualUpdatesCount = bulkWriteResult.nMatched - bulkWriteResult.nUpserted;
                         if (this.configManager.handleConcurrency && expectedUpdatesCount > 0 &&
                             actualUpdatesCount !== expectedUpdatesCount) {
@@ -969,6 +977,8 @@ class DatabaseBulkInserter extends EventEmitter {
                                 }
                             );
                         }
+
+                        // 3. Call postSaveAsync for each operation
                         for (const operationByCollection of operationsByCollection) {
                             mergeResultEntries.push(
                                 await this.postSaveAsync({
