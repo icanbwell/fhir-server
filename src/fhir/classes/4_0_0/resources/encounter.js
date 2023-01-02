@@ -126,7 +126,7 @@ class Encounter extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class Encounter extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -210,7 +210,7 @@ class Encounter extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -242,7 +242,7 @@ class Encounter extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -273,7 +273,7 @@ class Encounter extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -292,7 +292,7 @@ class Encounter extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -331,7 +331,7 @@ class Encounter extends Resource {
                     this.__data.statusHistory = undefined;
                     return;
                 }
-                let EncounterStatusHistory = require('../backbone_elements/encounterStatusHistory.js');
+                const EncounterStatusHistory = require('../backbone_elements/encounterStatusHistory.js');
                 this.__data.statusHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterStatusHistory(v)) : [new EncounterStatusHistory(valueProvided)];
             }
         });
@@ -352,7 +352,7 @@ class Encounter extends Resource {
                     this.__data.class = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.class = new Coding(valueProvided);
             }
         });
@@ -377,7 +377,7 @@ class Encounter extends Resource {
                     this.__data.classHistory = undefined;
                     return;
                 }
-                let EncounterClassHistory = require('../backbone_elements/encounterClassHistory.js');
+                const EncounterClassHistory = require('../backbone_elements/encounterClassHistory.js');
                 this.__data.classHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterClassHistory(v)) : [new EncounterClassHistory(valueProvided)];
             }
         });
@@ -397,7 +397,7 @@ class Encounter extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -416,7 +416,7 @@ class Encounter extends Resource {
                     this.__data.serviceType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.serviceType = new CodeableConcept(valueProvided);
             }
         });
@@ -435,7 +435,7 @@ class Encounter extends Resource {
                     this.__data.priority = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.priority = new CodeableConcept(valueProvided);
             }
         });
@@ -454,7 +454,7 @@ class Encounter extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -479,7 +479,7 @@ class Encounter extends Resource {
                     this.__data.episodeOfCare = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.episodeOfCare = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -499,7 +499,7 @@ class Encounter extends Resource {
                     this.__data.basedOn = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -518,7 +518,7 @@ class Encounter extends Resource {
                     this.__data.participant = undefined;
                     return;
                 }
-                let EncounterParticipant = require('../backbone_elements/encounterParticipant.js');
+                const EncounterParticipant = require('../backbone_elements/encounterParticipant.js');
                 this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterParticipant(v)) : [new EncounterParticipant(valueProvided)];
             }
         });
@@ -537,7 +537,7 @@ class Encounter extends Resource {
                     this.__data.appointment = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.appointment = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -556,7 +556,7 @@ class Encounter extends Resource {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -576,7 +576,7 @@ class Encounter extends Resource {
                     this.__data.length = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.length = new Quantity(valueProvided);
             }
         });
@@ -596,7 +596,7 @@ class Encounter extends Resource {
                     this.__data.reasonCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -616,7 +616,7 @@ class Encounter extends Resource {
                     this.__data.reasonReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -635,7 +635,7 @@ class Encounter extends Resource {
                     this.__data.diagnosis = undefined;
                     return;
                 }
-                let EncounterDiagnosis = require('../backbone_elements/encounterDiagnosis.js');
+                const EncounterDiagnosis = require('../backbone_elements/encounterDiagnosis.js');
                 this.__data.diagnosis = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterDiagnosis(v)) : [new EncounterDiagnosis(valueProvided)];
             }
         });
@@ -654,7 +654,7 @@ class Encounter extends Resource {
                     this.__data.account = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.account = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -673,7 +673,7 @@ class Encounter extends Resource {
                     this.__data.hospitalization = undefined;
                     return;
                 }
-                let EncounterHospitalization = require('../backbone_elements/encounterHospitalization.js');
+                const EncounterHospitalization = require('../backbone_elements/encounterHospitalization.js');
                 this.__data.hospitalization = new EncounterHospitalization(valueProvided);
             }
         });
@@ -692,7 +692,7 @@ class Encounter extends Resource {
                     this.__data.location = undefined;
                     return;
                 }
-                let EncounterLocation = require('../backbone_elements/encounterLocation.js');
+                const EncounterLocation = require('../backbone_elements/encounterLocation.js');
                 this.__data.location = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EncounterLocation(v)) : [new EncounterLocation(valueProvided)];
             }
         });
@@ -716,7 +716,7 @@ class Encounter extends Resource {
                     this.__data.serviceProvider = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.serviceProvider = new Reference(valueProvided);
             }
         });
@@ -736,7 +736,7 @@ class Encounter extends Resource {
                     this.__data.partOf = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.partOf = new Reference(valueProvided);
             }
         });
@@ -1021,6 +1021,41 @@ class Encounter extends Resource {
             serviceProvider: this.serviceProvider && this.serviceProvider.toJSON(),
             partOf: this.partOf && this.partOf.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.statusHistory) {this.statusHistory.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.class) {this.class.updateReferences({fnUpdateReference});}
+            if (this.classHistory) {this.classHistory.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.serviceType) {this.serviceType.updateReferences({fnUpdateReference});}
+            if (this.priority) {this.priority.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.episodeOfCare) {this.episodeOfCare.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.basedOn) {this.basedOn.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.participant) {this.participant.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.appointment) {this.appointment.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
+            if (this.length) {this.length.updateReferences({fnUpdateReference});}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.diagnosis) {this.diagnosis.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.account) {this.account.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.hospitalization) {this.hospitalization.updateReferences({fnUpdateReference});}
+            if (this.location) {this.location.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.serviceProvider) {this.serviceProvider.updateReferences({fnUpdateReference});}
+            if (this.partOf) {this.partOf.updateReferences({fnUpdateReference});}
     }
 
     /**

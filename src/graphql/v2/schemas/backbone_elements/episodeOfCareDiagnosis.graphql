@@ -43,7 +43,7 @@ type EpisodeOfCareDiagnosis {
     A list of conditions/problems/diagnoses that this episode of care is intended
     to be providing care for.
     """
-    condition: Condition!        
+    condition: Condition        
     """
     Role that this diagnosis has within the episode of care (e.g. admission,
     billing, discharge …).

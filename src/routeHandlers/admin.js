@@ -7,14 +7,19 @@ const sanitize = require('sanitize-filename');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
-const {RethrownError} = require('../utils/rethrownError');
 const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
+const {assertIsValid} = require('../utils/assertType');
+const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
+const {generateUUID} = require('../utils/uid.util');
+const scopeChecker = require('@asymmetrik/sof-scope-checker');
+const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 /**
  * shows indexes
  * @param {import('http').IncomingMessage} req
  * @param {SimpleContainer} container
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
@@ -47,9 +52,9 @@ async function showIndexesAsync(
 
 /**
  * synchronizes indexes
- * @param {import('http').IncomingMessage} req
+ * @param {import('express').Request} req
  * @param {SimpleContainer} container
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  * @returns {Promise<void>}
  */
 async function synchronizeIndexesAsync(
@@ -82,14 +87,25 @@ async function synchronizeIndexesAsync(
  * Handles admin routes
  * @param {function (): SimpleContainer} fnCreateContainer
  * @param {import('http').IncomingMessage} req
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  */
 async function handleAdmin(
     fnCreateContainer,
     req,
     res
 ) {
+    /**
+     * converts bundleEntry to html
+     * @param {BundleEntry} bundleEntry
+     * @returns {string}
+     */
+    function getHtmlForBundleEntry(bundleEntry) {
+        const operation = bundleEntry.request ? `${bundleEntry.request.method} ` : '';
+        return `<div>${operation}${bundleEntry.resource.resourceType}/${bundleEntry.resource.id}</div>\n`;
+    }
+
     try {
+        req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
         const operation = req.params['op'];
         console.log(`op=${operation}`);
 
@@ -126,6 +142,12 @@ async function handleAdmin(
                 }
 
                 case 'patientData': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
+                case 'personMatch': {
                     const parameters = {};
                     const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
                     return res.render(filePath, parameters);
@@ -253,6 +275,31 @@ async function handleAdmin(
                     const sync = req.query['sync'];
                     if (patientId) {
                         /**
+                         * @type {string[]}
+                         */
+                        let scopes = scopesManager.parseScopes(scope);
+                        const resourceType = 'Patient';
+                        const accessRequested = 'write';
+                        // eslint-disable-next-line no-unused-vars
+                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        if (!success) {
+                            let errorMessage = 'user with scopes [' + scopes +
+                                '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                            const operationOutcome = new OperationOutcome({
+                                issue: [
+                                    new OperationOutcomeIssue(
+                                        {
+                                            severity: 'error',
+                                            code: 'forbidden',
+                                            diagnostics: errorMessage
+                                        }
+                                    )
+                                ]
+                            });
+                            return res.json(operationOutcome.toJSON());
+                        }
+
+                        /**
                          * @type {AdminPersonPatientDataManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
@@ -261,25 +308,38 @@ async function handleAdmin(
                                 req,
                                 res,
                                 patientId,
+                                responseStreamer: null
                             });
                             return res.json(json);
                         } else {
-                            const responseStreamer = new HttpResponseStreamer({response: res});
-                            await responseStreamer.startAsync({
-                                title: 'Delete Patient Data Graph',
-                                html: '<h1>Delete Patient Data Graph</h1>'
-                            });
-                            await responseStreamer.writeAsync({
-                                html: '<div>' +
-                                    `Started delete of ${patientId}.  This may take a few seconds.  ` +
-                                    '</div>'
-                            });
+                            /**
+                             * @type {BaseResponseStreamer}
+                             */
+                            const responseStreamer = shouldReturnHtml(req) ?
+                                new HttpResponseStreamer({
+                                    response: res,
+                                    requestId: req.id,
+                                    title: 'Delete Patient Data Graph',
+                                    html: '<h1>Delete Patient Data Graph</h1>\n' + '<div>' +
+                                        `Started delete of ${patientId}.  This may take a few seconds.  ` +
+                                        '</div>\n',
+                                    fnGetHtmlForBundleEntry: getHtmlForBundleEntry
+                                }) :
+                                new FhirResponseStreamer({
+                                    response: res,
+                                    requestId: req.id,
+                                    bundleType: 'batch-response'
+                                });
+                            await responseStreamer.startAsync();
                             await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
                                 req,
                                 res,
                                 patientId,
+                                responseStreamer
                             });
-                            await responseStreamer.writeAsync({html: '<div>Finished Deleting</div>'});
+                            await responseStreamer.writeAsync({
+                                content: '<div>Finished</div>\n'
+                            });
                             await responseStreamer.endAsync();
                             return;
                         }
@@ -294,15 +354,64 @@ async function handleAdmin(
                     const personId = req.query['id'];
                     if (personId) {
                         /**
+                         * @type {string[]}
+                         */
+                        let scopes = scopesManager.parseScopes(scope);
+                        const resourceType = 'Patient';
+                        const accessRequested = 'write';
+                        // eslint-disable-next-line no-unused-vars
+                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        if (!success) {
+                            let errorMessage = 'user with scopes [' + scopes +
+                                '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                            const operationOutcome = new OperationOutcome({
+                                issue: [
+                                    new OperationOutcomeIssue(
+                                        {
+                                            severity: 'error',
+                                            code: 'forbidden',
+                                            diagnostics: errorMessage
+                                        }
+                                    )
+                                ]
+                            });
+                            return res.json(operationOutcome.toJSON());
+                        }
+                        /**
                          * @type {AdminPersonPatientDataManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
-                        const json = await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
+                        /**
+                         * @type {BaseResponseStreamer}
+                         */
+                        const responseStreamer = shouldReturnHtml(req) ?
+                            new HttpResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                                title: 'Delete Person Data Graph',
+                                html: '<h1>Delete Person Data Graph</h1>\n' + '<div>' +
+                                    `Started delete of ${personId}.  This may take a few seconds.  ` +
+                                    '</div>\n',
+                                fnGetHtmlForBundleEntry: getHtmlForBundleEntry
+                            }) :
+                            new FhirResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                                bundleType: 'batch-response'
+                            });
+
+                        await responseStreamer.startAsync();
+                        await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
                             req,
                             res,
                             personId,
+                            responseStreamer
                         });
-                        return res.json(json);
+                        await responseStreamer.writeAsync({
+                            content: '<div>Finished</div>\n'
+                        });
+                        await responseStreamer.endAsync();
+                        return;
                     }
                     return res.json({
                         message: `No id: ${personId} passed`
@@ -338,6 +447,23 @@ async function handleAdmin(
                     );
                 }
 
+                case 'runPersonMatch': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const sourceId = req.query['sourceId'];
+                    const sourceType = req.query['sourceType'];
+                    const targetId = req.query['targetId'];
+                    const targetType = req.query['targetType'];
+                    const personMatchManager = container.personMatchManager;
+                    assertIsValid(personMatchManager);
+                    const json = await personMatchManager.personMatchAsync({
+                        sourceType,
+                        sourceId,
+                        targetType,
+                        targetId
+                    });
+                    return res.json(json);
+                }
+
                 default: {
                     const filePath = __dirname + '/../views/admin/pages/index';
                     return res.render(filePath, {});
@@ -349,9 +475,18 @@ async function handleAdmin(
             });
         }
     } catch (e) {
-        throw new RethrownError({
-            message: 'Error in handleAdmin(): ', error: e
+        const operationOutcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue(
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        diagnostics: e.message
+                    }
+                )
+            ]
         });
+        return res.json(operationOutcome.toJSON());
     }
 }
 

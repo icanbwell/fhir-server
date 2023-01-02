@@ -163,7 +163,7 @@ class TaskInput extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -194,7 +194,7 @@ class TaskInput extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -214,7 +214,7 @@ class TaskInput extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -575,7 +575,7 @@ class TaskInput extends Element {
                     this.__data.valueAddress = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                const Address = require('../complex_types/address.js');
                 this.__data.valueAddress = new Address(valueProvided);
             }
         });
@@ -594,7 +594,7 @@ class TaskInput extends Element {
                     this.__data.valueAge = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueAge = new Quantity(valueProvided);
             }
         });
@@ -613,7 +613,7 @@ class TaskInput extends Element {
                     this.__data.valueAnnotation = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.valueAnnotation = new Annotation(valueProvided);
             }
         });
@@ -632,7 +632,7 @@ class TaskInput extends Element {
                     this.__data.valueAttachment = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.valueAttachment = new Attachment(valueProvided);
             }
         });
@@ -651,7 +651,7 @@ class TaskInput extends Element {
                     this.__data.valueCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.valueCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -670,7 +670,7 @@ class TaskInput extends Element {
                     this.__data.valueCoding = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.valueCoding = new Coding(valueProvided);
             }
         });
@@ -689,7 +689,7 @@ class TaskInput extends Element {
                     this.__data.valueContactPoint = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                const ContactPoint = require('../complex_types/contactPoint.js');
                 this.__data.valueContactPoint = new ContactPoint(valueProvided);
             }
         });
@@ -708,7 +708,7 @@ class TaskInput extends Element {
                     this.__data.valueCount = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueCount = new Quantity(valueProvided);
             }
         });
@@ -727,7 +727,7 @@ class TaskInput extends Element {
                     this.__data.valueDistance = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueDistance = new Quantity(valueProvided);
             }
         });
@@ -746,7 +746,7 @@ class TaskInput extends Element {
                     this.__data.valueDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueDuration = new Quantity(valueProvided);
             }
         });
@@ -765,7 +765,7 @@ class TaskInput extends Element {
                     this.__data.valueHumanName = undefined;
                     return;
                 }
-                let HumanName = require('../complex_types/humanName.js');
+                const HumanName = require('../complex_types/humanName.js');
                 this.__data.valueHumanName = new HumanName(valueProvided);
             }
         });
@@ -784,7 +784,7 @@ class TaskInput extends Element {
                     this.__data.valueIdentifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.valueIdentifier = new Identifier(valueProvided);
             }
         });
@@ -803,7 +803,7 @@ class TaskInput extends Element {
                     this.__data.valueMoney = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.valueMoney = new Money(valueProvided);
             }
         });
@@ -822,7 +822,7 @@ class TaskInput extends Element {
                     this.__data.valuePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.valuePeriod = new Period(valueProvided);
             }
         });
@@ -841,7 +841,7 @@ class TaskInput extends Element {
                     this.__data.valueQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueQuantity = new Quantity(valueProvided);
             }
         });
@@ -860,7 +860,7 @@ class TaskInput extends Element {
                     this.__data.valueRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.valueRange = new Range(valueProvided);
             }
         });
@@ -879,7 +879,7 @@ class TaskInput extends Element {
                     this.__data.valueRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.valueRatio = new Ratio(valueProvided);
             }
         });
@@ -898,7 +898,7 @@ class TaskInput extends Element {
                     this.__data.valueReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.valueReference = new Reference(valueProvided);
             }
         });
@@ -917,7 +917,7 @@ class TaskInput extends Element {
                     this.__data.valueSampledData = undefined;
                     return;
                 }
-                let SampledData = require('../complex_types/sampledData.js');
+                const SampledData = require('../complex_types/sampledData.js');
                 this.__data.valueSampledData = new SampledData(valueProvided);
             }
         });
@@ -936,7 +936,7 @@ class TaskInput extends Element {
                     this.__data.valueSignature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                const Signature = require('../complex_types/signature.js');
                 this.__data.valueSignature = new Signature(valueProvided);
             }
         });
@@ -955,7 +955,7 @@ class TaskInput extends Element {
                     this.__data.valueTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.valueTiming = new Timing(valueProvided);
             }
         });
@@ -974,7 +974,7 @@ class TaskInput extends Element {
                     this.__data.valueContactDetail = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                const ContactDetail = require('../complex_types/contactDetail.js');
                 this.__data.valueContactDetail = new ContactDetail(valueProvided);
             }
         });
@@ -993,7 +993,7 @@ class TaskInput extends Element {
                     this.__data.valueContributor = undefined;
                     return;
                 }
-                let Contributor = require('../complex_types/contributor.js');
+                const Contributor = require('../complex_types/contributor.js');
                 this.__data.valueContributor = new Contributor(valueProvided);
             }
         });
@@ -1012,7 +1012,7 @@ class TaskInput extends Element {
                     this.__data.valueDataRequirement = undefined;
                     return;
                 }
-                let DataRequirement = require('../complex_types/dataRequirement.js');
+                const DataRequirement = require('../complex_types/dataRequirement.js');
                 this.__data.valueDataRequirement = new DataRequirement(valueProvided);
             }
         });
@@ -1031,7 +1031,7 @@ class TaskInput extends Element {
                     this.__data.valueExpression = undefined;
                     return;
                 }
-                let Expression = require('../complex_types/expression.js');
+                const Expression = require('../complex_types/expression.js');
                 this.__data.valueExpression = new Expression(valueProvided);
             }
         });
@@ -1050,7 +1050,7 @@ class TaskInput extends Element {
                     this.__data.valueParameterDefinition = undefined;
                     return;
                 }
-                let ParameterDefinition = require('../complex_types/parameterDefinition.js');
+                const ParameterDefinition = require('../complex_types/parameterDefinition.js');
                 this.__data.valueParameterDefinition = new ParameterDefinition(valueProvided);
             }
         });
@@ -1069,7 +1069,7 @@ class TaskInput extends Element {
                     this.__data.valueRelatedArtifact = undefined;
                     return;
                 }
-                let RelatedArtifact = require('../complex_types/relatedArtifact.js');
+                const RelatedArtifact = require('../complex_types/relatedArtifact.js');
                 this.__data.valueRelatedArtifact = new RelatedArtifact(valueProvided);
             }
         });
@@ -1088,7 +1088,7 @@ class TaskInput extends Element {
                     this.__data.valueTriggerDefinition = undefined;
                     return;
                 }
-                let TriggerDefinition = require('../complex_types/triggerDefinition.js');
+                const TriggerDefinition = require('../complex_types/triggerDefinition.js');
                 this.__data.valueTriggerDefinition = new TriggerDefinition(valueProvided);
             }
         });
@@ -1107,7 +1107,7 @@ class TaskInput extends Element {
                     this.__data.valueUsageContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                const UsageContext = require('../complex_types/usageContext.js');
                 this.__data.valueUsageContext = new UsageContext(valueProvided);
             }
         });
@@ -1126,7 +1126,7 @@ class TaskInput extends Element {
                     this.__data.valueDosage = undefined;
                     return;
                 }
-                let Dosage = require('../backbone_elements/dosage.js');
+                const Dosage = require('../backbone_elements/dosage.js');
                 this.__data.valueDosage = new Dosage(valueProvided);
             }
         });
@@ -1145,7 +1145,7 @@ class TaskInput extends Element {
                     this.__data.valueMeta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.valueMeta = new Meta(valueProvided);
             }
         });
@@ -1277,6 +1277,48 @@ class TaskInput extends Element {
             valueDosage: this.valueDosage && this.valueDosage.toJSON(),
             valueMeta: this.valueMeta && this.valueMeta.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.valueAddress) {this.valueAddress.updateReferences({fnUpdateReference});}
+            if (this.valueAge) {this.valueAge.updateReferences({fnUpdateReference});}
+            if (this.valueAnnotation) {this.valueAnnotation.updateReferences({fnUpdateReference});}
+            if (this.valueAttachment) {this.valueAttachment.updateReferences({fnUpdateReference});}
+            if (this.valueCodeableConcept) {this.valueCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.valueCoding) {this.valueCoding.updateReferences({fnUpdateReference});}
+            if (this.valueContactPoint) {this.valueContactPoint.updateReferences({fnUpdateReference});}
+            if (this.valueCount) {this.valueCount.updateReferences({fnUpdateReference});}
+            if (this.valueDistance) {this.valueDistance.updateReferences({fnUpdateReference});}
+            if (this.valueDuration) {this.valueDuration.updateReferences({fnUpdateReference});}
+            if (this.valueHumanName) {this.valueHumanName.updateReferences({fnUpdateReference});}
+            if (this.valueIdentifier) {this.valueIdentifier.updateReferences({fnUpdateReference});}
+            if (this.valueMoney) {this.valueMoney.updateReferences({fnUpdateReference});}
+            if (this.valuePeriod) {this.valuePeriod.updateReferences({fnUpdateReference});}
+            if (this.valueQuantity) {this.valueQuantity.updateReferences({fnUpdateReference});}
+            if (this.valueRange) {this.valueRange.updateReferences({fnUpdateReference});}
+            if (this.valueRatio) {this.valueRatio.updateReferences({fnUpdateReference});}
+            if (this.valueReference) {this.valueReference.updateReferences({fnUpdateReference});}
+            if (this.valueSampledData) {this.valueSampledData.updateReferences({fnUpdateReference});}
+            if (this.valueSignature) {this.valueSignature.updateReferences({fnUpdateReference});}
+            if (this.valueTiming) {this.valueTiming.updateReferences({fnUpdateReference});}
+            if (this.valueContactDetail) {this.valueContactDetail.updateReferences({fnUpdateReference});}
+            if (this.valueContributor) {this.valueContributor.updateReferences({fnUpdateReference});}
+            if (this.valueDataRequirement) {this.valueDataRequirement.updateReferences({fnUpdateReference});}
+            if (this.valueExpression) {this.valueExpression.updateReferences({fnUpdateReference});}
+            if (this.valueParameterDefinition) {this.valueParameterDefinition.updateReferences({fnUpdateReference});}
+            if (this.valueRelatedArtifact) {this.valueRelatedArtifact.updateReferences({fnUpdateReference});}
+            if (this.valueTriggerDefinition) {this.valueTriggerDefinition.updateReferences({fnUpdateReference});}
+            if (this.valueUsageContext) {this.valueUsageContext.updateReferences({fnUpdateReference});}
+            if (this.valueDosage) {this.valueDosage.updateReferences({fnUpdateReference});}
+            if (this.valueMeta) {this.valueMeta.updateReferences({fnUpdateReference});}
     }
 
     /**

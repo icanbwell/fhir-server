@@ -65,7 +65,7 @@ class Range extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -84,7 +84,7 @@ class Range extends Element {
                     this.__data.low = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.low = new Quantity(valueProvided);
             }
         });
@@ -103,7 +103,7 @@ class Range extends Element {
                     this.__data.high = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.high = new Quantity(valueProvided);
             }
         });
@@ -135,6 +135,17 @@ class Range extends Element {
             low: this.low && this.low.toJSON(),
             high: this.high && this.high.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.low) {this.low.updateReferences({fnUpdateReference});}
+            if (this.high) {this.high.updateReferences({fnUpdateReference});}
     }
 
     /**

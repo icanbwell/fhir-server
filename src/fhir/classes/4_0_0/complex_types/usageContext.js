@@ -74,7 +74,7 @@ class UsageContext extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -94,7 +94,7 @@ class UsageContext extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.code = new Coding(valueProvided);
             }
         });
@@ -113,7 +113,7 @@ class UsageContext extends Element {
                     this.__data.valueCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.valueCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -132,7 +132,7 @@ class UsageContext extends Element {
                     this.__data.valueQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueQuantity = new Quantity(valueProvided);
             }
         });
@@ -151,7 +151,7 @@ class UsageContext extends Element {
                     this.__data.valueRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.valueRange = new Range(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class UsageContext extends Element {
                     this.__data.valueReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.valueReference = new Reference(valueProvided);
             }
         });
@@ -208,6 +208,20 @@ class UsageContext extends Element {
             valueRange: this.valueRange && this.valueRange.toJSON(),
             valueReference: this.valueReference && this.valueReference.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.valueCodeableConcept) {this.valueCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.valueQuantity) {this.valueQuantity.updateReferences({fnUpdateReference});}
+            if (this.valueRange) {this.valueRange.updateReferences({fnUpdateReference});}
+            if (this.valueReference) {this.valueReference.updateReferences({fnUpdateReference});}
     }
 
     /**

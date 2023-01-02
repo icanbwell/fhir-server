@@ -72,7 +72,7 @@ class SubstanceSpecificationIsotope extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -103,7 +103,7 @@ class SubstanceSpecificationIsotope extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -122,7 +122,7 @@ class SubstanceSpecificationIsotope extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -141,7 +141,7 @@ class SubstanceSpecificationIsotope extends Element {
                     this.__data.name = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.name = new CodeableConcept(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class SubstanceSpecificationIsotope extends Element {
                     this.__data.substitution = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.substitution = new CodeableConcept(valueProvided);
             }
         });
@@ -179,7 +179,7 @@ class SubstanceSpecificationIsotope extends Element {
                     this.__data.halfLife = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.halfLife = new Quantity(valueProvided);
             }
         });
@@ -199,7 +199,7 @@ class SubstanceSpecificationIsotope extends Element {
                     this.__data.molecularWeight = undefined;
                     return;
                 }
-                let SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
+                const SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
                 this.__data.molecularWeight = new SubstanceSpecificationMolecularWeight(valueProvided);
             }
         });
@@ -239,6 +239,21 @@ class SubstanceSpecificationIsotope extends Element {
             halfLife: this.halfLife && this.halfLife.toJSON(),
             molecularWeight: this.molecularWeight && this.molecularWeight.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.name) {this.name.updateReferences({fnUpdateReference});}
+            if (this.substitution) {this.substitution.updateReferences({fnUpdateReference});}
+            if (this.halfLife) {this.halfLife.updateReferences({fnUpdateReference});}
+            if (this.molecularWeight) {this.molecularWeight.updateReferences({fnUpdateReference});}
     }
 
     /**

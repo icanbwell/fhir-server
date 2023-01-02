@@ -72,6 +72,138 @@ class ConfigManager {
     get authEnabled() {
         return isTrue(env.AUTH_ENABLED);
     }
+
+    /**
+     * name of secret to use to get kafka auth
+     * @return {string|null}
+     */
+    get kafkaAwsSecretName() {
+        return env.KAFKA_SASL_AWS_SECRET || null;
+    }
+
+    /**
+     * username for kafka auth
+     * @return {string|null}
+     */
+    get kafkaUserName() {
+        return env.KAFKA_SASL_USERNAME || null;
+    }
+
+    /**
+     * password for kafka auth
+     * @return {string|null}
+     */
+    get kafkaPassword() {
+        return env.KAFKA_SASL_PASSWORD || null;
+    }
+
+    /**
+     * auth mechanism for kafka auth
+     * @return {string|undefined}
+     */
+    get kafkaAuthMechanism() {
+        return env.KAFKA_SASL_MECHANISM || 'aws';
+    }
+
+    /**
+     * sasl identity for kafka auth (UserId or RoleId)
+     * @return {string|undefined}
+     */
+    get kafkaIdentity() {
+        return env.KAFKA_SASL_IDENTITY ? env.KAFKA_SASL_IDENTITY : null;
+    }
+
+    /**
+     * access key for kafka auth
+     * @return {string|undefined}
+     */
+    get kafkaAccessKeyId() {
+        return env.KAFKA_SASL_ACCESS_KEY_ID;
+    }
+
+    /**
+     * access key secret for kafka auth
+     * @return {string|undefined}
+     */
+    get kafkaAccessKeySecret() {
+        return env.KAFKA_SASL_ACCESS_KEY_SECRET;
+    }
+
+    /**
+     * client id for kafka auth
+     * @return {string|undefined}
+     */
+    get kafkaClientId() {
+        return env.KAFKA_CLIENT_ID;
+    }
+
+    /**
+     * get brokers for kafka
+     * @return {string[]}
+     */
+    get kafkaBrokers() {
+        return env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : [];
+    }
+
+    /**
+     * whether to use ssl for kafka
+     * @return {boolean}
+     */
+    get kafkaUseSsl() {
+        return isTrue(env.KAFKA_SSL);
+    }
+
+    /**
+     * whether to use SASL for kafka
+     * @return {boolean}
+     */
+    get kafkaUseSasl() {
+        return isTrue(env.KAFKA_SASL);
+    }
+
+    /**
+     * whether to send events to kafka
+     * @return {boolean}
+     */
+    get kafkaEnableEvents() {
+        return isTrue(env.ENABLE_EVENTS_KAFKA);
+    }
+
+    /**
+     * gets url to person matching service
+     * @return {string|undefined}
+     */
+    get personMatchingServiceUrl() {
+        return env.PERSON_MATCHING_SERVICE_URL;
+    }
+
+    /**
+     * whether to create index when we create a collection
+     * @returns {boolean}
+     */
+    get createIndexOnCollectionCreation() {
+        return isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION);
+    }
+
+    /**
+     * whether we should log all merges
+     * @returns {boolean}
+     */
+    get logAllMerges() {
+        return isTrue(env.LOG_ALL_MERGES);
+    }
+
+    get handleConcurrency() {
+        return !isTrue(env.SKIP_HANDLE_CONCURRENCY);
+    }
+
+    /**
+     * number to times to retry an update
+     * @returns {*|number}
+     */
+    get replaceRetries() {
+        return env.REPLACE_RETRIES || 10;
+    }
 }
 
 module.exports = {

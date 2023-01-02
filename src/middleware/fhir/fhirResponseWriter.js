@@ -32,14 +32,16 @@ class FhirResponseWriter {
     /**
      * @function read
      * @description Used when you are returning a Bundle of resources
-     * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Request} req - Express request object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource} result - json to send to client
      */
     read({req, res, result}) {
         assertTypeEquals(result, Resource);
-        let fhirVersion = req.params.base_version;
-        res.type(this.getContentType(fhirVersion));
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
 
         // assert(req.id);
         if (req.id && !res.headersSent) {
@@ -51,13 +53,15 @@ class FhirResponseWriter {
     /**
      * @function read
      * @description Used when you are returning a Bundle of resources
-     * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Request} req - Express request object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
     readCustomOperation({req, res, result}) {
-        let fhirVersion = req.params.base_version;
-        res.type(this.getContentType(fhirVersion));
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
 
         // assert(req.id);
         if (req.id && !res.headersSent) {
@@ -67,15 +71,55 @@ class FhirResponseWriter {
     }
 
     /**
+     * @function graph
+     * @description Used when you are returning a Bundle of resources
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Resource|Object} result - json to send to client
+     */
+    graph({req, res}) {
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
+
+        // assert(req.id);
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+    }
+
+    /**
+     * @function graph
+     * @description Used when you are returning a Bundle of resources
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     * @param {Resource|Object} result - json to send to client
+     */
+    everything({req, res}) {
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
+
+        // assert(req.id);
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
+    }
+
+    /**
      * @function read
      * @description Used when you are returning a Bundle of resources
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {MergeResultEntry[]} result - json to send to client
      */
     merge({req, res, result}) {
-        let fhirVersion = req.params.base_version;
-        res.type(this.getContentType(fhirVersion));
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
 
         // assert(req.id);
         if (req.id && !res.headersSent) {
@@ -88,7 +132,7 @@ class FhirResponseWriter {
      * @function readOne
      * @description Used when you are returning a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource} resource - resource to send to client
      */
     readOne({req, res, resource}) {
@@ -99,7 +143,9 @@ class FhirResponseWriter {
             res.set('ETag', `W/"${resource.meta.versionId}"`);
         }
 
-        res.type(this.getContentType(fhirVersion));
+        if (!res.headersSent) {
+            res.type(this.getContentType(fhirVersion));
+        }
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
         }
@@ -114,7 +160,7 @@ class FhirResponseWriter {
      * @function create
      * @description Used when you are creating a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Resource} resource - json to send to client
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
@@ -152,7 +198,7 @@ class FhirResponseWriter {
      * @function update
      * @description Used when you are updating a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {{id: string, resource_version: string|undefined, created: boolean, resource: Resource}} result - json to send to client
      * @param {{type: string}} options - Any additional options necessary to generate response
      */
@@ -187,7 +233,7 @@ class FhirResponseWriter {
      * @function remove
      * @description Used when you are deleting a single resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Object} json - json to send to client
      */
     remove({req, res, json}) {
@@ -204,7 +250,7 @@ class FhirResponseWriter {
      * @function history
      * @description Used when you are querying the history of a resource of any type
      * @param {import('http').IncomingMessage} req - Express request object
-     * @param {import('http').ServerResponse} res - Express response object
+     * @param {import('express').Response} res - Express response object
      * @param {Object} json - json to send to client
      */
     history({req, res, json}) {

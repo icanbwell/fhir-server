@@ -62,8 +62,7 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
@@ -73,8 +72,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=ge2021-01-01')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });
@@ -87,8 +85,7 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
@@ -98,8 +95,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=gt2021-01-01')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });
@@ -112,8 +108,7 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
@@ -123,8 +118,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=le2029-01-01')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });
@@ -137,8 +131,7 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
@@ -148,8 +141,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=lt2029-01-01')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });
@@ -162,8 +154,7 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
@@ -173,8 +164,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=lt2029-01-01&_lastUpdated=gt2021-01-01')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });
@@ -187,8 +177,7 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
@@ -198,8 +187,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .get('/4_0_0/Practitioner?_lastUpdated=lt2021-01-10&_lastUpdated=gt2021-01-01')
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
         });

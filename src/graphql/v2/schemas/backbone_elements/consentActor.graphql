@@ -57,5 +57,5 @@ type ConsentActor {
     to identify a set of actors by some property they share (e.g. 'admitting
     officers').
     """
-    reference: ConsentActorReference!        
+    reference: ConsentActorReference        
 }

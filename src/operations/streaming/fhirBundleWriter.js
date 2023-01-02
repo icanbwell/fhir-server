@@ -1,6 +1,7 @@
 const {Transform} = require('stream');
 const {removeNull} = require('../../utils/nullRemover');
 const {assertIsValid} = require('../../utils/assertType');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class FhirBundleWriter extends Transform {
     /**
@@ -61,7 +62,7 @@ class FhirBundleWriter extends Transform {
                 const resourceJson = JSON.stringify(
                     {
                         resource: chunk
-                    }
+                    }, getCircularReplacer()
                 );
                 if (this._first) {
                     // write the beginning json
@@ -122,7 +123,7 @@ class FhirBundleWriter extends Transform {
                     }
                 ]
             };
-            const operationOutcomeJson = JSON.stringify({resource: operationOutcome});
+            const operationOutcomeJson = JSON.stringify({resource: operationOutcome}, getCircularReplacer());
             if (this._first) {
                 // write the beginning json
                 this._first = false;

@@ -67,7 +67,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -84,7 +85,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners works', async () => {
@@ -110,7 +111,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -135,7 +137,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level reverse nesting works', async () => {
@@ -166,7 +168,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -194,7 +197,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level reverse nesting works', async () => {
@@ -225,7 +228,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -253,7 +257,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and contained works', async () => {
@@ -284,7 +288,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -310,7 +315,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained works', async () => {
@@ -341,7 +346,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -367,7 +373,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
@@ -408,7 +414,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleForwardDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -439,7 +446,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
@@ -470,7 +477,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: true,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -496,7 +504,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 2 level nesting works', async () => {
@@ -537,7 +545,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -576,7 +585,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting works', async () => {
@@ -632,7 +641,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -701,7 +711,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and contained works', async () => {
@@ -757,7 +767,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -814,7 +825,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and extension works', async () => {
@@ -886,7 +897,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -946,7 +958,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension works', async () => {
@@ -1051,7 +1063,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1169,7 +1182,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works', async () => {
@@ -1273,7 +1286,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1374,7 +1388,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with debug', async () => {
@@ -1477,7 +1491,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {_debug: 1}
+                args: {'base_version': '4_0_0', _debug: 1},
+                originalArgs: {_debug: 1}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1593,7 +1608,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1','2']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':{'$in':['Practitioner/1','Practitioner/2']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['100','200']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'1\',\'2\']}}]}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':{\'$in\':[\'Practitioner/1\',\'Practitioner/2\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'100\',\'200\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}]}, {})',
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -1626,7 +1641,7 @@ describe('graphHelper Tests', () => {
 
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with explain', async () => {
@@ -1729,7 +1744,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {_explain: 1}
+                args: {'base_version': '4_0_0', _explain: 1},
+                originalArgs: {_explain: 1}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1754,7 +1770,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1','2']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1'}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['100']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'1\',\'2\']}}]}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':\'Practitioner/1\'}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'100\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}]}, {})',
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
@@ -1783,7 +1799,7 @@ describe('graphHelper Tests', () => {
                         }
                     ]
                 },
-                'type': 'collection',
+                'type': 'searchset',
                 'entry': [
                     {
                         'id': '1',

@@ -96,7 +96,7 @@ class BodyStructure extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -159,7 +159,7 @@ class BodyStructure extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -180,7 +180,7 @@ class BodyStructure extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -212,7 +212,7 @@ class BodyStructure extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -243,7 +243,7 @@ class BodyStructure extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -262,7 +262,7 @@ class BodyStructure extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -301,7 +301,7 @@ class BodyStructure extends Resource {
                     this.__data.morphology = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.morphology = new CodeableConcept(valueProvided);
             }
         });
@@ -320,7 +320,7 @@ class BodyStructure extends Resource {
                     this.__data.location = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.location = new CodeableConcept(valueProvided);
             }
         });
@@ -340,7 +340,7 @@ class BodyStructure extends Resource {
                     this.__data.locationQualifier = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.locationQualifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -377,7 +377,7 @@ class BodyStructure extends Resource {
                     this.__data.image = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.image = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Attachment(v)) : [new Attachment(valueProvided)];
             }
         });
@@ -396,7 +396,7 @@ class BodyStructure extends Resource {
                     this.__data.patient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.patient = new Reference(valueProvided);
             }
         });
@@ -606,6 +606,25 @@ class BodyStructure extends Resource {
             image: this.image && this.image.map(v => v.toJSON()),
             patient: this.patient && this.patient.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.morphology) {this.morphology.updateReferences({fnUpdateReference});}
+            if (this.location) {this.location.updateReferences({fnUpdateReference});}
+            if (this.locationQualifier) {this.locationQualifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.image) {this.image.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.patient) {this.patient.updateReferences({fnUpdateReference});}
     }
 
     /**

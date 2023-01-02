@@ -1,3 +1,4 @@
+const async = require('async');
 const {logRequest, logError} = require('../../../operations/common/logging');
 
 // const {ApolloServerPlugin} = require('apollo-server-plugin-base');
@@ -29,6 +30,7 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
     async requestDidStart(requestContext) {
         const req = requestContext.request;
         const user = requestContext.context ? requestContext.context.user : null;
+        const container = requestContext.context ? requestContext.context.container : null;
         const self = this;
 
         logRequest({
@@ -67,19 +69,41 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                 // which will contain every validation error that occurred.
                 return async (errs) => {
                     if (errs) {
-                        errs.forEach(
-                            err => logError(
-                                {
-                                    user,
-                                    args: {
-                                        message: 'GraphQL Request Validation Error',
-                                        endpoint: self.endpoint,
-                                        operationName: req.operationName,
-                                        query: req.query,
-                                        error: err
+                        await async.forEach(
+                            errs,
+                            async (err) => {
+                                logError(
+                                    {
+                                        user,
+                                        args: {
+                                            message: 'GraphQL Request Validation Error',
+                                            endpoint: self.endpoint,
+                                            operationName: req.operationName,
+                                            query: req.query,
+                                            error: err
+                                        }
+                                    }
+                                );
+                                if (container) {
+                                    /**
+                                     * @type {ErrorReporter}
+                                     */
+                                    const errorReporter = container.errorReporter;
+                                    if (errorReporter) {
+                                        await errorReporter.reportErrorAsync(
+                                            {
+                                                source: 'GraphQLv2',
+                                                message: `GraphQL Validation Error: ${err.message}`,
+                                                error: err,
+                                                args: {
+                                                    user,
+                                                    req,
+                                                }
+                                            }
+                                        );
                                     }
                                 }
-                            )
+                            }
                         );
                     }
                 };
@@ -101,6 +125,25 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                         }
                                 }
                             );
+                            if (container) {
+                                /**
+                                 * @type {ErrorReporter}
+                                 */
+                                const errorReporter = container.errorReporter;
+                                if (errorReporter) {
+                                    await errorReporter.reportErrorAsync(
+                                        {
+                                            source: 'GraphQLv2',
+                                            message: `GraphQL Error: ${err.message}`,
+                                            error: err,
+                                            args: {
+                                                user,
+                                                req,
+                                            }
+                                        }
+                                    );
+                                }
+                            }
                         }
                     }
                 };

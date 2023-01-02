@@ -123,7 +123,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -186,7 +186,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -207,7 +207,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -239,7 +239,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -270,7 +270,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -292,7 +292,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -332,7 +332,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.manufacturer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.manufacturer = new Reference(valueProvided);
             }
         });
@@ -351,7 +351,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.doseForm = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.doseForm = new CodeableConcept(valueProvided);
             }
         });
@@ -373,7 +373,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.amount = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.amount = new Quantity(valueProvided);
             }
         });
@@ -412,7 +412,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.relatedMedicationKnowledge = undefined;
                     return;
                 }
-                let MedicationKnowledgeRelatedMedicationKnowledge = require('../backbone_elements/medicationKnowledgeRelatedMedicationKnowledge.js');
+                const MedicationKnowledgeRelatedMedicationKnowledge = require('../backbone_elements/medicationKnowledgeRelatedMedicationKnowledge.js');
                 this.__data.relatedMedicationKnowledge = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeRelatedMedicationKnowledge(v)) : [new MedicationKnowledgeRelatedMedicationKnowledge(valueProvided)];
             }
         });
@@ -434,7 +434,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.associatedMedication = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.associatedMedication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -454,7 +454,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.productType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.productType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -473,7 +473,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.monograph = undefined;
                     return;
                 }
-                let MedicationKnowledgeMonograph = require('../backbone_elements/medicationKnowledgeMonograph.js');
+                const MedicationKnowledgeMonograph = require('../backbone_elements/medicationKnowledgeMonograph.js');
                 this.__data.monograph = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMonograph(v)) : [new MedicationKnowledgeMonograph(valueProvided)];
             }
         });
@@ -492,7 +492,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.ingredient = undefined;
                     return;
                 }
-                let MedicationKnowledgeIngredient = require('../backbone_elements/medicationKnowledgeIngredient.js');
+                const MedicationKnowledgeIngredient = require('../backbone_elements/medicationKnowledgeIngredient.js');
                 this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeIngredient(v)) : [new MedicationKnowledgeIngredient(valueProvided)];
             }
         });
@@ -529,7 +529,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.intendedRoute = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.intendedRoute = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -548,7 +548,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.cost = undefined;
                     return;
                 }
-                let MedicationKnowledgeCost = require('../backbone_elements/medicationKnowledgeCost.js');
+                const MedicationKnowledgeCost = require('../backbone_elements/medicationKnowledgeCost.js');
                 this.__data.cost = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeCost(v)) : [new MedicationKnowledgeCost(valueProvided)];
             }
         });
@@ -567,7 +567,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.monitoringProgram = undefined;
                     return;
                 }
-                let MedicationKnowledgeMonitoringProgram = require('../backbone_elements/medicationKnowledgeMonitoringProgram.js');
+                const MedicationKnowledgeMonitoringProgram = require('../backbone_elements/medicationKnowledgeMonitoringProgram.js');
                 this.__data.monitoringProgram = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMonitoringProgram(v)) : [new MedicationKnowledgeMonitoringProgram(valueProvided)];
             }
         });
@@ -586,7 +586,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.administrationGuidelines = undefined;
                     return;
                 }
-                let MedicationKnowledgeAdministrationGuidelines = require('../backbone_elements/medicationKnowledgeAdministrationGuidelines.js');
+                const MedicationKnowledgeAdministrationGuidelines = require('../backbone_elements/medicationKnowledgeAdministrationGuidelines.js');
                 this.__data.administrationGuidelines = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeAdministrationGuidelines(v)) : [new MedicationKnowledgeAdministrationGuidelines(valueProvided)];
             }
         });
@@ -605,7 +605,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.medicineClassification = undefined;
                     return;
                 }
-                let MedicationKnowledgeMedicineClassification = require('../backbone_elements/medicationKnowledgeMedicineClassification.js');
+                const MedicationKnowledgeMedicineClassification = require('../backbone_elements/medicationKnowledgeMedicineClassification.js');
                 this.__data.medicineClassification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMedicineClassification(v)) : [new MedicationKnowledgeMedicineClassification(valueProvided)];
             }
         });
@@ -624,7 +624,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.packaging = undefined;
                     return;
                 }
-                let MedicationKnowledgePackaging = require('../backbone_elements/medicationKnowledgePackaging.js');
+                const MedicationKnowledgePackaging = require('../backbone_elements/medicationKnowledgePackaging.js');
                 this.__data.packaging = new MedicationKnowledgePackaging(valueProvided);
             }
         });
@@ -644,7 +644,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.drugCharacteristic = undefined;
                     return;
                 }
-                let MedicationKnowledgeDrugCharacteristic = require('../backbone_elements/medicationKnowledgeDrugCharacteristic.js');
+                const MedicationKnowledgeDrugCharacteristic = require('../backbone_elements/medicationKnowledgeDrugCharacteristic.js');
                 this.__data.drugCharacteristic = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeDrugCharacteristic(v)) : [new MedicationKnowledgeDrugCharacteristic(valueProvided)];
             }
         });
@@ -664,7 +664,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.contraindication = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.contraindication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -683,7 +683,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.regulatory = undefined;
                     return;
                 }
-                let MedicationKnowledgeRegulatory = require('../backbone_elements/medicationKnowledgeRegulatory.js');
+                const MedicationKnowledgeRegulatory = require('../backbone_elements/medicationKnowledgeRegulatory.js');
                 this.__data.regulatory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeRegulatory(v)) : [new MedicationKnowledgeRegulatory(valueProvided)];
             }
         });
@@ -703,7 +703,7 @@ class MedicationKnowledge extends Resource {
                     this.__data.kinetics = undefined;
                     return;
                 }
-                let MedicationKnowledgeKinetics = require('../backbone_elements/medicationKnowledgeKinetics.js');
+                const MedicationKnowledgeKinetics = require('../backbone_elements/medicationKnowledgeKinetics.js');
                 this.__data.kinetics = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeKinetics(v)) : [new MedicationKnowledgeKinetics(valueProvided)];
             }
         });
@@ -983,6 +983,38 @@ class MedicationKnowledge extends Resource {
             regulatory: this.regulatory && this.regulatory.map(v => v.toJSON()),
             kinetics: this.kinetics && this.kinetics.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.manufacturer) {this.manufacturer.updateReferences({fnUpdateReference});}
+            if (this.doseForm) {this.doseForm.updateReferences({fnUpdateReference});}
+            if (this.amount) {this.amount.updateReferences({fnUpdateReference});}
+            if (this.relatedMedicationKnowledge) {this.relatedMedicationKnowledge.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.associatedMedication) {this.associatedMedication.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.productType) {this.productType.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.monograph) {this.monograph.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.ingredient) {this.ingredient.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.intendedRoute) {this.intendedRoute.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.cost) {this.cost.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.monitoringProgram) {this.monitoringProgram.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.administrationGuidelines) {this.administrationGuidelines.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.medicineClassification) {this.medicineClassification.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.packaging) {this.packaging.updateReferences({fnUpdateReference});}
+            if (this.drugCharacteristic) {this.drugCharacteristic.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.contraindication) {this.contraindication.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.regulatory) {this.regulatory.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.kinetics) {this.kinetics.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

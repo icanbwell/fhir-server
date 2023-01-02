@@ -113,7 +113,6 @@ class MergeManager {
      * @param {string} scope
      * @param {string} currentDate
      * @param {string} requestId
-     * @param {string} base_version
      * @returns {Promise<void>}
      */
     async mergeExistingAsync(
@@ -124,7 +123,6 @@ class MergeManager {
             scope,
             currentDate,
             requestId,
-            base_version
         }) {
         /**
          * @type {string}
@@ -150,10 +148,10 @@ class MergeManager {
         /**
          * @type {Resource|null}
          */
-        const patched_resource_incoming = await this.resourceMerger.mergeResourceAsync(
+        const {updatedResource: patched_resource_incoming, patches} = await this.resourceMerger.mergeResourceAsync(
             {currentResource, resourceToMerge});
 
-        if (isTrue(env.LOG_ALL_MERGES)) {
+        if (this.configManager.logAllMerges) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 {
@@ -167,9 +165,10 @@ class MergeManager {
         }
         if (patched_resource_incoming) {
             await this.performMergeDbUpdateAsync({
-                    base_version,
                     requestId,
-                    resourceToMerge: patched_resource_incoming
+                    resourceToMerge: patched_resource_incoming,
+                    previousVersionId: currentResource.meta.versionId,
+                    patches
                 }
             );
         }
@@ -229,7 +228,6 @@ class MergeManager {
         }
 
         await this.performMergeDbInsertAsync({
-            base_version,
             requestId,
             resourceToMerge
         });
@@ -304,8 +302,7 @@ class MergeManager {
                 if (currentResource && currentResource.meta) {
                     await this.mergeExistingAsync(
                         {
-                            resourceToMerge, currentResource, user, scope, currentDate, requestId,
-                            base_version
+                            resourceToMerge, currentResource, user, scope, currentDate, requestId
                         }
                     );
                     this.databaseBulkLoader.updateResourceInExistingList({requestId, resource: resourceToMerge});
@@ -333,7 +330,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: {
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                             },
                             diagnostics: e.toString(),
                             expression: [
@@ -491,15 +488,17 @@ class MergeManager {
     /**
      * performs the db update
      * @param {string} requestId
-     * @param {string} base_version
      * @param {Resource} resourceToMerge
+     * @param {string} previousVersionId
+     * @param {MergePatchEntry[]} patches
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync(
         {
             requestId,
-            base_version,
-            resourceToMerge
+            resourceToMerge,
+            previousVersionId,
+            patches
         }
     ) {
         try {
@@ -509,30 +508,19 @@ class MergeManager {
             await this.preSaveManager.preSaveAsync(resourceToMerge);
 
             // Insert/update our resource record
-            await this.databaseBulkInserter.replaceOneAsync(
+            await this.databaseBulkInserter.mergeOneAsync(
                 {
                     requestId,
                     resourceType: resourceToMerge.resourceType,
                     id: id.toString(),
-                    doc: resourceToMerge
+                    doc: resourceToMerge,
+                    previousVersionId,
+                    patches
                 }
             );
-
-            /**
-             * @type {Resource}
-             */
-            const historyResource = resourceToMerge.clone();
-
-            await this.databaseBulkInserter.insertOneHistoryAsync(
-                {
-                    requestId,
-                    resourceType: resourceToMerge.resourceType, doc: historyResource,
-                    method: 'POST',
-                    base_version
-                });
         } catch (e) {
             throw new RethrownError({
-                message: `Error updating: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error updating: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }
@@ -541,14 +529,12 @@ class MergeManager {
     /**
      * performs the db insert
      * @param {string} requestId
-     * @param {string} base_version
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync(
         {
             requestId,
-            base_version,
             resourceToMerge
         }) {
         try {
@@ -562,20 +548,9 @@ class MergeManager {
                     doc: resourceToMerge
                 }
             );
-
-            const historyResource = resourceToMerge.clone();
-
-            await this.databaseBulkInserter.insertOneHistoryAsync({
-                    requestId,
-                    resourceType: resourceToMerge.resourceType,
-                    doc: historyResource,
-                    method: 'POST',
-                    base_version
-                }
-            );
         } catch (e) {
             throw new RethrownError({
-                message: `Error inserting: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error inserting: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }
@@ -616,7 +591,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                             }),
                             diagnostics: 'resource is missing resourceType',
                             expression: [
@@ -645,7 +620,7 @@ class MergeManager {
                                 severity: 'error',
                                 code: 'exception',
                                 details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                                 }),
                                 diagnostics: 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceToMerge.resourceType + '.' + 'write' + ']',
                                 expression: [
@@ -685,6 +660,7 @@ class MergeManager {
                 currentDate: currentDate
             });
             if (validationOperationOutcome) {
+                // noinspection JSValidateTypes
                 return {
                     id: id,
                     created: false,
@@ -705,7 +681,7 @@ class MergeManager {
                                 severity: 'error',
                                 code: 'exception',
                                 details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                                 }),
                                 diagnostics: 'Resource is missing a meta.security tag with system: https://www.icanbwell.com/access',
                                 expression: [
@@ -728,7 +704,7 @@ class MergeManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }
@@ -792,6 +768,7 @@ class MergeManager {
      * @param {string} base_version
      * @param {Object} args
      * @param {MergeResultEntry[]} mergeResults
+     * @param {string} method
      * @returns {Promise<void>}
      */
     async logAuditEntriesForMergeResults(
@@ -799,7 +776,8 @@ class MergeManager {
             requestInfo,
             requestId,
             base_version, args,
-            mergeResults
+            mergeResults,
+            method
         }
     ) {
         try {
@@ -844,7 +822,7 @@ class MergeManager {
             }
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            await this.auditLogger.flushAsync({requestId, currentDate});
+            await this.auditLogger.flushAsync({requestId, currentDate, method});
         } catch (e) {
             throw new RethrownError({
                 error: e

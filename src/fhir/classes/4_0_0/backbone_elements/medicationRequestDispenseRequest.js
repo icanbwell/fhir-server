@@ -79,7 +79,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -110,7 +110,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -129,7 +129,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.initialFill = undefined;
                     return;
                 }
-                let MedicationRequestInitialFill = require('../backbone_elements/medicationRequestInitialFill.js');
+                const MedicationRequestInitialFill = require('../backbone_elements/medicationRequestInitialFill.js');
                 this.__data.initialFill = new MedicationRequestInitialFill(valueProvided);
             }
         });
@@ -149,7 +149,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.dispenseInterval = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.dispenseInterval = new Quantity(valueProvided);
             }
         });
@@ -169,7 +169,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.validityPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.validityPeriod = new Period(valueProvided);
             }
         });
@@ -212,7 +212,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -232,7 +232,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.expectedSupplyDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.expectedSupplyDuration = new Quantity(valueProvided);
             }
         });
@@ -251,7 +251,7 @@ class MedicationRequestDispenseRequest extends Element {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.performer = new Reference(valueProvided);
             }
         });
@@ -295,6 +295,22 @@ class MedicationRequestDispenseRequest extends Element {
             expectedSupplyDuration: this.expectedSupplyDuration && this.expectedSupplyDuration.toJSON(),
             performer: this.performer && this.performer.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.initialFill) {this.initialFill.updateReferences({fnUpdateReference});}
+            if (this.dispenseInterval) {this.dispenseInterval.updateReferences({fnUpdateReference});}
+            if (this.validityPeriod) {this.validityPeriod.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.expectedSupplyDuration) {this.expectedSupplyDuration.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.updateReferences({fnUpdateReference});}
     }
 
     /**

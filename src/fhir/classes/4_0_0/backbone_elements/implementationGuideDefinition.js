@@ -74,7 +74,7 @@ class ImplementationGuideDefinition extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -105,7 +105,7 @@ class ImplementationGuideDefinition extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -124,7 +124,7 @@ class ImplementationGuideDefinition extends Element {
                     this.__data.grouping = undefined;
                     return;
                 }
-                let ImplementationGuideGrouping = require('../backbone_elements/implementationGuideGrouping.js');
+                const ImplementationGuideGrouping = require('../backbone_elements/implementationGuideGrouping.js');
                 this.__data.grouping = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideGrouping(v)) : [new ImplementationGuideGrouping(valueProvided)];
             }
         });
@@ -146,7 +146,7 @@ class ImplementationGuideDefinition extends Element {
                     this.__data.resource = undefined;
                     return;
                 }
-                let ImplementationGuideResource = require('../backbone_elements/implementationGuideResource.js');
+                const ImplementationGuideResource = require('../backbone_elements/implementationGuideResource.js');
                 this.__data.resource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideResource(v)) : [new ImplementationGuideResource(valueProvided)];
             }
         });
@@ -166,7 +166,7 @@ class ImplementationGuideDefinition extends Element {
                     this.__data.page = undefined;
                     return;
                 }
-                let ImplementationGuidePage = require('../backbone_elements/implementationGuidePage.js');
+                const ImplementationGuidePage = require('../backbone_elements/implementationGuidePage.js');
                 this.__data.page = new ImplementationGuidePage(valueProvided);
             }
         });
@@ -185,7 +185,7 @@ class ImplementationGuideDefinition extends Element {
                     this.__data.parameter = undefined;
                     return;
                 }
-                let ImplementationGuideParameter = require('../backbone_elements/implementationGuideParameter.js');
+                const ImplementationGuideParameter = require('../backbone_elements/implementationGuideParameter.js');
                 this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideParameter(v)) : [new ImplementationGuideParameter(valueProvided)];
             }
         });
@@ -204,7 +204,7 @@ class ImplementationGuideDefinition extends Element {
                     this.__data.template = undefined;
                     return;
                 }
-                let ImplementationGuideTemplate = require('../backbone_elements/implementationGuideTemplate.js');
+                const ImplementationGuideTemplate = require('../backbone_elements/implementationGuideTemplate.js');
                 this.__data.template = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImplementationGuideTemplate(v)) : [new ImplementationGuideTemplate(valueProvided)];
             }
         });
@@ -244,6 +244,21 @@ class ImplementationGuideDefinition extends Element {
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
             template: this.template && this.template.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.grouping) {this.grouping.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.resource) {this.resource.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.page) {this.page.updateReferences({fnUpdateReference});}
+            if (this.parameter) {this.parameter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.template) {this.template.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

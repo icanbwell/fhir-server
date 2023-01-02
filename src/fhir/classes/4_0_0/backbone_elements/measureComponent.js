@@ -67,7 +67,7 @@ class MeasureComponent extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -98,7 +98,7 @@ class MeasureComponent extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class MeasureComponent extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -158,7 +158,7 @@ class MeasureComponent extends Element {
                     this.__data.criteria = undefined;
                     return;
                 }
-                let Expression = require('../complex_types/expression.js');
+                const Expression = require('../complex_types/expression.js');
                 this.__data.criteria = new Expression(valueProvided);
             }
         });
@@ -194,6 +194,18 @@ class MeasureComponent extends Element {
             description: this.description,
             criteria: this.criteria && this.criteria.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.criteria) {this.criteria.updateReferences({fnUpdateReference});}
     }
 
     /**

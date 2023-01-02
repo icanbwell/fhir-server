@@ -45,7 +45,7 @@ type PersonLink {
     """
     The resource to which this actual person is associated.
     """
-    target: PersonLinkTarget!        
+    target: PersonLinkTarget        
     """
     Level of assurance that this link is associated with the target resource.
     """

@@ -66,7 +66,7 @@ class CodeableConcept extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -85,7 +85,7 @@ class CodeableConcept extends Element {
                     this.__data.coding = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.coding = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
             }
         });
@@ -137,6 +137,16 @@ class CodeableConcept extends Element {
             coding: this.coding && this.coding.map(v => v.toJSON()),
             text: this.text,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.coding) {this.coding.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

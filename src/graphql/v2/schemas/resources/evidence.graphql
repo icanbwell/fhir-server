@@ -235,7 +235,7 @@ type Evidence {
     A reference to a EvidenceVariable resource that defines the population for the
     research.
     """
-    exposureBackground: EvidenceVariable!        
+    exposureBackground: EvidenceVariable        
     """
     A reference to a EvidenceVariable resource that defines the exposure for the
     research.

@@ -1,5 +1,9 @@
 class PatientFilterManager {
     constructor() {
+        /**
+         * defines the field in each resource that links to patient
+         * @type {Object}
+         */
         this.patientFilterMapping = {
             Annotation: 'authorReference.reference',
             Signature: 'who.reference',
@@ -75,15 +79,25 @@ class PatientFilterManager {
             Task: 'for.reference',
             VisionPrescription: 'patient.reference'
         };
+        /**
+         * defines resources that don't have patient data
+         * @type {string[]}
+         */
         this.resourcesWithoutPatientData = [
             'Practitioner',
+            'PractitionerRole',
             'Organization',
-            'Libary',
+            'Medication',
+            'CodeSystem',
+            'Library',
             'PlanDefinition',
             'GuidanceResponse',
             'Measure',
             'Location',
-            'HealthcareService'
+            'HealthcareService',
+            'InsurancePlan',
+            'Binary',
+            'ValueSet'
         ];
     }
 
@@ -95,6 +109,11 @@ class PatientFilterManager {
         return this.patientFilterMapping[`${resourceType}`];
     }
 
+    /**
+     * Returns whether access is allowed to the specified resource with patient scope
+     * @param {string} resourceType
+     * @returns {boolean}
+     */
     canAccessResourceWithPatientScope({resourceType}) {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
             this.resourcesWithoutPatientData.includes(resourceType);

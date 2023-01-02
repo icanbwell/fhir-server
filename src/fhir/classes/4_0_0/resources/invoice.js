@@ -112,7 +112,7 @@ class Invoice extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -175,7 +175,7 @@ class Invoice extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -196,7 +196,7 @@ class Invoice extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -228,7 +228,7 @@ class Invoice extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -259,7 +259,7 @@ class Invoice extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -279,7 +279,7 @@ class Invoice extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -336,7 +336,7 @@ class Invoice extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -356,7 +356,7 @@ class Invoice extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -375,7 +375,7 @@ class Invoice extends Resource {
                     this.__data.recipient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.recipient = new Reference(valueProvided);
             }
         });
@@ -412,7 +412,7 @@ class Invoice extends Resource {
                     this.__data.participant = undefined;
                     return;
                 }
-                let InvoiceParticipant = require('../backbone_elements/invoiceParticipant.js');
+                const InvoiceParticipant = require('../backbone_elements/invoiceParticipant.js');
                 this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoiceParticipant(v)) : [new InvoiceParticipant(valueProvided)];
             }
         });
@@ -431,7 +431,7 @@ class Invoice extends Resource {
                     this.__data.issuer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.issuer = new Reference(valueProvided);
             }
         });
@@ -450,7 +450,7 @@ class Invoice extends Resource {
                     this.__data.account = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.account = new Reference(valueProvided);
             }
         });
@@ -470,7 +470,7 @@ class Invoice extends Resource {
                     this.__data.lineItem = undefined;
                     return;
                 }
-                let InvoiceLineItem = require('../backbone_elements/invoiceLineItem.js');
+                const InvoiceLineItem = require('../backbone_elements/invoiceLineItem.js');
                 this.__data.lineItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoiceLineItem(v)) : [new InvoiceLineItem(valueProvided)];
             }
         });
@@ -492,7 +492,7 @@ class Invoice extends Resource {
                     this.__data.totalPriceComponent = undefined;
                     return;
                 }
-                let InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
+                const InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
                 this.__data.totalPriceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(valueProvided)];
             }
         });
@@ -511,7 +511,7 @@ class Invoice extends Resource {
                     this.__data.totalNet = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.totalNet = new Money(valueProvided);
             }
         });
@@ -530,7 +530,7 @@ class Invoice extends Resource {
                     this.__data.totalGross = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.totalGross = new Money(valueProvided);
             }
         });
@@ -568,7 +568,7 @@ class Invoice extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -818,6 +818,31 @@ class Invoice extends Resource {
             paymentTerms: this.paymentTerms,
             note: this.note && this.note.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.recipient) {this.recipient.updateReferences({fnUpdateReference});}
+            if (this.participant) {this.participant.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.issuer) {this.issuer.updateReferences({fnUpdateReference});}
+            if (this.account) {this.account.updateReferences({fnUpdateReference});}
+            if (this.lineItem) {this.lineItem.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.totalPriceComponent) {this.totalPriceComponent.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.totalNet) {this.totalNet.updateReferences({fnUpdateReference});}
+            if (this.totalGross) {this.totalGross.updateReferences({fnUpdateReference});}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

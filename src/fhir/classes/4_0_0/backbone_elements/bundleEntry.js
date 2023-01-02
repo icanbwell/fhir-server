@@ -73,7 +73,7 @@ class BundleEntry extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -104,7 +104,7 @@ class BundleEntry extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class BundleEntry extends Element {
                     this.__data.link = undefined;
                     return;
                 }
-                let BundleLink = require('../backbone_elements/bundleLink.js');
+                const BundleLink = require('../backbone_elements/bundleLink.js');
                 this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleLink(v)) : [new BundleLink(valueProvided)];
             }
         });
@@ -168,7 +168,7 @@ class BundleEntry extends Element {
                     this.__data.resource = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
                 this.__data.resource = new ResourceCreator(valueProvided);
@@ -189,7 +189,7 @@ class BundleEntry extends Element {
                     this.__data.search = undefined;
                     return;
                 }
-                let BundleSearch = require('../backbone_elements/bundleSearch.js');
+                const BundleSearch = require('../backbone_elements/bundleSearch.js');
                 this.__data.search = new BundleSearch(valueProvided);
             }
         });
@@ -210,7 +210,7 @@ class BundleEntry extends Element {
                     this.__data.request = undefined;
                     return;
                 }
-                let BundleRequest = require('../backbone_elements/bundleRequest.js');
+                const BundleRequest = require('../backbone_elements/bundleRequest.js');
                 this.__data.request = new BundleRequest(valueProvided);
             }
         });
@@ -231,7 +231,7 @@ class BundleEntry extends Element {
                     this.__data.response = undefined;
                     return;
                 }
-                let BundleResponse = require('../backbone_elements/bundleResponse.js');
+                const BundleResponse = require('../backbone_elements/bundleResponse.js');
                 this.__data.response = new BundleResponse(valueProvided);
             }
         });
@@ -273,6 +273,21 @@ class BundleEntry extends Element {
             request: this.request && this.request.toJSON(),
             response: this.response && this.response.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.link) {this.link.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.resource) {this.resource.updateReferences({fnUpdateReference});}
+            if (this.search) {this.search.updateReferences({fnUpdateReference});}
+            if (this.request) {this.request.updateReferences({fnUpdateReference});}
+            if (this.response) {this.response.updateReferences({fnUpdateReference});}
     }
 
     /**

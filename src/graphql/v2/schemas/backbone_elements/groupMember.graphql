@@ -52,7 +52,7 @@ type GroupMember {
     with Group.type. If the entity is another group, then the type must be the
     same.
     """
-    entity: GroupMemberEntity!        
+    entity: GroupMemberEntity        
     """
     The period that the member was in the group, if known.
     """

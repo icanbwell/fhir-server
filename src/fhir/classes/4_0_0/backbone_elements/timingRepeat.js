@@ -101,7 +101,7 @@ class TimingRepeat extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -132,7 +132,7 @@ class TimingRepeat extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -151,7 +151,7 @@ class TimingRepeat extends Element {
                     this.__data.boundsDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.boundsDuration = new Quantity(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class TimingRepeat extends Element {
                     this.__data.boundsRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.boundsRange = new Range(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class TimingRepeat extends Element {
                     this.__data.boundsPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.boundsPeriod = new Period(valueProvided);
             }
         });
@@ -521,6 +521,19 @@ class TimingRepeat extends Element {
             when: this.when,
             offset: this.offset,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.boundsDuration) {this.boundsDuration.updateReferences({fnUpdateReference});}
+            if (this.boundsRange) {this.boundsRange.updateReferences({fnUpdateReference});}
+            if (this.boundsPeriod) {this.boundsPeriod.updateReferences({fnUpdateReference});}
     }
 
     /**

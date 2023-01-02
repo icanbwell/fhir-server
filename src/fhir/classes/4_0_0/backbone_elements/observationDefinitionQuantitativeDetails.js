@@ -70,7 +70,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
                     this.__data.customaryUnit = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.customaryUnit = new CodeableConcept(valueProvided);
             }
         });
@@ -141,7 +141,7 @@ class ObservationDefinitionQuantitativeDetails extends Element {
                     this.__data.unit = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.unit = new CodeableConcept(valueProvided);
             }
         });
@@ -217,6 +217,18 @@ class ObservationDefinitionQuantitativeDetails extends Element {
             conversionFactor: this.conversionFactor,
             decimalPrecision: this.decimalPrecision,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.customaryUnit) {this.customaryUnit.updateReferences({fnUpdateReference});}
+            if (this.unit) {this.unit.updateReferences({fnUpdateReference});}
     }
 
     /**

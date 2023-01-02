@@ -269,7 +269,7 @@ type ResearchDefinition {
     A reference to a ResearchElementDefinition resource that defines the
     population for the research.
     """
-    population: ResearchElementDefinition!        
+    population: ResearchElementDefinition        
     """
     A reference to a ResearchElementDefinition resource that defines the exposure
     for the research.

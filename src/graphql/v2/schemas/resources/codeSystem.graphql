@@ -235,7 +235,7 @@ type CodeSystem {
     hierarchical, but the definitions must be consulted to determine what the
     meanings of the hierarchical relationships are.
     """
-    concept: [CodeSystemConcept]        
+    concept(code: [String]): [CodeSystemConcept]        
 }
 
 type CodeSystemBundleEntry {

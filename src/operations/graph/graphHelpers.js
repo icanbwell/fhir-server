@@ -7,7 +7,7 @@ const {R4SearchQueryCreator} = require('../query/r4');
 const env = require('var');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
@@ -22,6 +22,9 @@ const {RethrownError} = require('../../utils/rethrownError');
 const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const {EnrichmentManager} = require('../../enrich/enrich');
+const deepcopy = require('deepcopy');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 
 /**
@@ -48,6 +51,7 @@ class GraphHelper {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {SearchManager} searchManager
+     * @param {EnrichmentManager} enrichmentManager
      */
     constructor({
                     databaseQueryFactory,
@@ -58,7 +62,8 @@ class GraphHelper {
                     bundleManager,
                     resourceLocatorFactory,
                     r4SearchQueryCreator,
-                    searchManager
+                    searchManager,
+                    enrichmentManager
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -110,6 +115,12 @@ class GraphHelper {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {EnrichmentManager}
+         */
+        this.enrichmentManager = enrichmentManager;
+        assertTypeEquals(enrichmentManager, EnrichmentManager);
     }
 
     /**
@@ -323,7 +334,18 @@ class GraphHelper {
         } catch (e) {
             throw new RethrownError({
                 message: `Error in getForwardReferencesAsync(): ${resourceType}, ` + `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
-                error: e
+                error: e,
+                args: {
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    parentEntities,
+                    property,
+                    filterProperty,
+                    filterValue,
+                    explain,
+                    debug
+                }
             });
         }
     }
@@ -491,7 +513,19 @@ class GraphHelper {
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in getReverseReferencesAsync(): ' + `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` + `parents:${parentEntities.map(p => p.entityId)}, ` + `filterProperty=${filterProperty}, filterValue=${filterValue}, ` + `reverseFilter=${reverse_filter}`,
-                error: e
+                error: e,
+                args: {
+                    requestInfo,
+                    base_version,
+                    parentResourceType,
+                    relatedResourceType,
+                    parentEntities,
+                    filterProperty,
+                    filterValue,
+                    reverse_filter,
+                    explain,
+                    debug
+                }
             });
         }
     }
@@ -603,147 +637,174 @@ class GraphHelper {
                                      debug,
                                      target
                                  }) {
-        /**
-         * @type {QueryItem[]}
-         */
-        const queryItems = [];
-        /**
-         * @type {EntityAndContainedBase[]}
-         */
-        let childEntries = [];
-        /**
-         * If this is not set then the caller does not want this entity but a nested entity
-         * defined further in the GraphDefinition
-         * @type {string | null}
-         */
-        const resourceType = target.type;
-        // there are two types of linkages:
-        // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
-        // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
-        if (link.path) { // forward link
+        try {
             /**
-             * @type {string}
+             * @type {QueryItem[]}
              */
-            const originalProperty = link.path.replace('[x]', '');
-            const {filterProperty, filterValue, property} = this.getFilterFromPropertyPath(originalProperty);
-            // find parent entities that have a valid property
-            parentEntities = parentEntities.filter(p => this.doesEntityHaveProperty({
-                entity: p, property, filterProperty, filterValue
-            }));
-            // if this is a reference then get related resources
-            if (this.isPropertyAReference({
-                entities: parentEntities, property, filterProperty, filterValue
-            })) {
-                await this.scopesValidator.verifyHasValidScopesAsync({
-                    requestInfo, args: {}, resourceType, startTime: Date.now(), action: 'graph', accessRequested: 'read'
-                });
+            const queryItems = [];
+            /**
+             * @type {EntityAndContainedBase[]}
+             */
+            let childEntries = [];
+            /**
+             * If this is not set then the caller does not want this entity but a nested entity
+             * defined further in the GraphDefinition
+             * @type {string | null}
+             */
+            const resourceType = target.type;
+            // there are two types of linkages:
+            // 1. forward linkage: a property in the current object is a reference to the target object (uses "path")
+            // 2. reverse linkage: a property in the target object is a reference to the current object (uses "params")
+            if (link.path) { // forward link
                 /**
-                 * @type {{reverse_filter?: string, query: import('mongodb').Filter<import('mongodb').DefaultSchema>, property?: string, explanations?: import('mongodb').Document[], resourceType: string}}
+                 * @type {string}
                  */
-                const queryItem = await this.getForwardReferencesAsync({
-                    requestInfo,
-                    base_version,
-                    resourceType,
-                    parentEntities,
-                    property,
-                    filterProperty,
-                    filterValue,
-                    explain,
-                    debug
-                });
-                if (queryItem) {
-                    queryItems.push(queryItem);
-                }
-                childEntries = parentEntities.flatMap(p => p.containedEntries);
-            } else { // handle paths that are not references
-                childEntries = [];
-                for (const parentEntity of parentEntities) {
-                    // create child entries
-                    /**
-                     * @type {Object[]}
-                     */
-                    const children = this.getPropertiesForEntity({
-                        entity: parentEntity, property, filterProperty, filterValue
+                const originalProperty = link.path.replace('[x]', '');
+                const {filterProperty, filterValue, property} = this.getFilterFromPropertyPath(originalProperty);
+                // find parent entities that have a valid property
+                parentEntities = parentEntities.filter(p => this.doesEntityHaveProperty({
+                    entity: p, property, filterProperty, filterValue
+                }));
+                // if this is a reference then get related resources
+                if (this.isPropertyAReference({
+                    entities: parentEntities, property, filterProperty, filterValue
+                })) {
+                    await this.scopesValidator.verifyHasValidScopesAsync({
+                        requestInfo,
+                        args: {},
+                        resourceType,
+                        startTime: Date.now(),
+                        action: 'graph',
+                        accessRequested: 'read'
                     });
                     /**
-                     * @type {NonResourceEntityAndContained[]}
+                     * @type {{reverse_filter?: string, query: import('mongodb').Filter<import('mongodb').DefaultSchema>, property?: string, explanations?: import('mongodb').Document[], resourceType: string}}
                      */
-                    const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained({
-                        includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
-                        item: c, containedEntries: []
-                    }));
-                    childEntries = childEntries.concat(childEntriesForCurrentEntity);
-                    parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
-                }
-            }
-        } else if (target.params) { // reverse link
-            if (target.type) { // if caller has requested this entity or just wants a nested entity
-                // reverse link
-                await this.scopesValidator.verifyHasValidScopesAsync({
-                    requestInfo, args: {}, resourceType, startTime: Date.now(), action: 'graph', accessRequested: 'read'
-                });
-                if (!parentResourceType) {
-                    throw new Error('processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using target.params: ${target.params}`);
-                }
-                const queryItem = await this.getReverseReferencesAsync({
-                    requestInfo,
-                    base_version,
-                    parentResourceType,
-                    relatedResourceType: resourceType,
-                    parentEntities,
-                    filterProperty: null,
-                    filterValue: null,
-                    reverse_filter: target.params,
-                    explain,
-                    debug
-                });
-                if (queryItem) {
-                    queryItems.push(queryItem);
-                }
-                childEntries = parentEntities.flatMap(p => p.containedEntries);
-            }
-        }
-
-        // filter childEntries to find entries of same type as parentResource
-        childEntries = childEntries.filter(c => (!target.type && !c.resource) || // either there is no target type so choose non-resources
-            (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
-        );
-        if (childEntries && childEntries.length > 0) {
-            /**
-             * @type {string|null}
-             */
-            const childResourceType = target.type;
-
-            // Now recurse down and process the link
-            /**
-             * @type {[{path:string, params: string,target:[{type: string}]}]}
-             */
-            const childLinks = target.link;
-            if (childLinks) {
-                /**
-                 * @type {{path:string, params: string,target:[{type: string}]}}
-                 */
-                for (const childLink of childLinks) {
-                    // now recurse and process the next link in GraphDefinition
-                    /**
-                     * @type {QueryItem[]}
-                     */
-                    const recursiveQueries = await this.processOneGraphLinkAsync({
+                    const queryItem = await this.getForwardReferencesAsync({
                         requestInfo,
                         base_version,
-                        parentResourceType: childResourceType,
-                        link: childLink,
-                        parentEntities: childEntries,
+                        resourceType,
+                        parentEntities,
+                        property,
+                        filterProperty,
+                        filterValue,
                         explain,
                         debug
                     });
-                    for (const recursiveQuery of recursiveQueries) {
-                        queryItems.push(recursiveQuery);
+                    if (queryItem) {
+                        queryItems.push(queryItem);
+                    }
+                    childEntries = parentEntities.flatMap(p => p.containedEntries);
+                } else { // handle paths that are not references
+                    childEntries = [];
+                    for (const parentEntity of parentEntities) {
+                        // create child entries
+                        /**
+                         * @type {Object[]}
+                         */
+                        const children = this.getPropertiesForEntity({
+                            entity: parentEntity, property, filterProperty, filterValue
+                        });
+                        /**
+                         * @type {NonResourceEntityAndContained[]}
+                         */
+                        const childEntriesForCurrentEntity = children.map(c => new NonResourceEntityAndContained({
+                            includeInOutput: target.type !== undefined, // if caller has requested this entity or just wants a nested entity
+                            item: c, containedEntries: []
+                        }));
+                        childEntries = childEntries.concat(childEntriesForCurrentEntity);
+                        parentEntity.containedEntries = parentEntity.containedEntries.concat(childEntriesForCurrentEntity);
+                    }
+                }
+            } else if (target.params) { // reverse link
+                if (target.type) { // if caller has requested this entity or just wants a nested entity
+                    // reverse link
+                    await this.scopesValidator.verifyHasValidScopesAsync({
+                        requestInfo,
+                        args: {},
+                        resourceType,
+                        startTime: Date.now(),
+                        action: 'graph',
+                        accessRequested: 'read'
+                    });
+                    if (!parentResourceType) {
+                        throw new Error('processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using target.params: ${target.params}`);
+                    }
+                    const queryItem = await this.getReverseReferencesAsync({
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        relatedResourceType: resourceType,
+                        parentEntities,
+                        filterProperty: null,
+                        filterValue: null,
+                        reverse_filter: target.params,
+                        explain,
+                        debug
+                    });
+                    if (queryItem) {
+                        queryItems.push(queryItem);
+                    }
+                    childEntries = parentEntities.flatMap(p => p.containedEntries);
+                }
+            }
+
+            // filter childEntries to find entries of same type as parentResource
+            childEntries = childEntries.filter(c => (!target.type && !c.resource) || // either there is no target type so choose non-resources
+                (target.type && c.resource && c.resource.resourceType === target.type) // or there is a target type so match to it
+            );
+            if (childEntries && childEntries.length > 0) {
+                /**
+                 * @type {string|null}
+                 */
+                const childResourceType = target.type;
+
+                // Now recurse down and process the link
+                /**
+                 * @type {[{path:string, params: string,target:[{type: string}]}]}
+                 */
+                const childLinks = target.link;
+                if (childLinks) {
+                    /**
+                     * @type {{path:string, params: string,target:[{type: string}]}}
+                     */
+                    for (const childLink of childLinks) {
+                        // now recurse and process the next link in GraphDefinition
+                        /**
+                         * @type {QueryItem[]}
+                         */
+                        const recursiveQueries = await this.processOneGraphLinkAsync({
+                            requestInfo,
+                            base_version,
+                            parentResourceType: childResourceType,
+                            link: childLink,
+                            parentEntities: childEntries,
+                            explain,
+                            debug
+                        });
+                        for (const recursiveQuery of recursiveQueries) {
+                            queryItems.push(recursiveQuery);
+                        }
                     }
                 }
             }
+            return {queryItems, childEntries};
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in processLinkTargetAsync(): ' + `parentResourceType: ${parentResourceType}, `,
+                error: e,
+                args: {
+                    requestInfo,
+                    base_version,
+                    parentResourceType,
+                    link,
+                    parentEntities,
+                    explain,
+                    debug,
+                    target
+                }
+            });
         }
-        return {queryItems, childEntries};
     }
 
     /**
@@ -784,8 +845,19 @@ class GraphHelper {
             return queryItems;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in processOneGraphLinkAsync(): ' + `parentResourceType: ${parentResourceType} , ` + `parents:${parentEntities.map(p => p.entityId)}, `,
-                error: e
+                message: 'Error in processOneGraphLinkAsync(): ' +
+                    `parentResourceType: ${parentResourceType} , ` +
+                    `parents:${parentEntities.map(p => p.entityId)}, `,
+                error: e,
+                args: {
+                    requestInfo,
+                    base_version,
+                    parentResourceType,
+                    link,
+                    parentEntities,
+                    explain,
+                    debug
+                }
             });
         }
     }
@@ -830,8 +902,19 @@ class GraphHelper {
             return {entities: resultEntities, queryItems};
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in processGraphLinksAsync(): ' + `parentResourceType: ${parentResourceType} , ` + `parents:${parentEntities.map(p => p.entityId)}, `,
-                error: e
+                message: 'Error in processGraphLinksAsync(): ' +
+                    `parentResourceType: ${parentResourceType} , ` +
+                    `parents:${parentEntities.map(p => p.entityId)}, `,
+                error: e,
+                args: {
+                    requestInfo,
+                    base_version,
+                    parentResourceType,
+                    parentEntities,
+                    linkItems,
+                    explain,
+                    debug
+                }
             });
         }
     }
@@ -843,21 +926,29 @@ class GraphHelper {
      * @return {Promise<Resource>}
      */
     async convertToHashedReferencesAsync({parent_entity, linkReferences}) {
-        /**
-         * @type {Set<string>}
-         */
-        const uniqueReferences = new Set(linkReferences);
-        if (parent_entity) {
+        try {
             /**
-             * @type {string}
+             * @type {Set<string>}
              */
-            for (const link_reference of uniqueReferences) {
-                // eslint-disable-next-line security/detect-non-literal-regexp
-                let re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
-                parent_entity = JSON.parse(JSON.stringify(parent_entity).replace(re, '#'.concat(link_reference)));
+            const uniqueReferences = new Set(linkReferences);
+            if (parent_entity) {
+                /**
+                 * @type {string}
+                 */
+                for (const link_reference of uniqueReferences) {
+                    // eslint-disable-next-line security/detect-non-literal-regexp
+                    let re = new RegExp('\\b' + escapeRegExp(link_reference) + '\\b', 'g');
+                    parent_entity = JSON.parse(JSON.stringify(parent_entity, getCircularReplacer()).replace(re, '#'.concat(link_reference)));
+                }
             }
+            return parent_entity;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in convertToHashedReferencesAsync(): ',
+                error: e,
+                args: {parent_entity, linkReferences}
+            });
         }
-        return parent_entity;
     }
 
     /**
@@ -881,17 +972,6 @@ class GraphHelper {
         return result;
     }
 
-
-    /**
-     * removes duplicate items from array
-     * @param {*[]} array
-     * @param fnCompare
-     * @returns {*[]}
-     */
-    removeDuplicatesWithLambda(array, fnCompare) {
-        return array.filter((value, index, self) => index === self.findIndex((t) => (fnCompare(t, value))));
-    }
-
     /**
      * processing multiple ids
      * @param {string} base_version
@@ -903,24 +983,34 @@ class GraphHelper {
      * @param {string[]} idList
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {Object} args
+     * @param {Object} originalArgs
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
-    async processMultipleIdsAsync({
-                                      base_version,
-                                      requestInfo,
-                                      resourceType,
-                                      graphDefinition,
-                                      contained,
-                                      hash_references,
-                                      idList,
-                                      explain,
-                                      debug
-                                  }) {
+    async processMultipleIdsAsync(
+        {
+            base_version,
+            requestInfo,
+            resourceType,
+            graphDefinition,
+            contained,
+            hash_references,
+            idList,
+            explain,
+            debug,
+            args,
+            originalArgs
+        }
+    ) {
         try {
             /**
              * @type {BundleEntry[]}
              */
             let entries = [];
+
+            const graphArgs = deepcopy(args);
+            graphArgs.id = idList;
+            graphArgs.resource = null; // clear out the resource since we don't want to use any parameters from it
 
             let {
                 /** @type {import('mongodb').Document}**/
@@ -931,7 +1021,7 @@ class GraphHelper {
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
                 patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                args: Object.assign({'base_version': base_version}, {'id': idList}), // add id filter to query
+                args: graphArgs, // add id filter to query
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
@@ -1029,13 +1119,20 @@ class GraphHelper {
                     }
                 }
             }
+
             // add contained objects under the parent resource
-            for (const topLevelBundleEntry of topLevelBundleEntries) {
+            for (const /** @type {BundleEntry} */ topLevelBundleEntry of topLevelBundleEntries) {
                 // add related resources as container
                 /**
                  * @type {ResourceEntityAndContained}
                  */
-                const matchingEntity = allRelatedEntries.find(e => e.entityId === topLevelBundleEntry.resource.id && e.entityResourceType === topLevelBundleEntry.resource.resourceType);
+                const matchingEntity = allRelatedEntries.find(
+                    e => e.entityId === topLevelBundleEntry.resource.id &&
+                        e.entityResourceType === topLevelBundleEntry.resource.resourceType
+                );
+                assertIsValid(matchingEntity,
+                    'No matching entity found in graph for ' +
+                    `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource.id}`);
                 /**
                  * @type {[EntityAndContainedBase]}
                  */
@@ -1064,6 +1161,7 @@ class GraphHelper {
                 const relatedEntities = related_entries
                     .flatMap(r => this.getRecursiveContainedEntities(r))
                     .filter(r => r.resource !== undefined && r.resource !== null);
+
                 if (contained) {
                     if (relatedEntities.length > 0) {
                         topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
@@ -1073,13 +1171,30 @@ class GraphHelper {
                 }
             }
 
-            entries = this.removeDuplicatesWithLambda(entries, (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            entries = await this.enrichmentManager.enrichBundleEntriesAsync({
+                    entries, args, originalArgs
+                }
+            );
+            entries = this.bundleManager.removeDuplicateEntries({entries});
 
             return {entries, queries, options: optionsForQueries, explanations};
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in processMultipleIdsAsync(): ' + `resourceType: ${resourceType} , ` + `id:${idList.join(',')}, `,
-                error: e
+                error: e,
+                args: {
+                    base_version,
+                    requestInfo,
+                    resourceType,
+                    graphDefinition,
+                    contained,
+                    hash_references,
+                    idList,
+                    explain,
+                    debug,
+                    args,
+                    originalArgs
+                }
             });
         }
     }
@@ -1094,7 +1209,8 @@ class GraphHelper {
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {Object} args
-     * @param {FhirResponseStreamer|undefined} [fhirResponseStreamer]
+     * @param {BaseResponseStreamer|undefined} [responseStreamer]
+     * @param {Object} originalArgs
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
@@ -1107,13 +1223,11 @@ class GraphHelper {
             contained,
             hash_references,
             args,
-            fhirResponseStreamer
+            originalArgs,
+            responseStreamer
         }
     ) {
         try {
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.startAsync();
-            }
             /**
              * @type {number}
              */
@@ -1134,23 +1248,27 @@ class GraphHelper {
             /**
              * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
              */
-            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync({
-                base_version,
-                requestInfo,
-                resourceType,
-                graphDefinition,
-                contained,
-                hash_references,
-                idList: id,
-                explain: args && args['_explain'] ? true : false,
-                debug: args && args['_debug'] ? true : false,
-            });
+            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
+                {
+                    base_version,
+                    requestInfo,
+                    resourceType,
+                    graphDefinition,
+                    contained,
+                    hash_references,
+                    idList: id,
+                    explain: args && args['_explain'] ? true : false,
+                    debug: args && args['_debug'] ? true : false,
+                    args,
+                    originalArgs
+                }
+            );
 
             // remove duplicate resources
             /**
              * @type {BundleEntry[]}
              */
-            let uniqueEntries = this.removeDuplicatesWithLambda(entries, (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id);
+            let uniqueEntries = this.bundleManager.removeDuplicateEntries({entries});
 
             /**
              * @type {string[]}
@@ -1180,16 +1298,28 @@ class GraphHelper {
              */
             const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
 
-            if (fhirResponseStreamer) {
+            await this.enrichmentManager.enrichAsync({
+                    resources: resources, args, originalArgs
+                }
+            );
+
+            if (responseStreamer) {
                 for (const resource of resources) {
-                    await fhirResponseStreamer.writeAsync({resource});
+                    await responseStreamer.writeBundleEntryAsync({
+                        bundleEntry: new BundleEntry({
+                                id: resource.id,
+                                resource
+                            }
+                        )
+                    });
                 }
             }
+
             /**
              * @type {Bundle}
              */
             const bundle = this.bundleManager.createBundle({
-                type: 'collection',
+                type: 'searchset',
                 requestId: requestInfo.requestId,
                 originalUrl: requestInfo.originalUrl,
                 host: requestInfo.host,
@@ -1208,22 +1338,26 @@ class GraphHelper {
                 user: requestInfo.user,
                 explanations
             });
-            if (fhirResponseStreamer) {
-                bundle.resources = []; // clear up any resources since we already wrote them out
-                await fhirResponseStreamer.endAsync({bundle});
+            if (responseStreamer) {
+                responseStreamer.setBundle({bundle});
             }
             return bundle;
-            // create a bundle
-            // return new Bundle({
-            //     resourceType: 'Bundle',
-            //     id: '1',
-            //     type: 'collection',
-            //     timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z',
-            //     entry: uniqueEntries
-            // });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in processGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, `, error: e
+                message: 'Error in processGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, ` + e.message,
+                error: e,
+                args: {
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    id,
+                    graphDefinitionJson,
+                    contained,
+                    hash_references,
+                    args,
+                    originalArgs,
+                    responseStreamer
+                }
             });
         }
     }
@@ -1236,7 +1370,8 @@ class GraphHelper {
      * @param {string | string[]} id (accepts a single id or a list of ids)
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {Object} args
-     * @param {FhirResponseStreamer} fhirResponseStreamer
+     * @param {Object} originalArgs
+     * @param {BaseResponseStreamer} responseStreamer
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync(
@@ -1247,13 +1382,11 @@ class GraphHelper {
             id,
             graphDefinitionJson,
             args,
-            fhirResponseStreamer
+            originalArgs,
+            responseStreamer
         }
     ) {
         try {
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.startAsync();
-            }
             /**
              * @type {number}
              */
@@ -1270,7 +1403,8 @@ class GraphHelper {
                 hash_references: false,
                 graphDefinitionJson,
                 args,
-                fhirResponseStreamer: null // don't let graph send the response
+                originalArgs,
+                responseStreamer: null // don't let graph send the response
             });
             // now iterate and delete by resuourceType and Id
             /**
@@ -1310,9 +1444,14 @@ class GraphHelper {
                         requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}
                     });
+
+                // for testing with delay
+                // await new Promise(r => setTimeout(r, 10000));
+
                 for (const resultResourceId of idList) {
                     const ResourceCreator = getResource(base_version, resultResourceType);
-                    deleteOperationBundleEntries.push(new BundleEntry({
+                    const bundleEntry = new BundleEntry({
+                        id: resultResourceId,
                         resource: new ResourceCreator({
                             id: resultResourceId, resourceType: resultResourceType
                         }),
@@ -1323,7 +1462,11 @@ class GraphHelper {
                                 url: `/${base_version}/${resultResourceType}/${resultResourceId}`
                             }
                         )
-                    }));
+                    });
+                    deleteOperationBundleEntries.push(bundleEntry);
+                    if (responseStreamer) {
+                        await responseStreamer.writeBundleEntryAsync({bundleEntry});
+                    }
                 }
 
             }
@@ -1333,14 +1476,24 @@ class GraphHelper {
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length
             });
-            if (fhirResponseStreamer) {
-                await fhirResponseStreamer.endAsync({bundle: deleteOperationBundle});
-                deleteOperationBundle.entry = [];
+            if (responseStreamer) {
+                await responseStreamer.setBundle({bundle: deleteOperationBundle});
             }
             return deleteOperationBundle;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in deleteGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, `, error: e
+                message: 'Error in deleteGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, ` + e.message,
+                error: e,
+                args: {
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    id,
+                    graphDefinitionJson,
+                    args,
+                    originalArgs,
+                    responseStreamer
+                }
             });
         }
     }

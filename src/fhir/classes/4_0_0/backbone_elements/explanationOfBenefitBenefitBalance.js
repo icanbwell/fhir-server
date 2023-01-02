@@ -79,7 +79,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -110,7 +110,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -130,7 +130,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.category = new CodeableConcept(valueProvided);
             }
         });
@@ -205,7 +205,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.network = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.network = new CodeableConcept(valueProvided);
             }
         });
@@ -224,7 +224,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.unit = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.unit = new CodeableConcept(valueProvided);
             }
         });
@@ -244,7 +244,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.term = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.term = new CodeableConcept(valueProvided);
             }
         });
@@ -263,7 +263,7 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     this.__data.financial = undefined;
                     return;
                 }
-                let ExplanationOfBenefitFinancial = require('../backbone_elements/explanationOfBenefitFinancial.js');
+                const ExplanationOfBenefitFinancial = require('../backbone_elements/explanationOfBenefitFinancial.js');
                 this.__data.financial = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitFinancial(v)) : [new ExplanationOfBenefitFinancial(valueProvided)];
             }
         });
@@ -309,6 +309,21 @@ class ExplanationOfBenefitBenefitBalance extends Element {
             term: this.term && this.term.toJSON(),
             financial: this.financial && this.financial.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.category) {this.category.updateReferences({fnUpdateReference});}
+            if (this.network) {this.network.updateReferences({fnUpdateReference});}
+            if (this.unit) {this.unit.updateReferences({fnUpdateReference});}
+            if (this.term) {this.term.updateReferences({fnUpdateReference});}
+            if (this.financial) {this.financial.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

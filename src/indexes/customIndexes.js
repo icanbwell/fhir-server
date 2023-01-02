@@ -231,6 +231,28 @@ module.exports = {
                 }
             }
         ],
+        'MedicationRequest_4_0_0': [
+            {
+                keys: {
+                    'id': 1,
+                    'subject.reference': 1
+                },
+                options: {
+                    name: 'helix_medication_request_1'
+                }
+            }
+        ],
+        'MedicationDispense_4_0_0': [
+            {
+                keys: {
+                    'id': 1,
+                    'subject.reference': 1
+                },
+                options: {
+                    name: 'helix_medication_dispense_1'
+                }
+            }
+        ],
         'Person_4_0_0': [
             {
                 keys: {

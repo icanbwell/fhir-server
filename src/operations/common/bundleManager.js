@@ -7,6 +7,8 @@ const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEn
 const {MongoExplainPlanHelper} = require('../../utils/mongoExplainPlanHelper');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ResourceManager} = require('./resourceManager');
+const {removeDuplicatesWithLambda} = require('../../utils/list.util');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 /**
  * This class creates a Bundle resource out of a list of resources
@@ -284,7 +286,7 @@ class BundleManager {
             if (explanations && explanations.length > 0) {
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplain',
-                    display: JSON.stringify(explanations),
+                    display: JSON.stringify(explanations, getCircularReplacer()),
                 });
                 const explainer = new MongoExplainPlanHelper();
                 // noinspection JSCheckFunctionSignatures
@@ -302,7 +304,7 @@ class BundleManager {
                     ) : [];
                 tag.push({
                     system: 'https://www.icanbwell.com/queryExplainSimple',
-                    display: JSON.stringify(simpleExplanations),
+                    display: JSON.stringify(simpleExplanations, getCircularReplacer()),
                 });
             }
             if (cursorBatchSize && cursorBatchSize > 0) {
@@ -317,6 +319,20 @@ class BundleManager {
             logDebug({user, args: bundle});
         }
         return bundle;
+    }
+
+    /**
+     * Removes duplicate bundle entries
+     * @param {BundleEntry[]} entries
+     * @return {BundleEntry[]}
+     */
+    removeDuplicateEntries({entries}) {
+        if (entries.length === 0) {
+            return entries;
+        }
+        return removeDuplicatesWithLambda(entries,
+            (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id
+        );
     }
 }
 

@@ -52,7 +52,7 @@ type ClaimResponseInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
-    coverage: Coverage!        
+    coverage: Coverage        
     """
     A business agreement number established between the provider and the insurer
     for special business processing purposes.

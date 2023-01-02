@@ -119,7 +119,7 @@ type FamilyMemberHistory {
     """
     The person who this history concerns.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The date (and possibly time) when the family member history was recorded or
     last updated.

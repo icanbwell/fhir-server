@@ -102,7 +102,7 @@ type TestReport {
     Ideally this is an absolute URL that is used to identify the version-specific
     TestScript that was executed, matching the `TestScript.url`.
     """
-    testScript: TestScript!        
+    testScript: TestScript        
     """
     The overall result from the execution of the TestScript.
     """

@@ -53,7 +53,7 @@ type ProcedurePerformer {
     """
     The practitioner who was involved in the procedure.
     """
-    actor: ProcedurePerformerActor!        
+    actor: ProcedurePerformerActor        
     """
     The organization the device or practitioner was acting on behalf of.
     """

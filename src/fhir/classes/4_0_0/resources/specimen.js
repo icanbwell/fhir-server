@@ -105,7 +105,7 @@ class Specimen extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -168,7 +168,7 @@ class Specimen extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class Specimen extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -221,7 +221,7 @@ class Specimen extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -252,7 +252,7 @@ class Specimen extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -271,7 +271,7 @@ class Specimen extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -292,7 +292,7 @@ class Specimen extends Resource {
                     this.__data.accessionIdentifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.accessionIdentifier = new Identifier(valueProvided);
             }
         });
@@ -329,7 +329,7 @@ class Specimen extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -350,7 +350,7 @@ class Specimen extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -388,7 +388,7 @@ class Specimen extends Resource {
                     this.__data.parent = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.parent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -407,7 +407,7 @@ class Specimen extends Resource {
                     this.__data.request = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.request = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -426,7 +426,7 @@ class Specimen extends Resource {
                     this.__data.collection = undefined;
                     return;
                 }
-                let SpecimenCollection = require('../backbone_elements/specimenCollection.js');
+                const SpecimenCollection = require('../backbone_elements/specimenCollection.js');
                 this.__data.collection = new SpecimenCollection(valueProvided);
             }
         });
@@ -445,7 +445,7 @@ class Specimen extends Resource {
                     this.__data.processing = undefined;
                     return;
                 }
-                let SpecimenProcessing = require('../backbone_elements/specimenProcessing.js');
+                const SpecimenProcessing = require('../backbone_elements/specimenProcessing.js');
                 this.__data.processing = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SpecimenProcessing(v)) : [new SpecimenProcessing(valueProvided)];
             }
         });
@@ -465,7 +465,7 @@ class Specimen extends Resource {
                     this.__data.container = undefined;
                     return;
                 }
-                let SpecimenContainer = require('../backbone_elements/specimenContainer.js');
+                const SpecimenContainer = require('../backbone_elements/specimenContainer.js');
                 this.__data.container = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SpecimenContainer(v)) : [new SpecimenContainer(valueProvided)];
             }
         });
@@ -484,7 +484,7 @@ class Specimen extends Resource {
                     this.__data.condition = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -504,7 +504,7 @@ class Specimen extends Resource {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -739,6 +739,30 @@ class Specimen extends Resource {
             condition: this.condition && this.condition.map(v => v.toJSON()),
             note: this.note && this.note.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.accessionIdentifier) {this.accessionIdentifier.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.parent) {this.parent.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.request) {this.request.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.collection) {this.collection.updateReferences({fnUpdateReference});}
+            if (this.processing) {this.processing.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.container) {this.container.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.condition) {this.condition.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

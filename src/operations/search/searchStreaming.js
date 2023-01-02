@@ -15,6 +15,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
+const deepcopy = require('deepcopy');
 
 
 class SearchStreamingOperation {
@@ -91,7 +92,7 @@ class SearchStreamingOperation {
     /**
      * does a FHIR Search
      * @param {FhirRequestInfo} requestInfo
-     * @param {import('http').ServerResponse} res
+     * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
@@ -124,9 +125,11 @@ class SearchStreamingOperation {
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            requestId
+            requestId,
+            /** @type {string} */ method
         } = requestInfo;
 
+        const originalArgs = deepcopy(args);
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -314,7 +317,8 @@ class SearchStreamingOperation {
                             resourceType,
                             useAccessIndex,
                             contentType: fhirContentTypes.ndJson,
-                            batchObjectCount
+                            batchObjectCount,
+                            originalArgs
                         });
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
@@ -368,7 +372,8 @@ class SearchStreamingOperation {
                                 args,
                                 resourceType,
                                 useAccessIndex,
-                                batchObjectCount
+                                batchObjectCount,
+                                originalArgs
                             });
                     } else {
                         resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
@@ -378,7 +383,8 @@ class SearchStreamingOperation {
                                 resourceType,
                                 useAccessIndex,
                                 contentType: fhirContentTypes.fhirJson,
-                                batchObjectCount
+                                batchObjectCount,
+                                originalArgs
                             });
                     }
                 }
@@ -395,7 +401,7 @@ class SearchStreamingOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
             } else { // no records found
                 if (useNdJson) {

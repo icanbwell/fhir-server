@@ -76,7 +76,7 @@ class RelatedArtifact extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -189,7 +189,7 @@ class RelatedArtifact extends Element {
                     this.__data.document = undefined;
                     return;
                 }
-                let Attachment = require('../complex_types/attachment.js');
+                const Attachment = require('../complex_types/attachment.js');
                 this.__data.document = new Attachment(valueProvided);
             }
         });
@@ -250,6 +250,16 @@ class RelatedArtifact extends Element {
             document: this.document && this.document.toJSON(),
             resource: this.resource,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.document) {this.document.updateReferences({fnUpdateReference});}
     }
 
     /**

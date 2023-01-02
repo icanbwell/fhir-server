@@ -1,6 +1,4 @@
-// noinspection ExceptionCaughtLocallyJS
-
-const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
+const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
 const moment = require('moment-timezone');
@@ -14,6 +12,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
+const deepcopy = require('deepcopy');
 
 class SearchByIdOperation {
     /**
@@ -119,7 +118,8 @@ class SearchByIdOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            requestId
+            requestId,
+            /** @type {string} */ method
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -134,8 +134,10 @@ class SearchByIdOperation {
         try {
 
             // Common search params
-            let {id} = args;
-            let {base_version} = args;
+            const {id} = args;
+            const {base_version} = args;
+
+            const originalArgs = deepcopy(args);
 
             /**
              * @type {Promise<Resource> | *}
@@ -171,7 +173,7 @@ class SearchByIdOperation {
                 );
                 resource = await databaseQueryManager.findOneAsync({query});
             } catch (e) {
-                throw new BadRequestError(e);
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
 
             if (resource) {
@@ -188,7 +190,7 @@ class SearchByIdOperation {
 
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], resourceType, args
+                            resources: [resource], args, originalArgs
                         }
                     )
                 )[0];
@@ -201,7 +203,7 @@ class SearchByIdOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {

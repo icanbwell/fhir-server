@@ -73,7 +73,7 @@ class Timing extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -104,7 +104,7 @@ class Timing extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -141,7 +141,7 @@ class Timing extends Element {
                     this.__data.repeat = undefined;
                     return;
                 }
-                let TimingRepeat = require('../backbone_elements/timingRepeat.js');
+                const TimingRepeat = require('../backbone_elements/timingRepeat.js');
                 this.__data.repeat = new TimingRepeat(valueProvided);
             }
         });
@@ -165,7 +165,7 @@ class Timing extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -201,6 +201,18 @@ class Timing extends Element {
             repeat: this.repeat && this.repeat.toJSON(),
             code: this.code && this.code.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.repeat) {this.repeat.updateReferences({fnUpdateReference});}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
     }
 
     /**

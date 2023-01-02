@@ -79,7 +79,7 @@ class SpecimenCollection extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -110,7 +110,7 @@ class SpecimenCollection extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -129,7 +129,7 @@ class SpecimenCollection extends Element {
                     this.__data.collector = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.collector = new Reference(valueProvided);
             }
         });
@@ -166,7 +166,7 @@ class SpecimenCollection extends Element {
                     this.__data.collectedPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.collectedPeriod = new Period(valueProvided);
             }
         });
@@ -185,7 +185,7 @@ class SpecimenCollection extends Element {
                     this.__data.duration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.duration = new Quantity(valueProvided);
             }
         });
@@ -205,7 +205,7 @@ class SpecimenCollection extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -224,7 +224,7 @@ class SpecimenCollection extends Element {
                     this.__data.method = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.method = new CodeableConcept(valueProvided);
             }
         });
@@ -245,7 +245,7 @@ class SpecimenCollection extends Element {
                     this.__data.bodySite = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.bodySite = new CodeableConcept(valueProvided);
             }
         });
@@ -264,7 +264,7 @@ class SpecimenCollection extends Element {
                     this.__data.fastingStatusCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.fastingStatusCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -283,7 +283,7 @@ class SpecimenCollection extends Element {
                     this.__data.fastingStatusDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.fastingStatusDuration = new Quantity(valueProvided);
             }
         });
@@ -331,6 +331,24 @@ class SpecimenCollection extends Element {
             fastingStatusCodeableConcept: this.fastingStatusCodeableConcept && this.fastingStatusCodeableConcept.toJSON(),
             fastingStatusDuration: this.fastingStatusDuration && this.fastingStatusDuration.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.collector) {this.collector.updateReferences({fnUpdateReference});}
+            if (this.collectedPeriod) {this.collectedPeriod.updateReferences({fnUpdateReference});}
+            if (this.duration) {this.duration.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.method) {this.method.updateReferences({fnUpdateReference});}
+            if (this.bodySite) {this.bodySite.updateReferences({fnUpdateReference});}
+            if (this.fastingStatusCodeableConcept) {this.fastingStatusCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.fastingStatusDuration) {this.fastingStatusDuration.updateReferences({fnUpdateReference});}
     }
 
     /**

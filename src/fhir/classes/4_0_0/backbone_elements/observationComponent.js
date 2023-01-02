@@ -92,7 +92,7 @@ class ObservationComponent extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -123,7 +123,7 @@ class ObservationComponent extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -142,7 +142,7 @@ class ObservationComponent extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -161,7 +161,7 @@ class ObservationComponent extends Element {
                     this.__data.valueQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.valueQuantity = new Quantity(valueProvided);
             }
         });
@@ -180,7 +180,7 @@ class ObservationComponent extends Element {
                     this.__data.valueCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.valueCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -253,7 +253,7 @@ class ObservationComponent extends Element {
                     this.__data.valueRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.valueRange = new Range(valueProvided);
             }
         });
@@ -272,7 +272,7 @@ class ObservationComponent extends Element {
                     this.__data.valueRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.valueRatio = new Ratio(valueProvided);
             }
         });
@@ -291,7 +291,7 @@ class ObservationComponent extends Element {
                     this.__data.valueSampledData = undefined;
                     return;
                 }
-                let SampledData = require('../complex_types/sampledData.js');
+                const SampledData = require('../complex_types/sampledData.js');
                 this.__data.valueSampledData = new SampledData(valueProvided);
             }
         });
@@ -346,7 +346,7 @@ class ObservationComponent extends Element {
                     this.__data.valuePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.valuePeriod = new Period(valueProvided);
             }
         });
@@ -366,7 +366,7 @@ class ObservationComponent extends Element {
                     this.__data.dataAbsentReason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.dataAbsentReason = new CodeableConcept(valueProvided);
             }
         });
@@ -386,7 +386,7 @@ class ObservationComponent extends Element {
                     this.__data.interpretation = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.interpretation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -406,7 +406,7 @@ class ObservationComponent extends Element {
                     this.__data.referenceRange = undefined;
                     return;
                 }
-                let ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
+                const ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
                 this.__data.referenceRange = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ObservationReferenceRange(v)) : [new ObservationReferenceRange(valueProvided)];
             }
         });
@@ -466,6 +466,26 @@ class ObservationComponent extends Element {
             interpretation: this.interpretation && this.interpretation.map(v => v.toJSON()),
             referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.valueQuantity) {this.valueQuantity.updateReferences({fnUpdateReference});}
+            if (this.valueCodeableConcept) {this.valueCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.valueRange) {this.valueRange.updateReferences({fnUpdateReference});}
+            if (this.valueRatio) {this.valueRatio.updateReferences({fnUpdateReference});}
+            if (this.valueSampledData) {this.valueSampledData.updateReferences({fnUpdateReference});}
+            if (this.valuePeriod) {this.valuePeriod.updateReferences({fnUpdateReference});}
+            if (this.dataAbsentReason) {this.dataAbsentReason.updateReferences({fnUpdateReference});}
+            if (this.interpretation) {this.interpretation.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.referenceRange) {this.referenceRange.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

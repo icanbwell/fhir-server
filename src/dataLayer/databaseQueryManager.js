@@ -7,6 +7,7 @@ const {RethrownError} = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const moment = require('moment-timezone');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -60,7 +61,7 @@ class DatabaseQueryManager {
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
-     * @return {Promise<Resource|any>}
+     * @return {Promise<Resource|null>}
      */
     async findOneAsync({query, options = null}) {
         try {
@@ -83,7 +84,8 @@ class DatabaseQueryManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`, error: e
+                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
             });
         }
     }
@@ -127,7 +129,7 @@ class DatabaseQueryManager {
                          */
                         const historyResource = resource.clone();
                         historyResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-                        historyCollection.insertOne(new BundleEntry({
+                        await historyCollection.insertOne(new BundleEntry({
                             id: historyResource.id,
                             resource: historyResource,
                             request: new BundleRequest(
@@ -150,7 +152,8 @@ class DatabaseQueryManager {
             return {deletedCount: deletedCount, error: null};
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`, error: e
+                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, requestId, options}
             });
         }
     }
@@ -184,7 +187,8 @@ class DatabaseQueryManager {
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`, error: e
+                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
             });
         }
     }
@@ -214,7 +218,8 @@ class DatabaseQueryManager {
             return count;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`, error: e
+                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`, error: e,
+                args: {options}
             });
         }
     }
@@ -244,7 +249,8 @@ class DatabaseQueryManager {
             return count;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`, error: e
+                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
             });
         }
     }
@@ -281,8 +287,9 @@ class DatabaseQueryManager {
             });
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources)}`,
-                error: e
+                message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
+                error: e,
+                args: {resources}
             });
         }
     }

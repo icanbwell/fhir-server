@@ -15,6 +15,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
+const deepcopy = require('deepcopy');
 
 class SearchBundleOperation {
     /**
@@ -127,8 +128,11 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            requestId
+            requestId,
+            /** @type {string} */ method
         } = requestInfo;
+
+        const originalArgs = deepcopy(args);
 
         assertIsValid(requestId, 'requestId is null');
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -279,7 +283,8 @@ class SearchBundleOperation {
                     {
                         cursor, user, scope, args,
                         resourceType,
-                        useAccessIndex
+                        useAccessIndex,
+                        originalArgs
                     }
                 );
 
@@ -296,7 +301,7 @@ class SearchBundleOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
             }
 

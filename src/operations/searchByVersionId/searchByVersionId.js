@@ -1,6 +1,4 @@
-// noinspection ExceptionCaughtLocallyJS
-
-const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
+const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -10,6 +8,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
+const deepcopy = require('deepcopy');
 
 class SearchByVersionIdOperation {
     /**
@@ -102,6 +101,7 @@ class SearchByVersionIdOperation {
             // requestId
         } = requestInfo;
 
+        const originalArgs = deepcopy(args);
         try {
 
             let {base_version, id, version_id} = args;
@@ -172,7 +172,7 @@ class SearchByVersionIdOperation {
                     query: query
                 });
             } catch (e) {
-                throw new BadRequestError(e);
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
 
             if (resource) {
@@ -185,7 +185,7 @@ class SearchByVersionIdOperation {
                 }
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], resourceType, args
+                            resources: [resource], args, originalArgs
                         }
                     )
                 )[0];

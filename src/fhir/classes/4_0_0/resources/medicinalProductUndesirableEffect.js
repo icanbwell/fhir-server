@@ -89,7 +89,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -152,7 +152,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -173,7 +173,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -205,7 +205,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -236,7 +236,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -255,7 +255,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -274,7 +274,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.symptomConditionEffect = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.symptomConditionEffect = new CodeableConcept(valueProvided);
             }
         });
@@ -293,7 +293,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.classification = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.classification = new CodeableConcept(valueProvided);
             }
         });
@@ -312,7 +312,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.frequencyOfOccurrence = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.frequencyOfOccurrence = new CodeableConcept(valueProvided);
             }
         });
@@ -331,7 +331,7 @@ class MedicinalProductUndesirableEffect extends Resource {
                     this.__data.population = undefined;
                     return;
                 }
-                let Population = require('../backbone_elements/population.js');
+                const Population = require('../backbone_elements/population.js');
                 this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Population(v)) : [new Population(valueProvided)];
             }
         });
@@ -526,6 +526,24 @@ class MedicinalProductUndesirableEffect extends Resource {
             frequencyOfOccurrence: this.frequencyOfOccurrence && this.frequencyOfOccurrence.toJSON(),
             population: this.population && this.population.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subject) {this.subject.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.symptomConditionEffect) {this.symptomConditionEffect.updateReferences({fnUpdateReference});}
+            if (this.classification) {this.classification.updateReferences({fnUpdateReference});}
+            if (this.frequencyOfOccurrence) {this.frequencyOfOccurrence.updateReferences({fnUpdateReference});}
+            if (this.population) {this.population.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -43,7 +43,7 @@ type EncounterLocation {
     """
     The location where the encounter takes place.
     """
-    location: Location!        
+    location: Location        
     """
     The status of the participants' presence at the specified location during the
     period specified. If the participant is no longer at the location, then the

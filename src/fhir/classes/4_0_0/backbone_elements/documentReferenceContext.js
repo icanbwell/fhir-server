@@ -79,7 +79,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -110,7 +110,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -130,7 +130,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.encounter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.encounter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -152,7 +152,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.event = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.event = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -172,7 +172,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -191,7 +191,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.facilityType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.facilityType = new CodeableConcept(valueProvided);
             }
         });
@@ -211,7 +211,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.practiceSetting = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.practiceSetting = new CodeableConcept(valueProvided);
             }
         });
@@ -231,7 +231,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.sourcePatientInfo = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.sourcePatientInfo = new Reference(valueProvided);
             }
         });
@@ -250,7 +250,7 @@ class DocumentReferenceContext extends Element {
                     this.__data.related = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.related = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -294,6 +294,23 @@ class DocumentReferenceContext extends Element {
             sourcePatientInfo: this.sourcePatientInfo && this.sourcePatientInfo.toJSON(),
             related: this.related && this.related.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.encounter) {this.encounter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.event) {this.event.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
+            if (this.facilityType) {this.facilityType.updateReferences({fnUpdateReference});}
+            if (this.practiceSetting) {this.practiceSetting.updateReferences({fnUpdateReference});}
+            if (this.sourcePatientInfo) {this.sourcePatientInfo.updateReferences({fnUpdateReference});}
+            if (this.related) {this.related.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

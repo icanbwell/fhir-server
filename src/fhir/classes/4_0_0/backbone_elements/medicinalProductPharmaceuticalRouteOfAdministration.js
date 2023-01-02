@@ -75,7 +75,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -125,7 +125,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -146,7 +146,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.firstDose = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.firstDose = new Quantity(valueProvided);
             }
         });
@@ -167,7 +167,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.maxSingleDose = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.maxSingleDose = new Quantity(valueProvided);
             }
         });
@@ -188,7 +188,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.maxDosePerDay = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.maxDosePerDay = new Quantity(valueProvided);
             }
         });
@@ -208,7 +208,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.maxDosePerTreatmentPeriod = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.maxDosePerTreatmentPeriod = new Ratio(valueProvided);
             }
         });
@@ -229,7 +229,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.maxTreatmentPeriod = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.maxTreatmentPeriod = new Quantity(valueProvided);
             }
         });
@@ -248,7 +248,7 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     this.__data.targetSpecies = undefined;
                     return;
                 }
-                let MedicinalProductPharmaceuticalTargetSpecies = require('../backbone_elements/medicinalProductPharmaceuticalTargetSpecies.js');
+                const MedicinalProductPharmaceuticalTargetSpecies = require('../backbone_elements/medicinalProductPharmaceuticalTargetSpecies.js');
                 this.__data.targetSpecies = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPharmaceuticalTargetSpecies(v)) : [new MedicinalProductPharmaceuticalTargetSpecies(valueProvided)];
             }
         });
@@ -292,6 +292,23 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
             maxTreatmentPeriod: this.maxTreatmentPeriod && this.maxTreatmentPeriod.toJSON(),
             targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.firstDose) {this.firstDose.updateReferences({fnUpdateReference});}
+            if (this.maxSingleDose) {this.maxSingleDose.updateReferences({fnUpdateReference});}
+            if (this.maxDosePerDay) {this.maxDosePerDay.updateReferences({fnUpdateReference});}
+            if (this.maxDosePerTreatmentPeriod) {this.maxDosePerTreatmentPeriod.updateReferences({fnUpdateReference});}
+            if (this.maxTreatmentPeriod) {this.maxTreatmentPeriod.updateReferences({fnUpdateReference});}
+            if (this.targetSpecies) {this.targetSpecies.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -80,7 +80,7 @@ class CapabilityStatementRest extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -111,7 +111,7 @@ class CapabilityStatementRest extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -169,7 +169,7 @@ class CapabilityStatementRest extends Element {
                     this.__data.security = undefined;
                     return;
                 }
-                let CapabilityStatementSecurity = require('../backbone_elements/capabilityStatementSecurity.js');
+                const CapabilityStatementSecurity = require('../backbone_elements/capabilityStatementSecurity.js');
                 this.__data.security = new CapabilityStatementSecurity(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class CapabilityStatementRest extends Element {
                     this.__data.resource = undefined;
                     return;
                 }
-                let CapabilityStatementResource = require('../backbone_elements/capabilityStatementResource.js');
+                const CapabilityStatementResource = require('../backbone_elements/capabilityStatementResource.js');
                 this.__data.resource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementResource(v)) : [new CapabilityStatementResource(valueProvided)];
             }
         });
@@ -208,7 +208,7 @@ class CapabilityStatementRest extends Element {
                     this.__data.interaction = undefined;
                     return;
                 }
-                let CapabilityStatementInteraction1 = require('../backbone_elements/capabilityStatementInteraction1.js');
+                const CapabilityStatementInteraction1 = require('../backbone_elements/capabilityStatementInteraction1.js');
                 this.__data.interaction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementInteraction1(v)) : [new CapabilityStatementInteraction1(valueProvided)];
             }
         });
@@ -230,7 +230,7 @@ class CapabilityStatementRest extends Element {
                     this.__data.searchParam = undefined;
                     return;
                 }
-                let CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
+                const CapabilityStatementSearchParam = require('../backbone_elements/capabilityStatementSearchParam.js');
                 this.__data.searchParam = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementSearchParam(v)) : [new CapabilityStatementSearchParam(valueProvided)];
             }
         });
@@ -250,7 +250,7 @@ class CapabilityStatementRest extends Element {
                     this.__data.operation = undefined;
                     return;
                 }
-                let CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');
+                const CapabilityStatementOperation = require('../backbone_elements/capabilityStatementOperation.js');
                 this.__data.operation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementOperation(v)) : [new CapabilityStatementOperation(valueProvided)];
             }
         });
@@ -316,6 +316,21 @@ class CapabilityStatementRest extends Element {
             operation: this.operation && this.operation.map(v => v.toJSON()),
             compartment: this.compartment,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.security) {this.security.updateReferences({fnUpdateReference});}
+            if (this.resource) {this.resource.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.interaction) {this.interaction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.searchParam) {this.searchParam.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.operation) {this.operation.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

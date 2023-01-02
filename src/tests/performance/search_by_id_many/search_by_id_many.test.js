@@ -9,15 +9,20 @@ const {
     getHeadersNdJson,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const env = require('var');
+let oldEnvLogLevel;
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        oldEnvLogLevel = env.LOGLEVEL;
+        env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
     });
 
     afterEach(async () => {
         await commonAfterEach();
+        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     describe('Practitioner Search By 10,0000 Tests', () => {
@@ -49,8 +54,7 @@ describe('PractitionerReturnIdTests', () => {
                 resp = await request
                     .post('/4_0_0/Practitioner/0/$merge?validate=true')
                     .send(bundle)
-                    .set(getHeaders())
-                    .expect(200);
+                    .set(getHeaders());
 
                 console.log('------- response 1 ------------');
                 console.log(JSON.stringify(resp.body, null, 2));

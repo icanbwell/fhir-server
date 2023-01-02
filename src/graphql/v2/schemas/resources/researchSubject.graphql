@@ -96,11 +96,11 @@ type ResearchSubject {
     """
     Reference to the study the subject is participating in.
     """
-    study: ResearchStudy!        
+    study: ResearchStudy        
     """
     The record of the person or animal who is involved in the study.
     """
-    individual: Patient!        
+    individual: Patient        
     """
     The name of the arm in the study the subject is expected to follow as part of
     this study.

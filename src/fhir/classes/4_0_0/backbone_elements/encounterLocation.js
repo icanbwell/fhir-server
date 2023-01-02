@@ -70,7 +70,7 @@ class EncounterLocation extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class EncounterLocation extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -120,7 +120,7 @@ class EncounterLocation extends Element {
                     this.__data.location = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.location = new Reference(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class EncounterLocation extends Element {
                     this.__data.physicalType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.physicalType = new CodeableConcept(valueProvided);
             }
         });
@@ -179,7 +179,7 @@ class EncounterLocation extends Element {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -217,6 +217,19 @@ class EncounterLocation extends Element {
             physicalType: this.physicalType && this.physicalType.toJSON(),
             period: this.period && this.period.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.location) {this.location.updateReferences({fnUpdateReference});}
+            if (this.physicalType) {this.physicalType.updateReferences({fnUpdateReference});}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
     }
 
     /**

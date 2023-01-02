@@ -54,7 +54,7 @@ type ProvenanceEntity {
     Identity of the  Entity used. May be a logical or physical uri and maybe
     absolute or relative.
     """
-    what: Resource!        
+    what: Resource        
     """
     The entity is attributed to an agent to express the agent's responsibility for
     that entity, possibly along with other agents. This description can be

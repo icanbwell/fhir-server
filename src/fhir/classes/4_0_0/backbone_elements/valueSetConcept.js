@@ -70,7 +70,7 @@ class ValueSetConcept extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class ValueSetConcept extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -160,7 +160,7 @@ class ValueSetConcept extends Element {
                     this.__data.designation = undefined;
                     return;
                 }
-                let ValueSetDesignation = require('../backbone_elements/valueSetDesignation.js');
+                const ValueSetDesignation = require('../backbone_elements/valueSetDesignation.js');
                 this.__data.designation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ValueSetDesignation(v)) : [new ValueSetDesignation(valueProvided)];
             }
         });
@@ -196,6 +196,17 @@ class ValueSetConcept extends Element {
             display: this.display,
             designation: this.designation && this.designation.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.designation) {this.designation.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

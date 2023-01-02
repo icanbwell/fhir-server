@@ -237,7 +237,7 @@ class FhirDataSource extends DataSource {
      * @return {Promise<null|Resource>}
      */
     async findResourceByReference(parent, args, context, info, reference) {
-        if (!reference) {
+        if (!reference || !reference.reference) {
             return null;
         }
         const {

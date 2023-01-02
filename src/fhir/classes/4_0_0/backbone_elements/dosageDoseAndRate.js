@@ -75,7 +75,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -125,7 +125,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -144,7 +144,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.doseRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.doseRange = new Range(valueProvided);
             }
         });
@@ -163,7 +163,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.doseQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.doseQuantity = new Quantity(valueProvided);
             }
         });
@@ -182,7 +182,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.rateRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.rateRatio = new Ratio(valueProvided);
             }
         });
@@ -201,7 +201,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.rateRange = undefined;
                     return;
                 }
-                let Range = require('../complex_types/range.js');
+                const Range = require('../complex_types/range.js');
                 this.__data.rateRange = new Range(valueProvided);
             }
         });
@@ -220,7 +220,7 @@ class DosageDoseAndRate extends Element {
                     this.__data.rateQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.rateQuantity = new Quantity(valueProvided);
             }
         });
@@ -262,6 +262,22 @@ class DosageDoseAndRate extends Element {
             rateRange: this.rateRange && this.rateRange.toJSON(),
             rateQuantity: this.rateQuantity && this.rateQuantity.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.doseRange) {this.doseRange.updateReferences({fnUpdateReference});}
+            if (this.doseQuantity) {this.doseQuantity.updateReferences({fnUpdateReference});}
+            if (this.rateRatio) {this.rateRatio.updateReferences({fnUpdateReference});}
+            if (this.rateRange) {this.rateRange.updateReferences({fnUpdateReference});}
+            if (this.rateQuantity) {this.rateQuantity.updateReferences({fnUpdateReference});}
     }
 
     /**

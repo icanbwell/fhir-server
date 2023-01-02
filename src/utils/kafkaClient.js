@@ -1,6 +1,6 @@
 const {Kafka} = require('kafkajs');
 const {assertIsValid} = require('./assertType');
-const {logSystemErrorAsync, logSystemEventAsync} = require('../operations/common/logging');
+const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
 const env = require('var');
 const {RethrownError} = require('./rethrownError');
 
@@ -98,7 +98,7 @@ class KafkaClient {
                 };
             });
             if (env.LOGLEVEL === 'DEBUG') {
-                await logSystemEventAsync({
+                await logTraceSystemEventAsync({
                     event: 'kafkaClient',
                     message: 'Sending message',
                     args: {
@@ -118,7 +118,7 @@ class KafkaClient {
                 messages: kafkaMessages,
             });
             if (env.LOGLEVEL === 'DEBUG') {
-                await logSystemEventAsync({
+                await logTraceSystemEventAsync({
                     event: 'kafkaClient',
                     message: 'Sent message',
                     args: {

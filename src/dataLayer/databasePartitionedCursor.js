@@ -6,7 +6,7 @@ const {getResource} = require('../operations/common/getResource');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
 const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
-const {logSystemEventAsync} = require('../operations/common/logging');
+const {logTraceSystemEventAsync} = require('../operations/common/logging');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 /**
@@ -76,7 +76,7 @@ class DatabasePartitionedCursor {
      */
     async hasNext() {
         while (this._cursors.length > 0) {
-            await logSystemEventAsync(
+            await logTraceSystemEventAsync(
                 {
                     event: 'DatabasePartitionedCursor: hasNext',
                     message: 'DatabasePartitionedCursor: hasNext',
@@ -112,7 +112,7 @@ class DatabasePartitionedCursor {
      */
     async next() {
         while (this._cursors.length > 0) {
-            await logSystemEventAsync(
+            await logTraceSystemEventAsync(
                 {
                     event: 'DatabasePartitionedCursor: next',
                     message: 'DatabasePartitionedCursor: next',
@@ -131,6 +131,7 @@ class DatabasePartitionedCursor {
                     const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;
                     try {
                         if (resourceType === 'BundleEntry') {
+                            // noinspection JSCheckFunctionSignatures
                             return new BundleEntry(result);
                         }
                         const ResourceCreator = getResource(this.base_version, resourceType);
@@ -201,7 +202,7 @@ class DatabasePartitionedCursor {
      */
     async toArrayAsync() {
         try {
-            await logSystemEventAsync(
+            await logTraceSystemEventAsync(
                 {
                     event: 'DatabasePartitionedCursor: toArray',
                     message: 'DatabasePartitionedCursor: toArray',
@@ -265,7 +266,7 @@ class DatabasePartitionedCursor {
      */
     async explainAsync() {
         try {
-            await logSystemEventAsync(
+            await logTraceSystemEventAsync(
                 {
                     event: 'DatabasePartitionedCursor: explain',
                     message: 'DatabasePartitionedCursor: explain',

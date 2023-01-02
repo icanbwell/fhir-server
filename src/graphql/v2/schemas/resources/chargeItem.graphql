@@ -127,7 +127,7 @@ type ChargeItem {
     """
     The individual or set of individuals the action is being or was performed on.
     """
-    subject: ChargeItemSubject!        
+    subject: ChargeItemSubject        
     """
     The encounter or episode of care that establishes the context for this event.
     """

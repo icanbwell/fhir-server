@@ -30,6 +30,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
+const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 
 class SearchManager {
     /**
@@ -137,78 +138,95 @@ class SearchManager {
             personIdFromJwtToken,
         }
     ) {
-        /**
-         * @type {string}
-         */
-        const {base_version} = args;
-        assertIsValid(base_version);
-        const hasPatientScope = this.scopesManager.hasPatientScope({scope});
-        // see if any query rewriters want to rewrite the args
-        args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});
-        /**
-         * @type {string[]}
-         */
-        let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
-        /**
-         * @type {string[]}
-         */
-        const patientIdsLinkedToPersonId = personIdFromJwtToken ? await this.getLinkedPatientsAsync(
-            {
-                base_version, isUser, personIdFromJwtToken
-            }) : [];
-        /**
-         * @type {string[]|null}
-         */
-        const allPatientIdsFromJwtToken = patientIdsFromJwtToken ? patientIdsFromJwtToken.concat(
-            patientIdsLinkedToPersonId) : patientIdsLinkedToPersonId;
-        /**
-         * @type {import('mongodb').Document}
-         */
-        let query;
-
-        /**
-         * @type {Set}
-         */
-        let columns;
-
-        // eslint-disable-next-line no-useless-catch
         try {
-            if (base_version === VERSIONS['3_0_1']) {
-                query = buildStu3SearchQuery(args);
-            } else if (base_version === VERSIONS['1_0_2']) {
-                query = buildDstu2SearchQuery(args);
-            } else {
-                ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                    resourceType, args
-                }));
-            }
-        } catch (e) {
-            throw e;
-        }
-        query = this.securityTagManager.getQueryWithSecurityTags(
-            {
-                resourceType, securityTags, query, useAccessIndex
-            });
-        if (hasPatientScope) {
-            if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
-                (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
-                query = {id: '__invalid__'}; // return nothing since no patient ids were passed
-            } else {
-                query = this.securityTagManager.getQueryWithPatientFilter(
-                    {
-                        patientIds: allPatientIdsFromJwtToken, query, resourceType
-                    }
-                );
-            }
-        }
+            /**
+             * @type {string}
+             */
+            const {base_version} = args;
+            assertIsValid(base_version, 'base_version is not set');
+            const hasPatientScope = this.scopesManager.hasPatientScope({scope});
+            // see if any query rewriters want to rewrite the args
+            args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});
+            /**
+             * @type {string[]}
+             */
+            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
+            /**
+             * @type {string[]}
+             */
+            const patientIdsLinkedToPersonId = personIdFromJwtToken ? await this.getLinkedPatientsAsync(
+                {
+                    base_version, isUser, personIdFromJwtToken
+                }) : [];
+            /**
+             * @type {string[]|null}
+             */
+            const allPatientIdsFromJwtToken = patientIdsFromJwtToken ? patientIdsFromJwtToken.concat(
+                patientIdsLinkedToPersonId) : patientIdsLinkedToPersonId;
+            /**
+             * @type {import('mongodb').Document}
+             */
+            let query;
 
-        ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({
-            base_version,
-            query,
-            columns,
-            resourceType
-        }));
-        return {base_version, query, columns};
+            /**
+             * @type {Set}
+             */
+            let columns;
+
+            // eslint-disable-next-line no-useless-catch
+            try {
+                if (base_version === VERSIONS['3_0_1']) {
+                    query = buildStu3SearchQuery(args);
+                } else if (base_version === VERSIONS['1_0_2']) {
+                    query = buildDstu2SearchQuery(args);
+                } else {
+                    ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
+                        resourceType, args
+                    }));
+                }
+            } catch (e) {
+                throw e;
+            }
+            query = this.securityTagManager.getQueryWithSecurityTags(
+                {
+                    resourceType, securityTags, query, useAccessIndex
+                });
+            if (hasPatientScope) {
+                if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
+                    (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
+                    query = {id: '__invalid__'}; // return nothing since no patient ids were passed
+                } else {
+                    query = this.securityTagManager.getQueryWithPatientFilter(
+                        {
+                            patientIds: allPatientIdsFromJwtToken, query, resourceType
+                        }
+                    );
+                }
+            }
+
+            ({query, columns} = await this.queryRewriterManager.rewriteQueryAsync({
+                base_version,
+                query,
+                columns,
+                resourceType
+            }));
+            return {base_version, query, columns};
+        } catch (e) {
+            throw new RethrownError({
+                    message: 'Error in constructQueryAsync()',
+                    error: e,
+                    args: {
+                        user, scope,
+                        isUser,
+                        patientIdsFromJwtToken,
+                        args,
+                        resourceType,
+                        useAccessIndex,
+                        personIdFromJwtToken,
+                    }
+                }
+            );
+        }
     }
 
     /**
@@ -721,13 +739,15 @@ class SearchManager {
      * @param {Object?} args
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
+     * @param {Object} originalArgs
      * @returns {Promise<Resource[]>}
      */
     async readResourcesFromCursorAsync(
         {
             cursor, user, scope,
             args, resourceType,
-            useAccessIndex
+            useAccessIndex,
+            originalArgs
         }
     ) {
         /**
@@ -767,7 +787,8 @@ class SearchManager {
                 new ResourcePreparerTransform(
                     {
                         user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
-                        resourcePreparer: this.resourcePreparer
+                        resourcePreparer: this.resourcePreparer,
+                        originalArgs
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -879,6 +900,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {number} batchObjectCount
+     * @param {Object} originalArgs
      * @returns {Promise<string[]>}
      */
     async streamBundleFromCursorAsync(
@@ -890,7 +912,8 @@ class SearchManager {
             res, user, scope,
             args, resourceType,
             useAccessIndex,
-            batchObjectCount
+            batchObjectCount,
+            originalArgs
         }
     ) {
         assertIsValid(requestId);
@@ -930,7 +953,8 @@ class SearchManager {
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
                 user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
+                resourcePreparer: this.resourcePreparer,
+                originalArgs
             }
         );
         const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
@@ -980,6 +1004,7 @@ class SearchManager {
      * @param {boolean} useAccessIndex
      * @param {string} contentType
      * @param {number} batchObjectCount
+     * @param {Object} originalArgs
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync(
@@ -993,7 +1018,8 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             contentType = 'application/fhir+json',
-            batchObjectCount = 1
+            batchObjectCount = 1,
+            originalArgs
         }
     ) {
         assertIsValid(requestId);
@@ -1045,7 +1071,8 @@ class SearchManager {
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
                 user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
+                resourcePreparer: this.resourcePreparer,
+                originalArgs
             }
         );
         /**
@@ -1084,12 +1111,19 @@ class SearchManager {
             );
         } catch (e) {
             logError({user, args: {error: e}});
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({
+                error: new RethrownError(
+                    {
+                        message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
+                        error: e
+                    })
+            });
+            fhirWriter.writeOperationOutcome({operationOutcome});
+            // res.write(JSON.stringify(operationOutcome.toJSON()));
             ac.abort();
-            throw new RethrownError(
-                {
-                    message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
-                    error: e
-                });
         } finally {
             res.removeListener('close', onResponseClose);
         }

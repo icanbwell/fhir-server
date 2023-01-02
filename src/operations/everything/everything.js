@@ -5,7 +5,6 @@ const personEverythingGraph = require('../../graphs/person/everything.json');
 const personEverythingForDeletionGraph = require('../../graphs/person/everything_for_deletion.json');
 const patientEverythingGraph = require('../../graphs/patient/everything.json');
 const patientEverythingForDeletionGraph = require('../../graphs/patient/everything_for_deletion.json');
-const {BadRequestError} = require('../../utils/httpErrors');
 const {GraphOperation} = require('../graph/graph');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -49,10 +48,10 @@ class EverythingOperation {
      * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} streamResponse
+     * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everything({requestInfo, res, args, resourceType, streamResponse}) {
+    async everything({requestInfo, res, args, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(args !== undefined, 'args is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
@@ -72,7 +71,7 @@ class EverythingOperation {
         });
 
         try {
-            let {id} = args;
+            const {id} = args;
 
             let query = {};
             query.id = id;
@@ -80,7 +79,7 @@ class EverythingOperation {
             if (resourceType === 'Practitioner') {
                 args.resource = practitionerEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, streamResponse
+                    requestInfo, res, args, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -93,7 +92,7 @@ class EverythingOperation {
             } else if (resourceType === 'Organization') {
                 args.resource = organizationEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, streamResponse
+                    requestInfo, res, args, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -106,7 +105,7 @@ class EverythingOperation {
             } else if (resourceType === 'Slot') {
                 args.resource = slotEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, streamResponse
+                    requestInfo, res, args, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -119,7 +118,7 @@ class EverythingOperation {
             } else if (resourceType === 'Person') {
                 args.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, streamResponse
+                    requestInfo, res, args, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -132,7 +131,7 @@ class EverythingOperation {
             } else if (resourceType === 'Patient') {
                 args.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, streamResponse
+                    requestInfo, res, args, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
@@ -156,7 +155,7 @@ class EverythingOperation {
                     action: currentOperationName,
                     error: err
                 });
-            throw new BadRequestError(err);
+            throw err;
         }
     }
 }

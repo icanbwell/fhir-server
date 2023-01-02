@@ -1,16 +1,7 @@
 {
   "entry": [
     {
-      "request": {
-        "method": "DELETE",
-        "url": "/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368"
-      },
-      "resource": {
-        "id": "WPS-Claim-230916613368",
-        "resourceType": "ExplanationOfBenefit"
-      }
-    },
-    {
+      "id": "1376656959",
       "request": {
         "method": "DELETE",
         "url": "/4_0_0/Practitioner/1376656959"
@@ -18,6 +9,17 @@
       "resource": {
         "id": "1376656959",
         "resourceType": "Practitioner"
+      }
+    },
+    {
+      "id": "WPS-Claim-230916613368",
+      "request": {
+        "method": "DELETE",
+        "url": "/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613368"
+      },
+      "resource": {
+        "id": "WPS-Claim-230916613368",
+        "resourceType": "ExplanationOfBenefit"
       }
     }
   ],

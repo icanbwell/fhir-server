@@ -73,7 +73,7 @@ class QuestionnaireResponseItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -104,7 +104,7 @@ class QuestionnaireResponseItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -180,7 +180,7 @@ class QuestionnaireResponseItem extends Element {
                     this.__data.answer = undefined;
                     return;
                 }
-                let QuestionnaireResponseAnswer = require('../backbone_elements/questionnaireResponseAnswer.js');
+                const QuestionnaireResponseAnswer = require('../backbone_elements/questionnaireResponseAnswer.js');
                 this.__data.answer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireResponseAnswer(v)) : [new QuestionnaireResponseAnswer(valueProvided)];
             }
         });
@@ -238,6 +238,18 @@ class QuestionnaireResponseItem extends Element {
             answer: this.answer && this.answer.map(v => v.toJSON()),
             item: this.item && this.item.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.answer) {this.answer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.item) {this.item.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

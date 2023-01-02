@@ -9,5 +9,14 @@ const {
 
 expect.extend({toHaveResponse, toHaveStatusCode, toHaveStatusOk, toHaveMergeResponse, toHaveResourceCount});
 
-const {toBeArray, toBeSealed, toBeTrue, toBeFalse, toStartWith, toEndWith, toInclude } = require('jest-extended');
-expect.extend({toBeArray, toBeSealed, toBeTrue, toBeFalse, toStartWith, toEndWith, toInclude});
+const {
+    toBeArray,
+    toBeSealed,
+    toBeTrue,
+    toBeFalse,
+    toStartWith,
+    toEndWith,
+    toInclude,
+    toBeArrayOfSize
+} = require('jest-extended');
+expect.extend({toBeArray, toBeSealed, toBeTrue, toBeFalse, toStartWith, toEndWith, toInclude, toBeArrayOfSize});

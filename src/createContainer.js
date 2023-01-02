@@ -1,5 +1,4 @@
 const {SimpleContainer} = require('./utils/simpleContainer');
-const {KafkaClient} = require('./utils/kafkaClient');
 const env = require('var');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
@@ -43,8 +42,6 @@ const {FhirLoggingManager} = require('./operations/common/fhirLoggingManager');
 const {ScopesManager} = require('./operations/security/scopesManager');
 const {ScopesValidator} = require('./operations/security/scopesValidator');
 const {ResourcePreparer} = require('./operations/common/resourcePreparer');
-const {DummyKafkaClient} = require('./utils/dummyKafkaClient');
-const {isTrue} = require('./utils/isTrue');
 const {BundleManager} = require('./operations/common/bundleManager');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {ResourceMerger} = require('./operations/common/resourceMerger');
@@ -61,7 +58,6 @@ const {FhirTypesManager} = require('./fhir/fhirTypesManager');
 const {PreSaveManager} = require('./preSaveHandlers/preSave');
 const {EnrichmentManager} = require('./enrich/enrich');
 const {QueryRewriterManager} = require('./queryRewriters/queryRewriterManager');
-const {ExplanationOfBenefitsEnrichmentProvider} = require('./enrich/providers/explanationOfBenefitsEnrichmentProvider');
 const {IdEnrichmentProvider} = require('./enrich/providers/idEnrichmentProvider');
 const {PatientProxyQueryRewriter} = require('./queryRewriters/rewriters/patientProxyQueryRewriter');
 const {DateColumnHandler} = require('./preSaveHandlers/handlers/dateColumnHandler');
@@ -75,6 +71,11 @@ const {BwellPersonFinder} = require('./utils/bwellPersonFinder');
 const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
 const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
+const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
+const {AwsSecretsManager} = require('./utils/awsSecretsManager');
+const {KafkaClientFactory} = require('./utils/kafkaClientFactory');
+const {AwsSecretsClientFactory} = require('./utils/awsSecretsClientFactory');
+const {PersonMatchManager} = require('./admin/personMatchManager');
 
 /**
  * Creates a container and sets up all the services
@@ -85,6 +86,16 @@ const createContainer = function () {
     const container = new SimpleContainer();
 
     container.register('configManager', () => new ConfigManager());
+    container.register('secretsManagerClientFactory', () => new AwsSecretsClientFactory());
+
+    container.register('awsSecretsManager', (c) => new AwsSecretsManager({
+        secretsManagerClientFactory: c.secretsManagerClientFactory
+    }));
+
+    container.register('kafkaClientFactory', (c) => new KafkaClientFactory({
+        secretsManager: c.awsSecretsManager,
+        configManager: c.configManager
+    }));
 
     container.register('scopesManager', (c) => new ScopesManager(
         {
@@ -98,13 +109,17 @@ const createContainer = function () {
 
 
     container.register('enrichmentManager', () => new EnrichmentManager({
-        enrichmentProviders: [new ExplanationOfBenefitsEnrichmentProvider(), new IdEnrichmentProvider()]
+        enrichmentProviders: [
+            new IdEnrichmentProvider(),
+            new ProxyPatientReferenceEnrichmentProvider()
+        ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
         {
             scopesManager: c.scopesManager,
             accessIndexManager: c.accessIndexManager,
-            enrichmentManager: c.enrichmentManager
+            enrichmentManager: c.enrichmentManager,
+            resourceManager: c.resourceManager
         }
     ));
     container.register('preSaveManager', () => new PreSaveManager({
@@ -129,29 +144,9 @@ const createContainer = function () {
         scopesManager: c.scopesManager,
         imageVersion: getImageVersion()
     }));
-    container.register('kafkaClient', () =>
-        isTrue(env.ENABLE_EVENTS_KAFKA) ?
-            new KafkaClient(
-                {
-                    clientId: env.KAFKA_CLIENT_ID,
-                    brokers: env.KAFKA_URLS ? env.KAFKA_URLS.split(',') : '',
-                    ssl: isTrue(env.KAFKA_SSL),
-                    sasl: isTrue(env.KAFKA_SASL) ? {
-                        // https://kafka.js.org/docs/configuration#sasl
-                        mechanism: env.KAFKA_SASL_MECHANISM || 'aws',
-                        authorizationIdentity: env.KAFKA_SASL_IDENTITY ? env.KAFKA_SASL_IDENTITY : null, // UserId or RoleId
-                        username: env.KAFKA_SASL_USERNAME || null,
-                        password: env.KAFKA_SASL_PASSWORD || null,
-                        accessKeyId: env.KAFKA_SASL_ACCESS_KEY_ID || null,
-                        secretAccessKey: env.KAFKA_SASL_ACCESS_KEY_SECRET || null
-                    } : null,
-                }
-            ) :
-            new DummyKafkaClient({clientId: '', brokers: []})
-    );
     container.register('changeEventProducer', (c) => new ChangeEventProducer(
         {
-            kafkaClient: c.kafkaClient,
+            kafkaClientFactory: c.kafkaClientFactory,
             resourceManager: c.resourceManager,
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             taskChangeTopic: env.KAFKA_TASK_CHANGE_TOPIC || 'business.events',
@@ -180,7 +175,8 @@ const createContainer = function () {
     );
     container.register('mongoCollectionManager', (c) => new MongoCollectionManager(
         {
-            indexManager: c.indexManager
+            indexManager: c.indexManager,
+            configManager: c.configManager
         }));
     container.register('valueSetManager', (c) => new ValueSetManager(
         {
@@ -203,7 +199,11 @@ const createContainer = function () {
         }));
     container.register('databaseUpdateFactory', (c) => new DatabaseUpdateFactory(
         {
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            resourceMerger: c.resourceMerger,
+            preSaveManager: c.preSaveManager,
+            databaseQueryFactory: c.databaseQueryFactory,
+            configManager: c.configManager
         }));
 
     container.register('resourceManager', () => new ResourceManager());
@@ -268,7 +268,10 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 changeEventProducer: c.changeEventProducer,
                 preSaveManager: c.preSaveManager,
-                requestSpecificCache: c.requestSpecificCache
+                requestSpecificCache: c.requestSpecificCache,
+                databaseUpdateFactory: c.databaseUpdateFactory,
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager
             }
         )
     );
@@ -300,7 +303,8 @@ const createContainer = function () {
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
-                searchManager: c.searchManager
+                searchManager: c.searchManager,
+                enrichmentManager: c.enrichmentManager
             }
         )
     );
@@ -570,6 +574,13 @@ const createContainer = function () {
             databaseQueryFactory: c.databaseQueryFactory,
             databaseUpdateFactory: c.databaseUpdateFactory
         }));
+
+    container.register('personMatchManager', (c) => new PersonMatchManager(
+        {
+            databaseQueryFactory: c.databaseQueryFactory,
+            configManager: c.configManager
+        }
+    ));
 
     return container;
 };

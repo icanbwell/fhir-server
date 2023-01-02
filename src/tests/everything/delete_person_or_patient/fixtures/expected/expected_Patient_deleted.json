@@ -1,16 +1,7 @@
 {
   "entry": [
     {
-      "request": {
-        "method": "DELETE",
-        "url": "/4_0_0/Patient/patient1"
-      },
-      "resource": {
-        "id": "patient1",
-        "resourceType": "Patient"
-      }
-    },
-    {
+      "id": "2354-InAgeCohort",
       "request": {
         "method": "DELETE",
         "url": "/4_0_0/Observation/2354-InAgeCohort"
@@ -21,6 +12,18 @@
       }
     },
     {
+      "id": "patient1",
+      "request": {
+        "method": "DELETE",
+        "url": "/4_0_0/Patient/patient1"
+      },
+      "resource": {
+        "id": "patient1",
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "id": "person1",
       "request": {
         "method": "DELETE",
         "url": "/4_0_0/Person/person1"

@@ -1,21 +1,26 @@
+const moment = require('moment-timezone');
 const {removeNull} = require('./nullRemover');
 const {assertIsValid} = require('./assertType');
+const {BaseResponseStreamer} = require('./baseResponseStreamer');
+const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 
-class FhirResponseStreamer {
+class FhirResponseStreamer extends BaseResponseStreamer {
     /**
      * constructor
      * @param {import('express').Response} response
+     * @param {string} requestId
+     * @param {string} bundleType
      */
     constructor(
         {
-            response
+            response,
+            requestId,
+            bundleType = 'searchset'
         }
     ) {
-        /**
-         * @type {import('express').Response}
-         */
-        this.response = response;
-        assertIsValid(response);
+        super({
+            response, requestId
+        });
         /**
          * @type {boolean}
          * @private
@@ -27,6 +32,25 @@ class FhirResponseStreamer {
          * @private
          */
         this._lastid = null;
+
+        /**
+         * @type {number}
+         * @private
+         */
+        this._count = 0;
+
+        /**
+         * @type {string}
+         * @private
+         */
+        this._bundleType = bundleType;
+        assertIsValid(bundleType, 'bundleType is not set');
+
+        /**
+         * @type {Bundle|null}
+         * @private
+         */
+        this._bundle = null;
     }
 
     /**
@@ -37,41 +61,57 @@ class FhirResponseStreamer {
         const contentType = 'application/fhir+json';
         this.response.setHeader('Content-Type', contentType);
         this.response.setHeader('Transfer-Encoding', 'chunked');
+        this.response.setHeader('X-Request-ID', String(this.requestId));
 
         const header = '{"entry":[';
 
-        this.response.write(header);
+        await this.response.write(header);
     }
 
     /**
      * writes to response
-     * @param {Resource} resource
+     * @param {BundleEntry} bundleEntry
      * @return {Promise<void>}
      */
-    async writeAsync({resource}) {
-        if (resource !== null && resource !== undefined) {
+    async writeBundleEntryAsync({bundleEntry}) {
+        if (bundleEntry !== null && bundleEntry !== undefined) {
             /**
              * @type {string}
              */
-            const resourceJson = JSON.stringify(resource.toJSON());
+            const bundleEntryJson = JSON.stringify(bundleEntry.toJSON());
+            assertIsValid(bundleEntry.resource, `BundleEntry does not have a resource element: ${bundleEntryJson}`);
             if (this._first) {
                 // write the beginning json
                 this._first = false;
-                this.response.write(resourceJson);
+                await this.response.write(bundleEntryJson);
             } else {
                 // add comma at the beginning to make it legal json
-                this.response.write(',' + resourceJson);
+                await this.response.write(',' + bundleEntryJson);
             }
-            this._lastid = resource['id'];
+            this._count = this._count + 1;
+            this._lastid = bundleEntry.resource.id;
         }
     }
 
     /**
-     * ends response
+     * sets the bundle to use
      * @param {Bundle} bundle
+     */
+    setBundle({bundle}) {
+        this._bundle = bundle;
+    }
+
+    /**
+     * ends response
      * @return {Promise<void>}
      */
-    async endAsync({bundle}) {
+    async endAsync() {
+        const bundle = this._bundle || new Bundle({
+            id: this.requestId,
+            type: this._bundleType,
+            timestamp: moment.utc().format('YYYY-MM-DDThh:mm:ss.sss') + 'Z'
+        });
+        bundle.total = this._count;
         // noinspection JSUnresolvedFunction
         /**
          * @type {Object}
@@ -83,7 +123,7 @@ class FhirResponseStreamer {
         const bundleJson = JSON.stringify(cleanObject);
 
         // write ending json
-        this.response.end('],' + bundleJson.substring(1));
+        await this.response.end('],' + bundleJson.substring(1));
     }
 }
 

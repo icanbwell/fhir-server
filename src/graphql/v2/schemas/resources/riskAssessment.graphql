@@ -116,7 +116,7 @@ type RiskAssessment {
     """
     The patient or group the risk assessment applies to.
     """
-    subject: RiskAssessmentSubject!        
+    subject: RiskAssessmentSubject        
     """
     The encounter where the assessment was performed.
     """

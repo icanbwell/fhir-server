@@ -1,6 +1,7 @@
 const {Transform} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 
 class FhirResourceNdJsonWriter extends Transform {
     /**
@@ -39,7 +40,8 @@ class FhirResourceNdJsonWriter extends Transform {
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {
-            throw new AggregateError([e], 'FhirResourceNdJsonWriter _transform: error');
+            const operationOutcome = convertErrorToOperationOutcome({error: e});
+            this.writeOperationOutcome({operationOutcome, encoding});
         }
         callback();
     }
@@ -53,6 +55,16 @@ class FhirResourceNdJsonWriter extends Transform {
             console.log(JSON.stringify({message: 'FhirResourceNdJsonWriter: _flush'}));
         }
         callback();
+    }
+
+    /**
+     * writes an OperationOutcome
+     * @param {OperationOutcome} operationOutcome
+     * @param {import('stream').BufferEncoding|null} [encoding]
+     */
+    writeOperationOutcome({operationOutcome, encoding}) {
+        const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
+        this.push(operationOutcomeJson + '\n', encoding);
     }
 }
 

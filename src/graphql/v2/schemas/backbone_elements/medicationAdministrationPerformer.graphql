@@ -54,5 +54,5 @@ type MedicationAdministrationPerformer {
     """
     Indicates who or what performed the medication administration.
     """
-    actor: MedicationAdministrationPerformerActor!        
+    actor: MedicationAdministrationPerformerActor        
 }

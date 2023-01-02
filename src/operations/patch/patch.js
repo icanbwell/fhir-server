@@ -12,6 +12,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {omitPropertyFromResource} = require('../../utils/omitProperties');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class PatchOperation {
     /**
@@ -95,7 +96,8 @@ class PatchOperation {
         try {
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            let {base_version, id, patchContent} = args;
+            // patchContent is passed in JSON Patch format https://jsonpatch.com/
+            let {base_version, id, /** @type {import('fast-json-patch').Operation[]} */ patchContent} = args;
             // Get current record
             // Query our collection for this observation
             let data;
@@ -105,7 +107,7 @@ class PatchOperation {
                 );
                 data = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
             } catch (e) {
-                throw new BadRequestError(e);
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
             if (!data) {
                 throw new NotFoundError('Resource not found');
@@ -120,9 +122,13 @@ class PatchOperation {
 
             let ResourceCreator = getResource(base_version, resourceType);
             let resource = new ResourceCreator(resource_incoming);
+            /**
+             * @type {Resource}
+             */
+            let foundResource;
 
             if (data && data.meta) {
-                let foundResource = new ResourceCreator(data);
+                foundResource = new ResourceCreator(data);
                 let meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
@@ -145,22 +151,32 @@ class PatchOperation {
             let res;
             doc = omitPropertyFromResource(doc, '_id');
 
-            await this.databaseBulkInserter.replaceOneAsync({requestId, resourceType, id, doc});
-            await this.databaseBulkInserter.insertOneHistoryAsync({
-                requestId, resourceType, doc: doc.clone(),
-                base_version,
-                method
-            });
+            await this.databaseBulkInserter.replaceOneAsync(
+                {
+                    requestId, resourceType, doc,
+                    id,
+                    patches: patchContent.map(
+                        p => {
+                            return {
+                                op: p.op,
+                                path: p.path,
+                                value: p.value
+                            };
+                        }
+                    )
+                }
+            );
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version
+                    requestId, currentDate, base_version: base_version,
+                    method
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue)));
+                throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue, getCircularReplacer())));
             }
 
             await this.fhirLoggingManager.logOperationSuccessAsync(

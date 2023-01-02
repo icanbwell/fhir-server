@@ -109,7 +109,7 @@ type Immunization {
     """
     The patient who either received or did not receive the immunization.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The visit or admission or other contact between patient and health care
     provider the immunization was performed as part of.

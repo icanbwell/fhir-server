@@ -65,7 +65,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp.body.message).toBe('Missing scopes for admin/*.read in user/*.read user/*.write access/*.*');
         });
-        test('personData works with admin permissions', async () => {
+        test('personData $everything works with admin permissions', async () => {
             const request = await createTestRequest();
 
             // ARRANGE

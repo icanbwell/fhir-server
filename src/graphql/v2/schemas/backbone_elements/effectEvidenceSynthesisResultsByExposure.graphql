@@ -56,5 +56,5 @@ type EffectEvidenceSynthesisResultsByExposure {
     """
     Reference to a RiskEvidenceSynthesis resource.
     """
-    riskEvidenceSynthesis: RiskEvidenceSynthesis!        
+    riskEvidenceSynthesis: RiskEvidenceSynthesis        
 }

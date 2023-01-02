@@ -71,6 +71,10 @@ class CustomOperationsController {
                 }, resourceType);
                 if (name === 'merge') {
                     this.fhirResponseWriter.merge({req, res, result});
+                } else if (name === 'graph') {
+                    this.fhirResponseWriter.graph({req, res, result});
+                } else if (name === 'everything') {
+                    this.fhirResponseWriter.everything({req, res, result});
                 } else {
                     this.fhirResponseWriter.readCustomOperation({req, res, result});
                 }
@@ -141,7 +145,13 @@ class CustomOperationsController {
                     this.fhirOperationsManager[`${name}`](req.sanitized_args, {
                         req, res
                     }, resourceType);
-                this.fhirResponseWriter.readCustomOperation({req, res, result});
+                if (name === 'graph') {
+                    this.fhirResponseWriter.graph({req, res, result});
+                } else if (name === 'everything') {
+                    this.fhirResponseWriter.everything({req, res, result});
+                } else {
+                    this.fhirResponseWriter.readCustomOperation({req, res, result});
+                }
             } catch (e) {
                 next(e);
             } finally {
