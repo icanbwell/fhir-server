@@ -13,6 +13,7 @@ const {
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const sanitize = require('sanitize-filename');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 
 /**
  * middleware to render HTML
@@ -29,7 +30,12 @@ const htmlRenderer = ({container, req, res, next}) => {
         // override the json function, so we can intercept the data being sent the client
         let oldJson = res.json;
         res.json = (data) => {
-            let parsedData = JSON.parse(JSON.stringify(data, getCircularReplacer()));
+            /**
+             * @type {Object|Object[]}
+             */
+            const parsedData = (data instanceof Bundle) ?
+                data.toJSONInternal() :
+                JSON.parse(JSON.stringify(data, getCircularReplacer()));
             let total = 0;
             if (parsedData.total) {
                 total = parsedData.total;
@@ -38,11 +44,33 @@ const htmlRenderer = ({container, req, res, next}) => {
             if (parsedData.meta) {
                 meta = parsedData.meta;
             }
-            if (parsedData.resourceType === 'Bundle') {
+            /**
+             * @type {Object[]}
+             */
+            let resources;
+            // /**
+            //  * @type {Bundle}
+            //  */
+            // let bundle;
+            if (!Array.isArray(parsedData) && parsedData.resourceType === 'Bundle') {
+                // bundle = data;
                 // unbundle
-                parsedData = parsedData.entry ? parsedData.entry.map((entry) => entry.resource) : [];
+                // resources = parsedData.entry ? parsedData.entry.map((entry) => entry.resource) : [];
+                resources = parsedData.entry ? parsedData.entry : [];
             } else if (!Array.isArray(parsedData)) {
-                parsedData = [parsedData];
+                resources = [parsedData];
+                // bundle = new Bundle({
+                //     type: 'searchset',
+                //     entry: [
+                //         new BundleEntry(
+                //             {
+                //                 resource: parsedData
+                //             }
+                //         )
+                //     ]
+                // });
+            } else {
+                resources = parsedData;
             }
 
             res.json = oldJson; // set function back to avoid the 'double-send'
@@ -67,7 +95,8 @@ const htmlRenderer = ({container, req, res, next}) => {
 
             const options = {
                 meta: meta,
-                resources: parsedData,
+                resources: resources,
+                // bundle: bundle,
                 url: req.url,
                 body: req.body,
                 idpUrl: env.AUTH_CODE_FLOW_URL,
@@ -84,7 +113,7 @@ const htmlRenderer = ({container, req, res, next}) => {
                 limit: limit,
                 searchUtils: searchUtils,
                 searchMethod: req.method,
-                scope: scope,
+                oauth_scope: scope,
                 admin: admin,
                 requestId: req.id,
                 user: req.user

@@ -1,7 +1,6 @@
 'use strict';
 const async = require('async');
 const sendToS3 = require('../utils/aws-s3');
-const {getFirstElementOrNull} = require('../utils/list.util');
 const {EventEmitter} = require('events');
 const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
@@ -24,35 +23,50 @@ const {DatabaseUpdateFactory} = require('./databaseUpdateFactory');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
 const {ConfigManager} = require('../utils/configManager');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
+const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
+const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
 /**
  * @typedef BulkResultEntry
+ * @description Result of a bulk operation
  * @type {object}
  * @property {string} resourceType
  * @property {import('mongodb').BulkWriteOpResultObject|null} mergeResult
+ * @property {MergeResultEntry[]|null} mergeResultEntries
  * @property {Error|null} error
  */
 
 /**
- * @typedef {('insert'|'replace')} OperationType
+ * @desc Type of operation
+ * @desc insert = blind insert without checking if id already exists
+ * @desc insertUniqueId = insert if id does not exist else merge
+ * @desc replace = replace entity with this one and do not merge
+ * @desc merge = merge contents of this doc with what the database has
+ * @typedef {('insert'|'insertUniqueId'|'replace'|'merge')} OperationType
  **/
 
 /**
  * @typedef BulkInsertUpdateEntry
+ * @description Represent a single Insert or Update operation
  * @type {object}
  * @property {OperationType} operationType
+ * @property {boolean} isCreateOperation
+ * @property {boolean} isUpdateOperation
  * @property {string} resourceType
  * @property {string} id
  * @property {Resource} resource
  * @property {import('mongodb').AnyBulkWriteOperation} operation
+ * @property {MergePatchEntry[]|undefined|null} patches
+ * @property {boolean|undefined} [skipped]
  */
 
 
 /**
- * This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
+ * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
  */
 class DatabaseBulkInserter extends EventEmitter {
     /**
@@ -181,15 +195,27 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} resource
      * @param {OperationType} operationType
      * @param {import('mongodb').AnyBulkWriteOperation} operation
+     * @param {MergePatchEntry[]|null} patches
      * @private
      */
-    addOperationForResourceType({requestId, resourceType, resource, operationType, operation}) {
+    addOperationForResourceType(
+        {
+            requestId,
+            resourceType,
+            resource,
+            operationType,
+            operation,
+            patches
+        }
+    ) {
         assertIsValid(requestId, 'requestId is null');
         assertIsValid(resourceType, `resourceType: ${resourceType} is null`);
         assertIsValid(resource, `resource: ${resource} is null`);
         assertIsValid(operation, `operation: ${operation} is null`);
         assertIsValid(!(operation.insertOne && operation.insertOne.document instanceof Resource));
+        assertIsValid(!(operation.updateOne && operation.updateOne.replacement instanceof Resource));
         assertIsValid(!(operation.replaceOne && operation.replaceOne.replacement instanceof Resource));
+        assertIsValid(resource.id, `resource id is not set: ${JSON.stringify(resource)}`);
         // If there is no entry for this collection then create one
         const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
         if (!(operationsByResourceTypeMap.has(resourceType))) {
@@ -201,7 +227,10 @@ class DatabaseBulkInserter extends EventEmitter {
             resourceType,
             resource,
             operation,
-            operationType
+            operationType,
+            patches,
+            isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
+            isUpdateOperation: operationType === 'replace' || operationType === 'merge'
         });
     }
 
@@ -212,9 +241,19 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {Resource} resource
      * @param {OperationType} operationType
      * @param {import('mongodb').AnyBulkWriteOperation} operation
+     * @param {MergePatchEntry[]|null} patches
      * @private
      */
-    addHistoryOperationForResourceType({requestId, resourceType, resource, operationType, operation}) {
+    addHistoryOperationForResourceType(
+        {
+            requestId,
+            resourceType,
+            resource,
+            operationType,
+            operation,
+            patches
+        }
+    ) {
         // If there is no entry for this collection then create one
         const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
         if (!(historyOperationsByResourceTypeMap.has(resourceType))) {
@@ -226,7 +265,10 @@ class DatabaseBulkInserter extends EventEmitter {
             resourceType,
             resource,
             operation,
-            operationType
+            operationType,
+            patches,
+            isCreateOperation: true,
+            isUpdateOperation: false
         });
     }
 
@@ -240,6 +282,12 @@ class DatabaseBulkInserter extends EventEmitter {
     async insertOneAsync({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
+            if (!doc.meta) {
+                doc.meta = new Meta({});
+            }
+            if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
+                doc.meta.versionId = '1';
+            }
             await this.preSaveManager.preSaveAsync(doc);
             // check to see if we already have this insert and if so use replace
             /**
@@ -253,13 +301,14 @@ class DatabaseBulkInserter extends EventEmitter {
             if (operationsByResourceType &&
                 operationsByResourceType.filter(
                     bulkEntry => bulkEntry.id === doc.id &&
-                        bulkEntry.operationType === 'insert').length > 0) {
+                        bulkEntry.operationType === 'insertUniqueId').length > 0) {
                 const previousVersionId = 1;
-                await this.replaceOneAsync(
+                await this.mergeOneAsync(
                     {
                         requestId,
                         resourceType, id: doc.id, doc,
-                        previousVersionId: `${previousVersionId}`
+                        previousVersionId: `${previousVersionId}`,
+                        patches: null
                     }
                 );
             } else {
@@ -277,11 +326,17 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceType,
                     resource: doc,
                     operation: {
-                        insertOne: {
-                            document: doc.toJSONInternal()
+                        // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
+                        updateOne: {
+                            filter: {'id': doc.id.toString()},
+                            update: {
+                                $setOnInsert: doc.toJSONInternal()
+                            },
+                            upsert: true
                         }
                     },
-                    operationType: 'insert'
+                    operationType: 'insertUniqueId',
+                    patches: null
                 });
             }
             if (doc._id) {
@@ -307,16 +362,17 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} base_version
      * @param {string} resourceType
      * @param {Resource} doc
+     * @param {MergePatchEntry[]|null} patches
      * @returns {Promise<void>}
      */
-    async insertOneHistoryAsync({requestId, method, base_version, resourceType, doc}) {
+    async insertOneHistoryAsync({requestId, method, base_version, resourceType, doc, patches}) {
         try {
             assertTypeEquals(doc, Resource);
             this.addHistoryOperationForResourceType({
                     requestId,
                     resourceType,
                     resource: doc,
-                    operationType: 'insert',
+                    operationType: 'insert', // history operations are blind merges without checking id
                     operation: {
                         insertOne: {
                             document: new BundleEntry(
@@ -329,13 +385,113 @@ class DatabaseBulkInserter extends EventEmitter {
                                             method,
                                             url: `/${base_version}/${resourceType}/${doc.id}`
                                         }
-                                    )
+                                    ),
+                                    response: patches ?
+                                        new BundleResponse(
+                                            {
+                                                status: '200',
+                                                outcome: new OperationOutcome({
+                                                        issue: patches.map(p => new OperationOutcomeIssue(
+                                                                {
+                                                                    severity: 'information',
+                                                                    code: 'informational',
+                                                                    diagnostics: JSON.stringify(p, getCircularReplacer())
+                                                                }
+                                                            )
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        ) : null
                                 }
                             ).toJSONInternal()
                         }
-                    }
+                    },
+                    patches
                 }
             );
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
+    }
+
+    /**
+     * Replaces a document in Mongo with this one
+     * @param {string} requestId
+     * @param {string} resourceType
+     * @param {string} id
+     * @param {Resource} doc
+     * @param {boolean} [upsert]
+     * @param {MergePatchEntry[]|null} patches
+     * @returns {Promise<void>}
+     */
+    async replaceOneAsync(
+        {
+            requestId,
+            resourceType,
+            id,
+            doc,
+            upsert = false,
+            patches
+        }
+    ) {
+        try {
+            assertTypeEquals(doc, Resource);
+            await this.preSaveManager.preSaveAsync(doc);
+
+            // see if there are any other pending updates for this doc
+            /**
+             * @type {BulkInsertUpdateEntry[]}
+             */
+            const pendingUpdates = this.getPendingUpdates({requestId, resourceType})
+                .filter(a => a.id === doc.id);
+            // noinspection JSValidateTypes
+            /**
+             * @type {BulkInsertUpdateEntry|null}
+             */
+            const previousUpdate = pendingUpdates.length > 0 ? pendingUpdates[pendingUpdates.length - 1] : null;
+            if (previousUpdate) {
+                // don't merge but replace
+                previousUpdate.resource = doc;
+                previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
+                // replace without a filter so we replace regardless of version in db
+                previousUpdate.operation.replaceOne.filter = null;
+            } else {
+                /**
+                 * @type {BulkInsertUpdateEntry[]}
+                 */
+                const pendingInserts = this.getPendingInsertsWithUniqueId({requestId, resourceType})
+                    .filter(a => a.id === doc.id);
+                // noinspection JSValidateTypes
+                /**
+                 * @type {BulkInsertUpdateEntry|null}
+                 */
+                const previousInsert = pendingInserts.length > 0 ? pendingInserts[pendingInserts.length - 1] : null;
+                if (previousInsert) {
+                    previousInsert.resource = doc;
+                    previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
+                } else { // no previuous insert or update found
+                    const filter = {id: id.toString()};
+                    // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
+                    this.addOperationForResourceType({
+                            requestId,
+                            resourceType,
+                            resource: doc,
+                            operationType: 'replace',
+                            operation: {
+                                replaceOne: {
+                                    filter: filter,
+                                    upsert: upsert,
+                                    replacement: doc.toJSONInternal()
+                                }
+                            },
+                            patches
+                        }
+                    );
+                }
+            }
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -351,9 +507,20 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string|null} previousVersionId
      * @param {Resource} doc
      * @param {boolean} [upsert]
+     * @param {MergePatchEntry[]|null} patches
      * @returns {Promise<void>}
      */
-    async replaceOneAsync({requestId, resourceType, id, previousVersionId, doc, upsert = false}) {
+    async mergeOneAsync(
+        {
+            requestId,
+            resourceType,
+            id,
+            previousVersionId,
+            doc,
+            upsert = false,
+            patches
+        }
+    ) {
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
@@ -379,20 +546,24 @@ class DatabaseBulkInserter extends EventEmitter {
                  * returns null if doc is the same
                  * @type {Resource|null}
                  */
-                const updatedDoc = await this.resourceMerger.mergeResourceAsync({
+                const {updatedResource, patches: mergePatches} = await this.resourceMerger.mergeResourceAsync({
                     currentResource: previousResource,
-                    resourceToMerge: doc
+                    resourceToMerge: doc,
+                    incrementVersion: false
                 });
-                if (!updatedDoc) {
+                if (!updatedResource) {
                     return; // no change so ignore
                 } else {
-                    doc = updatedDoc;
+                    doc = updatedResource;
+                    previousUpdate.resource = doc;
+                    previousUpdate.operation.replaceOne.replacement = doc.toJSONInternal();
+                    previousUpdate.patches = [...previousUpdate.patches, mergePatches];
                 }
             } else {
                 /**
                  * @type {BulkInsertUpdateEntry[]}
                  */
-                const pendingInserts = this.getPendingInserts({requestId, resourceType})
+                const pendingInserts = this.getPendingInsertsWithUniqueId({requestId, resourceType})
                     .filter(a => a.id === doc.id);
                 // noinspection JSValidateTypes
                 /**
@@ -409,37 +580,43 @@ class DatabaseBulkInserter extends EventEmitter {
                      * returns null if doc is the same
                      * @type {Resource|null}
                      */
-                    const updatedDoc = await this.resourceMerger.mergeResourceAsync({
+                    const {updatedResource} = await this.resourceMerger.mergeResourceAsync({
                         currentResource: previousResource,
-                        resourceToMerge: doc
+                        resourceToMerge: doc,
+                        incrementVersion: false
                     });
-                    if (!updatedDoc) {
+                    if (!updatedResource) {
                         return; // no change so ignore
                     } else {
-                        doc = updatedDoc;
+                        doc = updatedResource;
+                        previousInsert.resource = doc;
+                        previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                     }
+                } else { // no previuous insert or update found
+                    const filter = previousVersionId && previousVersionId !== '0' ?
+                        {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
+                        {id: id.toString()};
+                    assertIsValid(!previousVersionId || previousVersionId < parseInt(doc.meta.versionId),
+                        `previousVersionId ${previousVersionId} is not less than doc versionId ${doc.meta.versionId}` +
+                        `, doc: ${JSON.stringify(doc.toJSONInternal(), getCircularReplacer())}`);
+                    // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
+                    this.addOperationForResourceType({
+                            requestId,
+                            resourceType,
+                            resource: doc,
+                            operationType: 'merge',
+                            operation: {
+                                replaceOne: {
+                                    filter: filter,
+                                    upsert: upsert,
+                                    replacement: doc.toJSONInternal()
+                                }
+                            },
+                            patches
+                        }
+                    );
                 }
             }
-
-            // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
-            // noinspection JSCheckFunctionSignatures
-            const filter = previousVersionId && previousVersionId !== '0' ?
-                {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
-                {id: id.toString()};
-            this.addOperationForResourceType({
-                    requestId,
-                    resourceType,
-                    resource: doc,
-                    operationType: 'replace',
-                    operation: {
-                        replaceOne: {
-                            filter: filter,
-                            upsert: upsert,
-                            replacement: doc.toJSONInternal()
-                        }
-                    }
-                }
-            );
         } catch (e) {
             throw new RethrownError({
                 error: e
@@ -452,9 +629,10 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} base_version
      * @param {string} requestId
      * @param {string} currentDate
+     * @param {string} method
      * @returns {Promise<MergeResultEntry[]>}
      */
-    async executeAsync({requestId, currentDate, base_version}) {
+    async executeAsync({requestId, currentDate, base_version, method}) {
         assertIsValid(requestId, 'requestId is null');
         try {
             /**
@@ -480,105 +658,15 @@ class DatabaseBulkInserter extends EventEmitter {
                         requestId, currentDate,
                         mapEntry: mapEntry,
                         base_version,
-                        useHistoryCollection: false
+                        useHistoryCollection: false,
+                        method
                     }
                 ));
 
-            const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
-            if (historyOperationsByResourceTypeMap.size > 0) {
-                this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async () => {
-                            await async.map(
-                                historyOperationsByResourceTypeMap.entries(),
-                                async x => await this.performBulkForResourceTypeWithMapEntryAsync(
-                                    {
-                                        requestId, currentDate,
-                                        mapEntry: x, base_version,
-                                        useHistoryCollection: true
-                                    }
-                                ));
-                            historyOperationsByResourceTypeMap.clear();
-                        }
-                    }
-                );
-            }
+            await this.executeHistoryInPostRequestAsync({requestId, currentDate, base_version, method});
 
-            // If there are any errors, send them to Slack notification
-            if (resultsByResourceType.some(r => r.error)) {
-                /**
-                 * @type {BulkResultEntry[]}
-                 */
-                const erroredMerges = resultsByResourceType.filter(r => r.error);
-                for (const erroredMerge of erroredMerges) {
-                    /**
-                     * @type {BulkInsertUpdateEntry[]}
-                     */
-                    const operationsForResourceType = operationsByResourceTypeMap.get(erroredMerge.resourceType);
-                    await this.errorReporter.reportErrorAsync(
-                        {
-                            source: 'databaseBulkInserter',
-                            message: `databaseBulkInserter: Error resource ${erroredMerge.resourceType} with operations:` +
-                                ` ${JSON.stringify(operationsForResourceType)}`,
-                            error: erroredMerge.error,
-                            args: {
-                                requestId: requestId,
-                                resourceType: erroredMerge.resourceType,
-                                operations: operationsForResourceType
-                            }
-                        }
-                    );
-                }
-            }
-            /**
-             * results
-             * @type {MergeResultEntry[]}
-             */
-            const mergeResultEntries = [];
-            for (const [resourceType, operations] of operationsByResourceTypeMap.entries()) {
-                /**
-                 * @type {BulkResultEntry|null}
-                 */
-                const mergeResultForResourceType = getFirstElementOrNull(
-                    resultsByResourceType.filter(r => r.resourceType === resourceType));
-                if (mergeResultForResourceType) {
-                    const diagnostics = JSON.stringify(mergeResultForResourceType.error, getCircularReplacer());
-                    for (const {id, resource, operationType} of operations) {
-                        /**
-                         * @type {MergeResultEntry}
-                         */
-                        const mergeResultEntry = {
-                            'id': id,
-                            created: operationType === 'insert' && !mergeResultForResourceType.error,
-                            updated: operationType === 'replace' && !mergeResultForResourceType.error,
-                            resourceType: resourceType
-                        };
-                        if (mergeResultForResourceType.error) {
-                            mergeResultEntry.issue = new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'exception',
-                                details: new CodeableConcept({text: mergeResultForResourceType.error.message}),
-                                diagnostics: diagnostics,
-                                expression: [
-                                    resourceType + '/' + id
-                                ]
-                            });
-                        }
-                        mergeResultEntries.push(mergeResultEntry);
-                        // fire change events
-                        this.postRequestProcessor.add({
-                            requestId,
-                            fnTask: async () => await this.changeEventProducer.fireEventsAsync({
-                                requestId,
-                                eventType: operationType === 'insert' ? 'C' : 'U',
-                                resourceType: resourceType,
-                                doc: resource
-                            })
-                        });
-                    }
-                }
-            }
             operationsByResourceTypeMap.clear();
+
             await logVerboseAsync({
                 source: 'DatabaseBulkInserter.executeAsync',
                 args:
@@ -587,11 +675,44 @@ class DatabaseBulkInserter extends EventEmitter {
                         bufferLength: operationsByResourceTypeMap.size
                     }
             });
-            return mergeResultEntries;
+            return resultsByResourceType.flatMap(
+                r => r.mergeResultEntries
+            );
         } catch (e) {
             throw new RethrownError({
                 error: e
             });
+        }
+    }
+
+    /**
+     * Executes all the history operations in bulk in a Post Request operation
+     * @param {string} base_version
+     * @param {string} requestId
+     * @param {string} currentDate
+     * @param {string} method
+     * @returns {Promise<void>}
+     */
+    async executeHistoryInPostRequestAsync({requestId, currentDate, base_version, method}) {
+        const historyOperationsByResourceTypeMap = this.getHistoryOperationsByResourceTypeMap({requestId});
+        if (historyOperationsByResourceTypeMap.size > 0) {
+            this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await async.map(
+                            historyOperationsByResourceTypeMap.entries(),
+                            async x => await this.performBulkForResourceTypeWithMapEntryAsync(
+                                {
+                                    requestId, currentDate,
+                                    mapEntry: x, base_version,
+                                    useHistoryCollection: true,
+                                    method
+                                }
+                            ));
+                        historyOperationsByResourceTypeMap.clear();
+                    }
+                }
+            );
         }
     }
 
@@ -602,6 +723,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {[string, BulkInsertUpdateEntry[]]} mapEntry
      * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
+     * @param {string} method
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeWithMapEntryAsync(
@@ -609,7 +731,8 @@ class DatabaseBulkInserter extends EventEmitter {
             requestId,
             currentDate,
             mapEntry, base_version,
-            useHistoryCollection
+            useHistoryCollection,
+            method
         }
     ) {
         try {
@@ -621,7 +744,8 @@ class DatabaseBulkInserter extends EventEmitter {
             return await this.performBulkForResourceTypeAsync(
                 {
                     requestId, currentDate,
-                    resourceType, base_version, useHistoryCollection, operations
+                    resourceType, base_version, useHistoryCollection, operations,
+                    method
                 });
         } catch (e) {
             throw new RethrownError({
@@ -638,6 +762,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {string} base_version
      * @param {boolean|null} useHistoryCollection
      * @param {BulkInsertUpdateEntry[]} operations
+     * @param {string} method
      * @returns {Promise<BulkResultEntry>}
      */
     async performBulkForResourceTypeAsync(
@@ -647,7 +772,8 @@ class DatabaseBulkInserter extends EventEmitter {
             resourceType,
             base_version,
             useHistoryCollection,
-            operations
+            operations,
+            method
         }) {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkInserterTimer.startTimer();
@@ -680,10 +806,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     if (!(operationsByCollectionNames.has(collectionName))) {
                         operationsByCollectionNames.set(`${collectionName}`, []);
                     }
-                    // remove _id if present so mongo can insert properly
-                    if (!useHistoryCollection && operation.operationType === 'insert') {
-                        delete operation.operation.insertOne.document['_id'];
-                    }
+
                     if (!useHistoryCollection && resource._id) {
                         await this.errorReporter.reportMessageAsync({
                             source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
@@ -704,9 +827,15 @@ class DatabaseBulkInserter extends EventEmitter {
                  */
                 const options = {ordered: true};
                 /**
-                 * @type {import('mongodb').BulkWriteOpResultObject|null}
+                 * @type {import('mongodb').BulkWriteResult|undefined}
                  */
-                let mergeResult;
+                let bulkWriteResult;
+
+                /**
+                 *
+                 * @type {MergeResultEntry[]}
+                 */
+                const mergeResultEntries = [];
                 for (const operationsByCollectionName of operationsByCollectionNames) {
                     const [
                         /** @type {string} */collectionName,
@@ -726,54 +855,142 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                          */
                         const collection = await resourceLocator.getOrCreateCollectionAsync(collectionName);
-                        // const expectedInserts = this.getPendingInserts(operationsByCollection).length;
-                        const expectedUpdates = operationsByCollection.filter(o => o.operationType === 'replace').length;
+                        /**
+                         * @type {BulkInsertUpdateEntry[]}
+                         */
+                        const expectedInsertsByUniqueId = operationsByCollection.filter(o => o.operationType === 'insertUniqueId');
+                        // const expectedInsertsCount = expectedInserts.length;
+                        const expectedInsertsByUniqueIdCount = expectedInsertsByUniqueId.length;
+                        /**
+                         * @type {BulkInsertUpdateEntry[]}
+                         */
+                        const expectedUpdates = operationsByCollection.filter(o => o.isUpdateOperation);
+                        /**
+                         * @type {number}
+                         */
+                        const expectedUpdatesCount = expectedUpdates.length;
                         /**
                          * @type {(import('mongodb').AnyBulkWriteOperation)[]}
                          */
                         const bulkOperations = operationsByCollection.map(o => o.operation);
                         await logTraceSystemEventAsync(
                             {
-                                event: 'bulkWrite',
+                                event: 'bulkWriteBegin' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
                                 message: 'Begin Bulk Write',
                                 args: {
                                     resourceType,
                                     collectionName,
-                                    operationsByCollection
+                                    operationsByCollection,
+                                    requestId
                                 }
                             }
                         );
                         /**
-                         * @type {import('mongodb').BulkWriteOpResultObject}
+                         * @type {import('mongodb').BulkWriteResult}
                          */
                         const result = await collection.bulkWrite(bulkOperations, options);
-                        //TODO: this only returns result from the last collection
-                        mergeResult = result.result;
-                        if (this.configManager.handleConcurrency) {
-                            // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
-                            // const actualInserts = mergeResult.nInserted;
-                            // nMatched: The number of existing documents selected for update or replacement.
-                            // If the update/replacement operation results in no change to an existing document,
-                            // e.g. $set expression updates the value to the current value,
-                            // nMatched can be greater than nModified.
-                            const actualUpdates = mergeResult.nMatched;
-                            // if updates don't match then get latest and merge again
-                            if (actualUpdates < expectedUpdates) {
-                                await logTraceSystemEventAsync(
-                                    {
-                                        event: 'bulkWrite',
-                                        message: 'Update count not matched so running updates one by one',
-                                        args: {
-                                            resourceType,
-                                            collectionName,
-                                            operationsByCollection,
-                                            actualUpdates,
-                                            expectedUpdates
-                                        }
-                                    }
-                                );
-                                await this.updateResourcesOneByOneAsync({operationsByCollection});
+                        bulkWriteResult = result;
+                        await logTraceSystemEventAsync(
+                            {
+                                event: 'bulkWriteResult' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                                message: 'Result of Bulk Write',
+                                args: {
+                                    resourceType,
+                                    collectionName,
+                                    operationsByCollection,
+                                    result,
+                                    requestId
+                                }
                             }
+                        );
+
+
+                        // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
+                        /**
+                         * @type {number}
+                         */
+                        const actualInsertsByUniqueIdCount = bulkWriteResult.nUpserted;
+
+                        // 1. check if we got same number of inserts as we expected
+                        //      If we did not, it means someone else inserted this resource.  Then we have to use update instead of insert
+                        if (this.configManager.handleConcurrency &&
+                            expectedInsertsByUniqueIdCount > 0 &&
+                            expectedInsertsByUniqueIdCount !== actualInsertsByUniqueIdCount
+                        ) {
+                            // const upsertedIds = bulkWriteResult.upsertedIds;
+                            await logTraceSystemEventAsync(
+                                {
+                                    event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                                    message: 'Insert count not matched so running updates one by one',
+                                    args: {
+                                        resourceType,
+                                        collectionName,
+                                        expectedInsertsByUniqueId,
+                                        actualInsertsByUniqueIdCount,
+                                        expectedInsertsByUniqueIdCount,
+                                        bulkWriteResult
+                                    }
+                                }
+                            );
+                            // do inserts/updates one by one
+                            await this.updateResourcesOneByOneAsync(
+                                {
+                                    bulkInsertUpdateEntries: expectedInsertsByUniqueId
+                                }
+                            );
+                        }
+                        // 2. Now check if we got the same number of updates as we expected.
+                        //      If we did not, it means someone else updated the version of the resources we were updating
+                        // NOTE: Mongo does NOT return ids of updated resources so we have to go through each
+                        //       document to see if it is same in db as we have it
+                        // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/
+                        // nMatched: The number of existing documents selected for update or replacement.
+                        // If the update/replacement operation results in no change to an existing document,
+                        // e.g. $set expression updates the value to the current value,
+                        // nMatched can be greater than nModified.
+                        // insertsByUniqueId are also matches so subtract that count to get count of matches for updates
+                        /**
+                         * @type {number}
+                         */
+                        const actualUpdatesCount = bulkWriteResult.nMatched - bulkWriteResult.nUpserted;
+                        if (this.configManager.handleConcurrency && expectedUpdatesCount > 0 &&
+                            actualUpdatesCount !== expectedUpdatesCount) {
+                            // concurrency check failed (another parallel process updated atleast one resource)
+                            // process one by one
+                            await logTraceSystemEventAsync(
+                                {
+                                    event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,
+                                    message: 'Update count not matched so running updates one by one',
+                                    args: {
+                                        resourceType,
+                                        collectionName,
+                                        expectedUpdates,
+                                        actualUpdatesCount,
+                                        expectedUpdatesCount,
+                                        bulkWriteResult
+                                    }
+                                }
+                            );
+                            await this.updateResourcesOneByOneAsync(
+                                {
+                                    bulkInsertUpdateEntries: expectedUpdates
+                                }
+                            );
+                        }
+
+                        // 3. Call postSaveAsync for each operation
+                        for (const operationByCollection of operationsByCollection) {
+                            mergeResultEntries.push(
+                                await this.postSaveAsync({
+                                    requestId,
+                                    method,
+                                    base_version,
+                                    resourceType,
+                                    bulkInsertUpdateEntry: operationByCollection,
+                                    bulkWriteResult,
+                                    useHistoryCollection
+                                })
+                            );
                         }
                     } catch (e) {
                         await this.errorReporter.reportErrorAsync({
@@ -798,10 +1015,10 @@ class DatabaseBulkInserter extends EventEmitter {
                                 collection: collectionName
                             }
                         });
-                        return {resourceType: resourceType, mergeResult: null, error: e};
+                        return {resourceType: resourceType, mergeResult: null, error: e, mergeResultEntries};
                     }
                 }
-                return {resourceType: resourceType, mergeResult: mergeResult, error: null};
+                return {resourceType: resourceType, mergeResult: bulkWriteResult, error: null, mergeResultEntries};
             });
         } catch (e) {
             throw new RethrownError({
@@ -813,17 +1030,115 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * @param {string} requestId
+     * @param {string} method
+     * @param {string} base_version
+     * @param {string} resourceType
+     * @param {BulkInsertUpdateEntry} bulkInsertUpdateEntry
+     * @param {import('mongodb').BulkWriteResult} bulkWriteResult
+     * @param {boolean} useHistoryCollection
+     * @returns {Promise<MergeResultEntry>}
+     */
+    async postSaveAsync(
+        {
+            requestId,
+            method,
+            base_version,
+            resourceType,
+            bulkInsertUpdateEntry,
+            bulkWriteResult,
+            useHistoryCollection
+        }
+    ) {
+        await logTraceSystemEventAsync(
+            {
+                event: 'postSaveAsync' + `_${resourceType}`,
+                message: 'Post Save',
+                args: {
+                    resourceType,
+                    requestId,
+                    bulkInsertUpdateEntry,
+                    bulkWriteResult,
+                    skipped: bulkInsertUpdateEntry.skipped,
+                    useHistoryCollection
+                }
+            }
+        );
+        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
+            await this.insertOneHistoryAsync(
+                {
+                    requestId,
+                    method,
+                    base_version,
+                    resourceType,
+                    doc: bulkInsertUpdateEntry.resource.clone(),
+                    patches: bulkInsertUpdateEntry.patches
+                }
+            );
+        }
+        /**
+         * @type {MergeResultEntry}
+         */
+        const mergeResultEntry = {
+            'id': bulkInsertUpdateEntry.id,
+            created: bulkInsertUpdateEntry.isCreateOperation && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
+            updated: bulkInsertUpdateEntry.isUpdateOperation && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
+            resourceType: resourceType,
+        };
+        if (bulkWriteResult.error) {
+            const diagnostics = JSON.stringify(bulkWriteResult.error, getCircularReplacer());
+            mergeResultEntry.issue = new OperationOutcomeIssue({
+                severity: 'error',
+                code: 'exception',
+                details: new CodeableConcept({text: bulkWriteResult.error.message}),
+                diagnostics: diagnostics,
+                expression: [
+                    resourceType + '/' + bulkInsertUpdateEntry.id
+                ]
+            });
+            await this.errorReporter.reportErrorAsync(
+                {
+                    source: 'databaseBulkInserter',
+                    message: `databaseBulkInserter: Error resource ${resourceType} with operation:` +
+                        ` ${JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())}`,
+                    error: bulkWriteResult.error,
+                    args: {
+                        requestId: requestId,
+                        resourceType: resourceType,
+                        operation: bulkInsertUpdateEntry
+                    }
+                }
+            );
+        }
+
+        // fire change events
+        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => await this.changeEventProducer.fireEventsAsync({
+                    requestId,
+                    eventType: bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U',
+                    resourceType: resourceType,
+                    doc: bulkInsertUpdateEntry.resource
+                })
+            });
+        }
+
+        return mergeResultEntry;
+    }
+
+    /**
      * Gets list of pending inserts for this resourceType
      * @param {string} requestId
      * @param {string} resourceType
      * @returns {BulkInsertUpdateEntry[]}
      */
-    getPendingInserts({requestId, resourceType}) {
+    getPendingInsertsWithUniqueId({requestId, resourceType}) {
         /**
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
         const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
-        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.operationType === 'insert') : [];
+        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.operationType === 'insertUniqueId') : [];
     }
 
     /**
@@ -837,33 +1152,52 @@ class DatabaseBulkInserter extends EventEmitter {
          * @type {BulkInsertUpdateEntry[]|undefined}
          */
         const operationsByResourceType = this.getOperationsByResourceTypeMap({requestId}).get(resourceType);
-        return operationsByResourceType ? operationsByResourceType.filter(operation => operation.operationType === 'replace') : [];
+        return operationsByResourceType ?
+            operationsByResourceType.filter(operation => operation.isUpdateOperation) :
+            [];
     }
 
     /**
      * Updates resources one by one
-     * @param {BulkInsertUpdateEntry[]} operationsByCollection
+     * @param {BulkInsertUpdateEntry[]} bulkInsertUpdateEntries
      * @returns {Promise<void>}
      */
-    async updateResourcesOneByOneAsync({operationsByCollection}) {
-        // find the resources
-        /**
-         * @type {Resource[]}
-         */
-        const updateResources = operationsByCollection.filter(operation => operation.operationType === 'replace')
-            .map(operation => operation.resource);
-
-        for (const /* @type {Object} */ updateResource of updateResources) {
+    async updateResourcesOneByOneAsync({bulkInsertUpdateEntries}) {
+        let i = 0;
+        for (const /* @type {BulkInsertUpdateEntry} */ bulkInsertUpdateEntry of bulkInsertUpdateEntries) {
+            i = i + 1;
+            await logTraceSystemEventAsync(
+                {
+                    event: 'updateResourcesOneByOneAsync',
+                    message: 'Updating resources one by one',
+                    args: {
+                        expectedUpdates: bulkInsertUpdateEntries
+                    }
+                }
+            );
             /**
              * @type {DatabaseUpdateManager}
              */
             const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager(
                 {
-                    resourceType: updateResource.resourceType,
+                    resourceType: bulkInsertUpdateEntry.resourceType,
                     base_version: '4_0_0'
                 }
             );
-            await databaseUpdateManager.replaceOneAsync({doc: updateResource});
+            /**
+             * @type {Resource|null}
+             */
+            const {savedResource, patches} = await databaseUpdateManager.replaceOneAsync(
+                {
+                    doc: bulkInsertUpdateEntry.resource
+                }
+            );
+            if (savedResource) {
+                bulkInsertUpdateEntry.resource = savedResource;
+                bulkInsertUpdateEntry.patches = patches;
+            } else { // resource was same as what was in the database
+                bulkInsertUpdateEntry.skipped = true;
+            }
         }
     }
 }

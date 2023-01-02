@@ -24,34 +24,9 @@
         ],
         "resourceType": "OperationOutcome"
       }
-    },
-    {
-      "id": "WPS-Claim-20A078097100",
-      "resource": {
-        "id": "WPS-Claim-20A078097100",
-        "issue": [
-          {
-            "code": "informational",
-            "details": {
-              "coding": [
-                {
-                  "code": "200",
-                  "display": "Updated",
-                  "system": "https://www.rfc-editor.org/rfc/rfc9110.html"
-                }
-              ]
-            },
-            "expression": [
-              "ExplanationOfBenefit/WPS-Claim-20A078097100"
-            ],
-            "severity": "information"
-          }
-        ],
-        "resourceType": "OperationOutcome"
-      }
     }
   ],
   "resourceType": "Bundle",
-  "total": 2,
+  "total": 1,
   "type": "batch-response"
 }

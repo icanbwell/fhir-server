@@ -220,7 +220,7 @@ class CreateOperation {
                         operation: currentOperationName, args, ids: [resource['id']]
                     }
                 );
-                await this.auditLogger.flushAsync({requestId, currentDate});
+                await this.auditLogger.flushAsync({requestId, currentDate, method});
             }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
@@ -229,17 +229,13 @@ class CreateOperation {
 
             // Insert our resource record
             await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
-            await this.databaseBulkInserter.insertOneHistoryAsync({
-                requestId, resourceType, doc: doc.clone(),
-                base_version,
-                method
-            });
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version
+                    requestId, currentDate, base_version: base_version,
+                    method
                 }
             );
 

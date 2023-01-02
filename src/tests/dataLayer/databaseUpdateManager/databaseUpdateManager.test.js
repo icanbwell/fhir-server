@@ -163,5 +163,53 @@ describe('Person Tests', () => {
             resource.meta.lastUpdated = null;
             expect(resource.toJSON()).toStrictEqual(expectedPerson3Resources);
         });
+        test('databaseUpdateManager works with different replace twice and one existing replace', async () => {
+            await createTestRequest();
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+
+            /**
+             * @type {DatabaseUpdateFactory}
+             */
+            const databaseUpdateFactory = container.databaseUpdateFactory;
+            expect(databaseUpdateFactory).toBeDefined();
+
+            /**
+             * @type {DatabaseUpdateManager}
+             */
+            const databaseUpdateManager = databaseUpdateFactory.createDatabaseUpdateManager({
+                resourceType: 'Person',
+                base_version: '4_0_0'
+            });
+
+            await databaseUpdateManager.insertOneAsync({doc: new Person(person1Resource)});
+
+            await databaseUpdateManager.replaceOneAsync({doc: new Person(person2Resource)});
+
+            await databaseUpdateManager.replaceOneAsync({doc: new Person(person3Resource)});
+
+            /**
+             * @type {DatabaseQueryFactory}
+             */
+            const databaseQueryFactory = container.databaseQueryFactory;
+            expect(databaseQueryFactory).toBeDefined();
+
+            const databaseQueryManager = databaseQueryFactory.createQuery({
+                resourceType: 'Person',
+                base_version: '4_0_0'
+            });
+            /**
+             * @type {Resource|null}
+             */
+            const resource = await databaseQueryManager.findOneAsync(
+                {
+                    query: {'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}
+                }
+            );
+            resource.meta.lastUpdated = null;
+            expect(resource.toJSON()).toStrictEqual(expectedPerson3Resources);
+        });
     });
 });

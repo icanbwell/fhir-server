@@ -92,7 +92,7 @@ class RemoveOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope, /** @type {string|null} */ requestId} = requestInfo;
+        const {user, scope, /** @type {string|null} */ requestId, /** @type {string} */ method} = requestInfo;
 
         if (args['id'] === '0') {
             delete args['id'];
@@ -194,7 +194,7 @@ class RemoveOperation {
                     }
                 );
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                await this.auditLogger.flushAsync({requestId, currentDate});
+                await this.auditLogger.flushAsync({requestId, currentDate, method});
 
             } catch (e) {
                 throw new NotAllowedError(e.message);

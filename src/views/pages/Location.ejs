@@ -6,7 +6,7 @@
     <body class="container-fluid p-0">
         <%- include('../partials/header', {resources: resources}); %>
         <main>
-            <% resources.forEach(function(res, index){ %>
+            <% resources.forEach(function(fullResource, index){ const res = fullResource.resource || fullResource; %>
             <div class="resource-item">
                 <!-- prettier-ignore -->
                 <%- include('../partials/resourceHeader', {res: res}); %>
@@ -54,7 +54,7 @@
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'HealthcareService', property:'location'}], id:res.id, name: "HealthcareService"}); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Organization', property:'location'}], id:res.id, name: "Organization"}); %>
                 <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'location'}], id:res.id, name: "Schedule"}); %>
-                <%- include('../partials/json', {res: res, index: index}); %>
+                <%- include('../partials/json', {res: fullResource, index: index}); %>
             </div>
             <%})%>
         </main>

@@ -118,7 +118,8 @@ class SearchByIdOperation {
             /** @type {string | null} */
             scope,
             /** @type {string} */
-            requestId
+            requestId,
+            /** @type {string} */ method
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -202,7 +203,7 @@ class SearchByIdOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {

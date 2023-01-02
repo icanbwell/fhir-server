@@ -7,7 +7,7 @@
 <%- include('../partials/header', {resources: resources}); %>
 
 <main>
-    <% resources.forEach(function(res, index){ %>
+    <% resources.forEach(function(fullResource, index){ const res = fullResource.resource || fullResource; %>
         <div class="resource-item">
             <!-- prettier-ignore -->
             <%- include('../partials/resourceHeader', {res: res}); %>
@@ -53,7 +53,7 @@
                 <% }) %>
             <% } %>
 
-            <%- include('../partials/json', {res: res, index: index}); %>
+            <%- include('../partials/json', {res: fullResource, index: index}); %>
 
 
         </div>

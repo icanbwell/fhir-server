@@ -9,15 +9,20 @@ const {
     getHeadersNdJson,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const env = require('var');
+let oldEnvLogLevel;
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        oldEnvLogLevel = env.LOGLEVEL;
+        env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
     });
 
     afterEach(async () => {
         await commonAfterEach();
+        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     describe('Practitioner Search By 10,0000 Tests', () => {

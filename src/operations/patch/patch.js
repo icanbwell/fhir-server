@@ -96,7 +96,8 @@ class PatchOperation {
         try {
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            let {base_version, id, patchContent} = args;
+            // patchContent is passed in JSON Patch format https://jsonpatch.com/
+            let {base_version, id, /** @type {import('fast-json-patch').Operation[]} */ patchContent} = args;
             // Get current record
             // Query our collection for this observation
             let data;
@@ -152,21 +153,26 @@ class PatchOperation {
 
             await this.databaseBulkInserter.replaceOneAsync(
                 {
-                    requestId, resourceType, id, doc,
-                    previousVersionId: foundResource.meta.versionId
+                    requestId, resourceType, doc,
+                    id,
+                    patches: patchContent.map(
+                        p => {
+                            return {
+                                op: p.op,
+                                path: p.path,
+                                value: p.value
+                            };
+                        }
+                    )
                 }
             );
-            await this.databaseBulkInserter.insertOneHistoryAsync({
-                requestId, resourceType, doc: doc.clone(),
-                base_version,
-                method
-            });
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version
+                    requestId, currentDate, base_version: base_version,
+                    method
                 }
             );
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
