@@ -189,3 +189,19 @@ This means the user can read/write ANY resource and there is no restriction by s
 ### 5. Multiple scopes
 
 NOTE: Multiple scopes must be separate by space (NOT comma) per the OAuth spec: https://datatracker.ietf.org/doc/html/rfc6749#section-3.3
+
+### 6. Patient scope
+
+The patient scope provides access to resources that are associated with the ID from the JWT or contain no patient data. See `src/fhir/patientFilterManager.js` to view or update this security configuration.
+
+#### 6.1 Patient-associated resources
+
+For resources that are associated with a Patient, see `patientFilterMapping` (in `src/fhir/patientFilterManager.js`).
+
+The path to the patient reference is specified for each resource type. Access will be granted or denied based on whether the ID in that specified path indicates a patient that the caller has access to.
+
+#### 6.2 Resources without patient data
+
+For resources that are not associated with a Patient, see `resourcesWithoutPatientData` (in `src/fhir/patientFilterManager.js`).
+
+Each resource listed in this collection has no patient data, but it may be useful information that patient data might reference. So it can be accessed by callers with the patient scope, without regard to specific patient IDs.

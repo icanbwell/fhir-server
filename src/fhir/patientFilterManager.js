@@ -97,7 +97,8 @@ class PatientFilterManager {
             'HealthcareService',
             'InsurancePlan',
             'Binary',
-            'ValueSet'
+            'ValueSet',
+            'ChargeItemDefinition'
         ];
     }
 
