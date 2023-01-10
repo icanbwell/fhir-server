@@ -1,5 +1,6 @@
 const {fhirFilterTypes} = require('./customQueries');
 const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const {SPECIFIED_QUERY_PARAMS} = require('../../constants');
 const {filterById} = require('./filters/id');
 const {filterByString} = require('./filters/string');
 const {filterByUri} = require('./filters/uri');
@@ -17,6 +18,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
+const {NotFoundError} = require('../../utils/httpErrors');
 
 function isUrl(queryParameterValue) {
     return typeof queryParameterValue === 'string' &&
@@ -112,6 +114,7 @@ class R4SearchQueryCreator {
          */
         let totalAndSegments = [];
 
+        const specifiedQueryParams = SPECIFIED_QUERY_PARAMS;
         for (const argName in args) {
             const [queryParameter, ...modifiers] = argName.split(':');
 
@@ -121,6 +124,9 @@ class R4SearchQueryCreator {
             }
             if (!propertyObj) {
                 // ignore this unrecognized arg
+                if (specifiedQueryParams.indexOf(argName) === -1) {
+                    throw new NotFoundError(`${queryParameter} is not a parameter for ${resourceType}`);
+                }
                 continue;
             }
 

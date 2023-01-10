@@ -120,6 +120,13 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
+
+            // Search with invalid query parameters
+            resp = await request
+                .get('/4_0_0/Person?fname=singhal&_bundle=1')
+                .set(getHeaders());
+            expect(resp.status).toBe(404);
+            expect(resp.text.includes('fname is not a parameter for Person')).toBe(true);
         });
     });
 });
