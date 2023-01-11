@@ -160,6 +160,7 @@ module.exports = {
         '_explain', '_debug', '_validate', 'contained', '_hash_references', 'base_version', '_elements',
         '_useAccessIndex', 'active', '_source', '_id', '_id:above', '_id:below', 'onset-date', '_lastUpdated',
         'source', 'id', 'id:above', 'id:below', 'onset_date', '_bundle', '_sort', '_count', '_useTwoStepOptimization',
-        '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset',
+        '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset', 'resource', '_streamResponse', 'remove',
+        'practitionerId', 'patientId',
     ],
 };
