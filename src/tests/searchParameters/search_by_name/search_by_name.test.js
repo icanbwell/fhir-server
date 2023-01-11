@@ -13,6 +13,7 @@ const person11Resource = require('./fixtures/Person/person11.json');
 
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
+const expectedPersonWithLenientSearchResource = require('./fixtures/expected/expected_person_lenient_search.json');
 
 const {
     commonBeforeEach,
@@ -121,11 +122,24 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
 
-            // Search with invalid query parameters
+            // Search with invalid query parameters and handling type is lenient
+            // Should return all the person resources
+            let lenientHeader = getHeaders();
+            lenientHeader['handling'] = 'lenient';
             resp = await request
                 .get('/4_0_0/Person?fname=singhal&_bundle=1')
-                .set(getHeaders());
-            expect(resp.status).toBe(404);
+                .set(lenientHeader);
+            expect(resp.status).toBe(200);
+            expect(resp).toHaveResponse(expectedPersonWithLenientSearchResource);
+
+            // Search with invalid query parameters and handlig type as strict
+            // Should return an error as fname is not a valid query param for Person
+            let strictHeader = getHeaders();
+            strictHeader['handling'] = 'strict';
+            resp = await request
+                .get('/4_0_0/Person?fname=singhal&_bundle=1')
+                .set(strictHeader);
+            expect(resp.status).toBe(400);
             expect(resp.text.includes('fname is not a parameter for Person')).toBe(true);
         });
     });
