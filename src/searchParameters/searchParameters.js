@@ -6432,7 +6432,7 @@ const searchParameterQueries = {
         'name': {
             'description': 'A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text',
             'type': 'string',
-            'fields': ['name.text', 'name.given', 'name.family', 'name.suffix', 'name.prefix'],
+            'field': 'name',
         },
         'organization': {
             'description': 'The organization that is the custodian of the patient record',
@@ -6603,7 +6603,7 @@ const searchParameterQueries = {
         'name': {
             'description': 'A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text',
             'type': 'string',
-            'fields': ['name.text', 'name.given', 'name.family', 'name.suffix', 'name.prefix'],
+            'field': 'name',
         },
         'organization': {
             'description': 'The organization at which this person record is being managed',
@@ -6839,7 +6839,7 @@ const searchParameterQueries = {
         'name': {
             'description': 'A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text',
             'type': 'string',
-            'fields': ['name.text', 'name.given', 'name.family', 'name.suffix', 'name.prefix'],
+            'field': 'name',
         },
         'phone': {
             'description': 'Multiple Resources: * [Patient](patient.html): A value in a phone contact* [Person](person.html): A value in a phone contact* [Practitioner](practitioner.html): A value in a phone contact* [PractitionerRole](practitionerrole.html): A value in a phone contact* [RelatedPerson](relatedperson.html): A value in a phone contact',
@@ -7292,7 +7292,7 @@ const searchParameterQueries = {
         'name': {
             'description': 'A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text',
             'type': 'string',
-            'fields': ['name.text', 'name.given', 'name.family', 'name.suffix', 'name.prefix'],
+            'field': 'name',
         },
         'patient': {
             'description': 'The patient this related person is related to',
