@@ -1,4 +1,4 @@
-const {dateQueryBuilder, dateQueryBuilderNative} = require('../../../utils/querybuilder.util');
+const {dateQueryBuilder, dateQueryBuilderNative, datetimePeriodQueryBuilder} = require('../../../utils/querybuilder.util');
 const {isColumnDateType} = require('../../common/isColumnDateType');
 
 function isPeriodField(fieldString) {
@@ -29,38 +29,17 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
         // prettier-ignore
         // eslint-disable-next-line security/detect-object-injection
         const isDateSearchingPeriod = isPeriodField(propertyObj.field);
-        const dateRangeSegments = (fieldName, appendArray) => {
-            const alphaLength = dateQueryItem.replace(/[^a-z]/gi, '').length;
-            const rangeArray = appendArray ? appendArray : [];
-            rangeArray.push({
-                [`${fieldName}.start`]: dateQueryBuilder(
-                    {
-                        date: `le${dateQueryItem.slice(alphaLength)}`,
-                        type: propertyObj.type,
-                    }
-                ),
-            });
-            rangeArray.push({
-                [`${fieldName}.end`]: dateQueryBuilder(
-                    {
-                        date: `ge${dateQueryItem.slice(alphaLength)}`,
-                        type: propertyObj.type,
-                    }
-                ),
-            });
-            if (!appendArray) {
-                return rangeArray;
-            }
-        };
         if (isDateSearchingPeriod) {
-            dateRangeSegments('period', and_segments);
+            and_segments.concat(
+                datetimePeriodQueryBuilder({ dateQueryItem, fieldName: propertyObj.field })
+            );
         } else if (propertyObj.fields) {
             // if there are multiple fields
             and_segments.push(
                 {
                     $or: propertyObj.fields.map((f) => {
                         return isPeriodField(f) ?
-                            {$and: dateRangeSegments('effectivePeriod')} :
+                            { $and: datetimePeriodQueryBuilder({ dateQueryItem, fieldName: f }) } :
                             {
                                 [`${f}`]: dateQueryBuilder({
                                     date: dateQueryItem, type: propertyObj.type,

@@ -16,6 +16,7 @@ key.pem
 !/src/services/coverage/
 src/profiles.js
 .vscode
+.devcontainer
 globalConfig.json
 !/.vscode/launch.json
 .idea/
