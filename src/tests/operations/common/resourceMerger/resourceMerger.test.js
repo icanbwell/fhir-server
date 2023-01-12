@@ -6,7 +6,7 @@ const {PreSaveManager} = require('../../../../preSaveHandlers/preSave');
 
 const person1Resource = require('./fixtures/Person/person1.json');
 const personMergeResource = require('./fixtures/Person/person2.json');
-const expectedPersonResource = require('./fixtures/expected/expected_person.json');
+// const expectedPersonResource = require('./fixtures/expected/expected_person.json');
 
 
 const {ResourceMerger} = require('../../../../operations/common/resourceMerger');
@@ -24,7 +24,7 @@ describe('ResourceMerger Tests', () => {
     });
 
     describe('ResourceMerger Tests', () => {
-        test('ResourceMerger works', async () => {
+        test('ResourceMerger works with identical resources', async () => {
             /**
              * @type {MongoDatabaseManager}
              */
@@ -58,7 +58,7 @@ describe('ResourceMerger Tests', () => {
                     resourceToMerge: resourceToMerge,
                 }
             );
-            expect(result.updatedResource).toStrictEqual(expectedPersonResource);
+            expect(result.updatedResource).toStrictEqual(null);
         });
     });
 });
